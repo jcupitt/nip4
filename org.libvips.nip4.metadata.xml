@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2023 jcupitt -->
+<component type="desktop-application">
+  <id>org.libvips.nip4</id>
+  <url type="homepage">https://github.com/jcupitt/nip4</url>
+  <content_rating type="oars-1.1" />
+  
+  <name>nip4</name>
+  <summary>Image processing spreadsheet</summary>
+  <developer_name>jcupitt</developer_name>
+  
+  <metadata_license>GPL</metadata_license>
+  <project_license>GPL</project_license>
+  
+  <recommends>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+  </recommends>
+  
+  <description>
+    <p>
+nip4 is a GUI for the libvips image processing library. It's a little
+like a spreadsheet: you create a set of formula connecting your objects
+together, and on a change nip2 will recalculate. This makes it convenient
+for developing image processing systems since you can watch pixels change
+as you adjust your equations.
+
+Because nip4 uses libvips as the image processing engine it can handle very
+large images and only needs a little memory. It scales to fairly complex
+workflows: I've used it to develop systems with more than 10,000 cells,
+analyzing images of many tens of gigabytes. It has a batch mode, so you
+can run any image processing system you develop from the command-line and
+without a GUI.
+
+    </p>
+  </description>
+
+  <launchable type="desktop-id">org.libvips.nip4.desktop</launchable>
+
+  <screenshots>
+
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/jcupitt/nip4/master/images/shot1.png</image>
+      <caption>Even very large images open quickly</caption>
+    </screenshot> 
+
+    <screenshot>
+      <image>https://raw.githubusercontent.com/jcupitt/nip4/master/images/shot2.png</image>
+      <caption>Visualization tools let you explore technical images</caption>
+    </screenshot> 
+
+    <screenshot>
+      <image>https://raw.githubusercontent.com/jcupitt/nip4/master/images/save-as.png</image>
+      <caption>Save as lets you change image formats, and supports features like image pyramids</caption>
+    </screenshot>
+
+    <screenshot>
+      <image>https://raw.githubusercontent.com/jcupitt/nip4/master/images/shot3.png</image>
+      <caption>Animated images with alpha channels are also supported</caption>
+    </screenshot>
+
+  </screenshots>
+
+  <releases>
+
+    <release version="0.1" date="2024-02-04">
+      <description>
+        <p>
+          Project start.
+        </p>
+      </description>
+    </release>
+
+  </releases>
+
+</component>

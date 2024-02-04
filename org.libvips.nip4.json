@@ -1,0 +1,392 @@
+{
+    "app-id" : "org.libvips.nip4",
+    "runtime" : "org.gnome.Platform",
+    "runtime-version" : "44",
+    "sdk" : "org.gnome.Sdk",
+    "command" : "nip4",
+    "finish-args" : [
+        "--device=dri",
+        "--share=ipc",
+        "--socket=fallback-x11",
+        "--socket=wayland",
+        "--talk-name=org.gtk.vfs.*",
+        "--filesystem=xdg-run/gvfsd",
+        "--filesystem=home",
+        "--filesystem=/mnt",
+        "--filesystem=/srv"
+    ],
+    "cleanup" : [
+        "/include",
+        "/lib/girepository-1.0",
+        "/lib/pkgconfig",
+        "/lib/cmake",
+        "/lib/openjpeg-*",
+        "/lib/libhdf5.settings",
+        "/man",
+        "/share/aclocal",
+        "/share/doc",
+        "/share/gir-1.0",
+        "/share/gtk-doc",
+        "/share/man",
+        "/share/pkgconfig",
+        "/share/aclocal*",
+        "/share/autoconf*",
+        "/share/automake*",
+        "/share/info",
+        "/share/thumbnailers",
+        "/share/USING_HDF5_CMake.txt",
+        "/share/COPYING",
+        "/share/RELEASE.txt",
+        "/share/cmake",
+        "/bin/a*",
+        "/bin/b*",
+        "/bin/c*",
+        "/bin/d*",
+        "/bin/e*",
+        "/bin/f*",
+        "/bin/g*",
+        "/bin/h*",
+        "/bin/i*",
+        "/bin/l*",
+        "/bin/m*",
+        "/bin/o*",
+        "/bin/p*",
+        "/bin/r*",
+        "/bin/s*",
+        "/bin/t*",
+        "/bin/x*",
+        "/bin/vips",
+        "/bin/vipsheader",
+        "/bin/vipsedit",
+        "/bin/vipsprofile",
+        "/bin/vipsthumbnail",
+        "/bin/jxlinfo",
+        "*.la",
+        "*.a"
+    ],
+    "modules" : [
+
+        {
+            "name" : "libjxl",
+            "builddir" : true,
+            "buildsystem" : "cmake-ninja",
+            "build-options" : {
+                "config-opts" : [
+                    "-DBUILD_TESTING=OFF",
+                    "-DJPEGXL_ENABLE_SKCMS=off",
+                    "-DJPEGXL_ENABLE_DOXYGEN=off",
+                    "-DJPEGXL_ENABLE_EXAMPLES=off",
+                    "-DJPEGXL_ENABLE_JNI=off",
+                    "-DJPEGXL_ENABLE_MANPAGES=off",
+                    "-DJPEGXL_ENABLE_OPENEXR=off",
+                    "-DJPEGXL_ENABLE_TOOLS=off"
+                ]
+            },
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/libjxl/libjxl.git",
+                    "tag" : "v0.8.1",
+                    "commit" : "c27d499263435ac77007174e0f1cf54557cff23a"
+                }
+            ]
+        },
+
+        {
+            "name" : "openjpeg",
+            "builddir" : true,
+            "buildsystem" : "cmake-ninja",
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/uclouvain/openjpeg.git",
+                    "tag" : "v2.5.0",
+                    "commit" : "a5891555eb49ed7cc26b2901ea680acda136d811"
+                }
+            ]
+        },
+
+        {
+            "name" : "libimagequant",
+            "builddir" : true,
+            "buildsystem" : "cmake-ninja",
+            "build-options" : {
+                "arch" : {
+                    "aarch64" : {
+                        "config-opts" : [
+                            "-DBUILD_WITH_SSE=NO"
+                        ]
+                    }
+                }
+            },
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/ImageOptim/libimagequant.git",
+                    "tag" : "2.15.1",
+                    "commit" : "2cf79d535d86daeb9983e5d037fc544b4354f3b1"
+                }
+            ]
+        },
+
+        {
+            "name" : "libspng",
+            "builddir" : true,
+            "buildsystem" : "cmake-ninja",
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/randy408/libspng.git",
+                    "tag" : "v0.7.4",
+                    "commit" : "fb768002d4288590083a476af628e51c3f1d47cd"
+                }
+            ]
+        },
+
+        {
+            "name" : "libgsf",
+            "builddir" : true,
+            "buildsystem" : "autotools",
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/GNOME/libgsf.git",
+                    "tag" : "LIBGSF_1_14_50",
+                    "commit" : "3f6b8dc6f2ba395eeb0dc3c2ebc60c14105be3e1"
+                }
+            ]
+        },
+
+        {
+            "name" : "poppler-data",
+            "builddir" : true,
+            "buildsystem" : "cmake-ninja",
+            "sources" : [
+                {
+                    "type" : "archive",
+                    "url" : "https://poppler.freedesktop.org/poppler-data-0.4.12.tar.gz",
+
+                    "sha256" : "c835b640a40ce357e1b83666aabd95edffa24ddddd49b8daff63adb851cdab74"
+                }
+            ]
+        },
+
+        {
+            "name" : "poppler-glib",
+            "builddir" : true,
+            "buildsystem" : "cmake-ninja",
+            "config-opts" : [
+                    "-DENABLE_ZLIB=ON",
+                    "-DENABLE_LIBTIFF=ON",
+                    "-DENABLE_LIBPNG=ON",
+                    "-DENABLE_GLIB=ON",
+                    "-DENABLE_CMS='lcms2'",
+                    "-DENABLE_LIBOPENJPEG='openjpeg2'",
+                    "-DENABLE_DCTDECODER='libjpeg'",
+                    "-DENABLE_SPLASH=OFF",
+                    "-DENABLE_BOOST=OFF",
+                    "-DENABLE_CPP=OFF"
+            ],
+            "sources" : [
+                {
+                    "type" : "archive",
+                    "url" : "https://poppler.freedesktop.org/poppler-23.07.0.tar.xz",
+
+                    "sha256" : "f29b4b4bf47572611176454c8f21506d71d27eca5011a39aa44038b30b957db0"
+                }
+            ]
+        },
+
+        {
+            "name" : "imath",
+            "builddir" : true,
+            "buildsystem" : "cmake-ninja",
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/AcademySoftwareFoundation/Imath.git",
+                    "tag" : "v3.1.9",
+                    "commit" : "d690a3fcff4e877ead5ae56c7e964595ade8a35e"
+                }
+            ]
+        },
+
+        {
+            "name" : "openexr",
+            "builddir" : true,
+            "buildsystem" : "cmake-ninja",
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/AcademySoftwareFoundation/openexr.git",
+                    "tag" : "v3.1.9",
+                    "commit" : "45da397ca89527a5aa65d8d3aaf163aad58dfec9"
+                }
+            ]
+        },
+
+        {
+            "name" : "uthash",
+            "buildsystem" : "simple",
+            "build-commands" : [
+		    "install -D include/* /app/include"
+	    ],
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/troydhanson/uthash.git",
+                    "commit" : "ca98384ce7f30beb216f9a0bc88a3b4340ead729"
+                }
+            ]
+        },
+
+        {
+            "name" : "libdicom",
+            "builddir" : true,
+            "buildsystem" : "meson",
+            "config-opts" : [
+                "--buildtype=release",
+                "-Dtests=false"
+            ],
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/ImagingDataCommons/libdicom.git",
+                    "commit" : "9bff18ccf8387434a80c8550c96a523a9da10433"
+                }
+            ]
+        },
+
+        {
+            "name" : "openslide",
+            "builddir" : true,
+            "buildsystem" : "meson",
+            "config-opts" : [
+                "--buildtype=release"
+            ],
+            "sources" : [
+                {
+                    "type" : "archive",
+                    "url" : "https://github.com/openslide/openslide/releases/download/v4.0.0/openslide-4.0.0.tar.xz",
+                    "sha256" : "cc227c44316abb65fb28f1c967706eb7254f91dbfab31e9ae6a48db6cf4ae562"
+                }
+            ]
+        },
+
+        {
+            "name" : "hdf5",
+            "builddir" : true,
+            "buildsystem" : "cmake-ninja",
+            "sources" : [
+                {
+                    "type" : "archive",
+                    "url" : "http://www.hdfgroup.org/ftp/HDF5/current/src/hdf5-1.10.5.tar.gz",
+                    "sha256" : "6d4ce8bf902a97b050f6f491f4268634e252a63dadd6656a1a9be5b7b7726fa8"
+                }
+            ]
+        },
+
+        {
+            "name" : "matio",
+            "builddir" : true,
+            "buildsystem" : "autotools",
+            "sources" : [
+                {
+                    "type" : "archive",
+                    "url" : "http://downloads.sourceforge.net/sourceforge/matio/matio-1.5.23.tar.gz",
+                    "sha256" : "9f91eae661df46ea53c311a1b2dcff72051095b023c612d7cbfc09406c9f4d6e"
+                }
+            ]
+        },
+
+        {
+            "name" : "cfitsio",
+            "builddir" : true,
+            "buildsystem" : "cmake-ninja",
+            "sources" : [
+                {
+                    "type" : "archive",
+                    "url" : "https://heasarc.gsfc.nasa.gov/FTP/software/fitsio/c/cfitsio-4.2.0.tar.gz",
+                    "sha256" : "eba53d1b3f6e345632bb09a7b752ec7ced3d63ec5153a848380f3880c5d61889"
+                }
+            ]
+        },
+
+        {
+            "name" : "libde265",
+            "builddir" : true,
+            "buildsystem" : "cmake-ninja",
+            "sources" : [
+                {
+                    "type" : "archive",
+                    "url" : "https://github.com/strukturag/libde265/releases/download/v1.0.12/libde265-1.0.12.tar.gz",
+                    "sha256" : "62185ea2182e68cf68bba20cc6eb4c287407b509cf0a827d7ddb75614db77b5c"
+                }
+            ]
+        },
+
+        {
+            "name" : "libheif",
+            "builddir" : true,
+            "buildsystem" : "cmake-ninja",
+            "sources" : [
+                {
+                    "type" : "archive",
+                    "url" : "https://github.com/strukturag/libheif/releases/download/v1.16.2/libheif-1.16.2.tar.gz",
+                    "sha256" : "7f97e4205c0bd9f9b8560536c8bd2e841d1c9a6d610401eb3eb87ed9cdfe78ea"
+                }
+            ]
+        },
+
+        {
+            "name" : "cgif",
+            "buildsystem" : "meson",
+            "config-opts" : [
+                "--buildtype=release"
+            ],
+            "builddir" : true,
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/dloebl/cgif.git",
+                    "tag" : "V0.3.2"
+                }
+            ]
+        },
+
+        {
+            "name" : "libvips",
+            "builddir" : true,
+            "buildsystem" : "meson",
+            "config-opts" : [
+                "--buildtype=release",
+                "-Ddeprecated=false",
+                "-Dmodules=disabled"
+            ],
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/libvips/libvips.git",
+                    "commit" : "baf3ac9b6151c961be00ff3c6cf8ad06b0305d31"
+                }
+            ]
+        },
+
+        {
+            "name" : "nip4",
+            "builddir" : true,
+            "buildsystem" : "meson",
+            "config-opts" : [
+                "--buildtype=release"
+            ],
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/jcupitt/nip4.git",
+                    "tag" : "v0.1"
+                }
+            ]
+        }
+    ]
+}
+
