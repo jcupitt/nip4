@@ -36,8 +36,6 @@ struct _MainWindow {
 	 */
 	GTimer *progress_timer;
 	double last_progress_time;
-
-	GSettings *settings;
 };
 
 G_DEFINE_TYPE(MainWindow, main_window, GTK_TYPE_APPLICATION_WINDOW);
@@ -334,25 +332,6 @@ main_window_fullscreen(GSimpleAction *action,
 	g_simple_action_set_state(action, state);
 }
 
-static void
-main_window_radio(GSimpleAction *action,
-	GVariant *parameter, gpointer user_data)
-{
-	g_action_change_state(G_ACTION(action), parameter);
-}
-
-static void
-main_window_toggle(GSimpleAction *action,
-    GVariant *parameter, gpointer user_data)
-{
-    GVariant *state;
-
-    state = g_action_get_state(G_ACTION(action));
-    g_action_change_state(G_ACTION(action),
-        g_variant_new_boolean(!g_variant_get_boolean(state)));
-    g_variant_unref(state);
-}
-
 static GActionEntry main_window_entries[] = {
 	{ "open", main_window_open_action },
 	{ "saveas", main_window_saveas_action },
@@ -372,7 +351,6 @@ main_window_init(MainWindow *main)
 
 	main->progress_timer = g_timer_new();
 	main->last_progress_time = -1;
-	main->settings = g_settings_new(APPLICATION_ID);
 	char *cwd = g_get_current_dir();
 	main->save_folder = g_file_new_for_path(cwd);
 	main->load_folder = g_file_new_for_path(cwd);
@@ -462,12 +440,37 @@ main_window_set_gfile(MainWindow *main, GFile *gfile)
 	}
 }
 
+static GSettings *
+main_window_settings(MainWindow *main)
+{
+	App *app;
+
+	// FIXME ... or have an "app" member in main?
+	g_object_get(main, "application", &app, NULL );
+
+	return app ? app_settings(app) : NULL;
+}
+
+static void
+main_window_init_settings(MainWindow *main)
+{
+	GSettings *settings = main_window_settings(main);
+
+	if (settings) {
+		// FIXME ... set window state from settings
+	}
+}
+
 MainWindow *
 main_window_new(App *app)
 {
 	MainWindow *main = g_object_new(MAIN_WINDOW_TYPE, "application", app, NULL);
 
 	main_window_set_gfile(main, NULL);
+
+	// we can't do this until the window has been linked to the app where the
+	// settings live
+	main_window_init_settings(main);
 
 	return main;
 }
@@ -480,10 +483,4 @@ copy_value(GObject *to, GObject *from, const char *name)
 	g_object_get_property(from, name, &value);
 	g_object_set_property(to, name, &value);
 	g_value_unset(&value);
-}
-
-GSettings *
-main_window_get_settings(MainWindow *main)
-{
-	return main->settings;
 }

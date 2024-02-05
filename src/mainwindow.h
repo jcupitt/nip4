@@ -9,7 +9,6 @@ G_DECLARE_FINAL_TYPE(MainWindow, main_window,
 	NIP4, MAIN_WINDOW, GtkApplicationWindow)
 
 MainWindow *main_window_new(App *app);
-GSettings *main_window_get_settings(MainWindow *main);
 void main_window_set_gfile(MainWindow *win, GFile *gfile);
 
 #endif /* __MAIN_WINDOW_H */

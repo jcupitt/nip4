@@ -2,6 +2,9 @@
 
 struct _App {
 	GtkApplication parent;
+
+	// all application settings go in here
+	GSettings *settings;
 };
 
 G_DEFINE_TYPE(App, app, GTK_TYPE_APPLICATION);
@@ -110,6 +113,9 @@ app_startup(GApplication *app)
 		{ "win.properties", { "<Alt>Return", NULL } },
 	};
 
+	// all our private application settings
+	APP(app)->settings = g_settings_new(APPLICATION_ID);
+
 	G_APPLICATION_CLASS(app_parent_class)->startup(app);
 
 	/* Image display programs are supposed to default to a dark theme,
@@ -189,4 +195,10 @@ app_new(void)
 		"inactivity-timeout", 3000,
 		"register-session", TRUE,
 		NULL);
+}
+
+GSettings *
+app_settings(App *app)
+{
+	return app->settings;
 }
