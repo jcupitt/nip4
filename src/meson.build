@@ -15,7 +15,7 @@ executable('nip4', [
     resources,
     'gtkutil.c',
     'main.c',
-    'nip4app.c',
+    'app.c',
     'mainwindow.c',
   ],
   dependencies: nip4_deps,

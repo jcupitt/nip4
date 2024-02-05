@@ -1,41 +1,41 @@
 #include "nip4.h"
 
-struct _Nip4App {
+struct _App {
 	GtkApplication parent;
 };
 
-G_DEFINE_TYPE(Nip4App, nip4_app, GTK_TYPE_APPLICATION);
+G_DEFINE_TYPE(App, app, GTK_TYPE_APPLICATION);
 
 static void
-nip4_app_init(Nip4App *app)
+app_init(App *app)
 {
 }
 
 static void
-nip4_app_activate(GApplication *app)
+app_activate(GApplication *gapp)
 {
 	MainWindow *win;
 
-	win = main_window_new(APP(app));
+	win = main_window_new(APP(gapp));
 	gtk_window_present(GTK_WINDOW(win));
 }
 
 static void
-nip4_app_quit_activated(GSimpleAction *action,
-	GVariant *parameter, gpointer app)
+app_quit_activated(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
 {
-	g_application_quit(G_APPLICATION(app));
+	g_application_quit(G_APPLICATION(user_data));
 }
 
 static void
-nip4_app_new_activated(GSimpleAction *action,
+app_new_activated(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
-	nip4_app_activate(G_APPLICATION(user_data));
+	app_activate(G_APPLICATION(user_data));
 }
 
 static MainWindow *
-nip4_app_win(Nip4App *app)
+app_win(App *app)
 {
 	GList *windows = gtk_application_get_windows(GTK_APPLICATION(app));
 
@@ -46,11 +46,11 @@ nip4_app_win(Nip4App *app)
 }
 
 static void
-nip4_app_about_activated(GSimpleAction *action,
+app_about_activated(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
-	Nip4App *app = APP(user_data);
-	MainWindow *win = nip4_app_win(app);
+	App *app = APP(user_data);
+	MainWindow *win = app_win(app);
 
 	static const char *authors[] = {
 		"jcupitt",
@@ -58,7 +58,7 @@ nip4_app_about_activated(GSimpleAction *action,
 	};
 
 #ifdef DEBUG
-	printf("nip4_app_about_activated:\n");
+	printf("app_about_activated:\n");
 #endif /*DEBUG*/
 
 	gtk_show_about_dialog(win ? GTK_WINDOW(win) : NULL,
@@ -75,13 +75,13 @@ nip4_app_about_activated(GSimpleAction *action,
 }
 
 static GActionEntry app_entries[] = {
-	{ "quit", nip4_app_quit_activated },
-	{ "new", nip4_app_new_activated },
-	{ "about", nip4_app_about_activated },
+	{ "quit", app_quit_activated },
+	{ "new", app_new_activated },
+	{ "about", app_about_activated },
 };
 
 static void
-nip4_app_startup(GApplication *app)
+app_startup(GApplication *app)
 {
 	int i;
 	GtkSettings *settings;
@@ -90,9 +90,11 @@ nip4_app_startup(GApplication *app)
 		const gchar *action_and_target;
 		const gchar *accelerators[2];
 	} accels[] = {
+		// application wide accels
 		{ "app.quit", { "<Primary>q", NULL } },
 		{ "app.new", { "<Primary>n", NULL } },
 
+		// main window accels ... the "win." prefix is wired into gtk
 		{ "win.copy", { "<Primary>c", NULL } },
 		{ "win.paste", { "<Primary>v", NULL } },
 		{ "win.duplicate", { "<Primary>d", NULL } },
@@ -108,7 +110,7 @@ nip4_app_startup(GApplication *app)
 		{ "win.properties", { "<Alt>Return", NULL } },
 	};
 
-	G_APPLICATION_CLASS(nip4_app_parent_class)->startup(app);
+	G_APPLICATION_CLASS(app_parent_class)->startup(app);
 
 	/* Image display programs are supposed to default to a dark theme,
 	 * according to the HIG.
@@ -132,8 +134,7 @@ nip4_app_startup(GApplication *app)
 	MAIN_WINDOW_TYPE;
 
 	g_action_map_add_action_entries(G_ACTION_MAP(app),
-		app_entries, G_N_ELEMENTS(app_entries),
-		app);
+		app_entries, G_N_ELEMENTS(app_entries), app);
 
 	for (i = 0; i < G_N_ELEMENTS(accels); i++)
 		gtk_application_set_accels_for_action(GTK_APPLICATION(app),
@@ -141,7 +142,7 @@ nip4_app_startup(GApplication *app)
 }
 
 static void
-nip4_app_open(GApplication *app,
+app_open(GApplication *app,
 	GFile **files, int n_files, const char *hint)
 {
 	for(int i = 0; i < n_files; i++) {
@@ -153,34 +154,34 @@ nip4_app_open(GApplication *app,
 }
 
 static void
-nip4_app_shutdown(GApplication *app)
+app_shutdown(GApplication *app)
 {
 	MainWindow *win;
 
 #ifdef DEBUG
-	printf("nip4_app_shutdown:\n");
+	printf("app_shutdown:\n");
 #endif /*DEBUG*/
 
 	/* Force down all our windows ... this will not happen automatically
 	 * on _quit().
 	 */
-	while ((win = nip4_app_win(APP(app))))
+	while ((win = app_win(APP(app))))
 		gtk_window_destroy(GTK_WINDOW(win));
 
-	G_APPLICATION_CLASS(nip4_app_parent_class)->shutdown(app);
+	G_APPLICATION_CLASS(app_parent_class)->shutdown(app);
 }
 
 static void
-nip4_app_class_init(Nip4AppClass *class)
+app_class_init(AppClass *class)
 {
-	G_APPLICATION_CLASS(class)->startup = nip4_app_startup;
-	G_APPLICATION_CLASS(class)->activate = nip4_app_activate;
-	G_APPLICATION_CLASS(class)->open = nip4_app_open;
-	G_APPLICATION_CLASS(class)->shutdown = nip4_app_shutdown;
+	G_APPLICATION_CLASS(class)->startup = app_startup;
+	G_APPLICATION_CLASS(class)->activate = app_activate;
+	G_APPLICATION_CLASS(class)->open = app_open;
+	G_APPLICATION_CLASS(class)->shutdown = app_shutdown;
 }
 
-Nip4App *
-nip4_app_new(void)
+App *
+app_new(void)
 {
 	return g_object_new(APP_TYPE,
 		"application-id", APPLICATION_ID,

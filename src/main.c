@@ -7,7 +7,7 @@
 int
 main(int argc, char **argv)
 {
-	Nip4App *app;
+	App *app;
 	int status;
 
 	if (VIPS_INIT(argv[0]))
@@ -33,7 +33,7 @@ main(int argc, char **argv)
 	printf("nip4.main: blocking VipsForeignLoadMagick\n");
 	vips_operation_block_set("VipsForeignLoadMagick", TRUE);
 
-	app = nip4_app_new();
+	app = app_new();
 
 	status = g_application_run(G_APPLICATION(app), argc, argv);
 

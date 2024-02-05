@@ -34,9 +34,8 @@
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 
 #include "gtkutil.h"
-#include "nip4app.h"
-#include "nip4.h"
 #include "nip4marshal.h"
+#include "app.h"
 #include "mainwindow.h"
 
 #endif /* __NIP4_H */
