@@ -1,4 +1,4 @@
-- rename win.fullscreen etc. as main.fullscreen
+- make a "progress" widget with throttled updates? could share with
+  saveoptions, and move some code out of mainwindow
 
-- move settings, cssprovider into nip4app?
 

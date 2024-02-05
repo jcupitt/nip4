@@ -4,14 +4,6 @@
 
 #include "nip4.h"
 
-/* How much to scale view by each frame.
- */
-#define SCALE_STEP (1.05)
-
-/* Duration of discrete zoom in secs.
- */
-#define SCALE_DURATION (0.5)
-
 struct _MainWindow {
 	GtkApplicationWindow parent;
 
@@ -30,7 +22,6 @@ struct _MainWindow {
 	GtkWidget *error_bar;
 	GtkWidget *error_label;
 	GtkWidget *scrolled_window;
-	GtkWidget *status_bar;
 
 	/* Throttle progress bar updates to a few per second with this.
 	 */
@@ -419,7 +410,6 @@ main_window_class_init(MainWindowClass *class)
 	BIND(error_bar);
 	BIND(error_label);
 	BIND(scrolled_window);
-	BIND(status_bar);
 
 	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
 		main_window_pressed_cb);
@@ -438,6 +428,9 @@ main_window_set_gfile(MainWindow *main, GFile *gfile)
 		gtk_label_set_text(GTK_LABEL(main->subtitle), file);
 		g_free(file);
 	}
+
+	vips_error("MainWindow", "Workspace load not implemented.");
+	main_window_error(main);
 }
 
 static GSettings *

@@ -192,11 +192,6 @@
 
         </child>
 
-        <child>
-          <object class="GtkInfoBar" id="status_bar">
-          </object>
-        </child>
-
       </object>
     </child>
   </template>
