@@ -1,34 +1,24 @@
 marshal = gnome.genmarshal(
-  'vipsdispmarshal',
-  prefix: 'vipsdisp',
-  sources: 'gtk/vipsdispmarshal.list',
+  'nip4marshal',
+  prefix: 'nip4',
+  sources: 'nip4marshal.list',
 )
 
 resources = gnome.compile_resources(
-  'vipsdisp-gresources',
-  'gtk/vipsdisp.gresources.xml',
+  'nip4-gresources',
+  'gtk/nip4.gresources.xml',
   source_dir: 'gtk',
 )
 
-executable('vipsdisp', [
+executable('nip4', [
     marshal,
     resources,
-    'displaybar.c',
     'gtkutil.c',
-    'imagedisplay.c',
-    'imagewindow.c',
-    'infobar.c',
     'main.c',
-    'tile.c',
-    'tilecache.c',
-    'tilesource.c',
-    'tslider.c',
-    'vipsdispapp.c',
-    'saveoptions.c',
-    'fuzzy.c',
-    'properties.c',
+    'nip4app.c',
+    'mainwindow.c',
   ],
-  dependencies: vipsdisp_deps,
+  dependencies: nip4_deps,
   win_subsystem: 'windows',
   install: true,
 )

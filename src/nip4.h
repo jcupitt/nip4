@@ -1,5 +1,5 @@
-#ifndef __VIPSDISP_H
-#define __VIPSDISP_H
+#ifndef __NIP4_H
+#define __NIP4_H
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define APP_PATH "/org/libvips/vipsdisp"
+#define APP_PATH "/org/libvips/nip4"
 
 #include <gtk/gtk.h>
 
@@ -18,16 +18,15 @@
 /* i18n placeholder.
  */
 #define _(S) (S)
-#define GETTEXT_PACKAGE "vipsdisp"
+#define GETTEXT_PACKAGE "nip4"
 
 /* The tile size for image rendering.
  */
 #define TILE_SIZE (256)
 
-/* Cache size -- enough for two 4k displays. 
+/* Cache size -- enough for two 4k displays.
  */
 #define MAX_TILES (2 * (4096 / TILE_SIZE) * (2048 / TILE_SIZE))
-
 
 /* We use various gtk4 features (GtkInfoBar, GtkDialog) which are going away
  * in gtk5.
@@ -35,18 +34,9 @@
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 
 #include "gtkutil.h"
-#include "tslider.h"
-#include "vipsdispapp.h"
-#include "vipsdispmarshal.h"
-#include "tile.h"
-#include "tilesource.h"
-#include "tilecache.h"
-#include "imagedisplay.h"
-#include "imagewindow.h"
-#include "infobar.h"
-#include "displaybar.h"
-#include "saveoptions.h"
-#include "properties.h"
-#include "fuzzy.h"
+#include "nip4app.h"
+#include "nip4.h"
+#include "nip4marshal.h"
+#include "mainwindow.h"
 
-#endif /* __VIPSDISP_H */
+#endif /* __NIP4_H */

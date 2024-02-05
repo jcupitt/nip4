@@ -1,10 +1,11 @@
-#ifndef __VIPSDISP_APP_H
-#define __VIPSDISP_APP_H
+#ifndef __NIP4_APP_H
+#define __NIP4_APP_H
 
-#define VIPSDISP_APP_TYPE (vipsdisp_app_get_type())
-G_DECLARE_FINAL_TYPE( VipsdispApp, vipsdisp_app, VIPSDISP, APP, GtkApplication )
+#define APP_TYPE (nip4_app_get_type())
+G_DECLARE_FINAL_TYPE(Nip4App, nip4_app, NIP4, APP, GtkApplication)
 
-VipsdispApp *vipsdisp_app_new( void );
+#define APP NIP4_APP
 
-#endif /* __VIPSDISP_APP_H */
+Nip4App *nip4_app_new(void);
 
+#endif /* __NIP4_APP_H */
