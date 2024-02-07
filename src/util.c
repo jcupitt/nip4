@@ -191,12 +191,13 @@ error_vips_all(void)
 const char *
 error_get_top(void)
 {
-	return (vips_buf_all(&error_top_buf));
+	return vips_buf_all(&error_top_buf);
 }
+
 const char *
 error_get_sub(void)
 {
-	return (vips_buf_all(&error_sub_buf));
+	return vips_buf_all(&error_sub_buf);
 }
 
 /* Set an xml property printf() style.
@@ -216,10 +217,10 @@ set_prop(xmlNode *xnode, const char *name, const char *fmt, ...)
 		error_sub(_("Unable to set property \"%s\" "
 					"to value \"%s\"."),
 			name, value);
-		return (FALSE);
+		return FALSE;
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Set an xml property from an optionally NULL string.
@@ -228,9 +229,9 @@ gboolean
 set_sprop(xmlNode *xnode, const char *name, const char *value)
 {
 	if (value && !set_prop(xnode, name, "%s", value))
-		return (FALSE);
+		return FALSE;
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Set an xml property from an optionally NULL string.
@@ -238,7 +239,7 @@ set_sprop(xmlNode *xnode, const char *name, const char *value)
 gboolean
 set_iprop(xmlNode *xnode, const char *name, int value)
 {
-	return (set_prop(xnode, name, "%d", value));
+	return set_prop(xnode, name, "%d", value);
 }
 
 /* Save a list of strings. For name=="fred" and n strings in list, save as
@@ -253,18 +254,18 @@ set_slprop(xmlNode *xnode, const char *name, GSList *labels)
 
 		(void) vips_snprintf(buf, 256, "%sn", name);
 		if (!set_prop(xnode, buf, "%d", g_slist_length(labels)))
-			return (FALSE);
+			return FALSE;
 
 		for (i = 0; labels; i++, labels = labels->next) {
 			const char *label = (const char *) labels->data;
 
 			(void) vips_snprintf(buf, 256, "%s%d", name, i);
 			if (!set_sprop(xnode, buf, label))
-				return (FALSE);
+				return FALSE;
 		}
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Set a double ... use non-localisable conversion, rather than %g.
@@ -276,7 +277,7 @@ set_dprop(xmlNode *xnode, const char *name, double value)
 
 	g_ascii_dtostr(buf, sizeof(buf), value);
 
-	return (set_sprop(xnode, name, buf));
+	return set_sprop(xnode, name, buf);
 }
 
 /* Save an array of double. For name=="fred" and n doubles in array, save as
@@ -290,15 +291,15 @@ set_dlprop(xmlNode *xnode, const char *name, double *values, int n)
 
 	(void) vips_snprintf(buf, 256, "%sn", name);
 	if (!set_prop(xnode, buf, "%d", n))
-		return (FALSE);
+		return FALSE;
 
 	for (i = 0; i < n; i++) {
 		(void) vips_snprintf(buf, 256, "%s%d", name, i);
 		if (!set_dprop(xnode, buf, values[i]))
-			return (FALSE);
+			return FALSE;
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 gboolean
@@ -307,12 +308,12 @@ get_sprop(xmlNode *xnode, const char *name, char *buf, int sz)
 	char *value = (char *) xmlGetProp(xnode, (xmlChar *) name);
 
 	if (!value)
-		return (FALSE);
+		return FALSE;
 
 	vips_strncpy(buf, value, sz);
 	VIPS_FREEF(xmlFree, value);
 
-	return (TRUE);
+	return TRUE;
 }
 
 gboolean
@@ -321,12 +322,12 @@ get_spropb(xmlNode *xnode, const char *name, VipsBuf *buf)
 	char *value = (char *) xmlGetProp(xnode, (xmlChar *) name);
 
 	if (!value)
-		return (FALSE);
+		return FALSE;
 
 	vips_buf_appends(buf, value);
 	VIPS_FREEF(xmlFree, value);
 
-	return (TRUE);
+	return TRUE;
 }
 
 gboolean
@@ -335,11 +336,11 @@ get_iprop(xmlNode *xnode, const char *name, int *out)
 	char buf[256];
 
 	if (!get_sprop(xnode, name, buf, 256))
-		return (FALSE);
+		return FALSE;
 
 	*out = atoi(buf);
 
-	return (TRUE);
+	return TRUE;
 }
 
 gboolean
@@ -348,11 +349,11 @@ get_dprop(xmlNode *xnode, const char *name, double *out)
 	char buf[256];
 
 	if (!get_sprop(xnode, name, buf, 256))
-		return (FALSE);
+		return FALSE;
 
 	*out = g_ascii_strtod(buf, NULL);
 
-	return (TRUE);
+	return TRUE;
 }
 
 gboolean
@@ -361,11 +362,11 @@ get_bprop(xmlNode *xnode, const char *name, gboolean *out)
 	char buf[256];
 
 	if (!get_sprop(xnode, name, buf, 256))
-		return (FALSE);
+		return FALSE;
 
 	*out = g_ascii_strcasecmp(buf, "true") == 0;
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Load a list of strings. For name=="fred", look for "fredn" == number of
@@ -379,18 +380,18 @@ get_slprop(xmlNode *xnode, const char *name, GSList **out)
 
 	(void) vips_snprintf(buf, 256, "%sn", name);
 	if (!get_iprop(xnode, buf, &n))
-		return (FALSE);
+		return FALSE;
 
 	*out = NULL;
 	for (i = n - 1; i >= 0; i--) {
 		(void) vips_snprintf(buf, 256, "%s%d", name, i);
 		if (!get_sprop(xnode, buf, buf, 256))
-			return (FALSE);
+			return FALSE;
 
 		*out = g_slist_prepend(*out, g_strdup(buf));
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Load an array of double. For name=="fred", look for "fredn" == length of
@@ -404,18 +405,18 @@ get_dlprop(xmlNode *xnode, const char *name, double **out)
 
 	(void) vips_snprintf(buf, 256, "%sn", name);
 	if (!get_iprop(xnode, buf, &n))
-		return (FALSE);
+		return FALSE;
 
 	if (!(*out = IARRAY(NULL, n, double)))
-		return (FALSE);
+		return FALSE;
 
 	for (i = 0; i < n; i++) {
 		(void) vips_snprintf(buf, 256, "%s%d", name, i);
 		if (!get_dprop(xnode, buf, *out + i))
-			return (FALSE);
+			return FALSE;
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Find the first child node with a name.
@@ -427,9 +428,9 @@ get_node(xmlNode *base, const char *name)
 
 	for (i = base->children; i; i = i->next)
 		if (strcmp((char *) i->name, name) == 0)
-			return (i);
+			return i;
 
-	return (NULL);
+	return NULL;
 }
 
 static int rect_n_rects = 0;
@@ -442,13 +443,13 @@ rect_dup(VipsRect *init)
 	VipsRect *new_rect;
 
 	if (!(new_rect = INEW(NULL, VipsRect)))
-		return (NULL);
+		return NULL;
 
 	*new_rect = *init;
 
 	rect_n_rects += 1;
 
-	return (new_rect);
+	return new_rect;
 }
 
 void *
@@ -457,7 +458,7 @@ rect_free(VipsRect *rect)
 	g_free(rect);
 	rect_n_rects -= 1;
 
-	return (NULL);
+	return NULL;
 }
 
 /* Test two lists for eqality.
@@ -467,16 +468,16 @@ slist_equal(GSList *l1, GSList *l2)
 {
 	while (l1 && l2) {
 		if (l1->data != l2->data)
-			return (FALSE);
+			return FALSE;
 
 		l1 = l1->next;
 		l2 = l2->next;
 	}
 
 	if (l1 || l2)
-		return (FALSE);
+		return FALSE;
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Map over an slist.
@@ -494,7 +495,7 @@ slist_map(GSList *list, SListMapFn fn, gpointer a)
 		;
 	g_slist_free(copy);
 
-	return (result);
+	return result;
 }
 
 void *
@@ -510,7 +511,7 @@ slist_map2(GSList *list, SListMap2Fn fn, gpointer a, gpointer b)
 		;
 	g_slist_free(copy);
 
-	return (result);
+	return result;
 }
 
 void *
@@ -526,7 +527,7 @@ slist_map3(GSList *list, SListMap3Fn fn, gpointer a, gpointer b, gpointer c)
 		;
 	g_slist_free(copy);
 
-	return (result);
+	return result;
 }
 
 void *
@@ -544,7 +545,7 @@ slist_map4(GSList *list, SListMap4Fn fn,
 		;
 	g_slist_free(copy);
 
-	return (result);
+	return result;
 }
 
 void *
@@ -562,7 +563,7 @@ slist_map5(GSList *list, SListMap5Fn fn,
 		;
 	g_slist_free(copy);
 
-	return (result);
+	return result;
 }
 
 /* Map backwards.
@@ -581,7 +582,7 @@ slist_map_rev(GSList *list, SListMapFn fn, gpointer a)
 		;
 	g_slist_free(copy);
 
-	return (result);
+	return result;
 }
 
 void *
@@ -598,7 +599,7 @@ slist_map2_rev(GSList *list, SListMap2Fn fn, gpointer a, gpointer b)
 		;
 	g_slist_free(copy);
 
-	return (result);
+	return result;
 }
 
 void *
@@ -615,16 +616,16 @@ slist_map3_rev(GSList *list, SListMap3Fn fn, void *a, void *b, void *c)
 		;
 	g_slist_free(copy);
 
-	return (result);
+	return result;
 }
 
 void *
 map_equal(void *a, void *b)
 {
 	if (a == b)
-		return (a);
+		return a;
 
-	return (NULL);
+	return NULL;
 }
 
 void *
@@ -637,10 +638,10 @@ slist_fold(GSList *list, void *start, SListFoldFn fn, void *a)
 		next = ths->next;
 
 		if (!(c = fn(ths->data, c, a)))
-			return (NULL);
+			return NULL;
 	}
 
-	return (c);
+	return c;
 }
 
 void *
@@ -653,10 +654,10 @@ slist_fold2(GSList *list, void *start, SListFold2Fn fn, void *a, void *b)
 		next = ths->next;
 
 		if (!(c = fn(ths->data, c, a, b)))
-			return (NULL);
+			return NULL;
 	}
 
-	return (c);
+	return c;
 }
 
 static void
@@ -704,7 +705,7 @@ slist_remove_all(GSList *list, gpointer data)
 		}
 	}
 
-	return (list);
+	return list;
 }
 
 Queue *
@@ -716,7 +717,7 @@ queue_new(void)
 	q->tail = NULL;
 	q->length = 0;
 
-	return (q);
+	return q;
 }
 
 void *
@@ -727,7 +728,7 @@ queue_head(Queue *q)
 	g_assert(q);
 
 	if (!q->list)
-		return (NULL);
+		return NULL;
 
 	data = q->list->data;
 
@@ -737,7 +738,7 @@ queue_head(Queue *q)
 
 	q->length -= 1;
 
-	return (data);
+	return data;
 }
 
 void
@@ -767,7 +768,7 @@ queue_remove(Queue *q, void *data)
 	GSList *ele;
 
 	if (!(ele = g_slist_find(q->list, data)))
-		return (FALSE);
+		return FALSE;
 
 	q->list = g_slist_remove(q->list, data);
 
@@ -776,13 +777,13 @@ queue_remove(Queue *q, void *data)
 
 	q->length -= 1;
 
-	return (TRUE);
+	return TRUE;
 }
 
 int
 queue_length(Queue *q)
 {
-	return (q->length);
+	return q->length;
 }
 
 /* Make an info string about an image.
@@ -829,7 +830,7 @@ vips_buf_appendsc(VipsBuf *buf, gboolean quote, const char *str)
 	 */
 	my_strecpy(buffer2, buffer, quote);
 
-	return (vips_buf_appends(buf, buffer2));
+	return vips_buf_appends(buf, buffer2);
 }
 
 /* Test for string a ends string b.
@@ -841,9 +842,9 @@ is_postfix(const char *a, const char *b)
 	int m = strlen(b);
 
 	if (m < n)
-		return (FALSE);
+		return FALSE;
 
-	return (!strcmp(a, b + m - n));
+	return !strcmp(a, b + m - n);
 }
 
 /* Test for string a ends string b, case independent.
@@ -855,9 +856,9 @@ is_casepostfix(const char *a, const char *b)
 	int m = strlen(b);
 
 	if (m < n)
-		return (FALSE);
+		return FALSE;
 
-	return (!g_ascii_strcasecmp(a, b + m - n));
+	return !g_ascii_strcasecmp(a, b + m - n);
 }
 
 /* Test for string a starts string b.
@@ -870,12 +871,12 @@ is_prefix(const char *a, const char *b)
 	int i;
 
 	if (m < n)
-		return (FALSE);
+		return FALSE;
 	for (i = 0; i < n; i++)
 		if (a[i] != b[i])
-			return (FALSE);
+			return FALSE;
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Test for string a starts string b ... case insensitive.
@@ -888,12 +889,12 @@ is_caseprefix(const char *a, const char *b)
 	int i;
 
 	if (m < n)
-		return (FALSE);
+		return FALSE;
 	for (i = 0; i < n; i++)
 		if (toupper(a[i]) != toupper(b[i]))
-			return (FALSE);
+			return FALSE;
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Like strstr(), but case-insensitive.
@@ -907,9 +908,9 @@ my_strcasestr(const char *haystack, const char *needle)
 
 	for (i = 0; i <= hlen - nlen; i++)
 		if (is_caseprefix(needle, haystack + i))
-			return ((char *) (haystack + i));
+			return (char *) (haystack + i);
 
-	return (NULL);
+	return NULL;
 }
 
 /* Copy a string, interpreting (a few) C-language escape codes.
@@ -966,7 +967,7 @@ my_strccpy(char *output, const char *input)
 			q[0] = p[0];
 	q[0] = '\0';
 
-	return (output);
+	return output;
 }
 
 /* Copy a string, expanding escape characters into C-language escape codes.
@@ -1026,21 +1027,21 @@ my_strecpy(char *output, const char *input, gboolean quote)
 		}
 	q[0] = '\0';
 
-	return (output);
+	return output;
 }
 
 /* Is a character in a string?
  */
-static int
+static gboolean
 instr(char c, const char *spn)
 {
 	const char *p;
 
 	for (p = spn; *p; p++)
 		if (*p == c)
-			return (1);
+			return TRUE;
 
-	return (0);
+	return FALSE;
 }
 
 /* Doh ... not everyone has strrspn(), define one. Return a pointer to the
@@ -1055,7 +1056,7 @@ my_strrspn(const char *p, const char *spn)
 		;
 	p1++;
 
-	return (p1);
+	return p1;
 }
 
 /* Find a pointer to the start of the trailing segment of p which contains
@@ -1070,7 +1071,7 @@ my_strrcspn(const char *p, const char *spn)
 		;
 	p1++;
 
-	return (p1);
+	return p1;
 }
 
 /* Find the rightmost occurence of string a in string b.
@@ -1083,11 +1084,11 @@ findrightmost(const char *a, const char *b)
 	int i;
 
 	if (lb < la)
-		return (NULL);
+		return NULL;
 
 	for (i = lb - la; i > 0; i--)
 		if (strncmp(a, &b[i], la) == 0)
-			return (&b[i]);
+			return &b[i];
 
 	return (NULL);
 }
@@ -1148,10 +1149,7 @@ trim_nonalpha(char *text)
 		;
 	*p = '\0';
 
-	if (strlen(q) == 0)
-		return (NULL);
-	else
-		return (q);
+	return strlen(q) == 0 ? NULL : q;
 }
 
 /* Drop leading and trim trailing whitespace characters. NULL if nothing
@@ -1173,10 +1171,7 @@ trim_white(char *text)
 		;
 	p[1] = '\0';
 
-	if (strlen(q) == 0)
-		return (NULL);
-	else
-		return (q);
+	return strlen(q) == 0 ? NULL : q;
 }
 
 /* Get a pointer to a band element in a region.
@@ -1184,31 +1179,27 @@ trim_white(char *text)
 void *
 get_element(VipsRegion *ireg, int x, int y, int b)
 {
-	VipsImage *im = ireg->im;
-
 	/* Return a pointer to this on error.
 	 */
 	static VipsPel empty[50] = { 0 };
 
-	VipsPel *data;
+	VipsImage *im = ireg->im;
 	int es = VIPS_IMAGE_SIZEOF_ELEMENT(im);
-	VipsRect iarea;
 
 	/* Make sure we can read from this descriptor.
 	 */
 	if (vips_image_pio_input(im))
-		return (empty);
+		return empty;
 
+	VipsRect iarea;
 	iarea.left = x;
 	iarea.top = y;
 	iarea.width = 1;
 	iarea.height = 1;
 	if (vips_region_prepare(ireg, &iarea))
-		return (empty);
+		return empty;
 
-	data = VIPS_REGION_ADDR(ireg, x, y) + b * es;
-
-	return ((void *) data);
+	return VIPS_REGION_ADDR(ireg, x, y) + b * es;
 }
 
 /* Make an info string about a file.
@@ -1240,9 +1231,8 @@ get_image_info(VipsBuf *buf, const char *name)
 		 * and if imagemagick sees them it'll try to load them as SVG
 		 * or somethiing awful like that.
 		 */
-		if (is_file_type(&filesel_wfile_type, name2)) {
+		if (vips_iscasepostfix(name2, ".ws"))
 			vips_buf_appends(buf, _("workspace"));
-		}
 		else if ((im = vips_open(name2, "r"))) {
 			vips_buf_appendi(buf, im);
 			vips_close(im);
@@ -1259,7 +1249,7 @@ get_image_info(VipsBuf *buf, const char *name)
 static gboolean
 isvariable(int ch)
 {
-	return (isalnum(ch) || ch == '_');
+	return isalnum(ch) || ch == '_';
 }
 
 /* Expand environment variables from in to out. Return true if we performed an
@@ -1269,10 +1259,11 @@ static gboolean
 expand_once(char *in, char *out)
 {
 	char *p, *q;
-	gboolean have_substituted = FALSE;
+	gboolean have_substituted;
 
 	/* Scan and copy.
 	 */
+	have_substituted = FALSE;
 	for (p = in, q = out; (*q = *p) && (q - out) < FILENAME_MAX; p++, q++)
 		/* Did we just copy a '$'?
 		 */
@@ -1332,7 +1323,7 @@ expand_once(char *in, char *out)
 			have_substituted = TRUE;
 		}
 
-	return (have_substituted);
+	return have_substituted;
 }
 
 /* Expand all variables! Don't touch in, assume out[] is at least
@@ -1491,7 +1482,7 @@ callv_string(callv_string_fn fn, const char *arg, void *a, void *b, void *c)
 
 	expand_variables(arg, buf);
 
-	return (fn(buf, a, b, c));
+	return fn(buf, a, b, c);
 }
 
 void *
@@ -1502,7 +1493,7 @@ callv_stringva(callv_string_fn fn,
 
 	(void) vips_vsnprintf(buf, FILENAME_MAX, fmt, ap);
 
-	return (callv_string(fn, buf, a, b, c));
+	return callv_string(fn, buf, a, b, c);
 }
 
 void *
@@ -1515,7 +1506,7 @@ callv_stringf(callv_string_fn fn, const char *fmt, ...)
 	res = callv_stringva(fn, fmt, ap, NULL, NULL, NULL);
 	va_end(ap);
 
-	return (res);
+	return res;
 }
 
 /* Call a function, building a filename arg. Nativize and absoluteize too.
@@ -1530,7 +1521,7 @@ callv_string_filename(callv_string_fn fn,
 	nativeize_path(buf);
 	absoluteize_path(buf);
 
-	return (fn(buf, a, b, c));
+	return fn(buf, a, b, c);
 }
 
 void *
@@ -1541,7 +1532,7 @@ callv_string_filenameva(callv_string_fn fn,
 
 	(void) vips_vsnprintf(buf, FILENAME_MAX, fmt, ap);
 
-	return (callv_string_filename(fn, buf, a, b, c));
+	return callv_string_filename(fn, buf, a, b, c);
 }
 
 void *
@@ -1554,7 +1545,7 @@ callv_string_filenamef(callv_string_fn fn, const char *fmt, ...)
 	res = callv_string_filenameva(fn, fmt, ap, NULL, NULL, NULL);
 	va_end(ap);
 
-	return (res);
+	return res;
 }
 
 /* Call an int-valued function, building a string arg. We expand env.
@@ -1567,7 +1558,7 @@ calli_string(calli_string_fn fn, const char *arg, void *a, void *b, void *c)
 
 	expand_variables(arg, buf);
 
-	return (fn(buf, a, b, c));
+	return fn(buf, a, b, c);
 }
 
 int
@@ -1578,7 +1569,7 @@ calli_stringva(calli_string_fn fn,
 
 	(void) vips_vsnprintf(buf, FILENAME_MAX, fmt, ap);
 
-	return (calli_string(fn, buf, a, b, c));
+	return calli_string(fn, buf, a, b, c);
 }
 
 int
@@ -1591,7 +1582,7 @@ calli_stringf(calli_string_fn fn, const char *fmt, ...)
 	res = calli_stringva(fn, fmt, ap, NULL, NULL, NULL);
 	va_end(ap);
 
-	return (res);
+	return res;
 }
 
 /* Call a function, building a filename arg. Nativize and absoluteize too.
@@ -1606,7 +1597,7 @@ calli_string_filename(calli_string_fn fn,
 	nativeize_path(buf);
 	absoluteize_path(buf);
 
-	return (fn(buf, a, b, c));
+	return fn(buf, a, b, c);
 }
 
 int
@@ -1617,7 +1608,7 @@ calli_string_filenameva(calli_string_fn fn,
 
 	(void) vips_vsnprintf(buf, FILENAME_MAX, fmt, ap);
 
-	return (calli_string_filename(fn, buf, a, b, c));
+	return calli_string_filename(fn, buf, a, b, c);
 }
 
 int
@@ -1630,7 +1621,7 @@ calli_string_filenamef(calli_string_fn fn, const char *fmt, ...)
 	res = calli_string_filenameva(fn, fmt, ap, NULL, NULL, NULL);
 	va_end(ap);
 
-	return (res);
+	return res;
 }
 
 /* Convert a filename to utf8 ... g_free the result.
@@ -1643,7 +1634,7 @@ f2utf8(const char *filename)
 	if (!(utf8 = g_filename_to_utf8(filename, -1, NULL, NULL, NULL)))
 		utf8 = g_strdup(_("<charset conversion error>"));
 
-	return (utf8);
+	return utf8;
 }
 
 void
@@ -1664,7 +1655,7 @@ check(const char *filename)
 {
 	/* Need to work on filenames containing %.
 	 */
-	return (vips_existsf("%s", filename));
+	return vips_existsf("%s", filename);
 }
 
 /* File exists?
@@ -1680,7 +1671,7 @@ existsf(const char *name, ...)
 		(calli_string_fn) check, name, ap, NULL, NULL, NULL);
 	va_end(ap);
 
-	return (res);
+	return res;
 }
 
 int
@@ -1688,14 +1679,7 @@ isdir_sub(const char *filename)
 {
 	struct stat st;
 
-	/* Read size and file/dir.
-	 */
-	if (stat(filename, &st) == -1)
-		return (FALSE);
-	if (!S_ISDIR(st.st_mode))
-		return (FALSE);
-
-	return (TRUE);
+	return stat(filename, &st) != -1 && S_ISDIR(st.st_mode);
 }
 
 gboolean
@@ -1709,7 +1693,7 @@ isdir(const char *filename, ...)
 		(calli_string_fn) isdir_sub, filename, ap, NULL, NULL, NULL);
 	va_end(ap);
 
-	return (res);
+	return res;
 }
 
 static void *
@@ -1718,14 +1702,14 @@ mtime_sub(const char *filename, time_t *time)
 	struct stat st;
 
 	if (stat(filename, &st) == -1)
-		return (NULL);
+		return NULL;
 #ifdef HAVE_GETEUID
 	if (st.st_uid != geteuid())
-		return (NULL);
+		return NULL;
 #endif /*HAVE_GETEUID*/
 	*time = st.st_mtime;
 
-	return (NULL);
+	return NULL;
 }
 
 time_t
@@ -1740,7 +1724,7 @@ mtime(const char *filename, ...)
 		(callv_string_fn) mtime_sub, filename, ap, &time, NULL, NULL);
 	va_end(ap);
 
-	return (time);
+	return time;
 }
 
 gboolean
@@ -1755,7 +1739,7 @@ mkdirf(const char *name, ...)
 			  name, ap, GINT_TO_POINTER(0755), NULL, NULL) == 0;
 	va_end(ap);
 
-	return (res);
+	return res;
 }
 
 /* system(), with printf() args and $xxx expansion.
@@ -1771,7 +1755,7 @@ systemf(const char *fmt, ...)
 		(calli_string_fn) system, fmt, ap, NULL, NULL, NULL);
 	va_end(ap);
 
-	return (res);
+	return res;
 }
 
 gboolean
@@ -1788,7 +1772,7 @@ touchf(const char *fmt, ...)
 	va_end(ap);
 	(void) close(fd);
 
-	return (fd != -1);
+	return fd != -1;
 }
 
 int
@@ -1802,7 +1786,7 @@ unlinkf(const char *fmt, ...)
 		(calli_string_fn) unlink, fmt, ap, NULL, NULL, NULL);
 	va_end(ap);
 
-	return (res);
+	return res;
 }
 
 /* Relative or absolute dir path? Have to expand env vars to see.
@@ -1821,11 +1805,7 @@ is_absolute(const char *fname)
 	 *
 	 * We should probably look out for whitespace.
 	 */
-	if (buf[0] == '/' ||
-		(buf[0] != '\0' && buf[1] == ':'))
-		return (TRUE);
-	else
-		return (FALSE);
+	return buf[0] == '/' || (buf[0] != '\0' && buf[1] == ':');
 }
 
 /* vips_strdup(), with NULL supplied.
@@ -1833,7 +1813,7 @@ is_absolute(const char *fname)
 char *
 vips_strdupn(const char *txt)
 {
-	return (vips_strdup(NULL, txt));
+	return vips_strdup(NULL, txt);
 }
 
 /* Free an iOpenFile.
@@ -1855,7 +1835,7 @@ ifile_build(const char *fname)
 	iOpenFile *of;
 
 	if (!(of = INEW(NULL, iOpenFile)))
-		return (NULL);
+		return NULL;
 
 	of->fp = NULL;
 	of->fname = NULL;
@@ -1865,10 +1845,10 @@ ifile_build(const char *fname)
 	VIPS_SETSTR(of->fname, fname);
 	if (!of->fname) {
 		ifile_close(of);
-		return (NULL);
+		return NULL;
 	}
 
-	return (of);
+	return of;
 }
 
 /* Find and open for read.
@@ -1886,13 +1866,13 @@ ifile_open_read(const char *name, ...)
 	of = ifile_build(buf);
 
 	if (!of)
-		return (NULL);
+		return NULL;
 	if (!(of->fname_real = path_find_file(of->fname))) {
 		error_top(_("Unable to open."));
 		error_sub(_("Unable to open file \"%s\" for reading.\n%s."),
 			of->fname, g_strerror(errno));
 		ifile_close(of);
-		return (NULL);
+		return NULL;
 	}
 
 	if (!(of->fp = (FILE *) callv_string_filename((callv_string_fn) fopen,
@@ -1901,12 +1881,12 @@ ifile_open_read(const char *name, ...)
 		error_sub(_("Unable to open file \"%s\" for reading.\n%s."),
 			of->fname_real, g_strerror(errno));
 		ifile_close(of);
-		return (NULL);
+		return NULL;
 	}
 
 	of->read = TRUE;
 
-	return (of);
+	return of;
 }
 
 /* Open stdin for read.
@@ -1917,16 +1897,16 @@ ifile_open_read_stdin()
 	iOpenFile *of;
 
 	if (!(of = ifile_build("stdin")))
-		return (NULL);
+		return NULL;
 	VIPS_SETSTR(of->fname_real, of->fname);
 	if (!of->fname_real) {
 		ifile_close(of);
-		return (NULL);
+		return NULL;
 	}
 	of->fp = stdin;
 	of->read = TRUE;
 
-	return (of);
+	return of;
 }
 
 /* Find and open for write.
@@ -1944,11 +1924,11 @@ ifile_open_write(const char *name, ...)
 	of = ifile_build(buf);
 
 	if (!of)
-		return (NULL);
+		return NULL;
 	VIPS_SETSTR(of->fname_real, of->fname);
 	if (!of->fname_real) {
 		ifile_close(of);
-		return (NULL);
+		return NULL;
 	}
 	if (!(of->fp = (FILE *) callv_string_filename((callv_string_fn) fopen,
 			  of->fname_real, "w", NULL, NULL))) {
@@ -1956,12 +1936,12 @@ ifile_open_write(const char *name, ...)
 		error_sub(_("Unable to open file \"%s\" for writing.\n%s."),
 			of->fname_real, g_strerror(errno));
 		ifile_close(of);
-		return (NULL);
+		return NULL;
 	}
 
 	of->read = FALSE;
 
-	return (of);
+	return of;
 }
 
 /* fprintf() to a file, checking result.
@@ -1977,11 +1957,11 @@ ifile_write(iOpenFile *of, const char *fmt, ...)
 		error_top(_("Unable to write."));
 		error_sub(_("Unable to write to file \"%s\".\n%s."),
 			of->fname_real, g_strerror(of->last_errno));
-		return (FALSE);
+		return FALSE;
 	}
 	va_end(ap);
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Save a string ... if non-NULL. Eg.
@@ -1990,10 +1970,10 @@ ifile_write(iOpenFile *of, const char *fmt, ...)
 gboolean
 ifile_write_var(iOpenFile *of, const char *name, const char *value)
 {
-	if (value)
-		return (ifile_write(of, " %s=\"%s\"", name, value));
+	if (value && !ifile_write(of, " %s=\"%s\"", name, value)
+		return FALSE;
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Load up a file as a string.
@@ -2013,13 +1993,13 @@ ifile_read(iOpenFile *of)
 	if (len < 0 || len > 1024 * 1024) {
 		error_top(_("Unable to read."));
 		error_sub(_("File \"%s\" too large."), of->fname_real);
-		return (NULL);
+		return NULL;
 	}
 
 	/* Allocate memory and fill.
 	 */
 	if (!(str = imalloc(NULL, len + 1)))
-		return (NULL);
+		return NULL;
 
 	/* We can't check len2 against len, since we may be reading a text
 	 * file on Windows, in which case this fread will change CRLF to LF
@@ -2029,7 +2009,7 @@ ifile_read(iOpenFile *of)
 
 	str[len2] = '\0';
 
-	return (str);
+	return str;
 }
 
 /* Load a file into a buffer. Useful for OpenFiles we can't seek in, like
@@ -2050,11 +2030,11 @@ ifile_read_buffer(iOpenFile *of, char *buffer, size_t max)
 		error_top(_("Unable to read."));
 		error_sub(_("Unable to read from file \"%s\".\n%s."),
 			of->fname_real, g_strerror(of->last_errno));
-		return (NULL);
+		return NULL;
 	}
 	buffer[len] = '\0';
 
-	return (buffer);
+	return buffer;
 }
 
 /* Return '\0' for EOF, -1 for error.
@@ -2067,11 +2047,11 @@ ifile_getc(iOpenFile *of)
 	ch = fgetc(of->fp);
 
 	if (ch == EOF && feof(of->fp))
-		return (0);
+		return 0;
 	else if (ch == EOF)
-		return (-1);
+		return -1;
 	else
-		return (ch);
+		return ch;
 }
 
 off_t
@@ -2086,10 +2066,7 @@ statf(const char *fmt, ...)
 		(calli_string_fn) stat, fmt, ap, &st, NULL, NULL);
 	va_end(ap);
 
-	if (result == -1 || S_ISDIR(st.st_mode))
-		return (0);
-	else
-		return (st.st_size);
+	return result == -1 || S_ISDIR(st.st_mode) ? 0 : st.st_size;
 }
 
 static void *
@@ -2097,7 +2074,7 @@ directory_size_sub(const char *filename, double *total)
 {
 	*total += statf("%s", filename);
 
-	return (NULL);
+	return NULL;
 }
 
 /* Find the amount of 'stuff' in a directory. Result in bytes. Don't look in
@@ -2112,7 +2089,7 @@ directory_size(const char *dirname)
 	path_map_dir(dirname, "*",
 		(path_map_fn) directory_size_sub, &total);
 
-	return (total);
+	return total;
 }
 
 /* Escape "%" characters in a string.
@@ -2134,7 +2111,7 @@ escape_percent(const char *in, char *out, int len)
 
 	*q = '\0';
 
-	return (out);
+	return out;
 }
 
 char *
@@ -2161,7 +2138,7 @@ escape_markup(const char *in, char *out, int len)
 
 	*q = '\0';
 
-	return (out);
+	return out;
 }
 
 /* VIPS filenames can have embedded modes. Mode strings are punctuated with
@@ -2182,7 +2159,7 @@ escape_mode(const char *in, char *out, int len)
 
 	*q = '\0';
 
-	return (out);
+	return out;
 }
 
 /* Return a string of n characters. Buffer is zapped each time!
@@ -2199,7 +2176,7 @@ rpt(char ch, int n)
 		buf[i] = ch;
 	buf[i] = '\0';
 
-	return (buf);
+	return buf;
 }
 
 /* Return a string of n spaces. Buffer is zapped each time!
@@ -2207,7 +2184,7 @@ rpt(char ch, int n)
 const char *
 spc(int n)
 {
-	return (rpt(' ', n));
+	return rpt(' ', n);
 }
 
 /* Like strtok(), but better. Give a string and a list of break characters;
@@ -2224,7 +2201,7 @@ break_token(char *str, const char *brk)
 	/* Is the string empty? If yes, return NULL immediately.
 	 */
 	if (!str || !*str)
-		return (NULL);
+		return NULL;
 
 	/* Skip initial break characters.
 	 */
@@ -2244,7 +2221,7 @@ break_token(char *str, const char *brk)
 		p += strspn(p, brk);
 	}
 
-	return (p);
+	return p;
 }
 
 /* Turn a number to a string. 0 is "A", 1 is "B", 25 is "Z", 26 is "AA", 27 is
@@ -2281,7 +2258,7 @@ find_space(const char *name)
 	else
 		sz = VIPS_MAX(0, (double) st.f_frsize * st.f_bavail);
 
-	return (sz);
+	return sz;
 }
 #elif (HAVE_SYS_VFS_H || HAVE_SYS_MOUNT_H)
 double
@@ -2296,7 +2273,7 @@ find_space(const char *name)
 	else
 		sz = VIPS_MAX(0, (double) st.f_bsize * st.f_bavail);
 
-	return (sz);
+	return sz;
 }
 #elif defined OS_WIN32
 double
@@ -2320,13 +2297,13 @@ find_space(const char *name)
 	else
 		sz = VIPS_MAX(0, (double) free.QuadPart);
 
-	return (sz);
+	return sz;
 }
 #else
 double
 find_space(const char *name)
 {
-	return (-1);
+	return -1;
 }
 #endif /*HAVE_SYS_STATVFS_H*/
 
@@ -2357,14 +2334,14 @@ temp_name(char *name, const char *type)
 		error_top(_("Unable to create temporary file."));
 		error_sub(_("Unable to make file \"%s\"\n%s"),
 			buf, g_strerror(errno));
-		return (FALSE);
+		return FALSE;
 	}
 	close(fd);
 	unlinkf("%s", buf);
 
 	vips_snprintf(name, FILENAME_MAX, "%s.%s", buf, type);
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Max/min of an area.
@@ -2377,10 +2354,10 @@ findmaxmin(VipsImage *in,
 	VipsImage *t1;
 
 	if (vips_extract_area(in, &t1, left, top, width, height))
-		return (-1);
+		return -1;
 	if (vips_stats(t1, &msk)) {
 		VIPS_UNREF(t1);
-		return (-1);
+		return -1;
 	}
 	VIPS_UNREF(t1);
 
@@ -2395,7 +2372,7 @@ findmaxmin(VipsImage *in,
 	printf("findmaxmin: max = %g, min = %g\n", *max, *min);
 #endif /*DEBUG*/
 
-	return (0);
+	return 0;
 }
 
 gboolean
@@ -2408,16 +2385,13 @@ char_to_bool(char *str, void *out)
 	else
 		*t = FALSE;
 
-	return (TRUE);
+	return TRUE;
 }
 
 char *
 bool_to_char(gboolean b)
 {
-	if (b)
-		return ("true");
-	else
-		return ("false");
+	return b ? "true" : "false";
 }
 
 /* Increment a name ... strip any trailing numbers, add one, put numbers back.
@@ -2512,7 +2486,7 @@ extract_first_line(char *buf, char *str, int len)
 	strncpy(buf, str, n);
 	buf[n] = '\0';
 
-	return (n);
+	return n;
 }
 
 /* Make a valid ip name from a filename.
@@ -2571,10 +2545,10 @@ imalloc(VipsImage *im, size_t len)
 			vips_buf_all(&buf));
 		error_vips();
 
-		return (NULL);
+		return NULL;
 	}
 
-	return (mem);
+	return mem;
 }
 
 /* Add a filename to a recent list. If there are more than MAX_RECENT items,
@@ -2597,7 +2571,7 @@ recent_add(GSList *recent, const char *filename)
 			recent = g_slist_remove(recent, stored);
 			recent = g_slist_prepend(recent, (void *) stored);
 
-			return (recent);
+			return recent;
 		}
 	}
 
@@ -2611,7 +2585,7 @@ recent_add(GSList *recent, const char *filename)
 		g_free((char *) item);
 	}
 
-	return (recent);
+	return recent;
 }
 
 GSList *
@@ -2639,7 +2613,7 @@ recent_load(const char *filename)
 		ifile_close(of);
 	}
 
-	return (recent);
+	return recent;
 }
 
 void
@@ -2661,7 +2635,7 @@ recent_save_sub(const char *filename, GSList **old_recent)
 {
 	*old_recent = recent_add(*old_recent, filename);
 
-	return (NULL);
+	return NULL;
 }
 
 static void *
@@ -2669,7 +2643,7 @@ recent_save_sub2(const char *filename, iOpenFile *of)
 {
 	fprintf(of->fp, "%s\n", filename);
 
-	return (NULL);
+	return NULL;
 }
 
 void
@@ -2707,17 +2681,17 @@ get_savedir(void)
 	 * exist (since we make it if necessary in main()).
 	 */
 	if (g_getenv("APPDATA") && existsf("%s", g_getenv("APPDATA")))
-		return ("$APPDATA/" PACKAGE "-" VERSION);
+		return "$APPDATA/" PACKAGE "-" VERSION;
 	else
-		return ("$HOME/." PACKAGE "-" VERSION);
+		return "$HOME/." PACKAGE "-" VERSION;
 #elif OS_DARWIN
 	/* Darwin ... in ~/Library
 	 */
-	return ("$HOME/Library/" PACKAGE "-" VERSION);
+	return "$HOME/Library/" PACKAGE "-" VERSION;
 #else
 	/* *nix-style system .. .dot file in home area.
 	 */
-	return ("$HOME/." PACKAGE "-" VERSION);
+	return "$HOME/." PACKAGE "-" VERSION;
 #endif /*OS_WIN32*/
 }
 
@@ -2734,7 +2708,7 @@ slist_to_array(GSList *list)
 		array[i] = list->data;
 	array[i] = NULL;
 
-	return (array);
+	return array;
 }
 
 /* Length of a NULL-terminated array.
@@ -2747,5 +2721,5 @@ array_len(void **array)
 	for (i = 0; array[i]; i++)
 		;
 
-	return (i);
+	return i;
 }

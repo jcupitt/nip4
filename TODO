@@ -1,4 +1,13 @@
 - make a "progress" widget with throttled updates? could share with
   saveoptions, and move some code out of mainwindow
 
+- use type define macros for iobject and vobject
+
+- move object structs to c file
+
+- lots of util.c is now in libvips and can be removed
+
+- now vobject (view base class)
+
+- now view
 
