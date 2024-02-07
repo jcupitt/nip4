@@ -1,3 +1,5 @@
+// app startup and lifetime management
+
 /*
 
 	Copyright (C) 1991-2003 The National Gallery

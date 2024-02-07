@@ -1,3 +1,5 @@
+// main application window
+
 /*
 
 	Copyright (C) 1991-2003 The National Gallery

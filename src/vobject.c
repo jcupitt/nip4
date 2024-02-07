@@ -1,6 +1,4 @@
-/* abstract base class for a vobject object ... watch an iobject and call
- * _refresh in idle if it changes.
- */
+// watch an iobject and call _refresh on idle if it changes
 
 /*
 
@@ -36,7 +34,7 @@
 #define DEBUG_TIME
  */
 
-#include "ip.h"
+#include "nip4.h"
 
 static GtkVBoxClass *parent_class = NULL;
 
@@ -104,7 +102,7 @@ vobject_refresh_timeout_cb(gpointer user_data)
 	printf("vobject_idle_refresh: worst %gs (refresh %d)\n",
 		worst_time, worst_index);
 
-	return (FALSE);
+	return FALSE;
 }
 #else /*DEBUG_TIME*/
 /* Refresh stuff off the dirty list.
@@ -136,12 +134,12 @@ vobject_refresh_timeout_cb(gpointer user_data)
 		vobject_refresh(vobject);
 	}
 
-	return (FALSE);
+	return FALSE;
 }
 #endif /*DEBUG_TIME*/
 
-/* Mark something for refresh. Seldom call this directly ... just change the
- * iobject and all vobjects will have a refresh queued.
+/* Mark something for refresh. We seldom call this directly ... just change
+ * the iobject and all vobjects will have a refresh queued.
  */
 void *
 vobject_refresh_queue(vObject *vobject)
@@ -152,20 +150,19 @@ vobject_refresh_queue(vObject *vobject)
 			G_OBJECT_TYPE_NAME(vobject), vobject);
 		if (vobject->iobject)
 			printf(", iobject %s \"%s\"",
-				G_OBJECT_TYPE_NAME(vobject->iobject),
-				NN(vobject->iobject->name));
+				G_OBJECT_TYPE_NAME(vobject->iobject), vobject->iobject->name);
 		printf("\n");
 #endif /*DEBUG*/
 
 		vobject->dirty = TRUE;
 		queue_add(vobject_dirty, vobject);
 
-		IM_FREEF(g_source_remove, vobject_refresh_timeout);
+		VIPS_FREEF(g_source_remove, vobject_refresh_timeout);
 		vobject_refresh_timeout = g_timeout_add(20,
 			(GSourceFunc) vobject_refresh_timeout_cb, NULL);
 	}
 
-	return (NULL);
+	return NULL;
 }
 
 /* Called for iobject changed signal ... queue a refresh.
@@ -177,23 +174,10 @@ vobject_iobject_changed(iObject *iobject, vObject *vobject)
 	printf("vobject_iobject_changed: %s %s \"%s\"\n",
 		G_OBJECT_TYPE_NAME(vobject),
 		G_OBJECT_TYPE_NAME(iobject),
-		NN(iobject->name));
+		iobject->name);
 #endif /*DEBUG*/
 
 	vobject_refresh_queue(vobject);
-}
-
-/* Called for iobject destroy signal ... kill the vobject too.
- */
-static void
-vobject_iobject_destroy(iObject *iobject, vObject *vobject)
-{
-#ifdef DEBUG
-	printf("vobject_iobject_destroy: iobject %s \"%s\"\n",
-		G_OBJECT_TYPE_NAME(iobject), NN(iobject->name));
-#endif /*DEBUG*/
-
-	gtk_widget_destroy(GTK_WIDGET(vobject));
 }
 
 /* Link to iobject.
@@ -257,14 +241,26 @@ vobject_real_refresh(vObject *vobject)
 }
 
 static void
+vobject_iobject_weak_notify(gpointer user_data, GObject *dead_object)
+{
+	vObject *vobject = VOBJECT(user_data);
+
+#ifdef DEBUG
+	printf("vobject_iobject_weak_notify: iobject %s \"%s\"\n",
+		G_OBJECT_TYPE_NAME(iobject), iobject->name);
+#endif /*DEBUG*/
+
+	gtk_widget_unparent(GTK_WIDGET(vobject));
+}
+
+static void
 vobject_real_link(vObject *vobject, iObject *iobject)
 {
 	vobject->iobject = iobject;
+	g_object_weak_ref(iobject, vobject_iobject_weak_notify, vobject);
 
-	vobject->changed_sid = g_signal_connect(iobject, "changed",
-		G_CALLBACK(vobject_iobject_changed), vobject);
-	vobject->destroy_sid = g_signal_connect(iobject, "destroy",
-		G_CALLBACK(vobject_iobject_destroy), vobject);
+	g_signal_connect_object(iobject, "changed",
+		G_CALLBACK(vobject_iobject_changed), vobject, G_CONNECT_DEFAULT);
 }
 
 static void
@@ -276,14 +272,8 @@ vobject_class_init(vObjectClass *class)
 	parent_class = g_type_class_peek_parent(class);
 
 	gobject_class->finalize = vobject_finalize;
+	gobject_class->dispose = vobject_dispose;
 
-	object_class->destroy = vobject_destroy;
-
-	/* Create signals.
-	 */
-
-	/* Init default methods.
-	 */
 	class->refresh = vobject_real_refresh;
 	class->link = vobject_real_link;
 
@@ -295,14 +285,6 @@ vobject_class_init(vObjectClass *class)
 static void
 vobject_init(vObject *vobject)
 {
-	/* Init our instance fields.
-	 */
-	vobject->iobject = NULL;
-	vobject->changed_sid = 0;
-	vobject->destroy_sid = 0;
-
-	vobject->dirty = FALSE;
-
 	/* All new vobjects will need refreshing.
 	 */
 	vobject_refresh_queue(vobject);
@@ -328,7 +310,7 @@ vobject_get_type(void)
 		vobject_type = gtk_type_unique(GTK_TYPE_VBOX, &vobject_info);
 	}
 
-	return (vobject_type);
+	return vobject_type;
 }
 
 /* Trigger the refresh method for a vobject immediately ... we usually queue
@@ -342,5 +324,5 @@ vobject_refresh(vObject *vobject)
 	if (vobject_class->refresh)
 		vobject_class->refresh(vobject);
 
-	return (NULL);
+	return NULL;
 }

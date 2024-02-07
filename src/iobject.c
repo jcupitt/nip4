@@ -1,5 +1,4 @@
-/* abstract base class for all nip objects
- */
+// abstract base class for all nip objects
 
 /*
 
@@ -31,7 +30,6 @@
 /* Our signals.
  */
 enum {
-	SIG_DESTROY, /* End lifetime */
 	SIG_CHANGED, /* iObject has changed somehow */
 	SIG_LAST
 };
@@ -39,22 +37,6 @@ enum {
 static GObjectClass *parent_class = NULL;
 
 static guint iobject_signals[SIG_LAST] = { 0 };
-
-/* Don't emit "destroy" immediately, do it from the _dispose handler.
- */
-void *
-iobject_destroy(iObject *iobject)
-{
-#ifdef DEBUG
-	printf("iobject_destroy: ");
-	iobject_print(iobject);
-#endif /*DEBUG*/
-
-	if (!iobject->in_destruction)
-		g_object_run_dispose(G_OBJECT(iobject));
-
-	return (NULL);
-}
 
 void *
 iobject_changed(iObject *iobject)
@@ -69,7 +51,7 @@ iobject_changed(iObject *iobject)
 
 	g_signal_emit(G_OBJECT(iobject), iobject_signals[SIG_CHANGED], 0);
 
-	return (NULL);
+	return NULL;
 }
 
 void *
@@ -83,25 +65,18 @@ iobject_info(iObject *iobject, VipsBuf *buf)
 	if (iobject_class->info)
 		iobject_class->info(iobject, buf);
 
-	return (NULL);
+	return NULL;
 }
 
 static void
 iobject_dispose(GObject *gobject)
 {
+#ifdef DEBUG
 	iObject *iobject = IOBJECT(gobject);
 
-#ifdef DEBUG
 	printf("iobject_dispose: ");
 	iobject_print(iobject);
 #endif /*DEBUG*/
-
-	if (!iobject->in_destruction) {
-		iobject->in_destruction = TRUE;
-		g_signal_emit(G_OBJECT(iobject),
-			iobject_signals[SIG_DESTROY], 0);
-		iobject->in_destruction = FALSE;
-	}
 
 	G_OBJECT_CLASS(parent_class)->dispose(gobject);
 }
@@ -116,19 +91,10 @@ iobject_finalize(GObject *gobject)
 	iobject_print(iobject);
 #endif /*DEBUG*/
 
-	/* Unlike GTK, we allow floating objects to be finalized. Handy if a
-	 * _new() fails. So don't assert( !iobject->floating );
-	 */
-
-	IM_FREE(iobject->name);
-	IM_FREE(iobject->caption);
+	VIPS_FREE(iobject->name);
+	VIPS_FREE(iobject->caption);
 
 	G_OBJECT_CLASS(parent_class)->finalize(gobject);
-}
-
-static void
-iobject_real_destroy(iObject *iobject)
-{
 }
 
 static void
@@ -137,8 +103,7 @@ iobject_real_changed(iObject *iobject)
 	iObjectClass *iobject_class = IOBJECT_GET_CLASS(iobject);
 
 	if (iobject_class->generate_caption)
-		IM_SETSTR(iobject->caption,
-			iobject_class->generate_caption(iobject));
+		VIPS_SETSTR(iobject->caption, iobject_class->generate_caption(iobject));
 }
 
 static void
@@ -148,8 +113,7 @@ iobject_real_info(iObject *iobject, VipsBuf *buf)
 		vips_buf_appendf(buf, "name = \"%s\"\n", iobject->name);
 	if (iobject->caption)
 		vips_buf_appendf(buf, "caption = \"%s\"\n", iobject->caption);
-	vips_buf_appendf(buf, "iObject :: \"%s\"\n",
-		G_OBJECT_TYPE_NAME(iobject));
+	vips_buf_appendf(buf, "iObject :: \"%s\"\n", G_OBJECT_TYPE_NAME(iobject));
 }
 
 static void
@@ -162,7 +126,6 @@ iobject_class_init(iObjectClass *class)
 	gobject_class->dispose = iobject_dispose;
 	gobject_class->finalize = iobject_finalize;
 
-	class->destroy = iobject_real_destroy;
 	class->changed = iobject_real_changed;
 	class->info = iobject_real_info;
 	class->generate_caption = NULL;
@@ -171,13 +134,6 @@ iobject_class_init(iObjectClass *class)
 
 	/* Create signals.
 	 */
-	iobject_signals[SIG_DESTROY] = g_signal_new("destroy",
-		G_TYPE_FROM_CLASS(gobject_class),
-		G_SIGNAL_RUN_CLEANUP | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-		G_STRUCT_OFFSET(iObjectClass, destroy),
-		NULL, NULL,
-		g_cclosure_marshal_VOID__VOID,
-		G_TYPE_NONE, 0);
 	iobject_signals[SIG_CHANGED] = g_signal_new("changed",
 		G_OBJECT_CLASS_TYPE(gobject_class),
 		G_SIGNAL_RUN_FIRST,
@@ -194,13 +150,6 @@ iobject_init(iObject *iobject)
 	printf("iobject_init: ");
 	iobject_print(iobject);
 #endif /*DEBUG*/
-
-	/* Init our instance fields.
-	 */
-	iobject->name = NULL;
-	iobject->caption = NULL;
-	iobject->floating = TRUE;
-	iobject->in_destruction = FALSE;
 }
 
 GType
@@ -225,7 +174,7 @@ iobject_get_type(void)
 			"iObject", &info, 0);
 	}
 
-	return (iobject_type);
+	return iobject_type;
 }
 
 /* Test the name field ... handy with map.
@@ -236,21 +185,20 @@ iobject_test_name(iObject *iobject, const char *name)
 	g_return_val_if_fail(iobject != NULL, NULL);
 	g_return_val_if_fail(IS_IOBJECT(iobject), NULL);
 
-	if (iobject->name && strcmp(iobject->name, name) == 0)
-		return (iobject);
+	if (iobject->name &&
+		strcmp(iobject->name, name) == 0)
+		return iobject;
 
-	return (NULL);
+	return NULL;
 }
 
 void *
 iobject_print(iObject *iobject)
 {
 	g_print("%s \"%s\" (%p)\n",
-		G_OBJECT_TYPE_NAME(iobject),
-		NN(iobject->name),
-		iobject);
+		G_OBJECT_TYPE_NAME(iobject), iobject->name, iobject);
 
-	return (NULL);
+	return NULL;
 }
 
 void
@@ -261,12 +209,14 @@ iobject_set(iObject *iobject, const char *name, const char *caption)
 	g_return_if_fail(iobject != NULL);
 	g_return_if_fail(IS_IOBJECT(iobject));
 
-	if (name && name != iobject->name) {
-		IM_SETSTR(iobject->name, name);
+	if (name &&
+		name != iobject->name) {
+		VIPS_SETSTR(iobject->name, name);
 		changed = TRUE;
 	}
-	if (caption && caption != iobject->caption) {
-		IM_SETSTR(iobject->caption, caption);
+	if (caption &&
+		caption != iobject->caption) {
+		VIPS_SETSTR(iobject->caption, caption);
 		changed = TRUE;
 	}
 
@@ -277,17 +227,6 @@ iobject_set(iObject *iobject, const char *name, const char *caption)
 	printf("iobject_set: ");
 	iobject_print(iobject);
 #endif /*DEBUG*/
-}
-
-void
-iobject_sink(iObject *iobject)
-{
-	g_assert(IS_IOBJECT(iobject));
-
-	if (iobject->floating) {
-		iobject->floating = FALSE;
-		g_object_unref(G_OBJECT(iobject));
-	}
 }
 
 void

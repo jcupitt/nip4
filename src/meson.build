@@ -13,9 +13,11 @@ resources = gnome.compile_resources(
 executable('nip4', [
     marshal,
     resources,
+    'util.c',
     'gtkutil.c',
     'main.c',
     'app.c',
+    'iobject.c',
     'mainwindow.c',
   ],
   dependencies: nip4_deps,

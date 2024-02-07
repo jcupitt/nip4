@@ -29,17 +29,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define APP_PATH "/org/libvips/nip4"
 
 #include <gtk/gtk.h>
-
 #include <vips/vips.h>
+#include <libxml/tree.h>
+#include <libxml/parser.h>
 
-/* i18n placeholder.
- */
-#define _(S) (S)
-#define GETTEXT_PACKAGE "nip4"
+#ifdef ENABLE_NLS
+
+#include <libintl.h>
+#define _(String) gettext(String)
+#ifdef gettext_noop
+#define N_(String) gettext_noop(String)
+#else
+#define N_(String) (String)
+#endif
+
+#else /* NLS is disabled */
+
+#define _(String) (String)
+#define N_(String) (String)
+#define textdomain(String) (String)
+#define gettext(String) (String)
+#define dgettext(Domain, String) (String)
+#define dcgettext(Domain, String, Type) (String)
+#define bindtextdomain(Domain, Directory) (Domain)
+#define bind_textdomain_codeset(Domain, Codeset) (Codeset)
+#define ngettext(S, P, N) ((N) == 1 ? (S) : (P))
+
+#endif /*ENABLE_NLS*/
 
 /* The tile size for image rendering.
  */
@@ -54,9 +75,11 @@
  */
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 
+#include "util.h"
 #include "gtkutil.h"
 #include "nip4marshal.h"
+#include "iobject.h"
 #include "app.h"
 #include "mainwindow.h"
 
-#endif /* __NIP4_H */
+#endif /*__NIP4_H*/

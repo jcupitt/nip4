@@ -1,3 +1,5 @@
+// base class for all view widgets
+
 /*
 
 	Copyright (C) 1991-2003 The National Gallery
@@ -62,11 +64,11 @@ gboolean
 view_scan_all(void)
 {
 	if (slist_map(view_scannable, (SListMapFn) view_scan, NULL))
-		return (FALSE);
+		return FALSE;
 
 	view_reset_all();
 
-	return (TRUE);
+	return TRUE;
 }
 
 void
@@ -108,10 +110,9 @@ view_viewchild_display(ViewChild *viewchild)
 	ViewClass *parent_view_class = VIEW_GET_CLASS(parent_view);
 
 	if (child_model->display && parent_view_class->display)
-		return (parent_view_class->display(parent_view,
-			child_model));
+		return parent_view_class->display(parent_view, child_model);
 
-	return (child_model->display);
+	return child_model->display;
 }
 
 /* One of the children of the model we watch has changed ... create or destroy
@@ -159,7 +160,7 @@ view_viewchild_new(View *parent_view, Model *child_model)
 #endif /*DEBUG_VIEWCHILD*/
 
 	if (!(viewchild = INEW(NULL, ViewChild)))
-		return (NULL);
+		return NULL;
 
 	viewchild->parent_view = parent_view;
 	viewchild->child_model = child_model;
@@ -171,7 +172,7 @@ view_viewchild_new(View *parent_view, Model *child_model)
 	parent_view->managed =
 		g_slist_append(parent_view->managed, viewchild);
 
-	return (viewchild);
+	return viewchild;
 }
 
 static void *
@@ -196,7 +197,7 @@ view_viewchild_destroy(ViewChild *viewchild)
 
 	im_free(viewchild);
 
-	return (NULL);
+	return NULL;
 }
 
 static void *
@@ -209,9 +210,9 @@ view_viewchild_test_child_model(ViewChild *viewchild, Model *child_model)
 #endif /*DEBUG*/
 
 	if (viewchild->child_model == child_model)
-		return (viewchild);
+		return viewchild;
 
-	return (NULL);
+	return NULL;
 }
 
 /* Do we have a model?
@@ -219,16 +220,16 @@ view_viewchild_test_child_model(ViewChild *viewchild, Model *child_model)
 gboolean
 view_hasmodel(View *view)
 {
-	return (VOBJECT(view)->iobject != NULL);
+	return VOBJECT(view)->iobject != NULL;
 }
 
 void *
 view_model_test(View *view, Model *model)
 {
 	if (VOBJECT(view)->iobject == IOBJECT(model))
-		return (view);
+		return view;
 
-	return (NULL);
+	return NULL;
 }
 
 /* Link to enclosing model and view.
@@ -544,7 +545,7 @@ view_real_link_sub(Model *child_model, View *parent_view)
 	viewchild = view_viewchild_new(parent_view, child_model);
 	view_viewchild_changed(child_model, viewchild);
 
-	return (NULL);
+	return NULL;
 }
 
 /* Link to model and to enclosing view.
@@ -686,7 +687,7 @@ view_real_scan(View *view)
 			(void) expr_dirty(expr, link_serial_new());
 	}
 
-	return (NULL);
+	return NULL;
 }
 
 static void
@@ -760,7 +761,7 @@ view_get_type(void)
 		view_type = gtk_type_unique(TYPE_VOBJECT, &view_info);
 	}
 
-	return (view_type);
+	return view_type;
 }
 
 /* Trigger the reset method for a view.
@@ -773,7 +774,7 @@ view_reset(View *view)
 	if (view_class->reset)
 		view_class->reset(view);
 
-	return (NULL);
+	return NULL;
 }
 
 /* Trigger the scan method for a view.
@@ -784,9 +785,9 @@ view_scan(View *view)
 	ViewClass *view_class = VIEW_GET_CLASS(view);
 
 	if (view_class->scan)
-		return (view_class->scan(view));
+		return view_class->scan(view);
 
-	return (NULL);
+	return NULL;
 }
 
 /* Trigger the scrollto method for a view.
@@ -799,7 +800,7 @@ view_scrollto(View *view, ModelScrollPosition position)
 	if (view_class->scrollto)
 		view_class->scrollto(view, position);
 
-	return (NULL);
+	return NULL;
 }
 
 /* Trigger the layout method for a view.
@@ -812,16 +813,16 @@ view_layout(View *view)
 	if (view_class->layout)
 		view_class->layout(view);
 
-	return (NULL);
+	return NULL;
 }
 
 static void *
 view_map_sub(ViewChild *viewchild, view_map_fn fn, void *a, void *b)
 {
 	if (viewchild->child_view)
-		return (fn(viewchild->child_view, a, b));
+		return fn(viewchild->child_view, a, b);
 
-	return (NULL);
+	return NULL;
 }
 
 /* Map over a view's children.
@@ -829,8 +830,8 @@ view_map_sub(ViewChild *viewchild, view_map_fn fn, void *a, void *b)
 void *
 view_map(View *view, view_map_fn fn, void *a, void *b)
 {
-	return (slist_map3(view->managed,
-		(SListMap3Fn) view_map_sub, (void *) fn, a, b));
+	return slist_map3(view->managed,
+		(SListMap3Fn) view_map_sub, (void *) fn, a, b);
 }
 
 /* Apply a function to view, and to all it's children.
@@ -841,10 +842,9 @@ view_map_all(View *view, view_map_fn fn, void *a)
 	View *result;
 
 	if ((result = fn(view, a, NULL)))
-		return (result);
+		return result;
 
-	return (view_map(view,
-		(view_map_fn) view_map_all, (void *) fn, a));
+	return view_map(view, (view_map_fn) view_map_all, (void *) fn, a);
 }
 
 void
@@ -915,7 +915,7 @@ view_get_toplevel(View *view)
 	while (IS_VIEW(view) && view->parent)
 		view = view->parent;
 
-	return (gtk_widget_get_toplevel(GTK_WIDGET(view)));
+	return gtk_widget_get_toplevel(GTK_WIDGET(view);
 }
 
 Columnview *
@@ -927,9 +927,9 @@ view_get_columnview(View *child)
 		;
 
 	if (!view)
-		return (NULL);
+		return NULL;
 
-	return (COLUMNVIEW(view));
+	return COLUMNVIEW(view);
 }
 
 /* A view has changed size ... rethink the enclosing column geo. Helps table
@@ -943,5 +943,5 @@ view_resize(View *view)
 	if (cview)
 		gtk_widget_queue_resize(GTK_WIDGET(cview));
 
-	return (NULL);
+	return NULL;
 }

@@ -1,3 +1,5 @@
+// gtk utility funcs
+
 /*
 
 	Copyright (C) 1991-2003 The National Gallery
