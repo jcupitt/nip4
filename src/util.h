@@ -225,7 +225,6 @@ int calli_string_filenamef(calli_string_fn fn, const char *fmt, ...)
 
 char *f2utf8(const char *filename);
 
-char *im_strdupn(const char *str);
 void setenvf(const char *name, const char *fmt, ...)
 	__attribute__((format(printf, 2, 3)));
 gboolean existsf(const char *name, ...)

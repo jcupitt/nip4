@@ -14,6 +14,7 @@ executable('nip4', [
     marshal,
     resources,
     'util.c',
+    'path.c',
     'gtkutil.c',
     'main.c',
     'app.c',

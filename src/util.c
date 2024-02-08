@@ -1,5 +1,4 @@
-/* Some basic util functions.
- */
+// some basic util functions
 
 /*
 
@@ -30,21 +29,12 @@
 #define DEBUG_ERROR
  */
 
-/* Prettyprint xml save files.
-
-	FIXME ... slight mem leak, and save files are much larger ... but
-	leave it on for convenience
-
- */
-#define DEBUG_SAVEFILE
-
 #include "nip4.h"
 
 /* Track errors messages in this thing. We keep two messages: a principal
  * error, and extra informative text. For example "Unable to load file.",
  * "Read failed for file blah, permission denied.".
  */
-#define MAX_STRSIZE (256)
 static char error_top_text[MAX_STRSIZE];
 static char error_sub_text[MAX_STRSIZE];
 
@@ -1233,9 +1223,9 @@ get_image_info(VipsBuf *buf, const char *name)
 		 */
 		if (vips_iscasepostfix(name2, ".ws"))
 			vips_buf_appends(buf, _("workspace"));
-		else if ((im = vips_open(name2, "r"))) {
+		else if ((im = vips_image_new_from_file(name2, NULL))) {
 			vips_buf_appendi(buf, im);
-			vips_close(im);
+			VIPS_UNREF(im);
 		}
 		else
 			/* No idea wtf this is, just put the size in.
@@ -1370,10 +1360,10 @@ swap_chars(char *buf, char from, char to)
 void
 nativeize_path(char *buf)
 {
-	char filename[FILENAME_MAX];
-	char mode[FILENAME_MAX];
+	char filename[VIPS_PATH_MAX];
+	char mode[VIPS_PATH_MAX];
 
-	vips_filename_split(buf, filename, mode);
+	vips__filename_split8(buf, filename, mode);
 
 	if (G_DIR_SEPARATOR == '/')
 		swap_chars(filename, '\\', '/');
@@ -1381,9 +1371,9 @@ nativeize_path(char *buf)
 		swap_chars(filename, '/', '\\');
 
 	if (strcmp(mode, "") != 0)
-		vips_snprintf(buf, FILENAME_MAX, "%s:%s", filename, mode);
+		vips_snprintf(buf, VIPS_PATH_MAX, "%s[%s]", filename, mode);
 	else
-		vips_snprintf(buf, FILENAME_MAX, "%s", filename);
+		vips_snprintf(buf, VIPS_PATH_MAX, "%s", filename);
 }
 
 /* Change all occurences of "from" into "to". This will loop if "to" contains
@@ -1806,14 +1796,6 @@ is_absolute(const char *fname)
 	 * We should probably look out for whitespace.
 	 */
 	return buf[0] == '/' || (buf[0] != '\0' && buf[1] == ':');
-}
-
-/* vips_strdup(), with NULL supplied.
- */
-char *
-vips_strdupn(const char *txt)
-{
-	return vips_strdup(NULL, txt);
 }
 
 /* Free an iOpenFile.

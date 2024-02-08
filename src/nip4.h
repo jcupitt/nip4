@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <fcntl.h>
 
 #define APP_PATH "/org/libvips/nip4"
 
@@ -70,12 +71,16 @@
  */
 #define MAX_TILES (2 * (4096 / TILE_SIZE) * (2048 / TILE_SIZE))
 
+// smallish static strings
+#define MAX_STRSIZE (256)
+
 /* We use various gtk4 features (GtkInfoBar, GtkDialog) which are going away
  * in gtk5.
  */
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 
 #include "util.h"
+#include "path.h"
 #include "gtkutil.h"
 #include "nip4marshal.h"
 #include "iobject.h"
