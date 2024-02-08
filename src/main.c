@@ -94,6 +94,8 @@ main(int argc, char **argv)
 	printf("nip4.main: blocking VipsForeignLoadMagick\n");
 	vips_operation_block_set("VipsForeignLoadMagick", TRUE);
 
+	path_init();
+
 	app = app_new();
 
 	status = g_application_run(G_APPLICATION(app), argc, argv);

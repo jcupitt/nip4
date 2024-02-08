@@ -81,6 +81,7 @@ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 
 #include "util.h"
 #include "main.h"
+#include "watch.h"
 #include "path.h"
 #include "gtkutil.h"
 #include "nip4marshal.h"

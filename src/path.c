@@ -560,6 +560,8 @@ path_map_dir(const char *dir, const char *patt, path_map_fn fn, void *a)
 char *
 path_find_file(const char *filename)
 {
+	char *fname;
+
 #ifdef DEBUG_SEARCH
 	printf("path_find_file: \"%s\"\n", filename);
 #endif /*DEBUG_SEARCH*/
@@ -570,13 +572,9 @@ path_find_file(const char *filename)
 		return g_strdup(filename);
 
 	/* Search everywhere.
-	 *
-	 * FIXME ... put this back when we get watch.c in
-	 *
-	char *fname;
+	 */
 	if ((fname = path_map(PATH_SEARCH, filename, (path_map_fn) g_strdup, NULL)))
 		return fname;
-	 */
 
 	error_top(_("Not found."));
 	error_sub(_("File \"%s\" not found on path"), filename);

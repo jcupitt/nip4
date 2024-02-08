@@ -1952,7 +1952,7 @@ ifile_write(iOpenFile *of, const char *fmt, ...)
 gboolean
 ifile_write_var(iOpenFile *of, const char *name, const char *value)
 {
-	if (value && !ifile_write(of, " %s=\"%s\"", name, value)
+	if (value && !ifile_write(of, " %s=\"%s\"", name, value))
 		return FALSE;
 
 	return TRUE;
