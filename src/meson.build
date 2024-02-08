@@ -20,6 +20,7 @@ executable('nip4', [
     'app.c',
     'iobject.c',
     'vobject.c',
+    'view.c',
     'mainwindow.c',
   ],
   dependencies: nip4_deps,

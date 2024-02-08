@@ -21,20 +21,22 @@
 
  */
 
-#define TYPE_VIEW (view_get_type())
-#define VIEW(obj) (GTK_CHECK_CAST((obj), TYPE_VIEW, View))
+#define VIEW_TYPE (view_get_type())
+#define VIEW(obj) \
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), VIEW_TYPE, View))
 #define VIEW_CLASS(klass) \
-	(GTK_CHECK_CLASS_CAST((klass), TYPE_VIEW, ViewClass))
-#define IS_VIEW(obj) (GTK_CHECK_TYPE((obj), TYPE_VIEW))
+	(G_TYPE_CHECK_CLASS_CAST((klass), VIEW_TYPE, ViewClass))
+#define IS_VIEW(obj) \
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj), VIEW_TYPE))
 #define IS_VIEW_CLASS(klass) \
-	(GTK_CHECK_CLASS_TYPE((klass), TYPE_VIEW))
+	(G_TYPE_CHECK_CLASS_TYPE((klass), VIEW_TYPE))
 #define VIEW_GET_CLASS(obj) \
-	(GTK_CHECK_GET_CLASS((obj), TYPE_VIEW, ViewClass))
+	(G_TYPE_INSTANCE_GET_CLASS((obj), VIEW_TYPE, ViewClass))
 
 /* We track all of the children of our model, listening to "changed", so we
  * can lazily add or remove child views of us as the model requests.
  */
-typedef struct {
+typedef struct _ViewChild {
 	View *parent_view;			   /* Us */
 	Model *child_model;			   /* The child we are watching */
 	guint child_model_changed_sid; /* Listen to "changed" on child here */
@@ -68,18 +70,18 @@ typedef struct _ViewClass {
 
 	/* Create/destroy
 
-		link 		this view is about to be linked to this model
-				with this parent view
+		link				this view is about to be linked to this model
+							with this parent view
 
-		child_add	this view has just gained a child
+		child_add			this view has just gained a child
 
-		child_remove	this view is about to lose a child
+		child_remove		this view is about to lose a child
 
-		child_position	this child needs repositioning
+		child_position		this child needs repositioning
 
-		child_front	pop this child to the front
+		child_front			pop this child to the front
 
-		display		should this child be displayed
+		display				should this child be displayed
 
 	 */
 
@@ -92,15 +94,15 @@ typedef struct _ViewClass {
 
 	/* State change
 
-		reset		reset edit mode ... eg. text pops back to
-				value display
+		reset				reset edit mode ... eg. text pops back to
+							value display
 
-		scan		scan widgets, reading any new text off the
-				display
+		scan				scan widgets, reading any new text off the
+							display
 
-		scrollto	try to make this view visible
+		scrollto			try to make this view visible
 
-		layout		try to lay children out
+		layout				try to lay children out
 
 	 */
 	void (*reset)(View *);
@@ -120,7 +122,7 @@ void view_reset_all(void);
 gboolean view_hasmodel(View *view);
 void *view_model_test(View *child, Model *model);
 
-GtkType view_get_type(void);
+GType view_get_type(void);
 
 void view_link(View *view, Model *model, View *parent);
 void view_unlink(View *view);
@@ -133,6 +135,8 @@ void *view_reset(View *view);
 void *view_scan(View *view);
 void *view_scrollto(View *view, ModelScrollPosition);
 void *view_layout(View *view);
+
+typedef void *(*view_map_fn)(View *, void *, void *);
 
 void *view_map(View *view, view_map_fn fn, void *a, void *b);
 void *view_map_all(View *view, view_map_fn fn, void *a);

@@ -30,9 +30,9 @@
 #define DEBUG_TIME
  */
 
-#include "ip.h"
+#include "nip4.h"
 
-static vObjectClass *parent_class = NULL;
+G_DEFINE_TYPE(View, view, VOBJECT_TYPE)
 
 static GSList *view_scannable = NULL;
 
@@ -134,7 +134,7 @@ view_viewchild_changed(Model *model, ViewChild *viewchild)
 			G_OBJECT_TYPE_NAME(child));
 #endif /*DEBUG_VIEWCHILD*/
 
-		DESTROY_GTK(child);
+		UNPARENT(child);
 	}
 	else if (display && !child) {
 #ifdef DEBUG_VIEWCHILD
@@ -195,7 +195,7 @@ view_viewchild_destroy(ViewChild *viewchild)
 	parent_view->managed =
 		g_slist_remove(parent_view->managed, viewchild);
 
-	im_free(viewchild);
+	g_free(viewchild);
 
 	return NULL;
 }
@@ -300,7 +300,7 @@ view_unlink(View *view)
 }
 
 static void
-view_destroy(GtkObject *object)
+view_dispose(GObject *object)
 {
 	View *view;
 
@@ -310,7 +310,7 @@ view_destroy(GtkObject *object)
 	view = VIEW(object);
 
 #ifdef DEBUG
-	printf("view_destroy: \"%s\"\n", G_OBJECT_TYPE_NAME(object));
+	printf("view_dispose: \"%s\"\n", G_OBJECT_TYPE_NAME(object));
 #endif /*DEBUG*/
 
 	/* We're probably changing the size of our enclosing column.
@@ -331,7 +331,7 @@ view_destroy(GtkObject *object)
 	slist_map(view->managed,
 		(SListMapFn) view_viewchild_destroy, NULL);
 
-	GTK_OBJECT_CLASS(parent_class)->destroy(object);
+	G_OBJECT_CLASS(view_parent_class)->dispose(object);
 }
 
 static void
@@ -341,7 +341,7 @@ view_finalize(GObject *gobject)
 	printf("view_finalize: \"%s\"\n", G_OBJECT_TYPE_NAME(gobject));
 #endif /*DEBUG*/
 
-	G_OBJECT_CLASS(parent_class)->finalize(gobject);
+	G_OBJECT_CLASS(view_parent_class)->finalize(gobject);
 }
 
 /* Called for model pos_changed signal ... queue a refresh.
@@ -623,8 +623,7 @@ view_real_child_add(View *parent, View *child)
 	 */
 	child->parent = parent;
 	viewchild->child_view = child;
-	g_object_ref(GTK_OBJECT(child));
-	gtk_object_sink(GTK_OBJECT(child));
+	g_object_ref_sink(G_OBJECT(child));
 }
 
 static void
@@ -694,13 +693,9 @@ static void
 view_class_init(ViewClass *class)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
-	GtkObjectClass *object_class = (GtkObjectClass *) class;
-
-	parent_class = g_type_class_peek_parent(class);
 
 	gobject_class->finalize = view_finalize;
-
-	object_class->destroy = view_destroy;
+	gobject_class->dispose = view_dispose;
 
 	/* Create signals.
 	 */
@@ -739,29 +734,6 @@ view_init(View *view)
 
 	view->scannable = FALSE;
 	view->resettable = FALSE;
-}
-
-GtkType
-view_get_type(void)
-{
-	static GtkType view_type = 0;
-
-	if (!view_type) {
-		static const GtkTypeInfo view_info = {
-			"View",
-			sizeof(View),
-			sizeof(ViewClass),
-			(GtkClassInitFunc) view_class_init,
-			(GtkObjectInitFunc) view_init,
-			/* reserved_1 */ NULL,
-			/* reserved_2 */ NULL,
-			(GtkClassInitFunc) NULL,
-		};
-
-		view_type = gtk_type_unique(TYPE_VOBJECT, &view_info);
-	}
-
-	return view_type;
 }
 
 /* Trigger the reset method for a view.

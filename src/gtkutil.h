@@ -44,3 +44,13 @@ void action_toggle(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data);
 void action_radio(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data);
+
+#define UNPARENT(W) \
+	G_STMT_START \
+	{ \
+		if (W) { \
+			gtk_widget_unparent(GTK_WIDGET(W)); \
+			(W) = NULL; \
+		} \
+	} \
+	G_STMT_END

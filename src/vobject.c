@@ -248,7 +248,7 @@ vobject_iobject_weak_notify(gpointer user_data, GObject *dead_object)
 
 	vobject->iobject = NULL;
 
-	gtk_widget_unparent(GTK_WIDGET(vobject));
+	UNPARENT(vobject);
 }
 
 static void

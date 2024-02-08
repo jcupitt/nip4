@@ -82,6 +82,14 @@
  */
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 
+// various forward typdefs
+typedef struct _View View;
+typedef struct _Model Model;
+typedef struct _iContainer iContainer;
+typedef struct _Heapmodel Heapmodel;
+typedef struct _Row Row;
+typedef struct _Expr Expr;
+
 #include "util.h"
 #include "main.h"
 #include "watch.h"
@@ -90,6 +98,13 @@ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 #include "nip4marshal.h"
 #include "iobject.h"
 #include "vobject.h"
+#include "model.h"
+#include "columnview.h"
+#include "heapmodel.h"
+#include "icontainer.h"
+#include "view.h"
+#include "expr.h"
+#include "row.h"
 #include "app.h"
 #include "mainwindow.h"
 
