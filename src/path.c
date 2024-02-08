@@ -20,12 +20,6 @@
 
  */
 
-/*
-
-	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
-
- */
-
 /* just load .defs/.wses from "."
 #define DEBUG_LOCAL
  */
@@ -101,13 +95,13 @@ path_rewrite_new(const char *old, const char *new, gboolean lock)
 	rewrite->lock = lock;
 	rewrite_list = g_slist_prepend(rewrite_list, rewrite);
 
-	return (rewrite);
+	return rewrite;
 }
 
 static gint
 path_rewrite_sort_fn(Rewrite *a, Rewrite *b)
 {
-	return (strlen(b->old) - strlen(a->old));
+	return strlen(b->old) - strlen(a->old);
 }
 
 static Rewrite *
@@ -120,10 +114,10 @@ path_rewrite_lookup(const char *old)
 		rewrite = (Rewrite *) p->data;
 
 		if (strcmp(old, rewrite->old) == 0)
-			return (rewrite);
+			return rewrite;
 	}
 
-	return (NULL);
+	return NULL;
 }
 
 /* Add a new rewrite pair to the rewrite list. @new can be NULL, meaning
@@ -328,7 +322,7 @@ path_parse(const char *path)
 			e++;
 	}
 
-	return (op);
+	return op;
 }
 
 /* Free a path. path_free() is reserved n OS X :(
@@ -345,7 +339,7 @@ path_free2(GSList *path)
 static int
 path_add_component(const char *str, int c)
 {
-	return (c + strlen(str) + 1);
+	return c + strlen(str) + 1;
 }
 
 /* Sub-fn of below. Copy string to buffer, append ':', return new end.
@@ -356,7 +350,7 @@ path_add_string(const char *str, char *buf)
 	strcpy(buf, str);
 	strcat(buf, G_SEARCHPATH_SEPARATOR_S);
 
-	return (buf + strlen(buf));
+	return buf + strlen(buf);
 }
 
 /* Turn a list of directory names into a search path.
@@ -377,7 +371,7 @@ path_unparse(GSList *path)
 	if (len > 0)
 		buf[len - 1] = '\0';
 
-	return (buf);
+	return buf;
 }
 
 /* Track this stuff during a file search.
@@ -427,19 +421,16 @@ path_search_init(Search *search, const char *patt, path_map_fn fn, void *a)
 
 	if (!(search->wild = g_pattern_spec_new(search->basename))) {
 		path_search_free(search);
-		return (FALSE);
+		return FALSE;
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 static void *
 path_str_eq(const char *s1, const char *s2)
 {
-	if (strcmp(s1, s2) == 0)
-		return ((void *) s1);
-	else
-		return (NULL);
+	return strcmp(s1, s2) == 0 ? (void *) s1 : NULL;
 }
 
 /* Test for string matches pattern. If the match is successful, call a user
@@ -469,10 +460,10 @@ path_search_match(Search *search, const char *dir_name, const char *name)
 #endif /*DEBUG_SEARCH*/
 
 		if ((result = search->fn(buf, search->a, NULL, NULL)))
-			return (result);
+			return result;
 	}
 
-	return (NULL);
+	return NULL;
 }
 
 /* Scan a directory, calling a function for every entry. Abort scan if
@@ -493,17 +484,17 @@ path_scan_dir(const char *dir_name, Search *search)
 
 	if (!(dir = (GDir *) callv_string_filename(
 			  (callv_string_fn) g_dir_open, buf, NULL, NULL, NULL)))
-		return (NULL);
+		return NULL;
 
 	while ((name = g_dir_read_name(dir)))
 		if ((result = path_search_match(search, buf, name))) {
 			g_dir_close(dir);
-			return (result);
+			return result;
 		}
 
 	g_dir_close(dir);
 
-	return (NULL);
+	return NULL;
 }
 
 /* Scan a search path, applying a function to every file name which matches a
@@ -528,13 +519,13 @@ path_map(GSList *path, const char *patt, path_map_fn fn, void *a)
 #endif /*DEBUG_SEARCH*/
 
 	if (!path_search_init(&search, patt, fn, a))
-		return (NULL);
+		return NULL;
 
 	result = slist_map(path, (SListMapFn) path_scan_dir, &search);
 
 	path_search_free(&search);
 
-	return (result);
+	return result;
 }
 
 /* As above, but scan a single directory.
@@ -550,7 +541,7 @@ path_map_dir(const char *dir, const char *patt, path_map_fn fn, void *a)
 #endif /*DEBUG_SEARCH*/
 
 	if (!path_search_init(&search, patt, fn, a))
-		return (NULL);
+		return NULL;
 
 	if (!(result = path_scan_dir(dir, &search))) {
 		/* Not found? Maybe - error message anyway.
@@ -561,7 +552,7 @@ path_map_dir(const char *dir, const char *patt, path_map_fn fn, void *a)
 
 	path_search_free(&search);
 
-	return (result);
+	return result;
 }
 
 /* Search for a file on the search path.
@@ -569,8 +560,6 @@ path_map_dir(const char *dir, const char *patt, path_map_fn fn, void *a)
 char *
 path_find_file(const char *filename)
 {
-	char *fname;
-
 #ifdef DEBUG_SEARCH
 	printf("path_find_file: \"%s\"\n", filename);
 #endif /*DEBUG_SEARCH*/
@@ -578,18 +567,21 @@ path_find_file(const char *filename)
 	/* Try file name exactly.
 	 */
 	if (existsf("%s", filename))
-		return (g_strdup(filename));
+		return g_strdup(filename);
 
 	/* Search everywhere.
+	 *
+	 * FIXME ... put this back when we get watch.c in
+	 *
+	char *fname;
+	if ((fname = path_map(PATH_SEARCH, filename, (path_map_fn) g_strdup, NULL)))
+		return fname;
 	 */
-	if ((fname = path_map(PATH_SEARCH, filename,
-			 (path_map_fn) g_strdup, NULL)))
-		return (fname);
 
 	error_top(_("Not found."));
 	error_sub(_("File \"%s\" not found on path"), filename);
 
-	return (NULL);
+	return NULL;
 }
 
 void
