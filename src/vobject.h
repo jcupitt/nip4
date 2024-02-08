@@ -21,33 +21,27 @@
 
  */
 
-/*
-
-	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
-
- */
-
-#define TYPE_VOBJECT (vobject_get_type())
-#define VOBJECT(obj) (GTK_CHECK_CAST((obj), TYPE_VOBJECT, vObject))
+#define VOBJECT_TYPE (vobject_get_type())
+#define VOBJECT(obj) \
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), VOBJECT_TYPE, vObject))
 #define VOBJECT_CLASS(klass) \
-	(GTK_CHECK_CLASS_CAST((klass), TYPE_VOBJECT, vObjectClass))
-#define IS_VOBJECT(obj) (GTK_CHECK_TYPE((obj), TYPE_VOBJECT))
+	(G_TYPE_CHECK_CLASS_CAST((klass), VOBJECT_TYPE, vObjectClass))
+#define IS_VOBJECT(obj) \
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj), VOBJECT_TYPE))
 #define IS_VOBJECT_CLASS(klass) \
-	(GTK_CHECK_CLASS_TYPE((klass), TYPE_VOBJECT))
+	(G_TYPE_CHECK_CLASS_TYPE((klass), VOBJECT_TYPE))
 #define VOBJECT_GET_CLASS(obj) \
-	(GTK_CHECK_GET_CLASS((obj), TYPE_VOBJECT, vObjectClass))
+	(G_TYPE_INSTANCE_GET_CLASS((obj), VOBJECT_TYPE, vObjectClass))
 
 typedef struct _vObject {
-	GtkVBox vbox;
+	GtkWidget parent_instance;
 
-	/* My instance vars.
-	 */
 	iObject *iobject; /* weakref to iObject we are watching */
 	gboolean dirty;	  /* In need of refreshment */
 } vObject;
 
 typedef struct _vObjectClass {
-	GtkVBoxClass parent_class;
+	GtkWidgetClass parent_class;
 
 	/* State change
 
@@ -67,7 +61,7 @@ typedef struct _vObjectClass {
 
 void *vobject_refresh_queue(vObject *vobject);
 
-GtkType vobject_get_type(void);
+GType vobject_get_type(void);
 void vobject_base_init(void);
 
 void vobject_link(vObject *vobject, iObject *iobject);

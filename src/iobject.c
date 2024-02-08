@@ -34,7 +34,7 @@ enum {
 	SIG_LAST
 };
 
-static GObjectClass *parent_class = NULL;
+G_DEFINE_TYPE(iObject, iobject, GTK_TYPE_WIDGET)
 
 static guint iobject_signals[SIG_LAST] = { 0 };
 
@@ -78,7 +78,7 @@ iobject_dispose(GObject *gobject)
 	iobject_print(iobject);
 #endif /*DEBUG*/
 
-	G_OBJECT_CLASS(parent_class)->dispose(gobject);
+	G_OBJECT_CLASS(iobject_parent_class)->dispose(gobject);
 }
 
 static void
@@ -94,7 +94,7 @@ iobject_finalize(GObject *gobject)
 	VIPS_FREE(iobject->name);
 	VIPS_FREE(iobject->caption);
 
-	G_OBJECT_CLASS(parent_class)->finalize(gobject);
+	G_OBJECT_CLASS(iobject_parent_class)->finalize(gobject);
 }
 
 static void
@@ -120,8 +120,6 @@ static void
 iobject_class_init(iObjectClass *class)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
-
-	parent_class = g_type_class_peek_parent(class);
 
 	gobject_class->dispose = iobject_dispose;
 	gobject_class->finalize = iobject_finalize;
@@ -150,31 +148,6 @@ iobject_init(iObject *iobject)
 	printf("iobject_init: ");
 	iobject_print(iobject);
 #endif /*DEBUG*/
-}
-
-GType
-iobject_get_type(void)
-{
-	static GType iobject_type = 0;
-
-	if (!iobject_type) {
-		static const GTypeInfo info = {
-			sizeof(iObjectClass),
-			NULL, /* base_init */
-			NULL, /* base_finalize */
-			(GClassInitFunc) iobject_class_init,
-			NULL, /* class_finalize */
-			NULL, /* class_data */
-			sizeof(iObject),
-			32, /* n_preallocs */
-			(GInstanceInitFunc) iobject_init,
-		};
-
-		iobject_type = g_type_register_static(G_TYPE_OBJECT,
-			"iObject", &info, 0);
-	}
-
-	return iobject_type;
 }
 
 /* Test the name field ... handy with map.

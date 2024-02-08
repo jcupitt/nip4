@@ -60,16 +60,15 @@ main_window_set_error(MainWindow *main, const char *message)
 	char *err;
 	int i;
 
-#ifdef DEBUG
-	printf("main_window_set_error: %s\n", message);
-#endif /*DEBUG*/
-
 	/* Remove any trailing \n.
 	 */
 	err = g_strdup(message);
 	for (i = strlen(err); i > 0 && err[i - 1] == '\n'; i--)
 		err[i - 1] = '\0';
 	gtk_label_set_text(GTK_LABEL(main->error_label), err);
+#ifdef DEBUG
+	printf("main_window_set_error: %s\n", err);
+#endif /*DEBUG*/
 	g_free(err);
 
 	gtk_info_bar_set_revealed(GTK_INFO_BAR(main->error_bar), TRUE);
@@ -452,7 +451,7 @@ main_window_set_gfile(MainWindow *main, GFile *gfile)
 		g_free(file);
 	}
 
-	vips_error("MainWindow", "Workspace load not implemented.");
+	vips_error("MainWindow", "Workspace load not implemented");
 	main_window_error(main);
 }
 

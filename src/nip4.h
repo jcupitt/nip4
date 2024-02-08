@@ -89,6 +89,7 @@ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 #include "gtkutil.h"
 #include "nip4marshal.h"
 #include "iobject.h"
+#include "vobject.h"
 #include "app.h"
 #include "mainwindow.h"
 

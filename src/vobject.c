@@ -21,12 +21,6 @@
  */
 
 /*
-
-	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
-
- */
-
-/*
 #define DEBUG
  */
 
@@ -36,7 +30,7 @@
 
 #include "nip4.h"
 
-static GtkVBoxClass *parent_class = NULL;
+G_DEFINE_TYPE(vObject, vobject, GTK_TYPE_WIDGET)
 
 static Queue *vobject_dirty = NULL;
 
@@ -59,6 +53,7 @@ vobject_refresh_dequeue(vObject *vobject)
 }
 
 #ifdef DEBUG_TIME
+
 /* Refresh all vobjects at once and time them.
  */
 static gboolean
@@ -82,6 +77,7 @@ vobject_refresh_timeout_cb(gpointer user_data)
 
 	for (n = 0; (data = queue_head(vobject_dirty)); n++) {
 		vObject *vobject = VOBJECT(data);
+
 		double elapsed;
 
 		vobject->dirty = FALSE;
@@ -104,7 +100,9 @@ vobject_refresh_timeout_cb(gpointer user_data)
 
 	return FALSE;
 }
+
 #else /*DEBUG_TIME*/
+
 /* Refresh stuff off the dirty list.
  */
 static gboolean
@@ -136,6 +134,7 @@ vobject_refresh_timeout_cb(gpointer user_data)
 
 	return FALSE;
 }
+
 #endif /*DEBUG_TIME*/
 
 /* Mark something for refresh. We seldom call this directly ... just change
@@ -198,7 +197,7 @@ vobject_link(vObject *vobject, iObject *iobject)
 }
 
 static void
-vobject_destroy(GtkObject *object)
+vobject_dispose(GObject *object)
 {
 	vObject *vobject;
 
@@ -208,17 +207,12 @@ vobject_destroy(GtkObject *object)
 	vobject = VOBJECT(object);
 
 #ifdef DEBUG
-	printf("vobject_destroy: \"%s\"\n", G_OBJECT_TYPE_NAME(object));
+	printf("vobject_dispose: \"%s\"\n", G_OBJECT_TYPE_NAME(object));
 #endif /*DEBUG*/
 
-	if (vobject->iobject) {
-		FREESID(vobject->changed_sid, vobject->iobject);
-		FREESID(vobject->destroy_sid, vobject->iobject);
-		vobject->iobject = NULL;
-	}
 	vobject_refresh_dequeue(vobject);
 
-	GTK_OBJECT_CLASS(parent_class)->destroy(object);
+	G_OBJECT_CLASS(vobject_parent_class)->dispose(object);
 }
 
 static void
@@ -228,7 +222,7 @@ vobject_finalize(GObject *gobject)
 	printf("vobject_finalize: \"%s\"\n", G_OBJECT_TYPE_NAME(gobject));
 #endif /*DEBUG*/
 
-	G_OBJECT_CLASS(parent_class)->finalize(gobject);
+	G_OBJECT_CLASS(vobject_parent_class)->finalize(gobject);
 }
 
 static void
@@ -250,14 +244,20 @@ vobject_iobject_weak_notify(gpointer user_data, GObject *dead_object)
 		G_OBJECT_TYPE_NAME(iobject), iobject->name);
 #endif /*DEBUG*/
 
+	g_assert(!vobject->iobject || G_OBJECT(vobject->iobject) == dead_object);
+
+	vobject->iobject = NULL;
+
 	gtk_widget_unparent(GTK_WIDGET(vobject));
 }
 
 static void
 vobject_real_link(vObject *vobject, iObject *iobject)
 {
+	g_assert(!vobject->iobject);
+
 	vobject->iobject = iobject;
-	g_object_weak_ref(iobject, vobject_iobject_weak_notify, vobject);
+	g_object_weak_ref(G_OBJECT(iobject), vobject_iobject_weak_notify, vobject);
 
 	g_signal_connect_object(iobject, "changed",
 		G_CALLBACK(vobject_iobject_changed), vobject, G_CONNECT_DEFAULT);
@@ -267,9 +267,6 @@ static void
 vobject_class_init(vObjectClass *class)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
-	GtkObjectClass *object_class = (GtkObjectClass *) class;
-
-	parent_class = g_type_class_peek_parent(class);
 
 	gobject_class->finalize = vobject_finalize;
 	gobject_class->dispose = vobject_dispose;
@@ -288,29 +285,6 @@ vobject_init(vObject *vobject)
 	/* All new vobjects will need refreshing.
 	 */
 	vobject_refresh_queue(vobject);
-}
-
-GtkType
-vobject_get_type(void)
-{
-	static GtkType vobject_type = 0;
-
-	if (!vobject_type) {
-		static const GtkTypeInfo vobject_info = {
-			"vObject",
-			sizeof(vObject),
-			sizeof(vObjectClass),
-			(GtkClassInitFunc) vobject_class_init,
-			(GtkObjectInitFunc) vobject_init,
-			/* reserved_1 */ NULL,
-			/* reserved_2 */ NULL,
-			(GtkClassInitFunc) NULL,
-		};
-
-		vobject_type = gtk_type_unique(GTK_TYPE_VBOX, &vobject_info);
-	}
-
-	return vobject_type;
 }
 
 /* Trigger the refresh method for a vobject immediately ... we usually queue

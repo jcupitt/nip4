@@ -1,7 +1,7 @@
 - make a "progress" widget with throttled updates? could share with
   saveoptions, and move some code out of mainwindow
 
-- use type define macros for iobject and vobject
+- use type define macros for iobject, vobject, view etc.
 
 - move object structs to c file
 
