@@ -74,6 +74,9 @@
 // smallish static strings
 #define MAX_STRSIZE (256)
 
+// number of temp workspaces, items in file menu, etc.
+#define MAX_RECENT (10)
+
 /* We use various gtk4 features (GtkInfoBar, GtkDialog) which are going away
  * in gtk5.
  */

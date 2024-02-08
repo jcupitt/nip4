@@ -2335,16 +2335,16 @@ findmaxmin(VipsImage *in,
 	VipsImage *msk;
 	VipsImage *t1;
 
-	if (vips_extract_area(in, &t1, left, top, width, height))
+	if (vips_extract_area(in, &t1, left, top, width, height, NULL))
 		return -1;
-	if (vips_stats(t1, &msk)) {
+	if (vips_stats(t1, &msk, NULL)) {
 		VIPS_UNREF(t1);
 		return -1;
 	}
 	VIPS_UNREF(t1);
 
-	*min = *VIPS_IMAGE_ARRAY(msk, 0, 0);
-	*max = *VIPS_IMAGE_ARRAY(msk, 1, 0);
+	*min = *VIPS_MATRIX(msk, 0, 0);
+	*max = *VIPS_MATRIX(msk, 1, 0);
 
 	VIPS_UNREF(msk);
 
@@ -2411,14 +2411,14 @@ increment_filename(char *filename)
 	char buf[FILENAME_MAX];
 	char suf[FILENAME_MAX];
 	char tail[FILENAME_MAX];
-	char *file, *p;
+	char *p;
 
 	vips_strncpy(buf, filename, FILENAME_MAX);
 
 	/* Save and replace the suffix around an increment_name.
 	 */
 	char *basename = g_path_get_basename(buf);
-	if (!(p = strrchr(file, '.')))
+	if (!(p = strrchr(basename, '.')))
 		p = basename + strlen(basename);
 	vips_strncpy(suf, p, FILENAME_MAX);
 	*p = '\0';
@@ -2476,12 +2476,15 @@ extract_first_line(char *buf, char *str, int len)
 void
 name_from_filename(const char *in, char *out)
 {
+	char *basename;
 	const char *p;
+
+	basename = g_path_get_basename(in);
 
 	/* Skip leading path prefix, and any non-alpha.
 	 * Don't use isalnum(), since we don't want leading digits.
 	 */
-	p = vips_skip_dir(in);
+	p = basename;
 	while (*p && !(isalpha(*p) || *p == '_'))
 		p += 1;
 
@@ -2498,6 +2501,8 @@ name_from_filename(const char *in, char *out)
 				*q++ = *p;
 		*q = '\0';
 	}
+
+	g_free(basename);
 }
 
 /* Do any leak checking we can.
@@ -2516,7 +2521,7 @@ imalloc(VipsImage *im, size_t len)
 {
 	void *mem;
 
-	if (!(mem = vips_malloc(im, len))) {
+	if (!(mem = VIPS_MALLOC(im, len))) {
 		char txt[256];
 		VipsBuf buf = VIPS_BUF_STATIC(txt);
 
