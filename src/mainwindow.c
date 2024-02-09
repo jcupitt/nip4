@@ -55,39 +55,37 @@ struct _MainWindow {
 G_DEFINE_TYPE(MainWindow, main_window, GTK_TYPE_APPLICATION_WINDOW);
 
 static void
-main_window_set_error(MainWindow *main, const char *message)
-{
-	char *err;
-	int i;
-
-	/* Remove any trailing \n.
-	 */
-	err = g_strdup(message);
-	for (i = strlen(err); i > 0 && err[i - 1] == '\n'; i--)
-		err[i - 1] = '\0';
-	gtk_label_set_text(GTK_LABEL(main->error_label), err);
-#ifdef DEBUG
-	printf("main_window_set_error: %s\n", err);
-#endif /*DEBUG*/
-	g_free(err);
-
-	gtk_info_bar_set_revealed(GTK_INFO_BAR(main->error_bar), TRUE);
-}
-
-static void
 main_window_error(MainWindow *main)
 {
-	main_window_set_error(main, vips_error_buffer());
-	vips_error_clear();
+	char txt[256];
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
+
+	vips_buf_appendf(&buf, "<span size=\"large\">%s</span>\n%s",
+		error_get_top(), error_get_sub());
+	gtk_label_set_markup(GTK_LABEL(main->error_label), vips_buf_all(&buf));
+#ifdef DEBUG
+	printf("main_window_set_error: %s\n", vips_buf_all(&buf));
+#endif /*DEBUG*/
+
+	gtk_info_bar_set_revealed(GTK_INFO_BAR(main->error_bar), TRUE);
 }
 
 static void
 main_window_gerror(MainWindow *main, GError **error)
 {
 	if (error && *error) {
-		main_window_set_error(main, (*error)->message);
+		error_top("Error");
+		error_sub((*error)->message);
 		g_error_free(*error);
+		main_window_error(main);
 	}
+}
+
+static void
+main_window_verror(MainWindow *main)
+{
+	error_vips();
+	main_window_error(main);
 }
 
 static void
@@ -445,14 +443,18 @@ main_window_set_gfile(MainWindow *main, GFile *gfile)
 #endif /*DEBUG*/
 
 	gtk_label_set_text(GTK_LABEL(main->title), "Untitled");
+	gtk_label_set_text(GTK_LABEL(main->subtitle), NULL);
+
 	if (gfile) {
 		char *file = g_file_get_path(gfile);
 		gtk_label_set_text(GTK_LABEL(main->subtitle), file);
+
+		error_top("Unable to load file");
+		error_sub("Load of %s failed, workspace load not implemented", file);
+		main_window_error(main);
+
 		g_free(file);
 	}
-
-	vips_error("MainWindow", "Workspace load not implemented");
-	main_window_error(main);
 }
 
 static GSettings *

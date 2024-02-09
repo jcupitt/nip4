@@ -190,6 +190,21 @@ error_get_sub(void)
 	return vips_buf_all(&error_sub_buf);
 }
 
+void
+error_alert(GtkWidget *parent)
+{
+	GtkRoot *root = gtk_widget_get_root(parent);
+
+	GtkAlertDialog *alert;
+
+	alert = gtk_alert_dialog_new("alert");
+	gtk_alert_dialog_set_message(alert, error_get_top());
+	gtk_alert_dialog_set_detail(alert, error_get_sub());
+	error_clear();
+	gtk_alert_dialog_set_modal(alert, TRUE);
+	gtk_alert_dialog_show(alert, GTK_WINDOW(root));
+}
+
 /* Set an xml property printf() style.
  */
 gboolean

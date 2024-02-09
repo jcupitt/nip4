@@ -161,6 +161,7 @@ void error_vips(void);
 void error_vips_all(void);
 const char *error_get_top(void);
 const char *error_get_sub(void);
+void error_alert(GtkWidget *parent);
 
 gboolean is_postfix(const char *a, const char *b);
 gboolean is_prefix(const char *a, const char *b);

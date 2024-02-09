@@ -108,6 +108,7 @@ typedef struct _Filemodel Filemodel;
 #include "expr.h"
 #include "row.h"
 #include "symbol.h"
+#include "link.h"
 #include "app.h"
 #include "mainwindow.h"
 

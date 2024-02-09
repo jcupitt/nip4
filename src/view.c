@@ -878,7 +878,7 @@ void
 view_not_implemented_cb(GtkWidget *menu, GtkWidget *host, View *view)
 {
 	error_top(_("Not implemented."));
-	iwindow_alert(GTK_WIDGET(view), GTK_MESSAGE_ERROR);
+	error_alert(GTK_WIDGET(view));
 }
 
 GtkWidget *

@@ -9,7 +9,7 @@ typedef enum {
 	MODEL_SCROLL_BOTTOM
 } ModelScrollPosition;
 
-void model_view_new(Model *, View *);
+View *model_view_new(Model *, View *);
 
 #define IS_MODEL(X) (true)
 #define MODEL(X) ((Model *) X)
