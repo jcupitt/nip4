@@ -825,9 +825,9 @@ view_save_as_cb(GtkWidget *menu, GtkWidget *host, View *view)
 	Model *model = MODEL(VOBJECT(view)->iobject);
 
 	if (IS_FILEMODEL(model)) {
-		iWindow *iwnd = IWINDOW(view_get_toplevel(view));
+		GtkWindow *win = GTK_WINDOW(view_get_toplevel(view));
 
-		filemodel_inter_saveas(iwnd, FILEMODEL(model));
+		filemodel_inter_saveas(win, FILEMODEL(model));
 	}
 }
 
@@ -837,9 +837,9 @@ view_save_cb(GtkWidget *menu, GtkWidget *host, View *view)
 	Model *model = MODEL(VOBJECT(view)->iobject);
 
 	if (IS_FILEMODEL(model)) {
-		iWindow *iwnd = IWINDOW(view_get_toplevel(view));
+		GtkWindow *win = GTK_WINDOW(view_get_toplevel(view));
 
-		filemodel_inter_save(iwnd, FILEMODEL(model));
+		filemodel_inter_save(win, FILEMODEL(model));
 	}
 }
 
@@ -849,9 +849,9 @@ view_close_cb(GtkWidget *menu, GtkWidget *host, View *view)
 	Model *model = MODEL(VOBJECT(view)->iobject);
 
 	if (IS_FILEMODEL(model)) {
-		iWindow *iwnd = IWINDOW(view_get_toplevel(view));
+		GtkWindow *win = GTK_WINDOW(view_get_toplevel(view));
 
-		filemodel_inter_savenclose(iwnd, FILEMODEL(model));
+		filemodel_inter_savenclose(win, FILEMODEL(model));
 	}
 }
 
@@ -887,7 +887,7 @@ view_get_toplevel(View *view)
 	while (IS_VIEW(view) && view->parent)
 		view = view->parent;
 
-	return gtk_widget_get_toplevel(GTK_WIDGET(view);
+	return GTK_WIDGET(gtk_widget_get_root(GTK_WIDGET(view)));
 }
 
 Columnview *

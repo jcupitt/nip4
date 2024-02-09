@@ -89,6 +89,7 @@ typedef struct _iContainer iContainer;
 typedef struct _Heapmodel Heapmodel;
 typedef struct _Row Row;
 typedef struct _Expr Expr;
+typedef struct _Filemodel Filemodel;
 
 #include "util.h"
 #include "main.h"
@@ -102,9 +103,11 @@ typedef struct _Expr Expr;
 #include "columnview.h"
 #include "heapmodel.h"
 #include "icontainer.h"
+#include "filemodel.h"
 #include "view.h"
 #include "expr.h"
 #include "row.h"
+#include "symbol.h"
 #include "app.h"
 #include "mainwindow.h"
 
