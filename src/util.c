@@ -164,9 +164,8 @@ error_vips(void)
 {
 	if (!error_level && strlen(vips_error_buffer()) > 0) {
 		if (!vips_buf_is_empty(&error_sub_buf))
-			(void) vips_buf_appendf(&error_sub_buf, "\n");
-		(void) vips_buf_appendf(&error_sub_buf,
-			"%s", vips_error_buffer());
+			vips_buf_appendf(&error_sub_buf, "\n");
+		vips_buf_appendf(&error_sub_buf, "%s", vips_error_buffer());
 		vips_error_clear();
 	}
 }
@@ -219,8 +218,7 @@ set_prop(xmlNode *xnode, const char *name, const char *fmt, ...)
 
 	if (!xmlSetProp(xnode, (xmlChar *) name, (xmlChar *) value)) {
 		error_top(_("Unable to set XML property."));
-		error_sub(_("Unable to set property \"%s\" "
-					"to value \"%s\"."),
+		error_sub(_("Unable to set property \"%s\" to value \"%s\"."),
 			name, value);
 		return FALSE;
 	}
@@ -490,15 +488,13 @@ slist_equal(GSList *l1, GSList *l2)
 void *
 slist_map(GSList *list, SListMapFn fn, gpointer a)
 {
-	GSList *copy;
 	GSList *i;
 	void *result;
 
-	copy = g_slist_copy(list);
+	g_autoptr(GSList) copy = g_slist_copy(list);
 	result = NULL;
 	for (i = copy; i && !(result = fn(i->data, a)); i = i->next)
 		;
-	g_slist_free(copy);
 
 	return result;
 }
@@ -506,15 +502,13 @@ slist_map(GSList *list, SListMapFn fn, gpointer a)
 void *
 slist_map2(GSList *list, SListMap2Fn fn, gpointer a, gpointer b)
 {
-	GSList *copy;
 	GSList *i;
 	void *result;
 
-	copy = g_slist_copy(list);
+	g_autoptr(GSList) copy = g_slist_copy(list);
 	result = NULL;
 	for (i = copy; i && !(result = fn(i->data, a, b)); i = i->next)
 		;
-	g_slist_free(copy);
 
 	return result;
 }
@@ -522,15 +516,13 @@ slist_map2(GSList *list, SListMap2Fn fn, gpointer a, gpointer b)
 void *
 slist_map3(GSList *list, SListMap3Fn fn, gpointer a, gpointer b, gpointer c)
 {
-	GSList *copy;
 	GSList *i;
 	void *result;
 
-	copy = g_slist_copy(list);
+	g_autoptr(GSList) copy = g_slist_copy(list);
 	result = NULL;
 	for (i = copy; i && !(result = fn(i->data, a, b, c)); i = i->next)
 		;
-	g_slist_free(copy);
 
 	return result;
 }
@@ -539,16 +531,13 @@ void *
 slist_map4(GSList *list, SListMap4Fn fn,
 	gpointer a, gpointer b, gpointer c, gpointer d)
 {
-	GSList *copy;
 	GSList *i;
 	void *result;
 
-	copy = g_slist_copy(list);
+	g_autoptr(GSList) copy = g_slist_copy(list);
 	result = NULL;
-	for (i = copy; i && !(result = fn(i->data, a, b, c, d));
-		 i = i->next)
+	for (i = copy; i && !(result = fn(i->data, a, b, c, d)); i = i->next)
 		;
-	g_slist_free(copy);
 
 	return result;
 }
@@ -557,16 +546,13 @@ void *
 slist_map5(GSList *list, SListMap5Fn fn,
 	gpointer a, gpointer b, gpointer c, gpointer d, gpointer e)
 {
-	GSList *copy;
 	GSList *i;
 	void *result;
 
-	copy = g_slist_copy(list);
+	g_autoptr(GSList) copy = g_slist_copy(list);
 	result = NULL;
-	for (i = copy; i && !(result = fn(i->data, a, b, c, d, e));
-		 i = i->next)
+	for (i = copy; i && !(result = fn(i->data, a, b, c, d, e)); i = i->next)
 		;
-	g_slist_free(copy);
 
 	return result;
 }
@@ -576,16 +562,14 @@ slist_map5(GSList *list, SListMap5Fn fn,
 void *
 slist_map_rev(GSList *list, SListMapFn fn, gpointer a)
 {
-	GSList *copy;
 	GSList *i;
 	void *result;
 
-	copy = g_slist_copy(list);
+	g_autoptr(GSList) copy = g_slist_copy(list);
 	copy = g_slist_reverse(copy);
 	result = NULL;
 	for (i = copy; i && !(result = fn(i->data, a)); i = i->next)
 		;
-	g_slist_free(copy);
 
 	return result;
 }
@@ -593,16 +577,14 @@ slist_map_rev(GSList *list, SListMapFn fn, gpointer a)
 void *
 slist_map2_rev(GSList *list, SListMap2Fn fn, gpointer a, gpointer b)
 {
-	GSList *copy;
 	GSList *i;
 	void *result;
 
-	copy = g_slist_copy(list);
+	g_autoptr(GSList) copy = g_slist_copy(list);
 	copy = g_slist_reverse(copy);
 	result = NULL;
 	for (i = copy; i && !(result = fn(i->data, a, b)); i = i->next)
 		;
-	g_slist_free(copy);
 
 	return result;
 }
@@ -610,16 +592,14 @@ slist_map2_rev(GSList *list, SListMap2Fn fn, gpointer a, gpointer b)
 void *
 slist_map3_rev(GSList *list, SListMap3Fn fn, void *a, void *b, void *c)
 {
-	GSList *copy;
 	GSList *i;
 	void *result;
 
-	copy = g_slist_copy(list);
+	g_autoptr(GSList) copy = g_slist_copy(list);
 	copy = g_slist_reverse(copy);
 	result = NULL;
 	for (i = copy; i && !(result = fn(i->data, a, b, c)); i = i->next)
 		;
-	g_slist_free(copy);
 
 	return result;
 }
@@ -663,21 +643,6 @@ slist_fold2(GSList *list, void *start, SListFold2Fn fn, void *a, void *b)
 	}
 
 	return c;
-}
-
-static void
-slist_free_all_cb(gpointer thing, gpointer dummy)
-{
-	g_free(thing);
-}
-
-/* Free a g_slist of things which need g_free()ing.
- */
-void
-slist_free_all(GSList *list)
-{
-	g_slist_foreach(list, slist_free_all_cb, NULL);
-	g_slist_free(list);
 }
 
 /* Remove all occurences of an item from a list.
@@ -1421,13 +1386,11 @@ canonicalize_path(char *path)
 
 	/* Any "/./" can go.
 	 */
-	swap_string(path,
-		G_DIR_SEPARATOR_S "." G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S);
+	swap_string(path, "/./", "/");
 
 	/* Any "//" can go.
 	 */
-	swap_string(path,
-		G_DIR_SEPARATOR_S G_DIR_SEPARATOR_S, G_DIR_SEPARATOR_S);
+	swap_string(path, "//", "/");
 
 	/* Repeatedly search for "/[^/]+/../" and remove it.
 
@@ -1440,12 +1403,12 @@ canonicalize_path(char *path)
 
 		found = FALSE;
 
-		for (p = path; (p = strchr(p, G_DIR_SEPARATOR)); p++) {
+		for (p = path; (p = strchr(p, "/")); p++) {
 			char *q;
 
-			q = strchr(p + 1, G_DIR_SEPARATOR);
+			q = strchr(p + 1, "/");
 
-			if (q && is_prefix(G_DIR_SEPARATOR_S "..", q)) {
+			if (q && is_prefix("/..", q)) {
 				memmove(p, q + 3, strlen(q + 3) + 1);
 				found = TRUE;
 				break;
@@ -1456,7 +1419,7 @@ canonicalize_path(char *path)
 	/* We may have the empty string ... that's just '/'.
 	 */
 	if (strcmp(path, "") == 0)
-		strcpy(path, G_DIR_SEPARATOR_S);
+		strcpy(path, "/");
 }
 
 /* Absoluteize a path. Must be FILENAME_MAX chars available.
@@ -1466,13 +1429,10 @@ absoluteize_path(char *path)
 {
 	if (!is_absolute(path)) {
 		char buf[FILENAME_MAX];
-		char *cwd;
 
 		vips_strncpy(buf, path, FILENAME_MAX);
-		cwd = g_get_current_dir();
-		vips_snprintf(path, FILENAME_MAX,
-			"%s%s%s", cwd, G_DIR_SEPARATOR_S, buf);
-		g_free(cwd);
+		g_autofree char *cwd = g_get_current_dir();
+		vips_snprintf(path, FILENAME_MAX, "%s%s%s", cwd, "/", buf);
 		canonicalize_path(path);
 	}
 }
@@ -1535,7 +1495,7 @@ callv_string_filenameva(callv_string_fn fn,
 {
 	char buf[FILENAME_MAX];
 
-	(void) vips_vsnprintf(buf, FILENAME_MAX, fmt, ap);
+	vips_vsnprintf(buf, FILENAME_MAX, fmt, ap);
 
 	return callv_string_filename(fn, buf, a, b, c);
 }
@@ -1611,7 +1571,7 @@ calli_string_filenameva(calli_string_fn fn,
 {
 	char buf[FILENAME_MAX];
 
-	(void) vips_vsnprintf(buf, FILENAME_MAX, fmt, ap);
+	vips_vsnprintf(buf, FILENAME_MAX, fmt, ap);
 
 	return calli_string_filename(fn, buf, a, b, c);
 }
@@ -1829,9 +1789,8 @@ ifile_close(iOpenFile *of)
 static iOpenFile *
 ifile_build(const char *fname)
 {
-	iOpenFile *of;
-
-	if (!(of = INEW(NULL, iOpenFile)))
+	g_autoptr(iOpenFile) of = INEW(NULL, iOpenFile);
+	if (!of)
 		return NULL;
 
 	of->fp = NULL;
@@ -1840,12 +1799,10 @@ ifile_build(const char *fname)
 	of->last_errno = 0;
 
 	VIPS_SETSTR(of->fname, fname);
-	if (!of->fname) {
-		ifile_close(of);
+	if (!of->fname)
 		return NULL;
-	}
 
-	return of;
+	return g_steal_pointer(of);
 }
 
 /* Find and open for read.
@@ -1855,35 +1812,33 @@ ifile_open_read(const char *name, ...)
 {
 	va_list ap;
 	char buf[FILENAME_MAX];
-	iOpenFile *of;
 
 	va_start(ap, name);
 	(void) vips_vsnprintf(buf, FILENAME_MAX, name, ap);
 	va_end(ap);
-	of = ifile_build(buf);
 
+	g_autoptr(iOpenFile) of = ifile_build(buf);
 	if (!of)
 		return NULL;
+
 	if (!(of->fname_real = path_find_file(of->fname))) {
 		error_top(_("Unable to open."));
 		error_sub(_("Unable to open file \"%s\" for reading.\n%s."),
 			of->fname, g_strerror(errno));
-		ifile_close(of);
 		return NULL;
 	}
 
 	if (!(of->fp = (FILE *) callv_string_filename((callv_string_fn) fopen,
-			  of->fname_real, "r", NULL, NULL))) {
+			of->fname_real, "r", NULL, NULL))) {
 		error_top(_("Unable to open."));
 		error_sub(_("Unable to open file \"%s\" for reading.\n%s."),
 			of->fname_real, g_strerror(errno));
-		ifile_close(of);
 		return NULL;
 	}
 
 	of->read = TRUE;
 
-	return of;
+	return g_steal_pointer(of);
 }
 
 /* Open stdin for read.
@@ -1891,19 +1846,17 @@ ifile_open_read(const char *name, ...)
 iOpenFile *
 ifile_open_read_stdin()
 {
-	iOpenFile *of;
+	g_autoptr(iOpenFile) of = ifile_build("stdin");
+	if (!of)
+		return NULL;
 
-	if (!(of = ifile_build("stdin")))
-		return NULL;
 	VIPS_SETSTR(of->fname_real, of->fname);
-	if (!of->fname_real) {
-		ifile_close(of);
+	if (!of->fname_real)
 		return NULL;
-	}
 	of->fp = stdin;
 	of->read = TRUE;
 
-	return of;
+	return g_steal_pointer(of);
 }
 
 /* Find and open for write.
@@ -1918,27 +1871,26 @@ ifile_open_write(const char *name, ...)
 	va_start(ap, name);
 	(void) vips_vsnprintf(buf, FILENAME_MAX, name, ap);
 	va_end(ap);
-	of = ifile_build(buf);
 
+	g_autoptr(iOpenFile) of = ifile_build("stdin");
 	if (!of)
 		return NULL;
+
 	VIPS_SETSTR(of->fname_real, of->fname);
-	if (!of->fname_real) {
-		ifile_close(of);
+	if (!of->fname_real)
 		return NULL;
-	}
+
 	if (!(of->fp = (FILE *) callv_string_filename((callv_string_fn) fopen,
 			  of->fname_real, "w", NULL, NULL))) {
 		error_top(_("Unable to open."));
 		error_sub(_("Unable to open file \"%s\" for writing.\n%s."),
 			of->fname_real, g_strerror(errno));
-		ifile_close(of);
 		return NULL;
 	}
 
 	of->read = FALSE;
 
-	return of;
+	return g_steal_pointer(of);
 }
 
 /* fprintf() to a file, checking result.
@@ -2083,8 +2035,7 @@ directory_size(const char *dirname)
 	double total;
 
 	total = 0;
-	path_map_dir(dirname, "*",
-		(path_map_fn) directory_size_sub, &total);
+	path_map_dir(dirname, "*", (path_map_fn) directory_size_sub, &total);
 
 	return total;
 }
@@ -2136,52 +2087,6 @@ escape_markup(const char *in, char *out, int len)
 	*q = '\0';
 
 	return out;
-}
-
-/* VIPS filenames can have embedded modes. Mode strings are punctuated with
- * ',' and ':' chars. So strings in modes must have these chars escaped.
- */
-char *
-escape_mode(const char *in, char *out, int len)
-{
-	const char *p;
-	char *q;
-
-	for (p = in, q = out; *p && q - out < len - 5; p++, q++) {
-		if (*p == ':' || *p == ',')
-			*q++ = '\\';
-
-		*q = *p;
-	}
-
-	*q = '\0';
-
-	return out;
-}
-
-/* Return a string of n characters. Buffer is zapped each time!
- */
-const char *
-rpt(char ch, int n)
-{
-	int i;
-	static char buf[200];
-
-	n = VIPS_MIN(190, n);
-
-	for (i = 0; i < n; i++)
-		buf[i] = ch;
-	buf[i] = '\0';
-
-	return buf;
-}
-
-/* Return a string of n spaces. Buffer is zapped each time!
- */
-const char *
-spc(int n)
-{
-	return rpt(' ', n);
 }
 
 /* Like strtok(), but better. Give a string and a list of break characters;
@@ -2241,6 +2146,7 @@ number_to_string(int n, char *buf)
  * problem avoidance. <0 for error.
  */
 #ifdef HAVE_SYS_STATVFS_H
+
 double
 find_space(const char *name)
 {
@@ -2257,7 +2163,9 @@ find_space(const char *name)
 
 	return sz;
 }
+
 #elif (HAVE_SYS_VFS_H || HAVE_SYS_MOUNT_H)
+
 double
 find_space(const char *name)
 {
@@ -2272,7 +2180,9 @@ find_space(const char *name)
 
 	return sz;
 }
+
 #elif defined OS_WIN32
+
 double
 find_space(const char *name)
 {
@@ -2296,12 +2206,15 @@ find_space(const char *name)
 
 	return sz;
 }
+
 #else
+
 double
 find_space(const char *name)
 {
 	return -1;
 }
+
 #endif /*HAVE_SYS_STATVFS_H*/
 
 /* Make a name for a temp file. Add the specified extension.
@@ -2322,15 +2235,14 @@ temp_name(char *name, const char *type)
 	if (!existsf("%s", dir))
 		dir = G_DIR_SEPARATOR_S;
 
-	vips_snprintf(name, FILENAME_MAX, "%s" G_DIR_SEPARATOR_S "untitled-" PACKAGE "-%d-XXXXXXX",
+	vips_snprintf(name, FILENAME_MAX, "%s/untitled-" PACKAGE "-%d-XXXXXXX",
 		dir, n++);
 	expand_variables(name, buf);
 
 	fd = g_mkstemp(buf);
 	if (fd == -1) {
 		error_top(_("Unable to create temporary file."));
-		error_sub(_("Unable to make file \"%s\"\n%s"),
-			buf, g_strerror(errno));
+		error_sub(_("Unable to make file \"%s\"\n%s"), buf, g_strerror(errno));
 		return FALSE;
 	}
 	close(fd);
@@ -2491,10 +2403,9 @@ extract_first_line(char *buf, char *str, int len)
 void
 name_from_filename(const char *in, char *out)
 {
-	char *basename;
-	const char *p;
+	g_autofree char *basename = g_path_get_basename(in);
 
-	basename = g_path_get_basename(in);
+	const char *p;
 
 	/* Skip leading path prefix, and any non-alpha.
 	 * Don't use isalnum(), since we don't want leading digits.
@@ -2516,8 +2427,6 @@ name_from_filename(const char *in, char *out)
 				*q++ = *p;
 		*q = '\0';
 	}
-
-	g_free(basename);
 }
 
 /* Do any leak checking we can.
@@ -2543,8 +2452,7 @@ imalloc(VipsImage *im, size_t len)
 		vips_buf_append_size(&buf, len);
 		error_top(_("Out of memory."));
 		error_sub(_("Request for %s of RAM triggered memory "
-					"allocation failure."),
-			vips_buf_all(&buf));
+					"allocation failure."), vips_buf_all(&buf));
 		error_vips();
 
 		return NULL;
@@ -2593,13 +2501,13 @@ recent_add(GSList *recent, const char *filename)
 GSList *
 recent_load(const char *filename)
 {
-	iOpenFile *of;
+	g_autoptr(iOpenFile) of =
+		ifile_open_read("%s/%s", get_savedir(), filename);
+
 	GSList *recent;
 
 	recent = NULL;
-
-	if ((of = ifile_open_read("%s" G_DIR_SEPARATOR_S "%s",
-			 get_savedir(), filename))) {
+	if (of) {
 		char buf[256];
 
 		while (fgets(buf, 256, of->fp)) {
@@ -2611,8 +2519,6 @@ recent_load(const char *filename)
 				recent = recent_add(recent, buf);
 			}
 		}
-
-		ifile_close(of);
 	}
 
 	return recent;
@@ -2621,15 +2527,7 @@ recent_load(const char *filename)
 void
 recent_free(GSList *recent)
 {
-	GSList *p;
-
-	for (p = recent; p; p = p->next) {
-		const char *item = (const char *) p->data;
-
-		g_free((char *) item);
-	}
-
-	g_slist_free(recent);
+	g_slist_free_full(recent, g_free);
 }
 
 static void *
@@ -2659,8 +2557,7 @@ recent_save(GSList *recent, const char *filename)
 	 * awful by merging our recent list over the one in the file.
 	 */
 	old_recent = recent_load(filename);
-	slist_map_rev(recent,
-		(SListMapFn) recent_save_sub, &old_recent);
+	slist_map_rev(recent, (SListMapFn) recent_save_sub, &old_recent);
 
 	if ((of = ifile_open_write("%s" G_DIR_SEPARATOR_S "%s",
 			 get_savedir(), filename))) {
@@ -2679,6 +2576,7 @@ const char *
 get_savedir(void)
 {
 #ifdef OS_WIN32
+
 	/* If APPDATA is not defined, default to HOME, we know that will
 	 * exist (since we make it if necessary in main()).
 	 */
@@ -2686,14 +2584,19 @@ get_savedir(void)
 		return "$APPDATA/" PACKAGE "-" VERSION;
 	else
 		return "$HOME/." PACKAGE "-" VERSION;
+
 #elif OS_DARWIN
+
 	/* Darwin ... in ~/Library
 	 */
 	return "$HOME/Library/" PACKAGE "-" VERSION;
+
 #else
+
 	/* *nix-style system .. .dot file in home area.
 	 */
 	return "$HOME/." PACKAGE "-" VERSION;
+
 #endif /*OS_WIN32*/
 }
 

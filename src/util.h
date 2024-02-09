@@ -125,7 +125,6 @@ gboolean slist_equal(GSList *l1, GSList *l2);
 void *slist_fold(GSList *list, void *start, SListFoldFn fn, void *a);
 void *slist_fold2(GSList *list,
 	void *start, SListFold2Fn fn, void *a, void *b);
-void slist_free_all(GSList *list);
 GSList *slist_remove_all(GSList *list, gpointer data);
 
 /* An slist, which tracks the end of the list, for fast append.
@@ -255,6 +254,8 @@ typedef struct _iOpenFile {
 	int last_errno;	  /* On error, last value for errno */
 	gboolean read;	  /* True for open read, false for open write */
 } iOpenFile;
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(iOpenFile, ifile_close);
 
 void ifile_close(iOpenFile *of);
 iOpenFile *ifile_open_read(const char *name, ...)

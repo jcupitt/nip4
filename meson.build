@@ -71,6 +71,12 @@ nip4_deps += dependency('vips', version: '>=8.15')
 nip4_deps += dependency('gtk4')
 nip4_deps += dependency('libxml-2.0')
 
+# Courtesy check that the compiler supports the cleanup attribute
+glib_dep = dependency('glib-2.0')
+if not cc.has_header_symbol('glib.h', 'g_autofree', dependencies : glib_dep)
+  error('OpenSlide requires the GNU C "cleanup" attribute.')
+endif
+
 install_data(application_id + '.gschema.xml',
   install_dir: get_option('datadir') / 'glib-2.0' / 'schemas')
 

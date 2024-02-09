@@ -114,11 +114,9 @@ main_window_dispose(GObject *object)
 }
 
 static void
-main_window_preeval(VipsImage *image,
-	VipsProgress *progress, MainWindow *main)
+main_window_preeval(VipsImage *image, VipsProgress *progress, MainWindow *main)
 {
-	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->progress_bar),
-		TRUE);
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->progress_bar), TRUE);
 }
 
 typedef struct _EvalUpdate {
@@ -145,7 +143,6 @@ main_window_eval_idle(void *user_data)
 		update->percent / 100.0);
 
 	g_object_unref(main);
-
 	g_free(update);
 
 	return FALSE;
@@ -180,7 +177,6 @@ main_window_eval(VipsImage *image,
 	 */
 
 	update = g_new(EvalUpdate, 1);
-
 	update->main = main;
 	update->percent = progress->percent;
 	update->eta = progress->eta;
@@ -197,8 +193,7 @@ static void
 main_window_posteval(VipsImage *image,
 	VipsProgress *progress, MainWindow *main)
 {
-	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->progress_bar),
-		FALSE);
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->progress_bar), FALSE);
 }
 
 static void
@@ -231,13 +226,9 @@ main_window_open_result(GObject *source_object,
 	MainWindow *main = MAIN_WINDOW(user_data);
 	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
 
-	GFile *file;
-
-	file = gtk_file_dialog_open_finish(dialog, res, NULL);
+	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
 	if (file) {
 		// load!
-
-		VIPS_UNREF(file);
 	}
 }
 
@@ -281,22 +272,16 @@ main_window_on_file_save_cb(GObject *source_object,
 {
 	MainWindow *main = MAIN_WINDOW(user_data);
 	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-	GFile *file;
 
-	file = gtk_file_dialog_save_finish(dialog, res, NULL);
+	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
 	if (file) {
-		char *filename;
-
 		// note the save directory for next time
 		VIPS_UNREF(main->save_folder);
 		main->save_folder = get_parent(file);
 
-		filename = g_file_get_path(file);
-		g_object_unref(file);
+		g_autofree char *filename = g_file_get_path(file);
 
 		// save it!
-
-		g_free(filename);
 	}
 }
 
@@ -446,14 +431,12 @@ main_window_set_gfile(MainWindow *main, GFile *gfile)
 	gtk_label_set_text(GTK_LABEL(main->subtitle), NULL);
 
 	if (gfile) {
-		char *file = g_file_get_path(gfile);
+		g_autofree char *file = g_file_get_path(gfile);
 		gtk_label_set_text(GTK_LABEL(main->subtitle), file);
 
-		error_top("Unable to load file");
-		error_sub("Load of %s failed, workspace load not implemented", file);
+		error_top("Unable to load \"%s\"", file);
+		error_sub("Workspace load not implemented");
 		main_window_error(main);
-
-		g_free(file);
 	}
 }
 
@@ -482,7 +465,8 @@ main_window_init_settings(MainWindow *main)
 MainWindow *
 main_window_new(App *app)
 {
-	MainWindow *main = g_object_new(MAIN_WINDOW_TYPE, "application", app, NULL);
+	MainWindow *main =
+		g_object_new(MAIN_WINDOW_TYPE, "application", app, NULL);
 
 	main_window_set_gfile(main, NULL);
 

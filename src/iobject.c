@@ -103,7 +103,8 @@ iobject_real_changed(iObject *iobject)
 	iObjectClass *iobject_class = IOBJECT_GET_CLASS(iobject);
 
 	if (iobject_class->generate_caption)
-		VIPS_SETSTR(iobject->caption, iobject_class->generate_caption(iobject));
+		VIPS_SETSTR(iobject->caption,
+			iobject_class->generate_caption(iobject));
 }
 
 static void

@@ -159,22 +159,19 @@ path_rewrite_add(const char *old, const char *new, gboolean lock)
 
 	/* If old is a prefix of new we will get endless expansion.
 	 */
-	if (new &&
-			is_prefix(old, new))
+	if (new && is_prefix(old, new))
 		return;
 
 	if ((rewrite = path_rewrite_lookup(old))) {
 		if (!rewrite->lock &&
-			(!new ||
-				strcmp(old, new) == 0)) {
+			(!new || strcmp(old, new) == 0)) {
 #ifdef DEBUG_REWRITE
 			printf("path_rewrite_add: removing\n");
 #endif /*DEBUG_REWRITE*/
 
 			VIPS_FREEF(path_rewrite_free, rewrite);
 		}
-		else if (!rewrite->lock &&
-			new) {
+		else if (!rewrite->lock && new) {
 #ifdef DEBUG_REWRITE
 			printf("path_rewrite_add: updating\n");
 #endif /*DEBUG_REWRITE*/
@@ -187,8 +184,7 @@ path_rewrite_add(const char *old, const char *new, gboolean lock)
 #endif /*DEBUG_REWRITE*/
 		}
 	}
-	else if (new &&
-				 strcmp(old, new) != 0) {
+	else if (new && strcmp(old, new) != 0) {
 #ifdef DEBUG_REWRITE
 		printf("path_rewrite_add: adding\n");
 #endif /*DEBUG_REWRITE*/
@@ -244,8 +240,7 @@ path_rewrite(char *buf)
 				if (blen - olen + nlen > FILENAME_MAX - 3)
 					break;
 
-				memmove(buf + nlen, buf + olen,
-					blen - olen + 1);
+				memmove(buf + nlen, buf + olen, blen - olen + 1);
 				memcpy(buf, rewrite->new, nlen);
 
 				changed = TRUE;
@@ -447,11 +442,9 @@ path_search_match(Search *search, const char *dir_name, const char *name)
 
 		/* Add to exclusion list.
 		 */
-		search->previous =
-			g_slist_prepend(search->previous, g_strdup(name));
+		search->previous = g_slist_prepend(search->previous, g_strdup(name));
 
-		vips_snprintf(buf, FILENAME_MAX,
-			"%s" G_DIR_SEPARATOR_S "%s", dir_name, name);
+		vips_snprintf(buf, FILENAME_MAX, "%s/%s", dir_name, name);
 
 		path_compact(buf);
 
@@ -473,26 +466,21 @@ static void *
 path_scan_dir(const char *dir_name, Search *search)
 {
 	char buf[FILENAME_MAX];
-	GDir *dir;
 	const char *name;
 	void *result;
 
 	/* Add the pattern offset, if any. It's '.' for no offset.
 	 */
-	vips_snprintf(buf, FILENAME_MAX,
-		"%s" G_DIR_SEPARATOR_S "%s", dir_name, search->dirname);
+	vips_snprintf(buf, FILENAME_MAX, "%s/%s", dir_name, search->dirname);
 
-	if (!(dir = (GDir *) callv_string_filename(
-			  (callv_string_fn) g_dir_open, buf, NULL, NULL, NULL)))
+	g_autoptr(GDir) dir = (GDir *) callv_string_filename(
+		(callv_string_fn) g_dir_open, buf, NULL, NULL, NULL);
+	if (!dir)
 		return NULL;
 
 	while ((name = g_dir_read_name(dir)))
-		if ((result = path_search_match(search, buf, name))) {
-			g_dir_close(dir);
+		if ((result = path_search_match(search, buf, name)))
 			return result;
-		}
-
-	g_dir_close(dir);
 
 	return NULL;
 }
@@ -573,7 +561,8 @@ path_find_file(const char *filename)
 
 	/* Search everywhere.
 	 */
-	if ((fname = path_map(PATH_SEARCH, filename, (path_map_fn) g_strdup, NULL)))
+	if ((fname = path_map(PATH_SEARCH, filename,
+		(path_map_fn) g_strdup, NULL)))
 		return fname;
 
 	error_top(_("Not found."));
@@ -608,22 +597,19 @@ path_init(void)
 	path_tmp_default = g_strdup(".");
 #else  /*!DEBUG_LOCAL*/
 	vips_snprintf(buf, FILENAME_MAX,
-		"%s" G_DIR_SEPARATOR_S "start" G_SEARCHPATH_SEPARATOR_S
-		"$VIPSHOME" G_DIR_SEPARATOR_S "share" G_DIR_SEPARATOR_S
-		"$PACKAGE" G_DIR_SEPARATOR_S "start",
+		"%s/start" G_SEARCHPATH_SEPARATOR_S
+		"$VIPSHOME/share/$PACKAGE/start",
 		get_savedir());
 	path_start_default = path_parse(buf);
 
 	vips_snprintf(buf, FILENAME_MAX,
-		"%s" G_DIR_SEPARATOR_S "data" G_SEARCHPATH_SEPARATOR_S
-		"$VIPSHOME" G_DIR_SEPARATOR_S "share" G_DIR_SEPARATOR_S
-		"$PACKAGE" G_DIR_SEPARATOR_S "data" G_SEARCHPATH_SEPARATOR_S
+		"%s/data" G_SEARCHPATH_SEPARATOR_S
+		"$VIPSHOME/share/$PACKAGE/data" G_SEARCHPATH_SEPARATOR_S
 		".",
 		get_savedir());
 	path_search_default = path_parse(buf);
 
-	vips_snprintf(buf, FILENAME_MAX,
-		"%s" G_DIR_SEPARATOR_S "tmp", get_savedir());
+	vips_snprintf(buf, FILENAME_MAX, "%s/tmp", get_savedir());
 	path_tmp_default = g_strdup(buf);
 #endif /*DEBUG_LOCAL*/
 }
