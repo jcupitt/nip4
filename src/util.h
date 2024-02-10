@@ -27,27 +27,10 @@
 #define NUMERIC "0123456789"
 #define WHITESPACE " \t\r\b\n"
 
-/* Like IM_NEW() etc, but set ip's error buffer.
+/* Like VIPS_NEW() etc, but set nip4's error buffer.
  */
 #define INEW(IM, A) ((A *) imalloc((IM), sizeof(A)))
 #define IARRAY(IM, N, T) ((T *) imalloc((IM), (N) * sizeof(T)))
-
-#define UNREF(X) \
-	do { \
-		if (X) { \
-			g_object_unref(G_OBJECT(X)); \
-			(X) = NULL; \
-		} \
-	} while (0)
-
-#define GOG_UNREF(X) \
-	do { \
-		if (X) { \
-			gog_object_clear_parent(GOG_OBJECT(X)); \
-			g_object_unref(G_OBJECT(X)); \
-			(X) = NULL; \
-		} \
-	} while (0)
 
 #define FREESID(SID, OBJ) \
 	do { \
@@ -62,14 +45,29 @@
 #define SWAPP(A, B) \
 	{ \
 		void *swapp_t; \
-\
+		\
 		swapp_t = (A); \
 		(A) = (B); \
 		(B) = swapp_t; \
 	}
 
-void vips_buf_appendi(VipsBuf *buf, VipsImage *im);
-gboolean vips_buf_appendsc(VipsBuf *buf, gboolean quote, const char *str);
+extern VipsBuf error_top_buf;
+extern VipsBuf error_sub_buf;
+
+void error(const char *fmt, ...)
+	__attribute__((noreturn, format(printf, 1, 2)));
+void error_block(void); /* Block updates to error_string */
+void error_unblock(void);
+void error_clear(void);
+void error_top(const char *fmt, ...)
+	__attribute__((format(printf, 1, 2)));
+void error_sub(const char *fmt, ...)
+	__attribute__((format(printf, 1, 2)));
+void error_vips(void);
+void error_vips_all(void);
+const char *error_get_top(void);
+const char *error_get_sub(void);
+void error_alert(GtkWidget *parent);
 
 gboolean set_prop(xmlNode *xnode, const char *name, const char *fmt, ...)
 	__attribute__((format(printf, 3, 4)));
@@ -144,37 +142,21 @@ void queue_add(Queue *queue, void *data);
 gboolean queue_remove(Queue *q, void *data);
 int queue_length(Queue *q);
 
-extern VipsBuf error_top_buf;
-extern VipsBuf error_sub_buf;
-
-void error(const char *fmt, ...)
-	__attribute__((noreturn, format(printf, 1, 2)));
-void error_block(void); /* Block updates to error_string */
-void error_unblock(void);
-void error_clear(void);
-void error_top(const char *fmt, ...)
-	__attribute__((format(printf, 1, 2)));
-void error_sub(const char *fmt, ...)
-	__attribute__((format(printf, 1, 2)));
-void error_vips(void);
-void error_vips_all(void);
-const char *error_get_top(void);
-const char *error_get_sub(void);
-void error_alert(GtkWidget *parent);
+void vips_buf_appendi(VipsBuf *buf, VipsImage *im);
+gboolean vips_buf_appendsc(VipsBuf *buf, gboolean quote, const char *str);
 
 gboolean is_postfix(const char *a, const char *b);
+gboolean is_casepostfix(const char *a, const char *b);
 gboolean is_prefix(const char *a, const char *b);
 gboolean is_caseprefix(const char *a, const char *b);
-gboolean is_casepostfix(const char *a, const char *b);
-const char *findrightmost(const char *a, const char *b);
 char *my_strcasestr(const char *haystack, const char *needle);
-void change_suffix(const char *name, char *out,
-	const char *new, const char **olds, int nolds);
-
 char *my_strccpy(char *output, const char *input);
 char *my_strecpy(char *output, const char *input, gboolean quote);
 const char *my_strrspn(const char *p, const char *spn);
-
+const char *my_strrcspn(const char *p, const char *spn);
+const char *findrightmost(const char *a, const char *b);
+void change_suffix(const char *name, char *out,
+	const char *new, const char **olds, int nolds);
 char *trim_nonalpha(char *text);
 char *trim_white(char *text);
 
@@ -189,7 +171,6 @@ void expand_variables(const char *in, char *out);
 void nativeize_path(char *buf);
 void absoluteize_path(char *path);
 void canonicalize_path(char *path);
-const char *get_vipshome(const char *argv0);
 
 typedef void *(*callv_string_fn)(const char *name, void *a, void *b, void *c);
 
@@ -274,10 +255,7 @@ double directory_size(const char *dirname);
 
 char *escape_percent(const char *in, char *out, int len);
 char *escape_markup(const char *in, char *out, int len);
-char *escape_mode(const char *in, char *out, int len);
 char *break_token(char *str, const char *brk);
-const char *rpt(char ch, int n);
-const char *spc(int n);
 void number_to_string(int n, char *buf);
 
 double find_space(const char *name);

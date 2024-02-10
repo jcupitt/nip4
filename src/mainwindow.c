@@ -60,7 +60,7 @@ main_window_error(MainWindow *main)
 	char txt[256];
 	VipsBuf buf = VIPS_BUF_STATIC(txt);
 
-	vips_buf_appendf(&buf, "<span size=\"large\">%s</span>\n%s",
+	vips_buf_appendf(&buf, "<span weight=\"regular\"><span size=\"large\">%s</span>\n%s</span>",
 		error_get_top(), error_get_sub());
 	gtk_label_set_markup(GTK_LABEL(main->error_label), vips_buf_all(&buf));
 #ifdef DEBUG

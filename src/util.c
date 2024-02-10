@@ -2000,7 +2000,7 @@ ifile_getc(iOpenFile *of)
 		return ch;
 }
 
-off_t
+static off_t
 statf(const char *fmt, ...)
 {
 	va_list ap;
@@ -2059,6 +2059,7 @@ escape_percent(const char *in, char *out, int len)
 	return out;
 }
 
+// FIXME ... swap this for g_markup_escape_text()?
 char *
 escape_markup(const char *in, char *out, int len)
 {
@@ -2602,15 +2603,15 @@ get_savedir(void)
 void **
 slist_to_array(GSList *list)
 {
-	void **array;
+	g_autofree void **array = g_new(void *, g_slist_length(list) + 1);
+
 	int i;
 
-	array = g_new(void *, g_slist_length(list) + 1);
 	for (i = 0; list; list = list->next, i++)
 		array[i] = list->data;
 	array[i] = NULL;
 
-	return array;
+	return g_steal_pointer(&array);
 }
 
 /* Length of a NULL-terminated array.
