@@ -255,8 +255,6 @@ typedef struct _iOpenFile {
 	gboolean read;	  /* True for open read, false for open write */
 } iOpenFile;
 
-G_DEFINE_AUTOPTR_CLEANUP_FUNC(iOpenFile, ifile_close);
-
 void ifile_close(iOpenFile *of);
 iOpenFile *ifile_open_read(const char *name, ...)
 	__attribute__((format(printf, 1, 2)));
@@ -269,6 +267,8 @@ gboolean ifile_write_var(iOpenFile *of, const char *name, const char *value);
 char *ifile_read(iOpenFile *of);
 char *ifile_read_buffer(iOpenFile *of, char *buffer, size_t len);
 int ifile_getc(iOpenFile *of);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(iOpenFile, ifile_close);
 
 double directory_size(const char *dirname);
 

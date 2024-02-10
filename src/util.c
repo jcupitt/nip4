@@ -1399,14 +1399,12 @@ canonicalize_path(char *path)
 
 	 */
 	do {
-		char *p;
-
 		found = FALSE;
 
-		for (p = path; (p = strchr(p, "/")); p++) {
+		for (char *p = path; (p = strchr(p, '/')); p++) {
 			char *q;
 
-			q = strchr(p + 1, "/");
+			q = strchr(p + 1, '/');
 
 			if (q && is_prefix("/..", q)) {
 				memmove(p, q + 3, strlen(q + 3) + 1);
@@ -1802,7 +1800,7 @@ ifile_build(const char *fname)
 	if (!of->fname)
 		return NULL;
 
-	return g_steal_pointer(of);
+	return g_steal_pointer(&of);
 }
 
 /* Find and open for read.
@@ -1838,7 +1836,7 @@ ifile_open_read(const char *name, ...)
 
 	of->read = TRUE;
 
-	return g_steal_pointer(of);
+	return g_steal_pointer(&of);
 }
 
 /* Open stdin for read.
@@ -1856,7 +1854,7 @@ ifile_open_read_stdin()
 	of->fp = stdin;
 	of->read = TRUE;
 
-	return g_steal_pointer(of);
+	return g_steal_pointer(&of);
 }
 
 /* Find and open for write.
@@ -1866,7 +1864,6 @@ ifile_open_write(const char *name, ...)
 {
 	va_list ap;
 	char buf[FILENAME_MAX];
-	iOpenFile *of;
 
 	va_start(ap, name);
 	(void) vips_vsnprintf(buf, FILENAME_MAX, name, ap);
@@ -1890,7 +1887,7 @@ ifile_open_write(const char *name, ...)
 
 	of->read = FALSE;
 
-	return g_steal_pointer(of);
+	return g_steal_pointer(&of);
 }
 
 /* fprintf() to a file, checking result.

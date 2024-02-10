@@ -400,7 +400,7 @@ path_search_free(Search *search)
 {
 	VIPS_FREEF(g_free, search->basename);
 	VIPS_FREEF(g_free, search->dirname);
-	VIPS_FREEF(slist_free_all, search->previous);
+	g_slist_free_full(g_steal_pointer(&search->previous), g_free);
 	VIPS_FREEF(g_pattern_spec_free, search->wild);
 }
 

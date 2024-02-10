@@ -1,7 +1,9 @@
 - make a "progress" widget with throttled updates? could share with
   saveoptions, and move some code out of mainwindow
 
-- use autoptr
+- move gtkutil.c improvements back to vipsdisp
+
+- there's a 20ms timeout in vobject_refresh_queue() ... tune this
 
 - lots of util.c is now in libvips and can be removed
 
