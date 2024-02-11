@@ -75,7 +75,7 @@ main_window_gerror(MainWindow *main, GError **error)
 {
 	if (error && *error) {
 		error_top("Error");
-		error_sub((*error)->message);
+		error_sub("%s", (*error)->message);
 		g_error_free(*error);
 		main_window_error(main);
 	}
@@ -484,4 +484,11 @@ copy_value(GObject *to, GObject *from, const char *name)
 	g_object_get_property(from, name, &value);
 	g_object_set_property(to, name, &value);
 	g_value_unset(&value);
+}
+
+void
+main_window_cull(void)
+{
+	// destroy any empty MainWindow (may have had all tabs dragged out)
+	printf("mainwindow_cull: FIXME ... implement this\n");
 }

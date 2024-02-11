@@ -3,7 +3,9 @@
 struct _iContainer {
 	iObject parent_object;
 
+	iContainer *parent;
 	View *temp_view;
+	int pos;
 };
 
 #define ICONTAINER(X) ((iContainer *) X)
@@ -21,3 +23,8 @@ typedef gint (*icontainer_sort_fn)(iContainer *a, iContainer *b);
 
 void *icontainer_map(iContainer *icontainer,
 	icontainer_map_fn fn, void *a, void *b);
+
+void icontainer_reparent(iContainer *parent, iContainer *child, int pos);
+
+void icontainer_current(iContainer *parent, iContainer *child);
+

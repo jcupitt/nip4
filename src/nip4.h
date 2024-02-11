@@ -87,9 +87,14 @@ typedef struct _View View;
 typedef struct _Model Model;
 typedef struct _iContainer iContainer;
 typedef struct _Heapmodel Heapmodel;
+typedef struct _Symbol Symbol;
 typedef struct _Row Row;
 typedef struct _Expr Expr;
 typedef struct _Filemodel Filemodel;
+typedef struct _Workspacegroupview Workspacegroupview;
+typedef struct _Workspacegroup Workspacegroup;
+typedef struct _Workspaceview Workspaceview;
+typedef struct _Workspace Workspace;
 
 #include "util.h"
 #include "main.h"
@@ -107,6 +112,10 @@ typedef struct _Filemodel Filemodel;
 #include "view.h"
 #include "expr.h"
 #include "row.h"
+#include "workspacegroupview.h"
+#include "workspacegroup.h"
+#include "workspaceview.h"
+#include "workspace.h"
 #include "symbol.h"
 #include "link.h"
 #include "app.h"

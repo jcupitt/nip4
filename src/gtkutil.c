@@ -23,6 +23,13 @@
 
 #include "nip4.h"
 
+// mark a widget as being a drag target for symbol names
+void
+set_symbol_drag_type(GtkWidget *widget)
+{
+	printf("set_symbol_drag_type: FIXME .. implement this\n");
+}
+
 /* Set a GtkEditable.
  */
 void
