@@ -31,6 +31,20 @@
 G_DEFINE_TYPE(Workspacegroupview, workspacegroupview, VIEW_TYPE)
 
 static void
+workspacegroupview_dispose(GObject *object)
+{
+	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(object);
+
+#ifdef DEBUG
+    printf("workspacegroupview_dispose:\n");
+#endif /*DEBUG*/
+
+    VIPS_FREEF(gtk_widget_unparent, wsgview->notebook);
+
+    G_OBJECT_CLASS(workspacegroupview_parent_class)->dispose(object);
+}
+
+static void
 workspacegroupview_realize(GtkWidget *widget)
 {
 #ifdef DEBUG
@@ -105,15 +119,6 @@ workspacegroupview_rename_cb(GtkWidget *wid, GtkWidget *host,
  */
 
 static void
-workspacegroupview_rename_cb2(GtkWidget *wid, GdkEvent *event,
-	Workspaceview *wview)
-{
-	printf("workspacegroupview_rename_cb2: "
-			"FIXME .. implement workspace rename\n");
-	// workspacegroupview_rename_cb(wid, NULL, wview);
-}
-
-static void
 workspacegroupview_child_add(View *parent, View *child)
 {
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(parent);
@@ -125,18 +130,6 @@ workspacegroupview_child_add(View *parent, View *child)
 	GtkWidget *tab_label = gtk_label_new(IOBJECT(ws->sym)->name);
 
 	workspaceview_set_label(wview, tab_label);
-
-	printf("workspacegroupview_child_add: FIXME ... add rightclick menu\n");
-	// popup_attach(ebox, wsgview->tab_menu, wview);
-
-	printf("workspacegroupview_child_add: FIXME ... "
-			"add doubleclick to rename\n");
-	/*
-	doubleclick_add(ebox, FALSE,
-		NULL, NULL,
-		DOUBLECLICK_FUNC(workspacegroupview_rename_cb2),
-		wview);
-		*/
 
 	gtk_notebook_insert_page(GTK_NOTEBOOK(wsgview->notebook),
 		GTK_WIDGET(wview), tab_label, ICONTAINER(ws)->pos);
@@ -186,10 +179,73 @@ workspacegroupview_child_front(View *parent, View *child)
 }
 
 static void
+workspacegroupview_background_menu(GtkGestureClick *gesture,
+    guint n_press, double x, double y, Workspacegroupview *wsgview)
+{
+    gtk_popover_set_pointing_to(GTK_POPOVER(wsgview->right_click_menu),
+        &(const GdkRectangle){ x, y, 1, 1 });
+
+    gtk_popover_popup(GTK_POPOVER(wsgview->right_click_menu));
+}
+
+static void
+workspacegroupview_tab_menu(GtkGestureClick *gesture,
+    guint n_press, double x, double y, Workspacegroupview *wsgview)
+{
+    gtk_popover_set_pointing_to(GTK_POPOVER(wsgview->tab_menu),
+        &(const GdkRectangle){ x, y, 1, 1 });
+
+    gtk_popover_popup(GTK_POPOVER(wsgview->tab_menu));
+}
+
+static void
+workspacegroupview_tab_pressed(GtkGestureClick *gesture,
+    guint n_press, double x, double y, Workspacegroupview *wsgview)
+{
+	if (n_press == 2) {
+		// rename tab
+		printf("workspacegroupview_tab_pressed: doubleclick\n" );
+		// workspacegroupview_rename_cb(wid, NULL, wview);
+	}
+}
+
+static void
+workspacegroupview_new_tab(GtkButton *button, void *user_data)
+{
+    Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
+
+	printf("workspacegroupview_new_tab:\n");
+}
+
+#define BIND(field) \
+    gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
+        Workspacegroupview, field);
+
+static void
 workspacegroupview_class_init(WorkspacegroupviewClass *class)
 {
 	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
+
+	gtk_widget_class_set_layout_manager_type(widget_class,
+        GTK_TYPE_BIN_LAYOUT);
+	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
+        APP_PATH "/workspacegroupview.ui");
+
+	BIND(right_click_menu);
+	BIND(tab_menu);
+	BIND(notebook);
+
+    gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
+        workspacegroupview_background_menu);
+    gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
+        workspacegroupview_new_tab);
+    gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
+        workspacegroupview_tab_menu);
+    gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
+        workspacegroupview_tab_pressed);
+
+	G_OBJECT_CLASS(class)->dispose = workspacegroupview_dispose;
 
 	widget_class->realize = workspacegroupview_realize;
 
@@ -512,20 +568,16 @@ workspacegroupview_delete_cb(GtkWidget *wid, GtkWidget *host,
 static void
 workspacegroupview_init(Workspacegroupview *wsgview)
 {
-	wsgview->notebook = gtk_notebook_new();
-	gtk_notebook_set_scrollable(GTK_NOTEBOOK(wsgview->notebook), TRUE);
-	gtk_notebook_set_group_name(GTK_NOTEBOOK(wsgview->notebook),
-		"wsgview");
-	gtk_notebook_set_tab_pos(GTK_NOTEBOOK(wsgview->notebook),
-		GTK_POS_TOP);
+	gtk_widget_init_template(GTK_WIDGET(wsgview));
+
+	/*
 	g_signal_connect(wsgview->notebook, "switch_page",
 		G_CALLBACK(workspacegroupview_switch_page_cb), wsgview);
 	g_signal_connect(wsgview->notebook, "page_added",
 		G_CALLBACK(workspacegroupview_page_added_cb), wsgview);
 	g_signal_connect(wsgview->notebook, "page_reordered",
 		G_CALLBACK(workspacegroupview_page_reordered_cb), wsgview);
-	printf("workspacegroupview_init: FIXME .. implement create_window\n");
-	/*
+
 	g_signal_connect(wsgview->notebook, "create_window",
 		G_CALLBACK(workspacegroupview_create_window_cb), wsgview);
 	 */

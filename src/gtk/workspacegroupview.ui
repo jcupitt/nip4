@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="workspacegroupview-tab-menu">
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Rename</attribute>
+        <attribute name='action'>win.tab-rename</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Select all</attribute>
+        <attribute name='action'>win.tab-select-all</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Duplicate</attribute>
+        <attribute name='action'>win.tab-duplicate</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Merge into tab ...</attribute>
+        <attribute name='action'>win.tab-merge</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Save as ...</attribute>
+        <attribute name='action'>win.tab-saveas</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Delete ...</attribute>
+        <attribute name='action'>win.tab-delete</attribute>
+      </item>
+    </section>
+  </menu>
+
+  <menu id="workspacegroupview-menu">
+    <section>
+      <attribute name="display-hint">horizontal-buttons</attribute>
+      <item>
+        <attribute name="label">Copy</attribute>
+        <attribute name="action">win.copy</attribute>
+        <attribute name="verb-icon">edit-copy-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="label">Paste</attribute>
+        <attribute name="action">win.paste</attribute>
+        <attribute name="verb-icon">edit-paste-symbolic</attribute>
+      </item>
+    </section>
+
+    <section>
+      <attribute name="display-hint">horizontal-buttons</attribute>
+      <item>
+        <attribute name="label">Previous page</attribute>
+        <attribute name="action">win.prev</attribute>
+        <attribute name="verb-icon">go-previous-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="label">Next page</attribute>
+        <attribute name="action">win.next</attribute>
+        <attribute name="verb-icon">go-next-symbolic</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>New window</attribute>
+        <attribute name='action'>app.new</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Duplicate window</attribute>
+        <attribute name='action'>win.duplicate</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Reload image</attribute>
+        <attribute name='action'>win.reload</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Replace image ...</attribute>
+        <attribute name='action'>win.replace</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Next image</attribute>
+        <attribute name='action'>win.next_image</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Previous image</attribute>
+        <attribute name='action'>win.prev_image</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Save as ...</attribute>
+        <attribute name='action'>win.saveas</attribute>
+      </item>
+    </section>
+
+    <section>
+      <submenu>
+        <attribute name="label">Zoom</attribute>
+        <section>
+          <item>
+            <attribute name="label" translatable="yes">Zoom in</attribute>
+            <attribute name="action">win.magin</attribute>
+          </item>
+          <item>
+            <attribute name="label" translatable="yes">Zoom out</attribute>
+            <attribute name="action">win.magout</attribute>
+          </item>
+          <item>
+            <attribute name="label" translatable="yes">1:1</attribute>
+            <attribute name="action">win.oneone</attribute>
+          </item>
+          <item>
+            <attribute name="label" translatable="yes">Best fit</attribute>
+            <attribute name="action">win.bestfit</attribute>
+          </item>
+        </section>
+      </submenu>
+
+      <item>
+        <attribute name="label" translatable="yes">Fullscreen</attribute>
+        <attribute name="action">win.fullscreen</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Display control bar</attribute>
+        <attribute name="action">win.control</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Info bar</attribute>
+        <attribute name="action">win.info</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Properties</attribute>
+        <attribute name="action">win.properties</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Close</attribute>
+        <attribute name='action'>win.close</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>About vipsdisp</attribute>
+        <attribute name='action'>app.about</attribute>
+      </item>
+    </section>
+
+  </menu>
+
+  <template class="Workspacegroupview" parent="View">
+    <child>
+      <object class="GtkNotebook" id="notebook">
+        <property name="hexpand">true</property>
+        <property name="vexpand">true</property>
+
+        <child>
+          <object class="GtkScrolledWindow" id="scrolled_window">
+            <child>
+              <object class="GtkFixed">
+                <child>
+                  <object class="GtkButton">
+                    <property name="label" translatable="yes">button</property>
+                    <property name="width-request">100</property>
+                    <property name="height-request">80</property>
+                    <property name="receives-default">True</property>
+                  </object>
+
+                </child>
+
+                <child>
+                  <object class="GtkPopoverMenu" id="right_click_menu">
+                    <property name="has-arrow">0</property>
+                    <property name="menu-model">workspacegroupview-menu</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkGestureClick">
+                    <property name="button">3</property>
+                    <signal name="pressed" handler="workspacegroupview_background_menu"/>
+                  </object>
+                </child>
+
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child type="tab">
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">tab 1</property>
+
+                <child>
+                  <object class="GtkPopoverMenu" id="tab_menu">
+                    <property name="has-arrow">0</property>
+                    <property name="menu-model">workspacegroupview-tab-menu</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkGestureClick">
+                    <property name="button">3</property>
+                    <signal name="pressed" handler="workspacegroupview_tab_menu"/>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkGestureClick">
+                    <property name="button">1</property>
+                    <signal name="pressed" handler="workspacegroupview_tab_pressed"/>
+                  </object>
+                </child>
+
+          </object>
+        </child>
+
+        <child type="action-end">
+          <object class="GtkButton">
+            <property name="icon-name">tab-new</property>
+            <signal name="clicked" handler="workspacegroupview_new_tab"/>
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+  </template>
+</interface>
+

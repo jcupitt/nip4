@@ -43,6 +43,7 @@ struct _Workspacegroupview {
 	GtkWidget *tab_menu;
 	GtkWidget *gutter_menu;
 	GtkWidget *notebook;
+	GtkWidget *right_click_menu;
 };
 
 typedef struct _WorkspacegroupviewClass {

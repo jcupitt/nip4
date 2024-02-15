@@ -35,7 +35,6 @@ struct _MainWindow {
 	GFile *save_folder;
 	GFile *load_folder;
 
-	GtkWidget *right_click_menu;
 	GtkWidget *title;
 	GtkWidget *subtitle;
 	GtkWidget *gears;
@@ -44,7 +43,7 @@ struct _MainWindow {
 	GtkWidget *progress_cancel;
 	GtkWidget *error_bar;
 	GtkWidget *error_label;
-	GtkWidget *scrolled_window;
+	GtkWidget *wsgview;
 
 	/* Throttle progress bar updates to a few per second with this.
 	 */
@@ -107,7 +106,6 @@ main_window_dispose(GObject *object)
 	printf("main_window_dispose:\n");
 #endif /*DEBUG*/
 
-	//VIPS_FREEF(gtk_widget_unparent, main->right_click_menu);
 	VIPS_FREEF(g_timer_destroy, main->progress_timer);
 
 	G_OBJECT_CLASS(main_window_parent_class)->dispose(object);
@@ -379,20 +377,6 @@ main_window_init(MainWindow *main)
 	 */
 }
 
-static void
-main_window_pressed_cb(GtkGestureClick *gesture,
-	guint n_press, double x, double y, MainWindow *main)
-{
-	gtk_popover_set_pointing_to(GTK_POPOVER(main->right_click_menu),
-		&(const GdkRectangle){ x, y, 1, 1 });
-
-	/* This produces a lot of warnings :( not sure why. I tried calling
-	 * gtk_popover_present() in realize to force allocation, but it didn't
-	 * help.
-	 */
-	gtk_popover_popup(GTK_POPOVER(main->right_click_menu));
-}
-
 #define BIND(field) \
 	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
 		MainWindow, field);
@@ -405,7 +389,6 @@ main_window_class_init(MainWindowClass *class)
 	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
 		APP_PATH "/mainwindow.ui");
 
-	BIND(right_click_menu);
 	BIND(title);
 	BIND(subtitle);
 	BIND(gears);
@@ -414,10 +397,7 @@ main_window_class_init(MainWindowClass *class)
 	BIND(progress_cancel);
 	BIND(error_bar);
 	BIND(error_label);
-	BIND(scrolled_window);
-
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		main_window_pressed_cb);
+	BIND(wsgview);
 }
 
 void

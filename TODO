@@ -1,6 +1,4 @@
-- workspaceview redo using a template, see tslider
-
-  maybe do workspace first?
+- add workspace and workspacegroup, then link to views
 
 
 - make a "progress" widget with throttled updates? could share with

@@ -3,6 +3,7 @@
 <gresources>
   <gresource prefix="/org/libvips/nip4">
     <file preprocess="xml-stripblanks">mainwindow.ui</file>
+    <file preprocess="xml-stripblanks">workspacegroupview.ui</file>
     <file>mainwindow.css</file>
   </gresource>
 </gresources>

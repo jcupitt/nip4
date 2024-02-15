@@ -149,47 +149,10 @@
         </child>
 
         <child>
-
-              <object class="GtkNotebook">
-                <property name="tab-pos">bottom</property>
-                <property name="hexpand">true</property>
-                <property name="vexpand">true</property>
-
-                <child>
-                  <object class="GtkPopoverMenu" id="right_click_menu">
-                    <property name="has-arrow">0</property>
-                    <property name="menu-model">mainwindow-menu</property>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkScrolledWindow" id="scrolled_window">
-                    <child>
-
-                      <object class="GtkFixed">
-                        <child>
-                          <object class="GtkButton">
-                            <property name="label" translatable="yes">button</property>
-                            <property name="width-request">100</property>
-                            <property name="height-request">80</property>
-                            <property name="receives-default">True</property>
-                          </object>
-
-                        </child>
-                      </object>
-
-                    </child>
-                  </object>
-                </child>
-
-                <child type="tab">
-                  <object class="GtkLabel">
-                    <property name="label" translatable="yes">tab 1</property>
-                  </object>
-                </child>
-
-              </object>
-
+          <object class="Workspacegroupview" id="wsgview">
+            <property name="hexpand">true</property>
+            <property name="vexpand">true</property>
+          </object>
         </child>
 
       </object>
