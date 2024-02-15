@@ -15,4 +15,6 @@ can run any image processing system you develop from the command-line and
 without a GUI.
 
 **Work in progress** I'm hoping this will be working by mid 2024, but for
-now it's not functional at all.
+now it doesn't do much.
+
+
