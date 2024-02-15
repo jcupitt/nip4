@@ -199,13 +199,6 @@ workspacegroupview_class_init(WorkspacegroupviewClass *class)
 	view_class->child_front = workspacegroupview_child_front;
 }
 
-/*
-typedef struct _nip2GtkNotebookPage {
-	GtkWidget *child;
-
-	// ignore the rest of the struct
-} nip2GtkNotebookPage;
-
 static Workspaceview *
 notebookpage_get_workspaceview(GtkWidget *page)
 {
@@ -255,11 +248,12 @@ workspacegroupview_page_added_cb(GtkNotebook *notebook,
 {
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
 	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
-	Mainw *mainw = MAINW(iwindow_get_root(GTK_WIDGET(notebook)));
+	MainWindow *main = MAIN_WINDOW(gtk_widget_get_root(GTK_WIDGET(notebook)));
 
-	filemodel_set_window_hint(FILEMODEL(wsg), GTK_WINDOW(mainw));
+	filemodel_set_window_hint(FILEMODEL(wsg), GTK_WINDOW(main));
 }
 
+/*
 static GtkNotebook *
 workspacegroupview_create_window_cb(GtkNotebook *notebook,
 	GtkWidget *page, int x, int y, gpointer user_data)
@@ -289,14 +283,14 @@ workspacegroupview_create_window_cb(GtkNotebook *notebook,
 
 	return GTK_NOTEBOOK(new_mainw->wsgview->notebook);
 }
+ */
 
 static void
 workspacegroupview_page_reordered_cb(GtkNotebook *notebook,
 	GtkWidget *page, guint page_num, gpointer user_data)
 {
 	Workspaceview *wview = WORKSPACEVIEW(page);
-	Workspacegroupview *wsgview =
-		WORKSPACEGROUPVIEW(VIEW(wview)->parent);
+	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(VIEW(wview)->parent);
 	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
 
 	int i;
@@ -321,6 +315,7 @@ workspacegroupview_page_reordered_cb(GtkNotebook *notebook,
 	}
 }
 
+/*
 static void
 workspacegroupview_tab_double_cb(GtkNotebook *notebook, GdkEvent *event,
 	Workspacegroupview *wsgview)
@@ -529,21 +524,31 @@ workspacegroupview_init(Workspacegroupview *wsgview)
 		G_CALLBACK(workspacegroupview_page_added_cb), wsgview);
 	g_signal_connect(wsgview->notebook, "page_reordered",
 		G_CALLBACK(workspacegroupview_page_reordered_cb), wsgview);
+	printf("workspacegroupview_init: FIXME .. implement create_window\n");
+	/*
 	g_signal_connect(wsgview->notebook, "create_window",
 		G_CALLBACK(workspacegroupview_create_window_cb), wsgview);
+	 */
 
+	printf("workspacegroupview_init: FIXME .. implement tab doubleclick\n");
+	/*
 	doubleclick_add(wsgview->notebook, FALSE,
 		NULL, NULL,
 		DOUBLECLICK_FUNC(workspacegroupview_tab_double_cb),
 		wsgview);
+	 */
 
+	printf("workspacegroupview_init: FIXME .. implement tab gutter menu\n");
+	/*
 	wsgview->gutter_menu = popup_build(_("Tab gutter menu"));
 	popup_add_but(wsgview->gutter_menu, _("New Tab"),
 		POPUP_FUNC(workspacegroupview_add_workspace_cb2));
 	popup_add_but(wsgview->gutter_menu, _("Merge Into Workspace"),
 		POPUP_FUNC(workspacegroupview_load_workspace_cb2));
 	popup_attach(wsgview->notebook, wsgview->gutter_menu, wsgview);
+	 */
 
+	/*
 	GtkWidget *but;
 	GtkWidget *icon;
 
@@ -561,7 +566,11 @@ workspacegroupview_init(Workspacegroupview *wsgview)
 
 	gtk_box_pack_start(GTK_BOX(wsgview), wsgview->notebook, TRUE, TRUE, 0);
 	gtk_widget_show(wsgview->notebook);
+	 */
 
+
+	printf("workspacegroupview_init: add tab menu\n");
+	/*
 	wsgview->tab_menu = popup_build(_("Tab menu"));
 	popup_add_but(wsgview->tab_menu, _("Rename"),
 		POPUP_FUNC(workspacegroupview_rename_cb));
@@ -576,12 +585,13 @@ workspacegroupview_init(Workspacegroupview *wsgview)
 	menu_add_sep(wsgview->tab_menu);
 	popup_add_but(wsgview->tab_menu, GTK_STOCK_DELETE,
 		POPUP_FUNC(workspacegroupview_delete_cb));
+	 */
 }
 
 View *
 workspacegroupview_new(void)
 {
-	Workspacegroupview *wsgview = g_object_new(TYPE_WORKSPACEGROUPVIEW, NULL);
+	Workspacegroupview *wsgview = g_object_new(WORKSPACEGROUPVIEW_TYPE, NULL);
 
 	return VIEW(wsgview);
 }

@@ -1,6 +1,10 @@
+- workspaceview redo using a template, see tslider
+
+  maybe do workspace first?
+
+
 - make a "progress" widget with throttled updates? could share with
   saveoptions, and move some code out of mainwindow
 
 - there's a 20ms timeout in vobject_refresh_queue() ... tune this
 
-- next ... workspacegroupview ?

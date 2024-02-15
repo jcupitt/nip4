@@ -29,6 +29,7 @@ executable('nip4', [
     'view.c',
     'vobject.c',
     'workspacegroupview.c',
+    'workspaceview.c',
   ],
   dependencies: nip4_deps,
   win_subsystem: 'windows',

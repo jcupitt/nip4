@@ -23,6 +23,16 @@
 
 #define WHITESPACE " \t\r\b\n"
 
+#define UNPARENT(W) \
+	G_STMT_START \
+	{ \
+		if (W) { \
+			gtk_widget_unparent(GTK_WIDGET(W)); \
+			(W) = NULL; \
+		} \
+	} \
+	G_STMT_END
+
 void set_symbol_drag_type(GtkWidget *widget);
 
 void set_gentryv(GtkWidget *edit, const char *fmt, va_list ap);
@@ -47,12 +57,9 @@ void action_toggle(GSimpleAction *action,
 void action_radio(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data);
 
-#define UNPARENT(W) \
-	G_STMT_START \
-	{ \
-		if (W) { \
-			gtk_widget_unparent(GTK_WIDGET(W)); \
-			(W) = NULL; \
-		} \
-	} \
-	G_STMT_END
+void VipsArrayDouble_unref(VipsArrayDouble *array);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(VipsImage, g_object_unref)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(VipsObject, g_object_unref)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(VipsArrayDouble, VipsArrayDouble_unref)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(cairo_t, cairo_destroy)
