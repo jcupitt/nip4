@@ -17,4 +17,5 @@ without a GUI.
 **Work in progress** I'm hoping this will be working by mid 2024, but for
 now it doesn't do much.
 
+[![Screenshot](images/shot1.png)](images/shot1.png)
 
