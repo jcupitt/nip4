@@ -22,6 +22,10 @@ lib_dir = prefix_dir / get_option('libdir')
 pkg = import('pkgconfig')
 gnome = import('gnome')
 
+# we should probably have more flexibility here
+lex = find_program('flex')
+yacc = find_program('bison')
+
 cc = meson.get_compiler('c')
 config_h = configuration_data()
 

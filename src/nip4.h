@@ -93,26 +93,42 @@ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 
 // various forward typdefs
 
+typedef struct _Column Column;
+typedef struct _Imageinfo Imageinfo;
+typedef struct _Columnview Columnview;
+typedef struct _Compile Compile;
+typedef struct _Element Element;
 typedef struct _Expr Expr;
 typedef struct _Filemodel Filemodel;
+typedef struct _HeapBlock HeapBlock;
+typedef struct _Heap Heap;
 typedef struct _Heapmodel Heapmodel;
 typedef struct _iContainer iContainer;
+typedef struct _Matrix Matrix;
 typedef struct _Model Model;
+typedef struct _ParseConst ParseConst;
+typedef struct _ParseNode ParseNode;
+typedef struct _Reduce Reduce;
+typedef struct _Rhs Rhs;
 typedef struct _Row Row;
+typedef struct _Rowview Rowview;
+typedef struct _Subcolumn Subcolumn;
+typedef struct _Subcolumn Subcolumn;
 typedef struct _Symbol Symbol;
+typedef struct _Toolkitbrowser Toolkitbrowser;
+typedef struct _Toolkitgroup Toolkitgroup;
 typedef struct _Toolkit Toolkit;
+typedef struct _Tool Tool;
 typedef struct _View View;
+typedef struct _Workspacedefs Workspacedefs;
 typedef struct _Workspacegroupview Workspacegroupview;
 typedef struct _Workspacegroup Workspacegroup;
+typedef struct _Workspaceroot Workspaceroot;
 typedef struct _Workspaceview Workspaceview;
 typedef struct _Workspace Workspace;
-typedef struct _ParseNode ParseNode;
-typedef struct _ParseConst ParseConst;
-
-typedef enum _UnOp UnOp;
-typedef enum _BinOp BinOp;
 
 #include "util.h"
+#include "app.h"
 #include "main.h"
 #include "watch.h"
 #include "path.h"
@@ -120,24 +136,33 @@ typedef enum _BinOp BinOp;
 #include "parser.h"
 #include "gtkutil.h"
 #include "nip4marshal.h"
+#include "mainwindow.h"
 #include "iobject.h"
 #include "vobject.h"
-#include "column.h"
-#include "columnview.h"
-#include "heapmodel.h"
 #include "icontainer.h"
 #include "model.h"
-#include "filemodel.h"
 #include "view.h"
-#include "expr.h"
-#include "row.h"
+#include "tree.h"
+#include "filemodel.h"
+#include "imageinfo.h"
+#include "heap.h"
+#include "compile.h"
+#include "heapmodel.h"
+#include "column.h"
+#include "columnview.h"
+#include "prefcolumnview.h"
+#include "prefworkspaceview.h"
+#include "workspaceroot.h"
 #include "workspacegroupview.h"
 #include "workspacegroup.h"
 #include "workspaceview.h"
 #include "workspace.h"
+#include "subcolumn.h"
+#include "expr.h"
+#include "row.h"
+#include "matrix.h"
+#include "rhs.h"
 #include "symbol.h"
 #include "link.h"
-#include "app.h"
-#include "mainwindow.h"
 
 #endif /*__NIP4_H*/

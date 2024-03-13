@@ -86,8 +86,8 @@ struct _Workspace {
 	 */
 	Row *last_error;
 
-	Rect area;			 /* Rect enclosing the set of columns */
-	Rect vp;			 /* Viewport hint ... set by views */
+	VipsRect area;		 /* Rect enclosing the set of columns */
+	VipsRect vp;		 /* Viewport hint ... set by views */
 	gboolean lpane_open; /* Pane model */
 	int lpane_position;
 	gboolean rpane_open;
@@ -120,6 +120,8 @@ typedef struct _WorkspaceClass {
 	/* Methods.
 	 */
 } WorkspaceClass;
+
+const char *filesel_type_workspace;
 
 void workspace_set_needs_layout(Workspace *ws, gboolean needs_layout);
 GSList *workspace_get_needs_layout();

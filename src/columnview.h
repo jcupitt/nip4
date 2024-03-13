@@ -29,12 +29,15 @@
 
 #define COLUMNVIEW_TYPE (columnview_get_type())
 #define COLUMNVIEW(obj) \
-	(GTK_CHECK_CAST((obj), COLUMNVIEW_TYPE, Columnview))
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), COLUMNVIEW_TYPE, Columnview))
 #define COLUMNVIEW_CLASS(klass) \
-	(GTK_CHECK_CLASS_CAST((klass), COLUMNVIEW_TYPE, ColumnviewClass))
-#define IS_COLUMNVIEW(obj) (GTK_CHECK_TYPE((obj), COLUMNVIEW_TYPE))
+	(G_TYPE_CHECK_CLASS_CAST((klass), COLUMNVIEW_TYPE, ColumnviewClass))
+#define IS_COLUMNVIEW(obj) \
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj), COLUMNVIEW_TYPE))
 #define IS_COLUMNVIEW_CLASS(klass) \
-	(GTK_CHECK_CLASS_TYPE((klass), COLUMNVIEW_TYPE))
+	(G_TYPE_CHECK_CLASS_TYPE((klass), COLUMNVIEW_TYPE))
+#define COLUMNVIEW_GET_CLASS(obj) \
+	(G_TYPE_INSTANCE_GET_CLASS((obj), COLUMNVIEW_TYPE, ColumnviewClass))
 
 /* State ... for mouse titlebar interactions.
  */
@@ -101,5 +104,5 @@ typedef struct _ColumnviewClass {
 void columnview_get_position(Columnview *cview,
 	int *x, int *y, int *w, int *h);
 
-GtkType columnview_get_type(void);
+GType columnview_get_type(void);
 View *columnview_new(void);

@@ -110,6 +110,17 @@ typedef void *(*icontainer_map4_fn)(iContainer *,
 typedef void *(*icontainer_map5_fn)(iContainer *,
 	void *, void *, void *, void *, void *);
 
+/* container map function typedefs.
+ */
+typedef void *(*row_map_fn)(Row *, void *, void *, void *);
+typedef void *(*symbol_map_fn)(Symbol *, void *, void *, void *);
+typedef void *(*column_map_fn)(Column *, void *);
+typedef void *(*view_map_fn)(View *, void *, void *);
+typedef void *(*rowview_map_fn)(Rowview *, void *);
+typedef void *(*workspace_map_fn)(Workspace *, void *);
+typedef void *(*toolkit_map_fn)(Toolkit *, void *, void *);
+typedef void *(*tool_map_fn)(Tool *, void *, void *);
+
 typedef gint (*icontainer_sort_fn)(iContainer *a, iContainer *b);
 
 int icontainer_get_n_children(iContainer *icontainer);

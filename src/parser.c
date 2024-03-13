@@ -21,4 +21,5 @@ free_lex(int yychar)
 int
 yylex(void)
 {
+	return 0;
 }

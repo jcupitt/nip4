@@ -27,15 +27,17 @@
 
 */
 
-#define TYPE_WORKSPACEVIEW (workspaceview_get_type())
+#define WORKSPACEVIEW_TYPE (workspaceview_get_type())
 #define WORKSPACEVIEW(obj) \
-	(GTK_CHECK_CAST((obj), TYPE_WORKSPACEVIEW, Workspaceview))
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), WORKSPACEVIEW_TYPE, Workspaceview))
 #define WORKSPACEVIEW_CLASS(klass) \
-	(GTK_CHECK_CLASS_CAST((klass), \
-		TYPE_WORKSPACEVIEW, WorkspaceviewClass))
-#define IS_WORKSPACEVIEW(obj) (GTK_CHECK_TYPE((obj), TYPE_WORKSPACEVIEW))
+	(G_TYPE_CHECK_CLASS_CAST((klass), WORKSPACEVIEW_TYPE, WorkspaceviewClass))
+#define IS_WORKSPACEVIEW(obj) \
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj), WORKSPACEVIEW_TYPE))
 #define IS_WORKSPACEVIEW_CLASS(klass) \
-	(GTK_CHECK_CLASS_TYPE((klass), TYPE_WORKSPACEVIEW))
+	(G_TYPE_CHECK_CLASS_TYPE((klass), WORKSPACEVIEW_TYPE))
+#define WORKSPACEVIEW_GET_CLASS(obj) \
+	(G_TYPE_INSTANCE_GET_CLASS((obj), WORKSPACEVIEW_TYPE, WorkspaceviewClass))
 
 /* Column margins.
  */
@@ -55,8 +57,8 @@ struct _Workspaceview {
 
 	/* Left and right panes ... program window and toolkit browser.
 	 */
-	Pane *lpane;
-	Pane *rpane;
+	GtkWidget *lpane;
+	GtkWidget *rpane;
 
 	GtkWidget *popup;
 	GtkWidget *popup_jump;
@@ -75,19 +77,15 @@ struct _Workspaceview {
 
 	/* Geometry.
 	 */
-	Rect vp;   /* Viewport pos and size */
+	VipsRect vp; /* Viewport pos and size */
 	int width; /* Size of fixed area */
 	int height;
-	Rect bounding; /* Bounding box of columnviews */
+	VipsRect bounding; /* Bounding box of columnviews */
 
 	/* Placement hints for new columns.
 	 */
 	int next_x;
 	int next_y;
-
-	/* Context we use to change cursor shape.
-	 */
-	iWindowCursorContext *context;
 
 	/* Follow prefs changes.
 	 */
@@ -108,10 +106,7 @@ typedef struct _WorkspaceviewClass {
 void workspaceview_scroll(Workspaceview *wview, int x, int y, int w, int h);
 void workspaceview_scroll_background(Workspaceview *wview, int u, int v);
 
-void workspaceview_set_cursor(Workspaceview *wview, iWindowShape shape);
-
-GtkType workspaceview_get_type(void);
+GType workspaceview_get_type(void);
 View *workspaceview_new(void);
 
-void workspaceview_set_label(Workspaceview *wview,
-	GtkWidget *label, GtkWidget *padlock, GtkWidget *alert);
+void workspaceview_set_label(Workspaceview *wview, GtkWidget *label);

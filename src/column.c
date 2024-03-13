@@ -52,13 +52,13 @@ column_map(Column *col, row_map_fn fn, void *a, void *b)
 {
 	Subcolumn *scol = col->scol;
 
-	return (subcolumn_map(scol, fn, a, b));
+	return subcolumn_map(scol, fn, a, b);
 }
 
 void *
 column_map_symbol_sub(Row *row, symbol_map_fn fn, void *a)
 {
-	return (fn(row->sym, a, NULL, NULL));
+	return fn(row->sym, a, NULL, NULL);
 }
 
 /* Map down a column, applying to the symbol of the row.
@@ -66,8 +66,8 @@ column_map_symbol_sub(Row *row, symbol_map_fn fn, void *a)
 void *
 column_map_symbol(Column *col, symbol_map_fn fn, void *a)
 {
-	return (column_map(col,
-		(row_map_fn) column_map_symbol_sub, (void *) fn, a));
+	return column_map(col,
+		(row_map_fn) column_map_symbol_sub, (void *) fn, a);
 }
 
 static void
@@ -86,7 +86,7 @@ column_finalize(GObject *gobject)
 
 	if (col == column_last_new)
 		column_last_new = NULL;
-	IM_FREEF(g_source_remove, col->scrollto_timeout);
+	VIPS_FREEF(g_source_remove, col->scrollto_timeout);
 
 	G_OBJECT_CLASS(column_parent_class)->finalize(gobject);
 }
@@ -96,7 +96,7 @@ column_finalize(GObject *gobject)
 void *
 column_select_symbols(Column *col)
 {
-	return (column_map(col, (row_map_fn) row_select_extend, NULL, NULL));
+	return column_map(col, (row_map_fn) row_select_extend, NULL, NULL);
 }
 
 static Subcolumn *
@@ -104,7 +104,7 @@ column_get_subcolumn(Column *col)
 {
 	g_assert(g_slist_length(ICONTAINER(col)->children) == 1);
 
-	return (SUBCOLUMN(ICONTAINER(col)->children->data));
+	return SUBCOLUMN(ICONTAINER(col)->children->data);
 }
 
 static void
@@ -132,7 +132,7 @@ column_child_remove(iContainer *parent, iContainer *child)
 static Workspace *
 column_get_workspace(Column *col)
 {
-	return (WORKSPACE(ICONTAINER(col)->parent));
+	return WORKSPACE(ICONTAINER(col)->parent);
 }
 
 static void
@@ -155,23 +155,20 @@ column_parent_add(iContainer *child)
 static View *
 column_view_new(Model *model, View *parent)
 {
-	if (IS_PREFWORKSPACEVIEW(parent))
-		return (prefcolumnview_new());
-	else
-		return (columnview_new());
+	return IS_PREFWORKSPACEVIEW(parent) ? prefcolumnview_new() : columnview_new();
 }
 
 static xmlNode *
 column_save(Model *model, xmlNode *xnode)
 {
 	Column *col = COLUMN(model);
-	int x = IM_MAX(0, col->x - column_left_offset);
-	int y = IM_MAX(0, col->y - column_top_offset);
+	int x = VIPS_MAX(0, col->x - column_left_offset);
+	int y = VIPS_MAX(0, col->y - column_top_offset);
 
 	xmlNode *xthis;
 
 	if (!(xthis = MODEL_CLASS(column_parent_class)->save(model, xnode)))
-		return (NULL);
+		return NULL;
 
 	/* Save sform for backwards compat with nip 7.8 ... now a workspace
 	 * property.
@@ -184,15 +181,15 @@ column_save(Model *model, xmlNode *xnode)
 		!set_sprop(xthis, "sform", bool_to_char(FALSE)) ||
 		!set_iprop(xthis, "next", col->next) ||
 		!set_sprop(xthis, "name", IOBJECT(col)->name))
-		return (NULL);
+		return NULL;
 
 	/* Caption can be NULL for untitled columns.
 	 */
 	if (IOBJECT(col)->caption)
 		if (!set_sprop(xthis, "caption", IOBJECT(col)->caption))
-			return (NULL);
+			return NULL;
 
-	return (xthis);
+	return xthis;
 }
 
 static gboolean
@@ -205,10 +202,10 @@ column_save_test(Model *model)
 	if (wsg->save_type == WORKSPACEGROUP_SAVE_SELECTED)
 		/* Only save columns containing selected rows.
 		 */
-		return (column_map(col,
-					(row_map_fn) row_is_selected, NULL, NULL) != NULL);
+		return column_map(col,
+				   (row_map_fn) row_is_selected, NULL, NULL) != NULL;
 
-	return (TRUE);
+	return TRUE;
 }
 
 static void
@@ -235,7 +232,7 @@ column_load(Model *model,
 		!get_bprop(xnode, "open", &col->open) ||
 		!get_bprop(xnode, "selected", &col->selected) ||
 		!get_iprop(xnode, "next", &col->next))
-		return (FALSE);
+		return FALSE;
 
 	col->x = x + column_left_offset;
 	col->y = y + column_top_offset;
@@ -243,16 +240,14 @@ column_load(Model *model,
 	/* Don't use iobject_set(): we don't want to trigger _changed during
 	 * load.
 	 */
-	if (get_sprop(xnode, "caption", buf, 256)) {
-		IM_SETSTR(IOBJECT(col)->caption, buf);
-	}
-	if (get_sprop(xnode, "name", buf, 256)) {
-		IM_SETSTR(IOBJECT(col)->name, buf);
-	}
+	if (get_sprop(xnode, "caption", buf, 256))
+		VIPS_SETSTR(IOBJECT(col)->caption, buf);
+	if (get_sprop(xnode, "name", buf, 256))
+		VIPS_SETSTR(IOBJECT(col)->name, buf);
 
 	column_set_last_new(col);
 
-	return (MODEL_CLASS(column_parent_class)->load(model, state, parent, xnode));
+	return MODEL_CLASS(column_parent_class)->load(model, state, parent, xnode);
 }
 
 static void
@@ -318,7 +313,7 @@ column_new(Workspace *ws, const char *name)
 		error_sub(_("Can't create column \"%s\". A column with that "
 					"name already exists."),
 			name);
-		return (NULL);
+		return NULL;
 	}
 
 	col = COLUMN(g_object_new(TYPE_COLUMN, NULL));
@@ -332,13 +327,13 @@ column_new(Workspace *ws, const char *name)
 
 	column_set_last_new(col);
 
-	return (col);
+	return col;
 }
 
 Column *
 column_get_last_new(void)
 {
-	return (column_last_new);
+	return column_last_new;
 }
 
 void
@@ -358,10 +353,10 @@ column_get_bottom(Column *col)
 	if (children) {
 		Row *row = ROW(g_slist_last(children)->data);
 
-		return (row);
+		return row;
 	}
 
-	return (NULL);
+	return NULL;
 }
 
 /* Add the last n names from a column to a buffer. Error if there are too few
@@ -382,7 +377,7 @@ column_add_n_names(Column *col, const char *name, VipsBuf *buf, int nparam)
 		error_sub(_("This column only has %d items, "
 					"but %s needs %d items."),
 			len, name, nparam);
-		return (FALSE);
+		return FALSE;
 	}
 
 	for (i = g_slist_nth(children, len - nparam); i; i = i->next) {
@@ -394,7 +389,7 @@ column_add_n_names(Column *col, const char *name, VipsBuf *buf, int nparam)
 		}
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Is a column empty?
@@ -405,7 +400,7 @@ column_is_empty(Column *col)
 	Subcolumn *scol = col->scol;
 	GSList *children = ICONTAINER(scol)->children;
 
-	return (children == NULL);
+	return children == NULL;
 }
 
 /* Set the load/save offsets.
@@ -427,11 +422,11 @@ column_name_new(Column *col)
 	char buf[256];
 
 	do {
-		im_snprintf(buf, 256, "%s%d",
+		vips_snprintf(buf, 256, "%s%d",
 			IOBJECT(col)->name, col->next++);
 	} while (compile_lookup(col->ws->sym->expr->compile, buf));
 
-	return (im_strdup(NULL, buf));
+	return g_strdup(buf);
 }
 
 void
@@ -456,7 +451,7 @@ column_scrollto_timeout_cb(Column *col)
 	col->scrollto_timeout = 0;
 	model_scrollto(MODEL(col), col->pending_position);
 
-	return (FALSE);
+	return FALSE;
 }
 
 void
@@ -466,7 +461,7 @@ column_scrollto(Column *col, ModelScrollPosition position)
 	printf("column_scrollto: %p %s\n", col, IOBJECT(col)->name);
 #endif /*DEBUG*/
 
-	IM_FREEF(g_source_remove, col->scrollto_timeout);
+	VIPS_FREEF(g_source_remove, col->scrollto_timeout);
 	col->pending_position = position;
 
 	/* We need a longer timeout here than the one in mainw_layout().

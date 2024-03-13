@@ -10,6 +10,26 @@ resources = gnome.compile_resources(
   source_dir: 'gtk',
 )
 
+lex_c = custom_target('lex.c',
+  output: ['lex.c', 'lex.h' ],
+  input: 'lex.l',
+  command: [lex,
+    '--outfile=@OUTPUT0@',
+    '--header-file=@OUTPUT1@',
+    '@INPUT@',
+  ],
+)
+
+parse_c = custom_target('parse.c',
+  output: [ 'parse.c', 'parse.h' ],
+  input: 'parse.y',
+  command: [yacc,
+    '--output=@OUTPUT0@',
+    '--header=@OUTPUT1@',
+    '@INPUT@',
+    ],
+)
+
 executable('nip4', [
     marshal,
     resources,
@@ -25,13 +45,21 @@ executable('nip4', [
     'main.c',
     'mainwindow.c',
     'model.c',
+    'heap.c',
+    'compile.c',
+    'reduce.c',
     'path.c',
     'symbol.c',
+    'tree.c',
+    'imageinfo.c',
     'util.c',
     'view.c',
     'vobject.c',
     'column.c',
     'columnview.c',
+    'prefcolumnview.c',
+    'prefworkspaceview.c',
+    'subcolumn.c',
     'workspaceview.c',
     'workspace.c',
     'workspacegroupview.c',

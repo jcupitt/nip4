@@ -40,6 +40,9 @@ static GSList *workspace_all = NULL;
 
 static GSList *workspace_needs_layout = NULL;
 
+// FIXME ... will need revising
+const char *filesel_type_workspace = ".ws";
+
 void
 workspace_set_needs_layout(Workspace *ws, gboolean needs_layout)
 {
@@ -70,7 +73,7 @@ workspace_set_needs_layout(Workspace *ws, gboolean needs_layout)
 GSList *
 workspace_get_needs_layout()
 {
-	return (workspace_needs_layout);
+	return workspace_needs_layout;
 }
 
 Workspacegroup *
@@ -79,15 +82,15 @@ workspace_get_workspacegroup(Workspace *ws)
 	iContainer *parent;
 
 	if ((parent = ICONTAINER(ws)->parent))
-		return (WORKSPACEGROUP(parent));
+		return WORKSPACEGROUP(parent);
 
-	return (NULL);
+	return NULL;
 }
 
 Workspaceroot *
 workspace_get_workspaceroot(Workspace *ws)
 {
-	return (workspace_get_workspacegroup(ws)->wsr);
+	return workspace_get_workspacegroup(ws)->wsr;
 }
 
 void
@@ -104,8 +107,7 @@ workspace_map_sub(Workspacegroup *wsg, workspace_map_fn fn, void *a, void *b)
 {
 	g_assert(IS_WORKSPACEGROUP(wsg));
 
-	return (icontainer_map(ICONTAINER(wsg),
-		(icontainer_map_fn) fn, a, b));
+	return icontainer_map(ICONTAINER(wsg), (icontainer_map_fn) fn, a, b);
 }
 
 /* Over all workspaces.
@@ -113,9 +115,9 @@ workspace_map_sub(Workspacegroup *wsg, workspace_map_fn fn, void *a, void *b)
 void *
 workspace_map(workspace_map_fn fn, void *a, void *b)
 {
-	return (icontainer_map3(ICONTAINER(main_workspaceroot),
+	return icontainer_map3(ICONTAINER(main_workspaceroot),
 		(icontainer_map3_fn) workspace_map_sub,
-		fn, a, b));
+		fn, a, b);
 }
 
 /* Map across the columns in a workspace.
@@ -123,8 +125,7 @@ workspace_map(workspace_map_fn fn, void *a, void *b)
 void *
 workspace_map_column(Workspace *ws, column_map_fn fn, void *a)
 {
-	return (icontainer_map(ICONTAINER(ws),
-		(icontainer_map_fn) fn, a, NULL));
+	return icontainer_map(ICONTAINER(ws), (icontainer_map_fn) fn, a, NULL);
 }
 
 /* Map across a Workspace, applying to the symbols of the top-level rows.
@@ -132,14 +133,14 @@ workspace_map_column(Workspace *ws, column_map_fn fn, void *a)
 void *
 workspace_map_symbol(Workspace *ws, symbol_map_fn fn, void *a)
 {
-	return (icontainer_map(ICONTAINER(ws),
-		(icontainer_map_fn) column_map_symbol, (void *) fn, a));
+	return icontainer_map(ICONTAINER(ws),
+		(icontainer_map_fn) column_map_symbol, (void *) fn, a);
 }
 
 static void *
 workspace_is_empty_sub(Symbol *sym)
 {
-	return (sym);
+	return sym;
 }
 
 /* Does a workspace contain no rows?
@@ -147,8 +148,8 @@ workspace_is_empty_sub(Symbol *sym)
 gboolean
 workspace_is_empty(Workspace *ws)
 {
-	return (workspace_map_symbol(ws,
-				(symbol_map_fn) workspace_is_empty_sub, NULL) == NULL);
+	return workspace_map_symbol(ws,
+			   (symbol_map_fn) workspace_is_empty_sub, NULL) == NULL;
 }
 
 /* Map a function over all selected rows in a workspace.
@@ -156,13 +157,13 @@ workspace_is_empty(Workspace *ws)
 void *
 workspace_selected_map(Workspace *ws, row_map_fn fn, void *a, void *b)
 {
-	return (slist_map2(ws->selected, (SListMap2Fn) fn, a, b));
+	return slist_map2(ws->selected, (SListMap2Fn) fn, a, b);
 }
 
 static void *
 workspace_selected_map_sym_sub(Row *row, symbol_map_fn fn, void *a)
 {
-	return (fn(row->sym, a, NULL, NULL));
+	return fn(row->sym, a, NULL, NULL);
 }
 
 /* Map a function over all selected symbols in a workspace.
@@ -171,8 +172,8 @@ void *
 workspace_selected_map_sym(Workspace *ws,
 	symbol_map_fn fn, void *a, void *b)
 {
-	return (workspace_selected_map(ws,
-		(row_map_fn) workspace_selected_map_sym_sub, (void *) fn, a));
+	return workspace_selected_map(ws,
+		(row_map_fn) workspace_selected_map_sym_sub, (void *) fn, a);
 }
 
 /* Are there any selected rows?
@@ -180,7 +181,7 @@ workspace_selected_map_sym(Workspace *ws,
 gboolean
 workspace_selected_any(Workspace *ws)
 {
-	return (ws->selected != NULL);
+	return ws->selected != NULL;
 }
 
 /* Number of selected rows.
@@ -188,16 +189,13 @@ workspace_selected_any(Workspace *ws)
 int
 workspace_selected_num(Workspace *ws)
 {
-	return (g_slist_length(ws->selected));
+	return g_slist_length(ws->selected);
 }
 
 static void *
 workspace_selected_sym_sub(Row *row, Symbol *sym)
 {
-	if (row->sym == sym)
-		return (row);
-
-	return (NULL);
+	return row->sym == sym ? sym : NULL;
 }
 
 /* Is sym selected?
@@ -205,8 +203,8 @@ workspace_selected_sym_sub(Row *row, Symbol *sym)
 gboolean
 workspace_selected_sym(Workspace *ws, Symbol *sym)
 {
-	return (workspace_selected_map(ws,
-				(row_map_fn) workspace_selected_sym_sub, sym, NULL) != NULL);
+	return workspace_selected_map(ws,
+			   (row_map_fn) workspace_selected_sym_sub, sym, NULL) != NULL;
 }
 
 /* Is just one row selected? If yes, return it.
@@ -217,16 +215,16 @@ workspace_selected_one(Workspace *ws)
 	int len = g_slist_length(ws->selected);
 
 	if (len == 1)
-		return ((Row *) (ws->selected->data));
+		return (Row *) (ws->selected->data);
 	else if (len == 0) {
 		error_top(_("No objects selected."));
 		error_sub(_("Select exactly one object and try again."));
-		return (NULL);
+		return NULL;
 	}
 	else {
 		error_top(_("More than one object selected."));
 		error_sub(_("Select exactly one object and try again."));
-		return (NULL);
+		return NULL;
 	}
 }
 
@@ -235,7 +233,7 @@ workspace_deselect_all_sub(Column *col)
 {
 	col->last_select = NULL;
 
-	return (NULL);
+	return NULL;
 }
 
 /* Deselect all rows.
@@ -287,7 +285,7 @@ workspace_selected_names_sub(Row *row, NamesInfo *names)
 
 	names->first = FALSE;
 
-	return (NULL);
+	return NULL;
 }
 
 /* Add a list of selected symbol names to a string.
@@ -336,13 +334,13 @@ workspace_is_one_empty(Workspace *ws)
 	Column *col;
 
 	if (g_slist_length(children) != 1)
-		return (NULL);
+		return NULL;
 
 	col = COLUMN(children->data);
 	if (!column_is_empty(col))
-		return (NULL);
+		return NULL;
 
-	return (col);
+	return col;
 }
 
 /* Search for a column by name.
@@ -354,9 +352,9 @@ workspace_column_find(Workspace *ws, const char *name)
 
 	if (!(model = icontainer_map(ICONTAINER(ws),
 			  (icontainer_map_fn) iobject_test_name, (void *) name, NULL)))
-		return (NULL);
+		return NULL;
 
-	return (COLUMN(model));
+	return COLUMN(model);
 }
 
 /* Return the column for a name ... an existing column, or a new one.
@@ -369,11 +367,11 @@ workspace_column_get(Workspace *ws, const char *name)
 	/* Exists?
 	 */
 	if ((col = workspace_column_find(ws, name)))
-		return (col);
+		return col;
 
 	/* No - build new column and return a pointer to that.
 	 */
-	return (column_new(ws, name));
+	return column_new(ws, name);
 }
 
 /* Make up a new column name. Check for not already in workspace.
@@ -390,9 +388,9 @@ Column *
 workspace_get_column(Workspace *ws)
 {
 	if (ICONTAINER(ws)->current)
-		return (COLUMN(ICONTAINER(ws)->current));
+		return COLUMN(ICONTAINER(ws)->current);
 
-	return (NULL);
+	return NULL;
 }
 
 /* Select a column. Can select NULL for no current col in this ws.
@@ -412,11 +410,10 @@ workspace_column_pick(Workspace *ws)
 	Column *col;
 
 	if ((col = workspace_get_column(ws)))
-		return (col);
-	if ((col = COLUMN(icontainer_get_nth_child(
-			 ICONTAINER(ws), 0)))) {
+		return col;
+	if ((col = COLUMN(icontainer_get_nth_child(ICONTAINER(ws), 0)))) {
 		workspace_column_select(ws, col);
-		return (col);
+		return col;
 	}
 
 	/* Make an empty column ... always at the top left.
@@ -426,7 +423,7 @@ workspace_column_pick(Workspace *ws)
 	col->y = WORKSPACEVIEW_MARGIN_TOP;
 	workspace_column_select(ws, col);
 
-	return (col);
+	return col;
 }
 
 /* Make and select a column. Used for "new column" UI actions.
@@ -440,7 +437,7 @@ workspace_column_new(Workspace *ws)
 
 	workspace_column_name_new(ws, new_name);
 	if (!(col = column_new(ws, new_name)))
-		return (NULL);
+		return NULL;
 
 	/* Position just to right of currently selected column.
 	 */
@@ -452,7 +449,7 @@ workspace_column_new(Workspace *ws)
 	workspace_column_select(ws, col);
 	column_scrollto(col, MODEL_SCROLL_TOP);
 
-	return (col);
+	return col;
 }
 
 /* Make a new symbol, part of the current column.
@@ -461,14 +458,15 @@ static Symbol *
 workspace_add_symbol(Workspace *ws)
 {
 	Column *col = workspace_column_pick(ws);
+
 	Symbol *sym;
 	char *name;
 
 	name = column_name_new(col);
 	sym = symbol_new(ws->sym->expr->compile, name);
-	IM_FREE(name);
+	VIPS_FREE(name);
 
-	return (sym);
+	return sym;
 }
 
 /* Make up a new definition.
@@ -485,16 +483,16 @@ workspace_add_def(Workspace *ws, const char *str)
 #endif /*DEBUG*/
 
 	if (!str || strspn(str, WHITESPACE) == strlen(str))
-		return (NULL);
+		return NULL;
 
 	/* Try parsing as a "fred = 12" style def.
 	 */
 	attach_input_string(str);
 	if ((name = parse_test_define())) {
 		sym = symbol_new(ws->sym->expr->compile, name);
-		IM_FREE(name);
+		VIPS_FREE(name);
 		attach_input_string(str +
-			IM_CLIP(0, input_state.charpos - 1, strlen(str)));
+			VIPS_CLIP(0, input_state.charpos - 1, strlen(str)));
 	}
 	else {
 		/* That didn't work. Make a sym from the col name.
@@ -513,10 +511,10 @@ workspace_add_def(Workspace *ws, const char *str)
 		 * can set this for compound objects.
 		 */
 		error_block();
-		IDESTROY(sym);
+		VIPS_UNREF(sym);
 		error_unblock();
 
-		return (NULL);
+		return NULL;
 	}
 
 	/* If we're redefining a sym, it might have a row already.
@@ -526,7 +524,7 @@ workspace_add_def(Workspace *ws, const char *str)
 	symbol_made(sym);
 	workspace_set_modified(ws, TRUE);
 
-	return (sym);
+	return sym;
 }
 
 /* Make up a new definition, recalc and scroll to make it visible.
@@ -543,24 +541,24 @@ workspace_add_def_recalc(Workspace *ws, const char *str)
 #endif /*DEBUG*/
 
 	if (!(sym = workspace_add_def(ws, str)))
-		return (NULL);
+		return NULL;
 
 	if (!symbol_recalculate_check(sym)) {
 		/* Eval error.
 		 */
 		expr_error_get(sym->expr);
 		error_block();
-		IDESTROY(sym);
+		VIPS_UNREF(sym);
 		error_unblock();
 
-		return (NULL);
+		return NULL;
 	}
 
 	/* Jump to column containing object.
 	 */
 	column_scrollto(col, MODEL_SCROLL_BOTTOM);
 
-	return (sym);
+	return sym;
 }
 
 gboolean
@@ -577,7 +575,7 @@ workspace_load_file_buf(VipsBuf *buf, const char *filename)
 	vips_buf_appendsc(buf, TRUE, filename);
 	vips_buf_appends(buf, "\"");
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Load a matrix or image. Don't recalc: you need to recalc later to test for
@@ -591,12 +589,12 @@ workspace_load_file(Workspace *ws, const char *filename)
 	Symbol *sym;
 
 	if (!workspace_load_file_buf(&buf, filename))
-		return (NULL);
+		return NULL;
 	if (!(sym = workspace_add_def(ws, vips_buf_all(&buf))))
-		return (NULL);
+		return NULL;
 	mainw_recent_add(&mainw_recent_image, filename);
 
-	return (sym);
+	return sym;
 }
 
 static void
@@ -617,9 +615,9 @@ workspace_dispose(GObject *gobject)
 	workspace_set_needs_layout(ws, FALSE);
 	ws->in_dispose = TRUE;
 
-	UNREF(ws->kitg);
-	UNREF(ws->local_kitg);
-	IDESTROY(ws->sym);
+	VIPS_UNREF(ws->kitg);
+	VIPS_UNREF(ws->local_kitg);
+	VIPS_UNREF(ws->sym);
 
 	G_OBJECT_CLASS(workspace_parent_class)->dispose(gobject);
 }
@@ -639,8 +637,8 @@ workspace_finalize(GObject *gobject)
 
 	ws = WORKSPACE(gobject);
 
-	IM_FREE(ws->status);
-	IM_FREE(ws->local_defs);
+	VIPS_FREE(ws->status);
+	VIPS_FREE(ws->local_defs);
 
 	workspace_all = g_slist_remove(workspace_all, ws);
 
@@ -740,16 +738,16 @@ workspacemode_to_char(WorkspaceMode mode)
 {
 	switch (mode) {
 	case WORKSPACE_MODE_REGULAR:
-		return ("WORKSPACE_MODE_REGULAR");
+		return "WORKSPACE_MODE_REGULAR";
 
 	case WORKSPACE_MODE_FORMULA:
-		return ("WORKSPACE_MODE_FORMULA");
+		return "WORKSPACE_MODE_FORMULA";
 
 	case WORKSPACE_MODE_NOEDIT:
-		return ("WORKSPACE_MODE_NOEDIT");
+		return "WORKSPACE_MODE_NOEDIT";
 
 	default:
-		return (NULL);
+		return NULL;
 	}
 }
 
@@ -757,19 +755,19 @@ static WorkspaceMode
 char_to_workspacemode(const char *mode)
 {
 	if (strcasecmp(mode, "WORKSPACE_MODE_REGULAR") == 0)
-		return (WORKSPACE_MODE_REGULAR);
+		return WORKSPACE_MODE_REGULAR;
 	else if (strcasecmp(mode, "WORKSPACE_MODE_FORMULA") == 0)
-		return (WORKSPACE_MODE_FORMULA);
+		return WORKSPACE_MODE_FORMULA;
 	else if (strcasecmp(mode, "WORKSPACE_MODE_NOEDIT") == 0)
-		return (WORKSPACE_MODE_NOEDIT);
+		return WORKSPACE_MODE_NOEDIT;
 	else
-		return ((WorkspaceMode) -1);
+		return (WorkspaceMode) -1;
 }
 
 static View *
 workspace_view_new(Model *model, View *parent)
 {
-	return (workspaceview_new());
+	return workspaceview_new();
 }
 
 static gboolean
@@ -806,27 +804,25 @@ workspace_load(Model *model,
 	(void) get_bprop(xnode, "rpane_open", &ws->rpane_open);
 	(void) get_iprop(xnode, "rpane_position", &ws->rpane_position);
 
-	if (get_sprop(xnode, "name", buf, FILENAME_MAX)) {
-		IM_SETSTR(IOBJECT(ws)->name, buf);
-	}
-	if (get_sprop(xnode, "caption", buf, FILENAME_MAX)) {
-		IM_SETSTR(IOBJECT(ws)->caption, buf);
-	}
+	if (get_sprop(xnode, "name", buf, FILENAME_MAX))
+		VIPS_SETSTR(IOBJECT(ws)->name, buf);
+	if (get_sprop(xnode, "caption", buf, FILENAME_MAX))
+		VIPS_SETSTR(IOBJECT(ws)->caption, buf);
 
 	/* Don't use get_sprop() and avoid a limit on def size.
 	 */
 	if ((txt = (char *) xmlGetProp(xnode, (xmlChar *) "local_defs"))) {
 		(void) workspace_local_set(ws, txt);
-		IM_FREEF(xmlFree, txt);
+		VIPS_FREEF(xmlFree, txt);
 	}
 
 	(void) get_iprop(xnode, "major", &ws->major);
 	(void) get_iprop(xnode, "minor", &ws->minor);
 
 	if (!MODEL_CLASS(workspace_parent_class)->load(model, state, parent, xnode))
-		return (FALSE);
+		return FALSE;
 
-	return (TRUE);
+	return TRUE;
 }
 
 static xmlNode *
@@ -837,7 +833,7 @@ workspace_save(Model *model, xmlNode *xnode)
 	xmlNode *xthis;
 
 	if (!(xthis = MODEL_CLASS(workspace_parent_class)->save(model, xnode)))
-		return (NULL);
+		return NULL;
 
 	if (!set_sprop(xthis, "view", workspacemode_to_char(ws->mode)) ||
 		!set_dprop(xthis, "scale", ws->scale) ||
@@ -852,19 +848,19 @@ workspace_save(Model *model, xmlNode *xnode)
 		!set_sprop(xthis, "local_defs", ws->local_defs) ||
 		!set_sprop(xthis, "name", IOBJECT(ws)->name) ||
 		!set_sprop(xthis, "caption", IOBJECT(ws)->caption))
-		return (NULL);
+		return NULL;
 
 	/* We have to save our workspacegroup's filename here for compt with
 	 * older nip2.
 	 */
 	if (!set_sprop(xthis, "filename", FILEMODEL(wsg)->filename))
-		return (NULL);
+		return NULL;
 
 	if (!set_iprop(xthis, "major", ws->major) ||
 		!set_iprop(xthis, "minor", ws->minor))
-		return (NULL);
+		return NULL;
 
-	return (xthis);
+	return xthis;
 }
 
 static void
@@ -886,9 +882,9 @@ static void *
 workspace_load_toolkit(const char *filename, Toolkitgroup *toolkitgroup)
 {
 	if (!toolkit_new_from_file(toolkitgroup, filename))
-		iwindow_alert(NULL, GTK_MESSAGE_ERROR);
+		error_alert(NULL);
 
-	return (NULL);
+	return NULL;
 }
 
 /* The compat modes this version of nip2 has. Search the compat dir and make a
@@ -910,7 +906,7 @@ workspace_build_compat_fn(const char *filename)
 
 	if (sscanf(basename, "%d.%d", &major, &minor) != 2) {
 		g_free(basename);
-		return (NULL);
+		return NULL;
 	}
 	g_free(basename);
 
@@ -923,7 +919,7 @@ workspace_build_compat_fn(const char *filename)
 		major, minor);
 #endif /*DEBUG*/
 
-	return (NULL);
+	return NULL;
 }
 
 /* Build the list of ws compatibility defs we have.
@@ -968,7 +964,7 @@ workspace_have_compat(int major, int minor, int *best_major, int *best_minor)
 				compat_minor[i] < compat_minor[best])
 				best = i;
 	if (best == -1)
-		return (0);
+		return 0;
 
 #ifdef DEBUG
 	printf("\tfound %d.%d\n", compat_major[best], compat_minor[best]);
@@ -979,7 +975,7 @@ workspace_have_compat(int major, int minor, int *best_major, int *best_minor)
 	if (best_minor)
 		*best_minor = compat_minor[best];
 
-	return (1);
+	return 1;
 }
 
 void
@@ -1006,14 +1002,14 @@ workspace_load_compat(Workspace *ws, int major, int minor)
 		g_object_ref(G_OBJECT(ws->kitg));
 		iobject_sink(IOBJECT(ws->kitg));
 
-		im_snprintf(pathname, FILENAME_MAX,
+		vips_snprintf(pathname, FILENAME_MAX,
 			"$VIPSHOME/share/" PACKAGE "/compat/%d.%d",
 			best_major, best_minor);
 		path = path_parse(pathname);
 		if (path_map(path, "*.def",
 				(path_map_fn) workspace_load_toolkit, ws->kitg)) {
 			path_free2(path);
-			return (FALSE);
+			return FALSE;
 		}
 		path_free2(path);
 
@@ -1036,7 +1032,7 @@ workspace_load_compat(Workspace *ws, int major, int minor)
 		ws->compat_minor = 0;
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 static void
@@ -1110,8 +1106,7 @@ workspace_init(Workspace *ws)
 	ws->scale = 1.0;
 	ws->offset = 0.0;
 
-	ws->local_defs = im_strdupn(_(
-		"// private definitions for this tab\n"));
+	ws->local_defs = g_strdup(_("// private definitions for this tab\n"));
 	ws->local_kitg = NULL;
 	ws->local_kit = NULL;
 
@@ -1134,14 +1129,14 @@ workspace_new(Workspacegroup *wsg, const char *name)
 		error_sub(_("Can't create workspace \"%s\". "
 					"A symbol with that name already exists."),
 			name);
-		return (NULL);
+		return NULL;
 	}
 
 	ws = WORKSPACE(g_object_new(TYPE_WORKSPACE, NULL));
 	workspace_link(ws, wsg, name);
 	icontainer_child_add(ICONTAINER(wsg), ICONTAINER(ws), -1);
 
-	return (ws);
+	return ws;
 }
 
 /* Make the blank workspace we present the user with (in the absence of
@@ -1155,7 +1150,7 @@ workspace_new_blank(Workspacegroup *wsg)
 
 	workspaceroot_name_new(wsg->wsr, name);
 	if (!(ws = workspace_new(wsg, name)))
-		return (NULL);
+		return NULL;
 
 	/* Make an empty column.
 	 */
@@ -1165,7 +1160,7 @@ workspace_new_blank(Workspacegroup *wsg)
 
 	iobject_set(IOBJECT(ws), NULL, _("Default empty tab"));
 
-	return (ws);
+	return ws;
 }
 
 /* Get the bottom row from the current column.
@@ -1173,7 +1168,7 @@ workspace_new_blank(Workspacegroup *wsg)
 static Row *
 workspace_get_bottom(Workspace *ws)
 {
-	return (column_get_bottom(workspace_column_pick(ws)));
+	return column_get_bottom(workspace_column_pick(ws));
 }
 
 gboolean
@@ -1194,7 +1189,7 @@ workspace_add_action(Workspace *ws,
 						"there are %d selected."),
 				name, nparam,
 				workspace_selected_num(ws));
-			return (FALSE);
+			return FALSE;
 		}
 
 		vips_buf_appends(&buf, " ");
@@ -1202,11 +1197,11 @@ workspace_add_action(Workspace *ws,
 		if (vips_buf_is_full(&buf)) {
 			error_top(_("Overflow error."));
 			error_sub(_("Too many names selected."));
-			return (FALSE);
+			return FALSE;
 		}
 
 		if (!workspace_add_def_recalc(ws, vips_buf_all(&buf)))
-			return (FALSE);
+			return FALSE;
 		workspace_deselect_all(ws);
 	}
 	else {
@@ -1215,22 +1210,22 @@ workspace_add_action(Workspace *ws,
 		 */
 		if (!column_add_n_names(col, name, &buf, nparam) ||
 			!workspace_add_def_recalc(ws, vips_buf_all(&buf)))
-			return (FALSE);
+			return FALSE;
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 int
 workspace_number(void)
 {
-	return (g_slist_length(workspace_all));
+	return g_slist_length(workspace_all);
 }
 
 static void *
 workspace_row_dirty(Row *row, int serial)
 {
-	return (expr_dirty(row->expr, serial));
+	return expr_dirty(row->expr, serial);
 }
 
 /* Recalculate selected items.
@@ -1241,7 +1236,7 @@ workspace_selected_recalc(Workspace *ws)
 	if (workspace_selected_map(ws,
 			(row_map_fn) workspace_row_dirty,
 			GINT_TO_POINTER(link_serial_new()), NULL))
-		return (FALSE);
+		return FALSE;
 
 	/* Recalc even if autorecomp is off.
 	 */
@@ -1249,16 +1244,16 @@ workspace_selected_recalc(Workspace *ws)
 
 	workspace_deselect_all(ws);
 
-	return (TRUE);
+	return TRUE;
 }
 
 static void *
 workspace_selected_remove2(Row *row)
 {
 	if (row != row->top_row)
-		return (row);
+		return row;
 
-	return (NULL);
+	return NULL;
 }
 
 static void *
@@ -1267,7 +1262,7 @@ workspace_selected_remove3(Row *row, int *nsel)
 	if (row->selected)
 		*nsel += 1;
 
-	return (NULL);
+	return NULL;
 }
 
 static void *
@@ -1280,7 +1275,7 @@ workspace_selected_remove4(Column *col, GSList **cs)
 	if (nsel > 0)
 		*cs = g_slist_prepend(*cs, col);
 
-	return (NULL);
+	return NULL;
 }
 
 static void *
@@ -1292,9 +1287,9 @@ workspace_selected_remove5(Column *col)
 	if (nmembers > 0)
 		icontainer_pos_renumber(ICONTAINER(scol));
 	else
-		IDESTROY(col);
+		VIPS_UNREF(col);
 
-	return (NULL);
+	return NULL;
 }
 
 /* Remove selected items.
@@ -1314,23 +1309,22 @@ workspace_selected_remove(Workspace *ws)
 	if ((row = (Row *) workspace_selected_map(ws,
 			 (row_map_fn) workspace_selected_remove2, NULL, NULL))) {
 		error_top(_("You can only remove top level rows."));
-		error_sub(_("Not all selected objects are top level "
-					"rows."));
-		return (FALSE);
+		error_sub(_("Not all selected objects are top level rows."));
+		return FALSE;
 	}
 
 	(void) workspace_map_column(ws,
 		(column_map_fn) workspace_selected_remove4, &cs);
 	(void) workspace_selected_map_sym(ws,
-		(symbol_map_fn) iobject_destroy, NULL, NULL);
+		(symbol_map_fn) g_object_unref, NULL, NULL);
 	(void) slist_map(cs,
 		(SListMapFn) workspace_selected_remove5, NULL);
 
-	IM_FREEF(g_slist_free, cs);
+	VIPS_FREEF(g_slist_free, cs);
 	symbol_recalculate_all();
 	workspace_set_modified(ws, TRUE);
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Callback for workspace_selected_remove_yesno. Remove selected items.
@@ -1380,9 +1374,9 @@ workspace_ungroup_add_index(Row *row, const char *fmt, int i)
 	row_qualified_name(row, &buf);
 	vips_buf_appendf(&buf, fmt, i);
 	if (!workspace_add_def_recalc(row->ws, vips_buf_all(&buf)))
-		return (FALSE);
+		return FALSE;
 
-	return (TRUE);
+	return TRUE;
 }
 
 static void *
@@ -1395,28 +1389,28 @@ workspace_ungroup_row(Row *row)
 	int i;
 
 	if (!heap_is_instanceof(CLASS_GROUP, root, &result))
-		return (row);
+		return row;
 	if (result) {
 		if (!class_get_member(root, MEMBER_VALUE, NULL, &value) ||
 			(length = heap_list_length_max(&value, 100)) < 0)
-			return (row);
+			return row;
 
 		for (i = 0; i < length; i++)
 			if (!workspace_ungroup_add_index(row,
 					".value?%d", i))
-				return (row);
+				return row;
 	}
 	else {
 		if (!heap_is_list(root, &result))
-			return (row);
+			return row;
 		if (result) {
 			if ((length = heap_list_length_max(root, 100)) < 0)
-				return (row);
+				return row;
 
 			for (i = 0; i < length; i++)
 				if (!workspace_ungroup_add_index(row,
 						"?%d", i))
-					return (row);
+					return row;
 		}
 		else {
 			char txt[100];
@@ -1427,11 +1421,11 @@ workspace_ungroup_row(Row *row)
 			error_sub(_("Row \"%s\" is not a Group or a list."),
 				vips_buf_all(&buf));
 
-			return (row);
+			return row;
 		}
 	}
 
-	return (NULL);
+	return NULL;
 }
 
 /* Ungroup the selected object(s), or the bottom object.
@@ -1444,7 +1438,7 @@ workspace_selected_ungroup(Workspace *ws)
 
 		if ((row = workspace_get_bottom(ws))) {
 			if (workspace_ungroup_row(row))
-				return (FALSE);
+				return FALSE;
 
 			symbol_recalculate_all();
 		}
@@ -1455,13 +1449,13 @@ workspace_selected_ungroup(Workspace *ws)
 		if (workspace_selected_map(ws,
 				(row_map_fn) workspace_ungroup_row, NULL, NULL)) {
 			symbol_recalculate_all();
-			return (FALSE);
+			return FALSE;
 		}
 		symbol_recalculate_all();
 		workspace_deselect_all(ws);
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Group the selected object(s).
@@ -1483,10 +1477,10 @@ workspace_selected_group(Workspace *ws)
 	workspace_selected_names(ws, &buf, ",");
 	vips_buf_appends(&buf, "]");
 	if (!workspace_add_def_recalc(ws, vips_buf_all(&buf)))
-		return (FALSE);
+		return FALSE;
 	workspace_deselect_all(ws);
 
-	return (TRUE);
+	return TRUE;
 }
 
 static Row *
@@ -1497,16 +1491,16 @@ workspace_test_error(Row *row, Workspace *ws, int *found)
 	/* Found next?
 	 */
 	if (*found)
-		return (row);
+		return row;
 
 	if (row == ws->last_error) {
 		/* Found the last one ... return the next one.
 		 */
 		*found = 1;
-		return (NULL);
+		return NULL;
 	}
 
-	return (NULL);
+	return NULL;
 }
 
 /* FALSE for no errors.
@@ -1520,7 +1514,7 @@ workspace_next_error(Workspace *ws)
 	int found;
 
 	if (!ws->errors)
-		return (FALSE);
+		return FALSE;
 
 	/* Search for the one after the last one.
 	 */
@@ -1547,7 +1541,7 @@ workspace_next_error(Workspace *ws)
 	vips_buf_appends(&buf, ws->last_error->expr->error_top);
 	workspace_set_status(ws, "%s", vips_buf_firstline(&buf));
 
-	return (TRUE);
+	return TRUE;
 }
 
 void
@@ -1557,10 +1551,10 @@ workspace_set_status(Workspace *ws, const char *fmt, ...)
 	char buf[256];
 
 	va_start(ap, fmt);
-	(void) im_vsnprintf(buf, 256, fmt, ap);
+	(void) vips_vsnprintf(buf, 256, fmt, ap);
 	va_end(ap);
 
-	IM_SETSTR(ws->status, buf);
+	VIPS_SETSTR(ws->status, buf);
 	iobject_changed(IOBJECT(ws));
 }
 
@@ -1592,15 +1586,15 @@ workspace_local_set(Workspace *ws, const char *txt)
 	 */
 	ws->local_kit = toolkit_new(ws->local_kitg, "Workspace Locals");
 	filemodel_unregister(FILEMODEL(ws->local_kit));
-	IM_SETSTR(ws->local_defs, txt);
+	VIPS_SETSTR(ws->local_defs, txt);
 	iobject_changed(IOBJECT(ws));
 
 	workspace_set_modified(ws, TRUE);
 	attach_input_string(txt);
 	if (!parse_toplevel(ws->local_kit, 0))
-		return (FALSE);
+		return FALSE;
 
-	return (TRUE);
+	return TRUE;
 }
 
 gboolean
@@ -1610,15 +1604,15 @@ workspace_local_set_from_file(Workspace *ws, const char *fname)
 	char *txt;
 
 	if (!(of = ifile_open_read("%s", fname)))
-		return (FALSE);
+		return FALSE;
 	if (!(txt = ifile_read(of))) {
 		ifile_close(of);
-		return (FALSE);
+		return FALSE;
 	}
 	if (!workspace_local_set(ws, txt)) {
 		g_free(txt);
 		ifile_close(of);
-		return (FALSE);
+		return FALSE;
 	}
 
 	filemodel_set_filename(FILEMODEL(ws->local_kit), fname);
@@ -1626,7 +1620,7 @@ workspace_local_set_from_file(Workspace *ws, const char *fname)
 	g_free(txt);
 	ifile_close(of);
 
-	return (TRUE);
+	return TRUE;
 }
 
 static gint
@@ -1638,9 +1632,9 @@ workspace_jump_name_compare(iContainer *a, iContainer *b)
 	/* Smaller names first.
 	 */
 	if (la == lb)
-		return (strcmp(IOBJECT(a)->name, IOBJECT(b)->name));
+		return strcmp(IOBJECT(a)->name, IOBJECT(b)->name);
 	else
-		return (la - lb);
+		return la - lb;
 }
 
 static void
@@ -1664,7 +1658,7 @@ workspace_jump_build(Column *column, GtkWidget *menu)
 	gtk_menu_append(GTK_MENU(menu), item);
 	gtk_widget_show(item);
 
-	return (NULL);
+	return NULL;
 }
 
 /* Update a menu with the set of current columns.
@@ -1675,7 +1669,7 @@ workspace_jump_update(Workspace *ws, GtkWidget *menu)
 	GSList *columns;
 
 	gtk_container_foreach(GTK_CONTAINER(menu),
-		(GtkCallback) gtk_widget_destroy, NULL);
+		(GtkCallback) gtk_widget_unparent, NULL);
 
 	columns = icontainer_get_children(ICONTAINER(ws));
 
@@ -1695,7 +1689,7 @@ workspace_merge_file(Workspace *ws, const char *filename)
 
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 
-	return (workspacegroup_merge_columns(wsg, filename));
+	return workspacegroup_merge_columns(wsg, filename);
 }
 
 /* Duplicate selected rows in this workspace.
@@ -1715,9 +1709,9 @@ workspace_selected_duplicate(Workspace *ws)
 	}
 
 	if (!temp_name(filename, "ws"))
-		return (FALSE);
+		return FALSE;
 	if (!workspace_selected_save(ws, filename))
-		return (FALSE);
+		return FALSE;
 
 	progress_begin();
 
@@ -1725,7 +1719,7 @@ workspace_selected_duplicate(Workspace *ws)
 		progress_end();
 		unlinkf("%s", filename);
 
-		return (FALSE);
+		return FALSE;
 	}
 	unlinkf("%s", filename);
 
@@ -1735,7 +1729,7 @@ workspace_selected_duplicate(Workspace *ws)
 
 	progress_end();
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Bounding box of columns to be saved. Though we only really set top/left.
@@ -1744,19 +1738,19 @@ static void *
 workspace_selected_save_box(Column *col, Rect *box)
 {
 	if (model_save_test(MODEL(col))) {
-		if (im_rect_isempty(box)) {
+		if (vips_rect_isempty(box)) {
 			box->left = col->x;
 			box->top = col->y;
 			box->width = 100;
 			box->height = 100;
 		}
 		else {
-			box->left = IM_MIN(box->left, col->x);
-			box->top = IM_MIN(box->top, col->y);
+			box->left = VIPS_MIN(box->left, col->x);
+			box->top = VIPS_MIN(box->top, col->y);
 		}
 	}
 
-	return (NULL);
+	return NULL;
 }
 
 /* Save just the selected objects.
@@ -1777,22 +1771,22 @@ workspace_selected_save(Workspace *ws, const char *filename)
 	filemodel_set_offset(FILEMODEL(wsg), box.left, box.top);
 
 	if (!workspacegroup_save_selected(wsg, filename))
-		return (FALSE);
+		return FALSE;
 
-	return (TRUE);
+	return TRUE;
 }
 
 gboolean
 workspace_rename(Workspace *ws, const char *name, const char *caption)
 {
 	if (!symbol_rename(ws->sym, name))
-		return (FALSE);
+		return FALSE;
 	iobject_set(IOBJECT(ws), IOBJECT(ws->sym)->name, caption);
 	workspace_set_modified(ws, TRUE);
 
 	symbol_recalculate_all();
 
-	return (TRUE);
+	return TRUE;
 }
 
 void
@@ -1813,10 +1807,10 @@ workspace_duplicate(Workspace *ws)
 	char filename[FILENAME_MAX];
 
 	if (!temp_name(filename, "ws"))
-		return (FALSE);
+		return FALSE;
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 	if (!workspacegroup_save_current(wsg, filename))
-		return (FALSE);
+		return FALSE;
 
 	progress_begin();
 
@@ -1824,7 +1818,7 @@ workspace_duplicate(Workspace *ws)
 		progress_end();
 		unlinkf("%s", filename);
 
-		return (FALSE);
+		return FALSE;
 	}
 	unlinkf("%s", filename);
 
@@ -1832,5 +1826,5 @@ workspace_duplicate(Workspace *ws)
 
 	progress_end();
 
-	return (TRUE);
+	return TRUE;
 }

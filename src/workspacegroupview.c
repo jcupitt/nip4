@@ -389,7 +389,7 @@ workspacegroupview_tab_double_cb(GtkNotebook *notebook, GdkEvent *event,
 
 	if (event->button.x > tab->allocation.x + tab->allocation.width &&
 		!workspace_new_blank(wsg))
-		iwindow_alert(GTK_WIDGET(wsgview), GTK_MESSAGE_ERROR);
+		error_alert(GTK_WIDGET(wsgview));
 }
 
 static void
@@ -399,7 +399,7 @@ workspacegroupview_add_workspace_cb(GtkWidget *wid,
 	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
 
 	if (!workspace_new_blank(wsg))
-		iwindow_alert(GTK_WIDGET(wsgview), GTK_MESSAGE_ERROR);
+		error_alert(GTK_WIDGET(wsgview));
 }
 
 static void
@@ -435,7 +435,7 @@ workspacegroupview_duplicate_cb(GtkWidget *wid, GtkWidget *host,
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 	if (!workspace_duplicate(ws)) {
-		iwindow_alert(host, GTK_MESSAGE_ERROR);
+		error_alert(host);
 		return;
 	}
 }

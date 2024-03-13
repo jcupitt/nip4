@@ -86,7 +86,7 @@ columnview_clone_cb(GtkWidget *wid, GtkWidget *host, Columnview *cview)
 	column_select_symbols(col);
 	workspace_column_select(ws, newcol);
 	if (!workspace_selected_duplicate(ws))
-		iwindow_alert(GTK_WIDGET(cview), GTK_MESSAGE_ERROR);
+		error_alert(GTK_WIDGET(cview));
 	workspace_deselect_all(ws);
 
 	symbol_recalculate_all();
@@ -199,13 +199,13 @@ columnview_filename(char *file, const char *caption)
 	int i;
 	char name[FILENAME_MAX];
 
-	im_strncpy(name, caption, 10);
+	vips_strncpy(name, caption, 10);
 	for (i = 0; i < strlen(name); i++)
 		if (name[i] == ' ')
 			name[i] = '_';
 
 	for (i = 0;; i++) {
-		im_snprintf(file, FILENAME_MAX,
+		vips_snprintf(file, FILENAME_MAX,
 			"$SAVEDIR" G_DIR_SEPARATOR_S "data" G_DIR_SEPARATOR_S
 			"%s-%d.ws",
 			name, i);
@@ -261,7 +261,7 @@ columnview_to_menu_done_cb(iWindow *iwnd, void *client,
 		return;
 	}
 
-	IM_SETSTR(columnview_to_menu_last_toolkit, toolkit_text);
+	VIPS_SETSTR(columnview_to_menu_last_toolkit, toolkit_text);
 
 	nfn(sys, IWINDOW_YES);
 }
@@ -458,8 +458,8 @@ columnview_left_motion(Columnview *cview, GdkEvent *ev)
 
 	/* New columnview position.
 	 */
-	int xnew = IM_MAX(0, jx - cview->rx);
-	int ynew = IM_MAX(0, jy - cview->ry);
+	int xnew = VIPS_MAX(0, jx - cview->rx);
+	int ynew = VIPS_MAX(0, jy - cview->ry);
 
 #ifdef DEBUG
 	printf("columnview_left_motion\n");
@@ -620,7 +620,7 @@ columnview_title_event_cb(GtkWidget *widget, GdkEvent *ev, Columnview *cview)
 		break;
 	}
 
-	return (handled);
+	return handled;
 }
 
 static void
@@ -733,14 +733,14 @@ columnview_caption_cancel_cb(GtkWidget *widget,
 	GdkEvent *ev, Columnview *cview)
 {
 	if (ev->type != GDK_KEY_PRESS || ev->key.keyval != GDK_Escape)
-		return (FALSE);
+		return FALSE;
 
 	/* Turn off edit.
 	 */
 	cview->state = COL_WAIT;
 	vobject_refresh_queue(VOBJECT(cview));
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Add a caption entry to a columnview if not there.
@@ -778,7 +778,7 @@ columnview_text_enter_cb(GtkWidget *wid, Columnview *cview)
 		return;
 
 	if (!(sym = workspace_add_def_recalc(ws, text))) {
-		iwindow_alert(wid, GTK_MESSAGE_ERROR);
+		error_alert(wid);
 		symbol_recalculate_all();
 		return;
 	}
@@ -866,7 +866,7 @@ columnview_refresh(vObject *vobject)
 		gtk_frame_set_label(GTK_FRAME(cview->frame), "x");
 		label = gtk_frame_get_label_widget(GTK_FRAME(cview->frame));
 		escape_markup(IOBJECT(col)->caption, buf2, 256);
-		im_snprintf(buf, 256, "<b>%s</b>", buf2);
+		vips_snprintf(buf, 256, "<b>%s</b>", buf2);
 		gtk_label_set_markup(GTK_LABEL(label), buf);
 		gtk_misc_set_padding(GTK_MISC(label), 2, 6);
 	}
@@ -879,7 +879,7 @@ columnview_refresh(vObject *vobject)
 	else {
 		char buf[256];
 
-		im_snprintf(buf, 256, "<i>%s</i>",
+		vips_snprintf(buf, 256, "<i>%s</i>",
 			_("doubleclick to set title"));
 		gtk_label_set_markup(GTK_LABEL(cview->head), buf);
 	}
@@ -1067,7 +1067,7 @@ columnview_event_cb(GtkWidget *wid, GdkEvent *ev, Columnview *cview)
 		break;
 	}
 
-	return (handled);
+	return handled;
 }
 
 static void
@@ -1187,5 +1187,5 @@ columnview_new(void)
 {
 	Columnview *cview = gtk_type_new(TYPE_COLUMNVIEW);
 
-	return (VIEW(cview));
+	return VIEW(cview);
 }

@@ -437,7 +437,7 @@ filemodel_class_init(FilemodelClass *class)
 	/* NULL isn't an allowed value -- this gets overridden by our
 	 * subclasses.
 	 */
-	// class->filetype = NULL;
+	class->filetype = NULL;
 	class->filetype_pref = NULL;
 }
 
@@ -717,8 +717,7 @@ filemodel_inter_save(iWindow *parent, Filemodel *filemodel)
 {
 	if (filemodel->filename) {
 		if (!filemodel_top_save(filemodel, filemodel->filename))
-			iwindow_alert(GTK_WIDGET(parent),
-				GTK_MESSAGE_ERROR);
+			error_alert(GTK_WIDGET(parent));
 		else
 			filemodel_set_modified(filemodel, FALSE);
 	}

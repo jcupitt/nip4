@@ -29,17 +29,17 @@
 
 #define FILEMODEL_LOAD_STATE(obj) ((FilemodelLoadState *) obj)
 
-#define TYPE_FILEMODEL (filemodel_get_type())
+#define FILEMODEL_TYPE (filemodel_get_type())
 #define FILEMODEL(obj) \
-	(G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_FILEMODEL, Filemodel))
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), FILEMODEL_TYPE, Filemodel))
 #define FILEMODEL_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_CAST((klass), TYPE_FILEMODEL, FilemodelClass))
+	(G_TYPE_CHECK_CLASS_CAST((klass), FILEMODEL_TYPE, FilemodelClass))
 #define IS_FILEMODEL(obj) \
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_FILEMODEL))
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj), FILEMODEL_TYPE))
 #define IS_FILEMODEL_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_TYPE((klass), TYPE_FILEMODEL))
+	(G_TYPE_CHECK_CLASS_TYPE((klass), FILEMODEL_TYPE))
 #define FILEMODEL_GET_CLASS(obj) \
-	(G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_FILEMODEL, FilemodelClass))
+	(G_TYPE_INSTANCE_GET_CLASS((obj), FILEMODEL_TYPE, FilemodelClass))
 
 struct _Filemodel {
 	Model model;
@@ -83,7 +83,8 @@ typedef struct _FilemodelClass {
 	void (*set_modified)(Filemodel *filemodel, gboolean modified);
 	gboolean (*top_save)(Filemodel *filemodel, const char *filename);
 
-	// FileselFileType **filetype;
+	// FIXME ... this will need revising
+	const char *filetype;
 	const char *filetype_pref;
 } FilemodelClass;
 

@@ -21,3 +21,5 @@
  */
 
 const char *get_prefix(void);
+
+extern Workspaceroot *main_workspaceroot; /* All the workspaces */

@@ -56,8 +56,8 @@ workspaceview_scroll_to(Workspaceview *wview, int x, int y)
 		GTK_SCROLLED_WINDOW(wview->window));
 	int nx, ny;
 
-	nx = IM_CLIP(0, x, wview->width - wview->vp.width);
-	ny = IM_CLIP(0, y, wview->height - wview->vp.height);
+	nx = VIPS_CLIP(0, x, wview->width - wview->vp.width);
+	ny = VIPS_CLIP(0, y, wview->height - wview->vp.height);
 
 	adjustments_set_value(hadj, vadj, nx, ny);
 }
@@ -85,14 +85,14 @@ workspaceview_scroll(Workspaceview *wview, int x, int y, int w, int h)
 	int nx, ny;
 
 	nx = hadj->value;
-	if (x + w > IM_RECT_RIGHT(vp))
-		nx = IM_MAX(0, (x + w) - vp->width);
+	if (x + w > VIPS_RECT_RIGHT(vp))
+		nx = VIPS_MAX(0, (x + w) - vp->width);
 	if (x < nx)
 		nx = x;
 
 	ny = vadj->value;
-	if (y + h > IM_RECT_BOTTOM(vp))
-		ny = IM_MAX(0, (y + h) - vp->height);
+	if (y + h > VIPS_RECT_BOTTOM(vp))
+		ny = VIPS_MAX(0, (y + h) - vp->height);
 	if (y < ny)
 		ny = y;
 
@@ -151,7 +151,7 @@ workspaceview_watch_changed_cb(Watchgroup *watchgroup, Watch *watch,
 
 	int i;
 
-	for (i = 0; i < IM_NUMBER(watch_names); i++)
+	for (i = 0; i < VIPS_NUMBER(watch_names); i++)
 		if (strcmp(IOBJECT(watch)->name, watch_names[i]) == 0) {
 			view_map_all(VIEW(wview),
 				(view_map_fn) vobject_refresh_queue, NULL);
@@ -198,7 +198,7 @@ workspaceview_scroll_event_cb(GtkWidget *widget,
 		}
 	}
 
-	return (handled);
+	return handled;
 }
 
 static void
@@ -207,17 +207,6 @@ workspaceview_realize_cb(GtkWidget *wid, Workspaceview *wview)
 	g_assert(wid->window);
 
 	gtk_widget_add_events(wid, GDK_BUTTON_PRESS_MASK);
-}
-
-void
-workspaceview_set_cursor(Workspaceview *wview, iWindowShape shape)
-{
-	if (!wview->context)
-		wview->context = iwindow_cursor_context_new(
-			IWINDOW(view_get_toplevel(VIEW(wview))), 0,
-			"workspaceview");
-
-	iwindow_cursor_context_set_cursor(wview->context, shape);
 }
 
 typedef struct _WorkspaceviewFindColumnview {
@@ -240,10 +229,10 @@ workspaceview_find_columnview_sub(View *view,
 	col.width = w;
 	col.height = h;
 
-	if (im_rect_includespoint(&col, args->x, args->y))
-		return (cview);
+	if (vips_rect_includespoint(&col, args->x, args->y))
+		return cview;
 
-	return (NULL);
+	return NULL;
 }
 
 /* Test for a point is workspaceview background ... ie. is not enclosed by one
@@ -263,9 +252,9 @@ workspaceview_find_columnview(Workspaceview *wview, int x, int y)
 		(view_map_fn) workspaceview_find_columnview_sub, &args, NULL);
 
 	if (res)
-		return (COLUMNVIEW(res));
+		return COLUMNVIEW(res);
 	else
-		return (NULL);
+		return NULL;
 }
 
 /* Is this event on the workspaceview background.
@@ -279,12 +268,12 @@ workspaceview_is_background(Workspaceview *wview,
 	 * click.
 	 */
 	if (window != wview->fixed->window)
-		return (FALSE);
+		return FALSE;
 
 	/* Could be a click in a non-window widget (eg. a label); search
 	 * all columnviews for a hit.
 	 */
-	return (!workspaceview_find_columnview(wview, x, y));
+	return !workspaceview_find_columnview(wview, x, y);
 }
 
 static gboolean
@@ -316,7 +305,6 @@ workspaceview_fixed_event_cb(GtkWidget *widget,
 
 			wview->drag_x = ev->button.x_root + wview->vp.left;
 			wview->drag_y = ev->button.y_root + wview->vp.top;
-			workspaceview_set_cursor(wview, IWINDOW_SHAPE_MOVE);
 			wview->dragging = TRUE;
 
 			handled = TRUE;
@@ -330,7 +318,6 @@ workspaceview_fixed_event_cb(GtkWidget *widget,
 			printf("workspaceview_fixed_event_cb: stop drag\n");
 #endif /*EVENT*/
 
-			workspaceview_set_cursor(wview, IWINDOW_SHAPE_NONE);
 			wview->dragging = FALSE;
 
 			handled = TRUE;
@@ -361,7 +348,7 @@ workspaceview_fixed_event_cb(GtkWidget *widget,
 		break;
 	}
 
-	return (handled);
+	return handled;
 }
 
 static void
@@ -383,7 +370,7 @@ workspaceview_scroll_time_cb(Workspaceview *wview)
 
 	/* Start timer again.
 	 */
-	return (TRUE);
+	return TRUE;
 }
 
 /* Stop the tally_scroll timer.
@@ -391,7 +378,7 @@ workspaceview_scroll_time_cb(Workspaceview *wview)
 static void
 workspaceview_scroll_stop(Workspaceview *wview)
 {
-	IM_FREEF(g_source_remove, wview->timer);
+	VIPS_FREEF(g_source_remove, wview->timer);
 }
 
 /* Start the tally_scroll timer.
@@ -435,7 +422,6 @@ workspaceview_dispose(GObject *object)
 	/* Instance destroy.
 	 */
 	workspaceview_scroll_stop(wview);
-	IM_FREEF(iwindow_cursor_context_destroy, wview->context);
 	FREESID(wview->watch_changed_sid, main_watchgroup);
 	DESTROY_GTK(wview->popup);
 
@@ -505,7 +491,7 @@ workspaceview_drag_data_received(GtkWidget *widget, GdkDragContext *context,
 		row_qualified_name_relative(ws->sym, from_row, &buf);
 
 		if (!(sym = workspace_add_def(ws, vips_buf_all(&buf))))
-			iwindow_alert(widget, GTK_MESSAGE_ERROR);
+			error_alert(widget);
 
 		symbol_recalculate_all();
 
@@ -532,9 +518,9 @@ workspaceview_child_size_sub(Columnview *cview, Rect *area)
 	col.width = w;
 	col.height = h;
 
-	im_rect_unionrect(area, &col, area);
+	vips_rect_unionrect(area, &col, area);
 
-	return (NULL);
+	return NULL;
 }
 
 static void
@@ -578,8 +564,8 @@ workspaceview_child_size_cb(Columnview *cview,
 
 	/* Resize our fixed if necessary.
 	 */
-	right = IM_RECT_RIGHT(&wview->bounding);
-	bottom = IM_RECT_BOTTOM(&wview->bounding);
+	right = VIPS_RECT_RIGHT(&wview->bounding);
+	bottom = VIPS_RECT_BOTTOM(&wview->bounding);
 	if (right != wview->width || bottom != wview->height) {
 		gtk_widget_set_size_request(GTK_WIDGET(wview->fixed),
 			right, bottom);
@@ -765,7 +751,7 @@ workspaceview_layout_add(View *view, WorkspaceLayout *layout)
 	layout->undone_columns =
 		g_slist_prepend(layout->undone_columns, view);
 
-	return (NULL);
+	return NULL;
 }
 
 static void *
@@ -776,7 +762,7 @@ workspaceview_layout_find_leftmost(Columnview *cview, WorkspaceLayout *layout)
 		layout->cview = cview;
 	}
 
-	return (NULL);
+	return NULL;
 }
 
 static void *
@@ -803,11 +789,11 @@ workspaceview_layout_find_similar_x(Columnview *cview,
 	if (snap) {
 		layout->current_columns = g_slist_prepend(
 			layout->current_columns, cview);
-		layout->area.width = IM_MAX(layout->area.width,
+		layout->area.width = VIPS_MAX(layout->area.width,
 			GTK_WIDGET(cview)->allocation.width);
 	}
 
-	return (NULL);
+	return NULL;
 }
 
 /* Compare func for row recomp sort.
@@ -815,7 +801,7 @@ workspaceview_layout_find_similar_x(Columnview *cview,
 static int
 workspaceview_layout_sort_y(Columnview *a, Columnview *b)
 {
-	return (GTK_WIDGET(a)->allocation.y - GTK_WIDGET(b)->allocation.y);
+	return GTK_WIDGET(a)->allocation.y - GTK_WIDGET(b)->allocation.y;
 }
 
 static void *
@@ -853,7 +839,7 @@ workspaceview_layout_set_pos(Columnview *cview, WorkspaceLayout *layout)
 	if (changed)
 		iobject_changed(IOBJECT(column));
 
-	return (NULL);
+	return NULL;
 }
 
 static void *
@@ -862,7 +848,7 @@ workspaceview_layout_strike(Columnview *cview, WorkspaceLayout *layout)
 	layout->undone_columns = g_slist_remove(layout->undone_columns,
 		cview);
 
-	return (NULL);
+	return NULL;
 }
 
 static void
@@ -890,7 +876,7 @@ workspaceview_layout_loop(WorkspaceLayout *layout)
 	slist_map(layout->current_columns,
 		(SListMapFn) workspaceview_layout_strike, layout);
 
-	IM_FREEF(g_slist_free, layout->current_columns);
+	VIPS_FREEF(g_slist_free, layout->current_columns);
 }
 
 /* Autolayout ... try to rearrange columns so they don't overlap.
@@ -961,7 +947,7 @@ workspaceview_load(Workspace *ws, const char *filename)
 	Workspacegroup *new_wsg;
 
 	if ((new_wsg = mainw_open_workspace(wsr, filename)))
-		return (TRUE);
+		return TRUE;
 
 	error_clear();
 
@@ -970,7 +956,7 @@ workspaceview_load(Workspace *ws, const char *filename)
 	 */
 	if (is_file_type(&filesel_dfile_type, filename)) {
 		if (toolkit_new_from_file(main_toolkitgroup, filename))
-			return (TRUE);
+			return TRUE;
 
 		error_clear();
 	}
@@ -978,14 +964,14 @@ workspaceview_load(Workspace *ws, const char *filename)
 	/* Try as matrix or image. Have to do these via definitions.
 	 */
 	if (workspace_load_file(ws, filename))
-		return (TRUE);
+		return TRUE;
 
 	error_clear();
 
 	error_top(_("Unknown file type."));
 	error_sub(_("Unable to load \"%s\"."), filename);
 
-	return (FALSE);
+	return FALSE;
 }
 
 static void
@@ -1039,7 +1025,7 @@ workspaceview_filedrop(Workspaceview *wview, const char *filename)
 	if (result)
 		symbol_recalculate_all();
 
-	return (result);
+	return result;
 }
 
 static void
@@ -1049,7 +1035,7 @@ workspaceview_column_new_action_cb2(GtkWidget *wid, GtkWidget *host,
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 	if (!workspace_column_new(ws))
-		iwindow_alert(GTK_WIDGET(wview), GTK_MESSAGE_ERROR);
+		error_alert(GTK_WIDGET(wview));
 }
 
 static void
@@ -1071,7 +1057,7 @@ workspaceview_next_error_action_cb2(GtkWidget *wid, GtkWidget *host,
 		error_top(_("No errors in tab."));
 		error_sub("%s", _("There are no errors (that I can see) "
 						  "in this tab."));
-		iwindow_alert(GTK_WIDGET(wview), GTK_MESSAGE_INFO);
+		error_alert(GTK_WIDGET(wview));
 	}
 }
 
@@ -1230,7 +1216,7 @@ workspaceview_new(void)
 {
 	Workspaceview *wview = gtk_type_new(TYPE_WORKSPACEVIEW);
 
-	return (VIEW(wview));
+	return VIEW(wview);
 }
 
 void
