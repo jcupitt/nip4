@@ -14,7 +14,7 @@ application_id = 'org.libvips.nip4'
 version_parts = meson.project_version().split('.')
 version_major = version_parts[0]
 version_minor = version_parts[1]
-version_patch = version_parts[2]
+version_micro = version_parts[2]
 
 prefix_dir = get_option('prefix')
 lib_dir = prefix_dir / get_option('libdir')
@@ -45,6 +45,9 @@ gettext_domain = 'nip4@0@.@1@'.format(version_major, version_minor)
 config_h.set_quoted('GETTEXT_PACKAGE', gettext_domain)
 config_h.set_quoted('PREFIX', prefix_dir)
 config_h.set_quoted('LIBDIR', lib_dir)
+config_h.set('MAJOR_VERSION', version_major)
+config_h.set('MINOR_VERSION', version_minor)
+config_h.set('MICRO_VERSION', version_micro)
 
 if cc.has_function('ngettext')
     config_h.set('ENABLE_NLS', 1)
@@ -74,7 +77,7 @@ nip4_deps += dependency('libxml-2.0')
 # Courtesy check that the compiler supports the cleanup attribute
 glib_dep = dependency('glib-2.0')
 if not cc.has_header_symbol('glib.h', 'g_autofree', dependencies : glib_dep)
-  error('OpenSlide requires the GNU C "cleanup" attribute.')
+  error('nip4 requires the GNU C "cleanup" attribute.')
 endif
 
 install_data(application_id + '.gschema.xml',

@@ -1,4 +1,13 @@
-- add workspace and workspacegroup, then link to views
+- make initial view from model
+
+    - make a default workspace containing a column
+
+    - need:
+
+        workspace
+        workspaceview
+        column
+        columnview
 
 
 - make a "progress" widget with throttled updates? could share with

@@ -40,6 +40,7 @@ workspacegroupview_dispose(GObject *object)
 #endif /*DEBUG*/
 
     VIPS_FREEF(gtk_widget_unparent, wsgview->notebook);
+    VIPS_FREEF(gtk_widget_unparent, wsgview->tab_menu);
 
     G_OBJECT_CLASS(workspacegroupview_parent_class)->dispose(object);
 }
