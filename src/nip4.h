@@ -31,6 +31,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <fcntl.h>
+#include <setjmp.h>
 
 #define APP_PATH "/org/libvips/nip4"
 
@@ -77,37 +78,55 @@
 // number of temp workspaces, items in file menu, etc.
 #define MAX_RECENT (10)
 
+/* Scope stack for parser.
+ */
+#define MAX_SSTACK (40)
+
+/* XML namespace for save files ... note, not nip4! We can't change this.
+ */
+#define NAMESPACE "http://www.vips.ecs.soton.ac.uk/nip"
+
 /* We use various gtk4 features (GtkInfoBar, GtkDialog) which are going away
  * in gtk5.
  */
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 
 // various forward typdefs
-typedef struct _View View;
-typedef struct _Model Model;
-typedef struct _iContainer iContainer;
-typedef struct _Heapmodel Heapmodel;
-typedef struct _Symbol Symbol;
-typedef struct _Row Row;
+
 typedef struct _Expr Expr;
 typedef struct _Filemodel Filemodel;
+typedef struct _Heapmodel Heapmodel;
+typedef struct _iContainer iContainer;
+typedef struct _Model Model;
+typedef struct _Row Row;
+typedef struct _Symbol Symbol;
+typedef struct _Toolkit Toolkit;
+typedef struct _View View;
 typedef struct _Workspacegroupview Workspacegroupview;
 typedef struct _Workspacegroup Workspacegroup;
 typedef struct _Workspaceview Workspaceview;
 typedef struct _Workspace Workspace;
+typedef struct _ParseNode ParseNode;
+typedef struct _ParseConst ParseConst;
+
+typedef enum _UnOp UnOp;
+typedef enum _BinOp BinOp;
 
 #include "util.h"
 #include "main.h"
 #include "watch.h"
 #include "path.h"
+#include "parse.h"
+#include "parser.h"
 #include "gtkutil.h"
 #include "nip4marshal.h"
 #include "iobject.h"
 #include "vobject.h"
-#include "model.h"
+#include "column.h"
 #include "columnview.h"
 #include "heapmodel.h"
 #include "icontainer.h"
+#include "model.h"
 #include "filemodel.h"
 #include "view.h"
 #include "expr.h"

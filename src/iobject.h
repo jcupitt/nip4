@@ -21,17 +21,17 @@
 
  */
 
-#define TYPE_IOBJECT (iobject_get_type())
+#define IOBJECT_TYPE (iobject_get_type())
 #define IOBJECT(obj) \
-	(G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_IOBJECT, iObject))
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), IOBJECT_TYPE, iObject))
 #define IOBJECT_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_CAST((klass), TYPE_IOBJECT, iObjectClass))
+	(G_TYPE_CHECK_CLASS_CAST((klass), IOBJECT_TYPE, iObjectClass))
 #define IS_IOBJECT(obj) \
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_IOBJECT))
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj), IOBJECT_TYPE))
 #define IS_IOBJECT_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_TYPE((klass), TYPE_IOBJECT))
+	(G_TYPE_CHECK_CLASS_TYPE((klass), IOBJECT_TYPE))
 #define IOBJECT_GET_CLASS(obj) \
-	(G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_IOBJECT, iObjectClass))
+	(G_TYPE_INSTANCE_GET_CLASS((obj), IOBJECT_TYPE, iObjectClass))
 
 typedef struct _iObject {
 	// a gobject with floating references

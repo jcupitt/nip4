@@ -819,7 +819,8 @@ view_save_as_cb(GtkWidget *menu, GtkWidget *host, View *view)
 	if (IS_FILEMODEL(model)) {
 		GtkWindow *win = GTK_WINDOW(view_get_toplevel(view));
 
-		filemodel_inter_saveas(win, FILEMODEL(model));
+		printf("view_save_as_cb: FIXME\n");
+		// filemodel_inter_saveas(win, FILEMODEL(model));
 	}
 }
 
@@ -831,7 +832,8 @@ view_save_cb(GtkWidget *menu, GtkWidget *host, View *view)
 	if (IS_FILEMODEL(model)) {
 		GtkWindow *win = GTK_WINDOW(view_get_toplevel(view));
 
-		filemodel_inter_save(win, FILEMODEL(model));
+		printf("view_save_cb: FIXME\n");
+		// filemodel_inter_save(win, FILEMODEL(model));
 	}
 }
 
@@ -843,7 +845,8 @@ view_close_cb(GtkWidget *menu, GtkWidget *host, View *view)
 	if (IS_FILEMODEL(model)) {
 		GtkWindow *win = GTK_WINDOW(view_get_toplevel(view));
 
-		filemodel_inter_savenclose(win, FILEMODEL(model));
+		printf("view_close_cb: FIXME\n");
+		// filemodel_inter_savenclose(win, FILEMODEL(model));
 	}
 }
 

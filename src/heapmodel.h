@@ -7,3 +7,5 @@ struct _Heapmodel {
 
 #define IS_HEAPMODEL(X) (true)
 #define HEAPMODEL(X) ((Heapmodel *) X)
+
+void *heapmodel_clear_edited(Heapmodel *heapmodel);
