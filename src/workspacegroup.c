@@ -31,9 +31,9 @@
 #define DEBUG
  */
 
-#include "ip.h"
+#include "nip4.h"
 
-static FilemodelClass *parent_class = NULL;
+G_DEFINE_TYPE(Workspacegroup, workspacegroup, FILEMODEL_TYPE)
 
 void
 workspacegroup_set_load_type(Workspacegroup *wsg,
@@ -775,31 +775,6 @@ workspacegroup_class_init(WorkspacegroupClass *class)
 static void
 workspacegroup_init(Workspacegroup *wsg)
 {
-}
-
-GType
-workspacegroup_get_type(void)
-{
-	static GType type = 0;
-
-	if (!type) {
-		static const GTypeInfo info = {
-			sizeof(WorkspacegroupClass),
-			NULL, /* base_init */
-			NULL, /* base_finalize */
-			(GClassInitFunc) workspacegroup_class_init,
-			NULL, /* class_finalize */
-			NULL, /* class_data */
-			sizeof(Workspacegroup),
-			32, /* n_preallocs */
-			(GInstanceInitFunc) workspacegroup_init,
-		};
-
-		type = g_type_register_static(TYPE_FILEMODEL,
-			"Workspacegroup", &info, 0);
-	}
-
-	return (type);
 }
 
 static void
