@@ -88,7 +88,7 @@ most of the jobs above are pushed down into vips8 now ... except for
 #define DEBUG_CHECK
  */
 
-static iContainerClass *imageinfogroup_parent_class = NULL;
+G_DEFINE_TYPE(Imageinfogroup, imageinfogroup, ICONTAINER_TYPE)
 
 static void
 imageinfogroup_finalize(GObject *gobject)
@@ -172,38 +172,13 @@ imageinfogroup_init(Imageinfogroup *imageinfogroup)
 		g_hash_table_new(g_str_hash, g_str_equal);
 }
 
-GType
-imageinfogroup_get_type(void)
-{
-	static GType imageinfogroup_type = 0;
-
-	if (!imageinfogroup_type) {
-		static const GTypeInfo info = {
-			sizeof(ImageinfogroupClass),
-			NULL, /* base_init */
-			NULL, /* base_finalize */
-			(GClassInitFunc) imageinfogroup_class_init,
-			NULL, /* class_finalize */
-			NULL, /* class_data */
-			sizeof(Imageinfogroup),
-			32, /* n_preallocs */
-			(GInstanceInitFunc) imageinfogroup_init,
-		};
-
-		imageinfogroup_type = g_type_register_static(TYPE_ICONTAINER,
-			"Imageinfogroup", &info, 0);
-	}
-
-	return (imageinfogroup_type);
-}
-
 Imageinfogroup *
 imageinfogroup_new(void)
 {
 	Imageinfogroup *imageinfogroup = IMAGEINFOGROUP(
 		g_object_new(TYPE_IMAGEINFOGROUP, NULL));
 
-	return (imageinfogroup);
+	return imageinfogroup;
 }
 
 static void *
@@ -212,9 +187,9 @@ imageinfogroup_lookup_test(Imageinfo *imageinfo, struct stat *buf)
 	const char *name = IOBJECT(imageinfo)->name;
 
 	if (name && buf->st_mtime == imageinfo->mtime)
-		return (imageinfo);
+		return imageinfo;
 
-	return (NULL);
+	return NULL;
 }
 
 /* Look up by filename ... mtimes have to match too.
@@ -231,9 +206,9 @@ imageinfogroup_lookup(Imageinfogroup *imageinfogroup, const char *filename)
 			 imageinfogroup->filename_hash, filename)) &&
 		(imageinfo = IMAGEINFO(slist_map(hits,
 			 (SListMapFn) imageinfogroup_lookup_test, &buf))))
-		return (imageinfo);
+		return imageinfo;
 
-	return (NULL);
+	return NULL;
 }
 
 /* Our signals.
@@ -247,7 +222,7 @@ enum {
 	SIG_LAST
 };
 
-static ManagedClass *parent_class = NULL;
+G_DEFINE_TYPE(Imageinfo, imageinfo, MANAGED_TYPE)
 
 static guint imageinfo_signals[SIG_LAST] = { 0 };
 
@@ -277,7 +252,7 @@ imageinfo_area_changed(Imageinfo *imageinfo, Rect *dirty)
 	g_signal_emit(G_OBJECT(imageinfo),
 		imageinfo_signals[SIG_AREA_CHANGED], 0, dirty);
 
-	return (NULL);
+	return NULL;
 }
 
 void *
@@ -294,7 +269,7 @@ imageinfo_area_painted(Imageinfo *imageinfo, Rect *dirty)
 	g_signal_emit(G_OBJECT(imageinfo),
 		imageinfo_signals[SIG_AREA_PAINTED], 0, dirty);
 
-	return (NULL);
+	return NULL;
 }
 
 static void *
@@ -305,7 +280,7 @@ imageinfo_undo_changed(Imageinfo *imageinfo)
 	g_signal_emit(G_OBJECT(imageinfo),
 		imageinfo_signals[SIG_UNDO_CHANGED], 0);
 
-	return (NULL);
+	return NULL;
 }
 
 static void *
@@ -321,7 +296,7 @@ imageinfo_file_changed(Imageinfo *imageinfo)
 	g_signal_emit(G_OBJECT(imageinfo),
 		imageinfo_signals[SIG_FILE_CHANGED], 0);
 
-	return (NULL);
+	return NULL;
 }
 
 static void *
@@ -337,7 +312,7 @@ imageinfo_invalidate(Imageinfo *imageinfo)
 	g_signal_emit(G_OBJECT(imageinfo),
 		imageinfo_signals[SIG_INVALIDATE], 0);
 
-	return (NULL);
+	return NULL;
 }
 
 void
@@ -373,7 +348,7 @@ imageinfo_expr_remove(Expr *expr, Imageinfo *imageinfo)
 	expr->imageinfo = NULL;
 	imageinfo->exprs = g_slist_remove(imageinfo->exprs, expr);
 
-	return (NULL);
+	return NULL;
 }
 
 GSList *
@@ -657,7 +632,7 @@ imageinfo_get_type(void)
 			"Imageinfo", &info, 0);
 	}
 
-	return (type);
+	return type;
 }
 
 static int
@@ -670,7 +645,7 @@ imageinfo_proxy_eval(Imageinfoproxy *proxy)
 				imageinfo->im->time->eta))
 			return (-1);
 
-	return (0);
+	return 0;
 }
 
 static int
@@ -681,7 +656,7 @@ imageinfo_proxy_invalidate(Imageinfoproxy *proxy)
 	if (imageinfo)
 		imageinfo_invalidate(imageinfo);
 
-	return (0);
+	return 0;
 }
 
 static int
@@ -694,7 +669,7 @@ imageinfo_proxy_preclose(Imageinfoproxy *proxy)
 	if (imageinfo)
 		imageinfo_dispose_eval(imageinfo);
 
-	return (0);
+	return 0;
 }
 
 /* Add a proxy to track IMAGE events.
@@ -759,7 +734,7 @@ imageinfo_new(Imageinfogroup *imageinfogroup,
 		if (!temp_name(buf, "v"))
 			/* Will be freed on next GC.
 			 */
-			return (NULL);
+			return NULL;
 
 		name = buf;
 	}
@@ -774,7 +749,7 @@ imageinfo_new(Imageinfogroup *imageinfogroup,
 		ICONTAINER(imageinfo), -1);
 	imageinfo_proxy_add(imageinfo);
 
-	return (imageinfo);
+	return imageinfo;
 }
 
 /* An image is a result of a LUT operation on an earlier imageinfo.
@@ -801,15 +776,15 @@ imageinfo_new_temp(Imageinfogroup *imageinfogroup,
 
 	if (!temp_name(tname, "v") ||
 		!(im = im_open(tname, mode)))
-		return (NULL);
+		return NULL;
 	if (!(imageinfo = imageinfo_new(imageinfogroup, heap, im, name))) {
 		im_close(im);
-		return (NULL);
+		return NULL;
 	}
 	imageinfo->dfile = TRUE;
 	VIPS_SETSTR(imageinfo->delete_filename, tname);
 
-	return (imageinfo);
+	return imageinfo;
 }
 
 /* Need this context during imageinfo_open_image_input().
@@ -831,18 +806,18 @@ imageinfo_open_image_input(const char *filename, ImageinfoOpen *open)
 	VipsFormatClass *format;
 
 	if (!(format = vips_format_for_file(filename)))
-		return (NULL);
+		return NULL;
 
 	if (strcmp(VIPS_OBJECT_CLASS(format)->nickname, "vips") == 0) {
 		IMAGE *im;
 
 		if (!(im = im_open(filename, "r")))
-			return (NULL);
+			return NULL;
 
 		if (!(imageinfo = imageinfo_new(open->imageinfogroup,
 				  open->heap, im, open->filename))) {
 			im_close(im);
-			return (NULL);
+			return NULL;
 		}
 		MANAGED_REF(imageinfo);
 
@@ -858,13 +833,13 @@ imageinfo_open_image_input(const char *filename, ImageinfoOpen *open)
 
 		if (!(imageinfo = imageinfo_new_temp(open->imageinfogroup,
 				  open->heap, open->filename, mode)))
-			return (NULL);
+			return NULL;
 		MANAGED_REF(imageinfo);
 		if (format->load(filename, imageinfo->im) ||
 			im_histlin(imageinfo->im, "im_copy %s %s",
 				filename, imageinfo->im->filename)) {
 			MANAGED_UNREF(imageinfo);
-			return (NULL);
+			return NULL;
 		}
 
 #ifdef DEBUG_OPEN
@@ -876,7 +851,7 @@ imageinfo_open_image_input(const char *filename, ImageinfoOpen *open)
 	/* Get ready for input.
 	 */
 	if (im_pincheck(imageinfo->im))
-		return (NULL);
+		return NULL;
 
 	/* The rewind will have removed everything from the IMAGE. Reattach
 	 * progress.
@@ -887,9 +862,9 @@ imageinfo_open_image_input(const char *filename, ImageinfoOpen *open)
 	 * save default.
 	 */
 	if (im_meta_set_string(imageinfo->im, ORIGINAL_FILENAME, filename))
-		return (NULL);
+		return NULL;
 
-	return (imageinfo);
+	return imageinfo;
 }
 
 Imageinfo *
@@ -926,16 +901,16 @@ imageinfo_new_from_pixbuf(Imageinfogroup *imageinfogroup,
 	bytes = gdk_pixbuf_get_pixels(pixbuf);
 
 	if (!(ii = imageinfo_new_temp(imageinfogroup, heap, NULL, "t")))
-		return (NULL);
+		return NULL;
 	vips_image_init(ii->im, width, height, bands,
 		VIPS_BANDFMT_UCHAR, VIPS_CODING_NONE,
 		VIPS_INTERPRETATION_sRGB, 1.0, 1.0, 0, 0);
 	if (im_setupout(ii->im))
-		return (NULL);
+		return NULL;
 	vips_length = VIPS_IMAGE_SIZEOF_LINE(ii->im) * height;
 	memcpy(ii->im->data, bytes, vips_length);
 
-	return (ii);
+	return ii;
 }
 
 /* Was this ii loaded from a file (ie. ->name contains a filename the user
@@ -962,7 +937,7 @@ imageinfo_attach_check_cb(Imageinfo *imageinfo)
 		}
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Start checking this file for updates, signal reload if there is one.
@@ -1006,7 +981,7 @@ imageinfo_new_input(Imageinfogroup *imageinfogroup, GtkWidget *parent,
 		/* We always make a new non-heap pointer.
 		 */
 		MANAGED_REF(imageinfo);
-		return (imageinfo);
+		return imageinfo;
 	}
 
 	open.imageinfogroup = imageinfogroup;
@@ -1021,13 +996,13 @@ imageinfo_new_input(Imageinfogroup *imageinfogroup, GtkWidget *parent,
 		error_sub(_("Unable to open file \"%s\" as image."),
 			name);
 		error_vips();
-		return (NULL);
+		return NULL;
 	}
 
 	imageinfo->from_file = TRUE;
 	imageinfo_attach_check(imageinfo);
 
-	return (imageinfo);
+	return imageinfo;
 }
 
 /* Add an identity lut, if this is a LUTtable image.
@@ -1043,7 +1018,7 @@ imageinfo_get_identity_lut(Imageinfo *imageinfo)
 
 			if (!temp_name(tname, "v") ||
 				!(im = im_open(tname, "p")))
-				return (NULL);
+				return NULL;
 			imageinfo->identity_lut = im;
 
 			if (im_identity(imageinfo->identity_lut,
@@ -1052,13 +1027,13 @@ imageinfo_get_identity_lut(Imageinfo *imageinfo)
 					"im_identity %s %d",
 					imageinfo->identity_lut->filename,
 					imageinfo->im->Bands))
-				return (NULL);
+				return NULL;
 		}
 
 		return (imageinfo->identity_lut);
 	}
 	else
-		return (NULL);
+		return NULL;
 }
 
 static IMAGE *
@@ -1072,7 +1047,7 @@ imageinfo_get_mapped(Imageinfo *imageinfo)
 
 		if (!temp_name(name, "v") ||
 			!(mapped_im = im_open(name, "p")))
-			return (NULL);
+			return NULL;
 		argv[0] = im->filename;
 		argv[1] = mapped_im->filename;
 		argv[2] = imageinfo->im->filename;
@@ -1081,7 +1056,7 @@ imageinfo_get_mapped(Imageinfo *imageinfo)
 			im_updatehist(mapped_im, "im_maplut", 3, argv)) {
 			im_close(mapped_im);
 			error_vips_all();
-			return (NULL);
+			return NULL;
 		}
 		imageinfo->mapped_im = mapped_im;
 	}
@@ -1095,7 +1070,7 @@ IMAGE *
 imageinfo_get(gboolean use_lut, Imageinfo *imageinfo)
 {
 	if (!imageinfo)
-		return (NULL);
+		return NULL;
 
 	if (use_lut && imageinfo->underlying)
 		return (imageinfo->im);
@@ -1103,7 +1078,7 @@ imageinfo_get(gboolean use_lut, Imageinfo *imageinfo)
 		IMAGE *lut;
 
 		if ((lut = imageinfo_get_identity_lut(imageinfo)))
-			return (lut);
+			return lut;
 		else
 			return (imageinfo->im);
 	}
@@ -1122,15 +1097,15 @@ imageinfo_same_underlying(Imageinfo *imageinfo[], int n)
 	int i;
 
 	if (n < 2)
-		return (TRUE);
+		return TRUE;
 	else {
 		IMAGE *first = imageinfo_get_underlying(imageinfo[0]);
 
 		for (i = 1; i < n; i++)
 			if (imageinfo_get_underlying(imageinfo[i]) != first)
-				return (FALSE);
+				return FALSE;
 
-		return (TRUE);
+		return TRUE;
 	}
 }
 
@@ -1151,10 +1126,10 @@ imageinfo_write(Imageinfo *imageinfo, const char *name)
 			filename);
 		error_vips();
 
-		return (FALSE);
+		return FALSE;
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 static gboolean
@@ -1168,18 +1143,17 @@ imageinfo_make_paintable(Imageinfo *imageinfo)
 					"file \"%s\".\nCheck permission settings."),
 			imageinfo->im->filename);
 		error_vips();
-		return (FALSE);
+		return FALSE;
 	}
 	progress_end();
 
 	imageinfo->ok_to_paint = TRUE;
 
-	return (TRUE);
+	return TRUE;
 }
 
 static void
-imageinfo_check_paintable_cb(iWindow *iwnd, void *client,
-	iWindowNotifyFn nfn, void *sys)
+imageinfo_check_paintable_cb(GtkWindow *win, void *client, void *sys)
 {
 	Imageinfo *imageinfo = IMAGEINFO(client);
 
@@ -1221,20 +1195,20 @@ imageinfo_check_paintable(Imageinfo *imageinfo, GtkWidget *parent,
 			IOBJECT(imageinfo)->name);
 		idialog_set_iobject(idlg, IOBJECT(imageinfo));
 
-		return (FALSE);
+		return FALSE;
 	}
 	else if (im &&
 		!im_isfile(im) &&
 		!imageinfo->ok_to_paint) {
 		if (!imageinfo_make_paintable(imageinfo)) {
 			nfn(sys, IWINDOW_ERROR);
-			return (FALSE);
+			return FALSE;
 		}
 	}
 
 	nfn(sys, IWINDOW_YES);
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Try to get an Imageinfo from a symbol.
@@ -1247,7 +1221,7 @@ imageinfo_sym_image(Symbol *sym)
 	if (sym->type == SYM_VALUE && PEISIMAGE(root))
 		return (PEGETII(root));
 	else
-		return (NULL);
+		return NULL;
 }
 
 static Undofragment *
@@ -1258,7 +1232,7 @@ imageinfo_undofragment_new(Undobuffer *undo)
 	frag->undo = undo;
 	frag->im = NULL;
 
-	return (frag);
+	return frag;
 }
 
 static Undobuffer *
@@ -1276,7 +1250,7 @@ imageinfo_undobuffer_new(Imageinfo *imageinfo)
 	undo->bbox.width = 0;
 	undo->bbox.height = 0;
 
-	return (undo);
+	return undo;
 }
 
 /* Grab from the image into an IMAGE buffer. Always grab to memory.
@@ -1289,7 +1263,7 @@ imageinfo_undo_grab_area(IMAGE *im, Rect *dirty)
 	/* Make new image to extract to.
 	 */
 	if (!(save = im_open("undo buffer", "t")))
-		return (NULL);
+		return NULL;
 
 	/* Try to extract from im.
 	 */
@@ -1297,10 +1271,10 @@ imageinfo_undo_grab_area(IMAGE *im, Rect *dirty)
 			dirty->left, dirty->top, dirty->width, dirty->height)) {
 		im_close(save);
 		error_vips_all();
-		return (NULL);
+		return NULL;
 	}
 
-	return (save);
+	return save;
 }
 
 /* Grab into an undo fragment. Add frag to frag list on undo buffer, expand
@@ -1320,7 +1294,7 @@ imageinfo_undo_grab(Undobuffer *undo, Rect *dirty)
 	if (!(frag->im = imageinfo_undo_grab_area(im, dirty))) {
 		imageinfo_undofragment_free(frag);
 		error_vips_all();
-		return (NULL);
+		return NULL;
 	}
 
 	/* Note position of this frag.
@@ -1338,7 +1312,7 @@ imageinfo_undo_grab(Undobuffer *undo, Rect *dirty)
 
 	/* Return new frag.
 	 */
-	return (frag);
+	return frag;
 }
 
 /* Trim the undo buffer if we have more than x items on it.
@@ -1423,7 +1397,7 @@ imageinfo_undo_add(Imageinfo *imageinfo, Rect *dirty)
 	/* Undo disabled? Do nothing.
 	 */
 	if (PAINTBOX_MAX_UNDO == 0)
-		return (TRUE);
+		return TRUE;
 
 	/* Clip dirty against image size.
 	 */
@@ -1436,14 +1410,14 @@ imageinfo_undo_add(Imageinfo *imageinfo, Rect *dirty)
 	/* Is there anything left? If not, can return immediately.
 	 */
 	if (im_rect_isempty(&clipped))
-		return (TRUE);
+		return TRUE;
 
 	if (!undo) {
 		/* No current undo buffer ... start a new one for this action.
 		 */
 		if (!(imageinfo->cundo = undo =
 					imageinfo_undobuffer_new(imageinfo)))
-			return (FALSE);
+			return FALSE;
 
 		return (imageinfo_undo_grab(undo, &clipped) != NULL);
 	}
@@ -1468,7 +1442,7 @@ imageinfo_undo_add(Imageinfo *imageinfo, Rect *dirty)
 		/* Grab new fragment.
 		 */
 		if (!imageinfo_undo_grab(undo, &over))
-			return (FALSE);
+			return FALSE;
 	}
 
 	/* Do we need to expand our saved area to the left?
@@ -1480,7 +1454,7 @@ imageinfo_undo_add(Imageinfo *imageinfo, Rect *dirty)
 		over.height = undo->bbox.height;
 
 		if (!imageinfo_undo_grab(undo, &over))
-			return (FALSE);
+			return FALSE;
 	}
 
 	/* Do we need to expand our saved area upwards?
@@ -1492,7 +1466,7 @@ imageinfo_undo_add(Imageinfo *imageinfo, Rect *dirty)
 		over.height = undo->bbox.top - clipped.top;
 
 		if (!imageinfo_undo_grab(undo, &over))
-			return (FALSE);
+			return FALSE;
 	}
 
 	/* Do we need to expand our saved area downwards?
@@ -1505,10 +1479,10 @@ imageinfo_undo_add(Imageinfo *imageinfo, Rect *dirty)
 			VIPS_RECT_BOTTOM(&undo->bbox);
 
 		if (!imageinfo_undo_grab(undo, &over))
-			return (FALSE);
+			return FALSE;
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Paste an undo fragment back into the image.
@@ -1523,7 +1497,7 @@ imageinfo_undofragment_paste(Undofragment *frag)
 	im_insertplace(im, frag->im, frag->pos.left, frag->pos.top);
 	imageinfo_area_painted(imageinfo, &frag->pos);
 
-	return (NULL);
+	return NULL;
 }
 
 /* Paste a whole undo buffer back into the image.
@@ -1545,7 +1519,7 @@ imageinfo_undo(Imageinfo *imageinfo)
 	/* Find the undo action we are to perform.
 	 */
 	if (!imageinfo->undo)
-		return (TRUE);
+		return TRUE;
 	undo = (Undobuffer *) imageinfo->undo->data;
 
 	/* We are going to undo the first action on the undo list. We must
@@ -1553,7 +1527,7 @@ imageinfo_undo(Imageinfo *imageinfo)
 	 * the save, even if undo is disabled.
 	 */
 	if (!imageinfo_undo_add(imageinfo, &undo->bbox))
-		return (FALSE);
+		return FALSE;
 
 	/* Add new undo area.
 	 */
@@ -1577,7 +1551,7 @@ imageinfo_undo(Imageinfo *imageinfo)
 	 */
 	imageinfo_undo_changed(imageinfo);
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Redo a paint action, if possible.
@@ -1590,7 +1564,7 @@ imageinfo_redo(Imageinfo *imageinfo)
 	/* Find the redo action we are to perform.
 	 */
 	if (!imageinfo->redo)
-		return (TRUE);
+		return TRUE;
 	undo = (Undobuffer *) imageinfo->redo->data;
 
 	/* We are going to redo the first action on the redo list. We must
@@ -1598,7 +1572,7 @@ imageinfo_redo(Imageinfo *imageinfo)
 	 * even if undo is disabled.
 	 */
 	if (!imageinfo_undo_add(imageinfo, &undo->bbox))
-		return (FALSE);
+		return FALSE;
 
 	/* Add this new buffer to the undo list.
 	 */
@@ -1622,7 +1596,7 @@ imageinfo_redo(Imageinfo *imageinfo)
 	 */
 	imageinfo_undo_changed(imageinfo);
 
-	return (TRUE);
+	return TRUE;
 }
 
 void
@@ -1672,20 +1646,20 @@ imageinfo_paint_line(Imageinfo *imageinfo,
 	im_rect_intersectrect(&dirty, &image, &clipped);
 
 	if (im_rect_isempty(&clipped))
-		return (TRUE);
+		return TRUE;
 
 	if (!imageinfo_undo_add(imageinfo, &clipped))
-		return (FALSE);
+		return FALSE;
 
 	if (im_draw_line_user(im, x1, y1, x2, y2,
 			(VipsPlotFn) imageinfo_draw_point_cb, mask_im, data, NULL)) {
 		error_vips_all();
-		return (FALSE);
+		return FALSE;
 	}
 
 	imageinfo_area_painted(imageinfo, &dirty);
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Smudge a line.
@@ -1707,19 +1681,19 @@ imageinfo_paint_smudge(Imageinfo *imageinfo,
 	p2.top += y2;
 	im_rect_unionrect(&p1, &p2, &dirty);
 	if (!imageinfo_undo_add(imageinfo, &dirty))
-		return (FALSE);
+		return FALSE;
 
 	/* Smudge line connecting old and new points.
 	 */
 	if (im_draw_line_user(im, x1, y1, x2, y2,
 			(VipsPlotFn) im_smudge, oper, NULL, NULL)) {
 		error_vips_all();
-		return (FALSE);
+		return FALSE;
 	}
 
 	imageinfo_area_painted(imageinfo, &dirty);
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Flood an area.
@@ -1742,7 +1716,7 @@ imageinfo_paint_flood(Imageinfo *imageinfo, Imageinfo *ink,
 	dirty.width = im->Xsize;
 	dirty.height = im->Ysize;
 	if (!imageinfo_undo_add(imageinfo, &dirty))
-		return (FALSE);
+		return FALSE;
 
 	/* Flood!
 	 */
@@ -1752,12 +1726,12 @@ imageinfo_paint_flood(Imageinfo *imageinfo, Imageinfo *ink,
 		result = im_flood(im, x, y, data, &dirty);
 	if (result) {
 		error_vips_all();
-		return (FALSE);
+		return FALSE;
 	}
 
 	imageinfo_area_painted(imageinfo, &dirty);
 
-	return (TRUE);
+	return TRUE;
 }
 
 gboolean
@@ -1770,7 +1744,7 @@ imageinfo_paint_dropper(Imageinfo *imageinfo, Imageinfo *ink, int x, int y)
 
 	if (im_readpoint(im, x, y, data)) {
 		error_vips_all();
-		return (FALSE);
+		return FALSE;
 	}
 	im_invalidate(ink_im);
 
@@ -1781,7 +1755,7 @@ imageinfo_paint_dropper(Imageinfo *imageinfo, Imageinfo *ink, int x, int y)
 
 	imageinfo_area_painted(ink, &dirty);
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Fill a rect.
@@ -1794,17 +1768,17 @@ imageinfo_paint_rect(Imageinfo *imageinfo, Imageinfo *ink, Rect *area)
 	PEL *data = (PEL *) ink_im->data;
 
 	if (!imageinfo_undo_add(imageinfo, area))
-		return (FALSE);
+		return FALSE;
 
 	if (im_draw_rect(im,
 			area->left, area->top, area->width, area->height, 1, data)) {
 		error_vips_all();
-		return (FALSE);
+		return FALSE;
 	}
 
 	imageinfo_area_painted(imageinfo, area);
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Paint text into imageinfo, return width/height in tarea.
@@ -1821,7 +1795,7 @@ imageinfo_paint_text(Imageinfo *imageinfo,
 			text, font_name);
 		error_vips();
 
-		return (FALSE);
+		return FALSE;
 	}
 
 	tarea->left = 0;
@@ -1829,7 +1803,7 @@ imageinfo_paint_text(Imageinfo *imageinfo,
 	tarea->width = im->Xsize;
 	tarea->height = im->Ysize;
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Draw a nib mask. Radius 0 means a single-pixel mask.
@@ -1847,24 +1821,24 @@ imageinfo_paint_nib(Imageinfo *imageinfo, int radius)
 
 		if (!(t = im_open("imageinfo_paint_nib", "p"))) {
 			error_vips();
-			return (FALSE);
+			return FALSE;
 		}
 		if (im_black(t, 2 * (r2 + 1), 2 * (r2 + 1), 1) ||
 			im_draw_circle(t, r2, r2, r2, 1, ink) ||
 			im_shrink(t, im, 2, 2)) {
 			im_close(t);
 			error_vips();
-			return (FALSE);
+			return FALSE;
 		}
 		im_close(t);
 	}
 	else {
 		if (im_black(im, 1, 1, 1) ||
 			im_draw_circle(im, 0, 0, 0, 1, ink))
-			return (FALSE);
+			return FALSE;
 	}
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Paint a mask.
@@ -1889,20 +1863,20 @@ imageinfo_paint_mask(Imageinfo *imageinfo,
 	im_rect_intersectrect(&dirty, &image, &clipped);
 
 	if (im_rect_isempty(&clipped))
-		return (TRUE);
+		return TRUE;
 
 	if (!imageinfo_undo_add(imageinfo, &clipped))
-		return (FALSE);
+		return FALSE;
 
 	if (im_plotmask(im, 0, 0,
 			(PEL *) ink_im->data, (PEL *) mask_im->data, &dirty)) {
 		error_vips_all();
-		return (FALSE);
+		return FALSE;
 	}
 
 	imageinfo_area_painted(imageinfo, &dirty);
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Print a pixel. Output has to be parseable by imageinfo_from_text().
@@ -2101,7 +2075,7 @@ imageinfo_from_text(Imageinfo *imageinfo, const char *text)
 	dirty.height = 1;
 	imageinfo_area_painted(imageinfo, &dirty);
 
-	return (TRUE);
+	return TRUE;
 }
 
 /* Get the image as display RGB in rgb[0-2].
@@ -2138,7 +2112,7 @@ imageinfo_to_rgb(Imageinfo *imageinfo, double *rgb)
 	area.width = 1;
 	area.height = 1;
 
-	if (im_prepare(conv->ireg, &area)) {
+	if (vips_region_prepare(conv->ireg, &area)) {
 		UNREF(conv);
 		return;
 	}

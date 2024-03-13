@@ -208,7 +208,7 @@ gboolean imageinfo_same_underlying(Imageinfo *imageinfo[], int n);
 
 gboolean imageinfo_write(Imageinfo *imageinfo, const char *filename);
 gboolean imageinfo_check_paintable(Imageinfo *imageinfo,
-	GtkWidget *parent, iWindowNotifyFn nfn, void *sys);
+	GtkWidget *parent, void *sys);
 
 void imageinfo_note(Symbol *sym, Imageinfo *imageinfo);
 void imageinfo_forget(Symbol *sym, Imageinfo *imageinfo);

@@ -51,6 +51,7 @@ executable('nip4', [
     'path.c',
     'symbol.c',
     'tree.c',
+    'managed.c',
     'imageinfo.c',
     'util.c',
     'view.c',

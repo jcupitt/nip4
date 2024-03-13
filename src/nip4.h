@@ -106,6 +106,7 @@ typedef struct _Heapmodel Heapmodel;
 typedef struct _iContainer iContainer;
 typedef struct _Matrix Matrix;
 typedef struct _Model Model;
+typedef struct _Managed Managed;
 typedef struct _ParseConst ParseConst;
 typedef struct _ParseNode ParseNode;
 typedef struct _Reduce Reduce;
@@ -144,6 +145,7 @@ typedef struct _Workspace Workspace;
 #include "view.h"
 #include "tree.h"
 #include "filemodel.h"
+#include "managed.h"
 #include "imageinfo.h"
 #include "heap.h"
 #include "compile.h"
