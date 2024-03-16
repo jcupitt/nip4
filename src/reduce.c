@@ -1959,7 +1959,7 @@ reduce_destroy(Reduce *rc)
 {
 	heap_unregister_reduce(rc->heap, rc);
 	UNREF(rc->heap);
-	IM_FREE(rc);
+	VIPS_FREE(rc);
 }
 
 /* Max cells function for main reduce engine. Read from Preferences, and scale

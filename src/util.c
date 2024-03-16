@@ -1060,7 +1060,7 @@ findrightmost(const char *a, const char *b)
 		if (strncmp(a, &b[i], la) == 0)
 			return &b[i];
 
-	return (NULL);
+	return NULL;
 }
 
 /* Useful transformation: strip off a set of suffixes (eg. ".v", ".icon",

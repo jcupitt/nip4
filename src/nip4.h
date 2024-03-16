@@ -86,6 +86,10 @@
  */
 #define NAMESPACE "http://www.vips.ecs.soton.ac.uk/nip"
 
+/* Max number of args we allow.
+ */
+#define MAX_SYSTEM (50)
+
 /* We use various gtk4 features (GtkInfoBar, GtkDialog) which are going away
  * in gtk5.
  */
@@ -93,8 +97,8 @@ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 
 // various forward typdefs
 
+typedef struct _BuiltinInfo BuiltinInfo;
 typedef struct _Column Column;
-typedef struct _Imageinfo Imageinfo;
 typedef struct _Columnview Columnview;
 typedef struct _Compile Compile;
 typedef struct _Element Element;
@@ -104,9 +108,12 @@ typedef struct _HeapBlock HeapBlock;
 typedef struct _Heap Heap;
 typedef struct _Heapmodel Heapmodel;
 typedef struct _iContainer iContainer;
+typedef struct _Imageinfo Imageinfo;
+typedef struct _Link Link;
+typedef struct _LinkExpr LinkExpr;
+typedef struct _Managed Managed;
 typedef struct _Matrix Matrix;
 typedef struct _Model Model;
-typedef struct _Managed Managed;
 typedef struct _ParseConst ParseConst;
 typedef struct _ParseNode ParseNode;
 typedef struct _Reduce Reduce;
@@ -120,6 +127,7 @@ typedef struct _Toolkitbrowser Toolkitbrowser;
 typedef struct _Toolkitgroup Toolkitgroup;
 typedef struct _Toolkit Toolkit;
 typedef struct _Tool Tool;
+typedef struct _Toolitem Toolitem;
 typedef struct _View View;
 typedef struct _Workspacedefs Workspacedefs;
 typedef struct _Workspacegroupview Workspacegroupview;
@@ -149,22 +157,28 @@ typedef struct _Workspace Workspace;
 #include "imageinfo.h"
 #include "heap.h"
 #include "compile.h"
+#include "action.h"
+#include "reduce.h"
 #include "heapmodel.h"
 #include "column.h"
-#include "columnview.h"
-#include "prefcolumnview.h"
-#include "prefworkspaceview.h"
-#include "workspaceroot.h"
-#include "workspacegroupview.h"
-#include "workspacegroup.h"
-#include "workspaceview.h"
-#include "workspace.h"
-#include "subcolumn.h"
 #include "expr.h"
 #include "row.h"
 #include "matrix.h"
 #include "rhs.h"
+#include "class.h"
+#include "tool.h"
+#include "builtin.h"
 #include "symbol.h"
+#include "predicate.h"
 #include "link.h"
+#include "workspace.h"
+#include "subcolumn.h"
+#include "workspaceroot.h"
+#include "workspacegroup.h"
+#include "columnview.h"
+#include "prefcolumnview.h"
+#include "prefworkspaceview.h"
+#include "workspacegroupview.h"
+#include "workspaceview.h"
 
 #endif /*__NIP4_H*/

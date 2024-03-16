@@ -31,17 +31,17 @@
  */
 #define MAX_RELOC (1000)
 
-#define TYPE_COMPILE (compile_get_type())
+#define COMPILE_TYPE (compile_get_type())
 #define COMPILE(obj) \
-	(G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_COMPILE, Compile))
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), COMPILE_TYPE, Compile))
 #define COMPILE_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_CAST((klass), TYPE_COMPILE, CompileClass))
+	(G_TYPE_CHECK_CLASS_CAST((klass), COMPILE_TYPE, CompileClass))
 #define IS_COMPILE(obj) \
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_COMPILE))
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj), COMPILE_TYPE))
 #define IS_COMPILE_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_TYPE((klass), TYPE_COMPILE))
+	(G_TYPE_CHECK_CLASS_TYPE((klass), COMPILE_TYPE))
 #define COMPILE_GET_CLASS(obj) \
-	(G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_COMPILE, CompileClass))
+	(G_TYPE_INSTANCE_GET_CLASS((obj), COMPILE_TYPE, CompileClass))
 
 /* What we track to parse and compile some text. Our children are our locals.
  */

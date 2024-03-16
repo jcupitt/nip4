@@ -226,7 +226,7 @@ managed_destroy_heap(Managed *managed)
 	/* All non-heaps gone too?
 	 */
 	if (!managed->count)
-		IDESTROY(managed);
+		VIPS_UNREF(managed);
 }
 
 /* destroy() for non-heap pointers.

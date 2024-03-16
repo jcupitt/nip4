@@ -63,7 +63,7 @@ G_DEFINE_TYPE(Compile, compile, ICONTAINER_TYPE)
 Compile *
 compile_get_parent(Compile *compile)
 {
-	return ICONTAINER(compile->sym)->parent : COMPILE(ICONTAINER(compile->sym)->parent) : NULL;
+	return ICONTAINER(compile->sym)->parent ? COMPILE(ICONTAINER(compile->sym)->parent) : NULL;
 }
 
 void *
@@ -106,7 +106,7 @@ compile_name(Compile *compile, VipsBuf *buf)
 static Compile *
 compile_map_all_sub(Symbol *sym, map_compile_fn fn, void *a)
 {
-	return sym->expr && sym->expr->compile : compile_map_all(sym->expr->compile, fn, a) : NULL;
+	return sym->expr && sym->expr->compile ? compile_map_all(sym->expr->compile, fn, a) : NULL;
 }
 
 /* Apply a function to a compile ... and any local compiles. Do top-down.
@@ -253,26 +253,26 @@ compile_finalize(GObject *gobject)
 	/* Junk parse tree.
 	 */
 	slist_map(compile->treefrag, (SListMapFn) tree_node_destroy, NULL);
-	IM_FREEF(g_slist_free, compile->treefrag);
+	VIPS_FREEF(g_slist_free, compile->treefrag);
 	compile->tree = NULL;
 
 	/* Break links to all locals.
 	 */
-	IM_FREEF(g_slist_free, compile->param);
+	VIPS_FREEF(g_slist_free, compile->param);
 	compile->nparam = 0;
-	IM_FREEF(g_slist_free, compile->secret);
+	VIPS_FREEF(g_slist_free, compile->secret);
 	compile->nsecret = 0;
 	compile->this = NULL;
 	compile->super = NULL;
 	(void) slist_map(compile->children,
 		(SListMapFn) symbol_link_break, compile);
-	IM_FREEF(g_slist_free, compile->children);
+	VIPS_FREEF(g_slist_free, compile->children);
 
 	/* Remove static strings we created.
 	 */
 	slist_map(compile->statics,
 		(SListMapFn) managed_destroy_nonheap, NULL);
-	IM_FREEF(g_slist_free, compile->statics);
+	VIPS_FREEF(g_slist_free, compile->statics);
 
 	/* Junk heap.
 	 */
@@ -285,9 +285,9 @@ compile_finalize(GObject *gobject)
 
 	/* Junk text.
 	 */
-	IM_FREE(compile->text);
-	IM_FREE(compile->prhstext);
-	IM_FREE(compile->rhstext);
+	VIPS_FREE(compile->text);
+	VIPS_FREE(compile->prhstext);
+	VIPS_FREE(compile->rhstext);
 
 	compile->sym = NULL;
 
@@ -1847,7 +1847,7 @@ compile_resolve(Symbol *sym, Symbol *zombie)
 
 	/* No one refers to the zombie now.
 	 */
-	IM_FREEF(g_slist_free, zombie->parents);
+	VIPS_FREEF(g_slist_free, zombie->parents);
 
 	IDESTROY(zombie);
 }

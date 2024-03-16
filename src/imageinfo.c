@@ -354,7 +354,7 @@ imageinfo_expr_remove(Expr *expr, Imageinfo *imageinfo)
 GSList *
 imageinfo_expr_which(Imageinfo *imageinfo)
 {
-	return (imageinfo->exprs);
+	return imageinfo->exprs;
 }
 
 /* Find the underlying image in an imageinfo.
@@ -363,9 +363,9 @@ IMAGE *
 imageinfo_get_underlying(Imageinfo *imageinfo)
 {
 	if (imageinfo->underlying)
-		return (imageinfo_get_underlying(imageinfo->underlying));
+		return imageinfo_get_underlying(imageinfo->underlying);
 	else
-		return (imageinfo->im);
+		return imageinfo->im;
 }
 
 /* Free up an undo fragment.
@@ -643,7 +643,7 @@ imageinfo_proxy_eval(Imageinfoproxy *proxy)
 	if (imageinfo && imageinfo->im->time)
 		if (progress_update_percent(imageinfo->im->time->percent,
 				imageinfo->im->time->eta))
-			return (-1);
+			return -1;
 
 	return 0;
 }
@@ -919,8 +919,8 @@ imageinfo_new_from_pixbuf(Imageinfogroup *imageinfogroup,
 gboolean
 imageinfo_is_from_file(Imageinfo *imageinfo)
 {
-	return (IOBJECT(imageinfo)->name &&
-		imageinfo->from_file);
+	return IOBJECT(imageinfo)->name &&
+		imageinfo->from_file;
 }
 
 static gint
@@ -1030,7 +1030,7 @@ imageinfo_get_identity_lut(Imageinfo *imageinfo)
 				return NULL;
 		}
 
-		return (imageinfo->identity_lut);
+		return imageinfo->identity_lut;
 	}
 	else
 		return NULL;
@@ -1061,7 +1061,7 @@ imageinfo_get_mapped(Imageinfo *imageinfo)
 		imageinfo->mapped_im = mapped_im;
 	}
 
-	return (imageinfo->mapped_im);
+	return imageinfo->mapped_im;
 }
 
 /* Get a lut ... or not!
@@ -1073,19 +1073,19 @@ imageinfo_get(gboolean use_lut, Imageinfo *imageinfo)
 		return NULL;
 
 	if (use_lut && imageinfo->underlying)
-		return (imageinfo->im);
+		return imageinfo->im;
 	if (use_lut && !imageinfo->underlying) {
 		IMAGE *lut;
 
 		if ((lut = imageinfo_get_identity_lut(imageinfo)))
 			return lut;
 		else
-			return (imageinfo->im);
+			return imageinfo->im;
 	}
 	else if (!use_lut && imageinfo->underlying)
-		return (imageinfo_get_mapped(imageinfo));
+		return imageinfo_get_mapped(imageinfo);
 	else
-		return (imageinfo->im);
+		return imageinfo->im;
 }
 
 /* Do a set of II all refer to the same underlying image? Used to spot
@@ -1219,7 +1219,7 @@ imageinfo_sym_image(Symbol *sym)
 	PElement *root = &sym->expr->root;
 
 	if (sym->type == SYM_VALUE && PEISIMAGE(root))
-		return (PEGETII(root));
+		return PEGETII(root);
 	else
 		return NULL;
 }
@@ -1419,7 +1419,7 @@ imageinfo_undo_add(Imageinfo *imageinfo, Rect *dirty)
 					imageinfo_undobuffer_new(imageinfo)))
 			return FALSE;
 
-		return (imageinfo_undo_grab(undo, &clipped) != NULL);
+		return imageinfo_undo_grab(undo, &clipped) != NULL;
 	}
 
 	/* Existing stuff we are to add to. Try to expand our undo
@@ -1612,8 +1612,8 @@ imageinfo_draw_point_cb(IMAGE *im, int x, int y, void *a, void *b, void *c)
 	IMAGE *mask = (IMAGE *) a;
 	PEL *ink = (PEL *) b;
 
-	return (im_draw_mask(im, mask,
-		x - mask->Xsize / 2, y - mask->Ysize / 2, ink));
+	return im_draw_mask(im, mask,
+		x - mask->Xsize / 2, y - mask->Ysize / 2, ink);
 }
 
 /* Draw a line.

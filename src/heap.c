@@ -214,8 +214,8 @@ heapblock_free(HeapBlock *hb)
 	if (hb->next)
 		heapblock_free(hb->next);
 	if (hb->node)
-		IM_FREE(hb->node);
-	IM_FREE(hb);
+		VIPS_FREE(hb->node);
+	VIPS_FREE(hb);
 }
 
 static void
@@ -250,7 +250,7 @@ heap_dispose(GObject *gobject)
 	g_hash_table_foreach(heap->mtable,
 		(GHFunc) heap_dispose_print, NULL);
 
-	IM_FREEF(g_source_remove, heap->gc_tid);
+	VIPS_FREEF(g_source_remove, heap->gc_tid);
 
 	G_OBJECT_CLASS(parent_class)->dispose(gobject);
 }
@@ -263,11 +263,11 @@ heap_finalize(GObject *gobject)
 	if (heap->hb)
 		heapblock_free(heap->hb);
 
-	IM_FREEF(g_hash_table_destroy, heap->emark);
+	VIPS_FREEF(g_hash_table_destroy, heap->emark);
 
-	IM_FREEF(g_hash_table_destroy, heap->rmark);
+	VIPS_FREEF(g_hash_table_destroy, heap->rmark);
 
-	IM_FREEF(g_hash_table_destroy, heap->mtable);
+	VIPS_FREEF(g_hash_table_destroy, heap->mtable);
 
 	heap_all = g_slist_remove(heap_all, heap);
 
@@ -723,7 +723,7 @@ heap_gc_request_cb(Heap *heap)
 void
 heap_gc_request(Heap *heap)
 {
-	IM_FREEF(g_source_remove, heap->gc_tid);
+	VIPS_FREEF(g_source_remove, heap->gc_tid);
 	heap->gc_tid = g_timeout_add(1000,
 		(GSourceFunc) heap_gc_request_cb, heap);
 }
@@ -1884,14 +1884,11 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 
 			/* We want a refstring, not a G_TYPE_STRING, since
 			 * this GValue will (probably) be used by vips with
-			 * im_header_string() etc.
+			 * header_string() etc.
 			 */
-			g_value_init(out, IM_TYPE_REF_STRING);
-			im_ref_string_set(out, name);
+			g_value_init(out, VIPS_TYPE_REF_STRING);
+			vips_ref_string_set(out, name);
 		}
-#if VIPS_MAJOR_VERSION > 7 || VIPS_MINOR_VERSION > 39
-		/* vips_value_set_array_*() is a 7.40 feature.
-		 */
 		else if (heap_is_imagevec(in, &result) &&
 			result) {
 			Imageinfo *iivec[MAX_VEC];
@@ -1925,7 +1922,6 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 			g_value_init(out, VIPS_TYPE_ARRAY_DOUBLE);
 			vips_value_set_array_double(out, realvec, n);
 		}
-#endif
 		else {
 			error_top(_("Unimplemented list type."));
 			return FALSE;
@@ -2460,7 +2456,7 @@ graph_node(Heap *heap, VipsBuf *buf, HeapNode *root, gboolean fn)
 	lisp_node(&buf2, root, &back, fn, 0);
 	heap_clear(heap, FLAG_PRINT);
 	lisp_node(buf, root, &back, fn, 0);
-	IM_FREEF(g_slist_free, back);
+	VIPS_FREEF(g_slist_free, back);
 }
 
 /* As above, but start from a pelement.
@@ -2488,7 +2484,7 @@ graph_pelement(Heap *heap, VipsBuf *buf, PElement *root, gboolean fn)
 	heap_clear(heap, FLAG_PRINT);
 	lisp_pelement(buf, root, &back, fn, 0);
 
-	IM_FREEF(g_slist_free, back);
+	VIPS_FREEF(g_slist_free, back);
 }
 
 /* As above, but start from an element.

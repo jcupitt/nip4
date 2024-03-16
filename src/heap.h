@@ -308,17 +308,17 @@ struct _HeapBlock {
  */
 typedef int (*heap_max_fn)(Heap *);
 
-#define TYPE_HEAP (heap_get_type())
+#define HEAP_TYPE (heap_get_type())
 #define HEAP(obj) \
-	(G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_HEAP, Heap))
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), HEAP_TYPE, Heap))
 #define HEAP_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_CAST((klass), TYPE_HEAP, HeapClass))
+	(G_TYPE_CHECK_CLASS_CAST((klass), HEAP_TYPE, HeapClass))
 #define IS_HEAP(obj) \
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_HEAP))
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj), HEAP_TYPE))
 #define IS_HEAP_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_TYPE((klass), TYPE_HEAP))
+	(G_TYPE_CHECK_CLASS_TYPE((klass), HEAP_TYPE))
 #define HEAP_GET_CLASS(obj) \
-	(G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_HEAP, HeapClass))
+	(G_TYPE_INSTANCE_GET_CLASS((obj), HEAP_TYPE, HeapClass))
 
 struct _Heap {
 	iObject parent_object;

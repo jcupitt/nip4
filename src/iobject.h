@@ -67,7 +67,7 @@ typedef struct _iObjectClass {
 } iObjectClass;
 
 #define IOBJECT_GET_CLASS_NAME(obj) \
-	((G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_IOBJECT, iObjectClass))->user_name)
+	((G_TYPE_INSTANCE_GET_CLASS((obj), IOBJECT_TYPE, iObjectClass))->user_name)
 
 void *iobject_changed(iObject *iobject);
 void *iobject_info(iObject *iobject, VipsBuf *);

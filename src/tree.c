@@ -35,7 +35,7 @@ void
 tree_const_destroy(ParseConst *pc)
 {
 	if (pc->type == PARSE_CONST_STR)
-		IM_FREE(pc->val.str);
+		VIPS_FREE(pc->val.str);
 	pc->type = PARSE_CONST_NONE;
 }
 
@@ -44,7 +44,7 @@ tree_const_copy(ParseConst *from, ParseConst *to)
 {
 	*to = *from;
 	if (to->type == PARSE_CONST_STR && to->val.str)
-		to->val.str = im_strdupn(to->val.str);
+		to->val.str = g_strdup(to->val.str);
 }
 
 /* Free a parse node.
@@ -55,7 +55,7 @@ tree_node_destroy(ParseNode *n)
 	switch (n->type) {
 	case NODE_PATTERN_CLASS:
 	case NODE_TAG:
-		IM_FREE(n->tag);
+		VIPS_FREE(n->tag);
 		break;
 
 	case NODE_CONST:
@@ -64,7 +64,7 @@ tree_node_destroy(ParseNode *n)
 
 	case NODE_LISTCONST:
 	case NODE_SUPER:
-		IM_FREEF(g_slist_free, n->elist);
+		VIPS_FREEF(g_slist_free, n->elist);
 		break;
 
 	case NODE_APPLY:
@@ -81,7 +81,7 @@ tree_node_destroy(ParseNode *n)
 		g_assert(FALSE);
 	}
 
-	IM_FREE(n);
+	VIPS_FREE(n);
 
 	return NULL;
 }
@@ -219,7 +219,7 @@ tree_tag_new(Compile *compile, const char *r)
 	ParseNode *no = tree_new(compile);
 
 	no->type = NODE_TAG;
-	no->tag = im_strdupn(r);
+	no->tag = g_strdup(r);
 
 	return no;
 }
@@ -369,7 +369,7 @@ tree_pattern_class_new(Compile *compile, const char *class_name, ParseNode *l)
 
 	no->type = NODE_PATTERN_CLASS;
 	no->arg1 = l;
-	no->tag = im_strdupn(class_name);
+	no->tag = g_strdup(class_name);
 
 	return no;
 }
@@ -459,7 +459,7 @@ tree_copy(Compile *compile, ParseNode *node)
 		copy->uop = node->uop;
 		copy->biop = node->biop;
 		if (node->tag)
-			copy->tag = im_strdupn(node->tag);
+			copy->tag = g_strdup(node->tag);
 		tree_const_copy(&node->con, &copy->con);
 		if (node->arg1)
 			copy->arg1 = tree_copy(compile, node->arg1);

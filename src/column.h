@@ -27,17 +27,17 @@
 
  */
 
-#define TYPE_COLUMN (column_get_type())
+#define COLUMN_TYPE (column_get_type())
 #define COLUMN(obj) \
-	(G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_COLUMN, Column))
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), COLUMN_TYPE, Column))
 #define COLUMN_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_CAST((klass), TYPE_COLUMN, ColumnClass))
+	(G_TYPE_CHECK_CLASS_CAST((klass), COLUMN_TYPE, ColumnClass))
 #define IS_COLUMN(obj) \
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_COLUMN))
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj), COLUMN_TYPE))
 #define IS_COLUMN_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_TYPE((klass), TYPE_COLUMN))
+	(G_TYPE_CHECK_CLASS_TYPE((klass), COLUMN_TYPE))
 #define COLUMN_GET_CLASS(obj) \
-	(G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_COLUMN, ColumnClass))
+	(G_TYPE_INSTANCE_GET_CLASS((obj), COLUMN_TYPE, ColumnClass))
 
 struct _Column {
 	Filemodel parent_object;

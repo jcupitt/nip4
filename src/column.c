@@ -316,7 +316,7 @@ column_new(Workspace *ws, const char *name)
 		return NULL;
 	}
 
-	col = COLUMN(g_object_new(TYPE_COLUMN, NULL));
+	col = COLUMN(g_object_new(COLUMN_TYPE, NULL));
 	iobject_set(IOBJECT(col), name, NULL);
 	icontainer_child_add(ICONTAINER(ws), ICONTAINER(col), -1);
 
