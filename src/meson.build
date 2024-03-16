@@ -52,6 +52,7 @@ executable('nip4', [
     'path.c',
     'class.c',
     'tool.c',
+    'itext.c',
     'builtin.c',
     'symbol.c',
     'tree.c',

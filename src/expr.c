@@ -309,9 +309,8 @@ expr_dispose(GObject *gobject)
 		 * Otherwise just break the link and wait for the next row
 		 * refresh to do the kill for us.
 		 */
-		if (row == row->top_row) {
-			IDESTROY(row);
-		}
+		if (row == row->top_row)
+			VIPS_UNREF(row);
 		else {
 			row->expr = NULL;
 			row->sym = NULL;
@@ -326,8 +325,7 @@ expr_dispose(GObject *gobject)
 				iText *itext = ITEXT(row->child_rhs->itext);
 
 				if (itext->edited)
-					heapmodel_set_modified(
-						HEAPMODEL(itext), TRUE);
+					heapmodel_set_modified(HEAPMODEL(itext), TRUE);
 			}
 		}
 	}
@@ -413,7 +411,7 @@ expr_new(Symbol *sym)
 {
 	Expr *expr;
 
-	expr = EXPR(g_object_new(TYPE_EXPR, NULL));
+	expr = EXPR(g_object_new(EXPR_TYPE, NULL));
 
 	expr->sym = sym;
 	PEPOINTE(&expr->root, &sym->base);

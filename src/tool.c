@@ -36,7 +36,7 @@
 
 #include "nip4.h"
 
-G_DEFINE_TYPE(Tool, tool, FILEMODER_TYPE)
+G_DEFINE_TYPE(Tool, tool, FILEMODEL_TYPE)
 
 /* Largest string we let the user set for name/tip/etc.
  */

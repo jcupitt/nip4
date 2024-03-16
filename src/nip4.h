@@ -119,6 +119,7 @@ typedef struct _ParseNode ParseNode;
 typedef struct _Reduce Reduce;
 typedef struct _Rhs Rhs;
 typedef struct _Row Row;
+typedef struct _iText iText;
 typedef struct _Rowview Rowview;
 typedef struct _Subcolumn Subcolumn;
 typedef struct _Subcolumn Subcolumn;
@@ -162,6 +163,7 @@ typedef struct _Workspace Workspace;
 #include "heapmodel.h"
 #include "column.h"
 #include "expr.h"
+#include "itext.h"
 #include "row.h"
 #include "matrix.h"
 #include "rhs.h"
