@@ -28,12 +28,7 @@
 
 */
 
-#include "ip.h"
-
-#ifdef HAVE_FLEX
-
-/* Flex has a different input mechanism :(
- */
+#include "nip4.h"
 
 #define YY_INPUT(buf,result,max_size) { \
 	extern int ip_input( void ); \
@@ -43,28 +38,6 @@
 
 #undef unput
 #define unput ip_unput
-
-#else /*HAVE_FLEX*/
-
-/* Assume this is plain lex.
- */
-
-/* Redefine input, output, unput and yywrap.
- */
-#undef input
-#undef output
-#undef unput
-#undef YYLMAX
-
-/* See parse.y for input and unput.
- */
-#define output(A) (error( "output called by lex" ))
-
-#define YYLMAX MAX_STRSIZE
-
-#define unput ip_unput
-#define input ip_input
-#endif /*HAVE_FLEX*/
 
 /* Stuff from bison.
  */
@@ -150,11 +123,11 @@ read_char( void )
 %}
 
 %Start DOT
-%Start BINARY 
+%Start BINARY
 
 %option noyywrap
 %%
-\/\* { 
+\/\* {
 	int ch;
 
 	while( (ch = input()) != EOF )
@@ -165,7 +138,7 @@ read_char( void )
 				unput( ch );
 		}
 		else if( ch == '/' ) {
-			if( (ch = input()) == '*' ) 
+			if( (ch = input()) == '*' )
 				yyerror( _( "nested comment" ) );
 			else
 				unput( ch );
@@ -175,7 +148,7 @@ read_char( void )
 		yyerror( _( "no end of comment" ) );
 }
 # |
-(\/\/) { 
+(\/\/) {
 	int ch;
 
 	/* Read string up to \n, EOF.
@@ -203,7 +176,7 @@ else { BEGIN 0; return( TK_ELSE ); }
 \.\. { BEGIN 0; return( TK_DOTDOTDOT ); }
 
 true |
-TRUE { 	
+TRUE {
 	BEGIN BINARY;
 
 	yylval.yy_const.type = PARSE_CONST_BOOL;
@@ -212,7 +185,7 @@ TRUE {
 	return( TK_CONST );
 }
 false |
-FALSE { 	
+FALSE {
 	BEGIN BINARY;
 
 	yylval.yy_const.type = PARSE_CONST_BOOL;
@@ -237,7 +210,7 @@ FALSE {
 		yylval.yy_name = im_strdupn( name );
 		vips_buf_change( &lex_text, yytext, name );
 	}
-	else 
+	else
 		yylval.yy_name = im_strdupn( yytext );
 
 	return( TK_IDENT );
@@ -335,7 +308,7 @@ FALSE {
 
 	return( TK_CONST );
 }
-\" { 
+\" {
 	ModelLoadState *state = model_loadstate;
 
 	char buf[MAX_STRSIZE];
@@ -345,7 +318,7 @@ FALSE {
 
 	read_string( buf );
 
-	/* We need to keep buf as exactly the string in the source, 
+	/* We need to keep buf as exactly the string in the source,
 	 * including before interpretation of \ escapes, for the
 	 * vips_buf_change() to work.
 	 */
@@ -369,7 +342,7 @@ FALSE {
 		vips_buf_change( &lex_text, buf, buf3 );
 	}
 
-	if( strcmp( buf2, "" ) == 0 ) 
+	if( strcmp( buf2, "" ) == 0 )
 		yylval.yy_const.type = PARSE_CONST_ELIST;
 	else {
 		yylval.yy_const.type = PARSE_CONST_STR;

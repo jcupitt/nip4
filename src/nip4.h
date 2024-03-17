@@ -94,6 +94,10 @@
  */
 #define MAX_SYSTEM (50)
 
+/* Largest imagevec we can make.
+ */
+#define MAX_VEC (10000)
+
 /* We use various gtk4 features (GtkInfoBar, GtkDialog) which are going away
  * in gtk5.
  */
@@ -118,6 +122,9 @@ typedef struct _Link Link;
 typedef struct _LinkExpr LinkExpr;
 typedef struct _Managed Managed;
 typedef struct _Managedstring Managedstring;
+typedef struct _Managedfile Managedfile;
+typedef struct _Managedgobject Managedgobject;
+typedef struct _Managedgvalue Managedgvalue;
 typedef struct _Matrix Matrix;
 typedef struct _Model Model;
 typedef struct _ParseConst ParseConst;
@@ -130,6 +137,7 @@ typedef struct _Rowview Rowview;
 typedef struct _Subcolumn Subcolumn;
 typedef struct _Subcolumn Subcolumn;
 typedef struct _Symbol Symbol;
+typedef struct _Trace Trace;
 typedef struct _Toolkitbrowser Toolkitbrowser;
 typedef struct _Toolkitgroup Toolkitgroup;
 typedef struct _Toolkit Toolkit;
@@ -164,7 +172,11 @@ typedef struct _Workspace Workspace;
 #include "heap.h"
 #include "managed.h"
 #include "managedstring.h"
+#include "managedfile.h"
+#include "managedgobject.h"
+#include "managedgvalue.h"
 #include "imageinfo.h"
+#include "secret.h"
 #include "compile.h"
 #include "action.h"
 #include "reduce.h"
@@ -172,11 +184,15 @@ typedef struct _Workspace Workspace;
 #include "column.h"
 #include "expr.h"
 #include "itext.h"
+#include "log.h"
+#include "trace.h"
 #include "row.h"
 #include "matrix.h"
 #include "rhs.h"
 #include "class.h"
 #include "tool.h"
+#include "toolkit.h"
+#include "toolkitgroup.h"
 #include "builtin.h"
 #include "symbol.h"
 #include "predicate.h"

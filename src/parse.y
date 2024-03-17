@@ -29,7 +29,7 @@
 
  */
 
-#include "ip.h"
+#include "nip4.h"
 
 /*
 #define DEBUG
@@ -119,46 +119,46 @@ void *parse_access_end( Symbol *sym, Symbol *main );
 }
 
 %token TK_TAG TK_IDENT TK_CONST TK_DOTDOTDOT TK_LAMBDA TK_FROM TK_TO TK_SUCHTHAT
-%token TK_UMINUS TK_UPLUS TK_POW 
+%token TK_UMINUS TK_UPLUS TK_POW
 %token TK_LESS TK_LESSEQ TK_MORE TK_MOREEQ TK_NOTEQ
 %token TK_LAND TK_LOR TK_BAND TK_BOR TK_JOIN TK_DIFF
-%token TK_IF TK_THEN TK_ELSE 
+%token TK_IF TK_THEN TK_ELSE
 %token TK_CHAR TK_SHORT TK_CLASS TK_SCOPE
 %token TK_INT TK_FLOAT TK_DOUBLE TK_SIGNED TK_UNSIGNED TK_COMPLEX
 %token TK_SEPARATOR TK_DIALOG TK_LSHIFT TK_RSHIFT
 
-%type <yy_node> expr binop uop rhs list_expression comma_list body 
+%type <yy_node> expr binop uop rhs list_expression comma_list body
 %type <yy_node> simple_pattern complex_pattern list_pattern
 %type <yy_node> leaf_pattern
 %type <yy_node> crhs cexprlist prhs lambda
-%type <yy_const> TK_CONST 
+%type <yy_const> TK_CONST
 %type <yy_name> TK_IDENT TK_TAG
 
-%left TK_SUCHTHAT 
-%left TK_LAMBDA 
-%nonassoc TK_IF 
-%left ',' 
-%left TK_TO 
-%left TK_LOR 
+%left TK_SUCHTHAT
+%left TK_LAMBDA
+%nonassoc TK_IF
+%left ','
+%left TK_TO
+%left TK_LOR
 %left TK_LAND '@'
 %left TK_BOR
-%left '^' 
+%left '^'
 %left TK_BAND
 %nonassoc TK_EQ TK_NOTEQ TK_PEQ TK_PNOTEQ
-%nonassoc TK_LESS TK_LESSEQ TK_MORE TK_MOREEQ 
+%nonassoc TK_LESS TK_LESSEQ TK_MORE TK_MOREEQ
 %left TK_LSHIFT TK_RSHIFT
 %left '+' '-'
-%left '*' '/' '%' 
-%left '!' '~' TK_JOIN TK_DIFF TK_UMINUS TK_UPLUS 
+%left '*' '/' '%'
+%left '!' '~' TK_JOIN TK_DIFF TK_UMINUS TK_UPLUS
 %right TK_POW ':'
-%right TK_CONST '(' 
+%right TK_CONST '('
 %right TK_IDENT TK_TAG TK_SCOPE '['
 %right TK_APPLICATION
-%left '?' '.' 
+%left '?' '.'
 
 %start select
 
-/* 
+/*
 
   Our syntax for list comprehensions is not LALR(1). We have:
 
@@ -188,12 +188,12 @@ void *parse_access_end( Symbol *sym, Symbol *main );
 
 %%
 
-select: 
-      	',' main | 
-	'^' single_definition | 
+select:
+      	',' main |
+	'^' single_definition |
 	'*' params_plus_rhs optsemi {
 		compile_check( current_compile );
-	} | 
+	} |
 	prhs {
 		char buf[MAX_STRSIZE];
 
@@ -213,30 +213,30 @@ select:
 	}
 	;
 
-prhs: 
+prhs:
     	TK_BAND expr {
 		$$ = $2;
-	} | 
+	} |
 	'@' cexprlist {
 		$$ = $2;
 	}
 	;
 
-main: 
-    	/* Empty */ | 
+main:
+    	/* Empty */ |
 	main single_definition
 	;
 
-single_definition: 
+single_definition:
       	directive {
 		tool_position += 1;
-	} | 
+	} |
 	toplevel_definition optsemi {
 		tool_position += 1;
 	}
 	;
 
-directive: 
+directive:
 	TK_SEPARATOR {
 		Tool *tool;
 
@@ -247,7 +247,7 @@ directive:
 		tool->lineno = input_state.lineno;
 
 		input_reset();
-	} | 
+	} |
 	TK_DIALOG TK_CONST TK_CONST {
 		Tool *tool;
 
@@ -261,7 +261,7 @@ directive:
 
 		/* Add tool.
 		 */
-		tool = tool_new_dia( current_kit, tool_position, 
+		tool = tool_new_dia( current_kit, tool_position,
 			$2.val.str, $3.val.str );
 		if( !tool )
 			yyerror( error_get_sub() );
@@ -276,7 +276,7 @@ directive:
 	}
 	;
 
-toplevel_definition: 
+toplevel_definition:
 	{
 		last_top_lineno = input_state.lineno;
 		scope_reset();
@@ -289,8 +289,8 @@ toplevel_definition:
 
 /* Parse a new defining occurence. This can be a local or a top-level.
  */
-definition: 
-   	simple_pattern {	
+definition:
+   	simple_pattern {
 		Symbol *sym;
 
 		/* Two forms: <name pattern-list rhs>, or <pattern rhs>.
@@ -352,13 +352,13 @@ definition:
 
 		/* Link unresolved names into the outer scope.
 		 */
-		compile_resolve_names( current_compile, 
+		compile_resolve_names( current_compile,
 			compile_get_parent( current_compile ) );
 
 		/* Is this the end of a top-level? Needs extra work to add to
 		 * the enclosing toolkit etc.
 		 */
-		if( is_scope( symbol_get_parent( current_symbol ) ) ) 
+		if( is_scope( symbol_get_parent( current_symbol ) ) )
 			parse_toplevel_end( current_symbol );
 
 		/* Is this a pattern definition? Expand the pattern to a
@@ -368,14 +368,14 @@ definition:
 			Compile *parent = compile_get_parent( current_compile );
 			GSList *built_syms;
 
-			built_syms = compile_pattern_lhs( parent, 
+			built_syms = compile_pattern_lhs( parent,
 				current_symbol, $1 );
 
 			if( is_scope( symbol_get_parent( current_symbol ) ) )
 				slist_map( built_syms,
 					(SListMapFn) parse_toplevel_end, NULL );
 			slist_map( built_syms,
-				(SListMapFn) parse_access_end, 
+				(SListMapFn) parse_access_end,
 				current_symbol );
 
 			g_slist_free( built_syms );
@@ -387,16 +387,16 @@ definition:
 
 /* Parse params/body/locals into current_expr
  */
-params_plus_rhs: 
-	{	
+params_plus_rhs:
+	{
 		input_push( 1 );
 
-		/* We've already read the character past the end of the 
+		/* We've already read the character past the end of the
 		 * identifier (that's why we know the identifier is over).
 		 */
 		input_back1();
 	}
-	params {	
+	params {
 		input_push( 2 );
 		input_backtoch( '=' );
 	}
@@ -426,20 +426,20 @@ params_plus_rhs:
 
 #ifdef DEBUG
 		printf( "%s->compile->text = \"%s\"\n",
-			IOBJECT( current_compile->sym )->name, 
+			IOBJECT( current_compile->sym )->name,
 			current_compile->text );
 		printf( "%s->compile->prhstext = \"%s\"\n",
-			IOBJECT( current_compile->sym )->name, 
+			IOBJECT( current_compile->sym )->name,
 			current_compile->prhstext );
 		printf( "%s->compile->rhstext = \"%s\"\n",
-			IOBJECT( current_compile->sym )->name, 
+			IOBJECT( current_compile->sym )->name,
 			current_compile->rhstext );
 #endif /*DEBUG*/
 	}
 	;
-	
-params: 
-      	/* Empty */ | 
+
+params:
+      	/* Empty */ |
 	params simple_pattern {
 		Symbol *sym;
 
@@ -452,7 +452,7 @@ params:
 		 * parses to:
 		 *
 		 *	fred $$arg42 = 12 { $$patt42 = [a]; }
-		 * 
+		 *
 		 * A later pass creates the "a = $$arg42?0" definition.
 		 */
 		if( $2->type == NODE_LEAF ) {
@@ -481,16 +481,16 @@ params:
 	}
 	;
 
-body : 
+body :
      	'=' TK_CLASS crhs {
 		$$ = $3;
-	} | 
+	} |
 	rhs {
 		$$ = $1;
 	}
 	;
 
-crhs: 
+crhs:
     	{
 		ParseNode *pn = tree_class_new( current_compile );
 
@@ -510,7 +510,7 @@ crhs:
 
 		/* Always read 1 char too many.
 		 */
-		if( (len = strlen( buf )) > 0 ) 
+		if( (len = strlen( buf )) > 0 )
 			buf[len - 1] = '\0';
 
 		IM_SETSTR( current_compile->rhstext, buf );
@@ -535,32 +535,32 @@ crhs:
 	}
 	;
 
-rhs: 
-   	'=' expr { 	
+rhs:
+   	'=' expr {
 		$$ = $2;
-	} | 
-	'=' expr ',' expr optsemi rhs { 	
+	} |
+	'=' expr ',' expr optsemi rhs {
 		$$ = tree_ifelse_new( current_compile, $4, $2, $6 );
 	}
 	;
 
-locals:	
-      	';' | 
-	'{' deflist '}' | 
-	'{' '}' 
-	;	
+locals:
+      	';' |
+	'{' deflist '}' |
+	'{' '}'
+	;
 
-optsemi: 
-       	/* Empty */ | 
+optsemi:
+       	/* Empty */ |
 	';' optsemi
 	;
 
-deflist: 
+deflist:
        	definition {
 		input_pop();
 		input_push( 5 );
 	}
-	optsemi | 
+	optsemi |
 	deflist definition {
 		input_pop();
 		input_push( 6 );
@@ -568,48 +568,48 @@ deflist:
 	optsemi
 	;
 
-cexprlist: 
+cexprlist:
 	/* Empty */ {
 		$$ = tree_super_new( current_compile );
-	} | 
+	} |
 	cexprlist expr %prec TK_APPLICATION {
 		$$ = tree_super_extend( current_compile, $1, $2 );
 	}
 	;
 
-expr: 
-    	'(' expr ')' { 
+expr:
+    	'(' expr ')' {
 		$$ = $2;
-	} | 
+	} |
 	TK_CONST {
 		$$ = tree_const_new( current_compile, $1 );
-	} | 
+	} |
 	TK_IDENT {
 		$$ = tree_leaf_new( current_compile, $1 );
 		im_free( $1 );
-	} | 
+	} |
 	TK_TAG {
 		$$ = tree_tag_new( current_compile, $1 );
 		im_free( $1 );
-	} | 
+	} |
 	TK_SCOPE {
-		$$ = tree_leaf_new( current_compile, 
+		$$ = tree_leaf_new( current_compile,
 			IOBJECT( symbol_get_scope( current_symbol ) )->name );
-	} | 
+	} |
 	TK_IF expr TK_THEN expr TK_ELSE expr %prec TK_IF {
 		$$ = tree_ifelse_new( current_compile, $2, $4, $6 );
-	} | 
+	} |
 	expr expr %prec TK_APPLICATION {
 		$$ = tree_appl_new( current_compile, $1, $2 );
-	} | 
-	lambda | 
+	} |
+	lambda |
 	list_expression {
 		$$ = $1;
-	} | 
-	'(' expr ',' expr ')' {	
+	} |
+	'(' expr ',' expr ')' {
 		$$ = tree_binop_new( current_compile, BI_COMMA, $2, $4 );
-	} | 
-	binop | 
+	} |
+	binop |
 	uop
 	;
 
@@ -650,7 +650,7 @@ lambda:
 
 		/* Link unresolved names in to the outer scope.
 		 */
-		compile_resolve_names( current_compile, 
+		compile_resolve_names( current_compile,
 			compile_get_parent( current_compile ) );
 
 		/* The value of the expr is the anon we defined.
@@ -661,26 +661,26 @@ lambda:
 	}
 	;
 
-list_expression: 
+list_expression:
       	'[' expr TK_DOTDOTDOT ']' {
 		$$ = tree_generator_new( current_compile, $2, NULL, NULL );
-	} | 
+	} |
 	'[' expr TK_DOTDOTDOT expr ']' {
 		$$ = tree_generator_new( current_compile, $2, NULL, $4 );
-	} | 
+	} |
 	'[' expr ',' expr TK_DOTDOTDOT ']' {
 		$$ = tree_generator_new( current_compile, $2, $4, NULL );
-	} | 
+	} |
 	'[' expr ',' expr TK_DOTDOTDOT expr ']' {
 		$$ = tree_generator_new( current_compile, $2, $4, $6 );
-	} | 
+	} |
 	'[' expr TK_SUCHTHAT {
 		char name[256];
 		Symbol *sym;
 		Compile *enclosing = current_compile;
 
 		/* Make an anonymous symbol local to the current sym, copy
-		 * the map expr inside that. 
+		 * the map expr inside that.
 		 */
 		im_snprintf( name, 256, "$$lcomp%d", parse_object_id++ );
 		sym = symbol_new_defining( current_compile, name );
@@ -703,7 +703,7 @@ list_expression:
 		sym->placeholder = TRUE;
 		(void) symbol_user_init( sym );
 		(void) compile_new_local( sym->expr );
-		sym->expr->compile->tree = compile_copy_tree( enclosing, $2, 
+		sym->expr->compile->tree = compile_copy_tree( enclosing, $2,
 			sym->expr->compile );
 	}
 	generator frompred_list ']' {
@@ -713,7 +713,7 @@ list_expression:
 		 * so it links to the generators.
 		 */
 		compile_resolve_names( compile_get_parent( current_compile ),
-			current_compile ); 
+			current_compile );
 
 		/* Generate the code for the list comp.
 		 */
@@ -723,7 +723,7 @@ list_expression:
 
 		/* Link unresolved names outwards.
 		 */
-		compile_resolve_names( current_compile, 
+		compile_resolve_names( current_compile,
 			compile_get_parent( current_compile ) );
 
 		/* The value of the expr is the anon we defined.
@@ -734,7 +734,7 @@ list_expression:
 	} |
 	'[' comma_list ']' {
 		$$ = $2;
-	} | 
+	} |
 	'[' ']' {
 		ParseConst elist;
 
@@ -743,7 +743,7 @@ list_expression:
 	}
 	;
 
-frompred_list: 
+frompred_list:
 	/* Empty */ {
 	} |
      	frompred_list ';' frompred {
@@ -789,10 +789,10 @@ frompred:
        }
        ;
 
-comma_list: 
+comma_list:
      	expr ',' comma_list {
 		$$ = tree_lconst_extend( current_compile, $3, $1 );
-	} | 
+	} |
 	expr {
 		$$ = tree_lconst_new( current_compile, $1 );
 	}
@@ -801,86 +801,86 @@ comma_list:
 /* How odd, break the "'+' { BI_ADD } | ..." into a separate production and we
  * get reduce/reduce conflits. Copypaste a lot instead.
  */
-binop: 
-     	expr '+' expr {	
+binop:
+     	expr '+' expr {
 		$$ = tree_binop_new( current_compile, BI_ADD, $1, $3 );
-	} | 
-	expr ':' expr {	
+	} |
+	expr ':' expr {
 		$$ = tree_binop_new( current_compile, BI_CONS, $1, $3 );
-	} | 
-	expr '-' expr {	
+	} |
+	expr '-' expr {
 		$$ = tree_binop_new( current_compile, BI_SUB, $1, $3 );
-	} | 
-	expr '?' expr {	
+	} |
+	expr '?' expr {
 		$$ = tree_binop_new( current_compile, BI_SELECT, $1, $3 );
-	} | 
-	expr '/' expr {	
+	} |
+	expr '/' expr {
 		$$ = tree_binop_new( current_compile, BI_DIV, $1, $3 );
-	} | 
-	expr '*' expr {	
+	} |
+	expr '*' expr {
 		$$ = tree_binop_new( current_compile, BI_MUL, $1, $3 );
-	} | 
+	} |
 	expr '%' expr {
 		$$ = tree_binop_new( current_compile, BI_REM, $1, $3 );
-	} | 
-	expr TK_JOIN expr {	
+	} |
+	expr TK_JOIN expr {
 		$$ = tree_binop_new( current_compile, BI_JOIN, $1, $3 );
-	} | 
-	expr TK_POW expr {	
+	} |
+	expr TK_POW expr {
 		$$ = tree_binop_new( current_compile, BI_POW, $1, $3 );
-	} | 
-	expr TK_LSHIFT expr {	
+	} |
+	expr TK_LSHIFT expr {
 		$$ = tree_binop_new( current_compile, BI_LSHIFT, $1, $3 );
-	} | 
-	expr TK_RSHIFT expr {	
+	} |
+	expr TK_RSHIFT expr {
 		$$ = tree_binop_new( current_compile, BI_RSHIFT, $1, $3 );
-	} | 
-	expr '^' expr {	
+	} |
+	expr '^' expr {
 		$$ = tree_binop_new( current_compile, BI_EOR, $1, $3 );
-	} | 
-	expr TK_LAND expr {	
+	} |
+	expr TK_LAND expr {
 		$$ = tree_binop_new( current_compile, BI_LAND, $1, $3 );
-	} | 
-	expr TK_BAND expr {	
+	} |
+	expr TK_BAND expr {
 		$$ = tree_binop_new( current_compile, BI_BAND, $1, $3 );
-	} | 
-	expr '@' expr {	
+	} |
+	expr '@' expr {
 		$$ = tree_compose_new( current_compile, $1, $3 );
-	} | 
-	expr TK_LOR expr {	
+	} |
+	expr TK_LOR expr {
 		$$ = tree_binop_new( current_compile, BI_LOR, $1, $3 );
-	} | 
-	expr TK_BOR expr {	
+	} |
+	expr TK_BOR expr {
 		$$ = tree_binop_new( current_compile, BI_BOR, $1, $3 );
-	} | 
-	expr TK_LESS expr {	
+	} |
+	expr TK_LESS expr {
 		$$ = tree_binop_new( current_compile, BI_LESS, $1, $3 );
-	} | 
-	expr TK_LESSEQ expr {	
+	} |
+	expr TK_LESSEQ expr {
 		$$ = tree_binop_new( current_compile, BI_LESSEQ, $1, $3 );
-	} | 
-	expr TK_MORE expr {	
+	} |
+	expr TK_MORE expr {
 		$$ = tree_binop_new( current_compile, BI_MORE, $1, $3 );
-	} | 
-	expr TK_MOREEQ expr {	
+	} |
+	expr TK_MOREEQ expr {
 		$$ = tree_binop_new( current_compile, BI_MOREEQ, $1, $3 );
-	} | 
-	expr TK_EQ expr {	
+	} |
+	expr TK_EQ expr {
 		$$ = tree_binop_new( current_compile, BI_EQ, $1, $3 );
-	} | 
-	expr TK_NOTEQ expr {	
+	} |
+	expr TK_NOTEQ expr {
 		$$ = tree_binop_new( current_compile, BI_NOTEQ, $1, $3 );
-	} | 
-	expr TK_PEQ expr {	
+	} |
+	expr TK_PEQ expr {
 		$$ = tree_binop_new( current_compile, BI_PEQ, $1, $3 );
-	} | 
-	expr TK_PNOTEQ expr {	
+	} |
+	expr TK_PNOTEQ expr {
 		$$ = tree_binop_new( current_compile, BI_PNOTEQ, $1, $3 );
-	} | 
+	} |
 	expr '.' expr {
 		$$ = tree_binop_new( current_compile, BI_DOT, $1, $3 );
 	} |
-	expr TK_DIFF expr {	
+	expr TK_DIFF expr {
 		ParseNode *pn1, *pn2;
 
 		pn1 = tree_leaf_new( current_compile, "difference" );
@@ -890,7 +890,7 @@ binop:
 		pn1 = tree_appl_new( current_compile, pn1, $3 );
 
 		$$ = pn1;
-	} | 
+	} |
 	expr TK_TO expr {
 		ParseNode *pn;
 
@@ -902,56 +902,56 @@ binop:
 	}
 	;
 
-signed: 
-      	/* Nothing */ | 
+signed:
+      	/* Nothing */ |
 	TK_SIGNED
 	;
 
-unsigned: 
-	/* Nothing */ | 
+unsigned:
+	/* Nothing */ |
 	TK_UNSIGNED
 	;
 
-uop: 
-   	'(' unsigned TK_CHAR ')' expr %prec TK_UMINUS {	
+uop:
+   	'(' unsigned TK_CHAR ')' expr %prec TK_UMINUS {
 		$$ = tree_unop_new( current_compile, UN_CUCHAR, $5 );
-	} | 
-	'(' TK_SIGNED TK_CHAR ')' expr %prec TK_UMINUS {	
+	} |
+	'(' TK_SIGNED TK_CHAR ')' expr %prec TK_UMINUS {
 		$$ = tree_unop_new( current_compile, UN_CSCHAR, $5 );
-	} | 
-	'(' signed TK_SHORT ')' expr %prec TK_UMINUS {	
+	} |
+	'(' signed TK_SHORT ')' expr %prec TK_UMINUS {
 		$$ = tree_unop_new( current_compile, UN_CSSHORT, $5 );
-	} | 
+	} |
 	'(' TK_UNSIGNED TK_SHORT ')' expr %prec TK_UMINUS {
 		$$ = tree_unop_new( current_compile, UN_CUSHORT, $5 );
-	} | 
-	'(' signed TK_INT ')' expr %prec TK_UMINUS {	
+	} |
+	'(' signed TK_INT ')' expr %prec TK_UMINUS {
 		$$ = tree_unop_new( current_compile, UN_CSINT, $5 );
-	} | 
+	} |
 	'(' TK_UNSIGNED TK_INT ')' expr %prec TK_UMINUS {
 		$$ = tree_unop_new( current_compile, UN_CUINT, $5 );
-	} | 
+	} |
 	'(' TK_FLOAT ')' expr %prec TK_UMINUS {
 		$$ = tree_unop_new( current_compile, UN_CFLOAT, $4 );
-	} | 
+	} |
 	'(' TK_DOUBLE ')' expr %prec TK_UMINUS {
 		$$ = tree_unop_new( current_compile, UN_CDOUBLE, $4 );
-	} | 
+	} |
 	'(' TK_COMPLEX ')' expr %prec TK_UMINUS {
 		$$ = tree_unop_new( current_compile, UN_CCOMPLEX, $4 );
-	} | 
+	} |
 	'(' TK_DOUBLE TK_COMPLEX ')' expr %prec TK_UMINUS {
 		$$ = tree_unop_new( current_compile, UN_CDCOMPLEX, $5 );
-	} | 
+	} |
 	TK_UMINUS expr {
 		$$ = tree_unop_new( current_compile, UN_MINUS, $2 );
-	} | 
+	} |
 	'!' expr {
 		$$ = tree_unop_new( current_compile, UN_NEG, $2 );
-	} | 
+	} |
 	'~' expr {
 		$$ = tree_unop_new( current_compile, UN_COMPLEMENT, $2 );
-	} | 
+	} |
 	TK_UPLUS expr {
 		$$ = tree_unop_new( current_compile, UN_PLUS, $2 );
 	}
@@ -960,16 +960,16 @@ uop:
 /* Stuff that can appear on the LHS of an equals, or as a parameter pattern.
  */
 simple_pattern:
-	leaf_pattern | 
+	leaf_pattern |
 	'(' leaf_pattern ',' leaf_pattern ')' {
 		$$ = tree_binop_new( current_compile, BI_COMMA, $2, $4 );
 	} |
-	simple_pattern ':' simple_pattern { 
+	simple_pattern ':' simple_pattern {
 		$$ = tree_binop_new( current_compile, BI_CONS, $1, $3 );
 	} |
 	'(' complex_pattern ')' {
 		$$ = $2;
-	} | 
+	} |
 	'[' list_pattern ']' {
 		$$ = $2;
 	} |
@@ -978,7 +978,7 @@ simple_pattern:
 
 		elist.type = PARSE_CONST_ELIST;
 		$$ = tree_const_new( current_compile, elist );
-	}  
+	}
 	;
 
 /* Stuff that can appear in a complex (a, b) pattern.
@@ -987,10 +987,10 @@ leaf_pattern:
 	TK_IDENT {
 		$$ = tree_leaf_new( current_compile, $1 );
 		im_free( $1 );
-	} | 
+	} |
 	TK_CONST {
 		$$ = tree_const_new( current_compile, $1 );
-	} 
+	}
 	;
 
 /* What can appear in round brackets or a comma list.
@@ -1008,7 +1008,7 @@ complex_pattern:
 list_pattern:
      	complex_pattern ',' list_pattern {
 		$$ = tree_lconst_extend( current_compile, $3, $1 );
-	} | 
+	} |
 	complex_pattern {
 		$$ = tree_lconst_new( current_compile, $1 );
 	}
@@ -1048,7 +1048,7 @@ Compile *scope_stack_compile[MAX_SSTACK];
 int scope_sp = 0;
 int parse_object_id = 0;
 
-/* Here for errors in parse. 
+/* Here for errors in parse.
  *
  * Bison calls yyerror with only a char* arg. This printf() version is called
  * from nip2 in a few places during parse.
@@ -1065,8 +1065,8 @@ nip2yyerror( const char *sub, ... )
 
 	error_top( _( "Parse error." ) );
 
-	if( current_compile && current_compile->last_sym ) 
-		error_sub( _( "Error in %s: %s" ), 
+	if( current_compile && current_compile->last_sym )
+		error_sub( _( "Error in %s: %s" ),
 			IOBJECT(  current_compile->last_sym )->name, buf );
 	else
 		error_sub( _( "Error: %s" ), buf );
@@ -1094,7 +1094,7 @@ attach_input_file( iOpenFile *of )
 #endif /*DEBUG*/
 
 	/* Need to clear flex/bison's buffers in case we abandoned the
-	 * previous parse. 
+	 * previous parse.
 	 */
 	yyrestart( NULL );
 
@@ -1148,7 +1148,7 @@ attach_input_string( const char *str )
 /* Read a character from the input.
  */
 int
-ip_input( void ) 
+ip_input( void )
 {
 	InputState *is = &input_state;
 	int ch;
@@ -1160,13 +1160,13 @@ ip_input( void )
 		is->oldchar = -1;
 	}
 	else if( is->of ) {
-		/* Input from file. 
+		/* Input from file.
 		 */
 		if( (ch = getc( is->of->fp )) == EOF )
 			return( 0 );
 	}
 	else {
-		/* Input from string. 
+		/* Input from string.
 		 */
 		if( (ch = *is->strpos) )
 			is->strpos++;
@@ -1201,7 +1201,7 @@ ip_input( void )
 		vips_buf_appendc( &lex_text, ch );
 
 #ifdef DEBUG_CHARACTER
-	printf( "ip_input: returning '%c'\n", ch ); 
+	printf( "ip_input: returning '%c'\n", ch );
 #endif /*DEBUG_CHARACTER*/
 
 	return( ch );
@@ -1215,7 +1215,7 @@ ip_unput( int ch )
 	InputState *is = &input_state;
 
 #ifdef DEBUG_CHARACTER
-	printf( "ip_unput: ungetting '%c'\n", ch ); 
+	printf( "ip_unput: ungetting '%c'\n", ch );
 #endif /*DEBUG_CHARACTER*/
 
 	/* Is lex trying to unget the end-of-file marker? Do nothing if it is.
@@ -1227,7 +1227,7 @@ ip_unput( int ch )
 		if( ungetc( ch, is->of->fp ) == EOF )
 			error( "unget buffer overflow" );
 	}
-	else 
+	else
 		/* Save extra char here.
 		 */
 		is->oldchar = ch;
@@ -1280,11 +1280,11 @@ input_text( char *out )
 	int len;
 	int i;
 
-	for( i = start; i < end && 
+	for( i = start; i < end &&
 		(isspace( buf[i] ) || buf[i] == ';'); i++ )
 		;
 	start = i;
-	for( i = end - 1; i > start && 
+	for( i = end - 1; i > start &&
 		(isspace( buf[i] ) || buf[i] == ';'); i-- )
 		;
 	end = i + 1;
@@ -1296,7 +1296,7 @@ input_text( char *out )
 	out[len] = '\0';
 
 #ifdef DEBUG_CHARACTER
-	printf( "input_text: level %d, returning \"%s\"\n", 
+	printf( "input_text: level %d, returning \"%s\"\n",
 		is->bspsp, out );
 #endif /*DEBUG_CHARACTER*/
 
@@ -1326,7 +1326,7 @@ input_push( int n )
 	InputState *is = &input_state;
 
 #ifdef DEBUG_CHARACTER
-	printf( "input_push(%d): going to level %d, %d bytes into buffer\n", 
+	printf( "input_push(%d): going to level %d, %d bytes into buffer\n",
 		n, is->bspsp + 1, is->bwp );
 
 	{
@@ -1354,8 +1354,8 @@ input_push( int n )
 	is->bsp[is->bspsp] = is->bwp;
 }
 
-/* Yuk! We've just done an input_push() to try to grab the RHS of a 
- * definition ... unfortunately, due to token readahead, we've probably 
+/* Yuk! We've just done an input_push() to try to grab the RHS of a
+ * definition ... unfortunately, due to token readahead, we've probably
  * already read the start of the RHS.
  *
  * Back up the start point to just after the last ch character.
@@ -1433,7 +1433,7 @@ scope_pop_all( void )
 	}
 }
 
-/* Reset/push/pop parser stacks. 
+/* Reset/push/pop parser stacks.
  */
 void
 scope_reset( void )
@@ -1461,17 +1461,17 @@ parse_toplevel_end( Symbol *sym )
 void *
 parse_access_end( Symbol *sym, Symbol *main )
 {
-	IM_SETSTR( sym->expr->compile->rhstext, 
-		main->expr->compile->rhstext ); 
-	IM_SETSTR( sym->expr->compile->prhstext, 
-		main->expr->compile->prhstext ); 
-	IM_SETSTR( sym->expr->compile->text, 
-		main->expr->compile->text ); 
+	IM_SETSTR( sym->expr->compile->rhstext,
+		main->expr->compile->rhstext );
+	IM_SETSTR( sym->expr->compile->prhstext,
+		main->expr->compile->prhstext );
+	IM_SETSTR( sym->expr->compile->text,
+		main->expr->compile->text );
 
 	return( NULL );
 }
 
-/* Interface to parser. 
+/* Interface to parser.
  */
 static gboolean
 parse_input( int ch, Symbol *sym, Toolkit *kit, int pos )
@@ -1493,7 +1493,7 @@ parse_input( int ch, Symbol *sym, Toolkit *kit, int pos )
 		 */
 		scope_pop_all();
 
-		if( current_compile ) 
+		if( current_compile )
 			compile_error_set( current_compile );
 
 		return( FALSE );
@@ -1505,8 +1505,8 @@ parse_input( int ch, Symbol *sym, Toolkit *kit, int pos )
 	return( TRUE );
 }
 
-/* Parse the input into a set of symbols at a position in a kit. 
- * kit may be NULL for no kit. 
+/* Parse the input into a set of symbols at a position in a kit.
+ * kit may be NULL for no kit.
  */
 gboolean
 parse_toplevel( Toolkit *kit, int pos )
@@ -1542,7 +1542,7 @@ parse_rhs( Expr *expr, ParseRhsSyntax syntax )
 {
 	static const char start_ch_table[] = {
 		'&',		/* PARSE_RHS */
-		'*',		/* PARSE_PARAMS */		
+		'*',		/* PARSE_PARAMS */
 		'@'		/* PARSE_SUPER */
 	};
 
@@ -1573,7 +1573,7 @@ parse_rhs( Expr *expr, ParseRhsSyntax syntax )
 	return( TRUE );
 }
 
-/* Free any stuff the lexer might have allocated. 
+/* Free any stuff the lexer might have allocated.
  */
 void
 free_lex( int yychar )
@@ -1594,7 +1594,7 @@ free_lex( int yychar )
 }
 
 /* Do we have a string of the form "IDENT = .."? Use the lexer to look along
- * the string checking components, return the IDENT if we do, NULL otherwise.  
+ * the string checking components, return the IDENT if we do, NULL otherwise.
  */
 char *
 parse_test_define( void )
@@ -1606,25 +1606,25 @@ parse_test_define( void )
 	ident = NULL;
 
 	if( setjmp( parse_error_point ) ) {
-		/* Here for yyerror in lex. 
+		/* Here for yyerror in lex.
 		 */
 		IM_FREE( ident );
 
-		return( NULL ); 
+		return( NULL );
 	}
 
 	if( (yychar = yylex()) != TK_IDENT ) {
 		free_lex( yychar );
 
-		return( NULL ); 
+		return( NULL );
 	}
 	ident = yylval.yy_name;
 
 	if( (yychar = yylex()) != '=' ) {
 		free_lex( yychar );
-		IM_FREE( ident ); 
+		IM_FREE( ident );
 
-		return( NULL ); 
+		return( NULL );
 	}
 
 	return( ident );
@@ -1645,10 +1645,10 @@ parse_set_symbol( void )
 	ident = NULL;
 
 	if( setjmp( parse_error_point ) ) {
-		/* Here for yyerror in lex. 
+		/* Here for yyerror in lex.
 		 */
 		IM_FREE( ident );
-		return( NULL ); 
+		return( NULL );
 	}
 
 	do {
@@ -1660,15 +1660,15 @@ parse_set_symbol( void )
 
 		switch( (yychar = yylex()) ) {
 		case '.':
-			/* There's a dot, so we expect another identifier to 
+			/* There's a dot, so we expect another identifier to
 			 * come. Look up this one and move to that context.
 			 */
-			if( !(sym = compile_lookup( compile, ident )) ) 
-				nip2yyerror( _( "'%s' does not exist" ), 
+			if( !(sym = compile_lookup( compile, ident )) )
+				nip2yyerror( _( "'%s' does not exist" ),
 					ident );
-			if( !sym->expr || 
+			if( !sym->expr ||
 				!sym->expr->compile )
-				nip2yyerror( _( "'%s' has no members" ), 
+				nip2yyerror( _( "'%s' has no members" ),
 					ident );
 			compile = sym->expr->compile;
 			IM_FREE( ident );
@@ -1684,7 +1684,7 @@ parse_set_symbol( void )
 
 		default:
 			free_lex( yychar );
-			yyerror( _( "'.' or '=' expected" ) ); 
+			yyerror( _( "'.' or '=' expected" ) );
 		}
 	} while( yychar != '=' );
 

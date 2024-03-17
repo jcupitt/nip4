@@ -427,7 +427,7 @@ heap_get_type(void)
 			(GInstanceInitFunc) heap_init,
 		};
 
-		type = g_type_register_static(TYPE_IOBJECT,
+		type = g_type_register_static(IOBJECT_TYPE,
 			"Heap", &info, 0);
 	}
 
@@ -460,7 +460,7 @@ heap_new(Compile *compile, heap_max_fn max_fn, int stsz, int rsz)
 {
 	Heap *heap;
 
-	heap = HEAP(g_object_new(TYPE_HEAP, NULL));
+	heap = HEAP(g_object_new(HEAP_TYPE, NULL));
 	heap_link(heap, compile, max_fn, stsz, rsz);
 
 	return heap;
@@ -1896,8 +1896,7 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 			int n;
 			int i;
 
-			if ((n = heap_get_imagevec(in,
-					 iivec, MAX_VEC)) < 0)
+			if ((n = heap_get_imagevec(in, iivec, MAX_VEC)) < 0)
 				return FALSE;
 			g_value_init(out, VIPS_TYPE_ARRAY_IMAGE);
 			vips_value_set_array_image(out, n);
@@ -1916,8 +1915,7 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 			double realvec[MAX_VEC];
 			int n;
 
-			if ((n = heap_get_realvec(in,
-					 realvec, MAX_VEC)) < 0)
+			if ((n = heap_get_realvec(in, realvec, MAX_VEC)) < 0)
 				return FALSE;
 			g_value_init(out, VIPS_TYPE_ARRAY_DOUBLE);
 			vips_value_set_array_double(out, realvec, n);
@@ -1929,8 +1927,7 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 	}
 	else if (PEISMANAGED(in) && IS_MANAGEDGOBJECT(PEGETVAL(in))) {
 		g_value_init(out, G_TYPE_OBJECT);
-		g_value_set_object(out,
-			MANAGEDGOBJECT(PEGETMANAGED(in))->object);
+		g_value_set_object(out, MANAGEDGOBJECT(PEGETMANAGED(in))->object);
 	}
 	else {
 		char txt[100];
@@ -1938,8 +1935,7 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 
 		error_top(_("Unimplemented argument type."));
 		(void) itext_value(rc, &buf, in);
-		error_sub(_("Cannot convert %s to GValue."),
-			vips_buf_all(&buf));
+		error_sub(_("Cannot convert %s to GValue."), vips_buf_all(&buf));
 		return FALSE;
 	}
 
@@ -1954,21 +1950,17 @@ heap_gvalue_to_ip(GValue *in, PElement *out)
 	Reduce *rc = reduce_context;
 	Heap *heap = rc->heap;
 
-	if (G_VALUE_HOLDS_BOOLEAN(in)) {
+	if (G_VALUE_HOLDS_BOOLEAN(in))
 		PEPUTP(out, ELEMENT_BOOL, (int) g_value_get_boolean(in));
-	}
-	else if (G_VALUE_HOLDS_CHAR(in)) {
+	else if (G_VALUE_HOLDS_CHAR(in))
 		/* g_value_get_schar() is not in older glibs.
 		 */
 		PEPUTP(out, ELEMENT_CHAR, (int) g_value_get_uchar(in));
-	}
-	else if (G_VALUE_HOLDS_UCHAR(in)) {
+	else if (G_VALUE_HOLDS_UCHAR(in))
 		PEPUTP(out, ELEMENT_CHAR, (int) g_value_get_uchar(in));
-	}
-	else if (G_VALUE_HOLDS_INT(in)) {
+	else if (G_VALUE_HOLDS_INT(in))
 		if (!heap_real_new(heap, g_value_get_int(in), out))
 			return FALSE;
-	}
 	else if (G_VALUE_HOLDS_UINT(in)) {
 		if (!heap_real_new(heap, g_value_get_uint(in), out))
 			return FALSE;
@@ -2024,14 +2016,12 @@ heap_gvalue_to_ip(GValue *in, PElement *out)
 
 		PEPUTP(out, ELEMENT_MANAGED, managed);
 	}
-	else if (g_value_type_transformable(G_VALUE_TYPE(in),
-				 G_TYPE_STRING)) {
+	else if (g_value_type_transformable(G_VALUE_TYPE(in), G_TYPE_STRING)) {
 		GValue temp = { 0 };
 
 		g_value_init(&temp, G_TYPE_STRING);
 		g_value_transform(in, &temp);
-		if (!heap_managedstring_new(heap,
-				g_value_get_string(&temp), out)) {
+		if (!heap_managedstring_new(heap, g_value_get_string(&temp), out)) {
 			return FALSE;
 			g_value_unset(&temp);
 		}

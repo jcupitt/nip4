@@ -280,7 +280,7 @@ compile_finalize(GObject *gobject)
 		compile->base.type = ELEMENT_NOVAL;
 		compile->base.ele = (void *) 1;
 		heap_unregister_element(compile->heap, &compile->base);
-		UNREF(compile->heap);
+		VIPS_UNREF(compile->heap);
 	}
 
 	/* Junk text.
@@ -1673,7 +1673,7 @@ compile_check_i18n(Compile *compile, ParseNode *pn)
 			 */
 			pn->type = NODE_CONST;
 			pn->con.type = PARSE_CONST_STR;
-			pn->con.val.str = im_strdupn(_(text));
+			pn->con.val.str = g_strdup(_(text));
 		}
 		break;
 
@@ -1849,7 +1849,7 @@ compile_resolve(Symbol *sym, Symbol *zombie)
 	 */
 	VIPS_FREEF(g_slist_free, zombie->parents);
 
-	IDESTROY(zombie);
+	VIPS_UNREF(zombie);
 }
 
 /* Sub-function of below.
@@ -2191,7 +2191,7 @@ compile_lcomp_find_pattern(GSList *children, const char *generator)
 
 	if (sscanf(generator, "$$generator%d", &n) != 1)
 		return NULL;
-	im_snprintf(pattern, 256, "$$pattern%d", n);
+	vips_snprintf(pattern, 256, "$$pattern%d", n);
 
 	for (p = children; p; p = p->next) {
 		Symbol *sym = (Symbol *) p->data;
@@ -2275,7 +2275,7 @@ compile_lcomp(Compile *compile)
 		/* Start the next nest in. child is the local we will make for
 		 * this scope.
 		 */
-		im_snprintf(name, 256, "$$fn%d", count++);
+		vips_snprintf(name, 256, "$$fn%d", count++);
 		child = symbol_new_defining(scope, name);
 		child->generated = TRUE;
 		(void) symbol_user_init(child);
@@ -2573,7 +2573,7 @@ compile_pattern_condition(Compile *compile,
 			 */
 			left = tree_leaf_new(compile, "is_instanceof");
 			n.type = PARSE_CONST_STR;
-			n.val.str = im_strdupn(trail[i]->tag);
+			n.val.str = g_strdup(trail[i]->tag);
 			right = tree_const_new(compile, n);
 			node2 = tree_appl_new(compile, left, right);
 			right = compile_pattern_access(compile,
@@ -2603,7 +2603,7 @@ compile_pattern_error(Compile *compile, Symbol *leaf)
 
 	left = tree_leaf_new(compile, "error");
 	n.type = PARSE_CONST_STR;
-	n.val.str = im_strdupn(_("pattern match failed"));
+	n.val.str = g_strdup(_("pattern match failed"));
 	right = tree_const_new(compile, n);
 	node = tree_appl_new(compile, left, right);
 

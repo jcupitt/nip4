@@ -73,10 +73,12 @@ typedef unsigned char NodeFlags;
 /* Set the serial number without disturbing other stuff.
  */
 #define SETSERIAL(FLAGS, SERIAL) \
+	G_STMT_START \
 	{ \
 		(FLAGS) = ((FLAGS) & (FLAG_SERIAL ^ FLAG_ALL)) | \
 			((SERIAL) &FLAG_SERIAL); \
-	}
+	} \
+	G_STMT_END
 
 /* Combinators. Don't change the order of these! See reduce.c for an array
  * indexed with a CombinatorType.
@@ -124,26 +126,34 @@ typedef struct _HeapNode {
  * write.
  */
 #define PPUTLEFT(N, T, V) \
+	G_STMT_START \
 	{ \
 		EType t99 = (T); \
 		void *v99 = (void *) (V); \
 \
 		(N)->ltype = t99; \
 		(N)->body.ptrs.left = v99; \
-	}
+	} \
+	G_STMT_END
+
 #define PPUTRIGHT(N, T, V) \
+	G_STMT_START \
 	{ \
 		EType t99 = (T); \
 		void *v99 = (void *) (V); \
 \
 		(N)->rtype = t99; \
 		(N)->body.ptrs.right = v99; \
-	}
+	} \
+	G_STMT_END
+
 #define PPUT(N, Tl, Vl, Tr, Vr) \
+	G_STMT_START \
 	{ \
 		PPUTLEFT(N, Tl, Vl); \
 		PPUTRIGHT(N, Tr, Vr); \
-	}
+	} \
+	G_STMT_END
 
 /* Get value as a HeapNode pointer (most common case).
  */
@@ -162,23 +172,30 @@ typedef struct pelement {
 /* Make a PElement point to a node.
  */
 #define PEPOINTLEFT(N, P) \
+	G_STMT_START \
 	{ \
 		(P)->type = &((N)->ltype); \
 		(P)->ele = &((N)->body.ptrs.left); \
-	}
+	} \
+	G_STMT_END
+
 #define PEPOINTRIGHT(N, P) \
+	G_STMT_START \
 	{ \
 		(P)->type = &((N)->rtype); \
 		(P)->ele = &((N)->body.ptrs.right); \
-	}
+	} \
+	G_STMT_END
 
 /* Make a PElement point to an element.
  */
 #define PEPOINTE(PE, E) \
+	G_STMT_START \
 	{ \
 		(PE)->type = &((E)->type); \
 		(PE)->ele = &((E)->ele); \
-	}
+	} \
+	G_STMT_END
 
 /* Get from a PE.
  */
@@ -191,46 +208,59 @@ typedef struct pelement {
  * are writing to one of the inputs.
  */
 #define PEPUTE(PE, E) \
+	G_STMT_START \
 	{ \
 		*((PE)->type) = (E)->type; \
 		*((PE)->ele) = (E)->ele; \
-	}
+	} \
+	G_STMT_END
+
 #define PEPUTPE(PEto, PEfrom) \
+	G_STMT_START \
 	{ \
 		EType t99 = PEGETTYPE(PEfrom); \
 		void *v99 = PEGETVAL(PEfrom); \
 \
 		*((PEto)->type) = t99; \
 		*((PEto)->ele) = v99; \
-	}
+	} \
+	G_STMT_END
+
 #define PEPUTP(PE, T, V) \
+	G_STMT_START \
 	{ \
 		EType t99 = (T); \
 		void *v99 = GUINT_TO_POINTER(V); \
 \
 		*((PE)->type) = t99; \
 		*((PE)->ele) = v99; \
-	}
+	} \
+	G_STMT_END
 
 /* Write a PE to a node. Again, make sure we read both before we write, in
  * case we are writing an expression to ourselves.
  */
 #define PEPUTLEFT(N, PE) \
+	G_STMT_START \
 	{ \
 		EType t99 = PEGETTYPE(PE); \
 		void *v99 = PEGETVAL(PE); \
 \
 		(N)->ltype = t99; \
 		(N)->body.ptrs.left = v99; \
-	}
+	} \
+	G_STMT_END
+
 #define PEPUTRIGHT(N, PE) \
+	G_STMT_START \
 	{ \
 		EType t99 = PEGETTYPE(PE); \
 		void *v99 = PEGETVAL(PE); \
 \
 		(N)->rtype = t99; \
 		(N)->body.ptrs.right = v99; \
-	}
+	} \
+	G_STMT_END
 
 /* Predicates.
  */
@@ -370,8 +400,8 @@ typedef struct _HeapClass {
 /* Allocate a new node from heap H, pop the pointer into A, return non-zero if
  * alloc failed. Node is uninitialised!
  */
-#define NEWNODE(H, A) ( \
-	(H)->free ? EXTRACTNODE(H, A) : (((A) = heap_getmem(H)) ? 0 : -1))
+#define NEWNODE(H, A) \
+	((H)->free ? EXTRACTNODE(H, A) : (((A) = heap_getmem(H)) ? 0 : -1))
 
 typedef void *(*heap_safe_pointer_fn)(Heap *heap, PElement *,
 	void *, void *, void *, void *);
