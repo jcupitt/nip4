@@ -790,9 +790,6 @@ tool_set_help(Tool *tool)
 		VIPS_SETSTR(tool->help, value);
 	}
 	else if (tool->sym &&
-		tool->sym->type == SYM_EXTERNAL)
-		VIPS_SETSTR(tool->help, tool->sym->function->desc);
-	else if (tool->sym &&
 		tool->sym->type == SYM_BUILTIN)
 		VIPS_SETSTR(tool->help, tool->sym->builtin->desc);
 	else
@@ -827,7 +824,7 @@ tool_new_sym(Toolkit *kit, int pos, Symbol *sym)
 		IDESTROY(tool);
 	}
 
-	tool = TOOL(g_object_new(TYPE_TOOL, NULL));
+	tool = TOOL(g_object_new(TOOL_TYPE, NULL));
 	tool->type = TOOL_SYM;
 	tool->sym = sym;
 	sym->tool = tool;
@@ -856,7 +853,7 @@ tool_new_sep(Toolkit *kit, int pos)
 
 	g_assert(kit);
 
-	tool = TOOL(g_object_new(TYPE_TOOL, NULL));
+	tool = TOOL(g_object_new(TOOL_TYPE, NULL));
 	tool->type = TOOL_SEP;
 	iobject_set(IOBJECT(tool), "separator", NULL);
 	tool_link(tool, kit, pos, NULL);
@@ -901,7 +898,7 @@ tool_new_dia(Toolkit *kit, int pos,
 		tool->lineno = -1;
 	}
 	else {
-		tool = TOOL(g_object_new(TYPE_TOOL, NULL));
+		tool = TOOL(g_object_new(TOOL_TYPE, NULL));
 		tool->type = TOOL_DIA;
 		filemodel_set_filename(FILEMODEL(tool), filename);
 		iobject_set(IOBJECT(tool), name, NULL);

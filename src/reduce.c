@@ -1058,11 +1058,7 @@ is_WHNF(PElement *out)
 		 */
 		sym = SYMBOL(PEGETVAL(&spine));
 
-		if (sym->type == SYM_EXTERNAL) {
-			if (i < sym->fn_nargs)
-				return TRUE;
-		}
-		else if (sym->type == SYM_BUILTIN) {
+		if (sym->type == SYM_BUILTIN) {
 			if (i < sym->builtin->nargs)
 				return TRUE;
 		}
@@ -1250,47 +1246,6 @@ reduce_start:
 			printf("\n");
 			g_assert(FALSE);
 			break;
-
-		case SYM_EXTERNAL: {
-			HeapNode **arg;
-			int na;
-
-			/* A VIPS function.
-			 */
-			na = sym->fn_nargs;
-
-			/* Get args.
-			 */
-			if (!RSCHECKARGS(rc, na))
-				/* Not enough ... function result.
-				 */
-				break;
-
-			/* Run strictly.
-			 */
-			arg = &RSGET(rc, na - 1);
-
-			action_dispatch(rc, NULL, reduce_spine,
-				-1, sym->function->name, FALSE,
-				(ActionFn) call_run, na, arg,
-				sym->function);
-
-			/* Find output element.
-			 */
-			RSPOP(rc, na);
-
-			if (RSFRAMEEMPTY(rc))
-				np = RSGETWB(rc);
-			else
-				PEPOINTLEFT(RSGET(rc, 0), &np);
-
-			/* Write to node above.
-			 */
-			PEPUTP(&np,
-				GETRT(arg[0]), GETRIGHT(arg[0]));
-
-			goto reduce_start;
-		}
 
 		case SYM_BUILTIN: {
 			HeapNode **arg;

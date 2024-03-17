@@ -351,7 +351,7 @@ compile_init(Compile *compile)
 Compile *
 compile_new(Expr *expr)
 {
-	Compile *compile = COMPILE(g_object_new(TYPE_COMPILE, NULL));
+	Compile *compile = COMPILE(g_object_new(COMPILE_TYPE, NULL));
 
 	compile->sym = expr->sym;
 
@@ -2078,7 +2078,6 @@ compile_copy_sym(Symbol *sym, Compile *dest)
 	case SYM_WORKSPACE:
 	case SYM_WORKSPACEROOT:
 	case SYM_ROOT:
-	case SYM_EXTERNAL:
 	case SYM_BUILTIN:
 	default:
 		g_assert(0);

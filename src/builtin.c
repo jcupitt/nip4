@@ -226,14 +226,10 @@ apply_complex_call(Reduce *rc,
 			call_spine(rc, "im_c2imag", arg, out);
 	}
 	else if (PEISCOMPLEX(&rhs)) {
-		if (strcmp(name, "re") == 0) {
-			PEPUTP(out,
-				ELEMENT_NODE, GETLEFT(PEGETVAL(&rhs)));
-		}
-		else if (strcmp(name, "im") == 0) {
-			PEPUTP(out,
-				ELEMENT_NODE, GETRIGHT(PEGETVAL(&rhs)));
-		}
+		if (strcmp(name, "re") == 0)
+			PEPUTP(out, ELEMENT_NODE, GETLEFT(PEGETVAL(&rhs)));
+		else if (strcmp(name, "im") == 0)
+			PEPUTP(out, ELEMENT_NODE, GETRIGHT(PEGETVAL(&rhs)));
 	}
 	else
 		error("internal error #98743698437639487");
@@ -337,7 +333,7 @@ apply_image_call(Reduce *rc,
 	/* The buf might be something like n3862.pyr.tif:1, ie. contain some
 	 * load options. Split and search just for the filename component.
 	 */
-	vips_filename_split(buf, filename, mode);
+	vips__filename_split8(buf, filename, mode);
 
 	/* Try to load image from given string.
 	 */
@@ -347,8 +343,7 @@ apply_image_call(Reduce *rc,
 	/* Reattach the mode and load.
 	 */
 	vips_snprintf(buf, FILENAME_MAX, "%s:%s", fn, mode);
-	if (!(ii = imageinfo_new_input(
-			  main_imageinfogroup, NULL, heap, buf))) {
+	if (!(ii = imageinfo_new_input(main_imageinfogroup, NULL, heap, buf))) {
 		VIPS_FREE(fn);
 		reduce_throw(rc);
 	}

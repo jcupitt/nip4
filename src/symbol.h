@@ -48,7 +48,6 @@ typedef enum {
 	SYM_WORKSPACE,	   /* A loaded workspace */
 	SYM_WORKSPACEROOT, /* Base of all workspaces */
 	SYM_ROOT,		   /* The root symbol */
-	SYM_EXTERNAL,	   /* A reference to an external function */
 	SYM_BUILTIN		   /* A reference to a built-in function */
 } SymbolType;
 
@@ -99,10 +98,6 @@ struct _Symbol {
 	/* X-tras for definitions.
 	 */
 	Tool *tool; /* Tool and toolkit defined in */
-
-	/* X-tras for SYM_EXTERNAL.
-	 */
-	int fn_nargs; /* Number of args fn needs from nip */
 
 	/* X-tras for SYM_BUILTIN ... our function.
 	 */

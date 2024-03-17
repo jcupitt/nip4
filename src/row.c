@@ -2095,7 +2095,6 @@ row_parse_name(Symbol *context, const char *path)
 
 	case SYM_ZOMBIE:
 	case SYM_PARAM:
-	case SYM_EXTERNAL:
 	case SYM_BUILTIN:
 	default:
 		/* How odd.

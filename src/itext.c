@@ -33,7 +33,7 @@
 
 #include "nip4.h"
 
-G_DEFINE_TYPE(iText, iText, HEAPMODEL_TYPE)
+G_DEFINE_TYPE(iText, itext, HEAPMODEL_TYPE)
 
 static void
 itext_finalize(GObject *gobject)
@@ -65,7 +65,7 @@ itext_info(iObject *iobject, VipsBuf *buf)
 	iText *itext = ITEXT(iobject);
 
 	vips_buf_appends(buf, _("Formula"));
-	vips_buf_appendf(buf, ": %s\n", NN(itext->formula));
+	vips_buf_appendf(buf, ": %s\n", itext->formula);
 }
 
 /* Fwd ref this.
@@ -242,8 +242,7 @@ itext_decompile_element(VipsBuf *buf, PElement *base, gboolean top)
 		if (!(managed = PEGETMANAGED(base)))
 			vips_buf_appendf(buf, "<NULL managed>");
 		else {
-			vips_buf_appendf(buf, "<%s ",
-				G_OBJECT_TYPE_NAME(managed));
+			vips_buf_appendf(buf, "<%s ", G_OBJECT_TYPE_NAME(managed));
 			iobject_info(IOBJECT(managed), buf);
 			vips_buf_appends(buf, ">");
 		}
@@ -834,7 +833,7 @@ itext_new(Rhs *rhs)
 {
 	iText *itext;
 
-	itext = ITEXT(g_object_new(TYPE_ITEXT, NULL));
+	itext = ITEXT(g_object_new(ITEXT_TYPE, NULL));
 	icontainer_child_add(ICONTAINER(rhs), ICONTAINER(itext), -1);
 
 	return itext;

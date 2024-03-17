@@ -4,3 +4,6 @@
 #define PATH_TMP (NIP4_PATH "/tmp")
 #define PATH_SEARCH (path_parse(NIP4_PATH "/start"))
 #define AUTO_WS_SAVE (TRUE)
+#define PRINT_CARTESIAN (FALSE)
+#define TRACE_FUNCTIONS (FALSE)
+#define LINELENGTH (80)

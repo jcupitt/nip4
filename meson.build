@@ -54,19 +54,27 @@ config_h.set('MINOR_VERSION', version_minor)
 config_h.set('MICRO_VERSION', version_micro)
 
 if cc.has_function('ngettext')
-    config_h.set('ENABLE_NLS', 1)
-    have_bind_textdomain_codeset = cc.has_function('bind_textdomain_codeset')
+  config_h.set('ENABLE_NLS', 1)
+  have_bind_textdomain_codeset = cc.has_function('bind_textdomain_codeset')
 else
-    libintl_dep = cc.find_library('intl', required: false)
-    if libintl_dep.found()
-        nip4_deps += libintl_dep
-        config_h.set('ENABLE_NLS', 1)
-        have_bind_textdomain_codeset = cc.has_function('bind_textdomain_codeset', prefix: '#include <libintl.h>', dependencies: libintl_dep)
-    else
-        have_bind_textdomain_codeset = false
-    endif
+  libintl_dep = cc.find_library('intl', required: false)
+  if libintl_dep.found()
+    nip4_deps += libintl_dep
+    config_h.set('ENABLE_NLS', 1)
+    have_bind_textdomain_codeset = cc.has_function('bind_textdomain_codeset', prefix: '#include <libintl.h>', dependencies: libintl_dep)
+  else
+    have_bind_textdomain_codeset = false
+  endif
 endif
 config_h.set('HAVE_BIND_TEXTDOMAIN_CODESET', have_bind_textdomain_codeset)
+
+if cc.has_header('sys/resource.h')
+  config_h.set('HAVE_SYS_RESOURCE_H', 1)
+endif
+
+if cc.has_function('getrlimit')
+  config_h.set('HAVE_GETRLIMIT', 1)
+endif
 
 configure_file(
   output: 'config.h',
@@ -76,6 +84,7 @@ configure_file(
 # need vips_thread_execute()
 nip4_deps += dependency('vips', version: '>=8.15')
 nip4_deps += dependency('gtk4')
+nip4_deps += dependency('gsl')
 nip4_deps += dependency('libxml-2.0')
 
 # Courtesy check that the compiler supports the cleanup attribute

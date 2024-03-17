@@ -22,4 +22,18 @@
 
 const char *get_prefix(void);
 
-extern Workspaceroot *main_workspaceroot; /* All the workspaces */
+extern Workspaceroot *main_workspaceroot;	/* All the workspaces */
+extern Toolkitgroup *main_toolkitgroup;		/* All the toolkits */
+extern Symbol *main_symbol_root;			/* Root of symtable */
+extern Watchgroup *main_watchgroup;			/* All of the watches */
+extern Imageinfogroup *main_imageinfogroup; /* All of the images */
+
+extern void *main_c_stack_base; /* Base of C stack */
+
+extern gboolean main_starting; /* In startup */
+
+extern gboolean main_option_time_save; /* Time save image ops */
+extern gboolean main_option_profile;   /* Profile calcualtion */
+extern gboolean main_option_i18n;	   /* Output i18n strings */
+extern gboolean main_option_batch;	   /* Running in batch mode */
+extern gboolean main_option_verbose;   /* Verbose output */

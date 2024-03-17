@@ -33,6 +33,10 @@
 #include <fcntl.h>
 #include <setjmp.h>
 
+#ifdef HAVE_SYS_RESOURCE_H
+#include <sys/resource.h>
+#endif
+
 #define APP_PATH "/org/libvips/nip4"
 
 #include <gtk/gtk.h>
@@ -109,9 +113,11 @@ typedef struct _Heap Heap;
 typedef struct _Heapmodel Heapmodel;
 typedef struct _iContainer iContainer;
 typedef struct _Imageinfo Imageinfo;
+typedef struct _Imageinfogroup Imageinfogroup;
 typedef struct _Link Link;
 typedef struct _LinkExpr LinkExpr;
 typedef struct _Managed Managed;
+typedef struct _Managedstring Managedstring;
 typedef struct _Matrix Matrix;
 typedef struct _Model Model;
 typedef struct _ParseConst ParseConst;
@@ -130,6 +136,7 @@ typedef struct _Toolkit Toolkit;
 typedef struct _Tool Tool;
 typedef struct _Toolitem Toolitem;
 typedef struct _View View;
+typedef struct _Watchgroup Watchgroup;
 typedef struct _Workspacedefs Workspacedefs;
 typedef struct _Workspacegroupview Workspacegroupview;
 typedef struct _Workspacegroup Workspacegroup;
@@ -154,9 +161,10 @@ typedef struct _Workspace Workspace;
 #include "view.h"
 #include "tree.h"
 #include "filemodel.h"
-#include "managed.h"
-#include "imageinfo.h"
 #include "heap.h"
+#include "managed.h"
+#include "managedstring.h"
+#include "imageinfo.h"
 #include "compile.h"
 #include "action.h"
 #include "reduce.h"
@@ -182,5 +190,6 @@ typedef struct _Workspace Workspace;
 #include "prefworkspaceview.h"
 #include "workspacegroupview.h"
 #include "workspaceview.h"
+#include "itextview.h"
 
 #endif /*__NIP4_H*/
