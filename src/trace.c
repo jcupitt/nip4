@@ -77,13 +77,13 @@ trace_get_trace_flag(GtkAction *action)
 
 	for (i = 0; i < VIPS_NUMBER(trace_types); i++)
 		if (strcmp(name, trace_types[i].name) == 0)
-			return (trace_types[i].flag);
+			return trace_types[i].flag;
 
 	g_assert(FALSE);
 
 	/* Keep gcc happy.
 	 */
-	return (FALSE);
+	return FALSE;
 }
 
 void
@@ -135,7 +135,7 @@ trace_push(void)
 	i = trace_buffer_stack_p++;
 	vips_buf_init_dynamic(&trace_buffer_stack[i], MAX_TRACE);
 
-	return (&trace_buffer_stack[i]);
+	return &trace_buffer_stack[i];
 }
 
 void
@@ -158,13 +158,13 @@ trace_current(void)
 {
 	g_assert(trace_buffer_stack_p > 0);
 
-	return (&trace_buffer_stack[trace_buffer_stack_p - 1]);
+	return &trace_buffer_stack[trace_buffer_stack_p - 1];
 }
 
 int
 trace_get_mark(void)
 {
-	return (trace_buffer_stack_p);
+	return trace_buffer_stack_p;
 }
 
 void
@@ -181,7 +181,7 @@ trace_global_rethink_sub(Trace *trace)
 {
 	trace_flags |= trace->flags;
 
-	return (NULL);
+	return NULL;
 }
 
 /* Rethink the global trace_flags.
@@ -324,7 +324,7 @@ trace_new(void)
 
 	trace_link(trace);
 
-	return (trace);
+	return trace;
 }
 
 static void *
@@ -333,7 +333,7 @@ trace_text_sub(Trace *trace, const char *buf, TraceFlags flags)
 	if (!trace_block_count && trace->flags & flags)
 		log_text(LOG(trace), buf);
 
-	return (NULL);
+	return NULL;
 }
 
 void

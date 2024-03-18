@@ -165,7 +165,7 @@ symbol_qualified_name(Symbol *sym, VipsBuf *buf)
 		vips_buf_appends(buf, ".");
 	}
 
-	vips_buf_appends(buf, NN(IOBJECT(sym)->name));
+	vips_buf_appends(buf, IOBJECT(sym)->name);
 }
 
 /* Make a symbol name relative to a scope context ... ie. from the point of
@@ -181,7 +181,7 @@ symbol_qualified_name_relative(Symbol *context, Symbol *sym, VipsBuf *buf)
 		vips_buf_appends(buf, ".");
 	}
 
-	vips_buf_appends(buf, NN(IOBJECT(sym)->name));
+	vips_buf_appends(buf, IOBJECT(sym)->name);
 }
 
 /* As above, but include stuff about where the symbol is defined, handy for
@@ -238,7 +238,7 @@ symbol_name_scope(Symbol *sym)
 	static VipsBuf buf = VIPS_BUF_STATIC(txt);
 
 	vips_buf_rewind(&buf);
-	vips_buf_appends(&buf, NN(IOBJECT(scope)->name));
+	vips_buf_appends(&buf, IOBJECT(scope)->name);
 	vips_buf_appends(&buf, ".");
 	symbol_qualified_name_relative(scope, sym, &buf);
 
@@ -1002,7 +1002,7 @@ symbol_note_calc_name(Symbol *sym)
 	VipsBuf *buf = &symbol_last_calc_buf;
 
 	vips_buf_rewind(buf);
-	vips_buf_appends(buf, NN(IOBJECT(scope)->name));
+	vips_buf_appends(buf, IOBJECT(scope)->name);
 	vips_buf_appends(buf, ".");
 	symbol_qualified_name_relative(scope, sym, buf);
 }

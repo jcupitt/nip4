@@ -89,8 +89,7 @@ toolkitgroup_link(Toolkitgroup *kitg, Symbol *root)
 
 	kitg->root = root;
 
-	im_snprintf(buf, 256, _("Toolkits for %s"),
-		IOBJECT(root)->name);
+	vips_snprintf(buf, 256, _("Toolkits for %s"), IOBJECT(root)->name);
 	iobject_set(IOBJECT(kitg), buf, NULL);
 }
 
@@ -116,7 +115,7 @@ toolkitgroup_sort_compare(Model *a, Model *b)
 	if (a->display && !b->display)
 		return -1;
 
-	return strcasecmp(IOBJECT(a)->name, IOBJECT(b)->name);
+	return g_ascii_strcasecmp(IOBJECT(a)->name, IOBJECT(b)->name);
 }
 
 void

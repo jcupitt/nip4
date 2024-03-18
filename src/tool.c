@@ -110,7 +110,7 @@ tool_finalize(GObject *gobject)
 
 #ifdef DEBUG
 	printf("tool_finalize: %p %s\n",
-		gobject, NN(IOBJECT(gobject)->name));
+		gobject, IOBJECT(gobject)->name);
 #endif /*DEBUG*/
 
 	g_return_if_fail(gobject != NULL);
@@ -682,8 +682,7 @@ toolitem_print(Toolitem *toolitem)
 	if (toolitem->is_separator)
 		printf("-----------\n");
 	else
-		printf("%s --- %s\n",
-			NN(toolitem->user_path), NN(toolitem->help));
+		printf("%s --- %s\n", toolitem->user_path, toolitem->help);
 }
 
 static void *
@@ -821,7 +820,7 @@ tool_new_sym(Toolkit *kit, int pos, Symbol *sym)
 		sym->tool = NULL;
 		tool->sym = NULL;
 
-		IDESTROY(tool);
+		VIPS_UNREF(tool);
 	}
 
 	tool = TOOL(g_object_new(TOOL_TYPE, NULL));

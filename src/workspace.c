@@ -48,7 +48,7 @@ workspace_set_needs_layout(Workspace *ws, gboolean needs_layout)
 {
 #ifdef DEBUG_VERBOSE
 	printf("workspace_set_needs_layout: %p %s %d\n",
-		ws, NN(IOBJECT(ws)->name), needs_layout);
+		ws, IOBJECT(ws)->name, needs_layout);
 #endif /*DEBUG_VERBOSE*/
 
 	if (!ws->needs_layout &&
@@ -603,8 +603,7 @@ workspace_dispose(GObject *gobject)
 	Workspace *ws;
 
 #ifdef DEBUG
-	printf("workspace_dispose: %p %s\n",
-		gobject, NN(IOBJECT(gobject)->name));
+	printf("workspace_dispose: %p %s\n", gobject, IOBJECT(gobject)->name);
 #endif /*DEBUG*/
 
 	g_return_if_fail(gobject != NULL);
@@ -628,8 +627,7 @@ workspace_finalize(GObject *gobject)
 	Workspace *ws;
 
 #ifdef DEBUG
-	printf("workspace_finalize: %p %s\n",
-		gobject, NN(IOBJECT(gobject)->name));
+	printf("workspace_finalize: %p %s\n", gobject, IOBJECT(gobject)->name);
 #endif /*DEBUG*/
 
 	g_return_if_fail(gobject != NULL);
@@ -652,7 +650,7 @@ workspace_changed(iObject *iobject)
 	Workspacegroup *wsg;
 
 #ifdef DEBUG_VERBOSE
-	printf("workspace_changed: %s\n", NN(iobject->name));
+	printf("workspace_changed: %s\n", iobject->name);
 #endif /*DEBUG_VERBOSE*/
 
 	g_return_if_fail(iobject != NULL);
@@ -754,11 +752,11 @@ workspacemode_to_char(WorkspaceMode mode)
 static WorkspaceMode
 char_to_workspacemode(const char *mode)
 {
-	if (strcasecmp(mode, "WORKSPACE_MODE_REGULAR") == 0)
+	if (g_ascii_strcasecmp(mode, "WORKSPACE_MODE_REGULAR") == 0)
 		return WORKSPACE_MODE_REGULAR;
-	else if (strcasecmp(mode, "WORKSPACE_MODE_FORMULA") == 0)
+	else if (g_ascii_strcasecmp(mode, "WORKSPACE_MODE_FORMULA") == 0)
 		return WORKSPACE_MODE_FORMULA;
-	else if (strcasecmp(mode, "WORKSPACE_MODE_NOEDIT") == 0)
+	else if (g_ascii_strcasecmp(mode, "WORKSPACE_MODE_NOEDIT") == 0)
 		return WORKSPACE_MODE_NOEDIT;
 	else
 		return (WorkspaceMode) -1;

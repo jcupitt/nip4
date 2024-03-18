@@ -243,8 +243,7 @@ action_proc_eor(Reduce *rc, Compile *compile,
 				op, name, a, b);
 	}
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
-		callva(rc, out,
-			"im_eorimage", PEGETII(a), PEGETII(b));
+		callva(rc, out, "im_eorimage", PEGETII(a), PEGETII(b));
 	else if (PEISIMAGE(a) && PEISREAL(b))
 		callva(rc, out, "im_eorimageconst",
 			PEGETII(a), (int) PEGETREAL(b));

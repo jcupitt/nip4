@@ -449,7 +449,7 @@ add_class_svpair(ClassBuildInfo *pbi,
 	if (NEWNODE(heap, sv))
 		return FALSE;
 	sv->type = TAG_CONS;
-	PPUTLEFT(sv, ELEMENT_SYMREF, sym)
+	PPUTLEFT(sv, ELEMENT_SYMREF, sym);
 	PEPUTRIGHT(sv, val);
 	PPUTLEFT(base, ELEMENT_NODE, sv);
 

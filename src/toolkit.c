@@ -126,7 +126,8 @@ toolkit_class_init(ToolkitClass *class)
 	model_class->save_text = toolkit_save_text;
 	model_class->load_text = toolkit_load_text;
 
-	filemodel_class->filetype = filesel_type_definition;
+	filemodel_class->filetype = ".def";
+	;
 }
 
 static void
@@ -169,7 +170,7 @@ toolkit_new(Toolkitgroup *kitg, const char *name)
 	/* Exists already?
 	 */
 	if ((kit = toolkit_find(kitg, name)))
-		IDESTROY(kit);
+		VIPS_UNREF(kit);
 
 	/* Make a new kit.
 	 */
@@ -240,7 +241,7 @@ toolkit_by_name(Toolkitgroup *kitg, const char *name)
 	if (!(kit = toolkit_find(kitg, name))) {
 		char file[FILENAME_MAX];
 
-		im_snprintf(file, FILENAME_MAX,
+		vips_snprintf(file, FILENAME_MAX,
 			"$SAVEDIR" G_DIR_SEPARATOR_S "start" G_DIR_SEPARATOR_S
 			"%s.def",
 			name);

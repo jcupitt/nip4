@@ -378,7 +378,7 @@ row_dispose(GObject *gobject)
 #ifdef DEBUG_NEW
 	/* Can't use row_name_print(), we may not have a parent.
 	 */
-	printf("row_dispose: %s", NN(IOBJECT(row)->name));
+	printf("row_dispose: %s", IOBJECT(row)->name);
 	if (row->sym)
 		printf(" (%s)", symbol_name(row->sym));
 	printf("\n");
@@ -1999,7 +1999,7 @@ row_set_status(Row *row)
 
 		if (row->ws &&
 			row->ws->mode != WORKSPACE_MODE_FORMULA)
-			vips_buf_appends(&buf, NN(itext->formula));
+			vips_buf_appends(&buf, itext->formula);
 		else
 			vips_buf_appends(&buf, vips_buf_all(&itext->value));
 	}

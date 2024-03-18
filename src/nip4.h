@@ -98,6 +98,10 @@
  */
 #define MAX_VEC (10000)
 
+/* How much we decompile for error messages.
+ */
+#define MAX_ERROR_FRAG (100)
+
 /* We use various gtk4 features (GtkInfoBar, GtkDialog) which are going away
  * in gtk5.
  */
@@ -116,15 +120,17 @@ typedef struct _HeapBlock HeapBlock;
 typedef struct _Heap Heap;
 typedef struct _Heapmodel Heapmodel;
 typedef struct _iContainer iContainer;
-typedef struct _Imageinfo Imageinfo;
 typedef struct _Imageinfogroup Imageinfogroup;
-typedef struct _Link Link;
+typedef struct _Imageinfo Imageinfo;
+typedef struct _iText iText;
 typedef struct _LinkExpr LinkExpr;
-typedef struct _Managed Managed;
-typedef struct _Managedstring Managedstring;
+typedef struct _Link Link;
+typedef struct _Log Log;
 typedef struct _Managedfile Managedfile;
 typedef struct _Managedgobject Managedgobject;
 typedef struct _Managedgvalue Managedgvalue;
+typedef struct _Managed Managed;
+typedef struct _Managedstring Managedstring;
 typedef struct _Matrix Matrix;
 typedef struct _Model Model;
 typedef struct _ParseConst ParseConst;
@@ -132,17 +138,16 @@ typedef struct _ParseNode ParseNode;
 typedef struct _Reduce Reduce;
 typedef struct _Rhs Rhs;
 typedef struct _Row Row;
-typedef struct _iText iText;
 typedef struct _Rowview Rowview;
 typedef struct _Subcolumn Subcolumn;
 typedef struct _Subcolumn Subcolumn;
 typedef struct _Symbol Symbol;
-typedef struct _Trace Trace;
+typedef struct _Toolitem Toolitem;
 typedef struct _Toolkitbrowser Toolkitbrowser;
 typedef struct _Toolkitgroup Toolkitgroup;
 typedef struct _Toolkit Toolkit;
 typedef struct _Tool Tool;
-typedef struct _Toolitem Toolitem;
+typedef struct _Trace Trace;
 typedef struct _View View;
 typedef struct _Watchgroup Watchgroup;
 typedef struct _Workspacedefs Workspacedefs;
@@ -179,6 +184,8 @@ typedef struct _Workspace Workspace;
 #include "secret.h"
 #include "compile.h"
 #include "action.h"
+#include "progress.h"
+#include "vipsobject.h"
 #include "reduce.h"
 #include "heapmodel.h"
 #include "column.h"
@@ -207,5 +214,9 @@ typedef struct _Workspace Workspace;
 #include "workspacegroupview.h"
 #include "workspaceview.h"
 #include "itextview.h"
+#include "toolkitview.h"
+#include "toolkitgroupview.h"
+#include "subcolumnview.h"
+#include "toolview.h"
 
 #endif /*__NIP4_H*/

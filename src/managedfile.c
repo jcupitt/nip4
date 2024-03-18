@@ -98,7 +98,7 @@ managedfile_new(Heap *heap, const char *filename)
 	if (!(file = ifile_open_read("%s", filename)))
 		return NULL;
 
-	managedfile = g_object_new(TYPE_MANAGEDFILE, NULL);
+	managedfile = g_object_new(MANAGEDFILE_TYPE, NULL);
 	managed_link_heap(MANAGED(managedfile), heap);
 	managedfile->file = file;
 

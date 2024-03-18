@@ -104,5 +104,5 @@ managedgvalue_new(Heap *heap, GValue *value)
 	 */
 	MANAGED(managedgvalue)->hash = (guint) G_VALUE_TYPE(value);
 
-	return (managedgvalue);
+	return managedgvalue;
 }

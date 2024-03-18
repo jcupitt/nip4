@@ -220,10 +220,14 @@ apply_complex_call(Reduce *rc,
 	PEPOINTRIGHT(arg[0], &rhs);
 
 	if (PEISIMAGE(&rhs)) {
+		printf("apply_complex_call: FIXME\n");
+		/*
 		if (strcmp(name, "re") == 0)
 			call_spine(rc, "im_c2real", arg, out);
 		else if (strcmp(name, "im") == 0)
 			call_spine(rc, "im_c2imag", arg, out);
+		 */
+		PEPUTP(out, ELEMENT_ELIST, NULL);
 	}
 	else if (PEISCOMPLEX(&rhs)) {
 		if (strcmp(name, "re") == 0)
@@ -495,9 +499,9 @@ ip_ceil(double a)
 }
 
 static double
-ip_floor(double
+ip_floor(double a)
 {
-	return VIPSloor(a));
+	return floor(a);
 }
 
 /* Table of math functions ... number implementations, image implementations.
@@ -539,8 +543,10 @@ apply_math_call(Reduce *rc,
 	PEPOINTRIGHT(arg[0], &rhs);
 	if (PEISIMAGE(&rhs)) {
 		/* Easy ... pass to VIPS.
-		 */
 		call_spine(rc, math_fn[i].ifn, arg, out);
+		 */
+		printf("apply_math_call: FIXME\n");
+		PEPUTP(out, ELEMENT_ELIST, NULL);
 	}
 	else if (PEISREAL(&rhs)) {
 		double a = PEGETREAL(&rhs);

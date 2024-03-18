@@ -27,39 +27,35 @@
 
  */
 
-#define TYPE_LOG (log_get_type())
-#define LOG(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_LOG, Log))
+#define LOG_TYPE (log_get_type())
+#define LOG(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), LOG_TYPE, Log))
 #define LOG_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_CAST((klass), TYPE_LOG, LogClass))
-#define IS_LOG(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_LOG))
+	(G_TYPE_CHECK_CLASS_CAST((klass), LOG_TYPE, LogClass))
+#define IS_LOG(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), LOG_TYPE))
 #define IS_LOG_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_TYPE((klass), TYPE_LOG))
+	(G_TYPE_CHECK_CLASS_TYPE((klass), LOG_TYPE))
 #define LOG_GET_CLASS(obj) \
-	(G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_LOG, LogClass))
+	(G_TYPE_INSTANCE_GET_CLASS((obj), LOG_TYPE, LogClass))
 
 struct _Log {
-	iWindow parent_class;
+	GtkWindow parent_class;
 
 	GtkWidget *view; /* The textview we use to show the log */
 };
 
 typedef struct _LogClass {
-	iWindowClass parent_class;
+	GtkWindowClass parent_class;
 
 	/* How we want the menu bar built.
+	 *
+	 * FIXME ... the name of a .ui file?
 	 */
-	GtkActionEntry *actions;
-	int n_actions;
-	GtkToggleActionEntry *toggle_actions;
-	int n_toggle_actions;
-	const char *action_name;
-	const char *ui_description;
-	const char *menu_bar_name;
 } LogClass;
 
-GtkType log_get_type(void);
+GType log_get_type(void);
 
-void log_clear_action_cb(GtkAction *action, Log *log);
+void log_clear_action_cb(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data);
 void log_text(Log *log, const char *buf);
 void log_textf(Log *log, const char *fmt, ...)
 	__attribute__((format(printf, 2, 3)));

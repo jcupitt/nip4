@@ -319,7 +319,7 @@ reduce_get_string(Reduce *rc, PElement *base, char *buf, int n)
 		 */
 		Managedstring *managedstring = PEGETMANAGEDSTRING(base);
 
-		im_strncpy(buf, managedstring->string, n);
+		vips_strncpy(buf, managedstring->string, n);
 		sz -= strlen(buf);
 	}
 	else {
@@ -1913,7 +1913,7 @@ void
 reduce_destroy(Reduce *rc)
 {
 	heap_unregister_reduce(rc->heap, rc);
-	UNREF(rc->heap);
+	VIPS_UNREF(rc->heap);
 	VIPS_FREE(rc);
 }
 
@@ -1951,7 +1951,7 @@ reduce_new(void)
 
 	rc->heap = heap_new(NULL, reduce_heap_max_fn, stsz, incr);
 	g_object_ref(G_OBJECT(rc->heap));
-	iobject_sink(IOBJECT(rc->heap));
+	g_object_ref_sink(rc->heap);
 	heap_register_reduce(rc->heap, rc);
 	iobject_set(IOBJECT(rc->heap), "reduce-heap", NULL);
 
