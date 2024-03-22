@@ -51,6 +51,9 @@ struct _MainWindow {
 	double last_progress_time;
 };
 
+// current autocalc state
+gboolean main_window_auto_recalc = TRUE;
+
 G_DEFINE_TYPE(MainWindow, main_window, GTK_TYPE_APPLICATION_WINDOW);
 
 static void

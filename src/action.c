@@ -243,13 +243,11 @@ action_proc_eor(Reduce *rc, Compile *compile,
 				op, name, a, b);
 	}
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
-		callva(rc, out, "im_eorimage", PEGETII(a), PEGETII(b));
+		vo_callva(rc, out, "im_eorimage", PEGETII(a), PEGETII(b));
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		callva(rc, out, "im_eorimageconst",
-			PEGETII(a), (int) PEGETREAL(b));
+		vo_callva(rc, out, "im_eorimageconst", PEGETII(a), (int) PEGETREAL(b));
 	else if (PEISREAL(a) && PEISIMAGE(b))
-		callva(rc, out, "im_eorimageconst",
-			PEGETII(b), (int) PEGETREAL(a));
+		vo_callva(rc, out, "im_eorimageconst", PEGETII(b), (int) PEGETREAL(a));
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }
@@ -271,14 +269,11 @@ action_proc_bor(Reduce *rc, Compile *compile,
 				op, name, a, b);
 	}
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
-		callva(rc, out, "im_orimage",
-			PEGETII(a), PEGETII(b));
+		vo_callva(rc, out, "im_orimage", PEGETII(a), PEGETII(b));
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		callva(rc, out, "im_orimageconst",
-			PEGETII(a), (int) PEGETREAL(b));
+		vo_callva(rc, out, "im_orimageconst", PEGETII(a), (int) PEGETREAL(b));
 	else if (PEISREAL(a) && PEISIMAGE(b))
-		callva(rc, out, "im_orimageconst",
-			PEGETII(b), (int) PEGETREAL(a));
+		vo_callva(rc, out, "im_orimageconst", PEGETII(b), (int) PEGETREAL(a));
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }
@@ -292,8 +287,7 @@ action_proc_band(Reduce *rc, Compile *compile,
 	Heap *heap = rc->heap;
 
 	if (PEISIMAGE(a) && PEISIMAGE(b))
-		callva(rc, out,
-			"im_andimage", PEGETII(a), PEGETII(b));
+		vo_callva(rc, out, "im_andimage", PEGETII(a), PEGETII(b));
 	else if (PEISREAL(a) && PEISREAL(b)) {
 		int v1 = PEGETREAL(a);
 		int v2 = PEGETREAL(b);
@@ -303,11 +297,9 @@ action_proc_band(Reduce *rc, Compile *compile,
 				op, name, a, b);
 	}
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		callva(rc, out, "im_andimageconst",
-			PEGETII(a), (int) PEGETREAL(b));
+		vo_callva(rc, out, "im_andimageconst", PEGETII(a), (int) PEGETREAL(b));
 	else if (PEISREAL(a) && PEISIMAGE(b))
-		callva(rc, out, "im_andimageconst",
-			PEGETII(b), (int) PEGETREAL(a));
+		vo_callva(rc, out, "im_andimageconst", PEGETII(b), (int) PEGETREAL(a));
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }
@@ -450,13 +442,11 @@ action_proc_lesseq(Reduce *rc, Compile *compile,
 		PEPUTP(out, ELEMENT_BOOL, strcmp(a_string, b_string) <= 0);
 	}
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		callva(rc, out, "im_lesseqconst",
-			PEGETII(a), PEGETREAL(b));
+		vo_callva(rc, out, "im_lesseqconst", PEGETII(a), PEGETREAL(b));
 	else if (PEISREAL(a) && PEISIMAGE(b))
-		callva(rc, out, "im_moreeqconst",
-			PEGETII(b), PEGETREAL(a));
+		vo_callva(rc, out, "im_moreeqconst", PEGETII(b), PEGETREAL(a));
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
-		callva(rc, out, "im_lesseq", PEGETII(a), PEGETII(b));
+		vo_callva(rc, out, "im_lesseq", PEGETII(a), PEGETII(b));
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }
@@ -484,13 +474,11 @@ action_proc_less(Reduce *rc, Compile *compile,
 		PEPUTP(out, ELEMENT_BOOL, strcmp(a_string, b_string) < 0);
 	}
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		callva(rc, out, "im_lessconst",
-			PEGETII(a), PEGETREAL(b));
+		vo_callva(rc, out, "im_lessconst", PEGETII(a), PEGETREAL(b));
 	else if (PEISREAL(a) && PEISIMAGE(b))
-		callva(rc, out, "im_moreconst",
-			PEGETII(b), PEGETREAL(a));
+		vo_callva(rc, out, "im_moreconst", PEGETII(b), PEGETREAL(a));
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
-		callva(rc, out, "im_less", PEGETII(a), PEGETII(b));
+		vo_callva(rc, out, "im_less", PEGETII(a), PEGETII(b));
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }
@@ -554,8 +542,7 @@ static gboolean
 action_image_equal(Reduce *rc, Imageinfo *a, Imageinfo *b)
 {
 	Imageinfo *ii[2];
-	IMAGE *t1;
-	IMAGE *ai, *bi;
+	VipsImage *ai, *bi;
 	gboolean use_luts;
 	double mn;
 
@@ -592,17 +579,12 @@ action_image_equal(Reduce *rc, Imageinfo *a, Imageinfo *b)
 
 	/* Exhaustive test.
 	 */
-	if (!(t1 = im_open("equals:1", "p"))) {
+	g_autoptr(VipsImage) t1 = NULL;
+	if (vips_equal(ai, bi, &t1, NULL) ||
+		vips_min(t1, &mn, NULL)) {
 		error_vips_all();
 		reduce_throw(rc);
 	}
-	if (im_equal(ai, bi, t1) ||
-		im_min(t1, &mn)) {
-		im_close(t1);
-		error_vips_all();
-		reduce_throw(rc);
-	}
-	im_close(t1);
 
 	return mn == 255;
 }
@@ -728,14 +710,11 @@ action_proc_equal(Reduce *rc, Compile *compile,
 		reduce_spine_strict(rc, b);
 
 		if (PEISIMAGE(a) && PEISREAL(b))
-			callva(rc, out, "im_equalconst",
-				PEGETII(a), PEGETREAL(b));
+			vo_callva(rc, out, "im_equalconst", PEGETII(a), PEGETREAL(b));
 		else if (PEISREAL(a) && PEISIMAGE(b))
-			callva(rc, out, "im_equalconst",
-				PEGETII(b), PEGETREAL(a));
+			vo_callva(rc, out, "im_equalconst", PEGETII(b), PEGETREAL(a));
 		else if (PEISIMAGE(a) && PEISIMAGE(b))
-			callva(rc, out, "im_equal",
-				PEGETII(a), PEGETII(b));
+			vo_callva(rc, out, "im_equal", PEGETII(a), PEGETII(b));
 		else
 			PEPUTP(out, ELEMENT_BOOL, FALSE);
 	}
@@ -768,14 +747,11 @@ action_proc_notequal(Reduce *rc, Compile *compile,
 		reduce_spine_strict(rc, b);
 
 		if (PEISIMAGE(a) && PEISREAL(b))
-			callva(rc, out, "im_notequalconst",
-				PEGETII(a), PEGETREAL(b));
+			vo_callva(rc, out, "im_notequalconst", PEGETII(a), PEGETREAL(b));
 		else if (PEISREAL(a) && PEISIMAGE(b))
-			callva(rc, out, "im_notequalconst",
-				PEGETII(b), PEGETREAL(a));
+			vo_callva(rc, out, "im_notequalconst", PEGETII(b), PEGETREAL(a));
 		else if (PEISIMAGE(a) && PEISIMAGE(b))
-			callva(rc, out, "im_notequal",
-				PEGETII(a), PEGETII(b));
+			vo_callva(rc, out, "im_notequal", PEGETII(a), PEGETII(b));
 		else
 			PEPUTP(out, ELEMENT_BOOL, TRUE);
 	}
@@ -809,7 +785,7 @@ action_proc_join(Reduce *rc, Compile *compile,
 	PEPOINTRIGHT(arg[0], &right);
 
 	if (PEISIMAGE(a) && PEISIMAGE(b))
-		callva(rc, out, "im_bandjoin", PEGETII(a), PEGETII(b));
+		vo_callva(rc, out, "im_bandjoin", PEGETII(a), PEGETII(b));
 	else if (PEISLIST(a) && PEISLIST(b)) {
 		if (reduce_safe_pointer(rc,
 				(reduce_safe_pointer_fn) action_proc_join_sub,
@@ -845,8 +821,7 @@ action_proc_index(Reduce *rc, Compile *compile,
 		PEPUTPE(out, &result);
 	}
 	else if (PEISIMAGE(a) && PEISREAL(b)) {
-		callva(rc, out, "im_extract_band",
-			PEGETII(a), (int) PEGETREAL(b));
+		vo_callva(rc, out, "im_extract_band", PEGETII(a), (int) PEGETREAL(b));
 	}
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
@@ -867,9 +842,9 @@ action_proc_exp(Reduce *rc, Compile *compile,
 				op, name, a, b);
 	}
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		callva(rc, out, "im_powtra", PEGETII(a), PEGETREAL(b));
+		vo_callva(rc, out, "im_powtra", PEGETII(a), PEGETREAL(b));
 	else if (PEISREAL(a) && PEISIMAGE(b))
-		callva(rc, out, "im_expntra", PEGETII(b), PEGETREAL(a));
+		vo_callva(rc, out, "im_expntra", PEGETII(b), PEGETREAL(a));
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }
@@ -891,8 +866,7 @@ action_proc_lshift(Reduce *rc, Compile *compile,
 				op, name, a, b);
 	}
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		callva(rc, out, "im_shiftleft",
-			PEGETII(a), (int) PEGETREAL(b));
+		vo_callva(rc, out, "im_shiftleft", PEGETII(a), (int) PEGETREAL(b));
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }
@@ -914,8 +888,7 @@ action_proc_rshift(Reduce *rc, Compile *compile,
 				op, name, a, b);
 	}
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		callva(rc, out, "im_shiftright",
-			PEGETII(a), (int) PEGETREAL(b));
+		vo_callva(rc, out, "im_shiftright", PEGETII(a), (int) PEGETREAL(b));
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }
@@ -941,11 +914,9 @@ action_proc_rem(Reduce *rc, Compile *compile,
 				op, name, a, b);
 	}
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
-		callva(rc, out, "im_remainder",
-			PEGETII(a), PEGETII(b));
+		vo_callva(rc, out, "im_remainder", PEGETII(a), PEGETII(b));
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		callva(rc, out, "im_remainderconst",
-			PEGETII(a), PEGETREAL(b));
+		vo_callva(rc, out, "im_remainderconst", PEGETII(a), PEGETREAL(b));
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }
@@ -999,11 +970,9 @@ action_proc_div(Reduce *rc, Compile *compile,
 				op, name, a, b);
 	}
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
-		callva(rc, out, "im_divide",
-			PEGETII(a), PEGETII(b));
+		vo_callva(rc, out, "im_divide", PEGETII(a), PEGETII(b));
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		callva(rc, out, "im_lintra",
-			1.0 / PEGETREAL(b), PEGETII(a), 0.0);
+		vo_callva(rc, out, "im_lintra", 1.0 / PEGETREAL(b), PEGETII(a), 0.0);
 	else if (PEISREAL(a) && PEISIMAGE(b)) {
 		HeapNode hn;
 		PElement rhs;
@@ -1014,12 +983,11 @@ action_proc_div(Reduce *rc, Compile *compile,
 
 		/* Take recip.
 		 */
-		callva(rc, &rhs, "im_powtra", PEGETII(b), -1.0);
+		vo_callva(rc, &rhs, "im_powtra", PEGETII(b), -1.0);
 
 		/* Now multiply by const.
 		 */
-		callva(rc, out, "im_lintra",
-			PEGETREAL(a), PEGETII(&rhs), 0.0);
+		vo_callva(rc, out, "im_lintra", PEGETREAL(a), PEGETII(&rhs), 0.0);
 	}
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
@@ -1065,14 +1033,11 @@ action_proc_mul(Reduce *rc, Compile *compile,
 				op, name, a, b);
 	}
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
-		callva(rc, out, "im_multiply",
-			PEGETII(a), PEGETII(b));
+		vo_callva(rc, out, "im_multiply", PEGETII(a), PEGETII(b));
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		callva(rc, out, "im_lintra",
-			PEGETREAL(b), PEGETII(a), 0.0);
+		vo_callva(rc, out, "im_lintra", PEGETREAL(b), PEGETII(a), 0.0);
 	else if (PEISREAL(a) && PEISIMAGE(b))
-		callva(rc, out, "im_lintra",
-			PEGETREAL(a), PEGETII(b), 0.0);
+		vo_callva(rc, out, "im_lintra", PEGETREAL(a), PEGETII(b), 0.0);
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }
@@ -1114,14 +1079,11 @@ action_proc_sub(Reduce *rc, Compile *compile,
 				op, name, a, b);
 	}
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
-		callva(rc, out, "im_subtract",
-			PEGETII(a), PEGETII(b));
+		vo_callva(rc, out, "im_subtract", PEGETII(a), PEGETII(b));
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		callva(rc, out, "im_lintra",
-			1.0, PEGETII(a), -PEGETREAL(b));
+		vo_callva(rc, out, "im_lintra", 1.0, PEGETII(a), -PEGETREAL(b));
 	else if (PEISREAL(a) && PEISIMAGE(b))
-		callva(rc, out, "im_lintra",
-			-1.0, PEGETII(b), PEGETREAL(a));
+		vo_callva(rc, out, "im_lintra", -1.0, PEGETII(b), PEGETREAL(a));
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }
@@ -1163,14 +1125,11 @@ action_proc_add(Reduce *rc, Compile *compile,
 				op, name, a, b);
 	}
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
-		callva(rc, out, "im_add",
-			PEGETII(a), PEGETII(b));
+		vo_callva(rc, out, "im_add", PEGETII(a), PEGETII(b));
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		callva(rc, out, "im_lintra",
-			1.0, PEGETII(a), PEGETREAL(b));
+		vo_callva(rc, out, "im_lintra", 1.0, PEGETII(a), PEGETREAL(b));
 	else if (PEISREAL(a) && PEISIMAGE(b))
-		callva(rc, out, "im_lintra",
-			1.0, PEGETII(b), PEGETREAL(a));
+		vo_callva(rc, out, "im_lintra", 1.0, PEGETII(b), PEGETREAL(a));
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }
@@ -1286,8 +1245,7 @@ action_proc_bop_strict(Reduce *rc, Compile *compile,
 			PEPUTP(out, ELEMENT_NODE, hn);
 		}
 		else if (PEISIMAGE(a) && PEISIMAGE(b)) {
-			callva(rc, out, "im_ri2c",
-				PEGETII(a), PEGETII(b));
+			vo_callva(rc, out, "im_ri2c", PEGETII(a), PEGETII(b));
 		}
 		else
 			action_boperror(rc, compile, NULL, op, name, a, b);
@@ -1342,7 +1300,7 @@ action_proc_uop(Reduce *rc, Compile *compile,
 			PEPUTP(out, ELEMENT_BOOL, !PEGETBOOL(a));
 		}
 		else if (PEISIMAGE(a))
-			callva(rc, out, "im_equalconst", PEGETII(a), 0.0);
+			vo_callva(rc, out, "im_equalconst", PEGETII(a), 0.0);
 		else
 			action_uoperror(rc, compile, NULL, op, name, a);
 
@@ -1359,8 +1317,7 @@ action_proc_uop(Reduce *rc, Compile *compile,
 				reduce_throw(rc);
 		}
 		else if (PEISIMAGE(a))
-			callva(rc, out, "im_lintra",
-				-1.0, PEGETII(a), 0.0);
+			vo_callva(rc, out, "im_lintra", -1.0, PEGETII(a), 0.0);
 		else
 			action_uoperror(rc, compile, NULL, op, name, a);
 
@@ -1374,8 +1331,7 @@ action_proc_uop(Reduce *rc, Compile *compile,
 				reduce_throw(rc);
 		}
 		else if (PEISIMAGE(a))
-			callva(rc, out, "im_eorimageconst",
-				PEGETII(a), -1);
+			vo_callva(rc, out, "im_eorimageconst", PEGETII(a), -1);
 		else
 			action_uoperror(rc, compile, NULL, op, name, a);
 		break;
@@ -1395,7 +1351,7 @@ action_proc_uop(Reduce *rc, Compile *compile,
 				reduce_throw(rc);
 		}
 		else if (PEISIMAGE(a))
-			callva(rc, out, "im_clip2c", PEGETII(a));
+			vo_callva(rc, out, "im_clip2c", PEGETII(a));
 		else
 			action_uoperror(rc, compile, NULL, op, name, a);
 
@@ -1422,7 +1378,7 @@ action_proc_uop(Reduce *rc, Compile *compile,
 			PEPUTPE(out, a);
 		}
 		else if (PEISIMAGE(a))
-			callva(rc, out, "im_clip", PEGETII(a));
+			vo_callva(rc, out, "im_clip", PEGETII(a));
 		else
 			action_uoperror(rc, compile, NULL, op, name, a);
 
@@ -1439,7 +1395,7 @@ action_proc_uop(Reduce *rc, Compile *compile,
 				reduce_throw(rc);
 		}
 		else if (PEISIMAGE(a))
-			callva(rc, out, "im_clip2i", PEGETII(a));
+			vo_callva(rc, out, "im_clip2i", PEGETII(a));
 		else
 			action_uoperror(rc, compile, NULL, op, name, a);
 
@@ -1455,7 +1411,7 @@ action_proc_uop(Reduce *rc, Compile *compile,
 				reduce_throw(rc);
 		}
 		else if (PEISIMAGE(a))
-			callva(rc, out, "im_clip2ui", PEGETII(a));
+			vo_callva(rc, out, "im_clip2ui", PEGETII(a));
 		else
 			action_uoperror(rc, compile, NULL, op, name, a);
 
@@ -1472,7 +1428,7 @@ action_proc_uop(Reduce *rc, Compile *compile,
 				reduce_throw(rc);
 		}
 		else if (PEISIMAGE(a))
-			callva(rc, out, "im_clip2s", PEGETII(a));
+			vo_callva(rc, out, "im_clip2s", PEGETII(a));
 		else
 			action_uoperror(rc, compile, NULL, op, name, a);
 
@@ -1488,7 +1444,7 @@ action_proc_uop(Reduce *rc, Compile *compile,
 				reduce_throw(rc);
 		}
 		else if (PEISIMAGE(a))
-			callva(rc, out, "im_clip2us", PEGETII(a));
+			vo_callva(rc, out, "im_clip2us", PEGETII(a));
 		else
 			action_uoperror(rc, compile, NULL, op, name, a);
 
@@ -1510,7 +1466,7 @@ action_proc_uop(Reduce *rc, Compile *compile,
 				reduce_throw(rc);
 		}
 		else if (PEISIMAGE(a))
-			callva(rc, out, "im_clip2f", PEGETII(a));
+			vo_callva(rc, out, "im_clip2f", PEGETII(a));
 		else
 			action_uoperror(rc, compile, NULL, op, name, a);
 
@@ -1532,7 +1488,7 @@ action_proc_uop(Reduce *rc, Compile *compile,
 				reduce_throw(rc);
 		}
 		else if (PEISIMAGE(a))
-			callva(rc, out, "im_clip2d", PEGETII(a));
+			vo_callva(rc, out, "im_clip2d", PEGETII(a));
 		else
 			action_uoperror(rc, compile, NULL, op, name, a);
 
@@ -1574,11 +1530,9 @@ action_proc_uop(Reduce *rc, Compile *compile,
 		}
 		else if (PEISIMAGE(a)) {
 			if (op == UN_CCOMPLEX)
-				callva(rc, out,
-					"im_clip2cm", PEGETII(a));
+				vo_callva(rc, out, "im_clip2cm", PEGETII(a));
 			else
-				callva(rc, out,
-					"im_clip2dcm", PEGETII(a));
+				vo_callva(rc, out, "im_clip2dcm", PEGETII(a));
 		}
 		else
 			action_uoperror(rc, compile, NULL, op, name, a);
@@ -1863,10 +1817,9 @@ action_if(Reduce *rc, Compile *compile,
 			/* then/else parts must both be image.
 			 */
 			if (!PEISIMAGE(&t) || !PEISIMAGE(&e))
-				action_boperror(rc, compile, NULL,
-					op, name, a, b);
+				action_boperror(rc, compile, NULL, op, name, a, b);
 
-			callva(rc, out, "im_ifthenelse",
+			vo_callva(rc, out, "im_ifthenelse",
 				PEGETII(a), PEGETII(&t), PEGETII(&e));
 		}
 		else
@@ -1891,8 +1844,7 @@ action_proc_bop(Reduce *rc, Compile *compile, BinOp bop, HeapNode **arg)
 		PEPOINTRIGHT(arg[1], &a);
 		PEPOINTRIGHT(arg[0], &out);
 
-		action_landlor(rc, compile,
-			bop, OPERATOR_NAME(bop), &a, &b, &out);
+		action_landlor(rc, compile, bop, OPERATOR_NAME(bop), &a, &b, &out);
 
 		/* Overwrite arg[0] with I node, in case this is a
 		 * shared node.
@@ -1908,8 +1860,7 @@ action_proc_bop(Reduce *rc, Compile *compile, BinOp bop, HeapNode **arg)
 		PEPOINTRIGHT(arg[1], &a);
 		PEPOINTRIGHT(arg[0], &out);
 
-		action_if(rc, compile,
-			bop, OPERATOR_NAME(bop), &a, &b, &out);
+		action_if(rc, compile, bop, OPERATOR_NAME(bop), &a, &b, &out);
 
 		/* Overwrite arg[0] with I node, in case this is a
 		 * shared node.

@@ -102,6 +102,14 @@
  */
 #define MAX_ERROR_FRAG (100)
 
+/* Biggest thing we print in trace.
+ */
+#define MAX_TRACE (1024)
+
+/* Max chars we display of value.
+ */
+#define MAX_LINELENGTH (120)
+
 /* We use various gtk4 features (GtkInfoBar, GtkDialog) which are going away
  * in gtk5.
  */
@@ -202,6 +210,7 @@ typedef struct _Workspace Workspace;
 #include "toolkitgroup.h"
 #include "builtin.h"
 #include "symbol.h"
+#include "dump.h"
 #include "predicate.h"
 #include "link.h"
 #include "workspace.h"

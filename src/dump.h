@@ -1,4 +1,4 @@
-/* Links to VipsObject.
+/* Decls for dump.c
  */
 
 /*
@@ -25,12 +25,32 @@
 
 	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
 
-*/
+ */
 
-void vo_object_new(Reduce *rc, const char *name,
-	PElement *required, PElement *optional, PElement *out);
+char *decode_BinOp(BinOp op);
+char *decode_UnOp(UnOp op);
+char *decode_NodeType(NodeType tag);
+char *decode_CombinatorType(CombinatorType comb);
+char *decode_SymbolType(SymbolType t);
+char *decode_SymbolType_user(SymbolType t);
 
-void vo_call(Reduce *rc, const char *name,
-	PElement *required, PElement *optional, PElement *out);
+void *dump_tiny(Symbol *sym);
+void *dump_symbol(Symbol *sym);
+void dump_expr(Expr *expr);
+void dump_compile(Compile *compile);
+void dump_symbol_table(void);
+void *dump_kit(Toolkit *kit);
+Symbol *sym(char *name);
+void psym(char *name);
+void psymv(char *name);
+void pgraph(PElement *graph);
 
-void vo_callva(Reduce *rc, PElement *out, const char *name, ...);
+void graph_heap(int nsp, HeapNode *hn);
+void graph_test(Heap *heap);
+
+void *dump_tree(ParseNode *n);
+
+void dump_links(Symbol *sym);
+void *dump_link(Link *link);
+
+void dump_symbol_heap(Symbol *sym);

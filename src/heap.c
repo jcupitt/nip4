@@ -1887,7 +1887,7 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 			 * header_string() etc.
 			 */
 			g_value_init(out, VIPS_TYPE_REF_STRING);
-			vips_ref_string_set(out, name);
+			vips_value_set_ref_string(out, name);
 		}
 		else if (heap_is_imagevec(in, &result) &&
 			result) {
@@ -1925,7 +1925,8 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 			return FALSE;
 		}
 	}
-	else if (PEISMANAGED(in) && IS_MANAGEDGOBJECT(PEGETVAL(in))) {
+	else if (PEISMANAGED(in) &&
+		IS_MANAGEDGOBJECT(PEGETVAL(in))) {
 		g_value_init(out, G_TYPE_OBJECT);
 		g_value_set_object(out, MANAGEDGOBJECT(PEGETMANAGED(in))->object);
 	}
@@ -1958,9 +1959,10 @@ heap_gvalue_to_ip(GValue *in, PElement *out)
 		PEPUTP(out, ELEMENT_CHAR, (int) g_value_get_uchar(in));
 	else if (G_VALUE_HOLDS_UCHAR(in))
 		PEPUTP(out, ELEMENT_CHAR, (int) g_value_get_uchar(in));
-	else if (G_VALUE_HOLDS_INT(in))
+	else if (G_VALUE_HOLDS_INT(in)) {
 		if (!heap_real_new(heap, g_value_get_int(in), out))
 			return FALSE;
+	}
 	else if (G_VALUE_HOLDS_UINT(in)) {
 		if (!heap_real_new(heap, g_value_get_uint(in), out))
 			return FALSE;
@@ -2076,7 +2078,7 @@ lisp_symval(VipsBuf *buf, PElement *base,
 
 			PEPOINTLEFT(hn2, &pe);
 			if (!error && PEISSYMREF(&pe)) {
-				vips_buf_appendf(buf, "\n%s", spc(indent));
+				vips_buf_appendf(buf, "\n%*c", indent, ' ');
 				symbol_qualified_name(
 					PEGETSYMREF(&pe), buf);
 				vips_buf_appendf(buf, " = ");
@@ -2098,8 +2100,7 @@ lisp_symval(VipsBuf *buf, PElement *base,
 		error = TRUE;
 
 	if (error)
-		vips_buf_appendf(buf, "\n%s<*** malformed symval list>",
-			spc(indent));
+		vips_buf_appendf(buf, "\n%*c<*** malformed symval list>", indent, ' ');
 }
 
 /* Print a [*] ... our caller has printed the enclosing [ ] and the first
@@ -2261,7 +2262,7 @@ lisp_node(VipsBuf *buf, HeapNode *hn, GSList **back, gboolean fn, int indent)
 
 	case TAG_CLASS:
 		if (fn) {
-			vips_buf_appendf(buf, "\n%s", spc(indent));
+			vips_buf_appendf(buf, "\n%*c", indent, ' ');
 			vips_buf_appendf(buf, _("class (%p)"), hn);
 			vips_buf_appendf(buf, " ");
 		}
@@ -2272,24 +2273,21 @@ lisp_node(VipsBuf *buf, HeapNode *hn, GSList **back, gboolean fn, int indent)
 		if (fn) {
 			hn = GETRIGHT(hn);
 
-			vips_buf_appendf(buf, "\n%s", spc(indent + TAB));
+			vips_buf_appendf(buf, "\n%*c", indent + TAB, ' ');
 			vips_buf_appendf(buf, _("members"));
 			vips_buf_appendf(buf, " = { ");
 			PEPOINTRIGHT(hn, &p1);
 			lisp_symval(buf, &p1,
 				back, fn, indent + TAB * 2, NULL);
-			vips_buf_appendf(buf, "\n%s}", spc(indent + TAB));
+			vips_buf_appendf(buf, "\n%*c}", indent + TAB, ' ');
 
 			PEPOINTLEFT(hn, &p2);
 			if (*p1.type != *p2.type || *p1.ele != *p2.ele) {
-				vips_buf_appendf(buf, "\n%s",
-					spc(indent + TAB));
+				vips_buf_appendf(buf, "\n%*c", indent + TAB, ' ');
 				vips_buf_appendf(buf, _("secret"));
 				vips_buf_appendf(buf, " = { ");
-				lisp_symval(buf, &p2,
-					back, fn, indent + TAB * 2, &p1);
-				vips_buf_appendf(buf,
-					"\n%s} ", spc(indent + TAB));
+				lisp_symval(buf, &p2, back, fn, indent + TAB * 2, &p1);
+				vips_buf_appendf(buf, "\n%*c} ", indent + TAB, ' ');
 			}
 		}
 
@@ -2297,13 +2295,11 @@ lisp_node(VipsBuf *buf, HeapNode *hn, GSList **back, gboolean fn, int indent)
 
 	case TAG_GEN:
 		vips_buf_appendf(buf, "[%g,%g...",
-			GETLEFT(hn)->body.num,
-			GETLEFT(GETRIGHT(hn))->body.num);
+			GETLEFT(hn)->body.num, GETLEFT(GETRIGHT(hn))->body.num);
 		if (GETRT(GETRIGHT(hn)) == ELEMENT_ELIST)
 			vips_buf_appends(buf, "[ ]]");
 		else
-			vips_buf_appendf(buf, "%g]",
-				GETRIGHT(GETRIGHT(hn))->body.num);
+			vips_buf_appendf(buf, "%g]", GETRIGHT(GETRIGHT(hn))->body.num);
 		break;
 
 	case TAG_SHARED:

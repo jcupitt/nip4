@@ -68,6 +68,7 @@ static const TraceTypeMenu trace_types[] = {
 	{ "VIPS", TRACE_VIPS }
 };
 
+/*
 static TraceFlags
 trace_get_trace_flag(GtkAction *action)
 {
@@ -81,10 +82,9 @@ trace_get_trace_flag(GtkAction *action)
 
 	g_assert(FALSE);
 
-	/* Keep gcc happy.
-	 */
 	return FALSE;
 }
+ */
 
 void
 trace_block(void)
@@ -195,7 +195,7 @@ trace_global_rethink(void)
 }
 
 static void
-trace_destroy(GtkObject *object)
+trace_dispose(GObject *object)
 {
 	Trace *trace;
 
@@ -209,10 +209,12 @@ trace_destroy(GtkObject *object)
 
 	trace_all = g_slist_remove(trace_all, trace);
 
-	GTK_OBJECT_CLASS(trace_parent_class)->destroy(object);
+	G_OBJECT_CLASS(trace_parent_class)->dispose(object);
 
 	trace_global_rethink();
 }
+
+/*
 
 static void
 trace_view_action_cb(GtkToggleAction *action, Trace *trace)
@@ -227,8 +229,6 @@ trace_view_action_cb(GtkToggleAction *action, Trace *trace)
 	trace_global_rethink();
 }
 
-/* Our actions.
- */
 static GtkActionEntry trace_actions[] = {
 	{ "Clear",
 		NULL, N_("_Clear"), NULL,
@@ -280,14 +280,17 @@ static const char *trace_menubar_ui_description =
 	"    </menu>"
 	"  </menubar>"
 	"</ui>";
+ */
 
 static void
 trace_class_init(TraceClass *class)
 {
-	GtkObjectClass *object_class = (GtkObjectClass *) class;
-	LogClass *log_class = (LogClass *) class;
+	GObjectClass *object_class = (GObjectClass *) class;
 
-	object_class->destroy = trace_destroy;
+	object_class->dispose = trace_dispose;
+
+	/*
+	LogClass *log_class = (LogClass *) class;
 
 	log_class->actions = trace_actions;
 	log_class->n_actions = VIPS_NUMBER(trace_actions);
@@ -296,6 +299,7 @@ trace_class_init(TraceClass *class)
 	log_class->action_name = "TraceActions";
 	log_class->ui_description = trace_menubar_ui_description;
 	log_class->menu_bar_name = "/TraceMenubar";
+	 */
 }
 
 static void
@@ -307,20 +311,22 @@ trace_init(Trace *trace)
 static void
 trace_link(Trace *trace)
 {
+	/*
 	iwindow_set_title(IWINDOW(trace), _("Trace"));
 	gtk_window_set_default_size(GTK_WINDOW(trace), 640, 480);
-	iwindow_set_size_prefs(IWINDOW(trace),
-		"TRACE_WIDTH", "TRACE_HEIGHT");
+	iwindow_set_size_prefs(IWINDOW(trace), "TRACE_WIDTH", "TRACE_HEIGHT");
 	iwindow_build(IWINDOW(trace));
 	trace_all = g_slist_prepend(trace_all, trace);
 
+
 	gtk_widget_show(GTK_WIDGET(trace));
+	 */
 }
 
 Trace *
 trace_new(void)
 {
-	Trace *trace = gtk_type_new(TYPE_TRACE);
+	Trace *trace = g_object_new(TRACE_TYPE, NULL);
 
 	trace_link(trace);
 
@@ -377,9 +383,8 @@ void
 trace_args(HeapNode **arg, int n)
 {
 	VipsBuf *buf = trace_current();
-	int i;
 
-	for (i = n - 1; i >= 0; i--) {
+	for (int i = n - 1; i >= 0; i--) {
 		PElement rhs;
 
 		PEPOINTRIGHT(arg[i], &rhs);

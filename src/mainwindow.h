@@ -31,6 +31,8 @@
 G_DECLARE_FINAL_TYPE(MainWindow, main_window,
 	NIP4, MAIN_WINDOW, GtkApplicationWindow)
 
+extern gboolean main_window_auto_recalc;
+
 MainWindow *main_window_new(App *app);
 void main_window_set_gfile(MainWindow *win, GFile *gfile);
 void main_window_cull(void);

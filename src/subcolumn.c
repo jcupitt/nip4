@@ -91,7 +91,7 @@ const SubcolumnVisibility subcolumn_visibility[] = {
 	{ "params", subcolumn_row_pred_params },
 	{ "super", subcolumn_row_pred_super }
 };
-const int subcolumn_nvisibility = IM_NUMBER(subcolumn_visibility);
+const int subcolumn_nvisibility = VIPS_NUMBER(subcolumn_visibility);
 
 /* Map down a Subcolumn.
  */
@@ -355,8 +355,8 @@ subcolumn_class_new_heap(Subcolumn *scol, PElement *root)
 
 	/* Remove all the rows we've not used.
 	 */
-	slist_map(cri.notused, (SListMapFn) iobject_destroy, NULL);
-	IM_FREEF(g_slist_free, cri.notused);
+	slist_map(cri.notused, map_unref, NULL);
+	VIPS_FREEF(g_slist_free, cri.notused);
 
 	return TRUE;
 }
@@ -374,7 +374,8 @@ subcolumn_new_heap(Heapmodel *heapmodel, PElement *root)
 
 	/* A bunch of locals? Update them all.
 	 */
-	if (!scol->is_top && !subcolumn_class_new_heap(scol, root))
+	if (!scol->is_top &&
+		!subcolumn_class_new_heap(scol, root))
 		return scol;
 
 	return HEAPMODEL_CLASS(subcolumn_parent_class)->new_heap(heapmodel, root);
@@ -391,13 +392,12 @@ subcolumn_child_add(iContainer *parent, iContainer *child, int pos)
 	 * Can't use is_this()/is_super(), not everything has been built yet.
 	 * We don't do this often, so strcmp() it.
 	 */
-	const char *name =
-		row->sym ? IOBJECT(row->sym)->name : IOBJECT(row)->name;
+	const char *name = row->sym ? IOBJECT(row->sym)->name : IOBJECT(row)->name;
 
-	if (strcmp(name, MEMBER_THIS) == 0)
+	if (g_str_equal(name, MEMBER_THIS))
 		scol->this = row;
 
-	if (strcmp(name, MEMBER_SUPER) == 0)
+	if (g_str_equal(name, MEMBER_SUPER))
 		scol->super = row;
 
 	ICONTAINER_CLASS(subcolumn_parent_class)->child_add(parent, child, pos);
@@ -613,31 +613,6 @@ subcolumn_init(Subcolumn *scol)
 	scol->super = NULL;
 }
 
-GType
-subcolumn_get_type(void)
-{
-	static GType subcolumn_type = 0;
-
-	if (!subcolumn_type) {
-		static const GTypeInfo info = {
-			sizeof(SubcolumnClass),
-			NULL, /* base_init */
-			NULL, /* base_finalize */
-			(GClassInitFunc) subcolumn_class_init,
-			NULL, /* class_finalize */
-			NULL, /* class_data */
-			sizeof(Subcolumn),
-			32, /* n_preallocs */
-			(GInstanceInitFunc) subcolumn_init,
-		};
-
-		subcolumn_type = g_type_register_static(TYPE_HEAPMODEL,
-			"Subcolumn", &info, 0);
-	}
-
-	return subcolumn_type;
-}
-
 static void
 subcolumn_link(Subcolumn *scol, Rhs *rhs, Column *col)
 {
@@ -658,7 +633,7 @@ subcolumn_new(Rhs *rhs, Column *col)
 {
 	Subcolumn *scol;
 
-	scol = SUBCOLUMN(g_object_new(TYPE_SUBCOLUMN, NULL));
+	scol = SUBCOLUMN(g_object_new(SUBCOLUMN_TYPE, NULL));
 	subcolumn_link(scol, rhs, col);
 
 	return scol;
@@ -667,7 +642,7 @@ subcolumn_new(Rhs *rhs, Column *col)
 void
 subcolumn_set_vislevel(Subcolumn *scol, int vislevel)
 {
-	scol->vislevel = IM_CLIP(0, vislevel, subcolumn_nvisibility - 1);
+	scol->vislevel = VIPS_CLIP(0, vislevel, subcolumn_nvisibility - 1);
 
 #ifdef DEBUG
 	printf("subcolumn_set_vislevel: %d\n", scol->vislevel);

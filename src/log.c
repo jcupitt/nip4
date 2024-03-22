@@ -43,7 +43,6 @@ static void
 log_build(GtkWidget *widget)
 {
 	Log *log = LOG(widget);
-	iWindow *iwnd = IWINDOW(widget);
 	LogClass *log_class = LOG_GET_CLASS(log);
 
 	GError *error;
@@ -52,6 +51,7 @@ log_build(GtkWidget *widget)
 	GtkWidget *swin;
 	PangoFontDescription *font_desc;
 
+	/*
 	IWINDOW_CLASS(log_parent_class)->build(widget);
 
 	gtk_action_group_add_actions(iwnd->action_group,
@@ -89,11 +89,13 @@ log_build(GtkWidget *widget)
 
 	gtk_container_add(GTK_CONTAINER(swin), log->view);
 	gtk_widget_show(log->view);
+	 */
 }
 
 static void
 log_class_init(LogClass *class)
 {
+	/*
 	iWindowClass *iwindow_class = (iWindowClass *) class;
 
 	iwindow_class->build = log_build;
@@ -105,6 +107,7 @@ log_class_init(LogClass *class)
 	class->action_name = NULL;
 	class->ui_description = NULL;
 	class->menu_bar_name = NULL;
+	 */
 }
 
 static void
@@ -112,6 +115,7 @@ log_init(Log *log)
 {
 }
 
+/*
 void
 log_clear_action_cb(GtkAction *action, Log *log)
 {
@@ -120,10 +124,12 @@ log_clear_action_cb(GtkAction *action, Log *log)
 
 	gtk_text_buffer_set_text(text_buffer, "", 0);
 }
+ */
 
 void
 log_text(Log *log, const char *buf)
 {
+	/*
 	GtkTextView *text_view = GTK_TEXT_VIEW(log->view);
 	GtkTextBuffer *text_buffer = gtk_text_view_get_buffer(text_view);
 	GtkTextMark *mark = gtk_text_buffer_get_insert(text_buffer);
@@ -132,8 +138,8 @@ log_text(Log *log, const char *buf)
 	gtk_text_buffer_get_end_iter(text_buffer, &iter);
 	gtk_text_buffer_move_mark(text_buffer, mark, &iter);
 	gtk_text_buffer_insert_at_cursor(text_buffer, buf, -1);
-	gtk_text_view_scroll_to_mark(text_view, mark,
-		0.0, TRUE, 0.5, 1);
+	gtk_text_view_scroll_to_mark(text_view, mark, 0.0, TRUE, 0.5, 1);
+	 */
 
 #ifdef DEBUG_FILE
 	printf("%s", buf);
@@ -147,7 +153,7 @@ log_textf(Log *log, const char *fmt, ...)
 	char buf[MAX_STRSIZE];
 
 	va_start(ap, fmt);
-	(void) im_vsnprintf(buf, MAX_STRSIZE, fmt, ap);
+	(void) vips_vsnprintf(buf, MAX_STRSIZE, fmt, ap);
 	va_end(ap);
 
 	log_text(log, buf);

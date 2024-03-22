@@ -614,6 +614,16 @@ map_equal(void *a, void *b)
 }
 
 void *
+map_unref(void *item, void *a)
+{
+	GObject *object = G_OBJECT(item);
+
+	g_object_unref(object);
+
+	return NULL;
+}
+
+void *
 slist_fold(GSList *list, void *start, SListFoldFn fn, void *a)
 {
 	void *c;

@@ -592,7 +592,9 @@ workspace_load_file(Workspace *ws, const char *filename)
 		return NULL;
 	if (!(sym = workspace_add_def(ws, vips_buf_all(&buf))))
 		return NULL;
-	mainw_recent_add(&mainw_recent_image, filename);
+
+	printf("workspace_load_file: FIXME\n");
+	// mainw_recent_add(&mainw_recent_image, filename);
 
 	return sym;
 }
@@ -727,8 +729,7 @@ workspace_link(Workspace *ws, Workspacegroup *wsg, const char *name)
 	iobject_set(IOBJECT(ws), name, NULL);
 
 	ws->local_kitg = toolkitgroup_new(ws->sym);
-	g_object_ref(G_OBJECT(ws->local_kitg));
-	iobject_sink(IOBJECT(ws->local_kitg));
+	g_object_ref_sink(G_OBJECT(ws->local_kitg));
 }
 
 static const char *
@@ -995,14 +996,12 @@ workspace_load_compat(Workspace *ws, int major, int minor)
 		/* Make a private toolkitgroup local to this workspace to
 		 * hold the compatibility defs we are planning to load.
 		 */
-		UNREF(ws->kitg);
+		VIPS_UNREF(ws->kitg);
 		ws->kitg = toolkitgroup_new(ws->sym);
-		g_object_ref(G_OBJECT(ws->kitg));
-		iobject_sink(IOBJECT(ws->kitg));
+		g_object_ref_sink(G_OBJECT(ws->kitg));
 
 		vips_snprintf(pathname, FILENAME_MAX,
-			"$VIPSHOME/share/" PACKAGE "/compat/%d.%d",
-			best_major, best_minor);
+			"$VIPSHOME/share/" PACKAGE "/compat/%d.%d", best_major, best_minor);
 		path = path_parse(pathname);
 		if (path_map(path, "*.def",
 				(path_map_fn) workspace_load_toolkit, ws->kitg)) {
@@ -1130,7 +1129,7 @@ workspace_new(Workspacegroup *wsg, const char *name)
 		return NULL;
 	}
 
-	ws = WORKSPACE(g_object_new(TYPE_WORKSPACE, NULL));
+	ws = WORKSPACE(g_object_new(WORKSPACE_TYPE, NULL));
 	workspace_link(ws, wsg, name);
 	icontainer_child_add(ICONTAINER(wsg), ICONTAINER(ws), -1);
 
@@ -1183,10 +1182,8 @@ workspace_add_action(Workspace *ws,
 	if (nparam > 0 && workspace_selected_any(ws)) {
 		if (nparam != workspace_selected_num(ws)) {
 			error_top(_("Wrong number of arguments."));
-			error_sub(_("%s needs %d arguments, "
-						"there are %d selected."),
-				name, nparam,
-				workspace_selected_num(ws));
+			error_sub(_("%s needs %d arguments, there are %d selected."),
+				name, nparam, workspace_selected_num(ws));
 			return FALSE;
 		}
 
@@ -1231,8 +1228,7 @@ workspace_row_dirty(Row *row, int serial)
 gboolean
 workspace_selected_recalc(Workspace *ws)
 {
-	if (workspace_selected_map(ws,
-			(row_map_fn) workspace_row_dirty,
+	if (workspace_selected_map(ws, (row_map_fn) workspace_row_dirty,
 			GINT_TO_POINTER(link_serial_new()), NULL))
 		return FALSE;
 
@@ -1326,7 +1322,6 @@ workspace_selected_remove(Workspace *ws)
 }
 
 /* Callback for workspace_selected_remove_yesno. Remove selected items.
- */
 static void
 workspace_selected_remove_yesno_cb(iWindow *iwnd, void *client,
 	iWindowNotifyFn nfn, void *sys)
@@ -1338,6 +1333,7 @@ workspace_selected_remove_yesno_cb(iWindow *iwnd, void *client,
 	else
 		nfn(sys, IWINDOW_ERROR);
 }
+ */
 
 /* Ask before removing selected.
  */
@@ -1352,12 +1348,16 @@ workspace_selected_remove_yesno(Workspace *ws, GtkWidget *parent)
 
 	workspace_selected_names(ws, &buf, ", ");
 
+	printf("workspace_selected_remove_yesno: FIXME\n");
+
+	/*
 	box_yesno(parent,
 		workspace_selected_remove_yesno_cb, iwindow_true_cb, ws,
 		iwindow_notify_null, NULL,
 		GTK_STOCK_DELETE,
 		_("Delete selected objects?"),
 		_("Are you sure you want to delete %s?"), vips_buf_all(&buf));
+	 */
 }
 
 /* Sub fn of below ... add a new index expression.

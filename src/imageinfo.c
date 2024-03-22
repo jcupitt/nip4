@@ -1,4 +1,4 @@
-/* image management ... a layer over the VIPS IMAGE type
+/* image management ... a layer over VipsImage
  */
 
 /*
@@ -218,7 +218,7 @@ enum {
 	SIG_AREA_PAINTED, /* Area of image has been painted */
 	SIG_UNDO_CHANGED, /* Undo/redo state has changed */
 	SIG_FILE_CHANGED, /* Underlying file seems to have changed */
-	SIG_INVALIDATE,	  /* IMAGE* has been invalidated */
+	SIG_INVALIDATE,	  /* VipsImage* has been invalidated */
 	SIG_LAST
 };
 
@@ -239,7 +239,7 @@ imageinfo_print(Imageinfo *imageinfo)
 #endif
 
 void *
-imageinfo_area_changed(Imageinfo *imageinfo, Rect *dirty)
+imageinfo_area_changed(Imageinfo *imageinfo, VipsRect *dirty)
 {
 	g_assert(IS_IMAGEINFO(imageinfo));
 
@@ -256,7 +256,7 @@ imageinfo_area_changed(Imageinfo *imageinfo, Rect *dirty)
 }
 
 void *
-imageinfo_area_painted(Imageinfo *imageinfo, Rect *dirty)
+imageinfo_area_painted(Imageinfo *imageinfo, VipsRect *dirty)
 {
 	g_assert(IS_IMAGEINFO(imageinfo));
 
@@ -359,7 +359,7 @@ imageinfo_expr_which(Imageinfo *imageinfo)
 
 /* Find the underlying image in an imageinfo.
  */
-IMAGE *
+VipsImage *
 imageinfo_get_underlying(Imageinfo *imageinfo)
 {
 	if (imageinfo->underlying)
@@ -407,7 +407,7 @@ imageinfo_dispose_eval(Imageinfo *imageinfo)
 {
 	imageinfo->monitored = FALSE;
 
-	/* Make sure any callbacks from the IMAGE stop working.
+	/* Make sure any callbacks from the VipsImage stop working.
 	 */
 	if (imageinfo->proxy) {
 		imageinfo->proxy->imageinfo = NULL;
@@ -488,12 +488,12 @@ imageinfo_info(iObject *iobject, VipsBuf *buf)
 }
 
 static void
-imageinfo_real_area_changed(Imageinfo *imageinfo, Rect *dirty)
+imageinfo_real_area_changed(Imageinfo *imageinfo, VipsRect *dirty)
 {
 }
 
 static void
-imageinfo_real_area_painted(Imageinfo *imageinfo, Rect *dirty)
+imageinfo_real_area_painted(Imageinfo *imageinfo, VipsRect *dirty)
 {
 	/* Cache attaches to this signal and invalidates on paint. Trigger a
 	 * repaint in turn.
@@ -672,7 +672,7 @@ imageinfo_proxy_preclose(Imageinfoproxy *proxy)
 	return 0;
 }
 
-/* Add a proxy to track IMAGE events.
+/* Add a proxy to track VipsImage events.
  */
 static void
 imageinfo_proxy_add(Imageinfo *imageinfo)
@@ -688,7 +688,7 @@ imageinfo_proxy_add(Imageinfo *imageinfo)
 		return;
 	imageinfo->monitored = TRUE;
 
-	/* Need a proxy on IMAGE.
+	/* Need a proxy on VipsImage.
 	 */
 	g_assert(!imageinfo->proxy);
 	if (!(imageinfo->proxy = VIPS_NEW(imageinfo->im, Imageinfoproxy)))
@@ -718,7 +718,7 @@ imageinfo_proxy_add(Imageinfo *imageinfo)
  */
 Imageinfo *
 imageinfo_new(Imageinfogroup *imageinfogroup,
-	Heap *heap, IMAGE *im, const char *name)
+	Heap *heap, VipsImage *im, const char *name)
 {
 	Imageinfo *imageinfo =
 		IMAGEINFO(g_object_new(TYPE_IMAGEINFO, NULL));
@@ -770,7 +770,7 @@ Imageinfo *
 imageinfo_new_temp(Imageinfogroup *imageinfogroup,
 	Heap *heap, const char *name, const char *mode)
 {
-	IMAGE *im;
+	VipsImage *im;
 	char tname[FILENAME_MAX];
 	Imageinfo *imageinfo;
 
@@ -809,7 +809,7 @@ imageinfo_open_image_input(const char *filename, ImageinfoOpen *open)
 		return NULL;
 
 	if (strcmp(VIPS_OBJECT_CLASS(format)->nickname, "vips") == 0) {
-		IMAGE *im;
+		VipsImage *im;
 
 		if (!(im = im_open(filename, "r")))
 			return NULL;
@@ -853,7 +853,7 @@ imageinfo_open_image_input(const char *filename, ImageinfoOpen *open)
 	if (im_pincheck(imageinfo->im))
 		return NULL;
 
-	/* The rewind will have removed everything from the IMAGE. Reattach
+	/* The rewind will have removed everything from the VipsImage. Reattach
 	 * progress.
 	 */
 	imageinfo_proxy_add(imageinfo);
@@ -1007,14 +1007,14 @@ imageinfo_new_input(Imageinfogroup *imageinfogroup, GtkWidget *parent,
 
 /* Add an identity lut, if this is a LUTtable image.
  */
-static IMAGE *
+static VipsImage *
 imageinfo_get_identity_lut(Imageinfo *imageinfo)
 {
 	if (imageinfo->im->Coding == VIPS_CODING_NONE &&
 		imageinfo->im->BandFmt == VIPS_BANDFMT_UCHAR) {
 		if (!imageinfo->identity_lut) {
 			char tname[FILENAME_MAX];
-			IMAGE *im;
+			VipsImage *im;
 
 			if (!temp_name(tname, "v") ||
 				!(im = im_open(tname, "p")))
@@ -1036,12 +1036,12 @@ imageinfo_get_identity_lut(Imageinfo *imageinfo)
 		return NULL;
 }
 
-static IMAGE *
+static VipsImage *
 imageinfo_get_mapped(Imageinfo *imageinfo)
 {
 	if (!imageinfo->mapped_im) {
-		IMAGE *im = imageinfo_get_underlying(imageinfo);
-		IMAGE *mapped_im;
+		VipsImage *im = imageinfo_get_underlying(imageinfo);
+		VipsImage *mapped_im;
 		char name[FILENAME_MAX];
 		char *argv[4];
 
@@ -1066,7 +1066,7 @@ imageinfo_get_mapped(Imageinfo *imageinfo)
 
 /* Get a lut ... or not!
  */
-IMAGE *
+VipsImage *
 imageinfo_get(gboolean use_lut, Imageinfo *imageinfo)
 {
 	if (!imageinfo)
@@ -1075,7 +1075,7 @@ imageinfo_get(gboolean use_lut, Imageinfo *imageinfo)
 	if (use_lut && imageinfo->underlying)
 		return imageinfo->im;
 	if (use_lut && !imageinfo->underlying) {
-		IMAGE *lut;
+		VipsImage *lut;
 
 		if ((lut = imageinfo_get_identity_lut(imageinfo)))
 			return lut;
@@ -1099,7 +1099,7 @@ imageinfo_same_underlying(Imageinfo *imageinfo[], int n)
 	if (n < 2)
 		return TRUE;
 	else {
-		IMAGE *first = imageinfo_get_underlying(imageinfo[0]);
+		VipsImage *first = imageinfo_get_underlying(imageinfo[0]);
 
 		for (i = 1; i < n; i++)
 			if (imageinfo_get_underlying(imageinfo[i]) != first)
@@ -1114,7 +1114,7 @@ imageinfo_same_underlying(Imageinfo *imageinfo[], int n)
 gboolean
 imageinfo_write(Imageinfo *imageinfo, const char *name)
 {
-	IMAGE *im = imageinfo_get(FALSE, imageinfo);
+	VipsImage *im = imageinfo_get(FALSE, imageinfo);
 
 	if (vips_format_write(im, name)) {
 		char filename[FILENAME_MAX];
@@ -1172,7 +1172,7 @@ gboolean
 imageinfo_check_paintable(Imageinfo *imageinfo, GtkWidget *parent,
 	iWindowNotifyFn nfn, void *sys)
 {
-	IMAGE *im = imageinfo_get(FALSE, imageinfo);
+	VipsImage *im = imageinfo_get(FALSE, imageinfo);
 
 	if (im &&
 		im_isfile(im) &&
@@ -1253,12 +1253,12 @@ imageinfo_undobuffer_new(Imageinfo *imageinfo)
 	return undo;
 }
 
-/* Grab from the image into an IMAGE buffer. Always grab to memory.
+/* Grab from the image into an VipsImage buffer. Always grab to memory.
  */
-static IMAGE *
-imageinfo_undo_grab_area(IMAGE *im, Rect *dirty)
+static VipsImage *
+imageinfo_undo_grab_area(VipsImage *im, VipsRect *dirty)
 {
-	IMAGE *save;
+	VipsImage *save;
 
 	/* Make new image to extract to.
 	 */
@@ -1281,12 +1281,12 @@ imageinfo_undo_grab_area(IMAGE *im, Rect *dirty)
  * bounding box.
  */
 static Undofragment *
-imageinfo_undo_grab(Undobuffer *undo, Rect *dirty)
+imageinfo_undo_grab(Undobuffer *undo, VipsRect *dirty)
 {
 	Imageinfo *imageinfo = undo->imageinfo;
 	Undofragment *frag = imageinfo_undofragment_new(undo);
-	IMAGE *im = imageinfo_get(FALSE, imageinfo);
-	Rect bbox;
+	VipsImage *im = imageinfo_get(FALSE, imageinfo);
+	VipsRect bbox;
 
 	/* Try to extract from im. Memory allocation happens at this
 	 * point, so we must be careful!
@@ -1388,11 +1388,11 @@ imageinfo_undo_mark(Imageinfo *imageinfo)
  * far better.
  */
 static gboolean
-imageinfo_undo_add(Imageinfo *imageinfo, Rect *dirty)
+imageinfo_undo_add(Imageinfo *imageinfo, VipsRect *dirty)
 {
-	IMAGE *im = imageinfo_get(FALSE, imageinfo);
+	VipsImage *im = imageinfo_get(FALSE, imageinfo);
 	Undobuffer *undo = imageinfo->cundo;
-	Rect over, image, clipped;
+	VipsRect over, image, clipped;
 
 	/* Undo disabled? Do nothing.
 	 */
@@ -1492,7 +1492,7 @@ imageinfo_undofragment_paste(Undofragment *frag)
 {
 	Undobuffer *undo = frag->undo;
 	Imageinfo *imageinfo = undo->imageinfo;
-	IMAGE *im = imageinfo_get(FALSE, imageinfo);
+	VipsImage *im = imageinfo_get(FALSE, imageinfo);
 
 	im_insertplace(im, frag->im, frag->pos.left, frag->pos.top);
 	imageinfo_area_painted(imageinfo, &frag->pos);
@@ -1607,10 +1607,10 @@ imageinfo_undo_clear(Imageinfo *imageinfo)
 }
 
 static int
-imageinfo_draw_point_cb(IMAGE *im, int x, int y, void *a, void *b, void *c)
+imageinfo_draw_point_cb(VipsImage *im, int x, int y, void *a, void *b, void *c)
 {
-	IMAGE *mask = (IMAGE *) a;
-	PEL *ink = (PEL *) b;
+	VipsImage *mask = (VipsImage *) a;
+	VipsPel *ink = (VipsPel *) b;
 
 	return im_draw_mask(im, mask,
 		x - mask->Xsize / 2, y - mask->Ysize / 2, ink);
@@ -1623,11 +1623,11 @@ imageinfo_paint_line(Imageinfo *imageinfo,
 	Imageinfo *ink, Imageinfo *mask,
 	int x1, int y1, int x2, int y2)
 {
-	IMAGE *im = imageinfo_get(FALSE, imageinfo);
-	IMAGE *ink_im = imageinfo_get(FALSE, ink);
-	IMAGE *mask_im = imageinfo_get(FALSE, mask);
-	PEL *data = (PEL *) ink_im->data;
-	Rect dirty, p1, p2, image, clipped;
+	VipsImage *im = imageinfo_get(FALSE, imageinfo);
+	VipsImage *ink_im = imageinfo_get(FALSE, ink);
+	VipsImage *mask_im = imageinfo_get(FALSE, mask);
+	VipsPel *data = (VipsPel *) ink_im->data;
+	VipsRect dirty, p1, p2, image, clipped;
 
 	p1.width = mask_im->Xsize;
 	p1.height = mask_im->Ysize;
@@ -1666,10 +1666,10 @@ imageinfo_paint_line(Imageinfo *imageinfo,
  */
 gboolean
 imageinfo_paint_smudge(Imageinfo *imageinfo,
-	Rect *oper, int x1, int y1, int x2, int y2)
+	VipsRect *oper, int x1, int y1, int x2, int y2)
 {
-	IMAGE *im = imageinfo_get(FALSE, imageinfo);
-	Rect p1, p2, dirty;
+	VipsImage *im = imageinfo_get(FALSE, imageinfo);
+	VipsRect p1, p2, dirty;
 
 	/* Calculate bounding box for smudge.
 	 */
@@ -1702,10 +1702,10 @@ gboolean
 imageinfo_paint_flood(Imageinfo *imageinfo, Imageinfo *ink,
 	int x, int y, gboolean blob)
 {
-	IMAGE *im = imageinfo_get(FALSE, imageinfo);
-	IMAGE *ink_im = imageinfo_get(FALSE, ink);
-	PEL *data = (PEL *) ink_im->data;
-	Rect dirty;
+	VipsImage *im = imageinfo_get(FALSE, imageinfo);
+	VipsImage *ink_im = imageinfo_get(FALSE, ink);
+	VipsPel *data = (VipsPel *) ink_im->data;
+	VipsRect dirty;
 	int result;
 
 	/* Save undo area. We have to save the entire image since we don't know
@@ -1737,10 +1737,10 @@ imageinfo_paint_flood(Imageinfo *imageinfo, Imageinfo *ink,
 gboolean
 imageinfo_paint_dropper(Imageinfo *imageinfo, Imageinfo *ink, int x, int y)
 {
-	IMAGE *im = imageinfo_get(FALSE, imageinfo);
-	IMAGE *ink_im = imageinfo_get(FALSE, ink);
-	PEL *data = (PEL *) ink_im->data;
-	Rect dirty;
+	VipsImage *im = imageinfo_get(FALSE, imageinfo);
+	VipsImage *ink_im = imageinfo_get(FALSE, ink);
+	VipsPel *data = (VipsPel *) ink_im->data;
+	VipsRect dirty;
 
 	if (im_readpoint(im, x, y, data)) {
 		error_vips_all();
@@ -1761,11 +1761,11 @@ imageinfo_paint_dropper(Imageinfo *imageinfo, Imageinfo *ink, int x, int y)
 /* Fill a rect.
  */
 gboolean
-imageinfo_paint_rect(Imageinfo *imageinfo, Imageinfo *ink, Rect *area)
+imageinfo_paint_rect(Imageinfo *imageinfo, Imageinfo *ink, VipsRect *area)
 {
-	IMAGE *im = imageinfo_get(FALSE, imageinfo);
-	IMAGE *ink_im = imageinfo_get(FALSE, ink);
-	PEL *data = (PEL *) ink_im->data;
+	VipsImage *im = imageinfo_get(FALSE, imageinfo);
+	VipsImage *ink_im = imageinfo_get(FALSE, ink);
+	VipsPel *data = (VipsPel *) ink_im->data;
 
 	if (!imageinfo_undo_add(imageinfo, area))
 		return FALSE;
@@ -1785,9 +1785,9 @@ imageinfo_paint_rect(Imageinfo *imageinfo, Imageinfo *ink, Rect *area)
  */
 gboolean
 imageinfo_paint_text(Imageinfo *imageinfo,
-	const char *font_name, const char *text, Rect *tarea)
+	const char *font_name, const char *text, VipsRect *tarea)
 {
-	IMAGE *im = imageinfo_get(FALSE, imageinfo);
+	VipsImage *im = imageinfo_get(FALSE, imageinfo);
 
 	if (im_text(im, text, font_name, 0, 0, get_dpi())) {
 		error_top(_("Unable to paint text."));
@@ -1811,13 +1811,13 @@ imageinfo_paint_text(Imageinfo *imageinfo,
 gboolean
 imageinfo_paint_nib(Imageinfo *imageinfo, int radius)
 {
-	static PEL ink[1] = { 255 };
+	static VipsPel ink[1] = { 255 };
 
-	IMAGE *im = imageinfo_get(FALSE, imageinfo);
+	VipsImage *im = imageinfo_get(FALSE, imageinfo);
 
 	if (radius) {
 		int r2 = radius * 2;
-		IMAGE *t;
+		VipsImage *t;
 
 		if (!(t = im_open("imageinfo_paint_nib", "p"))) {
 			error_vips();
@@ -1847,10 +1847,10 @@ gboolean
 imageinfo_paint_mask(Imageinfo *imageinfo,
 	Imageinfo *ink, Imageinfo *mask, int x, int y)
 {
-	IMAGE *im = imageinfo_get(FALSE, imageinfo);
-	IMAGE *ink_im = imageinfo_get(FALSE, ink);
-	IMAGE *mask_im = imageinfo_get(FALSE, mask);
-	Rect dirty, image, clipped;
+	VipsImage *im = imageinfo_get(FALSE, imageinfo);
+	VipsImage *ink_im = imageinfo_get(FALSE, ink);
+	VipsImage *mask_im = imageinfo_get(FALSE, mask);
+	VipsRect dirty, image, clipped;
 
 	dirty.left = x;
 	dirty.top = y;
@@ -1869,7 +1869,7 @@ imageinfo_paint_mask(Imageinfo *imageinfo,
 		return FALSE;
 
 	if (im_plotmask(im, 0, 0,
-			(PEL *) ink_im->data, (PEL *) mask_im->data, &dirty)) {
+			(VipsPel *) ink_im->data, (VipsPel *) mask_im->data, &dirty)) {
 		error_vips_all();
 		return FALSE;
 	}
@@ -1884,8 +1884,8 @@ imageinfo_paint_mask(Imageinfo *imageinfo,
 void
 imageinfo_to_text(Imageinfo *imageinfo, VipsBuf *buf)
 {
-	IMAGE *im = imageinfo_get(FALSE, imageinfo);
-	PEL *p = (PEL *) im->data;
+	VipsImage *im = imageinfo_get(FALSE, imageinfo);
+	VipsPel *p = (VipsPel *) im->data;
 	int i;
 
 #define PRINT_INT(T, I) vips_buf_appendf(buf, "%d", ((T *) p)[I]);
@@ -1956,8 +1956,8 @@ imageinfo_to_text(Imageinfo *imageinfo, VipsBuf *buf)
 static void
 imageinfo_from_text_band(Imageinfo *imageinfo, int i, double re, double im)
 {
-	IMAGE *image = imageinfo_get(FALSE, imageinfo);
-	PEL *p = (PEL *) image->data;
+	VipsImage *image = imageinfo_get(FALSE, imageinfo);
+	VipsPel *p = (VipsPel *) image->data;
 	double mod = sqrt(re * re + im * im);
 
 	if (i < 0 || i >= image->Bands)
@@ -2027,7 +2027,7 @@ imageinfo_from_text(Imageinfo *imageinfo, const char *text)
 	char buf[MAX_LINELENGTH];
 	char *p;
 	int i;
-	Rect dirty;
+	VipsRect dirty;
 
 #ifdef DEBUG_RGB
 	printf("imageinfo_from_text: in: \"\%s\"\n", text);
@@ -2084,8 +2084,8 @@ void
 imageinfo_to_rgb(Imageinfo *imageinfo, double *rgb)
 {
 	Conversion *conv;
-	Rect area;
-	PEL *p;
+	VipsRect area;
+	VipsPel *p;
 	int i;
 
 #ifdef DEBUG_RGB
@@ -2104,8 +2104,7 @@ imageinfo_to_rgb(Imageinfo *imageinfo, double *rgb)
 	conv = conversion_new(NULL);
 	conversion_set_synchronous(conv, TRUE);
 	conversion_set_image(conv, imageinfo);
-	g_object_ref(G_OBJECT(conv));
-	iobject_sink(IOBJECT(conv));
+	g_object_ref_sink(G_OBJECT(conv));
 
 	area.left = 0;
 	area.top = 0;
@@ -2116,7 +2115,7 @@ imageinfo_to_rgb(Imageinfo *imageinfo, double *rgb)
 		UNREF(conv);
 		return;
 	}
-	p = (PEL *) VIPS_REGION_ADDR(conv->ireg, area.left, area.top);
+	p = (VipsPel *) VIPS_REGION_ADDR(conv->ireg, area.left, area.top);
 
 	if (imageinfo->im->Bands < 3)
 		for (i = 0; i < 3; i++)
@@ -2140,11 +2139,11 @@ imageinfo_from_rgb(Imageinfo *imageinfo, double *rgb)
 {
 	Imageinfogroup *imageinfogroup =
 		IMAGEINFOGROUP(ICONTAINER(imageinfo)->parent);
-	IMAGE *im = imageinfo_get(FALSE, imageinfo);
+	VipsImage *im = imageinfo_get(FALSE, imageinfo);
 	Imageinfo *in, *out;
-	IMAGE *t1, *t2;
+	VipsImage *t1, *t2;
 	int i;
-	Rect dirty;
+	VipsRect dirty;
 
 	/* Interchange format is sRGB.
 
@@ -2179,7 +2178,7 @@ imageinfo_from_rgb(Imageinfo *imageinfo, double *rgb)
 	if (im_setupout(in->im))
 		return;
 	for (i = 0; i < 3; i++)
-		((PEL *) in->im->data)[i] = VIPS_RINT(rgb[i] * 255.0);
+		((VipsPel *) in->im->data)[i] = VIPS_RINT(rgb[i] * 255.0);
 
 	/* To imageinfo->type. Make sure we get a float ... except for LABQ
 	 * and RAD.
@@ -2247,7 +2246,7 @@ imageinfo_from_rgb(Imageinfo *imageinfo, double *rgb)
 	if (im->Coding == VIPS_CODING_LABQ ||
 		im->Coding == VIPS_CODING_RAD) {
 		for (i = 0; i < im->Bands; i++)
-			((PEL *) im->data)[i] = ((PEL *) out->im->data)[i];
+			((VipsPel *) im->data)[i] = ((VipsPel *) out->im->data)[i];
 	}
 	else {
 		for (i = 0; i < im->Bands; i++)

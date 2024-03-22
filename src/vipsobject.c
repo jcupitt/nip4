@@ -448,3 +448,11 @@ vo_call(Reduce *rc, const char *name,
 	vips_object_unref_outputs(vo->object);
 	vo_free(vo);
 }
+
+// call a vips operation, varargs are C types, so imageinfo, double, int, etc.
+void
+vo_callva(Reduce *rc, PElement *out, const char *name, ...)
+{
+	printf("vo_callva: %s FIXME\n", name);
+	PEPUTP(out, ELEMENT_ELIST, NULL);
+}

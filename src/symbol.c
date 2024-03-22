@@ -296,8 +296,6 @@ symbol_clear(Symbol *sym)
 
 	sym->tool = NULL;
 
-	sym->fn_nargs = 0;
-
 	sym->builtin = NULL;
 
 	sym->wsr = NULL;
@@ -310,7 +308,7 @@ symbol_clear(Symbol *sym)
 Symbol *
 symbol_root_init(void)
 {
-	Symbol *root = SYMBOL(g_object_new(TYPE_SYMBOL, NULL));
+	Symbol *root = SYMBOL(g_object_new(SYMBOL_TYPE, NULL));
 
 	symbol_clear(root);
 	iobject_set(IOBJECT(root), "$$ROOT", NULL);
@@ -564,7 +562,7 @@ symbol_dispose(GObject *gobject)
 	/* Strip it down.
 	 */
 	(void) symbol_strip(sym);
-	IDESTROY(sym->tool);
+	VIPS_UNREF(sym->tool);
 
 	/* Any exprs which refer to us must have errors.
 	 */
@@ -669,7 +667,7 @@ symbol_new(Compile *compile, const char *name)
 #endif /*DEBUG_MAKE*/
 	}
 	else {
-		sym = SYMBOL(g_object_new(TYPE_SYMBOL, NULL));
+		sym = SYMBOL(g_object_new(SYMBOL_TYPE, NULL));
 		iobject_set(IOBJECT(sym), name, NULL);
 		icontainer_child_add(ICONTAINER(compile),
 			ICONTAINER(sym), -1);
@@ -881,10 +879,7 @@ symbol_parameter_builtin_init(Symbol *sym)
 static Symbol *
 symbol_leaf_next(void)
 {
-	if (symbol_leaf_set)
-		return Symbol *) symbol_leaf_set->data
-	else
-		return NULL;
+	return symbol_leaf_set ? (Symbol *) symbol_leaf_set->data : NULL;
 }
 
 /* Are there symbols we can recalculate? Used to display "Calculating ..."
@@ -911,14 +906,12 @@ symbol_set_leaf(Symbol *sym, gboolean leaf)
 			if (!symbol_leaf_set)
 				changed = TRUE;
 
-			symbol_leaf_set =
-				g_slist_prepend(symbol_leaf_set, sym);
+			symbol_leaf_set = g_slist_prepend(symbol_leaf_set, sym);
 		}
 		else {
 			g_assert(symbol_leaf_set);
 
-			symbol_leaf_set =
-				g_slist_remove(symbol_leaf_set, sym);
+			symbol_leaf_set = g_slist_remove(symbol_leaf_set, sym);
 
 			if (!symbol_leaf_set)
 				changed = TRUE;
@@ -1088,9 +1081,8 @@ symbol_recalculate_leaf_sub(Symbol *sym)
 		}
 	}
 #ifdef DEBUG_RECALC
-	else {
+	else
 		printf("\t(found dirty children)\n");
-	}
 #endif /*DEBUG_RECALC*/
 
 	return NULL;
@@ -1168,7 +1160,7 @@ symbol_recalculate_idle_cb(void)
 
 	run_again = TRUE;
 
-	if (!mainw_auto_recalc)
+	if (!main_window_auto_recalc)
 		/* Auto-calc has been turned off during a recomp.
 		 */
 		run_again = FALSE;
@@ -1241,7 +1233,7 @@ symbol_recalculate_all(void)
 	 */
 	(void) view_scan_all();
 
-	if (mainw_auto_recalc)
+	if (main_window_auto_recalc)
 		symbol_recalculate_all_force(FALSE);
 }
 
