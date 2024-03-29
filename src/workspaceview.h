@@ -57,8 +57,8 @@ struct _Workspaceview {
 
 	/* Left and right panes ... program window and toolkit browser.
 	 */
-	GtkWidget *lpane;
-	GtkWidget *rpane;
+	Pane *lpane;
+	Pane *rpane;
 
 	GtkWidget *popup;
 	GtkWidget *popup_jump;

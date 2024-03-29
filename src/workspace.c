@@ -1650,11 +1650,14 @@ workspace_jump_build(Column *column, GtkWidget *menu)
 
 	vips_buf_appendf(&buf, "%s - %s",
 		IOBJECT(column)->name, IOBJECT(column)->caption);
+	printf("workspace_jump_build: FIXME\n");
+	/*
 	item = gtk_menu_item_new_with_label(vips_buf_all(&buf));
 	g_signal_connect(item, "activate",
 		G_CALLBACK(workspace_jump_column_cb), column);
 	gtk_menu_append(GTK_MENU(menu), item);
 	gtk_widget_show(item);
+	 */
 
 	return NULL;
 }
@@ -1666,8 +1669,11 @@ workspace_jump_update(Workspace *ws, GtkWidget *menu)
 {
 	GSList *columns;
 
+	printf("workspace_jump_update: FIXME\n");
+	/*
 	gtk_container_foreach(GTK_CONTAINER(menu),
 		(GtkCallback) gtk_widget_unparent, NULL);
+	 */
 
 	columns = icontainer_get_children(ICONTAINER(ws));
 
@@ -1733,7 +1739,7 @@ workspace_selected_duplicate(Workspace *ws)
 /* Bounding box of columns to be saved. Though we only really set top/left.
  */
 static void *
-workspace_selected_save_box(Column *col, Rect *box)
+workspace_selected_save_box(Column *col, VipsRect *box)
 {
 	if (model_save_test(MODEL(col))) {
 		if (vips_rect_isempty(box)) {
@@ -1758,7 +1764,7 @@ workspace_selected_save(Workspace *ws, const char *filename)
 {
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
 
-	Rect box = { 0 };
+	VipsRect box = { 0 };
 
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 

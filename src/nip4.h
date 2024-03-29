@@ -141,6 +141,8 @@ typedef struct _Managed Managed;
 typedef struct _Managedstring Managedstring;
 typedef struct _Matrix Matrix;
 typedef struct _Model Model;
+typedef struct _Pane Pane;
+typedef struct _Panechild Panechild;
 typedef struct _ParseConst ParseConst;
 typedef struct _ParseNode ParseNode;
 typedef struct _Reduce Reduce;
@@ -148,7 +150,7 @@ typedef struct _Rhs Rhs;
 typedef struct _Row Row;
 typedef struct _Rowview Rowview;
 typedef struct _Subcolumn Subcolumn;
-typedef struct _Subcolumn Subcolumn;
+typedef struct _Subcolumnview Subcolumnview;
 typedef struct _Symbol Symbol;
 typedef struct _Toolitem Toolitem;
 typedef struct _Toolkitbrowser Toolkitbrowser;
@@ -180,6 +182,7 @@ typedef struct _Workspace Workspace;
 #include "icontainer.h"
 #include "model.h"
 #include "view.h"
+#include "prefs.h"
 #include "tree.h"
 #include "filemodel.h"
 #include "heap.h"
@@ -204,10 +207,12 @@ typedef struct _Workspace Workspace;
 #include "row.h"
 #include "matrix.h"
 #include "rhs.h"
+#include "pane.h"
 #include "class.h"
 #include "tool.h"
 #include "toolkit.h"
 #include "toolkitgroup.h"
+#include "toolkitbrowser.h"
 #include "builtin.h"
 #include "symbol.h"
 #include "dump.h"

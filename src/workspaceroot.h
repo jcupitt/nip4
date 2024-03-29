@@ -59,3 +59,5 @@ GType workspaceroot_get_type(void);
 Workspaceroot *workspaceroot_new(const char *name);
 
 void workspaceroot_name_new(Workspaceroot *wsr, char *name);
+Workspacegroup *workspaceroot_open_workspace(Workspaceroot *wsr,
+	const char *filename);

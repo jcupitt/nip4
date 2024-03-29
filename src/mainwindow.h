@@ -36,5 +36,6 @@ extern gboolean main_window_auto_recalc;
 MainWindow *main_window_new(App *app);
 void main_window_set_gfile(MainWindow *win, GFile *gfile);
 void main_window_cull(void);
+void main_window_layout(void);
 
 #endif /* __MAIN_WINDOW_H */

@@ -54,6 +54,9 @@ struct _MainWindow {
 // current autocalc state
 gboolean main_window_auto_recalc = TRUE;
 
+// relayout timer
+static gint main_window_layout_timeout = 0;
+
 G_DEFINE_TYPE(MainWindow, main_window, GTK_TYPE_APPLICATION_WINDOW);
 
 static void
@@ -474,4 +477,32 @@ main_window_cull(void)
 {
 	// destroy any empty MainWindow (may have had all tabs dragged out)
 	printf("mainwindow_cull: FIXME ... implement this\n");
+}
+
+static void *
+main_window_layout_sub(Workspace *ws)
+{
+	model_layout(MODEL(ws));
+	workspace_set_needs_layout(ws, FALSE);
+
+	return (NULL);
+}
+
+static gboolean
+main_window_layout_timeout_cb(gpointer user_data)
+{
+	main_window_layout_timeout = 0;
+
+	slist_map(workspace_get_needs_layout(),
+		(SListMapFn) main_window_layout_sub, NULL);
+
+	return (FALSE);
+}
+
+void
+main_window_layout(void)
+{
+	VIPS_FREEF(g_source_remove, main_window_layout_timeout);
+	main_window_layout_timeout = g_timeout_add(300,
+		(GSourceFunc) main_window_layout_timeout_cb, NULL);
 }

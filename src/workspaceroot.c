@@ -138,3 +138,16 @@ workspaceroot_name_new(Workspaceroot *wsr, char *name)
 	while (compile_lookup(compile, name))
 		increment_name(name);
 }
+
+Workspacegroup *
+workspaceroot_open_workspace(Workspaceroot *wsr, const char *filename)
+{
+	Workspacegroup *wsg;
+	MainWindow *main;
+
+	if (!(wsg = workspacegroup_new_from_file(wsr, filename, filename)))
+		return (NULL);
+	main = main_window_new(wsg);
+
+	return wsg;
+}
