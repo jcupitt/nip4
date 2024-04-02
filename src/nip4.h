@@ -177,6 +177,7 @@ typedef struct _Workspace Workspace;
 #include "parser.h"
 #include "tree.h"
 #include "gtkutil.h"
+#include "predicate.h"
 #include "nip4marshal.h"
 #include "mainwindow.h"
 #include "iobject.h"
@@ -234,5 +235,6 @@ typedef struct _Workspace Workspace;
 #include "toolkitgroupview.h"
 #include "subcolumnview.h"
 #include "toolview.h"
+#include "rhsview.h"
 
 #endif /*__NIP4_H*/

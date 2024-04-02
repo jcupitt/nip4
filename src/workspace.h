@@ -121,7 +121,7 @@ typedef struct _WorkspaceClass {
 	 */
 } WorkspaceClass;
 
-const char *filesel_type_workspace;
+extern const char *filesel_type_workspace;
 
 void workspace_set_needs_layout(Workspace *ws, gboolean needs_layout);
 GSList *workspace_get_needs_layout();

@@ -33,6 +33,10 @@
 	} \
 	G_STMT_END
 
+/* Like G_CHECK_TYPE, but insist on an exact match.
+ */
+#define TYPE_EXACT(OBJECT, TYPE) (G_TYPE_FROM_INSTANCE(OBJECT) == (TYPE))
+
 void set_symbol_drag_type(GtkWidget *widget);
 
 void set_glabel(GtkWidget *label, const char *fmt, ...);

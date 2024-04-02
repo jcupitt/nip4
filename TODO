@@ -1,3 +1,6 @@
+- UNPARENT() widgets, don't UNREF them
+
+
 - make initial view from model
 
     - make a default workspace containing a column

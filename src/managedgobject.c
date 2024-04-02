@@ -45,7 +45,7 @@ managedgobject_dispose(GObject *gobject)
 	iobject_print(IOBJECT(managedgobject));
 #endif /*DEBUG*/
 
-	IM_FREEF(g_object_unref, managedgobject->object);
+	VIPS_FREEF(g_object_unref, managedgobject->object);
 
 	G_OBJECT_CLASS(managedgobject_parent_class)->dispose(gobject);
 }

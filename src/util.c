@@ -2636,3 +2636,193 @@ array_len(void **array)
 
 	return i;
 }
+
+double *
+ink_to_vector(const char *domain, VipsImage *im, VipsPel *ink, int *n)
+{
+	VipsImage **t = (VipsImage **) vips_object_local_array(VIPS_OBJECT(im), 6);
+
+	double *result;
+
+#ifdef VIPS_DEBUG
+	printf("ink_to_vector: starting\n");
+#endif /*VIPS_DEBUG*/
+
+	/* Wrap a VipsImage around ink.
+	 */
+	t[0] = vips_image_new_from_memory(ink, VIPS_IMAGE_SIZEOF_PEL(im),
+		1, 1, VIPS_IMAGE_SIZEOF_PEL(im), VIPS_FORMAT_UCHAR);
+	if (vips_copy(t[0], &t[1],
+			"bands", im->Bands,
+			"format", im->BandFmt,
+			"coding", im->Coding,
+			"interpretation", im->Type,
+			NULL))
+		return NULL;
+
+	/* The image may be coded .. unpack to double.
+	 */
+	if (vips_image_decode(t[1], &t[2]) ||
+		vips_cast(t[2], &t[3], VIPS_FORMAT_DOUBLE, NULL))
+		return NULL;
+
+	/* To a mem buffer, then copy to out.
+	 */
+	if (!(t[4] = vips_image_new_memory()) ||
+		vips_image_write(t[3], t[4]))
+		return NULL;
+
+	if (!(result = VIPS_ARRAY(im, t[4]->Bands, double)))
+		return NULL;
+	memcpy(result, t[4]->data, VIPS_IMAGE_SIZEOF_PEL(t[4]));
+	*n = t[4]->Bands;
+
+#ifdef VIPS_DEBUG
+	{
+		int i;
+
+		printf("vips__ink_to_vector:\n");
+		printf("\tink = ");
+		for (i = 0; i < n; i++)
+			printf("%d ", ink[i]);
+		printf("\n");
+
+		printf("\tvec = ");
+		for (i = 0; i < *n; i++)
+			printf("%g ", result[i]);
+		printf("\n");
+	}
+#endif /*VIPS_DEBUG*/
+
+	return result;
+}
+
+void
+draw_line(VipsImage *image, int x1, int y1, int x2, int y2,
+	DrawPoint draw_point, void *client)
+{
+	int dx, dy;
+	int x, y, err;
+
+	dx = x2 - x1;
+	dy = y2 - y1;
+
+	/* Swap endpoints to reduce number of cases.
+	 */
+	if (abs(dx) >= abs(dy) &&
+		dx < 0) {
+		/* Swap to get all x greater or equal cases going to the
+		 * right. Do diagonals here .. just have up and right and down
+		 * and right now.
+		 */
+		VIPS_SWAP(int, x1, x2);
+		VIPS_SWAP(int, y1, y2);
+	}
+	else if (abs(dx) < abs(dy) &&
+		dy < 0) {
+		/* Swap to get all y greater cases going down the screen.
+		 */
+		VIPS_SWAP(int, x1, x2);
+		VIPS_SWAP(int, y1, y2);
+	}
+
+	dx = x2 - x1;
+	dy = y2 - y1;
+
+	x = x1;
+	y = y1;
+
+	/* Special case: zero width and height is single point.
+	 */
+	if (dx == 0 &&
+		dy == 0)
+		draw_point(image, x, y, client);
+	/* Special case vertical and horizontal lines for speed.
+	 */
+	else if (dx == 0) {
+		/* Vertical line going down.
+		 */
+		for (; y <= y2; y++)
+			draw_point(image, x, y, client);
+	}
+	else if (dy == 0) {
+		/* Horizontal line to the right.
+		 */
+		for (; x <= x2; x++)
+			draw_point(image, x, y, client);
+	}
+	/* Special case diagonal lines.
+	 */
+	else if (abs(dy) == abs(dx) &&
+		dy > 0) {
+		/* Diagonal line going down and right.
+		 */
+		for (; x <= x2; x++, y++)
+			draw_point(image, x, y, client);
+	}
+	else if (abs(dy) == abs(dx) &&
+		dy < 0) {
+		/* Diagonal line going up and right.
+		 */
+		for (; x <= x2; x++, y--)
+			draw_point(image, x, y, client);
+	}
+	else if (abs(dy) < abs(dx) &&
+		dy > 0) {
+		/* Between -45 and 0 degrees.
+		 */
+		for (err = 0; x <= x2; x++) {
+			draw_point(image, x, y, client);
+
+			err += dy;
+			if (err >= dx) {
+				err -= dx;
+				y++;
+			}
+		}
+	}
+	else if (abs(dy) < abs(dx) &&
+		dy < 0) {
+		/* Between 0 and 45 degrees.
+		 */
+		for (err = 0; x <= x2; x++) {
+			draw_point(image, x, y, client);
+
+			err -= dy;
+			if (err >= dx) {
+				err -= dx;
+				y--;
+			}
+		}
+	}
+	else if (abs(dy) > abs(dx) &&
+		dx > 0) {
+		/* Between -45 and -90 degrees.
+		 */
+		for (err = 0; y <= y2; y++) {
+			draw_point(image, x, y, client);
+
+			err += dx;
+			if (err >= dy) {
+				err -= dy;
+				x++;
+			}
+		}
+	}
+	else if (abs(dy) > abs(dx) &&
+		dx < 0) {
+		/* Between -90 and -135 degrees.
+		 */
+		for (err = 0; y <= y2; y++) {
+			draw_point(image, x, y, client);
+
+			err -= dx;
+			if (err >= dy) {
+				err -= dy;
+				x--;
+			}
+		}
+	}
+	else
+		g_assert_not_reached();
+}

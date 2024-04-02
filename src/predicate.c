@@ -103,7 +103,8 @@ is_this(Symbol *sym)
 	Symbol *parent = symbol_get_parent(sym);
 	Compile *parent_compile = parent->expr->compile;
 
-	return is_class(parent_compile) && sym == parent_compile->this;
+	return is_class(parent_compile) &&
+		sym == parent_compile->this;
 }
 
 /* Is sym a member of an enclosing class of compile.
@@ -137,10 +138,8 @@ is_scope(Symbol *sym)
 gboolean
 is_top(Symbol *sym)
 {
-	if (is_scope(sym) || is_scope(symbol_get_parent(sym)))
-		return TRUE;
-
-	return FALSE;
+	return is_scope(sym) ||
+		is_scope(symbol_get_parent(sym));
 }
 
 /* Is a symbol a member of a class? Params don't count.
@@ -166,7 +165,8 @@ is_memberfunc(Compile *compile)
 gboolean
 is_value(Symbol *sym)
 {
-	return sym->type == SYM_VALUE && sym->expr;
+	return sym->type == SYM_VALUE &&
+		sym->expr;
 }
 
 /* Is sym an ancestor of context?

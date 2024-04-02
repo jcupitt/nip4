@@ -287,3 +287,8 @@ const char *get_savedir(void);
 
 void **slist_to_array(GSList *list);
 int array_len(void **array);
+
+double *ink_to_vector(const char *domain, VipsImage *im, VipsPel *ink, int *n);
+typedef void(DrawPoint)(VipsImage *image, int x, int y, void *client);
+void draw_line(VipsImage *image, int x1, int y1, int x2, int y2,
+	DrawPoint draw_point, void *client);

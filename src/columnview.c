@@ -501,7 +501,6 @@ columnview_refresh(vObject *vobject)
 
 	/* Turn titlebar on/off.
 	 */
-	widget_visible(cview->title, editable);
 	if (editable)
 		gtk_frame_set_label(GTK_FRAME(cview->frame), NULL);
 	else if (IOBJECT(col)->caption) {
@@ -538,8 +537,9 @@ columnview_refresh(vObject *vobject)
 	model_display(MODEL(col->scol), col->open);
 
 	/* Closed columns are hidden in NOEDIT mode.
-	 */
 	widget_visible(GTK_WIDGET(cview), editable || col->open);
+	 */
+	printf("columnview_refresh: FIXME\n");
 
 	/* Set caption edit.
 	 */

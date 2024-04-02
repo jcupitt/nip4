@@ -1433,15 +1433,6 @@ imageinfo_undo_clear(Imageinfo *imageinfo)
 	imageinfo_undo_changed(imageinfo);
 }
 
-/* An internal libvips function, Yuk!
- */
-typedef void(DrawPoint)(VipsImage *image, int x, int y, void *client);
-void vips__draw_line_direct(VipsImage *image, int x1, int y1, int x2, int y2,
-	DrawPoint draw_point, void *client);
-
-double *vips__ink_to_vector(const char *domain,
-	VipsImage *im, VipsPel *ink, int *n);
-
 typedef struct _ImageinfoDraw {
 	void *a;
 	void *b;
@@ -1458,7 +1449,7 @@ imageinfo_draw_point_cb(VipsImage *im, int x, int y, void *client)
 
 	double *vec;
 	int n;
-	if ((vec = vips__ink_to_vector("point", im, ink, &n)))
+	if ((vec = ink_to_vector("point", im, ink, &n)))
 		(void) vips_draw_mask(im, vec, n, mask,
 			x - mask->Xsize / 2, y - mask->Ysize / 2, NULL);
 }
@@ -1500,8 +1491,7 @@ imageinfo_paint_line(Imageinfo *imageinfo,
 	if (!imageinfo_undo_add(imageinfo, &clipped))
 		return FALSE;
 
-	vips__draw_line_direct(im, x1, y1, x2, y2,
-		imageinfo_draw_point_cb, &draw);
+	draw_line(im, x1, y1, x2, y2, imageinfo_draw_point_cb, &draw);
 
 	imageinfo_area_painted(imageinfo, &dirty);
 
@@ -1541,8 +1531,7 @@ imageinfo_paint_smudge(Imageinfo *imageinfo,
 	if (!imageinfo_undo_add(imageinfo, &dirty))
 		return FALSE;
 
-	vips__draw_line_direct(im, x1, y1, x2, y2,
-		imageinfo_draw_smudge_cb, &draw);
+	draw_line(im, x1, y1, x2, y2, imageinfo_draw_smudge_cb, &draw);
 
 	imageinfo_area_painted(imageinfo, &dirty);
 
@@ -1569,7 +1558,7 @@ imageinfo_paint_flood(Imageinfo *imageinfo, Imageinfo *ink,
 	double *vec;
 	int n;
 	VipsRect dirty;
-	if (!(vec = vips__ink_to_vector("flood", im, data, &n)) ||
+	if (!(vec = ink_to_vector("flood", im, data, &n)) ||
 		vips_draw_flood(im, vec, n, x, y,
 			"equal", blob,
 			"left", &dirty.left,
@@ -1600,7 +1589,7 @@ imageinfo_paint_dropper(Imageinfo *imageinfo, Imageinfo *ink, int x, int y)
 		return FALSE;
 	}
 
-	vips_image_invalidate(ink_im);
+	vips_image_invalidate_all(ink_im);
 	imageinfo_area_painted(ink, &((VipsRect){ 0, 0, 1, 1 }));
 
 	return TRUE;
@@ -1620,7 +1609,7 @@ imageinfo_paint_rect(Imageinfo *imageinfo, Imageinfo *ink, VipsRect *area)
 
 	double *vec;
 	int n;
-	if (!(vec = vips__ink_to_vector("rect", im, data, &n)) ||
+	if (!(vec = ink_to_vector("rect", im, data, &n)) ||
 		vips_draw_rect(im, vec, n,
 			area->left, area->top, area->width, area->height,
 			"fill", TRUE,

@@ -44,15 +44,15 @@ rhs_child_add(iContainer *parent, iContainer *child, int pos)
 	Rhs *rhs = RHS(parent);
 
 	if (IS_SUBCOLUMN(child)) {
-		IDESTROY(rhs->scol);
+		UNPARENT(rhs->scol);
 		rhs->scol = MODEL(child);
 	}
 	else if (IS_ITEXT(child)) {
-		IDESTROY(rhs->itext);
+		UNPARENT(rhs->itext);
 		rhs->itext = MODEL(child);
 	}
 	else {
-		IDESTROY(rhs->graphic);
+		UNPARENT(rhs->graphic);
 		rhs->graphic = MODEL(child);
 	}
 
@@ -113,7 +113,7 @@ rhs_load(Model *model,
 static xmlNode *
 rhs_save(Model *model, xmlNode *xnode)
 {
-	Rh *rhs = RHS(model);
+	Rhs *rhs = RHS(model);
 
 	xmlNode *xthis;
 
@@ -197,12 +197,12 @@ rhs_refresh_graphic(Rhs *rhs, PElement *root)
 		else
 			/* Not a class we know about.
 			 */
-			IDESTROY(rhs->graphic);
+			UNPARENT(rhs->graphic);
 	}
 	else
 		/* Should be no graphic display.
 		 */
-		IDESTROY(rhs->graphic);
+		UNPARENT(rhs->graphic);
 
 	return TRUE;
 }
@@ -238,7 +238,7 @@ rhs_new_heap(Heapmodel *heapmodel, PElement *root)
 	else
 		/* Should be no klass display.
 		 */
-		IDESTROY(rhs->scol);
+		UNPARENT(rhs->scol);
 
 	/* Create/reuse/destroy text display.
 	 */
@@ -396,7 +396,7 @@ rhs_init(Rhs *rhs)
 Rhs *
 rhs_new(Row *row)
 {
-	Rhs *rhs = RHS(g_object_new(TYPE_RHS, NULL));
+	Rhs *rhs = RHS(g_object_new(RHS_TYPE, NULL));
 
 	icontainer_child_add(ICONTAINER(row), ICONTAINER(rhs), -1);
 

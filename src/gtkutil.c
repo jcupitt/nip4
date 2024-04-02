@@ -262,3 +262,14 @@ action_radio(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
 	g_action_change_state(G_ACTION(action), parameter);
 }
+
+/* Get the default screen DPI.
+ */
+int
+get_dpi(void)
+{
+	// should be per window? maybe this makes no sense anyway
+	printf("get_dpi: FIXME\n");
+
+	return 72;
+}
