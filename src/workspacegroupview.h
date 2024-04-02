@@ -40,10 +40,8 @@
 struct _Workspacegroupview {
 	View parent_object;
 
-	GtkWidget *tab_menu;
 	GtkWidget *gutter_menu;
 	GtkWidget *notebook;
-	GtkWidget *right_click_menu;
 };
 
 typedef struct _WorkspacegroupviewClass {

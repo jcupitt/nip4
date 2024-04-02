@@ -63,6 +63,9 @@ struct _Workspaceview {
 	GtkWidget *popup;
 	GtkWidget *popup_jump;
 
+	GtkWidget *tab_menu;
+	GtkWidget *right_click_menu;
+
 	/* Background window scroll.
 	 */
 	guint timer;

@@ -288,6 +288,9 @@ main(int argc, char **argv)
 	vips_operation_block_set("VipsForeignLoadMagick", TRUE);
 
 	path_init();
+	reduce_context = reduce_new();
+	main_symbol_root = symbol_root_init();
+	main_workspaceroot = workspaceroot_new("Workspaces");
 
 	app = app_new();
 

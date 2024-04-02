@@ -39,10 +39,9 @@ workspacegroupview_dispose(GObject *object)
     printf("workspacegroupview_dispose:\n");
 #endif /*DEBUG*/
 
-    VIPS_FREEF(gtk_widget_unparent, wsgview->notebook);
-    VIPS_FREEF(gtk_widget_unparent, wsgview->tab_menu);
+	VIPS_FREEF(gtk_widget_unparent, wsgview->notebook);
 
-    G_OBJECT_CLASS(workspacegroupview_parent_class)->dispose(object);
+	G_OBJECT_CLASS(workspacegroupview_parent_class)->dispose(object);
 }
 
 static void
@@ -174,39 +173,7 @@ workspacegroupview_child_front(View *parent, View *child)
 	if (current_front != GTK_WIDGET(wview)) {
 		page = gtk_notebook_page_num(GTK_NOTEBOOK(wsgview->notebook),
 			GTK_WIDGET(wview));
-		gtk_notebook_set_current_page(GTK_NOTEBOOK(wsgview->notebook),
-			page);
-	}
-}
-
-static void
-workspacegroupview_background_menu(GtkGestureClick *gesture,
-    guint n_press, double x, double y, Workspacegroupview *wsgview)
-{
-    gtk_popover_set_pointing_to(GTK_POPOVER(wsgview->right_click_menu),
-        &(const GdkRectangle){ x, y, 1, 1 });
-
-    gtk_popover_popup(GTK_POPOVER(wsgview->right_click_menu));
-}
-
-static void
-workspacegroupview_tab_menu(GtkGestureClick *gesture,
-    guint n_press, double x, double y, Workspacegroupview *wsgview)
-{
-    gtk_popover_set_pointing_to(GTK_POPOVER(wsgview->tab_menu),
-        &(const GdkRectangle){ x, y, 1, 1 });
-
-    gtk_popover_popup(GTK_POPOVER(wsgview->tab_menu));
-}
-
-static void
-workspacegroupview_tab_pressed(GtkGestureClick *gesture,
-    guint n_press, double x, double y, Workspacegroupview *wsgview)
-{
-	if (n_press == 2) {
-		// rename tab
-		printf("workspacegroupview_tab_pressed: doubleclick\n" );
-		// workspacegroupview_rename_cb(wid, NULL, wview);
+		gtk_notebook_set_current_page(GTK_NOTEBOOK(wsgview->notebook), page);
 	}
 }
 
@@ -233,18 +200,10 @@ workspacegroupview_class_init(WorkspacegroupviewClass *class)
 	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
         APP_PATH "/workspacegroupview.ui");
 
-	BIND(right_click_menu);
-	BIND(tab_menu);
 	BIND(notebook);
 
-    gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-        workspacegroupview_background_menu);
-    gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-        workspacegroupview_new_tab);
-    gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-        workspacegroupview_tab_menu);
-    gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-        workspacegroupview_tab_pressed);
+	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
+		workspacegroupview_new_tab);
 
 	G_OBJECT_CLASS(class)->dispose = workspacegroupview_dispose;
 
