@@ -274,8 +274,7 @@ imageinfo_undo_changed(Imageinfo *imageinfo)
 {
 	g_assert(IS_IMAGEINFO(imageinfo));
 
-	g_signal_emit(G_OBJECT(imageinfo),
-		imageinfo_signals[SIG_UNDO_CHANGED], 0);
+	g_signal_emit(G_OBJECT(imageinfo), imageinfo_signals[SIG_UNDO_CHANGED], 0);
 
 	return NULL;
 }
@@ -290,8 +289,7 @@ imageinfo_file_changed(Imageinfo *imageinfo)
 	imageinfo_print(imageinfo);
 #endif /*DEBUG_CHECK*/
 
-	g_signal_emit(G_OBJECT(imageinfo),
-		imageinfo_signals[SIG_FILE_CHANGED], 0);
+	g_signal_emit(G_OBJECT(imageinfo), imageinfo_signals[SIG_FILE_CHANGED], 0);
 
 	return NULL;
 }
@@ -306,8 +304,7 @@ imageinfo_invalidate(Imageinfo *imageinfo)
 	imageinfo_print(imageinfo);
 #endif /*DEBUG_CHECK*/
 
-	g_signal_emit(G_OBJECT(imageinfo),
-		imageinfo_signals[SIG_INVALIDATE], 0);
+	g_signal_emit(G_OBJECT(imageinfo), imageinfo_signals[SIG_INVALIDATE], 0);
 
 	return NULL;
 }

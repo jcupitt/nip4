@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
+
   <menu id="workspacegroupview-tab-menu">
     <section>
       <item>
@@ -15,7 +16,9 @@
         <attribute name='action'>win.tab-duplicate</attribute>
       </item>
       <item>
-        <attribute name='label' translatable='yes'>Merge into tab ...</attribute>
+        <attribute name='label' translatable='yes'>
+          Merge into tab ...
+        </attribute>
         <attribute name='action'>win.tab-merge</attribute>
       </item>
       <item>
@@ -123,7 +126,9 @@
         <attribute name="action">win.fullscreen</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="yes">Display control bar</attribute>
+        <attribute name="label" translatable="yes">
+          Display control bar
+        </attribute>
         <attribute name="action">win.control</attribute>
       </item>
       <item>
@@ -158,66 +163,9 @@
         <property name="hexpand">true</property>
         <property name="vexpand">true</property>
 
-        <child>
-          <object class="GtkScrolledWindow" id="scrolled_window">
-            <child>
-              <object class="GtkFixed">
-                <child>
-                  <object class="GtkButton">
-                    <property name="label" translatable="yes">button</property>
-                    <property name="width-request">100</property>
-                    <property name="height-request">80</property>
-                    <property name="receives-default">True</property>
-                  </object>
+	<!-- workspaceview.c adds pages to this notebook -->
 
-                </child>
-
-                <child>
-                  <object class="GtkPopoverMenu" id="right_click_menu">
-                    <property name="has-arrow">0</property>
-                    <property name="menu-model">workspacegroupview-menu</property>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkGestureClick">
-                    <property name="button">3</property>
-                    <signal name="pressed" handler="workspacegroupview_background_menu"/>
-                  </object>
-                </child>
-
-              </object>
-            </child>
-          </object>
-        </child>
-
-        <child type="tab">
-          <object class="GtkLabel">
-            <property name="label" translatable="yes">tab 1</property>
-
-                <child>
-                  <object class="GtkPopoverMenu" id="tab_menu">
-                    <property name="has-arrow">0</property>
-                    <property name="menu-model">workspacegroupview-tab-menu</property>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkGestureClick">
-                    <property name="button">3</property>
-                    <signal name="pressed" handler="workspacegroupview_tab_menu"/>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkGestureClick">
-                    <property name="button">1</property>
-                    <signal name="pressed" handler="workspacegroupview_tab_pressed"/>
-                  </object>
-                </child>
-
-          </object>
-        </child>
+	<!-- do we ned to make the tabs by hand when we add pages? unclear -->
 
         <child type="action-end">
           <object class="GtkButton">

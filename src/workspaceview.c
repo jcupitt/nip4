@@ -696,6 +696,10 @@ workspaceview_layout(View *view)
 		workspaceview_layout_loop(&layout);
 }
 
+#define BIND(field) \
+	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
+		Workspaceview, field);
+
 static void
 workspaceview_class_init(WorkspaceviewClass *class)
 {
@@ -703,6 +707,14 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
+
+	gtk_widget_class_set_layout_manager_type(widget_class,
+		GTK_TYPE_BIN_LAYOUT);
+	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
+		APP_PATH "/workspaceview.ui");
+
+	BIND(fixed);
+	BIND(label);
 
 	object_class->dispose = workspaceview_dispose;
 
@@ -843,6 +855,10 @@ workspaceview_next_error_action_cb2(GtkWidget *wid, GtkWidget *host,
 static void
 workspaceview_init(Workspaceview *wview)
 {
+	gtk_widget_init_template(GTK_WIDGET(wview));
+
+	// a lot of stuff to go in here
+	printf("workspaceview_init: FIXME\n");
 }
 
 View *
