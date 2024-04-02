@@ -30,6 +30,19 @@ set_symbol_drag_type(GtkWidget *widget)
 	printf("set_symbol_drag_type: FIXME .. implement this\n");
 }
 
+void
+set_glabel(GtkWidget *label, const char *fmt, ...)
+{
+	va_list ap;
+	char buf[1000];
+
+	va_start(ap, fmt);
+	(void) vips_vsnprintf(buf, 1000, fmt, ap);
+	va_end(ap);
+
+	gtk_label_set_text(GTK_LABEL(label), buf);
+}
+
 /* Set a GtkEditable.
  */
 void

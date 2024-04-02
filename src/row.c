@@ -428,7 +428,7 @@ row_dispose(GObject *gobject)
 	 * us again in turn.
 	 */
 	if (row == row->top_row)
-		IDESTROY(row->sym);
+		VIPS_UNREF(row->sym);
 
 	G_OBJECT_CLASS(row_parent_class)->dispose(gobject);
 }
@@ -631,7 +631,10 @@ row_parent_remove(iContainer *child)
 static View *
 row_view_new(Model *model, View *parent)
 {
-	return rowview_new();
+	printf("row_view_new: FIXME\n");
+	// return rowview_new();
+
+	return NULL;
 }
 
 static void
@@ -1042,7 +1045,7 @@ row_link_symbol(Row *row, Symbol *sym, PElement *root)
 Row *
 row_new(Subcolumn *scol, Symbol *sym, PElement *root)
 {
-	Row *row = g_object_new(TYPE_ROW, NULL);
+	Row *row = g_object_new(ROW_TYPE, NULL);
 
 #ifdef DEBUG_NEW
 	printf("row_new: ");
@@ -1778,11 +1781,12 @@ row_deselect(Row *row)
 	/* Hack: if this is a matrix with selected cells, deselect the matrix
 	 * sellection too. We should really have a row method for this I
 	 * guess :-( See also workspace_selected_names_sub().
-	 */
 	if (row->child_rhs && row->child_rhs->graphic &&
 		IS_MATRIX(row->child_rhs->graphic) &&
 		MATRIX(row->child_rhs->graphic)->selected)
 		matrix_deselect(MATRIX(row->child_rhs->graphic));
+	 */
+	printf("row_deselect: FIXME ... call matrix_deselect()\n");
 
 	iobject_changed(IOBJECT(row));
 	iobject_changed(IOBJECT(ws));
@@ -2025,7 +2029,7 @@ row_parse_name_row(Row *context, const char *path)
 	/* Break the name into "thing.tail", where tail could contain other
 	 * "." qualifiers.
 	 */
-	im_strncpy(name, path, 256);
+	vips_strncpy(name, path, 256);
 	if (!(tail = break_token(name, ".")))
 		/* Passed empty string.
 		 */
@@ -2064,7 +2068,7 @@ row_parse_name(Symbol *context, const char *path)
 	/* Break the name into "thing.tail", where tail could contain other
 	 * "." qualifiers.
 	 */
-	im_strncpy(name, path, 256);
+	vips_strncpy(name, path, 256);
 	if (!(tail = break_token(name, "."))) {
 		/* Run out of names ... return this row, if we've found one.
 		 */

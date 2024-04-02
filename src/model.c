@@ -37,8 +37,8 @@
 
 /* Stuff from bison ... needed as we call the lexer directly to rewrite
  * expressions.
-#include "parse.h"
  */
+#include "parse.h"
 
 /* Our signals.
  */

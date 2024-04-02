@@ -35,6 +35,7 @@
 
 void set_symbol_drag_type(GtkWidget *widget);
 
+void set_glabel(GtkWidget *label, const char *fmt, ...);
 void set_gentryv(GtkWidget *edit, const char *fmt, va_list ap);
 void set_gentry(GtkWidget *edit, const char *fmt, ...);
 gboolean get_geditable_double(GtkWidget *text, double *out);

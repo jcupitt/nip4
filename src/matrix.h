@@ -7,3 +7,5 @@ struct _Matrix {
 
 #define IS_MATRIX(X) (FALSE)
 #define MATRIX(X) ((Matrix *) (X))
+
+gboolean matrix_value_resize(MatrixValue *value, int width, int height);

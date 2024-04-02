@@ -123,6 +123,7 @@ typedef struct _Columnview Columnview;
 typedef struct _Compile Compile;
 typedef struct _Element Element;
 typedef struct _Expr Expr;
+typedef struct _Classmodel Classmodel;
 typedef struct _Filemodel Filemodel;
 typedef struct _HeapBlock HeapBlock;
 typedef struct _Heap Heap;
@@ -131,6 +132,7 @@ typedef struct _iContainer iContainer;
 typedef struct _Imageinfogroup Imageinfogroup;
 typedef struct _Imageinfo Imageinfo;
 typedef struct _iText iText;
+typedef struct _iImage iImage;
 typedef struct _LinkExpr LinkExpr;
 typedef struct _Link Link;
 typedef struct _Log Log;
@@ -172,8 +174,8 @@ typedef struct _Workspace Workspace;
 #include "main.h"
 #include "watch.h"
 #include "path.h"
-#include "parse.h"
 #include "parser.h"
+#include "tree.h"
 #include "gtkutil.h"
 #include "nip4marshal.h"
 #include "mainwindow.h"
@@ -183,7 +185,6 @@ typedef struct _Workspace Workspace;
 #include "model.h"
 #include "view.h"
 #include "prefs.h"
-#include "tree.h"
 #include "filemodel.h"
 #include "heap.h"
 #include "managed.h"
@@ -199,6 +200,7 @@ typedef struct _Workspace Workspace;
 #include "vipsobject.h"
 #include "reduce.h"
 #include "heapmodel.h"
+#include "classmodel.h"
 #include "column.h"
 #include "expr.h"
 #include "itext.h"

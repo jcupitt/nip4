@@ -727,7 +727,9 @@ workspaceview_load(Workspace *ws, const char *filename)
 
 	Workspacegroup *new_wsg;
 
-	if ((new_wsg = workspaceroot_open_workspace(wsr, filename)))
+	printf("workspaceview_load: FIXME ... need to get app somehow?\n");
+	// or maybe don't make mainw here, but one step up?
+	if ((new_wsg = workspaceroot_open_workspace(wsr, NULL, filename)))
 		return TRUE;
 
 	error_clear();

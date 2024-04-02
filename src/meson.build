@@ -10,18 +10,8 @@ resources = gnome.compile_resources(
   source_dir: 'gtk',
 )
 
-lex_c = custom_target('lex.c',
-  output: ['lex.c', 'lex.h' ],
-  input: 'lex.l',
-  command: [lex,
-    '--outfile=@OUTPUT0@',
-    '--header-file=@OUTPUT1@',
-    '@INPUT@',
-  ],
-)
-
 parse_c = custom_target('parse.c',
-  output: [ 'parse.c', 'parse.h' ],
+  output: ['parse.c', 'parse.h'],
   input: 'parse.y',
   command: [yacc,
     '--output=@OUTPUT0@',
@@ -30,16 +20,29 @@ parse_c = custom_target('parse.c',
     ],
 )
 
+lex_c = custom_target('lex.c',
+  output: 'lex.c',
+  input: 'lex.l',
+  command: [lex,
+    '--outfile=@OUTPUT0@',
+    '@INPUT@',
+  ],
+)
+
 executable('nip4', [
     marshal,
     resources,
+    parse_c,
+    lex_c,
+    'classmodel.c',
+    'row.c',
     'app.c',
     'expr.c',
     'filemodel.c',
     'gtkutil.c',
     'heapmodel.c',
-    'parser.c',
     'icontainer.c',
+    'matrix.c',
     'iobject.c',
     'link.c',
     'main.c',

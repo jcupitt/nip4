@@ -1439,6 +1439,9 @@ typedef void(DrawPoint)(VipsImage *image, int x, int y, void *client);
 void vips__draw_line_direct(VipsImage *image, int x1, int y1, int x2, int y2,
 	DrawPoint draw_point, void *client);
 
+double *vips__ink_to_vector(const char *domain,
+	VipsImage *im, VipsPel *ink, int *n);
+
 typedef struct _ImageinfoDraw {
 	void *a;
 	void *b;
@@ -1453,8 +1456,11 @@ imageinfo_draw_point_cb(VipsImage *im, int x, int y, void *client)
 	VipsImage *mask = (VipsImage *) draw->a;
 	VipsPel *ink = (VipsPel *) draw->b;
 
-	(void) vips_draw_mask(im, mask, ink,
-		x - mask->Xsize / 2, y - mask->Ysize / 2, NULL);
+	double *vec;
+	int n;
+	if ((vec = vips__ink_to_vector("point", im, ink, &n)))
+		(void) vips_draw_mask(im, vec, n, mask,
+			x - mask->Xsize / 2, y - mask->Ysize / 2, NULL);
 }
 
 /* Draw a line.

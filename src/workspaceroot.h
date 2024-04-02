@@ -60,4 +60,4 @@ Workspaceroot *workspaceroot_new(const char *name);
 
 void workspaceroot_name_new(Workspaceroot *wsr, char *name);
 Workspacegroup *workspaceroot_open_workspace(Workspaceroot *wsr,
-	const char *filename);
+	App *app, const char *filename);

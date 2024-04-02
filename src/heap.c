@@ -2622,7 +2622,8 @@ graph_value(PElement *root)
 	Reduce *rc = reduce_context;
 
 	if (!reduce_pelement(rc, reduce_spine_strict, root)) {
-		iwindow_alert(NULL, GTK_MESSAGE_ERROR);
+		printf("graph_value: iwindow_alert FIXME\n");
+		// iwindow_alert(NULL, GTK_MESSAGE_ERROR);
 		return;
 	}
 

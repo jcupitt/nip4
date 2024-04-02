@@ -507,14 +507,11 @@ columnview_refresh(vObject *vobject)
 	else if (IOBJECT(col)->caption) {
 		GtkWidget *label;
 		char buf[256];
-		char buf2[256];
 
 		gtk_frame_set_label(GTK_FRAME(cview->frame), "x");
 		label = gtk_frame_get_label_widget(GTK_FRAME(cview->frame));
-		escape_markup(IOBJECT(col)->caption, buf2, 256);
-		vips_snprintf(buf, 256, "<b>%s</b>", buf2);
-		gtk_label_set_markup(GTK_LABEL(label), buf);
-		gtk_misc_set_padding(GTK_MISC(label), 2, 6);
+		escape_markup(IOBJECT(col)->caption, buf, 256);
+		set_glabel(label, "<b>%s</b>", buf);
 	}
 
 	/* Update names.
@@ -560,7 +557,7 @@ columnview_refresh(vObject *vobject)
 	}
 	else {
 		gtk_widget_show(cview->headfr);
-		DESTROY_GTK(cview->capedit);
+		VIPS_FREEF(gtk_widget_unparent, cview->capedit);
 	}
 
 	/* Set bottom entry.
@@ -573,7 +570,7 @@ columnview_refresh(vObject *vobject)
 		gtk_widget_show(cview->textfr);
 	}
 	else
-		DESTROY_GTK(cview->textfr);
+		VIPS_FREEF(gtk_widget_unparent, cview->textfr);
 
 	/* Set select state.
 	 */
@@ -615,7 +612,8 @@ columnview_child_add(View *parent, View *child)
 
 	VIEW_CLASS(columnview_parent_class)->child_add(parent, child);
 
-	gtk_container_add(GTK_CONTAINER(cview->frame), GTK_WIDGET(sview));
+	printf("columnview_child_add: FIXME ... add to container?\n");
+	// gtk_container_add(GTK_CONTAINER(cview->frame), GTK_WIDGET(sview));
 }
 
 /* Scroll to keep the text entry at the bottom of the columnview on screen.

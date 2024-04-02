@@ -5,27 +5,27 @@
 
 /*
 
-    Copyright (C) 1991-2003 The National Gallery
+	Copyright (C) 1991-2003 The National Gallery
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+	You should have received a copy of the GNU General Public License along
+	with this program; if not, write to the Free Software Foundation, Inc.,
+	51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
  */
 
 /*
 
-    These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
+	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
 
  */
 
@@ -41,8 +41,8 @@
 
 /* The lexer from lex.l.
  */
-int yylex( void );
-void yyrestart( FILE *input_file );
+int yylex(void);
+void yyrestart(FILE *input_file);
 
 /* Declare file-private stuff, shared with the lexer. Bison will put this
  * stuff into parse.h, so just declare, don't define. Sadly we can't have
@@ -88,25 +88,24 @@ extern int parse_object_id;
 
 /* Get text for parsed objects.
  */
-char *input_text( char *out );
-void input_reset( void );
-void input_push( int n );
-void input_backtoch( char ch );
-void input_back1( void );
-void input_pop( void );
+char *input_text(char *out);
+void input_reset(void);
+void input_push(int n);
+void input_backtoch(char ch);
+void input_back1(void);
+void input_pop(void);
 
 /* Nest and unnest scopes.
  */
-void scope_push( void );
-void scope_pop( void );
-void scope_pop_all( void );
-void scope_reset( void );
+void scope_push(void);
+void scope_pop(void);
+void scope_pop_all(void);
+void scope_reset(void);
 
 /* Helper functions.
  */
-void *parse_toplevel_end( Symbol *sym );
-void *parse_access_end( Symbol *sym, Symbol *main );
-
+void *parse_toplevel_end(Symbol *sym);
+void *parse_access_end(Symbol *sym, Symbol *main);
 %}
 
 %union {
@@ -184,15 +183,15 @@ void *parse_access_end( Symbol *sym, Symbol *main );
 %glr-parser
 %expect-rr 13
 
-%error-verbose
+%define parse.error verbose
 
 %%
 
 select:
-      	',' main |
+    ',' main |
 	'^' single_definition |
 	'*' params_plus_rhs optsemi {
-		compile_check( current_compile );
+		compile_check(current_compile);
 	} |
 	prhs {
 		char buf[MAX_STRSIZE];
@@ -201,20 +200,20 @@ select:
 
 		/* Junk any old text.
 		 */
-		IM_FREE( current_compile->text );
-		IM_FREE( current_compile->prhstext );
-		IM_FREE( current_compile->rhstext );
+		VIPS_FREE(current_compile->text);
+		VIPS_FREE(current_compile->prhstext);
+		VIPS_FREE(current_compile->rhstext);
 
 		/* Set new text.
 		 */
-		IM_SETSTR( current_compile->rhstext, input_text( buf ) );
+		VIPS_SETSTR(current_compile->rhstext, input_text(buf));
 
-		compile_check( current_compile );
+		compile_check(current_compile);
 	}
 	;
 
 prhs:
-    	TK_BAND expr {
+    TK_BAND expr {
 		$$ = $2;
 	} |
 	'@' cexprlist {
@@ -223,12 +222,12 @@ prhs:
 	;
 
 main:
-    	/* Empty */ |
+    /* Empty */ |
 	main single_definition
 	;
 
 single_definition:
-      	directive {
+    directive {
 		tool_position += 1;
 	} |
 	toplevel_definition optsemi {
@@ -240,10 +239,10 @@ directive:
 	TK_SEPARATOR {
 		Tool *tool;
 
-		if( !is_top( current_symbol ) )
-			yyerror( _( "not top level" ) );
+		if (!is_top(current_symbol))
+			yyerror(_("not top level"));
 
-		tool = tool_new_sep( current_kit, tool_position );
+		tool = tool_new_sep(current_kit, tool_position);
 		tool->lineno = input_state.lineno;
 
 		input_reset();
@@ -251,26 +250,25 @@ directive:
 	TK_DIALOG TK_CONST TK_CONST {
 		Tool *tool;
 
-		if( !is_top( current_symbol ) )
-			yyerror( _( "not top level" ) );
+		if (!is_top(current_symbol))
+			yyerror(_( "not top level"));
 
 		/* Should have two strings.
 		 */
-		if( $2.type != PARSE_CONST_STR || $3.type != PARSE_CONST_STR )
-			yyerror( _( "not strings" ) );
+		if ($2.type != PARSE_CONST_STR || $3.type != PARSE_CONST_STR)
+			yyerror(_("not strings" ));
 
 		/* Add tool.
 		 */
-		tool = tool_new_dia( current_kit, tool_position,
-			$2.val.str, $3.val.str );
-		if( !tool )
-			yyerror( error_get_sub() );
+		tool = tool_new_dia(current_kit, tool_position, $2.val.str, $3.val.str);
+		if (!tool)
+			yyerror(error_get_sub());
 		tool->lineno = input_state.lineno;
 
 		/* Cast away const here.
 		 */
-		tree_const_destroy( (ParseConst *) &$2 );
-		tree_const_destroy( (ParseConst *) &$3 );
+		tree_const_destroy((ParseConst *) &$2);
+		tree_const_destroy((ParseConst *) &$3);
 
 		input_reset();
 	}
@@ -297,15 +295,15 @@ definition:
 		 * Enforce the no-args-to-pattern-assignment rule in the arg
 		 * pattern parser.
 		 */
-		if( $1->type == NODE_LEAF ) {
-			const char *name = IOBJECT( $1->leaf )->name;
+		if ($1->type == NODE_LEAF) {
+			const char *name = IOBJECT($1->leaf)->name;
 
 			/* Make a new defining occurence.
 			 */
-			sym = symbol_new_defining( current_compile, name );
+			sym = symbol_new_defining(current_compile, name);
 
-			(void) symbol_user_init( sym );
-			(void) compile_new_local( sym->expr );
+			(void) symbol_user_init(sym);
+			(void) compile_new_local(sym->expr);
 		}
 		else {
 			char name[256];
@@ -314,15 +312,13 @@ definition:
 			 * value, then the variables in the pattern become
 			 * toplevels which access that.
 			 */
-			if( !compile_pattern_has_leaf( $1 ) )
-				yyerror( _( "left-hand-side pattern "
-					"contains no identifiers" ) );
-			im_snprintf( name, 256, "$$pattern_lhs%d",
-				parse_object_id++ );
-			sym = symbol_new_defining( current_compile, name );
+			if (!compile_pattern_has_leaf($1))
+				yyerror(_( "left-hand-side pattern contains no identifiers"));
+			vips_snprintf(name, 256, "$$pattern_lhs%d", parse_object_id++);
+			sym = symbol_new_defining(current_compile, name);
 			sym->generated = TRUE;
-			(void) symbol_user_init( sym );
-			(void) compile_new_local( sym->expr );
+			(void) symbol_user_init(sym);
+			(void) compile_new_local(sym->expr);
 		}
 
 		/* Note on the enclosing last_sym. Things like the program
@@ -338,47 +334,44 @@ definition:
 		current_symbol = sym;
 		current_compile = sym->expr->compile;
 
-		g_assert( !current_compile->param );
-		g_assert( current_compile->nparam == 0 );
+		g_assert(!current_compile->param);
+		g_assert(current_compile->nparam == 0);
 
 		/* Junk any old def text.
 		 */
-		IM_FREE( current_compile->text );
-		IM_FREE( current_compile->prhstext );
-		IM_FREE( current_compile->rhstext );
+		VIPS_FREE(current_compile->text);
+		VIPS_FREE(current_compile->prhstext);
+		VIPS_FREE(current_compile->rhstext);
 	}
 	params_plus_rhs {
-		compile_check( current_compile );
+		compile_check(current_compile);
 
 		/* Link unresolved names into the outer scope.
 		 */
-		compile_resolve_names( current_compile,
-			compile_get_parent( current_compile ) );
+		compile_resolve_names(current_compile,
+			compile_get_parent(current_compile));
 
 		/* Is this the end of a top-level? Needs extra work to add to
 		 * the enclosing toolkit etc.
 		 */
-		if( is_scope( symbol_get_parent( current_symbol ) ) )
-			parse_toplevel_end( current_symbol );
+		if (is_scope(symbol_get_parent(current_symbol)))
+			parse_toplevel_end(current_symbol);
 
 		/* Is this a pattern definition? Expand the pattern to a
 		 * set of access defs.
 		 */
-		if( $1->type != NODE_LEAF ) {
-			Compile *parent = compile_get_parent( current_compile );
+		if ($1->type != NODE_LEAF) {
+			Compile *parent = compile_get_parent(current_compile);
 			GSList *built_syms;
 
-			built_syms = compile_pattern_lhs( parent,
-				current_symbol, $1 );
+			built_syms = compile_pattern_lhs(parent, current_symbol, $1);
 
-			if( is_scope( symbol_get_parent( current_symbol ) ) )
-				slist_map( built_syms,
-					(SListMapFn) parse_toplevel_end, NULL );
-			slist_map( built_syms,
-				(SListMapFn) parse_access_end,
-				current_symbol );
+			if (is_scope(symbol_get_parent(current_symbol)))
+				slist_map(built_syms, (SListMapFn) parse_toplevel_end, NULL);
+			slist_map(built_syms,
+				(SListMapFn) parse_access_end, current_symbol);
 
-			g_slist_free( built_syms );
+			g_slist_free(built_syms);
 		}
 
 		scope_pop();
@@ -388,8 +381,8 @@ definition:
 /* Parse params/body/locals into current_expr
  */
 params_plus_rhs:
-	{
-		input_push( 1 );
+	/* Empty */ {
+		input_push(1);
 
 		/* We've already read the character past the end of the
 		 * identifier (that's why we know the identifier is over).
@@ -397,13 +390,13 @@ params_plus_rhs:
 		input_back1();
 	}
 	params {
-		input_push( 2 );
-		input_backtoch( '=' );
+		input_push(2);
+		input_backtoch('=');
 	}
 	body {
 		current_compile->tree = $4;
-		g_assert( current_compile->tree );
-		input_push( 4 );
+		g_assert(current_compile->tree);
+		input_push(4);
 	}
 	locals {
 		char buf[MAX_STRSIZE];
@@ -412,34 +405,34 @@ params_plus_rhs:
 
 		/* Save body text as rhstext.
 		 */
-		IM_SETSTR( current_compile->rhstext, input_text( buf ) );
+		VIPS_SETSTR(current_compile->rhstext, input_text(buf));
 		input_pop();
 
 		/* Save params '=' body as prhstext.
 		 */
-		IM_SETSTR( current_compile->prhstext, input_text( buf ) );
+		VIPS_SETSTR(current_compile->prhstext, input_text(buf));
 		input_pop();
 
 		/* Save full text of definition.
 		 */
-		IM_SETSTR( current_compile->text, input_text( buf ) );
+		VIPS_SETSTR(current_compile->text, input_text(buf));
 
 #ifdef DEBUG
-		printf( "%s->compile->text = \"%s\"\n",
-			IOBJECT( current_compile->sym )->name,
-			current_compile->text );
-		printf( "%s->compile->prhstext = \"%s\"\n",
-			IOBJECT( current_compile->sym )->name,
-			current_compile->prhstext );
-		printf( "%s->compile->rhstext = \"%s\"\n",
-			IOBJECT( current_compile->sym )->name,
-			current_compile->rhstext );
+		printf("%s->compile->text = \"%s\"\n",
+			IOBJECT(current_compile->sym)->name,
+			current_compile->text);
+		printf("%s->compile->prhstext = \"%s\"\n",
+			IOBJECT(current_compile->sym)->name,
+			current_compile->prhstext);
+		printf("%s->compile->rhstext = \"%s\"\n",
+			IOBJECT(current_compile->sym)->name,
+			current_compile->rhstext);
 #endif /*DEBUG*/
 	}
 	;
 
 params:
-      	/* Empty */ |
+    /* Empty */ |
 	params simple_pattern {
 		Symbol *sym;
 
@@ -455,34 +448,34 @@ params:
 		 *
 		 * A later pass creates the "a = $$arg42?0" definition.
 		 */
-		if( $2->type == NODE_LEAF ) {
-			const char *name = IOBJECT( $2->leaf )->name;
+		if ($2->type == NODE_LEAF) {
+			const char *name = IOBJECT($2->leaf)->name;
 
 			/* Make defining occurence.
 			 */
-			sym = symbol_new_defining( current_compile, name );
-			(void) symbol_parameter_init( sym );
+			sym = symbol_new_defining(current_compile, name);
+			(void) symbol_parameter_init(sym);
 		}
 		else {
 			char name[256];
 
-			im_snprintf( name, 256, "$$arg%d", parse_object_id );
-			sym = symbol_new_defining( current_compile, name );
+			vips_snprintf(name, 256, "$$arg%d", parse_object_id);
+			sym = symbol_new_defining(current_compile, name);
 			sym->generated = TRUE;
-			(void) symbol_parameter_init( sym );
+			(void) symbol_parameter_init(sym);
 
-			im_snprintf( name, 256, "$$patt%d", parse_object_id++ );
-			sym = symbol_new_defining( current_compile, name );
+			vips_snprintf(name, 256, "$$patt%d", parse_object_id++);
+			sym = symbol_new_defining(current_compile, name);
 			sym->generated = TRUE;
-			(void) symbol_user_init( sym );
-			(void) compile_new_local( sym->expr );
+			(void) symbol_user_init(sym);
+			(void) compile_new_local(sym->expr);
 			sym->expr->compile->tree = $2;
 		}
 	}
 	;
 
 body :
-     	'=' TK_CLASS crhs {
+    '=' TK_CLASS crhs {
 		$$ = $3;
 	} |
 	rhs {
@@ -491,8 +484,8 @@ body :
 	;
 
 crhs:
-    	{
-		ParseNode *pn = tree_class_new( current_compile );
+    /* Empty */ {
+		ParseNode *pn = tree_class_new(current_compile);
 
 		input_push( 3 );
 		scope_push();
@@ -502,31 +495,32 @@ crhs:
 		current_parsenode = pn;
 	}
 	cexprlist {
-		Compile *parent = compile_get_parent( current_compile );
+		Compile *parent = compile_get_parent(current_compile);
+
 		char buf[MAX_STRSIZE];
 		int len;
 
-		(void) input_text( buf );
+		(void) input_text(buf);
 
 		/* Always read 1 char too many.
 		 */
-		if( (len = strlen( buf )) > 0 )
+		if ((len = strlen(buf)) > 0)
 			buf[len - 1] = '\0';
 
-		IM_SETSTR( current_compile->rhstext, buf );
+		VIPS_SETSTR(current_compile->rhstext, buf);
 		input_pop();
 		current_compile->tree = $2;
 
-		if( current_compile->tree->elist )
+		if (current_compile->tree->elist)
 			parent->has_super = TRUE;
 
 		/* Do some checking.
 		 */
-		compile_check( current_compile );
+		compile_check(current_compile);
 
 		/* Link unresolved names.
 		 */
-		compile_resolve_names( current_compile, parent );
+		compile_resolve_names(current_compile, parent);
 
 		scope_pop();
 
@@ -536,78 +530,78 @@ crhs:
 	;
 
 rhs:
-   	'=' expr {
+    '=' expr {
 		$$ = $2;
 	} |
 	'=' expr ',' expr optsemi rhs {
-		$$ = tree_ifelse_new( current_compile, $4, $2, $6 );
+		$$ = tree_ifelse_new(current_compile, $4, $2, $6);
 	}
 	;
 
 locals:
-      	';' |
+    ';' |
 	'{' deflist '}' |
 	'{' '}'
 	;
 
 optsemi:
-       	/* Empty */ |
+    /* Empty */ |
 	';' optsemi
 	;
 
 deflist:
-       	definition {
+    definition {
 		input_pop();
-		input_push( 5 );
+		input_push(5);
 	}
 	optsemi |
 	deflist definition {
 		input_pop();
-		input_push( 6 );
+		input_push(6);
 	}
 	optsemi
 	;
 
 cexprlist:
 	/* Empty */ {
-		$$ = tree_super_new( current_compile );
+		$$ = tree_super_new(current_compile);
 	} |
 	cexprlist expr %prec TK_APPLICATION {
-		$$ = tree_super_extend( current_compile, $1, $2 );
+		$$ = tree_super_extend(current_compile, $1, $2);
 	}
 	;
 
 expr:
-    	'(' expr ')' {
+    '(' expr ')' {
 		$$ = $2;
 	} |
 	TK_CONST {
-		$$ = tree_const_new( current_compile, $1 );
+		$$ = tree_const_new(current_compile, $1);
 	} |
 	TK_IDENT {
-		$$ = tree_leaf_new( current_compile, $1 );
-		im_free( $1 );
+		$$ = tree_leaf_new(current_compile, $1);
+		g_free( $1 );
 	} |
 	TK_TAG {
-		$$ = tree_tag_new( current_compile, $1 );
-		im_free( $1 );
+		$$ = tree_tag_new(current_compile, $1);
+		g_free($1);
 	} |
 	TK_SCOPE {
-		$$ = tree_leaf_new( current_compile,
-			IOBJECT( symbol_get_scope( current_symbol ) )->name );
+		$$ = tree_leaf_new(current_compile,
+			IOBJECT(symbol_get_scope(current_symbol))->name);
 	} |
 	TK_IF expr TK_THEN expr TK_ELSE expr %prec TK_IF {
-		$$ = tree_ifelse_new( current_compile, $2, $4, $6 );
+		$$ = tree_ifelse_new(current_compile, $2, $4, $6);
 	} |
 	expr expr %prec TK_APPLICATION {
-		$$ = tree_appl_new( current_compile, $1, $2 );
+		$$ = tree_appl_new(current_compile, $1, $2);
 	} |
 	lambda |
 	list_expression {
 		$$ = $1;
 	} |
 	'(' expr ',' expr ')' {
-		$$ = tree_binop_new( current_compile, BI_COMMA, $2, $4 );
+		$$ = tree_binop_new(current_compile, BI_COMMA, $2, $4);
 	} |
 	binop |
 	uop
@@ -621,11 +615,11 @@ lambda:
 		/* Make an anonymous symbol local to the current sym, compile
 		 * the expr inside that.
 		 */
-		im_snprintf( name, 256, "$$lambda%d", parse_object_id++ );
-		sym = symbol_new_defining( current_compile, name );
+		vips_snprintf(name, 256, "$$lambda%d", parse_object_id++);
+		sym = symbol_new_defining(current_compile, name);
 		sym->generated = TRUE;
-		(void) symbol_user_init( sym );
-		(void) compile_new_local( sym->expr );
+		(void) symbol_user_init(sym);
+		(void) compile_new_local(sym->expr);
 
 		/* Initialise symbol parsing variables. Save old current symbol,
 		 * add new one.
@@ -636,102 +630,102 @@ lambda:
 
 		/* Make the parameter.
 		 */
-		sym = symbol_new_defining( current_compile, $2 );
-		symbol_parameter_init( sym );
-		im_free( $2 );
+		sym = symbol_new_defining(current_compile, $2);
+		symbol_parameter_init(sym);
+		g_free($2);
 	}
-	expr {
-		Symbol *sym;
+    expr {
+        Symbol *sym;
 
-		current_compile->tree = $4;
+        current_compile->tree = $4;
 
-		if( !compile_check( current_compile ) )
-			yyerror( error_get_sub() );
+        if (!compile_check(current_compile))
+            yyerror(error_get_sub());
 
-		/* Link unresolved names in to the outer scope.
-		 */
-		compile_resolve_names( current_compile,
-			compile_get_parent( current_compile ) );
+        /* Link unresolved names in to the outer scope.
+         */
+        compile_resolve_names(current_compile,
+            compile_get_parent(current_compile));
 
-		/* The value of the expr is the anon we defined.
-		 */
-		sym = current_symbol;
-		scope_pop();
-		$$ = tree_leafsym_new( current_compile, sym );
-	}
+        /* The value of the expr is the anon we defined.
+         */
+        sym = current_symbol;
+        scope_pop();
+        $$ = tree_leafsym_new(current_compile, sym);
+    }
 	;
 
 list_expression:
-      	'[' expr TK_DOTDOTDOT ']' {
-		$$ = tree_generator_new( current_compile, $2, NULL, NULL );
+    '[' expr TK_DOTDOTDOT ']' {
+		$$ = tree_generator_new(current_compile, $2, NULL, NULL);
 	} |
 	'[' expr TK_DOTDOTDOT expr ']' {
-		$$ = tree_generator_new( current_compile, $2, NULL, $4 );
+		$$ = tree_generator_new(current_compile, $2, NULL, $4);
 	} |
 	'[' expr ',' expr TK_DOTDOTDOT ']' {
-		$$ = tree_generator_new( current_compile, $2, $4, NULL );
+		$$ = tree_generator_new(current_compile, $2, $4, NULL);
 	} |
 	'[' expr ',' expr TK_DOTDOTDOT expr ']' {
-		$$ = tree_generator_new( current_compile, $2, $4, $6 );
+		$$ = tree_generator_new(current_compile, $2, $4, $6);
 	} |
-	'[' expr TK_SUCHTHAT {
-		char name[256];
-		Symbol *sym;
-		Compile *enclosing = current_compile;
+    '[' expr TK_SUCHTHAT {
+        char name[256];
+        Symbol *sym;
+        Compile *enclosing = current_compile;
 
-		/* Make an anonymous symbol local to the current sym, copy
-		 * the map expr inside that.
-		 */
-		im_snprintf( name, 256, "$$lcomp%d", parse_object_id++ );
-		sym = symbol_new_defining( current_compile, name );
-		(void) symbol_user_init( sym );
-		sym->generated = TRUE;
-		(void) compile_new_local( sym->expr );
+        /* Make an anonymous symbol local to the current sym, copy
+         * the map expr inside that.
+         */
+        vips_snprintf(name, 256, "$$lcomp%d", parse_object_id++);
+        sym = symbol_new_defining(current_compile, name);
+        (void) symbol_user_init(sym);
+        sym->generated = TRUE;
+        (void) compile_new_local(sym->expr);
 
-		/* Push a new scope.
-		 */
-		scope_push();
-		current_symbol = sym;
-		current_compile = sym->expr->compile;
+        /* Push a new scope.
+         */
+        scope_push();
+        current_symbol = sym;
+        current_compile = sym->expr->compile;
 
-		/* Somewhere to save the result expr. We have to copy the
-		 * expr, as we want it to be bound in $$lcomp's context so
-		 * that it can see the generators.
-		 */
-		sym = symbol_new_defining( current_compile, "$$result" );
-		sym->generated = TRUE;
-		sym->placeholder = TRUE;
-		(void) symbol_user_init( sym );
-		(void) compile_new_local( sym->expr );
-		sym->expr->compile->tree = compile_copy_tree( enclosing, $2,
-			sym->expr->compile );
-	}
-	generator frompred_list ']' {
-		Symbol *sym;
+        /* Somewhere to save the result expr. We have to copy the
+         * expr, as we want it to be bound in $$lcomp's context so
+         * that it can see the generators.
+         */
+        sym = symbol_new_defining(current_compile, "$$result");
+        sym->generated = TRUE;
+        sym->placeholder = TRUE;
+        (void) symbol_user_init(sym);
+        (void) compile_new_local(sym->expr);
+        sym->expr->compile->tree = compile_copy_tree(enclosing, $2,
+            sym->expr->compile);
+    }
+    generator frompred_list ']' {
+        Symbol *sym;
 
-		/* The map expr can refer to generator names. Resolve inwards
-		 * so it links to the generators.
-		 */
-		compile_resolve_names( compile_get_parent( current_compile ),
-			current_compile );
+        /* The map expr can refer to generator names. Resolve inwards
+         * so it links to the generators.
+         */
+        compile_resolve_names(compile_get_parent(current_compile),
+            current_compile);
 
-		/* Generate the code for the list comp.
-		 */
-		compile_lcomp( current_compile );
+        /* Generate the code for the list comp.
+         */
+        compile_lcomp(current_compile);
 
-		compile_check( current_compile );
+        compile_check(current_compile);
 
-		/* Link unresolved names outwards.
-		 */
-		compile_resolve_names( current_compile,
-			compile_get_parent( current_compile ) );
+        /* Link unresolved names outwards.
+         */
+        compile_resolve_names(current_compile,
+            compile_get_parent(current_compile));
 
-		/* The value of the expr is the anon we defined.
-		 */
-		sym = current_symbol;
-		scope_pop();
-		$$ = tree_leafsym_new( current_compile, sym );
-	} |
+        /* The value of the expr is the anon we defined.
+         */
+        sym = current_symbol;
+        scope_pop();
+        $$ = tree_leafsym_new(current_compile, sym);
+    } |
 	'[' comma_list ']' {
 		$$ = $2;
 	} |
@@ -739,7 +733,7 @@ list_expression:
 		ParseConst elist;
 
 		elist.type = PARSE_CONST_ELIST;
-		$$ = tree_const_new( current_compile, elist );
+		$$ = tree_const_new(current_compile, elist);
 	}
 	;
 
@@ -751,50 +745,50 @@ frompred_list:
 	;
 
 generator:
-       simple_pattern TK_FROM expr {
-		char name[256];
-		Symbol *sym;
+    simple_pattern TK_FROM expr {
+        char name[256];
+        Symbol *sym;
 
-		im_snprintf( name, 256, "$$pattern%d", parse_object_id );
-		sym = symbol_new_defining( current_compile, name );
-		sym->generated = TRUE;
-		sym->placeholder = TRUE;
-		(void) symbol_user_init( sym );
-		(void) compile_new_local( sym->expr );
-		sym->expr->compile->tree = $1;
+        vips_snprintf(name, 256, "$$pattern%d", parse_object_id);
+        sym = symbol_new_defining(current_compile, name);
+        sym->generated = TRUE;
+        sym->placeholder = TRUE;
+        (void) symbol_user_init(sym);
+        (void) compile_new_local(sym->expr);
+        sym->expr->compile->tree = $1;
 
-		im_snprintf( name, 256, "$$generator%d", parse_object_id++ );
-		sym = symbol_new_defining( current_compile, name );
-		sym->generated = TRUE;
-		sym->placeholder = TRUE;
-		(void) symbol_user_init( sym );
-		(void) compile_new_local( sym->expr );
-		sym->expr->compile->tree = $3;
-       }
-       ;
+        vips_snprintf(name, 256, "$$generator%d", parse_object_id++);
+        sym = symbol_new_defining(current_compile, name);
+        sym->generated = TRUE;
+        sym->placeholder = TRUE;
+        (void) symbol_user_init(sym);
+        (void) compile_new_local(sym->expr);
+        sym->expr->compile->tree = $3;
+    }
+    ;
 
 frompred:
-       generator |
-       expr {
-		char name[256];
-		Symbol *sym;
+    generator |
+    expr {
+        char name[256];
+        Symbol *sym;
 
-		im_snprintf( name, 256, "$$filter%d", parse_object_id++ );
-		sym = symbol_new_defining( current_compile, name );
-		sym->generated = TRUE;
-		sym->placeholder = TRUE;
-		(void) symbol_user_init( sym );
-		(void) compile_new_local( sym->expr );
-		sym->expr->compile->tree = $1;
-       }
-       ;
+        vips_snprintf(name, 256, "$$filter%d", parse_object_id++);
+        sym = symbol_new_defining(current_compile, name);
+        sym->generated = TRUE;
+        sym->placeholder = TRUE;
+        (void) symbol_user_init(sym);
+        (void) compile_new_local(sym->expr);
+        sym->expr->compile->tree = $1;
+    }
+    ;
 
 comma_list:
-     	expr ',' comma_list {
-		$$ = tree_lconst_extend( current_compile, $3, $1 );
+    expr ',' comma_list {
+		$$ = tree_lconst_extend(current_compile, $3, $1);
 	} |
 	expr {
-		$$ = tree_lconst_new( current_compile, $1 );
+		$$ = tree_lconst_new(current_compile, $1);
 	}
 	;
 
@@ -802,108 +796,108 @@ comma_list:
  * get reduce/reduce conflits. Copypaste a lot instead.
  */
 binop:
-     	expr '+' expr {
-		$$ = tree_binop_new( current_compile, BI_ADD, $1, $3 );
+    expr '+' expr {
+		$$ = tree_binop_new(current_compile, BI_ADD, $1, $3);
 	} |
 	expr ':' expr {
-		$$ = tree_binop_new( current_compile, BI_CONS, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_CONS, $1, $3);
 	} |
 	expr '-' expr {
-		$$ = tree_binop_new( current_compile, BI_SUB, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_SUB, $1, $3);
 	} |
 	expr '?' expr {
-		$$ = tree_binop_new( current_compile, BI_SELECT, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_SELECT, $1, $3);
 	} |
 	expr '/' expr {
-		$$ = tree_binop_new( current_compile, BI_DIV, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_DIV, $1, $3);
 	} |
 	expr '*' expr {
-		$$ = tree_binop_new( current_compile, BI_MUL, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_MUL, $1, $3);
 	} |
 	expr '%' expr {
-		$$ = tree_binop_new( current_compile, BI_REM, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_REM, $1, $3);
 	} |
 	expr TK_JOIN expr {
-		$$ = tree_binop_new( current_compile, BI_JOIN, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_JOIN, $1, $3);
 	} |
 	expr TK_POW expr {
-		$$ = tree_binop_new( current_compile, BI_POW, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_POW, $1, $3);
 	} |
 	expr TK_LSHIFT expr {
-		$$ = tree_binop_new( current_compile, BI_LSHIFT, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_LSHIFT, $1, $3);
 	} |
 	expr TK_RSHIFT expr {
-		$$ = tree_binop_new( current_compile, BI_RSHIFT, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_RSHIFT, $1, $3);
 	} |
 	expr '^' expr {
-		$$ = tree_binop_new( current_compile, BI_EOR, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_EOR, $1, $3);
 	} |
 	expr TK_LAND expr {
-		$$ = tree_binop_new( current_compile, BI_LAND, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_LAND, $1, $3);
 	} |
 	expr TK_BAND expr {
-		$$ = tree_binop_new( current_compile, BI_BAND, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_BAND, $1, $3);
 	} |
 	expr '@' expr {
-		$$ = tree_compose_new( current_compile, $1, $3 );
+		$$ = tree_compose_new(current_compile, $1, $3);
 	} |
 	expr TK_LOR expr {
-		$$ = tree_binop_new( current_compile, BI_LOR, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_LOR, $1, $3);
 	} |
 	expr TK_BOR expr {
-		$$ = tree_binop_new( current_compile, BI_BOR, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_BOR, $1, $3);
 	} |
 	expr TK_LESS expr {
-		$$ = tree_binop_new( current_compile, BI_LESS, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_LESS, $1, $3);
 	} |
 	expr TK_LESSEQ expr {
-		$$ = tree_binop_new( current_compile, BI_LESSEQ, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_LESSEQ, $1, $3);
 	} |
 	expr TK_MORE expr {
-		$$ = tree_binop_new( current_compile, BI_MORE, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_MORE, $1, $3);
 	} |
 	expr TK_MOREEQ expr {
-		$$ = tree_binop_new( current_compile, BI_MOREEQ, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_MOREEQ, $1, $3);
 	} |
 	expr TK_EQ expr {
-		$$ = tree_binop_new( current_compile, BI_EQ, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_EQ, $1, $3);
 	} |
 	expr TK_NOTEQ expr {
-		$$ = tree_binop_new( current_compile, BI_NOTEQ, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_NOTEQ, $1, $3);
 	} |
 	expr TK_PEQ expr {
-		$$ = tree_binop_new( current_compile, BI_PEQ, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_PEQ, $1, $3);
 	} |
 	expr TK_PNOTEQ expr {
-		$$ = tree_binop_new( current_compile, BI_PNOTEQ, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_PNOTEQ, $1, $3);
 	} |
 	expr '.' expr {
-		$$ = tree_binop_new( current_compile, BI_DOT, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_DOT, $1, $3);
 	} |
 	expr TK_DIFF expr {
 		ParseNode *pn1, *pn2;
 
-		pn1 = tree_leaf_new( current_compile, "difference" );
-		pn2 = tree_leaf_new( current_compile, "equal" );
-		pn1 = tree_appl_new( current_compile, pn1, pn2 );
-		pn1 = tree_appl_new( current_compile, pn1, $1 );
-		pn1 = tree_appl_new( current_compile, pn1, $3 );
+		pn1 = tree_leaf_new(current_compile, "difference");
+		pn2 = tree_leaf_new(current_compile, "equal");
+		pn1 = tree_appl_new(current_compile, pn1, pn2);
+		pn1 = tree_appl_new(current_compile, pn1, $1);
+		pn1 = tree_appl_new(current_compile, pn1, $3);
 
 		$$ = pn1;
 	} |
 	expr TK_TO expr {
 		ParseNode *pn;
 
-		pn = tree_leaf_new( current_compile, "mknvpair" );
-		pn = tree_appl_new( current_compile, pn, $1 );
-		pn = tree_appl_new( current_compile, pn, $3 );
+		pn = tree_leaf_new(current_compile, "mknvpair");
+		pn = tree_appl_new(current_compile, pn, $1);
+		pn = tree_appl_new(current_compile, pn, $3);
 
 		$$ = pn;
 	}
 	;
 
 signed:
-      	/* Nothing */ |
+    /* Nothing */ |
 	TK_SIGNED
 	;
 
@@ -914,46 +908,46 @@ unsigned:
 
 uop:
    	'(' unsigned TK_CHAR ')' expr %prec TK_UMINUS {
-		$$ = tree_unop_new( current_compile, UN_CUCHAR, $5 );
+		$$ = tree_unop_new(current_compile, UN_CUCHAR, $5);
 	} |
 	'(' TK_SIGNED TK_CHAR ')' expr %prec TK_UMINUS {
-		$$ = tree_unop_new( current_compile, UN_CSCHAR, $5 );
+		$$ = tree_unop_new(current_compile, UN_CSCHAR, $5);
 	} |
 	'(' signed TK_SHORT ')' expr %prec TK_UMINUS {
-		$$ = tree_unop_new( current_compile, UN_CSSHORT, $5 );
+		$$ = tree_unop_new(current_compile, UN_CSSHORT, $5);
 	} |
 	'(' TK_UNSIGNED TK_SHORT ')' expr %prec TK_UMINUS {
-		$$ = tree_unop_new( current_compile, UN_CUSHORT, $5 );
+		$$ = tree_unop_new(current_compile, UN_CUSHORT, $5);
 	} |
 	'(' signed TK_INT ')' expr %prec TK_UMINUS {
-		$$ = tree_unop_new( current_compile, UN_CSINT, $5 );
+		$$ = tree_unop_new(current_compile, UN_CSINT, $5);
 	} |
 	'(' TK_UNSIGNED TK_INT ')' expr %prec TK_UMINUS {
-		$$ = tree_unop_new( current_compile, UN_CUINT, $5 );
+		$$ = tree_unop_new(current_compile, UN_CUINT, $5);
 	} |
 	'(' TK_FLOAT ')' expr %prec TK_UMINUS {
-		$$ = tree_unop_new( current_compile, UN_CFLOAT, $4 );
+		$$ = tree_unop_new(current_compile, UN_CFLOAT, $4);
 	} |
 	'(' TK_DOUBLE ')' expr %prec TK_UMINUS {
-		$$ = tree_unop_new( current_compile, UN_CDOUBLE, $4 );
+		$$ = tree_unop_new(current_compile, UN_CDOUBLE, $4);
 	} |
 	'(' TK_COMPLEX ')' expr %prec TK_UMINUS {
-		$$ = tree_unop_new( current_compile, UN_CCOMPLEX, $4 );
+		$$ = tree_unop_new(current_compile, UN_CCOMPLEX, $4);
 	} |
 	'(' TK_DOUBLE TK_COMPLEX ')' expr %prec TK_UMINUS {
-		$$ = tree_unop_new( current_compile, UN_CDCOMPLEX, $5 );
+		$$ = tree_unop_new(current_compile, UN_CDCOMPLEX, $5);
 	} |
 	TK_UMINUS expr {
-		$$ = tree_unop_new( current_compile, UN_MINUS, $2 );
+		$$ = tree_unop_new(current_compile, UN_MINUS, $2);
 	} |
 	'!' expr {
-		$$ = tree_unop_new( current_compile, UN_NEG, $2 );
+		$$ = tree_unop_new(current_compile, UN_NEG, $2);
 	} |
 	'~' expr {
-		$$ = tree_unop_new( current_compile, UN_COMPLEMENT, $2 );
+		$$ = tree_unop_new(current_compile, UN_COMPLEMENT, $2);
 	} |
 	TK_UPLUS expr {
-		$$ = tree_unop_new( current_compile, UN_PLUS, $2 );
+		$$ = tree_unop_new(current_compile, UN_PLUS, $2);
 	}
 	;
 
@@ -962,10 +956,10 @@ uop:
 simple_pattern:
 	leaf_pattern |
 	'(' leaf_pattern ',' leaf_pattern ')' {
-		$$ = tree_binop_new( current_compile, BI_COMMA, $2, $4 );
+		$$ = tree_binop_new(current_compile, BI_COMMA, $2, $4);
 	} |
 	simple_pattern ':' simple_pattern {
-		$$ = tree_binop_new( current_compile, BI_CONS, $1, $3 );
+		$$ = tree_binop_new(current_compile, BI_CONS, $1, $3);
 	} |
 	'(' complex_pattern ')' {
 		$$ = $2;
@@ -977,7 +971,7 @@ simple_pattern:
 		ParseConst elist;
 
 		elist.type = PARSE_CONST_ELIST;
-		$$ = tree_const_new( current_compile, elist );
+		$$ = tree_const_new(current_compile, elist);
 	}
 	;
 
@@ -985,11 +979,11 @@ simple_pattern:
  */
 leaf_pattern:
 	TK_IDENT {
-		$$ = tree_leaf_new( current_compile, $1 );
-		im_free( $1 );
+		$$ = tree_leaf_new(current_compile, $1);
+		g_free($1);
 	} |
 	TK_CONST {
-		$$ = tree_const_new( current_compile, $1 );
+		$$ = tree_const_new(current_compile, $1);
 	}
 	;
 
@@ -997,20 +991,20 @@ leaf_pattern:
  */
 complex_pattern:
 	TK_IDENT TK_IDENT {
-		$$ = tree_pattern_class_new( current_compile, $1,
-			tree_leaf_new( current_compile, $2 ) );
-		im_free( $1 );
-		im_free( $2 );
+		$$ = tree_pattern_class_new(current_compile, $1,
+			tree_leaf_new(current_compile, $2));
+		g_free($1);
+		g_free($2);
 	} |
 	simple_pattern
 	;
 
 list_pattern:
      	complex_pattern ',' list_pattern {
-		$$ = tree_lconst_extend( current_compile, $3, $1 );
+		$$ = tree_lconst_extend(current_compile, $3, $1);
 	} |
 	complex_pattern {
-		$$ = tree_lconst_new( current_compile, $1 );
+		$$ = tree_lconst_new(current_compile, $1);
 	}
 	;
 
@@ -1023,7 +1017,7 @@ jmp_buf parse_error_point;
 /* Text we've lexed.
  */
 char lex_text_buffer[MAX_STRSIZE];
-VipsBuf lex_text = VIPS_BUF_STATIC( lex_text_buffer );
+VipsBuf lex_text = VIPS_BUF_STATIC(lex_text_buffer);
 
 /* State of input system.
  */
@@ -1054,49 +1048,49 @@ int parse_object_id = 0;
  * from nip2 in a few places during parse.
  */
 void
-nip2yyerror( const char *sub, ... )
+nip2yyerror(const char *sub, ...)
 {
 	va_list ap;
- 	char buf[4096];
+	char buf[4096];
 
-        va_start( ap, sub );
-        (void) im_vsnprintf( buf, 4096, sub, ap );
-        va_end( ap );
+	va_start(ap, sub);
+	(void) vips_vsnprintf(buf, 4096, sub, ap);
+	va_end(ap);
 
-	error_top( _( "Parse error." ) );
+	error_top(_("Parse error."));
 
-	if( current_compile && current_compile->last_sym )
-		error_sub( _( "Error in %s: %s" ),
-			IOBJECT(  current_compile->last_sym )->name, buf );
+	if (current_compile && current_compile->last_sym)
+		error_sub(_("Error in %s: %s"),
+			IOBJECT(current_compile->last_sym)->name, buf);
 	else
-		error_sub( _( "Error: %s" ), buf );
+		error_sub(_("Error: %s"), buf);
 
-	longjmp( parse_error_point, -1 );
+	longjmp(parse_error_point, -1);
 }
 
 /* Bison calls this.
  */
 void
-yyerror( const char *msg )
+yyerror(const char *msg)
 {
-	nip2yyerror( "%s", msg );
+	nip2yyerror("%s", msg);
 }
 
 /* Attach yyinput to a file.
  */
 void
-attach_input_file( iOpenFile *of )
+attach_input_file(iOpenFile *of)
 {
 	InputState *is = &input_state;
 
 #ifdef DEBUG
-	printf( "attach_input_file: \"%s\"\n", of->fname );
+	printf("attach_input_file: \"%s\"\n", of->fname);
 #endif /*DEBUG*/
 
 	/* Need to clear flex/bison's buffers in case we abandoned the
 	 * previous parse.
 	 */
-	yyrestart( NULL );
+	yyrestart(NULL);
 
 	is->of = of;
 	is->str = NULL;
@@ -1112,21 +1106,21 @@ attach_input_file( iOpenFile *of )
 
 	/* Init text gatherer.
 	 */
-	vips_buf_rewind( &lex_text );
+	vips_buf_rewind(&lex_text);
 }
 
 /* Attach yyinput to a string.
  */
 void
-attach_input_string( const char *str )
+attach_input_string(const char *str)
 {
 	InputState *is = &input_state;
 
 #ifdef DEBUG
-	printf( "attach_input_string: \"%s\"\n", str );
+	printf("attach_input_string: \"%s\"\n", str);
 #endif /*DEBUG*/
 
-	yyrestart( NULL );
+	yyrestart(NULL);
 
 	is->of = NULL;
 	is->str = (char *) str;
@@ -1142,43 +1136,43 @@ attach_input_string( const char *str )
 
 	/* Init text gatherer.
 	 */
-	vips_buf_rewind( &lex_text );
+	vips_buf_rewind(&lex_text);
 }
 
 /* Read a character from the input.
  */
 int
-ip_input( void )
+ip_input(void)
 {
 	InputState *is = &input_state;
 	int ch;
 
-	if( is->oldchar >= 0 ) {
+	if (is->oldchar >= 0) {
 		/* From unget buffer.
 		 */
 		ch = is->oldchar;
 		is->oldchar = -1;
 	}
-	else if( is->of ) {
+	else if (is->of) {
 		/* Input from file.
 		 */
-		if( (ch = getc( is->of->fp )) == EOF )
-			return( 0 );
+		if ((ch = getc(is->of->fp)) == EOF)
+			return 0;
 	}
 	else {
 		/* Input from string.
 		 */
-		if( (ch = *is->strpos) )
+		if ((ch = *is->strpos))
 			is->strpos++;
 		else
 			/* No counts to update!
 			 */
-			return( 0 );
+			return 0;
 	}
 
 	/* Update counts.
 	 */
-	if( ch == '\n' ) {
+	if (ch == '\n') {
 		is->lineno++;
 		is->pcharno = is->charno + 1;
 		is->charno = 0;
@@ -1189,43 +1183,43 @@ ip_input( void )
 	/* Add this character to the characters we have accumulated for this
 	 * definition.
 	 */
-	if( is->bwp >= MAX_STRSIZE )
-		yyerror( _( "definition is too long" ) );
-	if( is->bwp >= 0 )
+	if (is->bwp >= MAX_STRSIZE)
+		yyerror(_("definition is too long"));
+	if (is->bwp >= 0)
 		is->buf[is->bwp] = ch;
 	is->bwp++;
 
 	/* Add to lex text buffer.
 	 */
-	if( is->charno > 0 )
-		vips_buf_appendc( &lex_text, ch );
+	if (is->charno > 0)
+		vips_buf_appendc(&lex_text, ch);
 
 #ifdef DEBUG_CHARACTER
-	printf( "ip_input: returning '%c'\n", ch );
+	printf("ip_input: returning '%c'\n", ch);
 #endif /*DEBUG_CHARACTER*/
 
-	return( ch );
+	return ch;
 }
 
 /* Unget an input character.
  */
 void
-ip_unput( int ch )
+ip_unput(int ch)
 {
 	InputState *is = &input_state;
 
 #ifdef DEBUG_CHARACTER
-	printf( "ip_unput: ungetting '%c'\n", ch );
+	printf("ip_unput: ungetting '%c'\n", ch);
 #endif /*DEBUG_CHARACTER*/
 
 	/* Is lex trying to unget the end-of-file marker? Do nothing if it is.
 	 */
-	if( !ch )
+	if (!ch)
 		return;
 
-	if( is->of ) {
-		if( ungetc( ch, is->of->fp ) == EOF )
-			error( "unget buffer overflow" );
+	if (is->of) {
+		if (ungetc(ch, is->of->fp) == EOF)
+			error("unget buffer overflow");
 	}
 	else
 		/* Save extra char here.
@@ -1234,7 +1228,7 @@ ip_unput( int ch )
 
 	/* Redo counts.
 	 */
-	if( ch == '\n' ) {
+	if (ch == '\n') {
 		is->lineno--;
 
 		/* Restore previous charno.
@@ -1248,21 +1242,21 @@ ip_unput( int ch )
 
 	/* Unget from lex text buffer.
 	 */
-	if( is->charno > 0 )
-		vips_buf_removec( &lex_text, ch );
+	if (is->charno > 0)
+		vips_buf_removec(&lex_text, ch);
 }
 
 /* Test for end-of-input.
  */
 gboolean
-is_EOF( void )
+is_EOF(void)
 {
 	InputState *is = &input_state;
 
-	if( is->of )
-		return( feof( is->of->fp ) );
+	if (is->of)
+		return feof(is->of->fp);
 	else
-		return( *is->str == '\0' );
+		return *is->str == '\0';
 }
 
 /* Return the text we have accumulated for the current definition. Remove
@@ -1270,7 +1264,7 @@ is_EOF( void )
  * MAX_STRSIZE.
  */
 char *
-input_text( char *out )
+input_text(char *out)
 {
 	InputState *is = &input_state;
 	const char *buf = is->buf;
@@ -1280,76 +1274,73 @@ input_text( char *out )
 	int len;
 	int i;
 
-	for( i = start; i < end &&
-		(isspace( buf[i] ) || buf[i] == ';'); i++ )
+	for (i = start; i < end && (isspace(buf[i]) || buf[i] == ';'); i++)
 		;
 	start = i;
-	for( i = end - 1; i > start &&
-		(isspace( buf[i] ) || buf[i] == ';'); i-- )
+	for (i = end - 1; i > start && (isspace(buf[i]) || buf[i] == ';'); i--)
 		;
 	end = i + 1;
 
 	len = end - start;
 
-	g_assert( len < MAX_STRSIZE - 1 );
-	im_strncpy( out, buf + start, len + 1 );
+	g_assert(len < MAX_STRSIZE - 1);
+	vips_strncpy(out, buf + start, len + 1);
 	out[len] = '\0';
 
 #ifdef DEBUG_CHARACTER
-	printf( "input_text: level %d, returning \"%s\"\n",
-		is->bspsp, out );
+	printf("input_text: level %d, returning \"%s\"\n",
+		is->bspsp, out);
 #endif /*DEBUG_CHARACTER*/
 
-	return( out );
+	return out;
 }
 
 /* Reset/push/pop input stacks.
  */
 void
-input_reset( void )
+input_reset(void)
 {
 	InputState *is = &input_state;
 
 #ifdef DEBUG_CHARACTER
-	printf( "input_reset:\n" );
+	printf("input_reset:\n");
 #endif /*DEBUG_CHARACTER*/
 
 	is->bwp = 0;
 	is->bspsp = 0;
 	is->bsp[0] = 0;
-	vips_buf_rewind( &lex_text );
+	vips_buf_rewind(&lex_text);
 }
 
 void
-input_push( int n )
+input_push(int n)
 {
 	InputState *is = &input_state;
 
 #ifdef DEBUG_CHARACTER
-	printf( "input_push(%d): going to level %d, %d bytes into buffer\n",
-		n, is->bspsp + 1, is->bwp );
+	printf("input_push(%d): going to level %d, %d bytes into buffer\n",
+		n, is->bspsp + 1, is->bwp);
 
 	{
-		const int len = IM_MIN( is->bwp, 20 );
-		int i;
+		const int len = VIPS_MIN(is->bwp, 20);
 
-		for( i = is->bwp - len; i < is->bwp; i++ )
-			if( is->buf[i] == '\n' )
-				printf( "@" );
-			else if( is->buf[i] == ' ' || is->buf[i] == '\t' )
-				printf( "_" );
+		for (int i = is->bwp - len; i < is->bwp; i++)
+			if (is->buf[i] == '\n')
+				printf("@");
+			else if (is->buf[i] == ' ' || is->buf[i] == '\t')
+				printf("_");
 			else
-				printf( "%c", is->buf[i] );
-		printf( "\n" );
-		for( i = 0; i < len; i++ )
-			printf( "-" );
-		printf( "^\n" );
+				printf("%c", is->buf[i]);
+		printf("\n");
+		for (int i = 0; i < len; i++)
+			printf("-");
+		printf("^\n");
 	}
 #endif /*DEBUG_CHARACTER*/
 
 	is->bspsp += 1;
-	if( is->bspsp >= MAX_SSTACK )
-		error( "bstack overflow" );
+	if (is->bspsp >= MAX_SSTACK)
+		error("bstack overflow");
 
 	is->bsp[is->bspsp] = is->bwp;
 }
@@ -1361,49 +1352,49 @@ input_push( int n )
  * Back up the start point to just after the last ch character.
  */
 void
-input_backtoch( char ch )
+input_backtoch(char ch)
 {
 	InputState *is = &input_state;
 	int i;
 
-	for( i = is->bsp[is->bspsp] - 1; i > 0 && is->buf[i] != ch; i-- )
+	for (i = is->bsp[is->bspsp] - 1; i > 0 && is->buf[i] != ch; i--)
 		;
 
-	if( is->buf[i] == ch )
+	if (is->buf[i] == ch)
 		is->bsp[is->bspsp] = i + 1;
 }
 
 /* Move the last input_push() point back 1 character.
  */
 void
-input_back1( void )
+input_back1(void)
 {
 	InputState *is = &input_state;
 
-	if( is->bsp[is->bspsp] > 0 )
+	if (is->bsp[is->bspsp] > 0)
 		is->bsp[is->bspsp] -= 1;
 }
 
 void
-input_pop( void )
+input_pop(void)
 {
 	InputState *is = &input_state;
 
 #ifdef DEBUG_CHARACTER
-	printf( "input_pop: %d bytes into buffer\n", input_state.bwp );
+	printf("input_pop: %d bytes into buffer\n", input_state.bwp);
 #endif /*DEBUG_CHARACTER*/
 
-	if( is->bspsp <= 0 )
-		error( "bstack underflow" );
+	if (is->bspsp <= 0)
+		error("bstack underflow");
 
 	is->bspsp--;
 }
 
 void
-scope_push( void )
+scope_push(void)
 {
-	if( scope_sp == MAX_SSTACK )
-		error( "sstack overflow" );
+	if (scope_sp == MAX_SSTACK)
+		error("sstack overflow");
 
 	scope_stack_symbol[scope_sp] = current_symbol;
 	scope_stack_compile[scope_sp] = current_compile;
@@ -1411,10 +1402,10 @@ scope_push( void )
 }
 
 void
-scope_pop( void )
+scope_pop(void)
 {
-	if( scope_sp <= 0 )
-		error( "sstack underflow" );
+	if (scope_sp <= 0)
+		error("sstack underflow");
 
 	scope_sp -= 1;
 	current_symbol = scope_stack_symbol[scope_sp];
@@ -1424,9 +1415,9 @@ scope_pop( void )
 /* Back to the outermost scope.
  */
 void
-scope_pop_all( void )
+scope_pop_all(void)
 {
-	if( scope_sp > 0 ) {
+	if (scope_sp > 0) {
 		scope_sp = 0;
 		current_symbol = scope_stack_symbol[scope_sp];
 		current_compile = scope_stack_compile[scope_sp];
@@ -1436,7 +1427,7 @@ scope_pop_all( void )
 /* Reset/push/pop parser stacks.
  */
 void
-scope_reset( void )
+scope_reset(void)
 {
 	scope_sp = 0;
 }
@@ -1444,37 +1435,34 @@ scope_reset( void )
 /* End of top level parse. Fix up the symbol.
  */
 void *
-parse_toplevel_end( Symbol *sym )
+parse_toplevel_end(Symbol *sym)
 {
 	Tool *tool;
 
-	tool = tool_new_sym( current_kit, tool_position, sym );
+	tool = tool_new_sym(current_kit, tool_position, sym);
 	tool->lineno = last_top_lineno;
-	symbol_made( sym );
+	symbol_made(sym);
 
-	return( NULL );
+	return NULL;
 }
 
 /* Built a pattern access definition. Set the various text fragments from the
  * def we are drived from.
  */
 void *
-parse_access_end( Symbol *sym, Symbol *main )
+parse_access_end(Symbol *sym, Symbol *main)
 {
-	IM_SETSTR( sym->expr->compile->rhstext,
-		main->expr->compile->rhstext );
-	IM_SETSTR( sym->expr->compile->prhstext,
-		main->expr->compile->prhstext );
-	IM_SETSTR( sym->expr->compile->text,
-		main->expr->compile->text );
+	VIPS_SETSTR(sym->expr->compile->rhstext, main->expr->compile->rhstext);
+	VIPS_SETSTR(sym->expr->compile->prhstext, main->expr->compile->prhstext);
+	VIPS_SETSTR(sym->expr->compile->text, main->expr->compile->text);
 
-	return( NULL );
+	return NULL;
 }
 
 /* Interface to parser.
  */
 static gboolean
-parse_input( int ch, Symbol *sym, Toolkit *kit, int pos )
+parse_input(int ch, Symbol *sym, Toolkit *kit, int pos)
 {
 	current_kit = kit;
 	current_symbol = sym;
@@ -1486,106 +1474,106 @@ parse_input( int ch, Symbol *sym, Toolkit *kit, int pos )
 
 	/* Signal start nonterminal to parser.
 	 */
-	ip_unput( ch );
+	ip_unput(ch);
 
-	if( setjmp( parse_error_point ) ) {
+	if (setjmp(parse_error_point)) {
 		/* Restore current_compile.
 		 */
 		scope_pop_all();
 
-		if( current_compile )
-			compile_error_set( current_compile );
+		if (current_compile)
+			compile_error_set(current_compile);
 
-		return( FALSE );
+		return FALSE;
 	}
 	yyparse();
 
 	/* All ok.
 	 */
-	return( TRUE );
+	return TRUE;
 }
 
 /* Parse the input into a set of symbols at a position in a kit.
  * kit may be NULL for no kit.
  */
 gboolean
-parse_toplevel( Toolkit *kit, int pos )
+parse_toplevel(Toolkit *kit, int pos)
 {
 	gboolean result;
 
 	current_compile = NULL;
-	result = parse_input( ',', kit->kitg->root, kit, pos );
-	iobject_changed( IOBJECT( kit ) );
+	result = parse_input(',', kit->kitg->root, kit, pos);
+	iobject_changed(IOBJECT(kit));
 
-	return( result );
+	return result;
 }
 
 /* Parse a single top-level definition.
  */
 gboolean
-parse_onedef( Toolkit *kit, int pos )
+parse_onedef(Toolkit *kit, int pos)
 {
 	gboolean result;
 
 	current_compile = NULL;
-	result = parse_input( '^', kit->kitg->root, kit, pos );
-	iobject_changed( IOBJECT( kit ) );
+	result = parse_input('^', kit->kitg->root, kit, pos);
+	iobject_changed(IOBJECT(kit));
 
-	return( result );
+	return result;
 }
 
 /* Parse new text into "expr". If params is set, str should be "a b = a+b"
  * (ie. include params), if not, then just rhs (eg. "a+b").
  */
 gboolean
-parse_rhs( Expr *expr, ParseRhsSyntax syntax )
+parse_rhs(Expr *expr, ParseRhsSyntax syntax)
 {
 	static const char start_ch_table[] = {
-		'&',		/* PARSE_RHS */
-		'*',		/* PARSE_PARAMS */
-		'@'		/* PARSE_SUPER */
+		'&', /* PARSE_RHS */
+		'*', /* PARSE_PARAMS */
+		'@'	 /* PARSE_SUPER */
 	};
 
 	char start_ch = start_ch_table[(int) syntax];
-	Compile *compile = compile_new_local( expr );
+	Compile *compile = compile_new_local(expr);
 
 	current_compile = compile;
-	if( !parse_input( start_ch, expr->sym, NULL, -1 ) ) {
+	if (!parse_input(start_ch, expr->sym, NULL, -1)) {
 		current_compile = NULL;
-		return( FALSE );
+		return FALSE;
 	}
 	current_compile = NULL;
 
 #ifdef DEBUG
-	printf( "parse_rhs:\n" );
-	dump_tree( compile->tree );
+	printf("parse_rhs:\n");
+	dump_tree(compile->tree);
 #endif /*DEBUG*/
 
 	/* Resolve any dynamic refs.
 	 */
-	expr_resolve( expr );
+	expr_resolve(expr);
 
 	/* Compile.
 	 */
-	if( compile_object( compile ) )
-		return( FALSE );
+	if (compile_object(compile))
+		return FALSE;
 
-	return( TRUE );
+	return TRUE;
 }
 
 /* Free any stuff the lexer might have allocated.
  */
 void
-free_lex( int yychar )
+free_lex(int yychar)
 {
-	switch( yychar ) {
+	switch (yychar) {
 	case TK_CONST:
-		tree_const_destroy( &yylval.yy_const );
+		tree_const_destroy(&yylval.yy_const);
 		break;
 
 	case TK_IDENT:
 	case TK_TAG:
-		IM_FREE( yylval.yy_name );
+		VIPS_FREE(yylval.yy_name);
 		break;
 
 	default:
@@ -1597,96 +1585,96 @@ free_lex( int yychar )
  * the string checking components, return the IDENT if we do, NULL otherwise.
  */
 char *
-parse_test_define( void )
+parse_test_define(void)
 {
-	extern int yylex( void );
+	extern int yylex(void);
 	int yychar;
 	char *ident;
 
 	ident = NULL;
 
-	if( setjmp( parse_error_point ) ) {
+	if (setjmp(parse_error_point)) {
 		/* Here for yyerror in lex.
 		 */
-		IM_FREE( ident );
+		VIPS_FREE(ident);
 
-		return( NULL );
+		return NULL;
 	}
 
-	if( (yychar = yylex()) != TK_IDENT ) {
-		free_lex( yychar );
+	if ((yychar = yylex()) != TK_IDENT) {
+		free_lex(yychar);
 
-		return( NULL );
+		return NULL;
 	}
 	ident = yylval.yy_name;
 
-	if( (yychar = yylex()) != '=' ) {
-		free_lex( yychar );
-		IM_FREE( ident );
+	if ((yychar = yylex()) != '=') {
+		free_lex(yychar);
+		VIPS_FREE(ident);
 
-		return( NULL );
+		return NULL;
 	}
 
-	return( ident );
+	return ident;
 }
 
 /* Do we have a string like "Workspaces.untitled.A1 = .."? Check for the
  * symbols as we see them, make the last one and return it. Used by --set.
  */
 Symbol *
-parse_set_symbol( void )
+parse_set_symbol(void)
 {
 	int yychar;
-	extern int yylex( void );
+	extern int yylex(void);
 	Compile *compile = symbol_root->expr->compile;
 	char *ident;
 	Symbol *sym;
 
 	ident = NULL;
 
-	if( setjmp( parse_error_point ) ) {
+	if (setjmp(parse_error_point)) {
 		/* Here for yyerror in lex.
 		 */
-		IM_FREE( ident );
-		return( NULL );
+		VIPS_FREE(ident);
+		return NULL;
 	}
 
 	do {
-		if( (yychar = yylex()) != TK_IDENT && yychar != TK_TAG ) {
-			free_lex( yychar );
-			yyerror( _( "identifier expected" ) );
+		if ((yychar = yylex()) != TK_IDENT && yychar != TK_TAG) {
+			free_lex(yychar);
+			yyerror(_("identifier expected"));
 		}
 		ident = yylval.yy_name;
 
-		switch( (yychar = yylex()) ) {
+		switch ((yychar = yylex())) {
 		case '.':
 			/* There's a dot, so we expect another identifier to
 			 * come. Look up this one and move to that context.
 			 */
-			if( !(sym = compile_lookup( compile, ident )) )
-				nip2yyerror( _( "'%s' does not exist" ),
-					ident );
-			if( !sym->expr ||
-				!sym->expr->compile )
-				nip2yyerror( _( "'%s' has no members" ),
-					ident );
+			if (!(sym = compile_lookup(compile, ident)))
+				nip2yyerror(_("'%s' does not exist"),
+					ident);
+			if (!sym->expr ||
+				!sym->expr->compile)
+				nip2yyerror(_("'%s' has no members"),
+					ident);
 			compile = sym->expr->compile;
-			IM_FREE( ident );
+			VIPS_FREE(ident);
 			break;
 
 		case '=':
 			/* This is the final identifier: create the symbol in
 			 * this context.
 			 */
-			sym = symbol_new_defining( compile, ident );
-			IM_FREE( ident );
+			sym = symbol_new_defining(compile, ident);
+			VIPS_FREE(ident);
 			break;
 
 		default:
-			free_lex( yychar );
-			yyerror( _( "'.' or '=' expected" ) );
+			free_lex(yychar);
+			yyerror(_("'.' or '=' expected"));
 		}
-	} while( yychar != '=' );
+	} while (yychar != '=');
 
-	return( sym );
+	return sym;
 }
