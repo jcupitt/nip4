@@ -22,13 +22,13 @@
  */
 
 /*
+ */
 #define DEBUG
 #define DEBUG_VIEWCHILD
- */
 
 /* Time each refresh
-#define DEBUG_TIME
  */
+#define DEBUG_TIME
 
 #include "nip4.h"
 
@@ -646,11 +646,19 @@ view_real_child_remove(View *parent, View *child)
 static void
 view_real_child_position(View *parent, View *child)
 {
+#ifdef DEBUG
+	printf("view_real_child_position: parent %s, child %s\n",
+		G_OBJECT_TYPE_NAME(parent), G_OBJECT_TYPE_NAME(child));
+#endif /*DEBUG*/
 }
 
 static void
 view_real_child_front(View *parent, View *child)
 {
+#ifdef DEBUG
+	printf("view_real_child_front: parent %s, child %s\n",
+		G_OBJECT_TYPE_NAME(parent), G_OBJECT_TYPE_NAME(child));
+#endif /*DEBUG*/
 }
 
 static void

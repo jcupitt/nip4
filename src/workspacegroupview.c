@@ -25,8 +25,8 @@
 #include "nip4.h"
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 G_DEFINE_TYPE(Workspacegroupview, workspacegroupview, VIEW_TYPE)
 
@@ -48,10 +48,7 @@ static void
 workspacegroupview_realize(GtkWidget *widget)
 {
 #ifdef DEBUG
-	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(widget);
-	Workspace *ws = WORKSPACE(VOBJECT(wsgview)->iobject);
-
-	printf("workspacegroupview_realize: %s\n", IOBJECT(ws)->name);
+	printf("workspacegroupview_realize\n");
 #endif /*DEBUG*/
 
 	GTK_WIDGET_CLASS(workspacegroupview_parent_class)->realize(widget);
@@ -125,23 +122,26 @@ workspacegroupview_child_add(View *parent, View *child)
 	Workspaceview *wview = WORKSPACEVIEW(child);
 	Workspace *ws = WORKSPACE(VOBJECT(child)->iobject);
 
+	printf("workspacegroupview_child_add:\n");
+
 	VIEW_CLASS(workspacegroupview_parent_class)->child_add(parent, child);
 
-	GtkWidget *tab_label = gtk_label_new(IOBJECT(ws->sym)->name);
-
-	workspaceview_set_label(wview, tab_label);
-
+	printf("workspacegroupview_child_add: FIXME ... do we need to add the page to the notebiook?\n");
+	/*
 	gtk_notebook_insert_page(GTK_NOTEBOOK(wsgview->notebook),
 		GTK_WIDGET(wview), tab_label, ICONTAINER(ws)->pos);
 	gtk_notebook_set_tab_reorderable(GTK_NOTEBOOK(wsgview->notebook),
 		GTK_WIDGET(wview), TRUE);
 	gtk_notebook_set_tab_detachable(GTK_NOTEBOOK(wsgview->notebook),
 		GTK_WIDGET(wview), TRUE);
+	 */
 }
 
 static void
 workspacegroupview_child_remove(View *parent, View *child)
 {
+	printf("workspacegroupview_child_remove:\n");
+
 	VIEW_CLASS(workspacegroupview_parent_class)->child_remove(parent, child);
 }
 
@@ -150,6 +150,8 @@ workspacegroupview_child_position(View *parent, View *child)
 {
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(parent);
 	Workspaceview *wview = WORKSPACEVIEW(child);
+
+	printf("workspacegroupview_child_position:\n");
 
 	gtk_notebook_reorder_child(GTK_NOTEBOOK(wsgview->notebook),
 		GTK_WIDGET(wview), ICONTAINER(wview)->pos);
@@ -165,6 +167,8 @@ workspacegroupview_child_front(View *parent, View *child)
 
 	int page;
 	GtkWidget *current_front;
+
+	printf("workspacegroupview_child_front:\n");
 
 	page = gtk_notebook_get_current_page(GTK_NOTEBOOK(wsgview->notebook));
 	current_front =
@@ -528,6 +532,8 @@ workspacegroupview_delete_cb(GtkWidget *wid, GtkWidget *host,
 static void
 workspacegroupview_init(Workspacegroupview *wsgview)
 {
+	printf("workspacegroupview_init:\n");
+
 	gtk_widget_init_template(GTK_WIDGET(wsgview));
 
 	/*
@@ -579,7 +585,6 @@ workspacegroupview_init(Workspacegroupview *wsgview)
 	gtk_box_pack_start(GTK_BOX(wsgview), wsgview->notebook, TRUE, TRUE, 0);
 	gtk_widget_show(wsgview->notebook);
 	 */
-
 
 	printf("workspacegroupview_init: add tab menu\n");
 	/*

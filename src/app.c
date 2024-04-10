@@ -46,12 +46,6 @@ app_activate(GApplication *gapp)
 
 	win = main_window_new(APP(gapp));
 
-	/* Make a start workspace and workspacegroup to load
-	 * stuff into.
-	 */
-	Workspacegroup *wsg = workspacegroup_new_blank(main_workspaceroot, NULL);
-	Workspace *ws = WORKSPACE(icontainer_get_nth_child(ICONTAINER(wsg), 0));
-
 	gtk_window_present(GTK_WINDOW(win));
 }
 

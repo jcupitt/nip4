@@ -579,7 +579,8 @@ subcolumn_class_init(SubcolumnClass *class)
 	icontainer_class->child_remove = subcolumn_child_remove;
 	icontainer_class->parent_add = subcolumn_parent_add;
 
-	model_class->view_new = subcolumn_view_new;
+	printf("subcolumn_class_init: FIXME ... enable view_new when we have a subcolumnview\n");
+	// model_class->view_new = subcolumn_view_new;
 	model_class->display = subcolumn_display;
 	model_class->load = subcolumn_load;
 	model_class->save = subcolumn_save;

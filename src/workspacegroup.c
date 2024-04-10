@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -64,6 +64,8 @@ static Workspace *
 workspacegroup_workspace_pick(Workspacegroup *wsg)
 {
 	Workspace *ws;
+
+	printf("workspacegroup_workspace_pick:\n");
 
 	if ((ws = workspacegroup_get_workspace(wsg)))
 		return ws;
@@ -788,6 +790,8 @@ Workspacegroup *
 workspacegroup_new_blank(Workspaceroot *wsr, const char *name)
 {
 	Workspacegroup *wsg;
+
+	printf("workspacegroup_new_blank:\n");
 
 	if (!(wsg = workspacegroup_new(wsr)))
 		return NULL;

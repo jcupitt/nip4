@@ -22,8 +22,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -291,6 +291,7 @@ main(int argc, char **argv)
 	reduce_context = reduce_new();
 	main_symbol_root = symbol_root_init();
 	main_workspaceroot = workspaceroot_new("Workspaces");
+	main_toolkitgroup = toolkitgroup_new(symbol_root);
 
 	app = app_new();
 

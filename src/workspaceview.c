@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 /* Define to trace button press events.
 #define EVENT
@@ -392,14 +392,12 @@ workspaceview_link(View *view, Model *model, View *parent)
 
 	VIEW_CLASS(workspaceview_parent_class)->link(view, model, parent);
 
-	vobject_link(VOBJECT(wview->toolkitbrowser),
-		IOBJECT(ws->kitg));
-	vobject_link(VOBJECT(wview->workspacedefs), IOBJECT(ws));
-
-	toolkitbrowser_set_workspace(wview->toolkitbrowser, ws);
-
-	pane_set_state(wview->rpane, ws->rpane_open, ws->rpane_position);
-	pane_set_state(wview->lpane, ws->lpane_open, ws->lpane_position);
+	printf("workspaceview_link: FIXME toolkitbrowser, panes, etc.\n");
+	// vobject_link(VOBJECT(wview->toolkitbrowser), IOBJECT(ws->kitg));
+	// vobject_link(VOBJECT(wview->workspacedefs), IOBJECT(ws));
+	// toolkitbrowser_set_workspace(wview->toolkitbrowser, ws);
+	//  pane_set_state(wview->rpane, ws->rpane_open, ws->rpane_position);
+	//  pane_set_state(wview->lpane, ws->lpane_open, ws->lpane_position);
 }
 
 static void
@@ -409,8 +407,9 @@ workspaceview_child_add(View *parent, View *child)
 	Column *column = COLUMN(VOBJECT(cview)->iobject);
 	Workspaceview *wview = WORKSPACEVIEW(parent);
 
-	g_signal_connect(child, "size_allocate",
-		G_CALLBACK(workspaceview_child_size_cb), parent);
+	printf("workspaceview_child_add: watch resize of columns\n");
+	// g_signal_connect(child, "size_allocate",
+	// G_CALLBACK(workspaceview_child_size_cb), parent);
 
 	VIEW_CLASS(workspaceview_parent_class)->child_add(parent, child);
 
@@ -481,6 +480,8 @@ workspaceview_refresh(vObject *vobject)
 		if (IOBJECT(ws)->caption)
 			set_tooltip(wview->label, "%s", IOBJECT(ws)->caption);
 
+		printf("workspaceview_refresh: FIXME update padlock and error icons\n");
+		/*
 		if (ws->locked)
 			gtk_image_set_from_icon_name(GTK_IMAGE(wview->padlock), "locked");
 		else
@@ -490,6 +491,7 @@ workspaceview_refresh(vObject *vobject)
 			gtk_image_set_from_icon_name(GTK_IMAGE(wview->alert), "alert");
 		else
 			gtk_image_clear(GTK_IMAGE(wview->alert));
+		 */
 	}
 
 	VOBJECT_CLASS(workspaceview_parent_class)->refresh(vobject);
@@ -902,7 +904,7 @@ workspaceview_init(Workspaceview *wview)
 	gtk_widget_init_template(GTK_WIDGET(wview));
 
 	// a lot of stuff to go in here
-	printf("workspaceview_init: FIXME\n");
+	printf("workspaceview_init: FIXME we must do stuff\n");
 }
 
 View *

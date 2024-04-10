@@ -501,8 +501,10 @@ columnview_refresh(vObject *vobject)
 
 	/* Turn titlebar on/off.
 	 */
-	if (editable)
-		gtk_frame_set_label(GTK_FRAME(cview->frame), NULL);
+	if (editable) {
+		printf("columnview_refresh: update title label\n");
+		// gtk_frame_set_label(GTK_FRAME(cview->frame), NULL);
+	}
 	else if (IOBJECT(col)->caption) {
 		GtkWidget *label;
 		char buf[256];
@@ -514,7 +516,6 @@ columnview_refresh(vObject *vobject)
 	}
 
 	/* Update names.
-	 */
 	set_glabel(cview->lab, "%s - ", IOBJECT(col)->name);
 	if (IOBJECT(col)->caption)
 		set_glabel(cview->head, "%s", IOBJECT(col)->caption);
@@ -525,9 +526,9 @@ columnview_refresh(vObject *vobject)
 			_("doubleclick to set title"));
 		gtk_label_set_markup(GTK_LABEL(cview->head), buf);
 	}
+	 */
 
 	/* Set open/closed.
-	 */
 	if (col->open) {
 		set_tooltip(cview->updownb, _("Fold the column away"));
 	}
@@ -535,6 +536,7 @@ columnview_refresh(vObject *vobject)
 		set_tooltip(cview->updownb, _("Open the column"));
 	}
 	model_display(MODEL(col->scol), col->open);
+	 */
 
 	/* Closed columns are hidden in NOEDIT mode.
 	widget_visible(GTK_WIDGET(cview), editable || col->open);
@@ -542,7 +544,6 @@ columnview_refresh(vObject *vobject)
 	printf("columnview_refresh: FIXME\n");
 
 	/* Set caption edit.
-	 */
 	if (cview->state == COL_EDIT) {
 		columnview_add_caption(cview);
 
@@ -559,9 +560,9 @@ columnview_refresh(vObject *vobject)
 		gtk_widget_show(cview->headfr);
 		VIPS_FREEF(gtk_widget_unparent, cview->capedit);
 	}
+	 */
 
 	/* Set bottom entry.
-	 */
 	if (col->selected &&
 		col->open &&
 		editable &&
@@ -571,9 +572,9 @@ columnview_refresh(vObject *vobject)
 	}
 	else
 		VIPS_FREEF(gtk_widget_unparent, cview->textfr);
+	 */
 
 	/* Set select state.
-	 */
 	if (cview->master)
 		gtk_widget_set_name(cview->title, "shadow_widget");
 	else if (col->selected && !cview->selected) {
@@ -583,12 +584,12 @@ columnview_refresh(vObject *vobject)
 			gtk_widget_grab_focus(cview->text);
 	}
 	else if (!col->selected) {
-		/* Always do this, even if cview->selected, so we set on the
-		 * first _refresh().
-		 */
+		// Always do this, even if cview->selected, so we set on the
+		// first _refresh().
 		gtk_widget_set_name(cview->title, "column_widget");
 		cview->selected = FALSE;
 	}
+	 */
 
 	VOBJECT_CLASS(columnview_parent_class)->refresh(vobject);
 }
@@ -662,9 +663,10 @@ columnview_class_init(ColumnviewClass *class)
 	gtk_widget_class_set_layout_manager_type(widget_class,
 		GTK_TYPE_BIN_LAYOUT);
 	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
-		APP_PATH "/columbview.ui");
+		APP_PATH "/columnview.ui");
 
-	BIND(title);
+	printf("columnview_class_init: FIXME bind elements of column\n");
+	// BIND(title);
 
 	vobject_class->refresh = columnview_refresh;
 

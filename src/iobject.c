@@ -34,7 +34,7 @@ enum {
 	SIG_LAST
 };
 
-G_DEFINE_TYPE(iObject, iobject, GTK_TYPE_WIDGET)
+G_DEFINE_TYPE(iObject, iobject, G_TYPE_INITIALLY_UNOWNED)
 
 static guint iobject_signals[SIG_LAST] = { 0 };
 

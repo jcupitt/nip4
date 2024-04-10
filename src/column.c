@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -288,7 +288,7 @@ static void
 column_init(Column *col)
 {
 #ifdef DEBUG
-	printf("column_init\n");
+	printf("column_init:\n");
 #endif /*DEBUG*/
 
 	col->scol = NULL;
@@ -307,6 +307,10 @@ Column *
 column_new(Workspace *ws, const char *name)
 {
 	Column *col;
+
+#ifdef DEBUG
+	printf("column_new: %s\n", name);
+#endif /*DEBUG*/
 
 	if (workspace_column_find(ws, name)) {
 		error_top(_("Name clash."));

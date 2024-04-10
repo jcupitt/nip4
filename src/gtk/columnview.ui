@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Columnview" parent="View">
+
+    <child>
+      <object class="GtkButton">
+        <property name="label" translatable="yes">button</property>
+        <property name="width-request">100</property>
+        <property name="height-request">80</property>
+        <property name="receives-default">True</property>
+      </object>
+    </child>
+
+  </template>
+</interface>

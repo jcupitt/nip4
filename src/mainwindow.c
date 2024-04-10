@@ -35,6 +35,9 @@ struct _MainWindow {
 	GFile *save_folder;
 	GFile *load_folder;
 
+	// the model we display
+	Workspacegroup *wsg;
+
 	GtkWidget *title;
 	GtkWidget *subtitle;
 	GtkWidget *gears;
@@ -113,6 +116,7 @@ main_window_dispose(GObject *object)
 #endif /*DEBUG*/
 
 	VIPS_FREEF(g_timer_destroy, main->progress_timer);
+	VIPS_UNREF(main->wsg);
 
 	G_OBJECT_CLASS(main_window_parent_class)->dispose(object);
 }
@@ -406,6 +410,16 @@ main_window_class_init(MainWindowClass *class)
 	BIND(wsgview);
 }
 
+static void
+main_window_set_wsg(MainWindow *main, Workspacegroup *wsg)
+{
+	main->wsg = wsg;
+	g_object_ref_sink(main->wsg);
+
+	// our wsgview is the view for this model
+	view_link(VIEW(main->wsgview), MODEL(main->wsg), NULL);
+}
+
 void
 main_window_set_gfile(MainWindow *main, GFile *gfile)
 {
@@ -451,8 +465,16 @@ main_window_init_settings(MainWindow *main)
 MainWindow *
 main_window_new(App *app)
 {
-	MainWindow *main =
-		g_object_new(MAIN_WINDOW_TYPE, "application", app, NULL);
+	MainWindow *main = g_object_new(MAIN_WINDOW_TYPE,
+		"application", app,
+		NULL);
+
+	/* Make a start workspace and workspacegroup to load
+	 * stuff into.
+	 */
+	Workspacegroup *wsg = workspacegroup_new_blank(main_workspaceroot, NULL);
+	Workspace *ws = WORKSPACE(icontainer_get_nth_child(ICONTAINER(wsg), 0));
+	main_window_set_wsg(main, wsg);
 
 	main_window_set_gfile(main, NULL);
 
@@ -460,16 +482,6 @@ main_window_new(App *app)
 	main_window_init_settings(main);
 
 	return main;
-}
-
-static void
-copy_value(GObject *to, GObject *from, const char *name)
-{
-	GValue value = { 0 };
-
-	g_object_get_property(from, name, &value);
-	g_object_set_property(to, name, &value);
-	g_value_unset(&value);
 }
 
 void
