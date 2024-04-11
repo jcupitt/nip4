@@ -70,6 +70,13 @@
           </object>
         </child>
 
+        <child>
+          <object class="GtkGestureClick">
+            <property name="button">1</property>
+            <signal name="pressed" handler="workspaceviewlabel_pressed"/>
+          </object>
+        </child>
+
       </object>
     </child>
   </template>

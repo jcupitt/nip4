@@ -260,7 +260,6 @@ workspaceview_dispose(GObject *object)
 	workspaceview_scroll_stop(wview);
 	FREESID(wview->watch_changed_sid, main_watchgroup);
 	VIPS_UNREF(wview->popup);
-	UNPARENT(wview->tab_menu);
 	UNPARENT(wview->right_click_menu);
 
 	G_OBJECT_CLASS(workspaceview_parent_class)->dispose(object);
@@ -477,25 +476,8 @@ workspaceview_refresh(vObject *vobject)
 	if (!ws->lpane_open)
 		pane_animate_closed(wview->lpane);
 
-	if (wview->label) {
-		gtk_label_set_text(GTK_LABEL(wview->label), IOBJECT(ws)->name);
-
-		if (IOBJECT(ws)->caption)
-			set_tooltip(wview->label, "%s", IOBJECT(ws)->caption);
-
-		printf("workspaceview_refresh: FIXME update padlock and error icons\n");
-		/*
-		if (ws->locked)
-			gtk_image_set_from_icon_name(GTK_IMAGE(wview->padlock), "locked");
-		else
-			gtk_image_clear(GTK_IMAGE(wview->padlock));
-
-		if (ws->errors)
-			gtk_image_set_from_icon_name(GTK_IMAGE(wview->alert), "alert");
-		else
-			gtk_image_clear(GTK_IMAGE(wview->alert));
-		 */
-	}
+	if (wview->label)
+		workspaceviewlabel_refresh(wview->label);
 
 	VOBJECT_CLASS(workspaceview_parent_class)->refresh(vobject);
 }
@@ -704,29 +686,6 @@ workspaceview_layout(View *view)
 }
 
 static void
-workspaceview_tab_menu(GtkGestureClick *gesture,
-	guint n_press, double x, double y, Workspaceview *wview)
-{
-	gtk_popover_set_pointing_to(GTK_POPOVER(wview->tab_menu),
-		&(const GdkRectangle){ x, y, 1, 1 });
-
-	printf("workspaceview_tab_menu:\n");
-
-	gtk_popover_popup(GTK_POPOVER(wview->tab_menu));
-}
-
-static void
-workspaceview_tab_pressed(GtkGestureClick *gesture,
-	guint n_press, double x, double y, Workspaceview *wview)
-{
-	if (n_press == 2) {
-		// rename tab
-		printf("workspaceview_tab_pressed: doubleclick\n");
-		// workspaceview_rename_cb(wid, NULL, wview);
-	}
-}
-
-static void
 workspaceview_background_menu(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Workspaceview *wview)
 {
@@ -757,10 +716,6 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND(fixed);
 	BIND(right_click_menu);
 
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		workspaceview_tab_menu);
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		workspaceview_tab_pressed);
 	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
 		workspaceview_background_menu);
 
@@ -904,6 +859,8 @@ static void
 workspaceview_init(Workspaceview *wview)
 {
 	gtk_widget_init_template(GTK_WIDGET(wview));
+
+	wview->label = workspaceviewlabel_new(wview);
 
 	// a lot of stuff to go in here
 	printf("workspaceview_init: FIXME we must do stuff\n");

@@ -47,13 +47,12 @@
 struct _Workspaceview {
 	View view;
 
+	Workspaceviewlabel *label;	/* For the notebook tab */
 	GtkWidget *fixed;			/* GtkFixed for tally */
 	GtkWidget *scrolled_window; /* ScrolledWindow holding fixed */
+
 	Toolkitbrowser *toolkitbrowser;
 	Workspacedefs *workspacedefs;
-	GtkWidget *label;	/* Tab label */
-	GtkWidget *padlock; /* The padlock icon */
-	GtkWidget *alert;	/* The alert icon */
 
 	/* Left and right panes ... program window and toolkit browser.
 	 */
@@ -63,7 +62,6 @@ struct _Workspaceview {
 	GtkWidget *popup;
 	GtkWidget *popup_jump;
 
-	GtkWidget *tab_menu;
 	GtkWidget *right_click_menu;
 
 	/* Background window scroll.

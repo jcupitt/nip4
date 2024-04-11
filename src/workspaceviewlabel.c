@@ -124,6 +124,17 @@ workspaceviewlabel_menu(GtkGestureClick *gesture,
 	gtk_popover_popup(GTK_POPOVER(wviewlabel->right_click_menu));
 }
 
+static void
+workspaceviewlabel_pressed(GtkGestureClick *gesture,
+	guint n_press, double x, double y, Workspaceviewlabel *wviewlabel)
+{
+	if (n_press == 2) {
+		// rename tab
+		printf("workspaceview_tab_pressed: doubleclick\n");
+		// workspaceview_rename_cb(wid, NULL, wview);
+	}
+}
+
 #define BIND(field) \
 	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
 		Workspaceviewlabel, field);
@@ -153,6 +164,8 @@ workspaceviewlabel_class_init(WorkspaceviewlabelClass *class)
 
 	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
 		workspaceviewlabel_menu);
+	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
+		workspaceviewlabel_pressed);
 
 	gobject_class->dispose = workspaceviewlabel_dispose;
 	gobject_class->set_property = workspaceviewlabel_set_property;
@@ -180,4 +193,26 @@ workspaceviewlabel_new(Workspaceview *wview)
 		NULL);
 
 	return wviewlabel;
+}
+
+void
+workspaceviewlabel_refresh(Workspaceviewlabel *wviewlabel)
+{
+	Workspaceview *wview = wviewlabel->wview;
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+	gtk_label_set_text(GTK_LABEL(wviewlabel->label), IOBJECT(ws)->name);
+
+	if (IOBJECT(ws)->caption)
+		set_tooltip(wviewlabel->label, "%s", IOBJECT(ws)->caption);
+
+	if (ws->locked)
+		gtk_image_set_from_icon_name(GTK_IMAGE(wviewlabel->lock), "locked");
+	else
+		gtk_image_clear(GTK_IMAGE(wviewlabel->lock));
+
+	if (ws->errors)
+		gtk_image_set_from_icon_name(GTK_IMAGE(wviewlabel->error), "alert");
+	else
+		gtk_image_clear(GTK_IMAGE(wviewlabel->error));
 }
