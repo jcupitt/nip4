@@ -1,15 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <template class="Columnview" parent="View">
-
     <child>
-      <object class="GtkButton">
-        <property name="label" translatable="yes">button</property>
-        <property name="width-request">100</property>
-        <property name="height-request">80</property>
-        <property name="receives-default">True</property>
-      </object>
-    </child>
 
+      <object class="GtkExpander" id="top">
+        <property name="expanded">true</property>
+
+        <child type="label">
+          <object class="GtkBox">
+            <property name="margin-start">10</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">A - this column does stuff</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="icon-name">window-close-symbolic</property>
+		<property name="has-frame">false</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkGrid">
+
+            <!-- one row for testing -->
+
+            <child>
+              <object class="GtkButton">
+                <property name="label">A1</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkLabel">
+                <property name="label">42</property>
+                <property name="xalign">0</property>
+                <property name="margin-start">5</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkEntry">
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+
+          </object>
+        </child>
+      </object>
+
+    </child>
   </template>
 </interface>
+
+
