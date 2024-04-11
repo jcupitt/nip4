@@ -47,8 +47,8 @@
 struct _Workspaceview {
 	View view;
 
-	GtkWidget *fixed;  /* GtkFixed for tally */
-	GtkWidget *window; /* ScrolledWindow holding fixed */
+	GtkWidget *fixed;			/* GtkFixed for tally */
+	GtkWidget *scrolled_window; /* ScrolledWindow holding fixed */
 	Toolkitbrowser *toolkitbrowser;
 	Workspacedefs *workspacedefs;
 	GtkWidget *label;	/* Tab label */

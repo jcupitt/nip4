@@ -85,6 +85,7 @@ executable('nip4', [
     'prefworkspaceview.c',
     'subcolumn.c',
     'workspaceview.c',
+    'workspaceviewlabel.c',
     'workspace.c',
     'workspaceroot.c',
     'workspacegroupview.c',

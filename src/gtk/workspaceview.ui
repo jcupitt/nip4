@@ -185,38 +185,10 @@
           </object>
         </child>
 
-        <child type="tab">
-          <object class="GtkLabel" id="label">
-            <property name="label" translatable="yes">tab 1</property>
-
-            <child>
-              <object class="GtkPopoverMenu" id="tab_menu">
-                <property name="has-arrow">0</property>
-                <property name="menu-model">
-                  workspaceview-tab-menu
-                </property>
-              </object>
-            </child>
-
-            <child>
-              <object class="GtkGestureClick">
-                <property name="button">3</property>
-                <signal name="pressed" handler="workspaceview_tab_menu"/>
-              </object>
-            </child>
-
-            <child>
-              <object class="GtkGestureClick">
-                <property name="button">1</property>
-                <signal name="pressed"
-                  handler="workspaceview_tab_pressed"/>
-              </object>
-            </child>
-
-          </object>
-        </child>
       </object>
+
     </child>
 
   </template>
+
 </interface>

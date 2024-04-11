@@ -51,9 +51,9 @@ static void
 workspaceview_scroll_to(Workspaceview *wview, int x, int y)
 {
 	GtkAdjustment *hadj = gtk_scrolled_window_get_hadjustment(
-		GTK_SCROLLED_WINDOW(wview->window));
+		GTK_SCROLLED_WINDOW(wview->scrolled_window));
 	GtkAdjustment *vadj = gtk_scrolled_window_get_vadjustment(
-		GTK_SCROLLED_WINDOW(wview->window));
+		GTK_SCROLLED_WINDOW(wview->scrolled_window));
 	int nx, ny;
 
 	nx = VIPS_CLIP(0, x, wview->width - wview->vp.width);
@@ -79,9 +79,9 @@ void
 workspaceview_scroll(Workspaceview *wview, int x, int y, int w, int h)
 {
 	GtkAdjustment *hadj = gtk_scrolled_window_get_hadjustment(
-		GTK_SCROLLED_WINDOW(wview->window));
+		GTK_SCROLLED_WINDOW(wview->scrolled_window));
 	GtkAdjustment *vadj = gtk_scrolled_window_get_vadjustment(
-		GTK_SCROLLED_WINDOW(wview->window));
+		GTK_SCROLLED_WINDOW(wview->scrolled_window));
 	VipsRect *vp = &wview->vp;
 	int nx, ny;
 
@@ -114,9 +114,9 @@ workspaceview_scroll_update(Workspaceview *wview)
 {
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 	GtkAdjustment *hadj = gtk_scrolled_window_get_hadjustment(
-		GTK_SCROLLED_WINDOW(wview->window));
+		GTK_SCROLLED_WINDOW(wview->scrolled_window));
 	GtkAdjustment *vadj = gtk_scrolled_window_get_vadjustment(
-		GTK_SCROLLED_WINDOW(wview->window));
+		GTK_SCROLLED_WINDOW(wview->scrolled_window));
 
 	wview->vp.left = gtk_adjustment_get_value(hadj);
 	wview->vp.top = gtk_adjustment_get_value(vadj);
@@ -416,10 +416,14 @@ workspaceview_child_add(View *parent, View *child)
 	/* Pick start xy pos.
 	 */
 	workspaceview_pick_xy(wview, &column->x, &column->y);
-	gtk_fixed_put(GTK_FIXED(wview->fixed),
-		GTK_WIDGET(cview), column->x, column->y);
 	cview->lx = column->x;
 	cview->ly = column->y;
+
+	printf("workspaceview_child_add: adding column at %d x %d\n",
+		column->x, column->y);
+
+	gtk_fixed_put(GTK_FIXED(wview->fixed),
+		GTK_WIDGET(cview), column->x, column->y);
 }
 
 static void
@@ -474,8 +478,7 @@ workspaceview_refresh(vObject *vobject)
 		pane_animate_closed(wview->lpane);
 
 	if (wview->label) {
-		gtk_label_set_text(GTK_LABEL(wview->label),
-			IOBJECT(ws)->name);
+		gtk_label_set_text(GTK_LABEL(wview->label), IOBJECT(ws)->name);
 
 		if (IOBJECT(ws)->caption)
 			set_tooltip(wview->label, "%s", IOBJECT(ws)->caption);
@@ -750,9 +753,8 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
 		APP_PATH "/workspaceview.ui");
 
+	BIND(scrolled_window);
 	BIND(fixed);
-	BIND(label);
-	BIND(tab_menu);
 	BIND(right_click_menu);
 
 	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
@@ -915,10 +917,7 @@ workspaceview_new(void)
 	return VIEW(wview);
 }
 
-void
-workspaceview_set_label(Workspaceview *wview, GtkWidget *label)
+GtkWidget *
+workspaceview_build_label(Workspaceview *wview)
 {
-	g_assert(!wview->label);
-
-	wview->label = label;
 }

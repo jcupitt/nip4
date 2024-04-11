@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="workspaceviewlabel-menu">
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Rename</attribute>
+        <attribute name='action'>win.tab-rename</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Select all</attribute>
+        <attribute name='action'>win.tab-select-all</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Duplicate</attribute>
+        <attribute name='action'>win.tab-duplicate</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>
+          Merge into tab ...
+        </attribute>
+        <attribute name='action'>win.tab-merge</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Save as ...</attribute>
+        <attribute name='action'>win.tab-saveas</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Delete ...</attribute>
+        <attribute name='action'>win.tab-delete</attribute>
+      </item>
+    </section>
+  </menu>
+
+  <template class="Workspaceviewlabel" parent="GtkWidget">
+    <child>
+      <object class="GtkBox" id="top">
+        <property name="hexpand">True</property>
+        <property name="spacing">5</property>
+
+        <child>
+          <object class="GtkLabel" id="label">
+            <property name="label" translatable="yes">tab 1</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkImage" id="lock">
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkImage" id="error">
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkPopoverMenu" id="right_click_menu">
+            <property name="has-arrow">0</property>
+            <property name="menu-model">workspaceviewlabel-menu</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkGestureClick">
+            <property name="button">3</property>
+            <signal name="pressed" handler="workspaceviewlabel_menu"/>
+          </object>
+        </child>
+
+      </object>
+    </child>
+  </template>
+</interface>

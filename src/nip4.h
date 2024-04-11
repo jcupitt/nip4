@@ -167,6 +167,7 @@ typedef struct _Workspacegroupview Workspacegroupview;
 typedef struct _Workspacegroup Workspacegroup;
 typedef struct _Workspaceroot Workspaceroot;
 typedef struct _Workspaceview Workspaceview;
+typedef struct _Workspaceviewlabel Workspaceviewlabel;
 typedef struct _Workspace Workspace;
 
 #include "util.h"
@@ -230,6 +231,7 @@ typedef struct _Workspace Workspace;
 #include "prefworkspaceview.h"
 #include "workspacegroupview.h"
 #include "workspaceview.h"
+#include "workspaceviewlabel.h"
 #include "itextview.h"
 #include "toolkitview.h"
 #include "toolkitgroupview.h"

@@ -126,10 +126,13 @@ workspacegroupview_child_add(View *parent, View *child)
 
 	VIEW_CLASS(workspacegroupview_parent_class)->child_add(parent, child);
 
-	printf("workspacegroupview_child_add: FIXME ... do we need to add the page to the notebiook?\n");
-	/*
+	Workspaceviewlabel *label = workspaceviewlabel_new(wview);
 	gtk_notebook_insert_page(GTK_NOTEBOOK(wsgview->notebook),
-		GTK_WIDGET(wview), tab_label, ICONTAINER(ws)->pos);
+		GTK_WIDGET(wview), GTK_WIDGET(label), ICONTAINER(ws)->pos);
+
+	// or can we do this in the .ui?
+	printf("workspacegroupview_child_add: FIXME ... set reorderable/detachable?\n");
+	/*
 	gtk_notebook_set_tab_reorderable(GTK_NOTEBOOK(wsgview->notebook),
 		GTK_WIDGET(wview), TRUE);
 	gtk_notebook_set_tab_detachable(GTK_NOTEBOOK(wsgview->notebook),
