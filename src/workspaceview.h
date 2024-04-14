@@ -44,6 +44,15 @@
 #define WORKSPACEVIEW_MARGIN_LEFT (5)
 #define WORKSPACEVIEW_MARGIN_TOP (5)
 
+/* State ... for mouse titlebar interactions.
+ */
+typedef enum {
+	WVIEW_WAIT,	  /* Rest state */
+	WVIEW_SELECT, /* Select start, but no drag yet */
+	WVIEW_DRAG,	  /* Drag state */
+	WVIEW_EDIT	  /* Editing caption */
+} WorkspaceviewState;
+
 struct _Workspaceview {
 	View view;
 
@@ -63,6 +72,13 @@ struct _Workspaceview {
 	GtkWidget *popup_jump;
 
 	GtkWidget *right_click_menu;
+
+	/* Our state machine for interactions.
+	 */
+	WorkspaceviewState state; /* Waiting or dragging */
+	Columnview *drag_cview;	  /* Column we are dragging (if any) */
+	int start_x;			  /* Drag start */
+	int start_y;
 
 	/* Background window scroll.
 	 */

@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -350,11 +350,13 @@ columnview_get_position(Columnview *cview, int *x, int *y, int *w, int *h)
 	}
 }
 
-static void
+void
 columnview_add_shadow(Columnview *old_cview)
 {
 	Column *col = COLUMN(VOBJECT(old_cview)->iobject);
 	Workspaceview *wview = old_cview->wview;
+
+	printf("columnview_add_shadow:\n");
 
 	if (!old_cview->shadow) {
 		Columnview *new_cview;
@@ -374,8 +376,8 @@ columnview_add_shadow(Columnview *old_cview)
 
 		/* The shadow will be on top of the real column and hide it.
 		 * Put the real column to the front.
-		 */
 		model_front(MODEL(col));
+		 */
 	}
 }
 
@@ -395,7 +397,8 @@ columnview_dispose(GObject *object)
 	printf("columnview_dispose:\n");
 #endif /*DEBUG*/
 
-	VIPS_UNREF(cview->shadow);
+	UNPARENT(cview->top);
+	UNPARENT(cview->shadow);
 
 	/* The column has gone .. relayout.
 	 */
@@ -499,24 +502,13 @@ columnview_refresh(vObject *vobject)
 		filemodel_set_offset(FILEMODEL(col), cview->lx, cview->ly);
 	}
 
-	/* Turn titlebar on/off.
+	/* Titlebar off in no-edit mode.
 	 */
-	if (editable) {
-		printf("columnview_refresh: update title label\n");
-		// gtk_frame_set_label(GTK_FRAME(cview->frame), NULL);
-	}
-	else if (IOBJECT(col)->caption) {
-		GtkWidget *label;
-		char buf[256];
-
-		gtk_frame_set_label(GTK_FRAME(cview->frame), "x");
-		label = gtk_frame_get_label_widget(GTK_FRAME(cview->frame));
-		escape_markup(IOBJECT(col)->caption, buf, 256);
-		set_glabel(label, "<b>%s</b>", buf);
-	}
+	gtk_widget_set_visible(cview->head, editable);
 
 	/* Update names.
-	set_glabel(cview->lab, "%s - ", IOBJECT(col)->name);
+	 */
+	set_glabel(cview->label, "%s - ", IOBJECT(col)->name);
 	if (IOBJECT(col)->caption)
 		set_glabel(cview->head, "%s", IOBJECT(col)->caption);
 	else {
@@ -526,22 +518,14 @@ columnview_refresh(vObject *vobject)
 			_("doubleclick to set title"));
 		gtk_label_set_markup(GTK_LABEL(cview->head), buf);
 	}
-	 */
 
 	/* Set open/closed.
-	if (col->open) {
-		set_tooltip(cview->updownb, _("Fold the column away"));
-	}
-	else {
-		set_tooltip(cview->updownb, _("Open the column"));
-	}
-	model_display(MODEL(col->scol), col->open);
 	 */
+	gtk_expander_set_expanded(GTK_EXPANDER(cview->top), col->open);
 
 	/* Closed columns are hidden in NOEDIT mode.
-	widget_visible(GTK_WIDGET(cview), editable || col->open);
 	 */
-	printf("columnview_refresh: FIXME\n");
+	gtk_widget_set_visible(GTK_WIDGET(cview), editable || col->open);
 
 	/* Set caption edit.
 	if (cview->state == COL_EDIT) {
@@ -562,17 +546,13 @@ columnview_refresh(vObject *vobject)
 	}
 	 */
 
-	/* Set bottom entry.
-	if (col->selected &&
-		col->open &&
-		editable &&
-		!cview->master) {
-		columnview_add_text(cview);
-		gtk_widget_show(cview->textfr);
-	}
-	else
-		VIPS_FREEF(gtk_widget_unparent, cview->textfr);
+	/* Set bottom entry visibility.
 	 */
+	gtk_widget_set_visible(cview->entry,
+		col->selected &&
+			col->open &&
+			editable &&
+			!cview->master);
 
 	/* Set select state.
 	if (cview->master)
@@ -613,7 +593,7 @@ columnview_child_add(View *parent, View *child)
 
 	VIEW_CLASS(columnview_parent_class)->child_add(parent, child);
 
-	printf("columnview_child_add: FIXME ... add to container?\n");
+	printf("columnview_child_add: FIXME ... add subcolumnview to vbox\n");
 	// gtk_container_add(GTK_CONTAINER(cview->frame), GTK_WIDGET(sview));
 }
 
@@ -653,20 +633,20 @@ columnview_class_init(ColumnviewClass *class)
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
 
-	/* Create signals.
-	 */
-
-	/* Init methods.
-	 */
-	object_class->dispose = columnview_dispose;
-
 	gtk_widget_class_set_layout_manager_type(widget_class,
 		GTK_TYPE_BIN_LAYOUT);
 	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
 		APP_PATH "/columnview.ui");
 
-	printf("columnview_class_init: FIXME bind elements of column\n");
-	// BIND(title);
+	BIND(top);
+	BIND(title);
+	BIND(label);
+	BIND(head);
+	BIND(entry);
+
+	/* Init methods.
+	 */
+	object_class->dispose = columnview_dispose;
 
 	vobject_class->refresh = columnview_refresh;
 

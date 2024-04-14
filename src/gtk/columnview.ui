@@ -7,11 +7,16 @@
         <property name="expanded">true</property>
 
         <child type="label">
-          <object class="GtkBox">
+          <object class="GtkBox" id="title">
             <property name="margin-start">10</property>
             <child>
-              <object class="GtkLabel">
-                <property name="label">A - this column does stuff</property>
+              <object class="GtkLabel" id="label">
+                <property name="label">A - </property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="head">
+                <property name="label">this column does stuff</property>
               </object>
             </child>
             <child>
@@ -51,7 +56,7 @@
             </child>
 
             <child>
-              <object class="GtkEntry">
+              <object class="GtkEntry" id="entry">
                 <layout>
                   <property name="column">1</property>
                   <property name="row">1</property>
@@ -61,6 +66,7 @@
 
           </object>
         </child>
+
       </object>
 
     </child>

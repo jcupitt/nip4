@@ -182,6 +182,14 @@
               </object>
             </child>
 
+            <child>
+              <object class="GtkGestureDrag">
+                <signal name="drag-begin" handler="workspaceview_drag_begin"/>
+                <signal name="drag-update" handler="workspaceview_drag_update"/>
+                <signal name="drag-end" handler="workspaceview_drag_end"/>
+              </object>
+            </child>
+
           </object>
         </child>
 

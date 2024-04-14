@@ -57,18 +57,11 @@ struct _Columnview {
 
 	/* Display parts.
 	 */
-	GtkWidget *main;	/* Enclosing window for whole cview */
-	GtkWidget *lab;		/* Columnview name label */
-	GtkWidget *vbox;	/* Outermost vbox for cview */
-	GtkWidget *frame;	/* Enclosing frame for tally stuff */
-	GtkWidget *title;	/* Eventbox wrapper for title bar */
-	GtkWidget *titlehb; /* Title bar hbox */
-	GtkWidget *updown;	/* Fold up/down arrow */
-	GtkWidget *updownb; /* Fold up/down button */
-	GtkWidget *head;	/* Label on columnview */
-	GtkWidget *headfr;	/* Frame wrapper around label */
-	GtkWidget *text;	/* Text entry at bottom */
-	GtkWidget *textfr;	/* Enclosing stuff for text entry */
+	GtkWidget *top;		/* Enclosing widget for the whole cview */
+	GtkWidget *title;	/* Columnview titlebar */
+	GtkWidget *label;	/* Columnview name label */
+	GtkWidget *head;	/* Columnview caption */
+	GtkWidget *entry;	/* Text entry at bottom */
 	GtkWidget *capedit; /* Shadow text for editing caption */
 
 	/* A shadow for this cview, used during drag to show where this column
@@ -81,12 +74,16 @@ struct _Columnview {
 
 	/* Appearance state info.
 	 */
-	int lx, ly;			   /* last pos we set */
 	ColumnviewState state; /* Waiting or dragging */
-	int sx, sy;			   /* Drag start point */
-	int rx, ry;			   /* Drag offset */
-	int tx, ty;			   /* Tally window pos in root cods */
-	gboolean selected;	   /* Last drawn in selected state? */
+	int start_x;		   /* Drag start */
+	int start_y;
+
+	int lx, ly; /* last pos we set */
+	int sx, sy; /* Drag start point */
+	int rx, ry; /* Drag offset */
+	int tx, ty; /* Tally window pos in root cods */
+
+	gboolean selected; /* Last drawn in selected state? */
 
 	/* We watch resize events and trigger a workspace relayout with these.
 	 */
@@ -103,6 +100,7 @@ typedef struct _ColumnviewClass {
 
 void columnview_get_position(Columnview *cview,
 	int *x, int *y, int *w, int *h);
+void columnview_add_shadow(Columnview *old_cview);
 
 GType columnview_get_type(void);
 View *columnview_new(void);

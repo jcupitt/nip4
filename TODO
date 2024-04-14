@@ -1,18 +1,28 @@
 - UNPARENT() widgets, don't UNREF them
 
+- revise column open/close code
 
-- make initial view from model
+	- watch signal on expander and use it to set the model
 
-    - make a default workspace containing a column
+	- also need to set expander state in refresh I guess
 
-    - need:
+- try colour change via css for column select
 
-        workspacegroup needs doing too
+	- need a couple of columns for this
 
-        workspace
-        workspaceview
-        column
-        columnview
+- columnview had just one child, a subcolumn ... that contains the grid widget
+
+	- need to align the entry somehow?
+
+- need to do column caption edit
+
+- need to do column move and shadow stuff
+
+	- see columnview_left_presss(), _motion() and _release() in nip2
+
+	- use a gesture thing, see vipsdisp iamgewindow.c?
+
+- need workspace relayout
 
 
 - make a "progress" widget with throttled updates? could share with

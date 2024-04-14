@@ -695,6 +695,176 @@ workspaceview_background_menu(GtkGestureClick *gesture,
 	gtk_popover_popup(GTK_POPOVER(wview->right_click_menu));
 }
 
+static void *
+workspaceview_titlebar_hit(View *view, void *a, void *b)
+{
+	Columnview *cview = COLUMNVIEW(view);
+	graphene_point_t *point = (graphene_point_t *) a;
+	Workspaceview *wview = WORKSPACEVIEW(b);
+
+	graphene_rect_t bounds;
+
+	gtk_widget_compute_bounds(cview->title, GTK_WIDGET(wview), &bounds);
+
+	if (graphene_rect_contains_point(&bounds, point))
+		return cview;
+
+	return NULL;
+}
+
+static void
+workspaceview_drag_begin(GtkEventControllerMotion *self,
+	gdouble start_x, gdouble start_y, gpointer user_data)
+{
+	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+	printf("workspaceview_drag_begin: %g x %g\n", start_x, start_y);
+
+	switch (wview->state) {
+	case WVIEW_WAIT:
+		/* Search for a column titlebar we could be hitting.
+		 */
+		graphene_point_t point = GRAPHENE_POINT_INIT(start_x, start_y);
+		Columnview *cview = view_map(VIEW(wview),
+			workspaceview_titlebar_hit, &point, wview);
+
+		if (cview) {
+			Column *col = COLUMN(VOBJECT(cview)->iobject);
+
+			wview->drag_cview = cview;
+			wview->state = WVIEW_SELECT;
+			wview->start_x = col->x;
+			wview->start_y = col->y;
+		}
+		else {
+			// drag on background
+			wview->drag_cview = NULL;
+			wview->state = WVIEW_SELECT;
+			wview->start_x = VIPS_RINT(start_x);
+			wview->start_y = VIPS_RINT(start_y);
+		}
+		break;
+
+	case WVIEW_SELECT:
+	case WVIEW_DRAG:
+	case WVIEW_EDIT:
+		break;
+
+	default:
+		g_assert(FALSE);
+	}
+}
+
+static void
+workspaceview_drag_update(GtkEventControllerMotion *self,
+	gdouble offset_x, gdouble offset_y, gpointer user_data)
+{
+	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+	printf("workspaceview_drag_update: %g x %g\n", offset_x, offset_y);
+
+	switch (wview->state) {
+	case WVIEW_EDIT:
+	case WVIEW_WAIT:
+		break;
+
+	case WVIEW_SELECT:
+		if (abs(offset_x) > 5 || abs(offset_x) > 5) {
+			wview->state = WVIEW_DRAG;
+
+			if (wview->drag_cview)
+				columnview_add_shadow(wview->drag_cview);
+		}
+
+		break;
+
+	case WVIEW_DRAG:
+		printf("workspaceview_drag_update: DRAG %p\n", wview->drag_cview);
+		if (wview->drag_cview) {
+			Column *col = COLUMN(VOBJECT(wview->drag_cview)->iobject);
+
+			col->x = VIPS_RINT(wview->start_x + offset_x);
+			col->y = VIPS_RINT(wview->start_y + offset_y);
+			iobject_changed(IOBJECT(col));
+		}
+		else {
+			// drag on background
+		}
+
+		/*
+		// Set vars for bg scroll.
+		u = 0;
+		if( ix > wview->vp.width )
+				u = 10;
+		else if( ix < 0 )
+				u = -10;
+
+		v = 0;
+		if( iy > wview->vp.height )
+				v = 10;
+		else if( iy < 0 )
+				v = -10;
+
+		workspaceview_scroll_background( wview, u, v );
+
+		// Move other columns about.
+		//model_layout( MODEL( ws ) );
+		 */
+
+		break;
+
+	default:
+		g_assert(FALSE);
+	}
+}
+
+static void
+workspaceview_drag_end(GtkEventControllerMotion *self,
+	gdouble offset_x, gdouble offset_y, gpointer user_data)
+{
+	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+	printf("workspaceview_drag_end: %g x %g\n", offset_x, offset_y);
+
+	/* Back to wait.
+	 */
+	switch (wview->state) {
+	case WVIEW_SELECT:
+		wview->state = WVIEW_WAIT;
+		if (wview->drag_cview) {
+			Column *col = WORKSPACE(VOBJECT(wview->drag_cview)->iobject);
+
+			workspace_column_select(ws, col);
+		}
+
+		break;
+
+	case WVIEW_DRAG:
+		wview->state = WVIEW_WAIT;
+		// workspaceview_scroll_background( wview, 0, 0 );
+		if (wview->drag_cview)
+			UNPARENT(wview->drag_cview->shadow);
+
+		// Move columns to their final position.
+		model_layout(MODEL(ws));
+		workspace_set_modified(ws, TRUE);
+
+		break;
+
+	case WVIEW_EDIT:
+	case WVIEW_WAIT:
+		break;
+
+	default:
+		g_assert(FALSE);
+	}
+
+	wview->drag_cview = NULL;
+}
+
 #define BIND(field) \
 	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
 		Workspaceview, field);
@@ -706,6 +876,18 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
+
+	object_class->dispose = workspaceview_dispose;
+
+	widget_class->realize = workspaceview_realize;
+
+	vobject_class->refresh = workspaceview_refresh;
+
+	view_class->link = workspaceview_link;
+	view_class->child_add = workspaceview_child_add;
+	view_class->child_position = workspaceview_child_position;
+	view_class->child_front = workspaceview_child_front;
+	view_class->layout = workspaceview_layout;
 
 	gtk_widget_class_set_layout_manager_type(widget_class,
 		GTK_TYPE_BIN_LAYOUT);
@@ -719,17 +901,12 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
 		workspaceview_background_menu);
 
-	object_class->dispose = workspaceview_dispose;
-
-	widget_class->realize = workspaceview_realize;
-
-	vobject_class->refresh = workspaceview_refresh;
-
-	view_class->link = workspaceview_link;
-	view_class->child_add = workspaceview_child_add;
-	view_class->child_position = workspaceview_child_position;
-	view_class->child_front = workspaceview_child_front;
-	view_class->layout = workspaceview_layout;
+	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
+		workspaceview_drag_begin);
+	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
+		workspaceview_drag_update);
+	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
+		workspaceview_drag_end);
 }
 
 /* Can't use main_load(), we want to select wses after load.
