@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
+
   <menu id="workspaceviewlabel-menu">
     <section>
       <item>
@@ -15,9 +16,7 @@
         <attribute name='action'>win.tab-duplicate</attribute>
       </item>
       <item>
-        <attribute name='label' translatable='yes'>
-          Merge into tab ...
-        </attribute>
+        <attribute name='label' translatable='yes'>Merge into tab ...</attribute>
         <attribute name='action'>win.tab-merge</attribute>
       </item>
       <item>

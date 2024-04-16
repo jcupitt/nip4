@@ -57,12 +57,13 @@ struct _Columnview {
 
 	/* Display parts.
 	 */
-	GtkWidget *top;		/* Enclosing widget for the whole cview */
-	GtkWidget *title;	/* Columnview titlebar */
-	GtkWidget *label;	/* Columnview name label */
-	GtkWidget *head;	/* Columnview caption */
-	GtkWidget *entry;	/* Text entry at bottom */
-	GtkWidget *capedit; /* Shadow text for editing caption */
+	GtkWidget *top;				 /* Enclosing widget for the whole cview */
+	GtkWidget *title;			 /* Columnview titlebar */
+	GtkWidget *label;			 /* Columnview name label */
+	GtkWidget *head;			 /* Columnview caption */
+	GtkWidget *entry;			 /* Text entry at bottom */
+	GtkWidget *capedit;			 /* Shadow text for editing caption */
+	GtkWidget *right_click_menu; /* Shadow text for editing caption */
 
 	/* A shadow for this cview, used during drag to show where this column
 	 * will end up.

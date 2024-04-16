@@ -39,7 +39,7 @@ workspacegroupview_dispose(GObject *object)
     printf("workspacegroupview_dispose:\n");
 #endif /*DEBUG*/
 
-	VIPS_FREEF(gtk_widget_unparent, wsgview->notebook);
+	UNPARENT(wsgview->notebook);
 
 	G_OBJECT_CLASS(workspacegroupview_parent_class)->dispose(object);
 }
@@ -204,12 +204,11 @@ workspacegroupview_class_init(WorkspacegroupviewClass *class)
 	gtk_widget_class_set_layout_manager_type(widget_class,
         GTK_TYPE_BIN_LAYOUT);
 	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
-        APP_PATH "/workspacegroupview.ui");
-
-	BIND(notebook);
-
+		APP_PATH "/workspacegroupview.ui");
 	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
 		workspacegroupview_new_tab);
+
+	BIND(notebook);
 
 	G_OBJECT_CLASS(class)->dispose = workspacegroupview_dispose;
 

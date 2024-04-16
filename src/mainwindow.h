@@ -37,5 +37,6 @@ MainWindow *main_window_new(App *app);
 void main_window_set_gfile(MainWindow *win, GFile *gfile);
 void main_window_cull(void);
 void main_window_layout(void);
+void main_window_set_action_view(View *action_view);
 
 #endif /* __MAIN_WINDOW_H */

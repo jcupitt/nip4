@@ -9,11 +9,10 @@
 
 	<!-- workspaceview.c adds pages to this notebook -->
 
-	<!-- do we ned to make the tabs by hand when we add pages? unclear -->
-
         <child type="action-end">
           <object class="GtkButton">
             <property name="icon-name">tab-new</property>
+            <property name="tooltip-text">New tab</property>
             <signal name="clicked" handler="workspacegroupview_new_tab"/>
           </object>
         </child>

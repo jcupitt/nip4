@@ -1,14 +1,20 @@
 - UNPARENT() widgets, don't UNREF them
 
+- try colour change via css for column select
+
+	- need a couple of columns for this
+
+- add drag on background for workspace scroll
+
+- add bg scroll for column drag outside viewport
+
+	- see workspaceview_drag_update()
+
 - revise column open/close code
 
 	- watch signal on expander and use it to set the model
 
 	- also need to set expander state in refresh I guess
-
-- try colour change via css for column select
-
-	- need a couple of columns for this
 
 - columnview had just one child, a subcolumn ... that contains the grid widget
 
@@ -16,14 +22,8 @@
 
 - need to do column caption edit
 
-- need to do column move and shadow stuff
-
-	- see columnview_left_presss(), _motion() and _release() in nip2
-
-	- use a gesture thing, see vipsdisp iamgewindow.c?
-
-- need workspace relayout
-
+- status bar? space free indicator is handy ... could this go somewhere else?
+  maybe in "about"?
 
 - make a "progress" widget with throttled updates? could share with
   saveoptions, and move some code out of mainwindow

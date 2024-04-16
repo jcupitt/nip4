@@ -35,10 +35,6 @@
 
 G_DEFINE_TYPE(Columnview, columnview, VIEW_TYPE)
 
-/* The columnview popup menu.
- */
-static GtkWidget *columnview_menu = NULL;
-
 /* Edit caption ... right button menu on title bar.
  */
 static void
@@ -376,8 +372,8 @@ columnview_add_shadow(Columnview *old_cview)
 
 		/* The shadow will be on top of the real column and hide it.
 		 * Put the real column to the front.
-		model_front(MODEL(col));
 		 */
+		model_front(MODEL(col));
 	}
 }
 
@@ -399,6 +395,7 @@ columnview_dispose(GObject *object)
 
 	UNPARENT(cview->top);
 	UNPARENT(cview->shadow);
+	UNPARENT(cview->right_click_menu);
 
 	/* The column has gone .. relayout.
 	 */
@@ -474,17 +471,6 @@ columnview_refresh(vObject *vobject)
 	 */
 	if (shadow)
 		view_child_position(VIEW(shadow));
-
-	if (shadow) {
-		printf("columnview_refresh: FIXME ... set shadow\n");
-		/*
-		gtk_widget_set_size_request(GTK_WIDGET(shadow->frame),
-			GTK_WIDGET(cview->frame)->allocation.width,
-			GTK_WIDGET(cview->frame)->allocation.height);
-		gtk_frame_set_shadow_type(GTK_FRAME(shadow->frame),
-			GTK_SHADOW_IN);
-		 */
-	}
 
 	if (col->x != cview->lx ||
 		col->y != cview->ly) {
@@ -621,6 +607,16 @@ columnview_scrollto(View *view, ModelScrollPosition position)
 		workspaceview_scroll(wview, x, y, w, 50);
 }
 
+static void
+columnview_menu(GtkGestureClick *gesture,
+	guint n_press, double x, double y, Columnview *cview)
+{
+	gtk_popover_set_pointing_to(GTK_POPOVER(cview->right_click_menu),
+		&(const GdkRectangle){ x, y, 1, 1 });
+
+	gtk_popover_popup(GTK_POPOVER(cview->right_click_menu));
+}
+
 #define BIND(field) \
 	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
 		Columnview, field);
@@ -637,12 +633,15 @@ columnview_class_init(ColumnviewClass *class)
 		GTK_TYPE_BIN_LAYOUT);
 	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
 		APP_PATH "/columnview.ui");
+	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
+		columnview_menu);
 
 	BIND(top);
 	BIND(title);
 	BIND(label);
 	BIND(head);
 	BIND(entry);
+	BIND(right_click_menu);
 
 	/* Init methods.
 	 */

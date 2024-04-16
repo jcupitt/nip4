@@ -139,52 +139,62 @@ workspaceview_scroll_update(Workspaceview *wview)
 #endif /*DEBUG*/
 }
 
-typedef struct _WorkspaceviewFindColumnview {
-	Workspaceview *wview;
-	int x;
-	int y;
-} WorkspaceviewFindColumnview;
-
 static void *
-workspaceview_find_columnview_sub(View *view,
-	WorkspaceviewFindColumnview *args)
+workspaceview_columnview_hit(View *view, void *a, void *b)
 {
 	Columnview *cview = COLUMNVIEW(view);
-	VipsRect col;
-	int x, y, w, h;
+	graphene_point_t *point = (graphene_point_t *) a;
+	Workspaceview *wview = WORKSPACEVIEW(b);
 
-	columnview_get_position(cview, &x, &y, &w, &h);
-	col.left = x;
-	col.top = y;
-	col.width = w;
-	col.height = h;
+	graphene_rect_t bounds;
 
-	if (vips_rect_includespoint(&col, args->x, args->y))
+	gtk_widget_compute_bounds(GTK_WIDGET(cview), GTK_WIDGET(wview), &bounds);
+
+	if (graphene_rect_contains_point(&bounds, point))
 		return cview;
 
 	return NULL;
 }
 
-/* Test for a point is workspaceview background ... ie. is not enclosed by one
- * of our columns.
+/* Find the columnview for a point.
  */
 static Columnview *
-workspaceview_find_columnview(Workspaceview *wview, int x, int y)
+workspaceview_find_columnview(Workspaceview *wview,
+	int start_x, int start_y)
 {
-	WorkspaceviewFindColumnview args;
-	void *res;
+	graphene_point_t point = GRAPHENE_POINT_INIT(start_x, start_y);
 
-	args.wview = wview;
-	args.x = x;
-	args.y = y;
+	return view_map(VIEW(wview),
+		workspaceview_columnview_hit, &point, wview);
+}
 
-	res = view_map(VIEW(wview),
-		(view_map_fn) workspaceview_find_columnview_sub, &args, NULL);
+static void *
+workspaceview_columnview_title_hit(View *view, void *a, void *b)
+{
+	Columnview *cview = COLUMNVIEW(view);
+	graphene_point_t *point = (graphene_point_t *) a;
+	Workspaceview *wview = WORKSPACEVIEW(b);
 
-	if (res)
-		return COLUMNVIEW(res);
-	else
-		return NULL;
+	graphene_rect_t bounds;
+
+	gtk_widget_compute_bounds(cview->title, GTK_WIDGET(wview), &bounds);
+
+	if (graphene_rect_contains_point(&bounds, point))
+		return cview;
+
+	return NULL;
+}
+
+/* Find the columnview title bar for a point.
+ */
+static Columnview *
+workspaceview_find_columnview_title(Workspaceview *wview,
+	int start_x, int start_y)
+{
+	graphene_point_t point = GRAPHENE_POINT_INIT(start_x, start_y);
+
+	return view_map(VIEW(wview),
+		workspaceview_columnview_title_hit, &point, wview);
 }
 
 static void
@@ -431,6 +441,9 @@ workspaceview_child_position(View *parent, View *child)
 	Workspaceview *wview = WORKSPACEVIEW(parent);
 	Columnview *cview = COLUMNVIEW(child);
 
+	printf("workspaceview_child_position: move child to %d x %d\n",
+		cview->lx, cview->ly);
+
 	gtk_fixed_move(GTK_FIXED(wview->fixed),
 		GTK_WIDGET(cview), cview->lx, cview->ly);
 
@@ -656,9 +669,9 @@ workspaceview_layout_loop(WorkspaceLayout *layout)
 
 	Strategy:
 
-	search for left-most column
+	select the left-most column
 
-	search for all columns with a 'small' overlap
+	search for all columns with a 'small' overlap with the selected column
 
 	lay those columns out vertically with some space between them ... keep
 	the vertical ordering we had before
@@ -686,30 +699,31 @@ workspaceview_layout(View *view)
 }
 
 static void
+workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
+{
+	Workspaceview *wview = WORKSPACEVIEW(view);
+	const char *name = g_action_get_name(G_ACTION(action));
+
+	printf("workspaceview_action: %s\n", name);
+
+	if (g_str_equal(name, "new-column")) {
+		Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+		workspace_column_new(ws);
+	}
+}
+
+static void
 workspaceview_background_menu(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Workspaceview *wview)
 {
+	// gets picked up by menu actions
+	main_window_set_action_view(VIEW(wview));
+
 	gtk_popover_set_pointing_to(GTK_POPOVER(wview->right_click_menu),
 		&(const GdkRectangle){ x, y, 1, 1 });
 
 	gtk_popover_popup(GTK_POPOVER(wview->right_click_menu));
-}
-
-static void *
-workspaceview_titlebar_hit(View *view, void *a, void *b)
-{
-	Columnview *cview = COLUMNVIEW(view);
-	graphene_point_t *point = (graphene_point_t *) a;
-	Workspaceview *wview = WORKSPACEVIEW(b);
-
-	graphene_rect_t bounds;
-
-	gtk_widget_compute_bounds(cview->title, GTK_WIDGET(wview), &bounds);
-
-	if (graphene_rect_contains_point(&bounds, point))
-		return cview;
-
-	return NULL;
 }
 
 static void
@@ -725,19 +739,23 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 	case WVIEW_WAIT:
 		/* Search for a column titlebar we could be hitting.
 		 */
-		graphene_point_t point = GRAPHENE_POINT_INIT(start_x, start_y);
-		Columnview *cview = view_map(VIEW(wview),
-			workspaceview_titlebar_hit, &point, wview);
+		Columnview *title = workspaceview_find_columnview_title(wview,
+			start_x, start_y);
 
-		if (cview) {
-			Column *col = COLUMN(VOBJECT(cview)->iobject);
+		/* Search for a click on any part of a columnview.
+		 */
+		Columnview *cview = workspaceview_find_columnview(wview,
+			start_x, start_y);
 
-			wview->drag_cview = cview;
+		if (title) {
+			Column *col = COLUMN(VOBJECT(title)->iobject);
+
+			wview->drag_cview = title;
 			wview->state = WVIEW_SELECT;
 			wview->start_x = col->x;
 			wview->start_y = col->y;
 		}
-		else {
+		else if (!cview) {
 			// drag on background
 			wview->drag_cview = NULL;
 			wview->state = WVIEW_SELECT;
@@ -785,16 +803,20 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 		if (wview->drag_cview) {
 			Column *col = COLUMN(VOBJECT(wview->drag_cview)->iobject);
 
-			col->x = VIPS_RINT(wview->start_x + offset_x);
-			col->y = VIPS_RINT(wview->start_y + offset_y);
+			// don't let x/y go -ve (layout hates it)
+			col->x = VIPS_MAX(0, VIPS_RINT(wview->start_x + offset_x));
+			col->y = VIPS_MAX(0, VIPS_RINT(wview->start_y + offset_y));
 			iobject_changed(IOBJECT(col));
+
+			// Move other columns about.
+			model_layout(MODEL(ws));
 		}
 		else {
 			// drag on background
 		}
 
 		/*
-		// Set vars for bg scroll.
+		// if the drag point is outside the viewport, set vars for bg scroll.
 		u = 0;
 		if( ix > wview->vp.width )
 				u = 10;
@@ -808,9 +830,6 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 				v = -10;
 
 		workspaceview_scroll_background( wview, u, v );
-
-		// Move other columns about.
-		//model_layout( MODEL( ws ) );
 		 */
 
 		break;
@@ -835,7 +854,7 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 	case WVIEW_SELECT:
 		wview->state = WVIEW_WAIT;
 		if (wview->drag_cview) {
-			Column *col = WORKSPACE(VOBJECT(wview->drag_cview)->iobject);
+			Column *col = COLUMN(VOBJECT(wview->drag_cview)->iobject);
 
 			workspace_column_select(ws, col);
 		}
@@ -888,6 +907,7 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	view_class->child_position = workspaceview_child_position;
 	view_class->child_front = workspaceview_child_front;
 	view_class->layout = workspaceview_layout;
+	view_class->action = workspaceview_action;
 
 	gtk_widget_class_set_layout_manager_type(widget_class,
 		GTK_TYPE_BIN_LAYOUT);
@@ -900,7 +920,6 @@ workspaceview_class_init(WorkspaceviewClass *class)
 
 	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
 		workspaceview_background_menu);
-
 	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
 		workspaceview_drag_begin);
 	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),

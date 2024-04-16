@@ -109,6 +109,10 @@ typedef struct _ViewClass {
 	void *(*scan)(View *);
 	void (*scrollto)(View *, ModelScrollPosition);
 	void (*layout)(View *);
+
+	/* A GAction in the enclosing window.
+	 */
+	void (*action)(GSimpleAction *action, GVariant *parameter, View *view);
 } ViewClass;
 
 void view_scannable_register(View *view);

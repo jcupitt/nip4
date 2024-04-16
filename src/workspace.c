@@ -57,16 +57,14 @@ workspace_set_needs_layout(Workspace *ws, gboolean needs_layout)
 		g_assert(!g_slist_find(workspace_needs_layout, ws));
 
 		ws->needs_layout = TRUE;
-		workspace_needs_layout = g_slist_prepend(
-			workspace_needs_layout, ws);
+		workspace_needs_layout = g_slist_prepend(workspace_needs_layout, ws);
 	}
 
 	if (ws->needs_layout && !needs_layout) {
 		g_assert(g_slist_find(workspace_needs_layout, ws));
 
 		ws->needs_layout = FALSE;
-		workspace_needs_layout = g_slist_remove(
-			workspace_needs_layout, ws);
+		workspace_needs_layout = g_slist_remove(workspace_needs_layout, ws);
 	}
 }
 
@@ -445,6 +443,9 @@ workspace_column_new(Workspace *ws)
 		col->x = old_col->x + 50;
 		col->y = old_col->y;
 	}
+
+	workspace_set_needs_layout(ws, TRUE);
+	main_window_layout();
 
 	workspace_column_select(ws, col);
 	column_scrollto(col, MODEL_SCROLL_TOP);

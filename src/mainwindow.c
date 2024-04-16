@@ -38,6 +38,9 @@ struct _MainWindow {
 	// the model we display
 	Workspacegroup *wsg;
 
+	// The view we trigger actions on
+	View *action_view;
+
 	GtkWidget *title;
 	GtkWidget *subtitle;
 	GtkWidget *gears;
@@ -336,10 +339,30 @@ main_window_fullscreen(GSimpleAction *action,
 	g_simple_action_set_state(action, state);
 }
 
+// call ->action on the linked view
+static void
+main_window_view_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	MainWindow *main = MAIN_WINDOW(user_data);
+
+	if (main->action_view &&
+		IS_VIEW(main->action_view)) {
+		View *view = VIEW(main->action_view);
+		ViewClass *view_class = VIEW_GET_CLASS(view);
+
+		if (view_class->action)
+			view_class->action(action, parameter, view);
+	}
+}
+
 static GActionEntry main_window_entries[] = {
+	// main window actions
 	{ "open", main_window_open_action },
 	{ "saveas", main_window_saveas_action },
 	{ "close", main_window_close_action },
+
+	{ "new-column", main_window_view_action },
 
 	{ "fullscreen", action_toggle, NULL, "false", main_window_fullscreen },
 };
@@ -503,6 +526,8 @@ main_window_layout_sub(Workspace *ws)
 static gboolean
 main_window_layout_timeout_cb(gpointer user_data)
 {
+	printf("main_window_layout_timeout_cb:\n");
+
 	main_window_layout_timeout = 0;
 
 	slist_map(workspace_get_needs_layout(),
@@ -517,4 +542,14 @@ main_window_layout(void)
 	VIPS_FREEF(g_source_remove, main_window_layout_timeout);
 	main_window_layout_timeout = g_timeout_add(300,
 		(GSourceFunc) main_window_layout_timeout_cb, NULL);
+}
+
+void
+main_window_set_action_view(View *action_view)
+{
+	GtkWidget *widget = GTK_WIDGET(action_view);
+	MainWindow *main = MAIN_WINDOW(gtk_widget_get_root(widget));
+
+	if (main)
+		main->action_view = action_view;
 }
