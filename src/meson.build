@@ -92,6 +92,7 @@ executable('nip4', [
     'workspacegroup.c',
     'itextview.c',
     'rhsview.c',
+    'rowview.c',
     'toolkitview.c',
     'toolkitgroupview.c',
     'toolkitbrowser.c',

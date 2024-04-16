@@ -151,6 +151,7 @@ typedef struct _Reduce Reduce;
 typedef struct _Rhs Rhs;
 typedef struct _Row Row;
 typedef struct _Rowview Rowview;
+typedef struct _Rhsview Rhsview;
 typedef struct _Subcolumn Subcolumn;
 typedef struct _Subcolumnview Subcolumnview;
 typedef struct _Symbol Symbol;
@@ -236,6 +237,7 @@ typedef struct _Workspace Workspace;
 #include "toolkitview.h"
 #include "toolkitgroupview.h"
 #include "subcolumnview.h"
+#include "rowview.h"
 #include "toolview.h"
 #include "rhsview.h"
 
