@@ -8,5 +8,6 @@
     <file preprocess="xml-stripblanks">columnview.ui</file>
     <file preprocess="xml-stripblanks">workspaceviewlabel.ui</file>
     <file>mainwindow.css</file>
+    <file>columnview.css</file>
   </gresource>
 </gresources>

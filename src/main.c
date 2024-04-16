@@ -22,6 +22,7 @@
  */
 
 /*
+#define DEBUG_FATAL
  */
 #define DEBUG
 
@@ -158,16 +159,6 @@ main(int argc, char **argv)
 
 #ifdef DEBUG
 	vips_leak_set(TRUE);
-
-	g_log_set_always_fatal(
-		G_LOG_FLAG_RECURSION |
-		G_LOG_FLAG_FATAL |
-		G_LOG_LEVEL_ERROR |
-		G_LOG_LEVEL_CRITICAL |
-		G_LOG_LEVEL_WARNING |
-		0);
-
-	g_setenv("G_DEBUG", "fatal-warnings", TRUE);
 #endif /*DEBUG*/
 
 	/* Set localised application name.

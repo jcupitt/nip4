@@ -112,9 +112,6 @@ static GActionEntry app_entries[] = {
 static void
 app_startup(GApplication *app)
 {
-	int i;
-	GtkSettings *settings;
-
 	struct {
 		const gchar *action_and_target;
 		const gchar *accelerators[2];
@@ -147,7 +144,7 @@ app_startup(GApplication *app)
 	/* Image display programs are supposed to default to a dark theme,
 	 * according to the HIG.
 	 */
-	settings = gtk_settings_get_default();
+	GtkSettings *settings = gtk_settings_get_default();
 	g_object_set(settings,
 		"gtk-application-prefer-dark-theme", TRUE,
 		NULL);
@@ -155,11 +152,10 @@ app_startup(GApplication *app)
 	/* We have custom CSS for our dynamic widgets.
 	 */
 	GtkCssProvider *provider = gtk_css_provider_new();
-	gtk_css_provider_load_from_resource(provider,
-		APP_PATH "/mainwindow.css");
+	gtk_css_provider_load_from_resource(provider, APP_PATH "/mainwindow.css");
+	gtk_css_provider_load_from_resource(provider, APP_PATH "/columnview.css");
 	gtk_style_context_add_provider_for_display(gdk_display_get_default(),
-		GTK_STYLE_PROVIDER(provider),
-		GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+		GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
 
 	/* Build our classes.
 	 */
@@ -170,7 +166,7 @@ app_startup(GApplication *app)
 	g_action_map_add_action_entries(G_ACTION_MAP(app),
 		app_entries, G_N_ELEMENTS(app_entries), app);
 
-	for (i = 0; i < G_N_ELEMENTS(accels); i++)
+	for (int i = 0; i < G_N_ELEMENTS(accels); i++)
 		gtk_application_set_accels_for_action(GTK_APPLICATION(app),
 			accels[i].action_and_target, accels[i].accelerators);
 }

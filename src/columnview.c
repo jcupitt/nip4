@@ -541,21 +541,21 @@ columnview_refresh(vObject *vobject)
 			!cview->master);
 
 	/* Set select state.
+	 */
 	if (cview->master)
-		gtk_widget_set_name(cview->title, "shadow_widget");
+		gtk_widget_set_name(cview->title, "shadow_column");
 	else if (col->selected && !cview->selected) {
-		gtk_widget_set_name(cview->title, "selected_widget");
+		gtk_widget_set_name(cview->title, "selected_column");
 		cview->selected = TRUE;
-		if (cview->textfr)
-			gtk_widget_grab_focus(cview->text);
+		if (cview->entry)
+			gtk_widget_grab_focus(cview->entry);
 	}
 	else if (!col->selected) {
 		// Always do this, even if cview->selected, so we set on the
 		// first _refresh().
-		gtk_widget_set_name(cview->title, "column_widget");
+		gtk_widget_set_name(cview->title, "column");
 		cview->selected = FALSE;
 	}
-	 */
 
 	VOBJECT_CLASS(columnview_parent_class)->refresh(vobject);
 }

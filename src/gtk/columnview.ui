@@ -43,6 +43,7 @@
             <property name="margin-start">10</property>
             <child>
               <object class="GtkLabel" id="label">
+                <property name="margin-start">10</property>
                 <property name="label">A - </property>
               </object>
             </child>
