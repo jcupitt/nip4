@@ -70,7 +70,6 @@ rowview_dispose(GObject *object)
 	UNPARENT(rview->spin);
 	UNPARENT(rview->but);
 	UNPARENT(rview->rhsview);
-	UNPARENT(rview->label);
 
 	G_OBJECT_CLASS(rowview_parent_class)->dispose(object);
 }
@@ -139,9 +138,8 @@ rowview_update_widgets(Rowview *rview)
 
 	/* Update button.
 	 */
-	set_glabel(rview->label, "%s", row_name(row));
-	gtk_widget_set_visible(rview->but,
-		rview->visible && editable);
+	gtk_button_set_label(rview->but, row_name(row));
+	gtk_widget_set_visible(rview->but, rview->visible && editable);
 
 	/* Spin visible only if this is a class.
 	 */
@@ -522,12 +520,22 @@ rowview_down_click(GtkGestureClick *gesture, Rowview *rview)
 }
 
 static void
-rowview_but_pressed(GtkGestureClick *gesture,
-	guint n_press, double x, double y, Rowview *rview)
+rowview_but_clicked(GtkButton* self, gpointer user_data)
 {
-	printf("rowview_but_pressed:\n");
+	Rowview *rview = ROWVIEW(user_data);
+	Row *row = ROW(VOBJECT(rview)->iobject);
 
-	/* look at n_clicked and call
+
+	printf("rowview_but_clicked:\n");
+
+	/*
+	 * do we need to connect to the gesture instead if we want single abd
+	 * double click?
+	 *
+	 * how do we read modifiers for range select/
+	 *
+	 * maybe a simple label would be better than a button
+	 *
 		rowview_single_cb
 		rowview_double_cb
 	 */
@@ -590,14 +598,13 @@ rowview_class_init(RowviewClass *class)
 	gtk_widget_class_bind_template_callback(widget_class,
 		rowview_down_click);
 	gtk_widget_class_bind_template_callback(widget_class,
-		rowview_but_pressed);
+		rowview_but_clicked);
 
 	printf("rowview_class_init: need button enter, leave, focus, tooltip\n");
 
 	BIND(rhsview);
 	BIND(spin);
 	BIND(but);
-	BIND(label);
 
 	/* Create signals.
 	 */

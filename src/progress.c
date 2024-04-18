@@ -34,7 +34,7 @@
 
 #include "nip4.h"
 
-G_DEFINE_TYPE(Progress, progress, ICONTAINER_TYPE)
+G_DEFINE_TYPE(Progress, progress, IOBJECT_TYPE)
 
 /* Our signals.
  */

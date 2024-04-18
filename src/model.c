@@ -352,7 +352,8 @@ model_view_new(Model *model, View *parent)
 		return NULL;
 
 	view = model_class->view_new(model, parent);
-	view_link(view, model, parent);
+	if (view)
+		view_link(view, model, parent);
 
 	return view;
 }

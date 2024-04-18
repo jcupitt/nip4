@@ -446,14 +446,6 @@ columnview_add_caption(Columnview *cview)
 	printf("columnview_add_caption: FIXME\n");
 }
 
-/* Add bottom entry widget.
- */
-static void
-columnview_add_text(Columnview *cview)
-{
-	printf("columnview_add_text: FIXME\n");
-}
-
 static void
 columnview_refresh(vObject *vobject)
 {
@@ -547,8 +539,7 @@ columnview_refresh(vObject *vobject)
 	else if (col->selected && !cview->selected) {
 		gtk_widget_set_name(cview->title, "selected_column");
 		cview->selected = TRUE;
-		if (cview->entry)
-			gtk_widget_grab_focus(cview->entry);
+		gtk_widget_grab_focus(cview->entry);
 	}
 	else if (!col->selected) {
 		// Always do this, even if cview->selected, so we set on the
@@ -616,6 +607,30 @@ columnview_menu(GtkGestureClick *gesture,
 	gtk_popover_popup(GTK_POPOVER(cview->right_click_menu));
 }
 
+static void
+columnview_activate(GtkEntry *self, gpointer user_data)
+{
+	Columnview *cview = COLUMNVIEW(user_data);
+    Column *col = COLUMN( VOBJECT( cview )->iobject );
+    Workspace *ws = col->ws;
+
+	GtkEntryBuffer *buffer = gtk_entry_get_buffer(self);
+	const char *text = gtk_entry_buffer_get_text( buffer );
+
+	Symbol *sym;
+
+	if( !text || strspn( text, WHITESPACE ) == strlen( text ) )
+        return;
+
+    if( !(sym = workspace_add_def_recalc( ws, text )) ) {
+        error_alert( self );
+        symbol_recalculate_all();
+        return;
+    }
+
+    set_gentry( self, NULL );
+}
+
 #define BIND(field) \
 	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
 		Columnview, field);
@@ -634,6 +649,8 @@ columnview_class_init(ColumnviewClass *class)
 		APP_PATH "/columnview.ui");
 	gtk_widget_class_bind_template_callback(widget_class,
 		columnview_menu);
+	gtk_widget_class_bind_template_callback(widget_class,
+		columnview_activate);
 
 	BIND(top);
 	BIND(title);

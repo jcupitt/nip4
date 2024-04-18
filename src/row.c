@@ -631,10 +631,7 @@ row_parent_remove(iContainer *child)
 static View *
 row_view_new(Model *model, View *parent)
 {
-	printf("row_view_new: FIXME\n");
-	// return rowview_new();
-
-	return NULL;
+	return rowview_new();
 }
 
 static void

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
+
   <menu id="rowview-menu">
     <section>
       <item>
@@ -35,9 +36,7 @@
     </section>
   </menu>
 
-
   <template class="Rowview" parent="View">
-
     <child>
       <object class="Spin" id="spin">
         <signal name="up_click" handler="rowview_up_click"/>
@@ -47,7 +46,7 @@
 
     <child>
       <object class="GtkButton" id="but">
-        <signal name="pressed" handler="rowview_but_pressed"/>
+        <signal name="clicked" handler="rowview_but_clicked"/>
 
         <child>
           <object class="GtkPopoverMenu" id="right_click_menu">
@@ -71,12 +70,6 @@
       </object>
     </child>
 
-    <child>
-      <object class="GtkLabel" id="label">
-      </object>
-    </child>
-
   </template>
+
 </interface>
-
-

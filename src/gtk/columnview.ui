@@ -87,6 +87,7 @@
 
             <child>
 	      <object class="GtkEntry" id="entry">
+                <signal name="activate" handler="columnview_activate"/>
 	      </object>
             </child>
 
