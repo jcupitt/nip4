@@ -41,17 +41,20 @@
         <child type="label">
           <object class="GtkBox" id="title">
             <property name="margin-start">10</property>
+
             <child>
               <object class="GtkLabel" id="label">
                 <property name="margin-start">10</property>
                 <property name="label">A - </property>
               </object>
             </child>
+
             <child>
               <object class="GtkLabel" id="head">
                 <property name="label">this column does stuff</property>
               </object>
             </child>
+
             <child>
               <object class="GtkButton">
                 <property name="icon-name">window-close-symbolic</property>
@@ -77,47 +80,22 @@
         </child>
 
         <child>
-          <object class="GtkGrid">
+          <object class="GtkBox" id="body">
+            <property name="orientation">vertical</property>
 
-            <!-- one row for testing -->
-
-            <child>
-              <object class="GtkButton">
-                <property name="label">A1</property>
-                <layout>
-                  <property name="column">0</property>
-                  <property name="row">0</property>
-                </layout>
-              </object>
-            </child>
+	    <!-- subcolumnview inserted as the first child of this box -->
 
             <child>
-              <object class="GtkLabel">
-                <property name="label">42</property>
-                <property name="xalign">0</property>
-                <property name="margin-start">5</property>
-                <layout>
-                  <property name="column">1</property>
-                  <property name="row">0</property>
-                </layout>
-              </object>
-            </child>
-
-            <child>
-              <object class="GtkEntry" id="entry">
-                <layout>
-                  <property name="column">1</property>
-                  <property name="row">1</property>
-                </layout>
-              </object>
+	      <object class="GtkEntry" id="entry">
+	      </object>
             </child>
 
           </object>
         </child>
 
       </object>
-
     </child>
+
   </template>
 </interface>
 

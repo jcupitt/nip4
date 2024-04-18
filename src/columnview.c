@@ -579,8 +579,7 @@ columnview_child_add(View *parent, View *child)
 
 	VIEW_CLASS(columnview_parent_class)->child_add(parent, child);
 
-	printf("columnview_child_add: FIXME ... add subcolumnview to vbox\n");
-	// gtk_container_add(GTK_CONTAINER(cview->frame), GTK_WIDGET(sview));
+	gtk_box_prepend(GTK_BOX(cview->body), GTK_WIDGET(sview));
 }
 
 /* Scroll to keep the text entry at the bottom of the columnview on screen.
@@ -640,6 +639,7 @@ columnview_class_init(ColumnviewClass *class)
 	BIND(title);
 	BIND(label);
 	BIND(head);
+	BIND(body);
 	BIND(entry);
 	BIND(right_click_menu);
 

@@ -1,12 +1,7 @@
-- try subcolumnview
+- make a row!
 
-  reworking subcolumnview, rowview, rhsview
+  on enter in a column, make a row and add
 
-  	subcolumnview makes a grid
-
-	rowview attaches widgets to it (not a true child view)
-
-  need .ui files
 
 
 

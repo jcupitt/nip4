@@ -157,11 +157,17 @@ app_startup(GApplication *app)
 	gtk_style_context_add_provider_for_display(gdk_display_get_default(),
 		GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
 
-	/* Build our classes.
+	/* Build our widgets.
 	 */
 	MAIN_WINDOW_TYPE;
 	VIEW_TYPE;
 	WORKSPACEGROUPVIEW_TYPE;
+	WORKSPACEVIEW_TYPE;
+	WORKSPACEVIEWLABEL_TYPE;
+	COLUMNVIEW_TYPE;
+	SUBCOLUMNVIEW_TYPE;
+	SPIN_TYPE;
+	ROWVIEW_TYPE;
 
 	g_action_map_add_action_entries(G_ACTION_MAP(app),
 		app_entries, G_N_ELEMENTS(app_entries), app);

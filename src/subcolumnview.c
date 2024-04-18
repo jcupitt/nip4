@@ -163,12 +163,24 @@ subcolumnview_refresh(vObject *vobject)
 	VOBJECT_CLASS(subcolumnview_parent_class)->refresh(vobject);
 }
 
+#define BIND(field) \
+	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
+		Subcolumnview, field);
+
 static void
 subcolumnview_class_init(SubcolumnviewClass *class)
 {
 	GObjectClass *object_class = (GObjectClass *) class;
+	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
+
+	gtk_widget_class_set_layout_manager_type(widget_class,
+		GTK_TYPE_BIN_LAYOUT);
+	gtk_widget_class_set_template_from_resource(widget_class,
+		APP_PATH "/subcolumnview.ui");
+
+	BIND(grid);
 
 	object_class->dispose = subcolumnview_dispose;
 
@@ -180,23 +192,7 @@ subcolumnview_class_init(SubcolumnviewClass *class)
 static void
 subcolumnview_init(Subcolumnview *sview)
 {
-	sview->rhsview = NULL;
-	sview->rows = 0;
-	sview->nvis = 0;
-
-	/*
-	sview->align = gtk_alignment_new(0, 0, 1, 1);
-	gtk_box_pack_start(GTK_BOX(sview), sview->align, FALSE, FALSE, 0);
-	 */
-
-	/*
-	sview->grid = gtk_table_new(sview->rows, 4, FALSE);
-	gtk_container_add(GTK_CONTAINER(sview->align), sview->table);
-
-	gtk_widget_show_all(sview->align);
-
-	sview->group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
-	 */
+	gtk_widget_init_template(GTK_WIDGET(sview));
 }
 
 View *

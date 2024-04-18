@@ -57,13 +57,17 @@ struct _Columnview {
 
 	/* Display parts.
 	 */
-	GtkWidget *top;				 /* Enclosing widget for the whole cview */
-	GtkWidget *title;			 /* Columnview titlebar */
-	GtkWidget *label;			 /* Columnview name label */
-	GtkWidget *head;			 /* Columnview caption */
-	GtkWidget *entry;			 /* Text entry at bottom */
-	GtkWidget *capedit;			 /* Shadow text for editing caption */
-	GtkWidget *right_click_menu; /* Shadow text for editing caption */
+	GtkWidget *top;				/* Enclosing widget for the whole cview */
+	GtkWidget *title;			/* Columnview titlebar */
+	GtkWidget *label;			/* Columnview name label */
+	GtkWidget *head;			/* Columnview caption */
+	GtkWidget *entry;			/* Text entry at bottom */
+	GtkWidget *capedit;			/* Shadow text for editing caption */
+	GtkWidget *body;			/* The body of the columnview */
+
+	/* Context menu for titlebar.
+	 */
+	GtkWidget *right_click_menu;
 
 	/* A shadow for this cview, used during drag to show where this column
 	 * will end up.
@@ -75,16 +79,16 @@ struct _Columnview {
 
 	/* Appearance state info.
 	 */
-	ColumnviewState state; /* Waiting or dragging */
-	int start_x;		   /* Drag start */
+	ColumnviewState state;		/* Waiting or dragging */
+	int start_x;				/* Drag start */
 	int start_y;
 
-	int lx, ly; /* last pos we set */
-	int sx, sy; /* Drag start point */
-	int rx, ry; /* Drag offset */
-	int tx, ty; /* Tally window pos in root cods */
+	int lx, ly;					/* last pos we set */
+	int sx, sy;					/* Drag start point */
+	int rx, ry;					/* Drag offset */
+	int tx, ty;					/* Tally window pos in root cods */
 
-	gboolean selected; /* Last drawn in selected state? */
+	gboolean selected;			/* Last drawn in selected state? */
 
 	/* We watch resize events and trigger a workspace relayout with these.
 	 */
