@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Spin" parent="GtkWidget">
+    <child>
+
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+	<property name="tooltip-text">Expand or collapse row</property>
+
+        <child>
+          <object class="GtkImage">
+            <property name="icon-name">go-up-symbolic</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkImage">
+            <property name="icon-name">go-down-symbolic</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkGestureClick">
+            <property name="button">1</property>
+            <signal name="pressed" handler="spin_pressed"/>
+          </object>
+        </child>
+
+      </object>
+
+    </child>
+  </template>
+</interface>
+
+

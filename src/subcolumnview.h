@@ -48,11 +48,9 @@ struct _Subcolumnview {
 
 	/* My instance vars.
 	 */
-	GtkWidget *align;	 /* Alignment widget */
-	GtkWidget *table;	 /* Central tally area for column */
+	GtkWidget *grid;	 /* Central grid area for column */
 	int rows;			 /* Number of rows atm */
 	int nvis;			 /* Number of children currently visible */
-	GtkSizeGroup *group; /* Align captions with this */
 };
 
 typedef struct _SubcolumnviewClass {

@@ -37,12 +37,12 @@ G_DEFINE_TYPE(Rowview, rowview, VIEW_TYPE)
 
 /*
 enum {
-ROWVIEW_TARGET_STRING,
+  ROWVIEW_TARGET_STRING,
 };
 
 static GtkTargetEntry rowview_target_table[] = {
-{ "STRING", 0, ROWVIEW_TARGET_STRING },
-{ "text/plain", 0, ROWVIEW_TARGET_STRING }
+  { "STRING", 0, ROWVIEW_TARGET_STRING },
+  { "text/plain", 0, ROWVIEW_TARGET_STRING }
 };
  */
 
@@ -67,25 +67,25 @@ rowview_dispose(GObject *object)
 	/* Kill children ... must do this ourselves, since we are not a
 	 * self-contained widget.
 	 */
-	UNPARENT(rview->but);
 	UNPARENT(rview->spin);
+	UNPARENT(rview->but);
+	UNPARENT(rview->rhsview);
+	UNPARENT(rview->label);
 
 	G_OBJECT_CLASS(rowview_parent_class)->dispose(object);
 }
 
 static void
-rowview_attach(Rowview *rview, GtkWidget *child, int x,
-	GtkAttachOptions xoptions, GtkAttachOptions yoptions)
+rowview_attach(Rowview *rview, GtkWidget *child, int x)
 {
 	Subcolumnview *sview = rview->sview;
 
 	gtk_widget_ref(child);
 
-	if (child->parent)
-		gtk_container_remove(GTK_CONTAINER(sview->table), child);
-	gtk_table_attach(GTK_TABLE(sview->table), child,
-		x, x + 1, rview->rnum, rview->rnum + 1,
-		xoptions, yoptions, 0, 0);
+	if (gtk_widget_get_parent(child))
+		gtk_widget_unparent(child);
+
+	gtk_grid_attach(GTK_GRID(sview->grid), child, x, rview->rnum, 1, 1);
 
 	gtk_widget_unref(child);
 }
@@ -114,16 +114,10 @@ rowview_update_widgets(Rowview *rview)
 
 		rview->rnum = pos;
 
-		rowview_attach(rview, rview->spin,
-			0, GTK_FILL, GTK_FILL);
-		rowview_attach(rview, rview->but,
-			1, GTK_FILL, GTK_EXPAND | GTK_FILL);
-		rowview_attach(rview, rview->led,
-			2, GTK_FILL, GTK_EXPAND | GTK_FILL);
+		rowview_attach(rview, rview->spin, 0);
+		rowview_attach(rview, rview->but, 1);
 		if (rview->rhsview)
-			rowview_attach(rview, GTK_WIDGET(rview->rhsview),
-				3,
-				GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL);
+			rowview_attach(rview, GTK_WIDGET(rview->rhsview), 2);
 	}
 
 	/* Set colours.
@@ -150,8 +144,7 @@ rowview_update_widgets(Rowview *rview)
 
 	/* Spin visible only if this is a class.
 	 */
-	widget_visible(rview->spin,
-		rview->visible && row->is_class && editable);
+	widget_visible(rview->spin, rview->visible && row->is_class && editable);
 
 	if (rview->rhsview)
 		widget_visible(GTK_WIDGET(rview->rhsview), rview->visible);
@@ -202,13 +195,13 @@ rowview_edit(Rowview *rview)
 }
 
 /* Double click on button callback.
- */
 static void
 rowview_double_cb(GtkWidget *button, GdkEvent *event, Rowview *rview)
 {
 	if (!rowview_edit(rview))
 		iwindow_alert(button, GTK_MESSAGE_ERROR);
 }
+ */
 
 /* Edit in menu.
  */
@@ -360,30 +353,6 @@ rowview_remove_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 	workspace_selected_remove_yesno(ws, button);
 }
 
-/* Callback for up/down spin button.
- */
-static void
-rowview_spin_up_cb(GtkWidget *widget, gpointer client)
-{
-	Rowview *rview = ROWVIEW(client);
-	Row *row = ROW(VOBJECT(rview)->iobject);
-	Rhs *rhs = row->child_rhs;
-
-	rhs_vislevel_down(rhs);
-	workspace_set_modified(row->ws, TRUE);
-}
-
-static void
-rowview_spin_down_cb(GtkWidget *widget, gpointer client)
-{
-	Rowview *rview = ROWVIEW(client);
-	Row *row = ROW(VOBJECT(rview)->iobject);
-	Rhs *rhs = row->child_rhs;
-
-	rhs_vislevel_up(rhs);
-	workspace_set_modified(row->ws, TRUE);
-}
-
 /* Scroll to make tally entry visible.
  */
 static void
@@ -401,6 +370,7 @@ rowview_scrollto(View *view, ModelScrollPosition position)
 	workspaceview_scroll(wview, x, y, w, h);
 }
 
+/*
 static void
 rowview_drag(Rowview *rview_from, Rowview *rview_to)
 {
@@ -417,9 +387,6 @@ rowview_drag(Rowview *rview_from, Rowview *rview_to)
 	icontainer_child_move(ICONTAINER(row_from),
 		ICONTAINER(row_to)->pos);
 
-	/* Refresh all the rows, to make sure we move all rows to their new
-	 * slots.
-	 */
 	icontainer_map(ICONTAINER(row_from->scol),
 		(icontainer_map_fn) iobject_changed, NULL, NULL);
 
@@ -432,8 +399,6 @@ rowview_drag_data_get(GtkWidget *but,
 	guint info, guint time, Rowview *rview)
 {
 	if (info == ROWVIEW_TARGET_STRING) {
-		/* Send a pointer to us.
-		 */
 		gtk_selection_data_set(selection_data,
 			selection_data->target,
 			8, (const guchar *) &rview, sizeof(Rowview *));
@@ -458,6 +423,7 @@ rowview_drag_data_received(GtkWidget *but,
 
 	gtk_drag_finish(context, FALSE, FALSE, time);
 }
+ */
 
 /* Attach the rowview menu to a widget ... also used by iimageview
  */
@@ -478,22 +444,23 @@ rowview_link(View *view, Model *model, View *parent)
 
 	rview->sview = sview;
 
+	printf("rowview_link: FIXME ... drag n drop for rows\n");
 	/* Only drag n drop top level rows.
-	 */
 	if (row->top_row == row) {
 		gtk_drag_source_set(rview->but, GDK_BUTTON1_MASK,
-			rowview_target_table, IM_NUMBER(rowview_target_table),
+			rowview_target_table, VIPS_NUMBER(rowview_target_table),
 			GDK_ACTION_COPY);
 		gtk_signal_connect(GTK_OBJECT(rview->but), "drag_data_get",
 			GTK_SIGNAL_FUNC(rowview_drag_data_get), rview);
 
 		gtk_drag_dest_set(rview->but, GTK_DEST_DEFAULT_ALL,
-			rowview_target_table, IM_NUMBER(rowview_target_table),
+			rowview_target_table, VIPS_NUMBER(rowview_target_table),
 			GDK_ACTION_COPY);
 		gtk_signal_connect(GTK_OBJECT(rview->but),
 			"drag_data_received",
 			GTK_SIGNAL_FUNC(rowview_drag_data_received), rview);
 	}
+	 */
 
 	rowview_menu_attach(rview, rview->but);
 }
@@ -501,12 +468,12 @@ rowview_link(View *view, Model *model, View *parent)
 static void
 rowview_child_add(View *parent, View *child)
 {
-	Rowview *rowview = ROWVIEW(parent);
+	Rowview *rview = ROWVIEW(parent);
 
 	g_assert(IS_RHSVIEW(child));
-	g_assert(!rowview->rhsview);
+	g_assert(!rview->rhsview);
 
-	rowview->rhsview = RHSVIEW(child);
+	rview->rhsview = RHSVIEW(child);
 
 	VIEW_CLASS(rowview_parent_class)->child_add(parent, child);
 }
@@ -514,64 +481,63 @@ rowview_child_add(View *parent, View *child)
 static void
 rowview_child_remove(View *parent, View *child)
 {
-	Rowview *rowview = ROWVIEW(parent);
+	Rowview *rview = ROWVIEW(parent);
 
 	g_assert(IS_RHSVIEW(child));
-	g_assert(rowview->rhsview);
+	g_assert(rview->rhsview);
 
-	rowview->rhsview = NULL;
+	rview->rhsview = NULL;
 
 	VIEW_CLASS(rowview_parent_class)->child_remove(parent, child);
 }
 
 static void
-rowview_class_init(RowviewClass *class)
+rowview_menu(GtkGestureClick *gesture,
+	guint n_press, double x, double y, Rowview *rowview)
 {
-	GObjectClass *object_class = (GtkObjectClass *) class;
-	vObjectClass *vobject_class = (vObjectClass *) class;
-	ViewClass *view_class = (ViewClass *) class;
+	printf("rowview_menu: FIXME ... set client data\n");
 
-	GtkWidget *pane;
+	gtk_popover_set_pointing_to(GTK_POPOVER(rview->right_click_menu),
+		&(const GdkRectangle){ x, y, 1, 1 });
 
-	/* Create signals.
-	 */
+	gtk_popover_popup(GTK_POPOVER(rview->right_click_menu));
+}
 
-	/* Init methods.
-	 */
-	object_class->destroy = rowview_dispose;
+static void
+rowview_up_click(GtkGestureClick *gesture, Rowview *rowview)
+{
+	Rowview *rview = ROWVIEW(client);
+	Row *row = ROW(VOBJECT(rview)->iobject);
+	Rhs *rhs = row->child_rhs;
 
-	vobject_class->refresh = rowview_refresh;
+	rhs_vislevel_up(rhs);
+	workspace_set_modified(row->ws, TRUE);
+}
 
-	view_class->link = rowview_link;
-	view_class->child_add = rowview_child_add;
-	view_class->child_remove = rowview_child_remove;
-	view_class->reset = rowview_reset;
-	view_class->scrollto = rowview_scrollto;
+static void
+rowview_down_click(GtkGestureClick *gesture, Rowview *rowview)
+{
+	Rowview *rview = ROWVIEW(client);
+	Row *row = ROW(VOBJECT(rview)->iobject);
+	Rhs *rhs = row->child_rhs;
 
-	/* Other init.
-	pane = rowview_popup_menu = popup_build(_("Row menu"));
-	popup_add_but(pane, _("_Edit"),
-		POPUP_FUNC(rowview_edit_cb));
-	popup_add_but(pane, _("_Header"),
-		POPUP_FUNC(rowview_header_cb));
-	popup_add_but(pane, STOCK_DUPLICATE,
-		POPUP_FUNC(rowview_clone_cb));
-	popup_add_but(pane, _("U_ngroup"),
-		POPUP_FUNC(rowview_ungroup_cb));
-	popup_add_but(pane, GTK_STOCK_SAVE_AS,
-		POPUP_FUNC(rowview_save_cb));
-	popup_add_but(pane, _("Replace From _File"),
-		POPUP_FUNC(rowview_replace_cb));
-	popup_add_but(pane, _("_Recalculate"),
-		POPUP_FUNC(rowview_recalc_cb));
-	popup_add_but(pane, _("Re_set"),
-		POPUP_FUNC(rowview_clear_edited_cb));
-	menu_add_sep(pane);
-	popup_add_but(pane, GTK_STOCK_DELETE,
-		POPUP_FUNC(rowview_remove_cb));
+	rhs_vislevel_down(rhs);
+	workspace_set_modified(row->ws, TRUE);
+}
+
+static void
+rowview_but_pressed(GtkGestureClick *gesture,
+	guint n_press, double x, double y, Rowview *rowview)
+{
+	printf("rowview_but_pressed:\n");
+
+	/* look at n_clicked and call
+		rowview_single_cb
+		rowview_double_cb
 	 */
 }
 
+/*
 static void
 rowview_enter_cb(GtkWidget *widget, Rowview *rview)
 {
@@ -605,74 +571,81 @@ rowview_tooltip_generate(GtkWidget *widget, VipsBuf *buf, Rowview *rview)
 	iobject_info(IOBJECT(row), buf);
 	vips_buf_removec(buf, '\n');
 }
+ */
+
+#define BIND(field) \
+	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
+		Rowview, field);
+
+static void
+rowview_class_init(RowviewClass *class)
+{
+	GObjectClass *object_class = (GtkObjectClass *) class;
+	vObjectClass *vobject_class = (vObjectClass *) class;
+	ViewClass *view_class = (ViewClass *) class;
+
+	gtk_widget_class_set_template_from_resource(widget_class,
+		APP_PATH "/rowview.ui");
+	gtk_widget_class_bind_template_callback(widget_class,
+		rowview_menu);
+	gtk_widget_class_bind_template_callback(widget_class,
+		rowview_up_click);
+	gtk_widget_class_bind_template_callback(widget_class,
+		rowview_down_click);
+	gtk_widget_class_bind_template_callback(widget_class,
+		rowview_but_pressed);
+
+	printf("rowview_class_init: need button enter, leave, focus, tooltip\n");
+
+	BIND(rhsview);
+	BIND(spin);
+	BIND(but);
+	BIND(label);
+
+	/* Create signals.
+	 */
+
+	/* Init methods.
+	 */
+	object_class->destroy = rowview_dispose;
+
+	vobject_class->refresh = rowview_refresh;
+
+	view_class->link = rowview_link;
+	view_class->child_add = rowview_child_add;
+	view_class->child_remove = rowview_child_remove;
+	view_class->reset = rowview_reset;
+	view_class->scrollto = rowview_scrollto;
+
+	/* Other init.
+	GtkWidget *pane;
+	pane = rowview_popup_menu = popup_build(_("Row menu"));
+	popup_add_but(pane, _("_Edit"),
+		POPUP_FUNC(rowview_edit_cb));
+	popup_add_but(pane, _("_Header"),
+		POPUP_FUNC(rowview_header_cb));
+	popup_add_but(pane, STOCK_DUPLICATE,
+		POPUP_FUNC(rowview_clone_cb));
+	popup_add_but(pane, _("U_ngroup"),
+		POPUP_FUNC(rowview_ungroup_cb));
+	popup_add_but(pane, GTK_STOCK_SAVE_AS,
+		POPUP_FUNC(rowview_save_cb));
+	popup_add_but(pane, _("Replace From _File"),
+		POPUP_FUNC(rowview_replace_cb));
+	popup_add_but(pane, _("_Recalculate"),
+		POPUP_FUNC(rowview_recalc_cb));
+	popup_add_but(pane, _("Re_set"),
+		POPUP_FUNC(rowview_clear_edited_cb));
+	menu_add_sep(pane);
+	popup_add_but(pane, GTK_STOCK_DELETE,
+		POPUP_FUNC(rowview_remove_cb));
+	 */
+}
 
 static void
 rowview_init(Rowview *rview)
 {
-	rview->visible = TRUE;
-	rview->rnum = -1;
-	rview->last_tooltip = NULL;
-
-	/* Make leds.
-	 */
-	rview->led = gtk_image_new_from_stock(STOCK_LED_OFF,
-		GTK_ICON_SIZE_MENU);
-	gtk_misc_set_alignment(GTK_MISC(rview->led), 0.5, 0.0);
-	gtk_misc_set_padding(GTK_MISC(rview->led), 2, 2);
-
-	/* Make fold/unfold button.
-	 */
-	rview->spin = spin_new();
-	gtk_signal_connect(GTK_OBJECT(rview->spin), "up_click",
-		GTK_SIGNAL_FUNC(rowview_spin_up_cb), rview);
-	gtk_signal_connect(GTK_OBJECT(rview->spin), "down_click",
-		GTK_SIGNAL_FUNC(rowview_spin_down_cb), rview);
-	gtk_widget_show(rview->spin);
-	set_tooltip(rview->spin, _("Click to open or close class"));
-
-	/* Make name button.
-	 */
-	rview->but = gtk_button_new();
-	gtk_widget_show(rview->but);
-	doubleclick_add(rview->but, FALSE,
-		DOUBLECLICK_FUNC(rowview_single_cb), rview,
-		DOUBLECLICK_FUNC(rowview_double_cb), rview);
-	rview->label = gtk_label_new("");
-	gtk_misc_set_alignment(GTK_MISC(rview->label), 1, 0);
-	gtk_misc_set_padding(GTK_MISC(rview->label), 2, 0);
-	gtk_container_add(GTK_CONTAINER(rview->but), rview->label);
-	gtk_widget_show(rview->label);
-	gtk_signal_connect(GTK_OBJECT(rview->but), "enter",
-		GTK_SIGNAL_FUNC(rowview_enter_cb), rview);
-	gtk_signal_connect(GTK_OBJECT(rview->but), "leave",
-		GTK_SIGNAL_FUNC(rowview_leave_cb), rview);
-	gtk_signal_connect(GTK_OBJECT(rview->but), "focus",
-		GTK_SIGNAL_FUNC(rowview_focus_cb), rview);
-	set_tooltip_generate(rview->but,
-		(TooltipGenerateFn) rowview_tooltip_generate, rview, NULL);
-}
-
-GtkType
-rowview_get_type(void)
-{
-	static GtkType rowview_type = 0;
-
-	if (!rowview_type) {
-		static const GtkTypeInfo rview_info = {
-			"Rowview",
-			sizeof(Rowview),
-			sizeof(RowviewClass),
-			(GtkClassInitFunc) rowview_class_init,
-			(GtkObjectInitFunc) rowview_init,
-			/* reserved_1 */ NULL,
-			/* reserved_2 */ NULL,
-			(GtkClassInitFunc) NULL,
-		};
-
-		rowview_type = gtk_type_unique(TYPE_VIEW, &rview_info);
-	}
-
-	return rowview_type;
+	gtk_widget_init_template(GTK_WIDGET(rview));
 }
 
 View *

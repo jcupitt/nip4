@@ -133,7 +133,7 @@ subcolumn_dispose(GObject *gobject)
  */
 typedef struct {
 	Subcolumn *scol; /* Enclosing column */
-	GSList *notused; /* List of row we've not used */
+	GSList *notused; /* List of rows we've not used */
 } ClassRefreshInfo;
 
 /* Test for row represents a sym.
@@ -153,7 +153,7 @@ static void *
 subcolumn_test_row_name(Row *row, Symbol *sym)
 {
 	if (!row->sym &&
-		strcmp(IOBJECT(row)->name, IOBJECT(sym)->name) == 0)
+		g_str_equal(IOBJECT(row)->name, IOBJECT(sym)->name))
 		return row;
 
 	return NULL;
@@ -199,6 +199,7 @@ subcolumn_class_new_heap_sub(ClassRefreshInfo *cri,
 	}
 	else {
 		row = row_new(cri->scol, sym, value);
+
 		if (heapmodel_new_heap(HEAPMODEL(row), value))
 			expr_error_set(row->expr);
 	}
@@ -343,9 +344,8 @@ subcolumn_class_new_heap(Subcolumn *scol, PElement *root)
 			if (strcmp(IOBJECT(sym)->name, MEMBER_NAME) == 0)
 				continue;
 			if (is_member(sym) &&
-				strcmp(IOBJECT(sym)->name,
-					IOBJECT(symbol_get_parent(sym))->name) ==
-					0)
+				g_str_equal(IOBJECT(sym)->name,
+					IOBJECT(symbol_get_parent(sym))->name))
 				continue;
 
 			/* Display!
@@ -579,8 +579,7 @@ subcolumn_class_init(SubcolumnClass *class)
 	icontainer_class->child_remove = subcolumn_child_remove;
 	icontainer_class->parent_add = subcolumn_parent_add;
 
-	printf("subcolumn_class_init: FIXME ... enable view_new when we have a subcolumnview\n");
-	// model_class->view_new = subcolumn_view_new;
+	model_class->view_new = subcolumn_view_new;
 	model_class->display = subcolumn_display;
 	model_class->load = subcolumn_load;
 	model_class->save = subcolumn_save;
@@ -622,11 +621,9 @@ subcolumn_link(Subcolumn *scol, Rhs *rhs, Column *col)
 	/* parent_add() sets is_top for us.
 	 */
 	if (rhs)
-		icontainer_child_add(ICONTAINER(rhs),
-			ICONTAINER(scol), -1);
+		icontainer_child_add(ICONTAINER(rhs), ICONTAINER(scol), -1);
 	else
-		icontainer_child_add(ICONTAINER(col),
-			ICONTAINER(scol), -1);
+		icontainer_child_add(ICONTAINER(col), ICONTAINER(scol), -1);
 }
 
 Subcolumn *

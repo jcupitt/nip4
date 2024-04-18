@@ -136,6 +136,7 @@ typedef struct _iImage iImage;
 typedef struct _LinkExpr LinkExpr;
 typedef struct _Link Link;
 typedef struct _Log Log;
+typedef struct _Spin Spin;
 typedef struct _Managedfile Managedfile;
 typedef struct _Managedgobject Managedgobject;
 typedef struct _Managedgvalue Managedgvalue;
@@ -171,6 +172,7 @@ typedef struct _Workspaceview Workspaceview;
 typedef struct _Workspaceviewlabel Workspaceviewlabel;
 typedef struct _Workspace Workspace;
 
+#include "spin.h"
 #include "util.h"
 #include "app.h"
 #include "main.h"

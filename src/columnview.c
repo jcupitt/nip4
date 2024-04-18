@@ -631,9 +631,9 @@ columnview_class_init(ColumnviewClass *class)
 
 	gtk_widget_class_set_layout_manager_type(widget_class,
 		GTK_TYPE_BIN_LAYOUT);
-	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
+	gtk_widget_class_set_template_from_resource(widget_class,
 		APP_PATH "/columnview.ui");
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
+	gtk_widget_class_bind_template_callback(widget_class,
 		columnview_menu);
 
 	BIND(top);

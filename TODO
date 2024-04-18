@@ -1,5 +1,16 @@
 - try subcolumnview
 
+  reworking subcolumnview, rowview, rhsview
+
+  	subcolumnview makes a grid
+
+	rowview attaches widgets to it (not a true child view)
+
+  need .ui files
+
+
+
+
 - UNPARENT() widgets, don't UNREF them
 
 - add drag on background for workspace scroll

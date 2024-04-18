@@ -47,12 +47,12 @@ struct _Rowview {
 	Rhsview *rhsview; /* Our rhs */
 
 	gboolean visible; /* Currently visible */
-	int rnum;		  /* Row of tallycolumn we are in */
+	int rnum;		  /* Row of subcolumn we are in */
 
 	GtkWidget *spin;  /* Class display open/close widgets */
 	GtkWidget *but;	  /* Name button */
-	GtkWidget *led;	  /* Indicators */
 	GtkWidget *label; /* Name label */
+	GtkWidget *right_click_menu;
 
 	char *last_tooltip; /* Last tooltip we set */
 };
