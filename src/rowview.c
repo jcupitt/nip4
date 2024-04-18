@@ -80,14 +80,14 @@ rowview_attach(Rowview *rview, GtkWidget *child, int x)
 {
 	Subcolumnview *sview = rview->sview;
 
-	gtk_widget_ref(child);
+	g_object_ref(child);
 
 	if (gtk_widget_get_parent(child))
 		gtk_widget_unparent(child);
 
 	gtk_grid_attach(GTK_GRID(sview->grid), child, x, rview->rnum, 1, 1);
 
-	gtk_widget_unref(child);
+	g_object_unref(child);
 }
 
 static void
@@ -140,14 +140,16 @@ rowview_update_widgets(Rowview *rview)
 	/* Update button.
 	 */
 	set_glabel(rview->label, "%s", row_name(row));
-	widget_visible(rview->but, rview->visible && editable);
+	gtk_widget_set_visible(rview->but,
+		rview->visible && editable);
 
 	/* Spin visible only if this is a class.
 	 */
-	widget_visible(rview->spin, rview->visible && row->is_class && editable);
+	gtk_widget_set_visible(rview->spin,
+		rview->visible && row->is_class && editable);
 
 	if (rview->rhsview)
-		widget_visible(GTK_WIDGET(rview->rhsview), rview->visible);
+		gtk_widget_set_visible(GTK_WIDGET(rview->rhsview), rview->visible);
 }
 
 static void
@@ -171,7 +173,6 @@ rowview_refresh(vObject *vobject)
 }
 
 /* Single click on button callback.
- */
 static void
 rowview_single_cb(GtkWidget *wid, GdkEvent *event, Rowview *rview)
 {
@@ -179,6 +180,7 @@ rowview_single_cb(GtkWidget *wid, GdkEvent *event, Rowview *rview)
 
 	row_select_modifier(row, event->button.state);
 }
+ */
 
 /* Edit our object.
  */
@@ -199,7 +201,7 @@ static void
 rowview_double_cb(GtkWidget *button, GdkEvent *event, Rowview *rview)
 {
 	if (!rowview_edit(rview))
-		iwindow_alert(button, GTK_MESSAGE_ERROR);
+		error_alert(button);
 }
  */
 
@@ -209,7 +211,7 @@ static void
 rowview_edit_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 {
 	if (!rowview_edit(rview))
-		iwindow_alert(button, GTK_MESSAGE_ERROR);
+		error_alert(button);
 }
 
 /* Show info.
@@ -232,7 +234,7 @@ static void
 rowview_header_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 {
 	if (!rowview_header(rview))
-		iwindow_alert(button, GTK_MESSAGE_ERROR);
+		error_alert(button);
 }
 
 /* Clone the current item.
@@ -249,14 +251,14 @@ rowview_clone_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 		error_top(_("Can't duplicate."));
 		error_sub("%s",
 			_("You can only duplicate top level rows."));
-		iwindow_alert(button, GTK_MESSAGE_INFO);
+		error_alert(button);
 		return;
 	}
 
 	workspace_deselect_all(ws);
 	row_select(row);
 	if (!workspace_selected_duplicate(ws))
-		iwindow_alert(button, GTK_MESSAGE_ERROR);
+		error_alert(button);
 	workspace_deselect_all(ws);
 
 	symbol_recalculate_all();
@@ -269,11 +271,13 @@ rowview_ungroup_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
 
+	/*
 	workspace_deselect_all(row->ws);
 	row_select(row);
 	if (!workspace_selected_ungroup(row->ws))
-		iwindow_alert(button, GTK_MESSAGE_ERROR);
+		error_alert(button);
 	symbol_recalculate_all();
+	 */
 }
 
 /* Save the current item.
@@ -281,6 +285,7 @@ rowview_ungroup_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 static void
 rowview_save_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 {
+	/*
 	iWindow *iwnd = IWINDOW(view_get_toplevel(VIEW(rview)));
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	Model *graphic = row->child_rhs->graphic;
@@ -288,6 +293,7 @@ rowview_save_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 	if (graphic)
 		classmodel_graphic_save(CLASSMODEL(graphic),
 			GTK_WIDGET(iwnd));
+	 */
 }
 
 /* Replace the current item.
@@ -295,6 +301,7 @@ rowview_save_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 static void
 rowview_replace_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 {
+	/*
 	iWindow *iwnd = IWINDOW(view_get_toplevel(VIEW(rview)));
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	Model *graphic = row->child_rhs->graphic;
@@ -302,6 +309,7 @@ rowview_replace_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 	if (graphic)
 		classmodel_graphic_replace(CLASSMODEL(graphic),
 			GTK_WIDGET(iwnd));
+	 */
 }
 
 /* Recalculate the current item.
@@ -314,18 +322,16 @@ rowview_recalc_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 
 	/* Mark dirty from this sym on, and force a recalc even if recalc is
 	 * off.
-	 */
 	workspace_deselect_all(ws);
 	row_select(row);
 	if (!workspace_selected_recalc(ws))
-		iwindow_alert(button, GTK_MESSAGE_ERROR);
+		error_alert(button);
 	workspace_deselect_all(ws);
 
-	/* Now ... pick up any errors.
-	 */
 	if (row->sym &&
 		!symbol_recalculate_check(row->sym))
-		iwindow_alert(button, GTK_MESSAGE_ERROR);
+		error_alert(button);
+	 */
 }
 
 /* Reset the current item.
@@ -380,7 +386,7 @@ rowview_drag(Rowview *rview_from, Rowview *rview_to)
 	if (row_from->top_col != row_to->top_col) {
 		error_top(_("Not implemented."));
 		error_sub(_("Drag between columns not yet implemented."));
-		iwindow_alert(GTK_WIDGET(rview_from), GTK_MESSAGE_ERROR);
+		error_alert(GTK_WIDGET(rview_from));
 		return;
 	}
 
@@ -425,14 +431,6 @@ rowview_drag_data_received(GtkWidget *but,
 }
  */
 
-/* Attach the rowview menu to a widget ... also used by iimageview
- */
-guint
-rowview_menu_attach(Rowview *rview, GtkWidget *widget)
-{
-	return popup_attach(widget, rowview_popup_menu, rview);
-}
-
 static void
 rowview_link(View *view, Model *model, View *parent)
 {
@@ -460,9 +458,9 @@ rowview_link(View *view, Model *model, View *parent)
 			"drag_data_received",
 			GTK_SIGNAL_FUNC(rowview_drag_data_received), rview);
 	}
-	 */
 
 	rowview_menu_attach(rview, rview->but);
+	 */
 }
 
 static void
@@ -470,10 +468,10 @@ rowview_child_add(View *parent, View *child)
 {
 	Rowview *rview = ROWVIEW(parent);
 
-	g_assert(IS_RHSVIEW(child));
+	// g_assert(IS_RHSVIEW(child));
 	g_assert(!rview->rhsview);
 
-	rview->rhsview = RHSVIEW(child);
+	// rview->rhsview = RHSVIEW(child);
 
 	VIEW_CLASS(rowview_parent_class)->child_add(parent, child);
 }
@@ -483,7 +481,7 @@ rowview_child_remove(View *parent, View *child)
 {
 	Rowview *rview = ROWVIEW(parent);
 
-	g_assert(IS_RHSVIEW(child));
+	// g_assert(IS_RHSVIEW(child));
 	g_assert(rview->rhsview);
 
 	rview->rhsview = NULL;
@@ -493,7 +491,7 @@ rowview_child_remove(View *parent, View *child)
 
 static void
 rowview_menu(GtkGestureClick *gesture,
-	guint n_press, double x, double y, Rowview *rowview)
+	guint n_press, double x, double y, Rowview *rview)
 {
 	printf("rowview_menu: FIXME ... set client data\n");
 
@@ -504,9 +502,8 @@ rowview_menu(GtkGestureClick *gesture,
 }
 
 static void
-rowview_up_click(GtkGestureClick *gesture, Rowview *rowview)
+rowview_up_click(GtkGestureClick *gesture, Rowview *rview)
 {
-	Rowview *rview = ROWVIEW(client);
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	Rhs *rhs = row->child_rhs;
 
@@ -515,9 +512,8 @@ rowview_up_click(GtkGestureClick *gesture, Rowview *rowview)
 }
 
 static void
-rowview_down_click(GtkGestureClick *gesture, Rowview *rowview)
+rowview_down_click(GtkGestureClick *gesture, Rowview *rview)
 {
-	Rowview *rview = ROWVIEW(client);
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	Rhs *rhs = row->child_rhs;
 
@@ -527,7 +523,7 @@ rowview_down_click(GtkGestureClick *gesture, Rowview *rowview)
 
 static void
 rowview_but_pressed(GtkGestureClick *gesture,
-	guint n_press, double x, double y, Rowview *rowview)
+	guint n_press, double x, double y, Rowview *rview)
 {
 	printf("rowview_but_pressed:\n");
 
@@ -580,7 +576,8 @@ rowview_tooltip_generate(GtkWidget *widget, VipsBuf *buf, Rowview *rview)
 static void
 rowview_class_init(RowviewClass *class)
 {
-	GObjectClass *object_class = (GtkObjectClass *) class;
+	GObjectClass *object_class = (GObjectClass *) class;
+	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
 
@@ -607,7 +604,7 @@ rowview_class_init(RowviewClass *class)
 
 	/* Init methods.
 	 */
-	object_class->destroy = rowview_dispose;
+	object_class->dispose = rowview_dispose;
 
 	vobject_class->refresh = rowview_refresh;
 
@@ -651,7 +648,7 @@ rowview_init(Rowview *rview)
 View *
 rowview_new(void)
 {
-	Rowview *rview = gtk_type_new(TYPE_ROWVIEW);
+	Rowview *rview = g_object_new(ROWVIEW_TYPE, NULL);
 
 	return VIEW(rview);
 }
@@ -662,43 +659,24 @@ void
 rowview_get_position(Rowview *rview, int *x, int *y, int *w, int *h)
 {
 	Columnview *cview = view_get_columnview(VIEW(rview));
+	GtkWidget *fixed = cview->wview->fixed;
 
-	if (GTK_WIDGET_VISIBLE(rview->spin)) {
-		*x = rview->spin->allocation.x;
-		*y = rview->spin->allocation.y;
-		*w = rview->spin->allocation.width;
-		*h = rview->spin->allocation.height;
+	graphene_rect_t bounds;
+
+	if (gtk_widget_compute_bounds(GTK_WIDGET(rview), fixed, &bounds)) {
+		*x = bounds.origin.x;
+		*y = bounds.origin.y;
+		*w = bounds.size.width;
+		*h = bounds.size.height;
 	}
 	else {
-		*x = rview->but->allocation.x;
-		*y = rview->but->allocation.y;
-		*w = 0;
-		*h = 0;
+		/* Nothing there yet ... guess.
+		 */
+		*x = 10;
+		*y = 10;
+		*w = 200;
+		*h = 50;
 	}
-
-	*w += rview->but->allocation.width;
-	*h = IM_MAX(rview->but->allocation.height, *h);
-
-	if (GTK_WIDGET_VISIBLE(rview->led)) {
-		*w += rview->led->allocation.width;
-		*h = IM_MAX(rview->led->allocation.height, *h);
-	}
-
-	*w += GTK_WIDGET(rview->rhsview)->allocation.width;
-	*h = IM_MAX(GTK_WIDGET(rview->rhsview)->allocation.height, *h);
-
-	/* Title bar, plus separator.
-	 */
-	*y += cview->title->allocation.height + 2;
-
-	*x += cview->main->allocation.x;
-	*y += cview->main->allocation.y;
-
-#ifdef DEBUG
-	printf("rowview_get_position: ");
-	row_name_print(ROW(VOBJECT(rview)->iobject));
-	printf(": x = %d, y = %d, w = %d, h = %d\n", *x, *y, *w, *h);
-#endif /*DEBUG*/
 }
 
 /* Hide/show a row.

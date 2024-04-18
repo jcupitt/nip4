@@ -73,9 +73,9 @@ spin_pressed(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Spin *spin)
 {
 	if (y < gtk_widget_get_height(GTK_WIDGET(spin)) / 2)
-		g_signal_emit(GTK_OBJECT(spin), spin_signals[UP_CLICK], 0);
+		g_signal_emit(G_OBJECT(spin), spin_signals[UP_CLICK], 0);
 	else
-		g_signal_emit(GTK_OBJECT(spin), spin_signals[DOWN_CLICK], 0);
+		g_signal_emit(G_OBJECT(spin), spin_signals[DOWN_CLICK], 0);
 }
 
 static void
