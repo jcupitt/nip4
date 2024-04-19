@@ -1,10 +1,10 @@
 - make a row!
 
-  need rhsview next, and an itextview inside that
+  next ... formula then itextview
 
 
 
-
+- use BIND_*() everywhere
 
 - UNPARENT() widgets, don't UNREF them
 

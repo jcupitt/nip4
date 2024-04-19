@@ -123,5 +123,5 @@ spin_new(void)
 {
 	Spin *spin = g_object_new(SPIN_TYPE, NULL);
 
-	return (GTK_WIDGET(spin));
+	return GTK_WIDGET(spin);
 }

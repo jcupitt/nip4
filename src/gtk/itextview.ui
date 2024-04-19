@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="iTextview" parent="View">
+
+    <child>
+      <object class="Formula" id="formula">
+        <signal name="edit" handler="itextview_edit"/>
+        <signal name="changed" handler="itextview_changed"/>
+        <signal name="activate" handler="itextview_activate"/>
+      </object>
+    </child>
+
+  </template>
+</interface>

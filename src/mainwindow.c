@@ -520,7 +520,7 @@ main_window_layout_sub(Workspace *ws)
 	model_layout(MODEL(ws));
 	workspace_set_needs_layout(ws, FALSE);
 
-	return (NULL);
+	return NULL;
 }
 
 static gboolean
@@ -533,7 +533,7 @@ main_window_layout_timeout_cb(gpointer user_data)
 	slist_map(workspace_get_needs_layout(),
 		(SListMapFn) main_window_layout_sub, NULL);
 
-	return (FALSE);
+	return FALSE;
 }
 
 void

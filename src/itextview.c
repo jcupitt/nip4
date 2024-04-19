@@ -27,16 +27,16 @@
 
  */
 
-/* 
-#define DEBUG
+/*
  */
+#define DEBUG
 
-#include "ip.h"
+#include "nip4.h"
 
-static ViewClass *parent_class = NULL;
+G_DEFINE_TYPE(iTextview, itextview, VIEW_TYPE)
 
-static void 
-itextview_refresh( vObject *vobject )
+static void
+itextview_refresh(vObject *vobject)
 {
 	iTextview *itextview = ITEXTVIEW( vobject );
 	iText *itext = ITEXT( VOBJECT( itextview )->iobject );
@@ -53,7 +53,7 @@ itextview_refresh( vObject *vobject )
 	/* Only reset edit mode if the text hasn't been changed. We
 	 * don't want the user to lose work.
 	 */
-	if( !itextview->formula->changed ) 
+	if (!itextview->formula->changed)
 		switch( row->ws->mode ) {
 		case WORKSPACE_MODE_REGULAR:
 			formula_set_edit( itextview->formula, FALSE );
@@ -86,7 +86,7 @@ itextview_refresh( vObject *vobject )
 		formula_set_value_expr( itextview->formula,
 			display, itext->formula );
 
-	VOBJECT_CLASS( parent_class )->refresh( vobject );
+	VOBJECT_CLASS(itextview_parent_class)->refresh(vobject);
 }
 
 static void
@@ -102,18 +102,18 @@ itextview_link( View *view, Model *model, View *parent )
 	printf( "\n" );
 #endif /*DEBUG*/
 
-	VIEW_CLASS( parent_class )->link( view, model, parent );
+	VIEW_CLASS(itextview_parent_class)->link(view, model, parent);
 
 	/* Edit mode defaults to edit mode for workspace.
 	 */
-        formula_set_edit( itextview->formula, 
-		row->ws->mode == WORKSPACE_MODE_FORMULA );
+	formula_set_edit(itextview->formula,
+		row->ws->mode == WORKSPACE_MODE_FORMULA);
 }
 
 /* Reset edit mode ... go back to whatever is set for this ws.
  */
-static void 
-itextview_reset( View *view )
+static void
+itextview_reset(View *view)
 {
 	iTextview *itextview = ITEXTVIEW( view );
 	iText *itext = ITEXT( VOBJECT( itextview )->iobject );
@@ -125,13 +125,13 @@ itextview_reset( View *view )
 	printf( "\n" );
 #endif /*DEBUG*/
 
-	formula_set_edit( ITEXTVIEW( view )->formula, 
-		row->ws->mode == WORKSPACE_MODE_FORMULA );
+	formula_set_edit(ITEXTVIEW(view)->formula,
+		row->ws->mode == WORKSPACE_MODE_FORMULA);
 
-	VIEW_CLASS( parent_class )->reset( view );
+	VIEW_CLASS(itextview_parent_class)->reset(view);
 }
 
-/* Re-read the text in a tally entry. 
+/* Re-read the text in a tally entry.
  */
 static void *
 itextview_scan( View *view )
@@ -151,37 +151,25 @@ itextview_scan( View *view )
 		itext_set_formula( itext, itextview->formula->expr ) )
 		itext_set_edited( itext, TRUE );
 
-	return( VIEW_CLASS( parent_class )->scan( view ) );
-}
-
-static void
-itextview_class_init( iTextviewClass *class )
-{
-	vObjectClass *vobject_class = (vObjectClass *) class;
-	ViewClass *view_class = (ViewClass *) class;
-
-	parent_class = g_type_class_peek_parent( class );
-
-	/* Create signals.
-	 */
-
-	/* Init methods.
-	 */
-	vobject_class->refresh = itextview_refresh;
-
-	view_class->link = itextview_link;
-	view_class->reset = itextview_reset;
-	view_class->scan = itextview_scan;
+	return VIEW_CLASS(itextview_parent_class)->scan(view);
 }
 
 void
-itextview_edit_cb( Formula *formula, iTextview *itextview )
+itextview_edit(Formula *formula, iTextview *itextview)
 {
-	view_resettable_register( VIEW( itextview ) );
+	view_resettable_register(VIEW(itextview));
 }
 
 void
-itextview_activate_cb( Formula *formula, iTextview *itextview )
+itextview_changed(Formula *formula, iTextview *itextview)
+{
+	/* Make sure it's on the scannable list.
+	 */
+	view_scannable_register(VIEW(itextview));
+}
+
+void
+itextview_activate(Formula *formula, iTextview *itextview)
 {
 	iText *itext = ITEXT( VOBJECT( itextview )->iobject );
 	Row *row = HEAPMODEL( itext )->row;
@@ -202,72 +190,41 @@ itextview_activate_cb( Formula *formula, iTextview *itextview )
 }
 
 static void
-itextview_enter_cb( Formula *formula, iTextview *itextview )
+itextview_class_init(iTextviewClass *class)
 {
-	iText *itext = ITEXT( VOBJECT( itextview )->iobject );
-	Row *row = HEAPMODEL( itext )->row;
+	vObjectClass *vobject_class = (vObjectClass *) class;
+	ViewClass *view_class = (ViewClass *) class;
 
-	row_set_status( row );
-	row_show_dependents( row );
-}
+	BIND_RESOURCE("itextview.ui");
 
-static void
-itextview_leave_cb( Formula *formula, iTextview *itextview )
-{
-	iText *itext = ITEXT( VOBJECT( itextview )->iobject );
-	Row *row = HEAPMODEL( itext )->row;
+	BIND_CALLBACK(itextview_edit);
+	BIND_CALLBACK(itextview_changed);
+	BIND_CALLBACK(itextview_activate);
 
-	row_hide_dependents( row );
+	BIND_VARIABLE(iTextview, formula);
+
+	/* Create signals.
+	 */
+
+	/* Init methods.
+	 */
+	vobject_class->refresh = itextview_refresh;
+
+	view_class->link = itextview_link;
+	view_class->reset = itextview_reset;
+	view_class->scan = itextview_scan;
 }
 
 static void
 itextview_init( iTextview *itextview )
 {
-	itextview->formula = formula_new();
-
-        gtk_signal_connect( GTK_OBJECT( itextview->formula ), "edit", 
-		GTK_SIGNAL_FUNC( itextview_edit_cb ), itextview );
-        gtk_signal_connect_object( GTK_OBJECT( itextview->formula ), "changed", 
-		GTK_SIGNAL_FUNC( view_changed_cb ), itextview );
-        gtk_signal_connect( GTK_OBJECT( itextview->formula ), "activate",
-                GTK_SIGNAL_FUNC( itextview_activate_cb ), itextview );
-        gtk_signal_connect( GTK_OBJECT( itextview->formula ), "enter", 
-		GTK_SIGNAL_FUNC( itextview_enter_cb ), itextview );
-        gtk_signal_connect( GTK_OBJECT( itextview->formula ), "leave", 
-		GTK_SIGNAL_FUNC( itextview_leave_cb ), itextview );
-
-        gtk_box_pack_start( GTK_BOX( itextview ), 
-		GTK_WIDGET( itextview->formula ), TRUE, FALSE, 0 );
-        gtk_widget_show( GTK_WIDGET( itextview->formula ) );
-}
-
-GtkType
-itextview_get_type( void )
-{
-	static GtkType itextview_type = 0;
-
-	if( !itextview_type ) {
-		static const GtkTypeInfo itextview_info = {
-			"iTextview",
-			sizeof( iTextview ),
-			sizeof( iTextviewClass ),
-			(GtkClassInitFunc) itextview_class_init,
-			(GtkObjectInitFunc) itextview_init,
-			/* reserved_1 */ NULL,
-			/* reserved_2 */ NULL,
-			(GtkClassInitFunc) NULL,
-		};
-
-		itextview_type = gtk_type_unique( TYPE_VIEW, &itextview_info );
-	}
-
-	return( itextview_type );
+	gtk_widget_init_template(GTK_WIDGET(itextview));
 }
 
 View *
 itextview_new( void )
 {
-	iTextview *itextview = gtk_type_new( TYPE_ITEXTVIEW );
+	iTextview *itextview = g_object_new(ITEXTVIEW_TYPE, NULL);
 
 	return( VIEW( itextview ) );
 }

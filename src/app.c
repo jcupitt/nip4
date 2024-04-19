@@ -169,6 +169,8 @@ app_startup(GApplication *app)
 	SPIN_TYPE;
 	ROWVIEW_TYPE;
 	RHSVIEW_TYPE;
+	FORMULA_TYPE;
+	ITEXTVIEW_TYPE;
 
 	g_action_map_add_action_entries(G_ACTION_MAP(app),
 		app_entries, G_N_ELEMENTS(app_entries), app);

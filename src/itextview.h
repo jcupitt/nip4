@@ -27,20 +27,24 @@
 
 */
 
-#define TYPE_ITEXTVIEW (itextview_get_type())
-#define ITEXTVIEW( obj ) (GTK_CHECK_CAST( (obj), TYPE_ITEXTVIEW, iTextview ))
-#define ITEXTVIEW_CLASS( klass ) \
-	(GTK_CHECK_CLASS_CAST( (klass), TYPE_ITEXTVIEW, iTextviewClass ))
-#define IS_ITEXTVIEW( obj ) (GTK_CHECK_TYPE( (obj), TYPE_ITEXTVIEW ))
-#define IS_ITEXTVIEW_CLASS( klass ) \
-	(GTK_CHECK_CLASS_TYPE( (klass), TYPE_ITEXTVIEW ))
+#define ITEXTVIEW_TYPE (itextview_get_type())
+#define ITEXTVIEW(obj) \
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), ITEXTVIEW_TYPE, iTextview))
+#define ITEXTVIEW_CLASS(klass) \
+	(G_TYPE_CHECK_CLASS_CAST((klass), ITEXTVIEW_TYPE, iTextviewClass))
+#define IS_ITEXTVIEW(obj) \
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj), ITEXTVIEW_TYPE))
+#define IS_ITEXTVIEW_CLASS(klass) \
+	(G_TYPE_CHECK_CLASS_TYPE((klass), ITEXTVIEW_TYPE))
+#define ITEXTVIEW_GET_CLASS(obj) \
+	(G_TYPE_INSTANCE_GET_CLASS((obj), ITEXTVIEW_TYPE, iTextviewClass))
 
 typedef struct _iTextview {
 	View view;
 
 	/* Widgets.
 	 */
-        Formula *formula;
+	Formula *formula;
 } iTextview;
 
 typedef struct _iTextviewClass {
@@ -50,5 +54,5 @@ typedef struct _iTextviewClass {
 	 */
 } iTextviewClass;
 
-GtkType itextview_get_type( void );
+GType itextview_get_type(void);
 View *itextview_new( void );

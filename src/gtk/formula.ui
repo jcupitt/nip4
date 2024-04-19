@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Formula" parent="GtkWidget">
+    <child>
+
+      <object class="GtkBox" id="hbox">
+	<property name="tooltip-text">Click to edit</property>
+
+        <child>
+          <object class="GtkLabel" id="left_label">
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkLabel" id="right_label">
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkEntry" id="entry">
+	    <property name="visible">false</property>
+	    <property name="tooltip-text">Press Escape to cancel edit, press Return to accept edit and recalculate</property>
+            <signal name="activate" handler="formula_activate"/>
+
+	    <child>
+              <object class="GtkEventControllerKey">
+                <signal name="key-pressed" handler="formula_key_pressed"/>
+              </object>
+            </child>
+
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkGestureClick">
+            <property name="button">1</property>
+            <signal name="pressed" handler="formula_pressed"/>
+          </object>
+        </child>
+
+      </object>
+
+    </child>
+  </template>
+</interface>
+
+

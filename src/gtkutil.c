@@ -43,6 +43,23 @@ set_glabel(GtkWidget *label, const char *fmt, ...)
 	gtk_label_set_text(GTK_LABEL(label), buf);
 }
 
+/* Like set_glabel(), but don't display multi-line strings (just display the
+ * first line).
+ */
+void
+set_glabel1(GtkWidget *label, const char *fmt, ...)
+{
+	va_list ap;
+	char txt[1000];
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
+
+	va_start(ap, fmt);
+	vips_buf_vappendf(&buf, fmt, ap);
+	va_end(ap);
+
+	gtk_label_set_text(GTK_LABEL(label), vips_buf_firstline(&buf));
+}
+
 /* Set a GtkEditable.
  */
 void

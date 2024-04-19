@@ -33,6 +33,20 @@
 	} \
 	G_STMT_END
 
+#define BIND_RESOURCE(resource) \
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class), \
+		GTK_TYPE_BIN_LAYOUT); \
+	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class), \
+		APP_PATH "/" resource);
+
+#define BIND_VARIABLE(class_name, name) \
+	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
+		class_name, name);
+
+#define BIND_CALLBACK(name) \
+	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class), \
+		name);
+
 /* Like G_CHECK_TYPE, but insist on an exact match.
  */
 #define TYPE_EXACT(OBJECT, TYPE) (G_TYPE_FROM_INSTANCE(OBJECT) == (TYPE))
@@ -40,6 +54,7 @@
 void set_symbol_drag_type(GtkWidget *widget);
 
 void set_glabel(GtkWidget *label, const char *fmt, ...);
+void set_glabel1(GtkWidget *label, const char *fmt, ...);
 void set_gentryv(GtkWidget *edit, const char *fmt, va_list ap);
 void set_gentry(GtkWidget *edit, const char *fmt, ...);
 gboolean get_geditable_double(GtkWidget *text, double *out);

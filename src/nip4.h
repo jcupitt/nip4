@@ -173,6 +173,7 @@ typedef struct _Workspaceviewlabel Workspaceviewlabel;
 typedef struct _Workspace Workspace;
 
 #include "spin.h"
+#include "formula.h"
 #include "util.h"
 #include "app.h"
 #include "main.h"

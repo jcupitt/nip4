@@ -94,6 +94,8 @@ executable('nip4', [
     'itextview.c',
     'rowview.c',
     'rhsview.c',
+    'formula.c',
+    'itextview.c',
     'toolkitview.c',
     'toolkitgroupview.c',
     'toolkitbrowser.c',
