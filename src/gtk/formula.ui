@@ -8,16 +8,20 @@
 
         <child>
           <object class="GtkLabel" id="left_label">
+            <property name="valign">center</property>
           </object>
         </child>
 
         <child>
           <object class="GtkLabel" id="right_label">
+            <property name="valign">center</property>
           </object>
         </child>
 
         <child>
           <object class="GtkEntry" id="entry">
+            <property name="hexpand">true</property>
+            <property name="valign">center</property>
 	    <property name="visible">false</property>
 	    <property name="tooltip-text">Press Escape to cancel edit, press Return to accept edit and recalculate</property>
             <signal name="activate" handler="formula_activate"/>

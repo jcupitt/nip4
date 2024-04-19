@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <template class="iTextview" parent="View">
+    <property name="hexpand">true</property>
 
     <child>
       <object class="Formula" id="formula">
+        <property name="hexpand">true</property>
         <signal name="edit" handler="itextview_edit"/>
         <signal name="changed" handler="itextview_changed"/>
         <signal name="activate" handler="itextview_activate"/>

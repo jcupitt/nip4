@@ -39,6 +39,7 @@
   <template class="Rowview" parent="View">
     <child>
       <object class="GtkBox" id="top">
+        <property name="hexpand">true</property>
 
         <child>
           <object class="Spin" id="spin">

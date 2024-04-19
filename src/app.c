@@ -149,14 +149,6 @@ app_startup(GApplication *app)
 		"gtk-application-prefer-dark-theme", TRUE,
 		NULL);
 
-	/* We have custom CSS for our dynamic widgets.
-	 */
-	GtkCssProvider *provider = gtk_css_provider_new();
-	gtk_css_provider_load_from_resource(provider, APP_PATH "/mainwindow.css");
-	gtk_css_provider_load_from_resource(provider, APP_PATH "/columnview.css");
-	gtk_style_context_add_provider_for_display(gdk_display_get_default(),
-		GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
-
 	/* Build our widgets.
 	 */
 	MAIN_WINDOW_TYPE;
@@ -171,6 +163,14 @@ app_startup(GApplication *app)
 	RHSVIEW_TYPE;
 	FORMULA_TYPE;
 	ITEXTVIEW_TYPE;
+
+	/* We have custom CSS for our dynamic widgets.
+	 */
+	GtkCssProvider *provider = gtk_css_provider_new();
+	gtk_css_provider_load_from_resource(provider, APP_PATH "/mainwindow.css");
+	gtk_css_provider_load_from_resource(provider, APP_PATH "/columnview.css");
+	gtk_style_context_add_provider_for_display(gdk_display_get_default(),
+		GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
 
 	g_action_map_add_action_entries(G_ACTION_MAP(app),
 		app_entries, G_N_ELEMENTS(app_entries), app);

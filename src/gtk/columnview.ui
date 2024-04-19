@@ -41,6 +41,7 @@
         <child type="label">
           <object class="GtkBox" id="title">
             <property name="margin-start">10</property>
+            <property name="hexpand">true</property>
 
             <child>
               <object class="GtkLabel" id="label">
@@ -51,6 +52,8 @@
 
             <child>
               <object class="GtkLabel" id="head">
+                <property name="hexpand">true</property>
+                <property name="halign">start</property>
                 <property name="label">this column does stuff</property>
               </object>
             </child>
@@ -87,6 +90,7 @@
 
             <child>
 	      <object class="GtkEntry" id="entry">
+                <property name="margin-start">55</property>
                 <signal name="activate" handler="columnview_activate"/>
 	      </object>
             </child>
