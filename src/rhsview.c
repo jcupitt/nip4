@@ -29,12 +29,31 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
 G_DEFINE_TYPE(Rhsview, rhsview, VIEW_TYPE)
+
+static void
+rhsview_dispose(GObject *object)
+{
+	Rhsview *rhsview;
+
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(IS_ROWVIEW(object));
+
+	rhsview = RHSVIEW(object);
+
+#ifdef DEBUG
+	printf("rhsview_dispose:\n");
+#endif /*DEBUG*/
+
+	UNPARENT(rhsview->grid);
+
+	G_OBJECT_CLASS(rhsview_parent_class)->dispose(object);
+}
 
 /* Get this if ws->mode changes.
  */
@@ -86,7 +105,7 @@ rhsview_refresh(vObject *vobject)
 		break;
 
 	case WORKSPACE_MODE_NOEDIT:
-		/* Only show the text if it's the only this we have for this
+		/* Only show the text if it's the only thing we have for this
 		 * row.
 		 */
 		if (rhs->graphic &&
@@ -130,20 +149,18 @@ rhsview_child_add(View *parent, View *child)
 	Rhsview *rhsview = RHSVIEW(parent);
 
 	if (IS_SUBCOLUMNVIEW(child)) {
-		gtk_table_attach_defaults(GTK_TABLE(rhsview->table),
-			GTK_WIDGET(child), 0, 1, 1, 2);
+		gtk_grid_attach(GTK_GRID(rhsview->grid), GTK_WIDGET(child), 0, 1, 1, 1);
 		rhsview->scol = child;
 	}
 	else if (IS_ITEXTVIEW(child)) {
-		gtk_table_attach_defaults(GTK_TABLE(rhsview->table),
-			GTK_WIDGET(child), 0, 1, 2, 3);
+		gtk_grid_attach(GTK_GRID(rhsview->grid), GTK_WIDGET(child), 0, 2, 1, 1);
 		rhsview->itext = child;
 	}
 	else {
-		gtk_table_attach_defaults(GTK_TABLE(rhsview->table),
-			GTK_WIDGET(child), 0, 1, 0, 1);
-		rhsview->graphic = child;
 		g_assert(IS_GRAPHICVIEW(child));
+
+		gtk_grid_attach(GTK_GRID(rhsview->grid), GTK_WIDGET(child), 0, 0, 1, 1);
+		rhsview->graphic = child;
 	}
 
 	VIEW_CLASS(rhsview_parent_class)->child_add(parent, child);
@@ -164,17 +181,32 @@ rhsview_child_remove(View *parent, View *child)
 	VIEW_CLASS(rhsview_parent_class)->child_remove(parent, child);
 }
 
+#define BIND(field) \
+	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
+		Rhsview, field);
+
 static void
 rhsview_class_init(RhsviewClass *class)
 {
+	GObjectClass *object_class = (GObjectClass *) class;
+	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
+
+	gtk_widget_class_set_layout_manager_type(widget_class,
+		GTK_TYPE_BIN_LAYOUT);
+	gtk_widget_class_set_template_from_resource(widget_class,
+		APP_PATH "/rhsview.ui");
+
+	BIND(grid);
 
 	/* Create signals.
 	 */
 
 	/* Init methods.
 	 */
+	object_class->dispose = rhsview_dispose;
+
 	vobject_class->refresh = rhsview_refresh;
 
 	view_class->link = rhsview_link;
@@ -186,21 +218,7 @@ rhsview_class_init(RhsviewClass *class)
 static void
 rhsview_init(Rhsview *rhsview)
 {
-	rhsview->rview = NULL;
-
-	/* Attached on refresh.
-	 */
-	rhsview->graphic = NULL;
-	rhsview->scol = NULL;
-	rhsview->itext = NULL;
-
-	rhsview->table = gtk_table_new(3, 1, FALSE);
-	gtk_box_pack_start(GTK_BOX(rhsview),
-		rhsview->table, TRUE, FALSE, 0);
-	gtk_widget_show(rhsview->table);
-	rhsview->flags = 0;
-
-	gtk_widget_show(GTK_WIDGET(rhsview));
+	gtk_widget_init_template(GTK_WIDGET(rhsview));
 }
 
 View *

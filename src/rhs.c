@@ -85,9 +85,7 @@ rhs_parent_add(iContainer *child)
 static View *
 rhs_view_new(Model *model, View *parent)
 {
-	printf("rhs_view_new: FIXME\n");
-	// return rhsview_new();
-	return NULL;
+	return rhsview_new();
 }
 
 static gboolean

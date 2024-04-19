@@ -38,35 +38,38 @@
 
   <template class="Rowview" parent="View">
     <child>
-      <object class="Spin" id="spin">
-        <signal name="up_click" handler="rowview_up_click"/>
-        <signal name="down_click" handler="rowview_down_click"/>
-      </object>
-    </child>
-
-    <child>
-      <object class="GtkButton" id="but">
-        <signal name="clicked" handler="rowview_but_clicked"/>
+      <object class="GtkBox" id="top">
 
         <child>
-          <object class="GtkPopoverMenu" id="right_click_menu">
-            <property name="has-arrow">0</property>
-            <property name="menu-model">rowview-menu</property>
+          <object class="Spin" id="spin">
+            <signal name="up_click" handler="rowview_up_click"/>
+            <signal name="down_click" handler="rowview_down_click"/>
           </object>
         </child>
 
         <child>
-          <object class="GtkGestureClick">
-            <property name="button">3</property>
-            <signal name="pressed" handler="rowview_menu"/>
+          <object class="GtkButton" id="but">
+            <signal name="clicked" handler="rowview_but_clicked"/>
+
+            <child>
+              <object class="GtkPopoverMenu" id="right_click_menu">
+                <property name="has-arrow">0</property>
+                <property name="menu-model">rowview-menu</property>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkGestureClick">
+                <property name="button">3</property>
+                <signal name="pressed" handler="rowview_menu"/>
+              </object>
+            </child>
+
           </object>
         </child>
 
-      </object>
-    </child>
+        <!-- rhsview is appended to this box dynamically -->
 
-    <child>
-      <object class="GtkLabel" id="rhsview">
       </object>
     </child>
 

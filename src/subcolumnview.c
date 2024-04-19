@@ -86,13 +86,11 @@ subcolumnview_link(View *view, Model *model, View *parent)
 
 	VIEW_CLASS(subcolumnview_parent_class)->link(view, model, parent);
 
-	printf("subcolumnview_link: fix rhsview attach\n");
-
 	/* Add to enclosing column, if there is one. Attached to enclosing row
 	 * by rowview_refresh() if we're a subcolumn.
+	 */
 	if (!scol->is_top)
 		sview->rhsview = RHSVIEW(parent);
-	 */
 }
 
 static void *

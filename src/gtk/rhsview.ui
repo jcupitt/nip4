@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Rhsview" parent="View">
+
+    <child>
+      <object class="GtkGrid" id="grid">
+
+        <!-- graphic, subcolumn and text widgets attach here dynamically -->
+
+      </object>
+    </child>
+
+  </template>
+</interface>

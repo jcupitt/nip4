@@ -44,13 +44,14 @@ struct _Rowview {
 
 	Subcolumnview *sview;		/* Enclosing subcolumnview */
 
-	Rhsview *rhsview;			/* Our rhs */
-
 	gboolean visible;			/* Currently visible */
 	int rnum;					/* Row of subcolumn we are in */
 
+	GtkWidget *top;				/* Enclosing box for our widgets */
 	GtkWidget *spin;			/* Class display open/close widgets */
 	GtkWidget *but;				/* Name button */
+	Rhsview *rhsview;			/* Our rhs */
+
 	GtkWidget *right_click_menu;
 
 	char *last_tooltip;			/* Last tooltip we set */

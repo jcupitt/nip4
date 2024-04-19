@@ -229,6 +229,7 @@ typedef struct _Workspace Workspace;
 #include "subcolumn.h"
 #include "workspaceroot.h"
 #include "workspacegroup.h"
+#include "graphicview.h"
 #include "columnview.h"
 #include "prefcolumnview.h"
 #include "prefworkspaceview.h"

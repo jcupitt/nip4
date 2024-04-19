@@ -45,12 +45,12 @@ struct _Rhsview {
 
 	Rowview *rview;
 
-	View *graphic; /* Our three elements */
+	View *graphic;		/* Our three elements */
 	View *scol;
 	View *itext;
 
-	GtkWidget *table; /* Lay out elements in this */
-	RhsFlags flags;	  /* Last vis set we set */
+	GtkWidget *grid;	/* Lay out elements in this */
+	RhsFlags flags;		/* Last vis set we set */
 };
 
 typedef struct _RhsviewClass {

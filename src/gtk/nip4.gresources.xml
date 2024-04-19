@@ -10,6 +10,7 @@
     <file preprocess="xml-stripblanks">subcolumnview.ui</file>
     <file preprocess="xml-stripblanks">spin.ui</file>
     <file preprocess="xml-stripblanks">rowview.ui</file>
+    <file preprocess="xml-stripblanks">rhsview.ui</file>
     <file>mainwindow.css</file>
     <file>columnview.css</file>
   </gresource>

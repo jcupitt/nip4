@@ -1,0 +1,2 @@
+
+#define IS_GRAPHICVIEW(X) (FALSE)

@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -466,10 +466,12 @@ rowview_child_add(View *parent, View *child)
 {
 	Rowview *rview = ROWVIEW(parent);
 
-	// g_assert(IS_RHSVIEW(child));
+	printf("rowview_child_add: child = %p\n", child);
+
+	g_assert(IS_RHSVIEW(child));
 	g_assert(!rview->rhsview);
 
-	// rview->rhsview = RHSVIEW(child);
+	rview->rhsview = RHSVIEW(child);
 
 	VIEW_CLASS(rowview_parent_class)->child_add(parent, child);
 }
@@ -479,7 +481,7 @@ rowview_child_remove(View *parent, View *child)
 {
 	Rowview *rview = ROWVIEW(parent);
 
-	// g_assert(IS_RHSVIEW(child));
+	g_assert(IS_RHSVIEW(child));
 	g_assert(rview->rhsview);
 
 	rview->rhsview = NULL;
@@ -524,7 +526,6 @@ rowview_but_clicked(GtkButton* self, gpointer user_data)
 {
 	Rowview *rview = ROWVIEW(user_data);
 	Row *row = ROW(VOBJECT(rview)->iobject);
-
 
 	printf("rowview_but_clicked:\n");
 
@@ -602,7 +603,7 @@ rowview_class_init(RowviewClass *class)
 
 	printf("rowview_class_init: need button enter, leave, focus, tooltip\n");
 
-	BIND(rhsview);
+	BIND(top);
 	BIND(spin);
 	BIND(but);
 
@@ -650,6 +651,9 @@ static void
 rowview_init(Rowview *rview)
 {
 	gtk_widget_init_template(GTK_WIDGET(rview));
+
+	// ensure that we always attach children
+	rview->rnum = -1;
 }
 
 View *
