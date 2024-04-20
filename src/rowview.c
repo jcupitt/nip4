@@ -57,7 +57,7 @@ rowview_dispose(GObject *object)
 	rview = ROWVIEW(object);
 
 #ifdef DEBUG
-	printf("rowview_destroy: ");
+	printf("rowview_dispose: ");
 	row_name_print(ROW(VOBJECT(rview)->iobject));
 	printf("\n");
 #endif /*DEBUG*/
@@ -97,7 +97,7 @@ rowview_update_widgets(Rowview *rview)
 	gboolean editable = row->ws->mode != WORKSPACE_MODE_NOEDIT;
 
 #ifdef DEBUG
-	printf("rowview_refresh: ");
+	printf("rowview_update_widgets: ");
 	row_name_print(row);
 	printf("\n");
 	printf("\teditable == %d\n", editable);
@@ -107,7 +107,7 @@ rowview_update_widgets(Rowview *rview)
 	 */
 	if (rview->rnum != pos) {
 #ifdef DEBUG
-		printf("rowview_refresh: move from row %d to row %d\n",
+		printf("rowview_update_widgets: move from row %d to row %d\n",
 			rview->rnum, pos);
 #endif /*DEBUG*/
 
@@ -578,10 +578,6 @@ rowview_tooltip_generate(GtkWidget *widget, VipsBuf *buf, Rowview *rview)
 }
  */
 
-#define BIND(field) \
-	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-		Rowview, field);
-
 static void
 rowview_class_init(RowviewClass *class)
 {
@@ -590,22 +586,21 @@ rowview_class_init(RowviewClass *class)
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
 
-	gtk_widget_class_set_template_from_resource(widget_class,
-		APP_PATH "/rowview.ui");
-	gtk_widget_class_bind_template_callback(widget_class,
-		rowview_menu);
-	gtk_widget_class_bind_template_callback(widget_class,
-		rowview_up_click);
-	gtk_widget_class_bind_template_callback(widget_class,
-		rowview_down_click);
-	gtk_widget_class_bind_template_callback(widget_class,
-		rowview_but_clicked);
+	BIND_RESOURCE("rowview.ui");
+
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
+		GTK_TYPE_BIN_LAYOUT);
+
+	BIND_CALLBACK(rowview_menu);
+	BIND_CALLBACK(rowview_up_click);
+	BIND_CALLBACK(rowview_down_click);
+	BIND_CALLBACK(rowview_but_clicked);
 
 	printf("rowview_class_init: need button enter, leave, focus, tooltip\n");
 
-	BIND(top);
-	BIND(spin);
-	BIND(but);
+	BIND_VARIABLE(Rowview, top);
+	BIND_VARIABLE(Rowview, spin);
+	BIND_VARIABLE(Rowview, but);
 
 	/* Create signals.
 	 */

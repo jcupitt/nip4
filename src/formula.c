@@ -329,6 +329,9 @@ formula_class_init(FormulaClass *class)
 
 	BIND_RESOURCE("formula.ui");
 
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
+		GTK_TYPE_BIN_LAYOUT);
+
 	BIND_CALLBACK(formula_key_pressed);
 	BIND_CALLBACK(formula_pressed);
 	BIND_CALLBACK(formula_activate);

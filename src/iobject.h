@@ -105,4 +105,5 @@ void *iobject_test_name(iObject *iobject, const char *name);
 void *iobject_print(iObject *iobject);
 void iobject_set(iObject *iobject, const char *name, const char *caption);
 void iobject_sink(iObject *iobject);
+void iobject_ref_sink(iObject *iobject);
 void iobject_dump(iObject *iobject);

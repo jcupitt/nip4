@@ -1950,8 +1950,7 @@ reduce_new(void)
 	rc->running = 0;
 
 	rc->heap = heap_new(NULL, reduce_heap_max_fn, stsz, incr);
-	g_object_ref(G_OBJECT(rc->heap));
-	iobject_sink(IOBJECT(rc->heap));
+	iobject_ref_sink(IOBJECT(rc->heap));
 	heap_register_reduce(rc->heap, rc);
 	iobject_set(IOBJECT(rc->heap), "reduce-heap", NULL);
 

@@ -161,10 +161,6 @@ subcolumnview_refresh(vObject *vobject)
 	VOBJECT_CLASS(subcolumnview_parent_class)->refresh(vobject);
 }
 
-#define BIND(field) \
-	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-		Subcolumnview, field);
-
 static void
 subcolumnview_class_init(SubcolumnviewClass *class)
 {
@@ -173,12 +169,12 @@ subcolumnview_class_init(SubcolumnviewClass *class)
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
 
-	gtk_widget_class_set_layout_manager_type(widget_class,
-		GTK_TYPE_BIN_LAYOUT);
-	gtk_widget_class_set_template_from_resource(widget_class,
-		APP_PATH "/subcolumnview.ui");
+	BIND_RESOURCE("subcolumnview.ui");
 
-	BIND(grid);
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
+		GTK_TYPE_BIN_LAYOUT);
+
+	BIND_VARIABLE(Subcolumnview, grid);
 
 	object_class->dispose = subcolumnview_dispose;
 

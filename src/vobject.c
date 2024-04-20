@@ -21,8 +21,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 /* Time each refresh
 #define DEBUG_TIME
@@ -189,6 +189,12 @@ vobject_iobject_destroy(iObject *iobject, vObject *vobject)
         G_OBJECT_TYPE_NAME( iobject ), iobject->name);
 #endif /*DEBUG*/
 
+	// added the explicit dequeue since unparenting does nopt drop the
+	// refcount to 0 and trigger _dispose, as it probably should
+	//
+	// we need to fix vobject refcounts so that widgets are disposed correctly
+	printf("vobject_iobject_destroy: FIXME view objhect refcounts are wrong\n");
+	vobject_refresh_dequeue(vobject);
     UNPARENT(vobject);
 }
 
@@ -253,6 +259,8 @@ vobject_iobject_weak_notify(gpointer user_data, GObject *dead_object)
 	vObject *vobject = VOBJECT(user_data);
 
 #ifdef DEBUG
+	iObject *iobject = vobject->iobject;
+
 	printf("vobject_iobject_weak_notify: iobject %s \"%s\"\n",
 		G_OBJECT_TYPE_NAME(iobject), iobject->name);
 #endif /*DEBUG*/
@@ -263,8 +271,6 @@ vobject_iobject_weak_notify(gpointer user_data, GObject *dead_object)
 
 	UNPARENT(vobject);
 }
-
-
 
 static void
 vobject_real_link(vObject *vobject, iObject *iobject)

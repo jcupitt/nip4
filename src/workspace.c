@@ -730,8 +730,7 @@ workspace_link(Workspace *ws, Workspacegroup *wsg, const char *name)
 	iobject_set(IOBJECT(ws), name, NULL);
 
 	ws->local_kitg = toolkitgroup_new(ws->sym);
-	g_object_ref(G_OBJECT(ws->local_kitg));
-	iobject_sink(IOBJECT(ws->local_kitg));
+	iobject_ref_sink(IOBJECT(ws->local_kitg));
 }
 
 static const char *
@@ -1000,8 +999,7 @@ workspace_load_compat(Workspace *ws, int major, int minor)
 		 */
 		VIPS_UNREF(ws->kitg);
 		ws->kitg = toolkitgroup_new(ws->sym);
-		g_object_ref(G_OBJECT(ws->kitg));
-		iobject_sink(IOBJECT(ws->kitg));
+		iobject_ref_sink(IOBJECT(ws->kitg));
 
 		vips_snprintf(pathname, FILENAME_MAX,
 			"$VIPSHOME/share/" PACKAGE "/compat/%d.%d", best_major, best_minor);

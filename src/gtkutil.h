@@ -34,8 +34,6 @@
 	G_STMT_END
 
 #define BIND_RESOURCE(resource) \
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class), \
-		GTK_TYPE_BIN_LAYOUT); \
 	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class), \
 		APP_PATH "/" resource);
 

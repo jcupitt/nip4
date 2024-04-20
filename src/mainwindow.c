@@ -410,27 +410,22 @@ main_window_init(MainWindow *main)
 	 */
 }
 
-#define BIND(field) \
-	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-		MainWindow, field);
-
 static void
 main_window_class_init(MainWindowClass *class)
 {
 	G_OBJECT_CLASS(class)->dispose = main_window_dispose;
 
-	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
-		APP_PATH "/mainwindow.ui");
+	BIND_RESOURCE("mainwindow.ui");
 
-	BIND(title);
-	BIND(subtitle);
-	BIND(gears);
-	BIND(progress_bar);
-	BIND(progress);
-	BIND(progress_cancel);
-	BIND(error_bar);
-	BIND(error_label);
-	BIND(wsgview);
+	BIND_VARIABLE(MainWindow, title);
+	BIND_VARIABLE(MainWindow, subtitle);
+	BIND_VARIABLE(MainWindow, gears);
+	BIND_VARIABLE(MainWindow, progress_bar);
+	BIND_VARIABLE(MainWindow, progress);
+	BIND_VARIABLE(MainWindow, progress_cancel);
+	BIND_VARIABLE(MainWindow, error_bar);
+	BIND_VARIABLE(MainWindow, error_label);
+	BIND_VARIABLE(MainWindow, wsgview);
 }
 
 static void
@@ -450,8 +445,7 @@ static void
 main_window_set_wsg(MainWindow *main, Workspacegroup *wsg)
 {
 	main->wsg = wsg;
-	g_object_ref(G_OBJECT(main->wsg));
-	iobject_sink(IOBJECT(main->wsg));
+	iobject_ref_sink(IOBJECT(main->wsg));
 
 	// our wsgview is the view for this model
 	view_link(VIEW(main->wsgview), MODEL(main->wsg), NULL);

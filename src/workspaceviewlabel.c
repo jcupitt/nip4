@@ -135,10 +135,6 @@ workspaceviewlabel_pressed(GtkGestureClick *gesture,
 	}
 }
 
-#define BIND(field) \
-	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-		Workspaceviewlabel, field);
-
 static void
 workspaceviewlabel_class_init(WorkspaceviewlabelClass *class)
 {
@@ -151,21 +147,19 @@ workspaceviewlabel_class_init(WorkspaceviewlabelClass *class)
 
 	G_OBJECT_CLASS(class)->dispose = workspaceviewlabel_dispose;
 
-	gtk_widget_class_set_layout_manager_type(widget_class,
+	BIND_RESOURCE("workspaceviewlabel.ui");
+
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
 		GTK_TYPE_BIN_LAYOUT);
-	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
-		APP_PATH "/workspaceviewlabel.ui");
 
-	BIND(top);
-	BIND(label);
-	BIND(lock);
-	BIND(error);
-	BIND(right_click_menu);
+	BIND_VARIABLE(Workspaceviewlabel, top);
+	BIND_VARIABLE(Workspaceviewlabel, label);
+	BIND_VARIABLE(Workspaceviewlabel, lock);
+	BIND_VARIABLE(Workspaceviewlabel, error);
+	BIND_VARIABLE(Workspaceviewlabel, right_click_menu);
 
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		workspaceviewlabel_menu);
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		workspaceviewlabel_pressed);
+	BIND_CALLBACK(workspaceviewlabel_menu);
+	BIND_CALLBACK(workspaceviewlabel_pressed);
 
 	gobject_class->dispose = workspaceviewlabel_dispose;
 	gobject_class->set_property = workspaceviewlabel_set_property;

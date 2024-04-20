@@ -254,6 +254,15 @@ iobject_sink(iObject *iobject)
 }
 
 void
+iobject_ref_sink(iObject *iobject)
+{
+	g_assert(IS_IOBJECT(iobject));
+
+	g_object_ref(G_OBJECT(iobject));
+	iobject_sink(iobject);
+}
+
+void
 iobject_dump(iObject *iobject)
 {
 	char txt[1000];

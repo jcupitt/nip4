@@ -4,6 +4,7 @@
 
     <child>
       <object class="GtkGrid" id="grid">
+        <property name="hexpand">true</property>
       </object>
     </child>
 

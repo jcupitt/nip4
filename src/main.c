@@ -282,16 +282,13 @@ main(int argc, char **argv)
 	reduce_context = reduce_new();
 
 	main_symbol_root = symbol_root_init();
-	g_object_ref(G_OBJECT(main_symbol_root));
-	iobject_sink(IOBJECT(main_symbol_root));
+	iobject_ref_sink(IOBJECT(main_symbol_root));
 
 	main_workspaceroot = workspaceroot_new("Workspaces");
-	g_object_ref(G_OBJECT(main_workspaceroot));
-	iobject_sink(IOBJECT(main_workspaceroot));
+	iobject_ref_sink(IOBJECT(main_workspaceroot));
 
 	main_toolkitgroup = toolkitgroup_new(symbol_root);
-	g_object_ref(G_OBJECT(main_toolkitgroup));
-	iobject_sink(IOBJECT(main_toolkitgroup));
+	iobject_ref_sink(IOBJECT(main_toolkitgroup));
 
 	app = app_new();
 

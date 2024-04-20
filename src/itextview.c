@@ -197,11 +197,14 @@ itextview_class_init(iTextviewClass *class)
 
 	BIND_RESOURCE("itextview.ui");
 
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
+		GTK_TYPE_BIN_LAYOUT);
+
+	BIND_VARIABLE(iTextview, formula);
+
 	BIND_CALLBACK(itextview_edit);
 	BIND_CALLBACK(itextview_changed);
 	BIND_CALLBACK(itextview_activate);
-
-	BIND_VARIABLE(iTextview, formula);
 
 	/* Create signals.
 	 */

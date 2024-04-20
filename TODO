@@ -5,20 +5,23 @@
   segv ... looks like the rowview is not being destroyed when we destroy
   the zombie symbol?
 
+	vobject_iobject_destroy() is being called for the row
+
+	it's calling UNPARENT
+
+	but that isn't triggering dispose, so we still call refresh
+
+	has refcount 2 at that point ... something else has a ref?
+
+	still 2 after the unparent
+
+  patched around this in vobject_iobject_destroy, but we still need to fix it
+
 - add workspace load/save
 
 	- so we can load a large workspace back for testing
 
 	- implement "nip4 test.ws"
-
-- swap
-
-    g_object_ref(G_OBJECT(compile->heap));
-    iobject_sink(IOBJECT(compile->heap));
-
-  for iobject_ref_sink()
-
-- use BIND_*() everywhere
 
 - add drag on background for workspace scroll
 
@@ -42,11 +45,9 @@
 
 - use a filemanager style left bar for the toolkit browser
 
+	- does this need libadiwata?
+
 	- where should workspace local defs go?
-
-- columnview had just one child, a subcolumn ... that contains the grid widget
-
-	- need to align the entry somehow?
 
 - need to do column caption edit
 

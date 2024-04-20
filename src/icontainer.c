@@ -595,8 +595,7 @@ icontainer_real_child_add(iContainer *parent, iContainer *child, int pos)
 
 	icontainer_link(parent, child, pos);
 
-	g_object_ref(G_OBJECT(child));
-	iobject_sink(IOBJECT(child));
+	iobject_ref_sink(IOBJECT(child));
 
 	/* Renumber to get all the pos set.
 	 */

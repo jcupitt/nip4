@@ -84,8 +84,7 @@ managed_link_heap(Managed *managed, Heap *heap)
 
 	/* The mtable owns our ref.
 	 */
-	g_object_ref(G_OBJECT(managed));
-	iobject_sink(IOBJECT(managed));
+	iobject_ref_sink(IOBJECT(managed));
 }
 
 static void

@@ -884,10 +884,6 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 	wview->drag_cview = NULL;
 }
 
-#define BIND(field) \
-	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-		Workspaceview, field);
-
 static void
 workspaceview_class_init(WorkspaceviewClass *class)
 {
@@ -895,6 +891,20 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
+
+	BIND_RESOURCE("workspaceview.ui");
+
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
+		GTK_TYPE_BIN_LAYOUT);
+
+	BIND_VARIABLE(Workspaceview, scrolled_window);
+	BIND_VARIABLE(Workspaceview, fixed);
+	BIND_VARIABLE(Workspaceview, right_click_menu);
+
+	BIND_CALLBACK(workspaceview_background_menu);
+	BIND_CALLBACK(workspaceview_drag_begin);
+	BIND_CALLBACK(workspaceview_drag_update);
+	BIND_CALLBACK(workspaceview_drag_end);
 
 	object_class->dispose = workspaceview_dispose;
 
@@ -908,24 +918,6 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	view_class->child_front = workspaceview_child_front;
 	view_class->layout = workspaceview_layout;
 	view_class->action = workspaceview_action;
-
-	gtk_widget_class_set_layout_manager_type(widget_class,
-		GTK_TYPE_BIN_LAYOUT);
-	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
-		APP_PATH "/workspaceview.ui");
-
-	BIND(scrolled_window);
-	BIND(fixed);
-	BIND(right_click_menu);
-
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		workspaceview_background_menu);
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		workspaceview_drag_begin);
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		workspaceview_drag_update);
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		workspaceview_drag_end);
 }
 
 /* Can't use main_load(), we want to select wses after load.

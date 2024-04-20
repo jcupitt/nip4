@@ -181,10 +181,6 @@ rhsview_child_remove(View *parent, View *child)
 	VIEW_CLASS(rhsview_parent_class)->child_remove(parent, child);
 }
 
-#define BIND(field) \
-	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-		Rhsview, field);
-
 static void
 rhsview_class_init(RhsviewClass *class)
 {
@@ -193,12 +189,12 @@ rhsview_class_init(RhsviewClass *class)
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
 
-	gtk_widget_class_set_layout_manager_type(widget_class,
-		GTK_TYPE_BIN_LAYOUT);
-	gtk_widget_class_set_template_from_resource(widget_class,
-		APP_PATH "/rhsview.ui");
+	BIND_RESOURCE("rhsview.ui");
 
-	BIND(grid);
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
+		GTK_TYPE_BIN_LAYOUT);
+
+	BIND_VARIABLE(Rhsview, grid);
 
 	/* Create signals.
 	 */

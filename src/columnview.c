@@ -631,10 +631,6 @@ columnview_activate(GtkEntry *self, gpointer user_data)
 	set_gentry(self, NULL);
 }
 
-#define BIND(field) \
-	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-		Columnview, field);
-
 static void
 columnview_class_init(ColumnviewClass *class)
 {
@@ -643,22 +639,21 @@ columnview_class_init(ColumnviewClass *class)
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
 
-	gtk_widget_class_set_layout_manager_type(widget_class,
-		GTK_TYPE_BIN_LAYOUT);
-	gtk_widget_class_set_template_from_resource(widget_class,
-		APP_PATH "/columnview.ui");
-	gtk_widget_class_bind_template_callback(widget_class,
-		columnview_menu);
-	gtk_widget_class_bind_template_callback(widget_class,
-		columnview_activate);
+	BIND_RESOURCE("columnview.ui");
 
-	BIND(top);
-	BIND(title);
-	BIND(label);
-	BIND(head);
-	BIND(body);
-	BIND(entry);
-	BIND(right_click_menu);
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
+		GTK_TYPE_BIN_LAYOUT);
+
+	BIND_CALLBACK(columnview_menu);
+	BIND_CALLBACK(columnview_activate);
+
+	BIND_VARIABLE(Columnview, top);
+	BIND_VARIABLE(Columnview, title);
+	BIND_VARIABLE(Columnview, label);
+	BIND_VARIABLE(Columnview, head);
+	BIND_VARIABLE(Columnview, body);
+	BIND_VARIABLE(Columnview, entry);
+	BIND_VARIABLE(Columnview, right_click_menu);
 
 	/* Init methods.
 	 */

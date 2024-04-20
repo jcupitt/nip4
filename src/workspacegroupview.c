@@ -191,24 +191,20 @@ workspacegroupview_new_tab(GtkButton *button, void *user_data)
 	printf("workspacegroupview_new_tab:\n");
 }
 
-#define BIND(field) \
-	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-		Workspacegroupview, field);
-
 static void
 workspacegroupview_class_init(WorkspacegroupviewClass *class)
 {
 	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
 
-	gtk_widget_class_set_layout_manager_type(widget_class,
-		GTK_TYPE_BIN_LAYOUT);
-	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
-		APP_PATH "/workspacegroupview.ui");
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		workspacegroupview_new_tab);
+	BIND_RESOURCE("workspacegroupview.ui");
 
-	BIND(notebook);
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
+		GTK_TYPE_BIN_LAYOUT);
+
+	BIND_VARIABLE(Workspacegroupview, notebook);
+
+	BIND_CALLBACK(workspacegroupview_new_tab);
 
 	G_OBJECT_CLASS(class)->dispose = workspacegroupview_dispose;
 
