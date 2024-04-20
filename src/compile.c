@@ -227,7 +227,8 @@ compile_expr_link_make(Compile *compile, Expr *expr)
 	expr->compile = compile;
 	compile->exprs = g_slist_prepend(compile->exprs, expr);
 
-	g_object_ref_sink(G_OBJECT(compile));
+	g_object_ref(G_OBJECT(compile));
+	iobject_sink(IOBJECT(compile));
 }
 
 static void
@@ -390,7 +391,8 @@ compile_new_toplevel(Expr *expr)
 	Compile *compile = compile_new(expr);
 
 	compile->heap = heap_new(compile, compile_heap_max_fn, 100, 1000);
-	g_object_ref_sink(G_OBJECT(compile->heap));
+	g_object_ref(G_OBJECT(compile->heap));
+	iobject_sink(IOBJECT(compile->heap));
 
 	heap_register_element(compile->heap, &compile->base);
 
@@ -405,7 +407,8 @@ compile_new_local(Expr *expr)
 	Compile *compile = compile_new(expr);
 
 	compile->heap = heap_new(compile, compile_heap_max_fn, 100, 100);
-	g_object_ref_sink(G_OBJECT(compile->heap));
+	g_object_ref(G_OBJECT(compile->heap));
+	iobject_sink(IOBJECT(compile->heap));
 
 	heap_register_element(compile->heap, &compile->base);
 
@@ -1846,7 +1849,7 @@ compile_resolve(Symbol *sym, Symbol *zombie)
 	 */
 	VIPS_FREEF(g_slist_free, zombie->parents);
 
-	VIPS_UNREF(zombie);
+	IDESTROY(zombie);
 }
 
 /* Sub-function of below.

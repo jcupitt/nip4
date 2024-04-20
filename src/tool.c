@@ -820,7 +820,7 @@ tool_new_sym(Toolkit *kit, int pos, Symbol *sym)
 		sym->tool = NULL;
 		tool->sym = NULL;
 
-		VIPS_UNREF(tool);
+		IDESTROY(tool);
 	}
 
 	tool = TOOL(g_object_new(TOOL_TYPE, NULL));

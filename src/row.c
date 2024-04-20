@@ -428,7 +428,7 @@ row_dispose(GObject *gobject)
 	 * us again in turn.
 	 */
 	if (row == row->top_row)
-		VIPS_UNREF(row->sym);
+		IDESTROY(row->sym);
 
 	G_OBJECT_CLASS(row_parent_class)->dispose(gobject);
 }

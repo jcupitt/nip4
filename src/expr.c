@@ -310,7 +310,7 @@ expr_dispose(GObject *gobject)
 		 * refresh to do the kill for us.
 		 */
 		if (row == row->top_row)
-			VIPS_UNREF(row);
+			IDESTROY(row);
 		else {
 			row->expr = NULL;
 			row->sym = NULL;

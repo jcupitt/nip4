@@ -1951,7 +1951,7 @@ reduce_new(void)
 
 	rc->heap = heap_new(NULL, reduce_heap_max_fn, stsz, incr);
 	g_object_ref(G_OBJECT(rc->heap));
-	g_object_ref_sink(rc->heap);
+	iobject_sink(IOBJECT(rc->heap));
 	heap_register_reduce(rc->heap, rc);
 	iobject_set(IOBJECT(rc->heap), "reduce-heap", NULL);
 

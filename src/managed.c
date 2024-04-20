@@ -84,7 +84,8 @@ managed_link_heap(Managed *managed, Heap *heap)
 
 	/* The mtable owns our ref.
 	 */
-	g_object_ref_sink(G_OBJECT(managed));
+	g_object_ref(G_OBJECT(managed));
+	iobject_sink(IOBJECT(managed));
 }
 
 static void
@@ -226,7 +227,7 @@ managed_destroy_heap(Managed *managed)
 	/* All non-heaps gone too?
 	 */
 	if (!managed->count)
-		VIPS_UNREF(managed);
+		IDESTROY(managed);
 }
 
 /* destroy() for non-heap pointers.

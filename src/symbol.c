@@ -562,7 +562,7 @@ symbol_dispose(GObject *gobject)
 	/* Strip it down.
 	 */
 	(void) symbol_strip(sym);
-	VIPS_UNREF(sym->tool);
+	IDESTROY(sym->tool);
 
 	/* Any exprs which refer to us must have errors.
 	 */

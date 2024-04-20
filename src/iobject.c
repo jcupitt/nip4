@@ -34,9 +34,25 @@ enum {
 	SIG_LAST
 };
 
-G_DEFINE_TYPE(iObject, iobject, G_TYPE_INITIALLY_UNOWNED)
+G_DEFINE_TYPE(iObject, iobject, G_TYPE_OBJECT)
 
 static guint iobject_signals[SIG_LAST] = { 0 };
+
+/* Don't emit "destroy" immediately, do it from the _dispose handler.
+ */
+void *
+iobject_destroy(iObject *iobject)
+{
+#ifdef DEBUG
+	printf("iobject_destroy: ");
+	iobject_print(iobject);
+#endif /*DEBUG*/
+
+	if (!iobject->in_destruction)
+		g_object_run_dispose(G_OBJECT(iobject));
+
+	return NULL;
+}
 
 void *
 iobject_changed(iObject *iobject)
@@ -201,6 +217,17 @@ iobject_set(iObject *iobject, const char *name, const char *caption)
 	printf("iobject_set: ");
 	iobject_print(iobject);
 #endif /*DEBUG*/
+}
+
+void
+iobject_sink(iObject *iobject)
+{
+	g_assert(IS_IOBJECT(iobject));
+
+	if (iobject->floating) {
+		iobject->floating = FALSE;
+		g_object_unref(G_OBJECT(iobject));
+	}
 }
 
 void

@@ -127,7 +127,6 @@ toolkit_class_init(ToolkitClass *class)
 	model_class->load_text = toolkit_load_text;
 
 	filemodel_class->filetype = ".def";
-	;
 }
 
 static void
@@ -170,7 +169,7 @@ toolkit_new(Toolkitgroup *kitg, const char *name)
 	/* Exists already?
 	 */
 	if ((kit = toolkit_find(kitg, name)))
-		VIPS_UNREF(kit);
+		IDESTROY(kit);
 
 	/* Make a new kit.
 	 */
@@ -201,8 +200,7 @@ toolkit_new_from_file(Toolkitgroup *kitg, const char *filename)
 	Toolkit *kit = toolkit_new_filename(kitg, filename);
 	gboolean res;
 
-	res = filemodel_load_all(FILEMODEL(kit), MODEL(kitg),
-		filename, NULL);
+	res = filemodel_load_all(FILEMODEL(kit), MODEL(kitg), filename, NULL);
 	filemodel_set_modified(FILEMODEL(kit), FALSE);
 
 	/* Don't remove the kit if load failed, we want to leave it so the

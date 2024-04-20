@@ -44,15 +44,15 @@ rhs_child_add(iContainer *parent, iContainer *child, int pos)
 	Rhs *rhs = RHS(parent);
 
 	if (IS_SUBCOLUMN(child)) {
-		UNPARENT(rhs->scol);
+		IDESTROY(rhs->scol);
 		rhs->scol = MODEL(child);
 	}
 	else if (IS_ITEXT(child)) {
-		UNPARENT(rhs->itext);
+		IDESTROY(rhs->itext);
 		rhs->itext = MODEL(child);
 	}
 	else {
-		UNPARENT(rhs->graphic);
+		IDESTROY(rhs->graphic);
 		rhs->graphic = MODEL(child);
 	}
 
@@ -197,12 +197,12 @@ rhs_refresh_graphic(Rhs *rhs, PElement *root)
 		else
 			/* Not a class we know about.
 			 */
-			UNPARENT(rhs->graphic);
+			IDESTROY(rhs->graphic);
 	}
 	else
 		/* Should be no graphic display.
 		 */
-		UNPARENT(rhs->graphic);
+		IDESTROY(rhs->graphic);
 
 	return TRUE;
 }
@@ -238,7 +238,7 @@ rhs_new_heap(Heapmodel *heapmodel, PElement *root)
 	else
 		/* Should be no klass display.
 		 */
-		UNPARENT(rhs->scol);
+		IDESTROY(rhs->scol);
 
 	/* Create/reuse/destroy text display.
 	 */

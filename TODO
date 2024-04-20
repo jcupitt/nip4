@@ -1,12 +1,15 @@
-- make a row!
+- add workspace load/save
 
-  next ... formula then itextview
+	so we can get a large workspace back for testing
 
+- swap
 
+    g_object_ref(G_OBJECT(compile->heap));
+    iobject_sink(IOBJECT(compile->heap));
+
+  for iobject_ref_sink()
 
 - use BIND_*() everywhere
-
-- UNPARENT() widgets, don't UNREF them
 
 - add drag on background for workspace scroll
 

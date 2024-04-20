@@ -437,7 +437,8 @@ static void
 main_window_set_wsg(MainWindow *main, Workspacegroup *wsg)
 {
 	main->wsg = wsg;
-	g_object_ref_sink(main->wsg);
+	g_object_ref(G_OBJECT(main->wsg));
+	iobject_sink(IOBJECT(main->wsg));
 
 	// our wsgview is the view for this model
 	view_link(VIEW(main->wsgview), MODEL(main->wsg), NULL);
