@@ -230,6 +230,8 @@ get_parent(GFile *file)
 	return parent ? parent : g_file_new_for_path("/");
 }
 
+static void main_window_set_wsg(MainWindow *main, Workspacegroup *wsg);
+
 static void
 main_window_open_result(GObject *source_object,
 	GAsyncResult *res, gpointer user_data)
@@ -239,7 +241,29 @@ main_window_open_result(GObject *source_object,
 
 	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
 	if (file) {
-		// load!
+		Workspacegroup *wsg;
+
+		g_autofree char *filename = g_file_get_path(file);
+
+		GtkApplication *app = gtk_window_get_application(GTK_WINDOW(main));
+
+		// quick hack ... yuk!
+
+		if (!(wsg = workspacegroup_new_from_file(main_workspaceroot,
+				filename, filename))) {
+			main_window_error(main);
+			return;
+		}
+
+		MainWindow *new_main = g_object_new(MAIN_WINDOW_TYPE,
+			"application", app,
+			NULL);
+
+		main_window_set_wsg(new_main, wsg);
+
+		main_window_set_gfile(new_main, NULL);
+
+		gtk_window_present(GTK_WINDOW(new_main));
 	}
 }
 
@@ -266,19 +290,7 @@ main_window_open_action(GSimpleAction *action,
 }
 
 static void
-main_window_saveas_options_response(GtkDialog *dialog,
-	gint response, gpointer user_data)
-{
-	if (response == GTK_RESPONSE_ACCEPT ||
-		response == GTK_RESPONSE_CANCEL)
-		gtk_window_destroy(GTK_WINDOW(dialog));
-
-	// other return codes are intermediate stages of processing and we
-	// should do nothing
-}
-
-static void
-main_window_on_file_save_cb(GObject *source_object,
+main_window_on_file_save(GObject *source_object,
 	GAsyncResult *res, gpointer user_data)
 {
 	MainWindow *main = MAIN_WINDOW(user_data);
@@ -292,7 +304,8 @@ main_window_on_file_save_cb(GObject *source_object,
 
 		g_autofree char *filename = g_file_get_path(file);
 
-		// save it!
+		if (!workspacegroup_save_current(main->wsg, filename))
+			main_window_error(main);
 	}
 }
 
@@ -314,7 +327,7 @@ main_window_saveas_action(GSimpleAction *action,
 		gtk_file_dialog_set_initial_folder(dialog, main->save_folder);
 
 	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
-		&main_window_on_file_save_cb, main);
+		&main_window_on_file_save, main);
 }
 
 static void

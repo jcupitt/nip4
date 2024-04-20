@@ -1,3 +1,11 @@
+- add workspace load/save
+
+	- so we can load a large workspace back for testing
+
+	- implement "nip4 test.ws"
+
+  save works, open not so much
+
 - try
 
 	wkkfhwf
@@ -16,12 +24,6 @@
 	still 2 after the unparent
 
   patched around this in vobject_iobject_destroy, but we still need to fix it
-
-- add workspace load/save
-
-	- so we can load a large workspace back for testing
-
-	- implement "nip4 test.ws"
 
 - add drag on background for workspace scroll
 
