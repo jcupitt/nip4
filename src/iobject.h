@@ -69,6 +69,10 @@ typedef struct _iObject {
 typedef struct _iObjectClass {
 	GObjectClass parent_class;
 
+	/* End object's lifetime.
+	 */
+	void (*destroy)(iObject *);
+
 	/* Something about the object has changed.
 	 */
 	void (*changed)(iObject *);

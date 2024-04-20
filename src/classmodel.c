@@ -1178,7 +1178,7 @@ classmodel_class_init(ClassmodelClass *class)
 	classmodel_class->graphic_save = NULL;
 	classmodel_class->graphic_replace = NULL;
 
-	classmodel_class->filetype = "*";
+	classmodel_class->filetype = (const char **) {"*", NULL};
 	classmodel_class->filetype_pref = NULL;
 
 	classmodel_class->members = NULL;

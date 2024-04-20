@@ -2,7 +2,8 @@
 
 	wkkfhwf
 
-  leaves a row in the ws
+  segv ... looks like the rowview is not being destroyed when we destroy
+  the zombie symbol?
 
 - add workspace load/save
 

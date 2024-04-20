@@ -179,6 +179,19 @@ vobject_iobject_changed(iObject *iobject, vObject *vobject)
 	vobject_refresh_queue(vobject);
 }
 
+/* Called for iobject destroy signal ... kill the vobject too.
+ */
+static void
+vobject_iobject_destroy(iObject *iobject, vObject *vobject)
+{
+#ifdef DEBUG
+    printf("vobject_iobject_destroy: iobject %s \"%s\"\n",
+        G_OBJECT_TYPE_NAME( iobject ), iobject->name);
+#endif /*DEBUG*/
+
+    UNPARENT(vobject);
+}
+
 /* Link to iobject.
  */
 void
@@ -251,6 +264,8 @@ vobject_iobject_weak_notify(gpointer user_data, GObject *dead_object)
 	UNPARENT(vobject);
 }
 
+
+
 static void
 vobject_real_link(vObject *vobject, iObject *iobject)
 {
@@ -261,6 +276,8 @@ vobject_real_link(vObject *vobject, iObject *iobject)
 
 	g_signal_connect_object(iobject, "changed",
 		G_CALLBACK(vobject_iobject_changed), vobject, G_CONNECT_DEFAULT);
+	g_signal_connect_object(iobject, "destroy",
+        G_CALLBACK(vobject_iobject_destroy), vobject, 0);
 }
 
 static void

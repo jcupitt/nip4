@@ -434,6 +434,19 @@ main_window_class_init(MainWindowClass *class)
 }
 
 static void
+main_window_wsg_changed(Workspacegroup *wsg, MainWindow *main)
+{
+	printf("main_window_wsg_changed: FIXME\n");
+    //main_window_refresh(mainw);
+}
+
+static void
+main_window_wsg_destroy(Workspacegroup *wsg, MainWindow *main)
+{
+    main->wsg = NULL;
+}
+
+static void
 main_window_set_wsg(MainWindow *main, Workspacegroup *wsg)
 {
 	main->wsg = wsg;
@@ -442,6 +455,11 @@ main_window_set_wsg(MainWindow *main, Workspacegroup *wsg)
 
 	// our wsgview is the view for this model
 	view_link(VIEW(main->wsgview), MODEL(main->wsg), NULL);
+
+	g_signal_connect_object(main->wsg, "changed",
+        G_CALLBACK(main_window_wsg_changed), main, 0);
+    g_signal_connect_object(main->wsg, "destroy",
+        G_CALLBACK(main_window_wsg_destroy), main, 0);
 }
 
 void

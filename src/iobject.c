@@ -30,6 +30,7 @@
 /* Our signals.
  */
 enum {
+	SIG_DESTROY, /* End lifetime */
 	SIG_CHANGED, /* iObject has changed somehow */
 	SIG_LAST
 };
@@ -38,7 +39,8 @@ G_DEFINE_TYPE(iObject, iobject, G_TYPE_OBJECT)
 
 static guint iobject_signals[SIG_LAST] = { 0 };
 
-/* Don't emit "destroy" immediately, do it from the _dispose handler.
+/* Don't emit "destroy" immediately, do it from the _dispose handler, see
+ * below.
  */
 void *
 iobject_destroy(iObject *iobject)
@@ -87,12 +89,18 @@ iobject_info(iObject *iobject, VipsBuf *buf)
 static void
 iobject_dispose(GObject *gobject)
 {
-#ifdef DEBUG
 	iObject *iobject = IOBJECT(gobject);
 
+#ifdef DEBUG
 	printf("iobject_dispose: ");
 	iobject_print(iobject);
 #endif /*DEBUG*/
+
+	if (!iobject->in_destruction) {
+		iobject->in_destruction = TRUE;
+		g_signal_emit(G_OBJECT(iobject), iobject_signals[SIG_DESTROY], 0);
+		iobject->in_destruction = FALSE;
+	}
 
 	G_OBJECT_CLASS(iobject_parent_class)->dispose(gobject);
 }
@@ -106,6 +114,10 @@ iobject_finalize(GObject *gobject)
 	printf("iobject_finalize: ");
 	iobject_print(iobject);
 #endif /*DEBUG*/
+
+ 	/* Unlike glib, we allow floating objects to be finalized. Handy if a
+ 	 * _new() fails. So don't assert( !iobject->floating );
+ 	 */
 
 	VIPS_FREE(iobject->name);
 	VIPS_FREE(iobject->caption);
@@ -149,6 +161,13 @@ iobject_class_init(iObjectClass *class)
 
 	/* Create signals.
 	 */
+	iobject_signals[SIG_DESTROY] = g_signal_new("destroy",
+		G_TYPE_FROM_CLASS(gobject_class),
+		G_SIGNAL_RUN_CLEANUP | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+		G_STRUCT_OFFSET(iObjectClass, destroy),
+		NULL, NULL,
+		g_cclosure_marshal_VOID__VOID,
+		G_TYPE_NONE, 0);
 	iobject_signals[SIG_CHANGED] = g_signal_new("changed",
 		G_OBJECT_CLASS_TYPE(gobject_class),
 		G_SIGNAL_RUN_FIRST,
@@ -165,6 +184,10 @@ iobject_init(iObject *iobject)
 	printf("iobject_init: ");
 	iobject_print(iobject);
 #endif /*DEBUG*/
+
+	/* Init our instance fields.
+ 	 */
+ 	iobject->floating = TRUE;
 }
 
 /* Test the name field ... handy with map.

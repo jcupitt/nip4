@@ -148,9 +148,9 @@ workspaceview_columnview_hit(View *view, void *a, void *b)
 
 	graphene_rect_t bounds;
 
-	gtk_widget_compute_bounds(GTK_WIDGET(cview), GTK_WIDGET(wview), &bounds);
-
-	if (graphene_rect_contains_point(&bounds, point))
+	if (gtk_widget_compute_bounds(GTK_WIDGET(cview), GTK_WIDGET(wview),
+				&bounds) &&
+		graphene_rect_contains_point(&bounds, point))
 		return cview;
 
 	return NULL;
@@ -177,9 +177,9 @@ workspaceview_columnview_title_hit(View *view, void *a, void *b)
 
 	graphene_rect_t bounds;
 
-	gtk_widget_compute_bounds(cview->title, GTK_WIDGET(wview), &bounds);
-
-	if (graphene_rect_contains_point(&bounds, point))
+	if (gtk_widget_compute_bounds(cview->title, GTK_WIDGET(wview),
+				&bounds) &&
+		graphene_rect_contains_point(&bounds, point))
 		return cview;
 
 	return NULL;
