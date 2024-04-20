@@ -471,7 +471,7 @@ main_window_settings(MainWindow *main)
 
 	// FIXME ... or have an "app" member in main? or use
 	// gtk_window_get_application()?
-	g_object_get(main, "application", &app, NULL );
+	g_object_get(main, "application", &app, NULL);
 
 	return app ? app_settings(app) : NULL;
 }

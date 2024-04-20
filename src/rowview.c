@@ -522,7 +522,7 @@ rowview_down_click(GtkGestureClick *gesture, Rowview *rview)
 }
 
 static void
-rowview_but_clicked(GtkButton* self, gpointer user_data)
+rowview_but_clicked(GtkButton *self, gpointer user_data)
 {
 	Rowview *rview = ROWVIEW(user_data);
 	Row *row = ROW(VOBJECT(rview)->iobject);

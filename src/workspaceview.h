@@ -95,7 +95,7 @@ struct _Workspaceview {
 	/* Geometry.
 	 */
 	VipsRect vp; /* Viewport pos and size */
-	int width; /* Size of fixed area */
+	int width;	 /* Size of fixed area */
 	int height;
 	VipsRect bounding; /* Bounding box of columnviews */
 

@@ -159,7 +159,7 @@ path_rewrite_add(const char *old, const char *new, gboolean lock)
 
 	/* If old is a prefix of new we will get endless expansion.
 	 */
-	if (new && is_prefix(old, new))
+	if (new &&is_prefix(old, new))
 		return;
 
 	if ((rewrite = path_rewrite_lookup(old))) {
@@ -184,7 +184,7 @@ path_rewrite_add(const char *old, const char *new, gboolean lock)
 #endif /*DEBUG_REWRITE*/
 		}
 	}
-	else if (new && strcmp(old, new) != 0) {
+	else if (new &&strcmp(old, new) != 0) {
 #ifdef DEBUG_REWRITE
 		printf("path_rewrite_add: adding\n");
 #endif /*DEBUG_REWRITE*/
@@ -562,7 +562,7 @@ path_find_file(const char *filename)
 	/* Search everywhere.
 	 */
 	if ((fname = path_map(PATH_SEARCH, filename,
-		(path_map_fn) g_strdup, NULL)))
+			 (path_map_fn) g_strdup, NULL)))
 		return fname;
 
 	error_top(_("Not found."));

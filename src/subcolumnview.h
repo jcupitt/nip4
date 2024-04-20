@@ -48,9 +48,9 @@ struct _Subcolumnview {
 
 	/* My instance vars.
 	 */
-	GtkWidget *grid;	 /* Central grid area for column */
-	int rows;			 /* Number of rows atm */
-	int nvis;			 /* Number of children currently visible */
+	GtkWidget *grid; /* Central grid area for column */
+	int rows;		 /* Number of rows atm */
+	int nvis;		 /* Number of children currently visible */
 };
 
 typedef struct _SubcolumnviewClass {

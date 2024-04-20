@@ -1837,7 +1837,7 @@ ifile_open_read(const char *name, ...)
 	}
 
 	if (!(of->fp = (FILE *) callv_string_filename((callv_string_fn) fopen,
-			of->fname_real, "r", NULL, NULL))) {
+			  of->fname_real, "r", NULL, NULL))) {
 		error_top(_("Unable to open."));
 		error_sub(_("Unable to open file \"%s\" for reading.\n%s."),
 			of->fname_real, g_strerror(errno));
@@ -2460,7 +2460,8 @@ imalloc(VipsImage *im, size_t len)
 		vips_buf_append_size(&buf, len);
 		error_top(_("Out of memory."));
 		error_sub(_("Request for %s of RAM triggered memory "
-					"allocation failure."), vips_buf_all(&buf));
+					"allocation failure."),
+			vips_buf_all(&buf));
 		error_vips();
 
 		return NULL;

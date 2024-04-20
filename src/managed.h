@@ -58,13 +58,13 @@ struct _Managed {
 	 * rely on ->heap being valid even during dispose.
 	 */
 
-	Heap *heap;			/* Heap we are attached to */
-	gboolean attached;	/* If we are attached to the heap */
+	Heap *heap;		   /* Heap we are attached to */
+	gboolean attached; /* If we are attached to the heap */
 
-	gboolean marked;	/* For mark-sweep */
-	int count;			/* Number of non-heap pointers to us */
-	gboolean zombie;	/* Unreffed, but being kept alive */
-	double time;		/* When we became a zombie */
+	gboolean marked; /* For mark-sweep */
+	int count;		 /* Number of non-heap pointers to us */
+	gboolean zombie; /* Unreffed, but being kept alive */
+	double time;	 /* When we became a zombie */
 
 	/*
 
@@ -72,7 +72,7 @@ struct _Managed {
 		tracking for us.
 
 	 */
-	GSList *sub;		/* Sub-objects ... mark these if we mark this */
+	GSList *sub; /* Sub-objects ... mark these if we mark this */
 
 	/* Set by subclasses as part of construction.
 	 */

@@ -1,6 +1,14 @@
+- try
+
+	wkkfhwf
+
+  leaves a row in the ws
+
 - add workspace load/save
 
-	so we can get a large workspace back for testing
+	- so we can load a large workspace back for testing
+
+	- implement "nip4 test.ws"
 
 - swap
 
@@ -17,11 +25,23 @@
 
 	- see workspaceview_drag_update()
 
+- style columns to be more griddy ... use a label for row name, add some bars
+
 - revise column open/close code
 
 	- watch signal on expander and use it to set the model
 
 	- also need to set expander state in refresh I guess?
+
+	- do column open/close animate?
+
+- animate workspace layout
+
+- watch column resize and trigger ws relayout
+
+- use a filemanager style left bar for the toolkit browser
+
+	- where should workspace local defs go?
 
 - columnview had just one child, a subcolumn ... that contains the grid widget
 
@@ -34,6 +54,8 @@
 
 - make a "progress" widget with throttled updates? could share with
   saveoptions, and move some code out of mainwindow
+
+	- we have progress.c, does that work?
 
 - there's a 20ms timeout in vobject_refresh_queue() ... tune this
 

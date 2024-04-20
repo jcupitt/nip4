@@ -88,11 +88,11 @@ gboolean
 is_super(Symbol *sym)
 {
 	Symbol *parent = symbol_get_parent(sym);
-	Compile *parent_compile = parent->expr->compile;
 
-	return parent_compile &&
-		is_class(parent_compile) &&
-		sym == parent_compile->super;
+	return parent &&
+		parent->expr->compile &&
+		is_class(parent->expr->compile) &&
+		parent->expr->compile->super == sym;
 }
 
 /* Is a sym the this member of some class.

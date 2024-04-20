@@ -31,18 +31,18 @@
  * the number of times it makes the reference.
  */
 struct _LinkExpr {
-	Link *link;			/* Link we are part of */
+	Link *link; /* Link we are part of */
 
-	Expr *expr;			/* Expr that references child */
-	int count;			/* Number of times expr references child */
-	gboolean dynamic;	/* True for dynamic link */
+	Expr *expr;		  /* Expr that references child */
+	int count;		  /* Number of times expr references child */
+	gboolean dynamic; /* True for dynamic link */
 };
 
 /* A link object!
  */
 struct _Link {
-	Symbol *parent;		/* This top-level symbol contains exprs ... */
-	Symbol *child;		/* ... which reference this symbol */
+	Symbol *parent; /* This top-level symbol contains exprs ... */
+	Symbol *child;	/* ... which reference this symbol */
 
 	/* Link serial number ... when we walk the symbol graph marking
 	 * stuff dirty, use this to stop repeat trips along links, and

@@ -611,24 +611,24 @@ static void
 columnview_activate(GtkEntry *self, gpointer user_data)
 {
 	Columnview *cview = COLUMNVIEW(user_data);
-    Column *col = COLUMN( VOBJECT( cview )->iobject );
-    Workspace *ws = col->ws;
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
+	Workspace *ws = col->ws;
 
 	GtkEntryBuffer *buffer = gtk_entry_get_buffer(self);
-	const char *text = gtk_entry_buffer_get_text( buffer );
+	const char *text = gtk_entry_buffer_get_text(buffer);
 
 	Symbol *sym;
 
-	if( !text || strspn( text, WHITESPACE ) == strlen( text ) )
-        return;
+	if (!text || strspn(text, WHITESPACE) == strlen(text))
+		return;
 
-    if( !(sym = workspace_add_def_recalc( ws, text )) ) {
-        error_alert( self );
-        symbol_recalculate_all();
-        return;
-    }
+	if (!(sym = workspace_add_def_recalc(ws, text))) {
+		error_alert(self);
+		symbol_recalculate_all();
+		return;
+	}
 
-    set_gentry( self, NULL );
+	set_gentry(self, NULL);
 }
 
 #define BIND(field) \

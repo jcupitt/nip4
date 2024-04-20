@@ -4,7 +4,7 @@
 /*
 
 	Copyright (C) 1991-2003 The National Gallery
-    Copyright (C) 2004-2023 libvips.org
+	Copyright (C) 2004-2023 libvips.org
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ workspacegroupview_dispose(GObject *object)
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(object);
 
 #ifdef DEBUG
-    printf("workspacegroupview_dispose:\n");
+	printf("workspacegroupview_dispose:\n");
 #endif /*DEBUG*/
 
 	UNPARENT(wsgview->notebook);
@@ -186,14 +186,14 @@ workspacegroupview_child_front(View *parent, View *child)
 static void
 workspacegroupview_new_tab(GtkButton *button, void *user_data)
 {
-    Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
+	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
 
 	printf("workspacegroupview_new_tab:\n");
 }
 
 #define BIND(field) \
-    gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-        Workspacegroupview, field);
+	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
+		Workspacegroupview, field);
 
 static void
 workspacegroupview_class_init(WorkspacegroupviewClass *class)
@@ -202,7 +202,7 @@ workspacegroupview_class_init(WorkspacegroupviewClass *class)
 	ViewClass *view_class = (ViewClass *) class;
 
 	gtk_widget_class_set_layout_manager_type(widget_class,
-        GTK_TYPE_BIN_LAYOUT);
+		GTK_TYPE_BIN_LAYOUT);
 	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
 		APP_PATH "/workspacegroupview.ui");
 	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
