@@ -40,13 +40,20 @@ app_init(App *app)
 static void
 app_activate(GApplication *gapp)
 {
-	MainWindow *win;
+	MainWindow *main;
 
 	printf("app_activate:\n");
 
-	win = main_window_new(APP(gapp));
+	main = main_window_new(APP(gapp));
 
-	gtk_window_present(GTK_WINDOW(win));
+	/* Make a start workspace and workspacegroup.
+	 * stuff into.
+	 */
+	Workspacegroup *wsg = workspacegroup_new_blank(main_workspaceroot, NULL);
+	Workspace *ws = WORKSPACE(icontainer_get_nth_child(ICONTAINER(wsg), 0));
+	main_window_set_wsg(main, wsg);
+
+	gtk_window_present(GTK_WINDOW(main));
 }
 
 static void
@@ -149,7 +156,7 @@ app_startup(GApplication *app)
 		"gtk-application-prefer-dark-theme", TRUE,
 		NULL);
 
-	/* Build our widgets.
+	/* Build our GUI widgets.
 	 */
 	MAIN_WINDOW_TYPE;
 	VIEW_TYPE;
@@ -163,6 +170,37 @@ app_startup(GApplication *app)
 	RHSVIEW_TYPE;
 	FORMULA_TYPE;
 	ITEXTVIEW_TYPE;
+
+	/* We have to init some of our other classes to get them registered
+	 * with the XML loader.
+	 */
+	printf("app_startup: FIXME ... register more types\n");
+	/*
+	(void) g_type_class_ref(TYPE_CLOCK);
+	(void) g_type_class_ref(TYPE_COLOUR);
+	(void) g_type_class_ref(TYPE_EXPRESSION);
+	(void) g_type_class_ref(TYPE_FONTNAME);
+	(void) g_type_class_ref(TYPE_GROUP);
+	(void) g_type_class_ref(TYPE_IARROW);
+	(void) g_type_class_ref(TYPE_IIMAGE);
+	(void) g_type_class_ref(TYPE_IREGION);
+	(void) g_type_class_ref(TYPE_MATRIX);
+	(void) g_type_class_ref(TYPE_NUMBER);
+	(void) g_type_class_ref(TYPE_OPTION);
+	(void) g_type_class_ref(TYPE_PATHNAME);
+	(void) g_type_class_ref(TYPE_PLOT);
+	(void) g_type_class_ref(TYPE_REAL);
+	(void) g_type_class_ref(TYPE_SLIDER);
+	(void) g_type_class_ref(TYPE_STRING);
+	(void) g_type_class_ref(TYPE_TOGGLE);
+	(void) g_type_class_ref(TYPE_VECTOR);
+	 */
+	(void) g_type_class_ref(WORKSPACE_TYPE);
+	(void) g_type_class_ref(COLUMN_TYPE);
+	(void) g_type_class_ref(SUBCOLUMN_TYPE);
+	(void) g_type_class_ref(ROW_TYPE);
+	(void) g_type_class_ref(RHS_TYPE);
+	(void) g_type_class_ref(ITEXT_TYPE);
 
 	/* We have custom CSS for our dynamic widgets.
 	 */
@@ -181,14 +219,12 @@ app_startup(GApplication *app)
 }
 
 static void
-app_open(GApplication *app,
-	GFile **files, int n_files, const char *hint)
+app_open(GApplication *app, GFile **files, int n_files, const char *hint)
 {
 	printf("app_open:\n");
 
 	for (int i = 0; i < n_files; i++) {
 		MainWindow *win = main_window_new(APP(app));
-
 		main_window_set_gfile(win, files[i]);
 		gtk_window_present(GTK_WINDOW(win));
 	}

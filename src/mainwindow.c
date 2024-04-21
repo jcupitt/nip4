@@ -55,6 +55,10 @@ struct _MainWindow {
 	 */
 	GTimer *progress_timer;
 	double last_progress_time;
+
+	/* Batch refresh with this, it's slow.
+	 */
+	guint refresh_timeout;
 };
 
 // current autocalc state
@@ -119,7 +123,8 @@ main_window_dispose(GObject *object)
 #endif /*DEBUG*/
 
 	VIPS_FREEF(g_timer_destroy, main->progress_timer);
-	VIPS_UNREF(main->wsg);
+	VIPS_FREEF(g_source_remove, main->refresh_timeout);
+	IDESTROY(main->wsg);
 
 	G_OBJECT_CLASS(main_window_parent_class)->dispose(object);
 }
@@ -229,8 +234,6 @@ get_parent(GFile *file)
 
 	return parent ? parent : g_file_new_for_path("/");
 }
-
-static void main_window_set_wsg(MainWindow *main, Workspacegroup *wsg);
 
 static void
 main_window_open_result(GObject *source_object,
@@ -441,11 +444,87 @@ main_window_class_init(MainWindowClass *class)
 	BIND_VARIABLE(MainWindow, wsgview);
 }
 
+static Workspace *
+main_window_get_workspace( MainWindow *main )
+{
+	Workspace *ws;
+
+	if( main->wsg &&
+		(ws = WORKSPACE( ICONTAINER( main->wsg )->current )) )
+		return ws;
+
+	return NULL;
+}
+
+static void
+main_window_title_update(MainWindow *main)
+{
+	Workspace *ws;
+	char *filename;
+
+	char txt1[512];
+	char txt2[512];
+	VipsBuf title = VIPS_BUF_STATIC( txt1 );
+	VipsBuf subtitle = VIPS_BUF_STATIC( txt2 );
+
+	if( main->wsg &&
+		FILEMODEL( main->wsg )->modified )
+		vips_buf_appendf( &title, "*" );
+
+	if( main->wsg &&
+		(filename = FILEMODEL( main->wsg )->filename) ) {
+		g_autofree char *base = g_path_get_basename( filename );
+		g_autofree char *dir = g_path_get_dirname( filename );
+
+		vips_buf_appendf( &title, "%s", base );
+		vips_buf_appendf( &subtitle, "%s", dir );
+	}
+	else
+		vips_buf_appends( &title, _( "unsaved workspace" ) );
+
+	if( (ws = main_window_get_workspace( main )) ) {
+		vips_buf_appends( &title, " - " );
+		vips_buf_appendf( &title, "%s", IOBJECT( ws->sym )->name );
+		if( ws->compat_major ) {
+			vips_buf_appends( &title, " - " );
+			vips_buf_appends( &title, _( "compatibility mode" ) );
+			vips_buf_appendf( &title, " %d.%d",
+				ws->compat_major,
+				ws->compat_minor );
+		}
+	}
+
+	gtk_label_set_text(GTK_LABEL(main->title), vips_buf_all( &title ));
+	gtk_label_set_text(GTK_LABEL(main->subtitle), vips_buf_all( &subtitle ));
+}
+
+static gboolean
+main_window_refresh_timeout( gpointer user_data )
+{
+	MainWindow *main = MAIN_WINDOW( user_data );
+
+	main->refresh_timeout = 0;
+
+	main_window_title_update(main);
+
+	// quite a lot of stuff to go in here
+
+	return FALSE;
+}
+
+static void
+main_window_refresh( MainWindow *main )
+{
+	VIPS_FREEF( g_source_remove, main->refresh_timeout );
+
+	main->refresh_timeout = g_timeout_add( 100,
+		(GSourceFunc) main_window_refresh_timeout, main );
+}
+
 static void
 main_window_wsg_changed(Workspacegroup *wsg, MainWindow *main)
 {
-	printf("main_window_wsg_changed: FIXME\n");
-    //main_window_refresh(mainw);
+    main_window_refresh(main);
 }
 
 static void
@@ -454,9 +533,11 @@ main_window_wsg_destroy(Workspacegroup *wsg, MainWindow *main)
     main->wsg = NULL;
 }
 
-static void
+void
 main_window_set_wsg(MainWindow *main, Workspacegroup *wsg)
 {
+	g_assert(!main->wsg);
+
 	main->wsg = wsg;
 	iobject_ref_sink(IOBJECT(main->wsg));
 
@@ -467,6 +548,10 @@ main_window_set_wsg(MainWindow *main, Workspacegroup *wsg)
         G_CALLBACK(main_window_wsg_changed), main, 0);
     g_signal_connect_object(main->wsg, "destroy",
         G_CALLBACK(main_window_wsg_destroy), main, 0);
+
+	/* Set start state.
+	 */
+	(void) main_window_refresh( main );
 }
 
 void
@@ -476,16 +561,20 @@ main_window_set_gfile(MainWindow *main, GFile *gfile)
 	printf("main_window_set_gfile:\n");
 #endif /*DEBUG*/
 
-	gtk_label_set_text(GTK_LABEL(main->title), "Untitled");
-	gtk_label_set_text(GTK_LABEL(main->subtitle), NULL);
-
 	if (gfile) {
 		g_autofree char *file = g_file_get_path(gfile);
-		gtk_label_set_text(GTK_LABEL(main->subtitle), file);
+		Workspaceroot *root = main_workspaceroot;
 
-		error_top("Unable to load \"%s\"", file);
-		error_sub("Workspace load not implemented");
-		main_window_error(main);
+		Workspacegroup *wsg;
+
+		if (!(wsg = workspacegroup_new_from_file(root, file, file))) {
+			main_window_error(main);
+			return;
+		}
+
+		main_window_set_wsg(main, wsg);
+
+		symbol_recalculate_all();
 	}
 }
 
@@ -518,14 +607,16 @@ main_window_new(App *app)
 		"application", app,
 		NULL);
 
+	printf("main_window_new: FIXME .. make col A?\n");
+
 	/* Make a start workspace and workspacegroup to load
 	 * stuff into.
-	 */
 	Workspacegroup *wsg = workspacegroup_new_blank(main_workspaceroot, NULL);
 	Workspace *ws = WORKSPACE(icontainer_get_nth_child(ICONTAINER(wsg), 0));
 	main_window_set_wsg(main, wsg);
 
 	main_window_set_gfile(main, NULL);
+	 */
 
 	// we can't do this in _init() since we need app to be set
 	main_window_init_settings(main);

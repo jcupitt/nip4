@@ -31,8 +31,8 @@
 
 /* A lot of this file is just for debugging. Uncomment to enable all the
  * debugging code.
-#define DEBUG
  */
+#define DEBUG
 
 /* Dump a binary operator.
  */
@@ -334,10 +334,10 @@ dump_expr(Expr *expr)
 			IOBJECT(sym)->name, bool_to_char(expr->err));
 	if (expr->error_top)
 		printf("%s->expr->error_top = \"%s\"\n",
-			IOBJECT(sym)->name, NN(expr->error_top));
+			IOBJECT(sym)->name, expr->error_top);
 	if (expr->error_sub)
 		printf("%s->expr->error_sub = \"%s\"\n",
-			IOBJECT(sym)->name, NN(expr->error_sub));
+			IOBJECT(sym)->name, expr->error_sub);
 }
 
 /* Dump a compile, tiny.
@@ -369,11 +369,11 @@ dump_compile(Compile *compile)
 		IOBJECT(sym)->name, bool_to_char(compile->has_super));
 
 	printf("%s->compile->text = \"%s\"\n",
-		IOBJECT(sym)->name, NN(compile->text));
+		IOBJECT(sym)->name, compile->text);
 	printf("%s->compile->prhstext = \"%s\"\n",
-		IOBJECT(sym)->name, NN(compile->prhstext));
+		IOBJECT(sym)->name, compile->prhstext);
 	printf("%s->compile->rhstext = \"%s\"\n",
-		IOBJECT(sym)->name, NN(compile->rhstext));
+		IOBJECT(sym)->name, compile->rhstext);
 #endif /*VERBOSE*/
 
 	if (compile->tree) {
@@ -759,7 +759,7 @@ dump_parseconst(ParseConst *pc)
 		break;
 
 	case PARSE_CONST_BOOL:
-		printf("%s", bool_to_char(pc->val.bool));
+		printf("%s", bool_to_char(pc->val.bol));
 		break;
 
 	case PARSE_CONST_CHAR:

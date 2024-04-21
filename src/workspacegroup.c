@@ -844,7 +844,7 @@ workspacegroup_new_from_file(Workspaceroot *wsr,
 		iobject_set(IOBJECT(wsg), name, NULL);
 	}
 	else
-		iobject_set(IOBJECT(wsg), "untitled", NULL);
+		iobject_set(IOBJECT(wsg), "Untitled", NULL);
 
 	return wsg;
 }

@@ -1,10 +1,4 @@
-- add workspace load/save
-
-	- so we can load a large workspace back for testing
-
-	- implement "nip4 test.ws"
-
-  save works, open not so much
+- ^O should do open
 
 - try
 

@@ -566,8 +566,7 @@ gboolean
 workspace_load_file_buf(VipsBuf *buf, const char *filename)
 {
 	if (callv_string_filenamef(
-			(callv_string_fn) vips_format_for_file,
-			"%s", filename))
+			(callv_string_fn) vips_format_for_file, "%s", filename))
 		vips_buf_appends(buf, "Image_file");
 	else
 		vips_buf_appends(buf, "Matrix_file");
@@ -775,6 +774,7 @@ workspace_load(Model *model,
 	ModelLoadState *state, Model *parent, xmlNode *xnode)
 {
 	Workspace *ws = WORKSPACE(model);
+
 	char buf[FILENAME_MAX];
 	char *txt;
 
@@ -840,11 +840,9 @@ workspace_save(Model *model, xmlNode *xnode)
 		!set_dprop(xthis, "offset", ws->offset) ||
 		!set_sprop(xthis, "locked", bool_to_char(ws->locked)) ||
 		!set_iprop(xthis, "lpane_position", ws->lpane_position) ||
-		!set_sprop(xthis, "lpane_open",
-			bool_to_char(ws->lpane_open)) ||
+		!set_sprop(xthis, "lpane_open", bool_to_char(ws->lpane_open)) ||
 		!set_iprop(xthis, "rpane_position", ws->rpane_position) ||
-		!set_sprop(xthis, "rpane_open",
-			bool_to_char(ws->rpane_open)) ||
+		!set_sprop(xthis, "rpane_open", bool_to_char(ws->rpane_open)) ||
 		!set_sprop(xthis, "local_defs", ws->local_defs) ||
 		!set_sprop(xthis, "name", IOBJECT(ws)->name) ||
 		!set_sprop(xthis, "caption", IOBJECT(ws)->caption))

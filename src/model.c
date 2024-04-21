@@ -55,10 +55,6 @@ G_DEFINE_TYPE(Model, model, ICONTAINER_TYPE)
 
 static guint model_signals[SIG_LAST] = { 0 };
 
-/* Base model ... built at startup.
- */
-static Model *model_base = NULL;
-
 /* All the model classes which can be built from XML.
  */
 static GSList *model_registered_loadable = NULL;
@@ -734,42 +730,6 @@ model_init(Model *model)
 	model->window_y = 0;
 	model->window_width = -1;
 	model->window_height = 0;
-}
-
-void
-model_base_init(void)
-{
-	model_base = MODEL(g_object_new(MODEL_TYPE, NULL));
-
-	printf("model_base_init: FIXME ... register types for model load/save\n");
-	/* We have to init some of our other classes to get them registered
-	 * with the class loader.
-	(void) g_type_class_ref(TYPE_CLOCK);
-	(void) g_type_class_ref(TYPE_COLOUR);
-	(void) g_type_class_ref(TYPE_EXPRESSION);
-	(void) g_type_class_ref(TYPE_FONTNAME);
-	(void) g_type_class_ref(TYPE_GROUP);
-	(void) g_type_class_ref(TYPE_IARROW);
-	(void) g_type_class_ref(TYPE_IIMAGE);
-	(void) g_type_class_ref(TYPE_IREGION);
-	(void) g_type_class_ref(TYPE_ITEXT);
-	(void) g_type_class_ref(TYPE_MATRIX);
-	(void) g_type_class_ref(TYPE_NUMBER);
-	(void) g_type_class_ref(TYPE_OPTION);
-	(void) g_type_class_ref(TYPE_PATHNAME);
-	(void) g_type_class_ref(TYPE_PLOT);
-	(void) g_type_class_ref(TYPE_REAL);
-	(void) g_type_class_ref(TYPE_SLIDER);
-	(void) g_type_class_ref(TYPE_STRING);
-	(void) g_type_class_ref(TYPE_TOGGLE);
-	(void) g_type_class_ref(TYPE_VECTOR);
-
-	(void) g_type_class_ref(TYPE_RHS);
-	(void) g_type_class_ref(TYPE_ROW);
-	(void) g_type_class_ref(TYPE_SUBCOLUMN);
-	(void) g_type_class_ref(TYPE_WORKSPACE);
-	(void) g_type_class_ref(TYPE_COLUMN);
-	 */
 }
 
 /* need a new thing to do this

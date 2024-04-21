@@ -44,8 +44,8 @@
  */
 
 /* Trace create/destroy.
-#define DEBUG_NEW
  */
+#define DEBUG_NEW
 
 /* Dirty/clean stuff.
 #define DEBUG_DIRTY
@@ -975,7 +975,7 @@ static void
 row_init(Row *row)
 {
 #ifdef DEBUG
-	printf("row_init\n");
+	printf("row_init:\n");
 #endif /*DEBUG*/
 
 	row->scol = NULL;

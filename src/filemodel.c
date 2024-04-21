@@ -66,8 +66,7 @@ filemodel_unregister(Filemodel *filemodel)
 {
 	if (filemodel->registered) {
 		filemodel->registered = FALSE;
-		filemodel_registered = g_slist_remove(filemodel_registered,
-			filemodel);
+		filemodel_registered = g_slist_remove(filemodel_registered, filemodel);
 
 #ifdef DEBUG
 		printf("filemodel_unregister: %s \"%s\" (%p)\n",
@@ -87,8 +86,7 @@ filemodel_top_load(Filemodel *filemodel,
 	FilemodelClass *filemodel_class = FILEMODEL_GET_CLASS(filemodel);
 
 	if (filemodel_class->top_load) {
-		if (!filemodel_class->top_load(filemodel, state,
-				parent, xnode))
+		if (!filemodel_class->top_load(filemodel, state, parent, xnode))
 			return filemodel;
 	}
 	else {
@@ -489,8 +487,7 @@ filemodel_load_all_xml(Filemodel *filemodel,
 		!xnode->nsDef ||
 		!is_prefix(NAMESPACE, (char *) xnode->nsDef->href)) {
 		error_top(_("Load failed."));
-		error_sub(_("Can't load XML file \"%s\", "
-					"it's not a %s save file."),
+		error_sub(_("Can't load XML file \"%s\", it's not a %s save file."),
 			state->filename, PACKAGE);
 		return FALSE;
 	}
@@ -499,8 +496,7 @@ filemodel_load_all_xml(Filemodel *filemodel,
 			&state->major, &state->minor, &state->micro) != 3) {
 		error_top(_("Load failed."));
 		error_sub(_("Can't load XML file \"%s\", "
-					"unable to extract version information from "
-					"namespace."),
+					"unable to extract version information from namespace."),
 			state->filename);
 		return FALSE;
 	}
@@ -599,8 +595,7 @@ filemodel_load_all(Filemodel *filemodel, Model *parent,
 	}
 	else {
 		error_top(_("Not implemented."));
-		error_sub(_("_%s() not implemented for class \"%s\"."),
-			"load", tname);
+		error_sub(_("_%s() not implemented for class \"%s\"."), "load", tname);
 		return FALSE;
 	}
 
@@ -614,8 +609,7 @@ filemodel_load_all(Filemodel *filemodel, Model *parent,
 /* Load iOpenFile into filemodel ... can mean merge as well as init.
  */
 gboolean
-filemodel_load_all_openfile(Filemodel *filemodel, Model *parent,
-	iOpenFile *of)
+filemodel_load_all_openfile(Filemodel *filemodel, Model *parent, iOpenFile *of)
 {
 	ModelClass *model_class = MODEL_GET_CLASS(filemodel);
 	const char *tname = G_OBJECT_CLASS_NAME(model_class);
@@ -638,8 +632,7 @@ filemodel_load_all_openfile(Filemodel *filemodel, Model *parent,
 	}
 	else {
 		error_top(_("Not implemented."));
-		error_sub(_("_%s() not implemented for class \"%s\"."),
-			"load", tname);
+		error_sub(_("_%s() not implemented for class \"%s\"."), "load", tname);
 		return FALSE;
 	}
 

@@ -193,7 +193,7 @@ vobject_iobject_destroy(iObject *iobject, vObject *vobject)
 	// refcount to 0 and trigger _dispose, as it probably should
 	//
 	// we need to fix vobject refcounts so that widgets are disposed correctly
-	printf("vobject_iobject_destroy: FIXME view objhect refcounts are wrong\n");
+	printf("vobject_iobject_destroy: FIXME view object refcounts are wrong\n");
 	vobject_refresh_dequeue(vobject);
     UNPARENT(vobject);
 }
