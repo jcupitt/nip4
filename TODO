@@ -1,3 +1,9 @@
+- add drag on background for workspace scroll
+
+- add bg scroll for column drag outside viewport
+
+	- see workspaceview_drag_update()
+
 - ^O should do open
 
 - try
@@ -18,12 +24,6 @@
 	still 2 after the unparent
 
   patched around this in vobject_iobject_destroy, but we still need to fix it
-
-- add drag on background for workspace scroll
-
-- add bg scroll for column drag outside viewport
-
-	- see workspaceview_drag_update()
 
 - style columns to be more griddy ... use a label for row name, add some bars
 

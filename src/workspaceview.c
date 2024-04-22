@@ -257,7 +257,7 @@ workspaceview_dispose(GObject *object)
 	Workspaceview *wview;
 
 #ifdef DEBUG
-	printf("workspaceview_destroy: %p\n", object);
+	printf("workspaceview_dispose: %p\n", object);
 #endif /*DEBUG*/
 
 	g_return_if_fail(object != NULL);
@@ -265,12 +265,11 @@ workspaceview_dispose(GObject *object)
 
 	wview = WORKSPACEVIEW(object);
 
-	/* Instance destroy.
-	 */
 	workspaceview_scroll_stop(wview);
 	FREESID(wview->watch_changed_sid, main_watchgroup);
 	VIPS_UNREF(wview->popup);
 	UNPARENT(wview->right_click_menu);
+	UNPARENT(wview->scrolled_window);
 
 	G_OBJECT_CLASS(workspaceview_parent_class)->dispose(object);
 }

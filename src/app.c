@@ -221,8 +221,6 @@ app_startup(GApplication *app)
 static void
 app_open(GApplication *app, GFile **files, int n_files, const char *hint)
 {
-	printf("app_open:\n");
-
 	for (int i = 0; i < n_files; i++) {
 		MainWindow *win = main_window_new(APP(app));
 		main_window_set_gfile(win, files[i]);

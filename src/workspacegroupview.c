@@ -110,8 +110,6 @@ workspacegroupview_rename_cb(GtkWidget *wid, GtkWidget *host,
 		workspacegroupview_rename_sub, _("Rename Tab"));
 	iwindow_set_parent(IWINDOW(ss), GTK_WIDGET(wview));
 	iwindow_build(IWINDOW(ss));
-
-	gtk_widget_show(ss);
 }
  */
 

@@ -124,7 +124,6 @@ main_window_dispose(GObject *object)
 
 	VIPS_FREEF(g_timer_destroy, main->progress_timer);
 	VIPS_FREEF(g_source_remove, main->refresh_timeout);
-	IDESTROY(main->wsg);
 
 	G_OBJECT_CLASS(main_window_parent_class)->dispose(object);
 }
