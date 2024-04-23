@@ -185,8 +185,8 @@ static void
 vobject_iobject_destroy(iObject *iobject, vObject *vobject)
 {
 #ifdef DEBUG
-    printf("vobject_iobject_destroy: iobject %s \"%s\"\n",
-        G_OBJECT_TYPE_NAME( iobject ), iobject->name);
+	printf("vobject_iobject_destroy: iobject %s \"%s\"\n",
+		G_OBJECT_TYPE_NAME(iobject), iobject->name);
 #endif /*DEBUG*/
 
 	// added the explicit dequeue since unparenting does nopt drop the
@@ -195,7 +195,7 @@ vobject_iobject_destroy(iObject *iobject, vObject *vobject)
 	// we need to fix vobject refcounts so that widgets are disposed correctly
 	printf("vobject_iobject_destroy: FIXME view object refcounts are wrong\n");
 	vobject_refresh_dequeue(vobject);
-    UNPARENT(vobject);
+	UNPARENT(vobject);
 }
 
 /* Link to iobject.
@@ -283,7 +283,7 @@ vobject_real_link(vObject *vobject, iObject *iobject)
 	g_signal_connect_object(iobject, "changed",
 		G_CALLBACK(vobject_iobject_changed), vobject, G_CONNECT_DEFAULT);
 	g_signal_connect_object(iobject, "destroy",
-        G_CALLBACK(vobject_iobject_destroy), vobject, 0);
+		G_CALLBACK(vobject_iobject_destroy), vobject, 0);
 }
 
 static void

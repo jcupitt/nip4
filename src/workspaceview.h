@@ -47,10 +47,10 @@
 /* State ... for mouse titlebar interactions.
  */
 typedef enum {
-	WVIEW_WAIT,					/* Rest state */
-	WVIEW_SELECT,				/* Select start, but no drag yet */
-	WVIEW_DRAG,					/* Drag state */
-	WVIEW_EDIT					/* Editing caption */
+	WVIEW_WAIT,	  /* Rest state */
+	WVIEW_SELECT, /* Select start, but no drag yet */
+	WVIEW_DRAG,	  /* Drag state */
+	WVIEW_EDIT	  /* Editing caption */
 } WorkspaceviewState;
 
 struct _Workspaceview {
@@ -77,25 +77,25 @@ struct _Workspaceview {
 
 	/* Our state machine for interactions.
 	 */
-	WorkspaceviewState state;	/* Waiting or dragging */
-	Columnview *drag_cview;		/* Column we are dragging (if any) */
+	WorkspaceviewState state; /* Waiting or dragging */
+	Columnview *drag_cview;	  /* Column we are dragging (if any) */
 
 	/* We need to track three (!!) coordinates in a drag, since the
 	 * ->fixed might be scrolling around.
 	 */
-	double start_x;				/* gtk's ->fixed relative drag start position */
+	double start_x; /* gtk's ->fixed relative drag start position */
 	double start_y;
-	int obj_x;					/* Object position at start of drag */
+	int obj_x; /* Object position at start of drag */
 	int obj_y;
-	int screen_x;				/* display-relative drag start */
+	int screen_x; /* display-relative drag start */
 	int screen_y;
 
 	/* Geometry.
 	 */
-	VipsRect vp;				/* Viewport pos and size */
-	int width;					/* Size of fixed area */
+	VipsRect vp; /* Viewport pos and size */
+	int width;	 /* Size of fixed area */
 	int height;
-	VipsRect bounding;			/* Bounding box of columnviews */
+	VipsRect bounding; /* Bounding box of columnviews */
 
 	/* Placement hints for new columns.
 	 */

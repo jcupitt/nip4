@@ -147,6 +147,44 @@ get_prefix(void)
 	return prefix_buffer;
 }
 
+static void *
+main_load_def(const char *filename)
+{
+	g_autofree char *dirname = g_path_get_dirname(filename);
+
+	Toolkit *kit;
+
+	if (!main_option_no_load_menus ||
+		dirname[0] == '_') {
+		progress_update_loading(0, dirname);
+
+		if (!(kit = toolkit_new_from_file(main_toolkitgroup, filename)))
+			error_alert(NULL);
+		else
+			filemodel_set_auto_load(FILEMODEL(kit));
+	}
+
+	return NULL;
+}
+
+static void *
+main_load_wsg(const char *filename)
+{
+	g_autofree char *dirname = g_path_get_dirname(filename);
+
+	Workspacegroup *wsg;
+
+	progress_update_loading(0, dirname);
+
+	if (!(wsg = workspacegroup_new_from_file(main_workspaceroot,
+			  filename, filename)))
+		error_alert(NULL);
+	else
+		filemodel_set_auto_load(FILEMODEL(wsg));
+
+	return NULL;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -244,7 +282,61 @@ main(int argc, char **argv)
 #endif /*OS_WIN32*/
 #endif /*DEBUG_FATAL*/
 
-	main_stdin = ifile_open_read_stdin();
+#ifdef DEBUG
+	printf("main: sizeof(HeapNode) == %zd\n", sizeof(HeapNode));
+
+	/* Should be 3 pointers, hopefully.
+	 */
+	if (sizeof(HeapNode) != 3 * sizeof(void *))
+		printf("*** struct packing problem!\n");
+#endif /*DEBUG*/
+
+	/* Want numeric locale to be "C", so we have C rules for doing
+	 * double <-> string (ie. no "," for decimal point).
+	 */
+	setlocale(LC_ALL, "");
+	setlocale(LC_NUMERIC, "C");
+
+	/* Make sure our LC_NUMERIC setting is not trashed.
+	 */
+	gtk_disable_setlocale();
+
+	/* Pass config.h stuff down to .ws files.
+	 */
+	setenvf("PACKAGE", "%s", PACKAGE);
+	setenvf("VERSION", "%s", VERSION);
+
+	/* Name of the dir we store our config stuff in. This can get used by
+	 * Preferences.ws.
+	 */
+	setenvf("SAVEDIR", "%s", get_savedir());
+
+	/* Path separator on this platform.
+	 */
+	setenvf("SEP", "%s", G_DIR_SEPARATOR_S);
+
+	/* Executable file extension (eg. ".exe" on Windows). Used by some defs.
+	 */
+	setenvf("EXEEXT", "%s", EXEEXT);
+
+#ifdef OS_WIN32
+	{
+		/* No HOME on windows ... make one from HOMEDRIVE and HOMEDIR (via
+		 * glib).
+		 */
+		const char *home;
+		char buf[FILENAME_MAX];
+
+		if (!(home = g_getenv("HOME")))
+			home = g_get_home_dir();
+
+		/* We need native paths.
+		 */
+		strncpy(buf, home, FILENAME_MAX);
+		nativeize_path(buf);
+		setenvf("HOME", "%s", buf);
+	}
+#endif /*OS_WIN32*/
 
 #ifdef HAVE_GETRLIMIT
 	/* Make sure we have lots of file descriptors. Some platforms have cur
@@ -278,6 +370,8 @@ main(int argc, char **argv)
 	printf("nip4.main: blocking VipsForeignLoadMagick\n");
 	vips_operation_block_set("VipsForeignLoadMagick", TRUE);
 
+	main_stdin = ifile_open_read_stdin();
+
 	path_init();
 	reduce_context = reduce_new();
 
@@ -289,6 +383,30 @@ main(int argc, char **argv)
 
 	main_toolkitgroup = toolkitgroup_new(symbol_root);
 	iobject_ref_sink(IOBJECT(main_toolkitgroup));
+
+	/* Add builtin toolkit.
+	 */
+	builtin_init();
+
+	/* Load up all defs and wses.
+	 */
+#ifdef DEBUG
+	printf("definitions init\n");
+#endif /*DEBUG*/
+	(void) path_map(PATH_START, "*.def", (path_map_fn) main_load_def, NULL);
+
+#ifdef DEBUG
+	printf("ws init\n");
+#endif /*DEBUG*/
+	(void) path_map(PATH_START, "*.ws", (path_map_fn) main_load_wsg, NULL);
+
+	/* Recalc to build all classes and gets prefs working.
+	 *
+	 * We have to do this in batch mode since we can find dirties through
+	 * dynamic lookups. Even though you might think we could just follow
+	 * recomps.
+	 */
+	symbol_recalculate_all_force(TRUE);
 
 	app = app_new();
 

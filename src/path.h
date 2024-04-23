@@ -37,7 +37,9 @@ char *path_rewrite_file(const char *patt);
 
 GSList *path_parse(const char *path);
 char *path_unparse(GSList *path);
+void path_print(GSList *path);
 void path_free2(GSList *path);
+
 void *path_map(GSList *path, const char *patt, path_map_fn fn, void *a);
 void *path_map_dir(const char *dir, const char *patt,
 	path_map_fn fn, void *a);

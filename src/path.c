@@ -25,8 +25,8 @@
  */
 
 /* show path searches
-#define DEBUG_SEARCH
  */
+#define DEBUG_SEARCH
 
 /* show path rewrites
 #define DEBUG_REWRITE
@@ -320,15 +320,6 @@ path_parse(const char *path)
 	return op;
 }
 
-/* Free a path. path_free() is reserved n OS X :(
- */
-void
-path_free2(GSList *path)
-{
-	slist_map(path, (SListMapFn) g_free, NULL);
-	g_slist_free(path);
-}
-
 /* Sub-fn of below. Add length of this string + 1 (for ':').
  */
 static int
@@ -367,6 +358,22 @@ path_unparse(GSList *path)
 		buf[len - 1] = '\0';
 
 	return buf;
+}
+
+void
+path_print(GSList *path)
+{
+	g_autofree char *str = path_unparse(path);
+	printf("%s", str);
+}
+
+/* Free a path. path_free() is reserved n OS X :(
+ */
+void
+path_free2(GSList *path)
+{
+	slist_map(path, (SListMapFn) g_free, NULL);
+	g_slist_free(path);
 }
 
 /* Track this stuff during a file search.
@@ -612,4 +619,14 @@ path_init(void)
 	vips_snprintf(buf, FILENAME_MAX, "%s/tmp", get_savedir());
 	path_tmp_default = g_strdup(buf);
 #endif /*DEBUG_LOCAL*/
+
+	printf("path_start_default = ");
+	path_print(path_start_default);
+	printf("\n");
+
+	printf("path_search_default = ");
+	path_print(path_search_default);
+	printf("\n");
+
+	printf("path_tmp_default = %s\n", path_tmp_default);
 }

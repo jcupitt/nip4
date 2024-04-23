@@ -107,3 +107,4 @@ install_data(application_id + '.metainfo.xml',
 meson.add_install_script('meson_post_install.py')
 
 subdir('src')
+subdir('share')

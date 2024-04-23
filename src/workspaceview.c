@@ -748,8 +748,8 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 		// coordinate space ... we want screen-relative coordinates, since
 		// fixed might be scrolling
 		graphene_point_t fixed = GRAPHENE_POINT_INIT(
-				wview->start_x + offset_x,
-				wview->start_y + offset_y);
+			wview->start_x + offset_x,
+			wview->start_y + offset_y);
 		graphene_point_t screen;
 		if (!gtk_widget_compute_point(wview->fixed, GTK_WIDGET(wview),
 				&fixed, &screen))
@@ -1011,14 +1011,14 @@ workspaceview_init(Workspaceview *wview)
 		GTK_SCROLLED_WINDOW(wview->scrolled_window);
 	wview->hadj = gtk_scrolled_window_get_hadjustment(scrolled_window);
 	wview->vadj = gtk_scrolled_window_get_vadjustment(scrolled_window);
-    g_signal_connect(G_OBJECT(wview->hadj), "value_changed",
-        G_CALLBACK(workspaceview_scroll_adjustment_cb), wview );
-    g_signal_connect(G_OBJECT(wview->hadj), "changed",
-        G_CALLBACK(workspaceview_scroll_adjustment_cb), wview );
-    g_signal_connect(G_OBJECT(wview->vadj), "value_changed",
-        G_CALLBACK(workspaceview_scroll_adjustment_cb), wview );
-    g_signal_connect(G_OBJECT(wview->vadj), "changed",
-        G_CALLBACK(workspaceview_scroll_adjustment_cb), wview );
+	g_signal_connect(G_OBJECT(wview->hadj), "value_changed",
+		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview);
+	g_signal_connect(G_OBJECT(wview->hadj), "changed",
+		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview);
+	g_signal_connect(G_OBJECT(wview->vadj), "value_changed",
+		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview);
+	g_signal_connect(G_OBJECT(wview->vadj), "changed",
+		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview);
 
 	// a lot of stuff to go in here
 	printf("workspaceview_init: FIXME we must do stuff\n");

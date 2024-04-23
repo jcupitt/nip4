@@ -15,3 +15,6 @@
 #define PAINTBOX_MAX_UNDO (10)
 #define POPUP_NEW_ROWS (FALSE)
 #define CALC_RELOAD (FALSE)
+#define PATH_SEARCH path_search_default
+#define PATH_START path_start_default
+#define PATH_TMP path_tmp_default

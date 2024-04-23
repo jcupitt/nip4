@@ -1,4 +1,12 @@
-- load toolkits
+- add builtins
+
+	eg try
+
+		reverse [10..1]
+
+	get
+
+		fold.xs.is_list is not defined
 
 - add image viewer
 

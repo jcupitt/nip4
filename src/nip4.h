@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <locale.h>
 #include <ctype.h>
 #include <fcntl.h>
 #include <setjmp.h>
@@ -68,6 +69,14 @@
 
 #endif /*ENABLE_NLS*/
 
+/* Executables need an extension.
+ */
+#if defined(G_PLATFORM_WIN32) || defined(G_WITH_CYGWIN)
+#define EXEEXT ".exe"
+#else /* !defined(G_PLATFORM_WIN32) && !defined(G_WITH_CYGWIN) */
+#define EXEEXT ""
+#endif /* defined(G_PLATFORM_WIN32) || defined(G_WITH_CYGWIN) */
+
 /* The tile size for image rendering.
  */
 #define TILE_SIZE (256)
@@ -76,8 +85,8 @@
  */
 #define MAX_TILES (2 * (4096 / TILE_SIZE) * (2048 / TILE_SIZE))
 
-// smallish static strings
-#define MAX_STRSIZE (256)
+// max def size, among other things
+#define MAX_STRSIZE (100000)
 
 // number of temp workspaces, items in file menu, etc.
 #define MAX_RECENT (10)

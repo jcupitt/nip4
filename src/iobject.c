@@ -115,9 +115,9 @@ iobject_finalize(GObject *gobject)
 	iobject_print(iobject);
 #endif /*DEBUG*/
 
- 	/* Unlike glib, we allow floating objects to be finalized. Handy if a
- 	 * _new() fails. So don't assert( !iobject->floating );
- 	 */
+	/* Unlike glib, we allow floating objects to be finalized. Handy if a
+	 * _new() fails. So don't assert( !iobject->floating );
+	 */
 
 	VIPS_FREE(iobject->name);
 	VIPS_FREE(iobject->caption);
@@ -186,8 +186,8 @@ iobject_init(iObject *iobject)
 #endif /*DEBUG*/
 
 	/* Init our instance fields.
- 	 */
- 	iobject->floating = TRUE;
+	 */
+	iobject->floating = TRUE;
 }
 
 /* Test the name field ... handy with map.

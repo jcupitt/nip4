@@ -192,6 +192,13 @@ error_get_sub(void)
 void
 error_alert(GtkWidget *parent)
 {
+	if (!parent) {
+		// just bail out in batch mode
+		printf("Error: %s\n", error_get_top());
+		printf("\t%s\n", error_get_sub());
+		vips_error_exit(NULL);
+	}
+
 	GtkRoot *root = gtk_widget_get_root(parent);
 
 	GtkAlertDialog *alert;
