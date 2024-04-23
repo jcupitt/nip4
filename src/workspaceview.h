@@ -47,10 +47,10 @@
 /* State ... for mouse titlebar interactions.
  */
 typedef enum {
-	WVIEW_WAIT,	  /* Rest state */
-	WVIEW_SELECT, /* Select start, but no drag yet */
-	WVIEW_DRAG,	  /* Drag state */
-	WVIEW_EDIT	  /* Editing caption */
+	WVIEW_WAIT,					/* Rest state */
+	WVIEW_SELECT,				/* Select start, but no drag yet */
+	WVIEW_DRAG,					/* Drag state */
+	WVIEW_EDIT					/* Editing caption */
 } WorkspaceviewState;
 
 struct _Workspaceview {
@@ -59,6 +59,8 @@ struct _Workspaceview {
 	Workspaceviewlabel *label;	/* For the notebook tab */
 	GtkWidget *fixed;			/* GtkFixed for tally */
 	GtkWidget *scrolled_window; /* ScrolledWindow holding fixed */
+	GtkAdjustment *hadj;
+	GtkAdjustment *vadj;
 
 	Toolkitbrowser *toolkitbrowser;
 	Workspacedefs *workspacedefs;
@@ -75,10 +77,18 @@ struct _Workspaceview {
 
 	/* Our state machine for interactions.
 	 */
-	WorkspaceviewState state; /* Waiting or dragging */
-	Columnview *drag_cview;	  /* Column we are dragging (if any) */
-	int start_x;			  /* Drag start */
-	int start_y;
+	WorkspaceviewState state;	/* Waiting or dragging */
+	Columnview *drag_cview;		/* Column we are dragging (if any) */
+
+	/* We need to track three (!!) coordinates in a drag, since the
+	 * ->fixed might be scrolling around.
+	 */
+	double start_x;				/* gtk's ->fixed relative drag start position */
+	double start_y;
+	int obj_x;					/* Object position at start of drag */
+	int obj_y;
+	int screen_x;				/* display-relative drag start */
+	int screen_y;
 
 	/* Background window scroll.
 	 */
@@ -86,18 +96,12 @@ struct _Workspaceview {
 	int u; /* Set by columnview for bg scroll */
 	int v;
 
-	/* Middle button drag scroll.
-	 */
-	gboolean dragging;
-	int drag_x;
-	int drag_y;
-
 	/* Geometry.
 	 */
-	VipsRect vp; /* Viewport pos and size */
-	int width;	 /* Size of fixed area */
+	VipsRect vp;				/* Viewport pos and size */
+	int width;					/* Size of fixed area */
 	int height;
-	VipsRect bounding; /* Bounding box of columnviews */
+	VipsRect bounding;			/* Bounding box of columnviews */
 
 	/* Placement hints for new columns.
 	 */

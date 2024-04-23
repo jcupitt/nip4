@@ -50,17 +50,13 @@ static const int workspaceview_layout_top = WORKSPACEVIEW_MARGIN_TOP;
 static void
 workspaceview_scroll_to(Workspaceview *wview, int x, int y)
 {
-	GtkAdjustment *hadj = gtk_scrolled_window_get_hadjustment(
-		GTK_SCROLLED_WINDOW(wview->scrolled_window));
-	GtkAdjustment *vadj = gtk_scrolled_window_get_vadjustment(
-		GTK_SCROLLED_WINDOW(wview->scrolled_window));
 	int nx, ny;
 
 	nx = VIPS_CLIP(0, x, wview->width - wview->vp.width);
 	ny = VIPS_CLIP(0, y, wview->height - wview->vp.height);
 
-	gtk_adjustment_set_value(hadj, nx);
-	gtk_adjustment_set_value(vadj, ny);
+	gtk_adjustment_set_value(wview->hadj, nx);
+	gtk_adjustment_set_value(wview->vadj, ny);
 }
 
 /* Scroll by an amount horizontally and vertically.
@@ -78,20 +74,17 @@ workspaceview_displace(Workspaceview *wview, int u, int v)
 void
 workspaceview_scroll(Workspaceview *wview, int x, int y, int w, int h)
 {
-	GtkAdjustment *hadj = gtk_scrolled_window_get_hadjustment(
-		GTK_SCROLLED_WINDOW(wview->scrolled_window));
-	GtkAdjustment *vadj = gtk_scrolled_window_get_vadjustment(
-		GTK_SCROLLED_WINDOW(wview->scrolled_window));
 	VipsRect *vp = &wview->vp;
+
 	int nx, ny;
 
-	nx = gtk_adjustment_get_value(hadj);
+	nx = gtk_adjustment_get_value(wview->hadj);
 	if (x + w > VIPS_RECT_RIGHT(vp))
 		nx = VIPS_MAX(0, (x + w) - vp->width);
 	if (x < nx)
 		nx = x;
 
-	ny = gtk_adjustment_get_value(vadj);
+	ny = gtk_adjustment_get_value(wview->vadj);
 	if (y + h > VIPS_RECT_BOTTOM(vp))
 		ny = VIPS_MAX(0, (y + h) - vp->height);
 	if (y < ny)
@@ -103,8 +96,8 @@ workspaceview_scroll(Workspaceview *wview, int x, int y, int w, int h)
 		x, y, w, h, nx, ny);
 #endif /*DEBUG*/
 
-	gtk_adjustment_set_value(hadj, nx);
-	gtk_adjustment_set_value(vadj, ny);
+	gtk_adjustment_set_value(wview->hadj, nx);
+	gtk_adjustment_set_value(wview->vadj, ny);
 }
 
 /* Update our geometry from the fixed widget.
@@ -113,18 +106,14 @@ static void
 workspaceview_scroll_update(Workspaceview *wview)
 {
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	GtkAdjustment *hadj = gtk_scrolled_window_get_hadjustment(
-		GTK_SCROLLED_WINDOW(wview->scrolled_window));
-	GtkAdjustment *vadj = gtk_scrolled_window_get_vadjustment(
-		GTK_SCROLLED_WINDOW(wview->scrolled_window));
 
-	wview->vp.left = gtk_adjustment_get_value(hadj);
-	wview->vp.top = gtk_adjustment_get_value(vadj);
-	wview->vp.width = gtk_adjustment_get_page_size(hadj);
-	wview->vp.height = gtk_adjustment_get_page_size(vadj);
+	wview->vp.left = gtk_adjustment_get_value(wview->hadj);
+	wview->vp.top = gtk_adjustment_get_value(wview->vadj);
+	wview->vp.width = gtk_adjustment_get_page_size(wview->hadj);
+	wview->vp.height = gtk_adjustment_get_page_size(wview->vadj);
 
-	wview->width = gtk_adjustment_get_upper(hadj);
-	wview->height = gtk_adjustment_get_upper(vadj);
+	wview->width = gtk_adjustment_get_upper(wview->hadj);
+	wview->height = gtk_adjustment_get_upper(wview->vadj);
 
 	/* Update vp hint in model too.
 	 */
@@ -148,8 +137,7 @@ workspaceview_columnview_hit(View *view, void *a, void *b)
 
 	graphene_rect_t bounds;
 
-	if (gtk_widget_compute_bounds(GTK_WIDGET(cview), GTK_WIDGET(wview),
-				&bounds) &&
+	if (gtk_widget_compute_bounds(GTK_WIDGET(cview), wview->fixed, &bounds) &&
 		graphene_rect_contains_point(&bounds, point))
 		return cview;
 
@@ -177,8 +165,7 @@ workspaceview_columnview_title_hit(View *view, void *a, void *b)
 
 	graphene_rect_t bounds;
 
-	if (gtk_widget_compute_bounds(cview->title, GTK_WIDGET(wview),
-				&bounds) &&
+	if (gtk_widget_compute_bounds(cview->title, wview->fixed, &bounds) &&
 		graphene_rect_contains_point(&bounds, point))
 		return cview;
 
@@ -197,12 +184,6 @@ workspaceview_find_columnview_title(Workspaceview *wview,
 		workspaceview_columnview_title_hit, &point, wview);
 }
 
-static void
-workspaceview_scroll_adjustment_cb(GtkAdjustment *adj, Workspaceview *wview)
-{
-	workspaceview_scroll_update(wview);
-}
-
 /* Timer callback for background scroll.
  */
 static gboolean
@@ -210,7 +191,6 @@ workspaceview_scroll_time_cb(Workspaceview *wview)
 {
 	/* Perform scroll.
 	 */
-	workspaceview_scroll_update(wview);
 	if (wview->u != 0 || wview->v != 0)
 		workspaceview_displace(wview, wview->u, wview->v);
 
@@ -734,6 +714,17 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 
 	printf("workspaceview_drag_begin: %g x %g\n", start_x, start_y);
 
+	// start_x/_y are in ->fixed's coordinates ... we need
+	// screen-relative coordinates, since the fixed may be scrolling
+	// around during the drag
+	graphene_point_t fixed = GRAPHENE_POINT_INIT(start_x, start_y);
+	graphene_point_t screen;
+	if (!gtk_widget_compute_point(wview->fixed, GTK_WIDGET(wview),
+			&fixed, &screen))
+		return;
+
+	printf("screen = %g x %g\n", screen.x, screen.y);
+
 	switch (wview->state) {
 	case WVIEW_WAIT:
 		/* Search for a column titlebar we could be hitting.
@@ -751,15 +742,23 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 
 			wview->drag_cview = title;
 			wview->state = WVIEW_SELECT;
-			wview->start_x = col->x;
-			wview->start_y = col->y;
+			wview->obj_x = col->x;
+			wview->obj_y = col->y;
 		}
 		else if (!cview) {
-			// drag on background
+			// drag on background ... note the scroll position of the fixed
+			// at the start of drag
 			wview->drag_cview = NULL;
 			wview->state = WVIEW_SELECT;
-			wview->start_x = VIPS_RINT(start_x);
-			wview->start_y = VIPS_RINT(start_y);
+			wview->obj_x = wview->vp.left;
+			wview->obj_y = wview->vp.top;
+		}
+
+		if (wview->state == WVIEW_SELECT) {
+			wview->start_x = start_x;
+			wview->start_y = start_y;
+			wview->screen_x = screen.x;
+			wview->screen_y = screen.y;
 		}
 		break;
 
@@ -799,12 +798,33 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 
 	case WVIEW_DRAG:
 		printf("workspaceview_drag_update: DRAG %p\n", wview->drag_cview);
+		// offset_x / offset_y are in ->fixed's coordinate system, but that
+
+		// start_x + offset_x gives the current mouse pos in ->fixed's
+		// coordinate space ... we want screen-relative coordinates, since
+		// fixed might be scrolling
+		graphene_point_t fixed = GRAPHENE_POINT_INIT(
+				wview->start_x + offset_x,
+				wview->start_y + offset_y);
+		graphene_point_t screen;
+		if (!gtk_widget_compute_point(wview->fixed, GTK_WIDGET(wview),
+				&fixed, &screen))
+			return;
+
+		printf("screen = %g x %g\n", screen.x, screen.y);
+
+		// we can now get screen-relative offset
+		int screen_offset_x = screen.x - wview->screen_x;
+		int screen_offset_y = screen.y - wview->screen_y;
+
+		printf("screen offset = %d x %d\n", screen_offset_x, screen_offset_y);
+
 		if (wview->drag_cview) {
 			Column *col = COLUMN(VOBJECT(wview->drag_cview)->iobject);
 
 			// don't let x/y go -ve (layout hates it)
-			col->x = VIPS_MAX(0, VIPS_RINT(wview->start_x + offset_x));
-			col->y = VIPS_MAX(0, VIPS_RINT(wview->start_y + offset_y));
+			col->x = VIPS_MAX(0, VIPS_RINT(wview->obj_x + screen_offset_x));
+			col->y = VIPS_MAX(0, VIPS_RINT(wview->obj_y + screen_offset_y));
 			iobject_changed(IOBJECT(col));
 
 			// Move other columns about.
@@ -812,24 +832,29 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 		}
 		else {
 			// drag on background
+			int new_x = VIPS_MAX(0, VIPS_RINT(wview->obj_x - screen_offset_x));
+			int new_y = VIPS_MAX(0, VIPS_RINT(wview->obj_y - screen_offset_y));
+			workspaceview_scroll_to(wview, new_x, new_y);
 		}
 
-		/*
 		// if the drag point is outside the viewport, set vars for bg scroll.
-		u = 0;
-		if( ix > wview->vp.width )
-				u = 10;
-		else if( ix < 0 )
-				u = -10;
+		int u;
+		if (fixed.x > VIPS_RECT_RIGHT(&wview->vp))
+			u = 10;
+		else if (fixed.x < wview->vp.left)
+			u = -10;
+		else
+			u = 0;
 
-		v = 0;
-		if( iy > wview->vp.height )
-				v = 10;
-		else if( iy < 0 )
-				v = -10;
+		int v;
+		if (fixed.y > VIPS_RECT_BOTTOM(&wview->vp))
+			v = 10;
+		else if (fixed.y < wview->vp.top)
+			v = -10;
+		else
+			v = 0;
 
-		workspaceview_scroll_background( wview, u, v );
-		 */
+		workspaceview_scroll_background(wview, u, v);
 
 		break;
 
@@ -1043,11 +1068,30 @@ workspaceview_next_error_action_cb2(GtkWidget *wid, GtkWidget *host,
 }
 
 static void
+workspaceview_scroll_adjustment_cb(GtkAdjustment *adj, Workspaceview *wview)
+{
+	workspaceview_scroll_update(wview);
+}
+
+static void
 workspaceview_init(Workspaceview *wview)
 {
 	gtk_widget_init_template(GTK_WIDGET(wview));
 
 	wview->label = workspaceviewlabel_new(wview);
+
+	GtkScrolledWindow *scrolled_window =
+		GTK_SCROLLED_WINDOW(wview->scrolled_window);
+	wview->hadj = gtk_scrolled_window_get_hadjustment(scrolled_window);
+	wview->vadj = gtk_scrolled_window_get_vadjustment(scrolled_window);
+    g_signal_connect(G_OBJECT(wview->hadj), "value_changed",
+        G_CALLBACK(workspaceview_scroll_adjustment_cb), wview );
+    g_signal_connect(G_OBJECT(wview->hadj), "changed",
+        G_CALLBACK(workspaceview_scroll_adjustment_cb), wview );
+    g_signal_connect(G_OBJECT(wview->vadj), "value_changed",
+        G_CALLBACK(workspaceview_scroll_adjustment_cb), wview );
+    g_signal_connect(G_OBJECT(wview->vadj), "changed",
+        G_CALLBACK(workspaceview_scroll_adjustment_cb), wview );
 
 	// a lot of stuff to go in here
 	printf("workspaceview_init: FIXME we must do stuff\n");

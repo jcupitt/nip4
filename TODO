@@ -1,8 +1,6 @@
-- add drag on background for workspace scroll
+- columns "slip" during background scroll drag
 
-- add bg scroll for column drag outside viewport
-
-	- see workspaceview_drag_update()
+	- maybe use the thing to scroll to keeep columns visible instead?
 
 - ^O should do open
 
@@ -36,6 +34,8 @@
 	- do column open/close animate?
 
 - animate workspace layout
+
+- animate scroll-to-keep-column-visible
 
 - watch column resize and trigger ws relayout
 
