@@ -114,7 +114,6 @@ pe_is_class(Reduce *rc, PElement *base)
  *
  * Others, eg.:
  *
-static BuiltinTypeSpot vimage_spot = { "vips_image", pe_is_image };
 static BuiltinTypeSpot bool_spot = { "bool", pe_is_bool };
 static BuiltinTypeSpot realvec_spot = { "[real]", reduce_is_realvec };
 static BuiltinTypeSpot matrix_spot = { "[[real]]", reduce_is_matrix };
@@ -125,6 +124,7 @@ static BuiltinTypeSpot gobject_spot = { "GObject", pe_is_gobject };
  *
  */
 
+static BuiltinTypeSpot vimage_spot = { "vips_image", pe_is_image };
 static BuiltinTypeSpot real_spot = { "real", pe_is_real };
 static BuiltinTypeSpot complex_spot = { "complex|image", iscomplexarg };
 static BuiltinTypeSpot flist_spot = { "non-empty list", pe_is_flist };
@@ -323,21 +323,22 @@ apply_image_call(Reduce *rc,
 	Heap *heap = rc->heap;
 
 	PElement rhs;
-	char buf[FILENAME_MAX];
-	char filename[FILENAME_MAX];
-	char mode[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
+    char filename[VIPS_PATH_MAX];
+    char mode[VIPS_PATH_MAX];
+
 	char *fn;
 	Imageinfo *ii;
 
 	/* Get string.
 	 */
 	PEPOINTRIGHT(arg[0], &rhs);
-	(void) reduce_get_string(rc, &rhs, buf, FILENAME_MAX);
+	(void) reduce_get_string(rc, &rhs, buf, VIPS_PATH_MAX);
 
 	/* The buf might be something like n3862.pyr.tif:1, ie. contain some
 	 * load options. Split and search just for the filename component.
 	 */
-	vips__filename_split8(buf, filename, mode);
+    vips__filename_split8(name, filename, mode);
 
 	/* Try to load image from given string.
 	 */
@@ -346,7 +347,7 @@ apply_image_call(Reduce *rc,
 
 	/* Reattach the mode and load.
 	 */
-	vips_snprintf(buf, FILENAME_MAX, "%s:%s", fn, mode);
+	vips_snprintf(buf, FILENAME_MAX, "%s%s", fn, mode);
 	if (!(ii = imageinfo_new_input(main_imageinfogroup, NULL, heap, buf))) {
 		VIPS_FREE(fn);
 		reduce_throw(rc);

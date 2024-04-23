@@ -1,12 +1,14 @@
-- add builtins
+- try
 
-	eg try
+	vips_image "k2.jpg"
 
-		reverse [10..1]
+  fails mysteriously
 
-	get
+- Image_file "k2.jpg" fails with
 
-		fold.xs.is_list is not defined
+	unable to open k2.jpg:
+
+  stray colon at end?
 
 - add image viewer
 
