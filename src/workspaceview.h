@@ -90,12 +90,6 @@ struct _Workspaceview {
 	int screen_x;				/* display-relative drag start */
 	int screen_y;
 
-	/* Background window scroll.
-	 */
-	guint timer;
-	int u; /* Set by columnview for bg scroll */
-	int v;
-
 	/* Geometry.
 	 */
 	VipsRect vp;				/* Viewport pos and size */

@@ -32,6 +32,10 @@
 
     <section>
       <item>
+        <attribute name='label' translatable='yes'>Save workspace</attribute>
+        <attribute name='action'>win.save</attribute>
+      </item>
+      <item>
         <attribute name='label' translatable='yes'>Save workspace as ...</attribute>
         <attribute name='action'>win.saveas</attribute>
       </item>

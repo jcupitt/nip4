@@ -59,14 +59,6 @@ workspaceview_scroll_to(Workspaceview *wview, int x, int y)
 	gtk_adjustment_set_value(wview->vadj, ny);
 }
 
-/* Scroll by an amount horizontally and vertically.
- */
-static void
-workspaceview_displace(Workspaceview *wview, int u, int v)
-{
-	workspaceview_scroll_to(wview, wview->vp.left + u, wview->vp.top + v);
-}
-
 /* Scroll to make an xywh area visible. If the area is larger than the
  * viewport, position the view at the bottom left if the xywh area ...
  * this is usually right for workspaces.
@@ -184,53 +176,6 @@ workspaceview_find_columnview_title(Workspaceview *wview,
 		workspaceview_columnview_title_hit, &point, wview);
 }
 
-/* Timer callback for background scroll.
- */
-static gboolean
-workspaceview_scroll_time_cb(Workspaceview *wview)
-{
-	/* Perform scroll.
-	 */
-	if (wview->u != 0 || wview->v != 0)
-		workspaceview_displace(wview, wview->u, wview->v);
-
-	/* Start timer again.
-	 */
-	return TRUE;
-}
-
-/* Stop the tally_scroll timer.
- */
-static void
-workspaceview_scroll_stop(Workspaceview *wview)
-{
-	VIPS_FREEF(g_source_remove, wview->timer);
-}
-
-/* Start the tally_scroll timer.
- */
-static void
-workspaceview_scroll_start(Workspaceview *wview)
-{
-	workspaceview_scroll_stop(wview);
-	wview->timer = g_timeout_add(30,
-		(GSourceFunc) workspaceview_scroll_time_cb, wview);
-}
-
-/* Set a background scroll. Pass both zero to stop scroll.
- */
-void
-workspaceview_scroll_background(Workspaceview *wview, int u, int v)
-{
-	wview->u = u;
-	wview->v = v;
-
-	if (u == 0 && v == 0)
-		workspaceview_scroll_stop(wview);
-	else
-		workspaceview_scroll_start(wview);
-}
-
 static void
 workspaceview_dispose(GObject *object)
 {
@@ -245,7 +190,6 @@ workspaceview_dispose(GObject *object)
 
 	wview = WORKSPACEVIEW(object);
 
-	workspaceview_scroll_stop(wview);
 	FREESID(wview->watch_changed_sid, main_watchgroup);
 	VIPS_UNREF(wview->popup);
 	UNPARENT(wview->right_click_menu);
@@ -829,6 +773,9 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 
 			// Move other columns about.
 			model_layout(MODEL(ws));
+
+			// top, since we want the titlebar to be visible
+			view_scrollto(wview->drag_cview, MODEL_SCROLL_TOP);
 		}
 		else {
 			// drag on background
@@ -836,25 +783,6 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 			int new_y = VIPS_MAX(0, VIPS_RINT(wview->obj_y - screen_offset_y));
 			workspaceview_scroll_to(wview, new_x, new_y);
 		}
-
-		// if the drag point is outside the viewport, set vars for bg scroll.
-		int u;
-		if (fixed.x > VIPS_RECT_RIGHT(&wview->vp))
-			u = 10;
-		else if (fixed.x < wview->vp.left)
-			u = -10;
-		else
-			u = 0;
-
-		int v;
-		if (fixed.y > VIPS_RECT_BOTTOM(&wview->vp))
-			v = 10;
-		else if (fixed.y < wview->vp.top)
-			v = -10;
-		else
-			v = 0;
-
-		workspaceview_scroll_background(wview, u, v);
 
 		break;
 
@@ -887,7 +815,6 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 
 	case WVIEW_DRAG:
 		wview->state = WVIEW_WAIT;
-		// workspaceview_scroll_background( wview, 0, 0 );
 		if (wview->drag_cview)
 			UNPARENT(wview->drag_cview->shadow);
 

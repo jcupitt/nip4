@@ -1,8 +1,13 @@
+- load toolkits
+
+- add image viewer
+
 - columns "slip" during background scroll drag
 
-	- maybe use the thing to scroll to keeep columns visible instead?
+	- we drag the shadow, not the actual cview
 
-- ^O should do open
+	- should the shadow include all the column widgets? we could just draw
+	  a box? maybe CSS bg colour?
 
 - try
 
@@ -33,11 +38,16 @@
 
 	- do column open/close animate?
 
+	- click on column titlebar should not open/close column
+
 - animate workspace layout
 
 - animate scroll-to-keep-column-visible
 
 - watch column resize and trigger ws relayout
+
+	- useful for eg relayout after column select, or col open/close, or
+	  row add
 
 - use a filemanager style left bar for the toolkit browser
 

@@ -962,6 +962,8 @@ workspacegroup_save_current(Workspacegroup *wsg, const char *filename)
 		return FALSE;
 	}
 
+	filemodel_set_modified(FILEMODEL(wsg), FALSE);
+
 	return TRUE;
 }
 

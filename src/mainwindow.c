@@ -333,6 +333,33 @@ main_window_saveas_action(GSimpleAction *action,
 }
 
 static void
+main_window_save_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	MainWindow *main = MAIN_WINDOW(user_data);
+
+	// there needs to be a model to save
+	if (!main->wsg)
+		return;
+
+	// unmodified? no save to do
+	if (!FILEMODEL( main->wsg )->modified )
+		return;
+
+	const char *filename;
+	if (!(filename = FILEMODEL( main->wsg )->filename) ) {
+		// no filename, we need to go via save-as
+		main_window_saveas_action(action, parameter, user_data);
+	}
+	else {
+		// we have a filename associated with this workspacegroup ... we can
+		// just save directly
+		if (!workspacegroup_save_current(main->wsg, filename))
+			main_window_error(main);
+	}
+}
+
+static void
 main_window_close_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
@@ -375,6 +402,7 @@ static GActionEntry main_window_entries[] = {
 	// main window actions
 	{ "open", main_window_open_action },
 	{ "saveas", main_window_saveas_action },
+	{ "save", main_window_save_action },
 	{ "close", main_window_close_action },
 
 	{ "new-column", main_window_view_action },

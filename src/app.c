@@ -125,15 +125,16 @@ app_startup(GApplication *app)
 	} accels[] = {
 		// application wide accels
 		{ "app.quit", { "<Primary>q", NULL } },
-		{ "app.new", { "<Primary>n", NULL } },
 
 		// main window accels ... the "win." prefix is wired into gtk
+		{ "win.new-column", { "<Primary>n", NULL } },
+		{ "win.open", { "<Primary>o", NULL } },
 		{ "win.copy", { "<Primary>c", NULL } },
 		{ "win.paste", { "<Primary>v", NULL } },
 		{ "win.duplicate", { "<Primary>d", NULL } },
 		{ "win.close", { "<Primary>w", NULL } },
 		{ "win.replace", { "<Primary>o", NULL } },
-		{ "win.saveas", { "<Primary>s", NULL } },
+		{ "win.save", { "<Primary>s", NULL } },
 		{ "win.reload", { "F5", NULL } },
 		{ "win.prev", { "<Primary>comma", NULL } },
 		{ "win.next", { "<Primary>period", NULL } },
