@@ -40,6 +40,9 @@ set_glabel(GtkWidget *label, const char *fmt, ...)
 	(void) vips_vsnprintf(buf, 1000, fmt, ap);
 	va_end(ap);
 
+	if (!g_utf8_validate(buf, -1, NULL))
+		(void) vips_vsnprintf(buf, 1000, "%s", _("<invalid utf8 string>"));
+
 	gtk_label_set_text(GTK_LABEL(label), buf);
 }
 

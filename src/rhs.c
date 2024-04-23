@@ -325,13 +325,13 @@ rhs_set_vislevel(Rhs *rhs, int vislevel)
 }
 
 void
-rhs_vislevel_up(Rhs *rhs)
+rhs_vislevel_more(Rhs *rhs)
 {
 	rhs_set_vislevel(rhs, rhs->vislevel + 1);
 }
 
 void
-rhs_vislevel_down(Rhs *rhs)
+rhs_vislevel_less(Rhs *rhs)
 {
 	rhs_set_vislevel(rhs, rhs->vislevel - 1);
 }

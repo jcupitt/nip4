@@ -17,6 +17,14 @@
 
 - try
 
+	save with no filename
+	pops save dialog
+	save wsg
+	... but does not set filename on filemodel
+	don't see filename in header bar
+
+- try
+
 	wkkfhwf
 
   segv ... looks like the rowview is not being destroyed when we destroy

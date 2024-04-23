@@ -70,7 +70,7 @@ GType rhs_get_type(void);
 Rhs *rhs_new(Row *row);
 
 void rhs_set_vislevel(Rhs *rhs, int vislevel);
-void rhs_vislevel_up(Rhs *rhs);
-void rhs_vislevel_down(Rhs *rhs);
+void rhs_vislevel_more(Rhs *rhs);
+void rhs_vislevel_less(Rhs *rhs);
 
 gboolean rhs_child_edited(Rhs *rhs);

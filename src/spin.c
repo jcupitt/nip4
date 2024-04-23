@@ -69,13 +69,17 @@ spin_real_down_click(Spin *spin)
 }
 
 static void
-spin_pressed(GtkGestureClick *gesture,
+spin_up(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Spin *spin)
 {
-	if (y < gtk_widget_get_height(GTK_WIDGET(spin)) / 2)
-		g_signal_emit(G_OBJECT(spin), spin_signals[UP_CLICK], 0);
-	else
-		g_signal_emit(G_OBJECT(spin), spin_signals[DOWN_CLICK], 0);
+	g_signal_emit(G_OBJECT(spin), spin_signals[UP_CLICK], 0);
+}
+
+static void
+spin_down(GtkGestureClick *gesture,
+	guint n_press, double x, double y, Spin *spin)
+{
+	g_signal_emit(G_OBJECT(spin), spin_signals[DOWN_CLICK], 0);
 }
 
 static void
@@ -89,7 +93,9 @@ spin_class_init(SpinClass *class)
 	gtk_widget_class_set_template_from_resource(widget_class,
 		APP_PATH "/spin.ui");
 	gtk_widget_class_bind_template_callback(widget_class,
-		spin_pressed);
+		spin_up);
+	gtk_widget_class_bind_template_callback(widget_class,
+		spin_down);
 
 	/* Create signals.
 	 */

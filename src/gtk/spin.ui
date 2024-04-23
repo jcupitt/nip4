@@ -10,19 +10,26 @@
         <child>
           <object class="GtkImage">
             <property name="icon-name">go-up-symbolic</property>
+
+            <child>
+              <object class="GtkGestureClick">
+                <property name="button">1</property>
+                <signal name="pressed" handler="spin_up"/>
+              </object>
+            </child>
           </object>
         </child>
 
         <child>
-          <object class="GtkImage">
+	  <object class="GtkImage">
             <property name="icon-name">go-down-symbolic</property>
-          </object>
-        </child>
 
-        <child>
-          <object class="GtkGestureClick">
-            <property name="button">1</property>
-            <signal name="pressed" handler="spin_pressed"/>
+            <child>
+              <object class="GtkGestureClick">
+                <property name="button">1</property>
+                <signal name="pressed" handler="spin_down"/>
+              </object>
+            </child>
           </object>
         </child>
 

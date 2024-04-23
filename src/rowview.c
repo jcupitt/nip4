@@ -507,7 +507,7 @@ rowview_up_click(GtkGestureClick *gesture, Rowview *rview)
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	Rhs *rhs = row->child_rhs;
 
-	rhs_vislevel_up(rhs);
+	rhs_vislevel_less(rhs);
 	workspace_set_modified(row->ws, TRUE);
 }
 
@@ -517,7 +517,7 @@ rowview_down_click(GtkGestureClick *gesture, Rowview *rview)
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	Rhs *rhs = row->child_rhs;
 
-	rhs_vislevel_down(rhs);
+	rhs_vislevel_more(rhs);
 	workspace_set_modified(row->ws, TRUE);
 }
 
