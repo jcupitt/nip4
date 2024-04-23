@@ -1,14 +1,10 @@
-- try
+- test class browser
 
-	vips_image "k2.jpg"
+  now we have Image_file working
 
-  fails mysteriously
+  hook up row spin
 
-- Image_file "k2.jpg" fails with
 
-	unable to open k2.jpg:
-
-  stray colon at end?
 
 - add image viewer
 

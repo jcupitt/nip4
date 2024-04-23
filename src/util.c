@@ -796,7 +796,7 @@ vips_buf_appendi(VipsBuf *buf, VipsImage *im)
 		ngettext("%dx%d %s, %d band, %s",
 			"%dx%d %s, %d bands, %s", im->Bands),
 		im->Xsize, im->Ysize,
-		vips_enum_nick(VIPS_TYPE_FORMAT, im->BandFmt),
+		vips_enum_nick(VIPS_TYPE_BAND_FORMAT, im->BandFmt),
 		im->Bands,
 		vips_enum_nick(VIPS_TYPE_INTERPRETATION, im->Type));
 }

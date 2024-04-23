@@ -338,7 +338,7 @@ apply_image_call(Reduce *rc,
 	/* The buf might be something like n3862.pyr.tif:1, ie. contain some
 	 * load options. Split and search just for the filename component.
 	 */
-    vips__filename_split8(name, filename, mode);
+    vips__filename_split8(buf, filename, mode);
 
 	/* Try to load image from given string.
 	 */
@@ -435,6 +435,123 @@ apply_graph_export_image_call(Reduce *rc,
 #else  /*!HAVE_LIBGOFFICE*/
 	PEPUTP(out, ELEMENT_BOOL, TRUE);
 #endif /*HAVE_LIBGOFFICE*/
+}
+
+/* Args for "header_get_typeof_args".
+ */
+static BuiltinTypeSpot *header_get_typeof_args[] = {
+	&string_spot,
+	&vimage_spot
+};
+
+/* Get type of header field.
+ */
+static void
+apply_header_get_type_call(Reduce *rc,
+	const char *name, HeapNode **arg, PElement *out)
+{
+	Heap *heap = rc->heap;
+
+	PElement rhs;
+
+	/* Get string.
+	 */
+	PEPOINTRIGHT(arg[1], &rhs);
+	char buf[VIPS_PATH_MAX];
+	(void) reduce_get_string(rc, &rhs, buf, VIPS_PATH_MAX);
+
+	PEPOINTRIGHT(arg[0], &rhs);
+	Imageinfo *ii = reduce_get_image(rc, &rhs);
+
+	VipsImage *image = imageinfo_get_underlying(ii);
+	GType type = vips_image_get_typeof(image, buf);
+
+	if (!heap_real_new(rc->heap, type, out))
+		reduce_throw(rc);
+}
+
+/* Get an int.
+ */
+static void
+apply_header_int_call(Reduce *rc,
+	const char *name, HeapNode **arg, PElement *out)
+{
+	Heap *heap = rc->heap;
+
+	PElement rhs;
+
+	/* Get string.
+	 */
+	PEPOINTRIGHT(arg[1], &rhs);
+	char buf[VIPS_PATH_MAX];
+	(void) reduce_get_string(rc, &rhs, buf, VIPS_PATH_MAX);
+
+	PEPOINTRIGHT(arg[0], &rhs);
+	Imageinfo *ii = reduce_get_image(rc, &rhs);
+
+	VipsImage *image = imageinfo_get_underlying(ii);
+	int value;
+	if (vips_image_get_int(image, buf, &value))
+		reduce_throw(rc);
+
+	if (!heap_real_new(rc->heap, value, out))
+		reduce_throw(rc);
+}
+
+/* Get a double.
+ */
+static void
+apply_header_double_call(Reduce *rc,
+	const char *name, HeapNode **arg, PElement *out)
+{
+	Heap *heap = rc->heap;
+
+	PElement rhs;
+
+	/* Get string.
+	 */
+	PEPOINTRIGHT(arg[1], &rhs);
+	char buf[VIPS_PATH_MAX];
+	(void) reduce_get_string(rc, &rhs, buf, VIPS_PATH_MAX);
+
+	PEPOINTRIGHT(arg[0], &rhs);
+	Imageinfo *ii = reduce_get_image(rc, &rhs);
+
+	VipsImage *image = imageinfo_get_underlying(ii);
+	double value;
+	if (vips_image_get_double(image, buf, &value))
+		reduce_throw(rc);
+
+	if (!heap_real_new(rc->heap, value, out))
+		reduce_throw(rc);
+}
+
+/* Get a string.
+ */
+static void
+apply_header_string_call(Reduce *rc,
+	const char *name, HeapNode **arg, PElement *out)
+{
+	Heap *heap = rc->heap;
+
+	PElement rhs;
+
+	/* Get string.
+	 */
+	PEPOINTRIGHT(arg[1], &rhs);
+	char buf[VIPS_PATH_MAX];
+	(void) reduce_get_string(rc, &rhs, buf, VIPS_PATH_MAX);
+
+	PEPOINTRIGHT(arg[0], &rhs);
+	Imageinfo *ii = reduce_get_image(rc, &rhs);
+
+	VipsImage *image = imageinfo_get_underlying(ii);
+	const char *value;
+	if (vips_image_get_string(image, buf, &value))
+		reduce_throw(rc);
+
+	if (!heap_string_new(rc->heap, value, out))
+		reduce_throw(rc);
 }
 
 /* Args for "math".
@@ -1108,6 +1225,22 @@ static BuiltinInfo builtin_table[] = {
 	{ "graph_export_image", N_("generate image from Plot object"),
 		FALSE, VIPS_NUMBER(graph_export_image_args),
 		&graph_export_image_args[0], apply_graph_export_image_call },
+
+	/* vips7 compat
+	 */
+	{ "im_header_get_typeof", N_("get header field type"),
+		FALSE, VIPS_NUMBER(header_get_typeof_args),
+		&header_get_typeof_args[0], apply_header_get_type_call},
+	{ "im_header_int", N_("get int valued field"),
+		FALSE, VIPS_NUMBER(header_get_typeof_args),
+		&header_get_typeof_args[0], apply_header_int_call},
+	{ "im_header_double", N_("get double valued field"),
+		FALSE, VIPS_NUMBER(header_get_typeof_args),
+		&header_get_typeof_args[0], apply_header_double_call},
+	{ "im_header_string", N_("get string valued field"),
+		FALSE, VIPS_NUMBER(header_get_typeof_args),
+		&header_get_typeof_args[0], apply_header_string_call},
+
 
 };
 

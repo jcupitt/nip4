@@ -384,6 +384,9 @@ main(int argc, char **argv)
 	main_toolkitgroup = toolkitgroup_new(symbol_root);
 	iobject_ref_sink(IOBJECT(main_toolkitgroup));
 
+	main_imageinfogroup = imageinfogroup_new();
+	iobject_ref_sink(IOBJECT(main_imageinfogroup));
+
 	/* Add builtin toolkit.
 	 */
 	builtin_init();

@@ -648,12 +648,12 @@ imageinfo_proxy_add(Imageinfo *imageinfo)
 	imageinfo->proxy->im = imageinfo->im;
 	imageinfo->proxy->imageinfo = imageinfo;
 
-	g_signal_connect_object(imageinfo->im, "eval",
-		G_CALLBACK(imageinfo_proxy_eval), imageinfo->proxy, 0);
-	g_signal_connect_object(imageinfo->im, "invalidate",
-		G_CALLBACK(imageinfo_proxy_invalidate), imageinfo->proxy, 0);
-	g_signal_connect_object(imageinfo->im, "preclose",
-		G_CALLBACK(imageinfo_proxy_preclose), imageinfo->proxy, 0);
+	g_signal_connect(imageinfo->im, "eval",
+		G_CALLBACK(imageinfo_proxy_eval), imageinfo->proxy);
+	g_signal_connect(imageinfo->im, "invalidate",
+		G_CALLBACK(imageinfo_proxy_invalidate), imageinfo->proxy);
+	g_signal_connect(imageinfo->im, "preclose",
+		G_CALLBACK(imageinfo_proxy_preclose), imageinfo->proxy);
 }
 
 /* Make a basic imageinfo. No refs, will be destroyed on next GC. If name is
