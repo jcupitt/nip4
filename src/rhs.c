@@ -154,12 +154,13 @@ static RhsGraphic rhs_graphic[] = {
 	{ CLASS_ARROW, iarrow_get_type },
 	{ CLASS_REGION, iregion_get_type },
 	{ CLASS_PLOT, plot_get_type },
-	{ CLASS_IMAGE, iimage_get_type },
 	{ CLASS_NUMBER, number_get_type },
 	{ CLASS_REAL, real_get_type },
 	{ CLASS_VECTOR, vector_get_type },
 	{ CLASS_STRING, string_get_type }
 	 */
+
+	{ CLASS_IMAGE, iimage_get_type },
 };
 
 /* Create/destroy the graphic display.

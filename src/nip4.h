@@ -127,25 +127,24 @@ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 // various forward typdefs
 
 typedef struct _BuiltinInfo BuiltinInfo;
+typedef struct _Classmodel Classmodel;
 typedef struct _Column Column;
 typedef struct _Columnview Columnview;
 typedef struct _Compile Compile;
 typedef struct _Element Element;
 typedef struct _Expr Expr;
-typedef struct _Classmodel Classmodel;
 typedef struct _Filemodel Filemodel;
 typedef struct _HeapBlock HeapBlock;
 typedef struct _Heap Heap;
 typedef struct _Heapmodel Heapmodel;
 typedef struct _iContainer iContainer;
+typedef struct _iImage iImage;
 typedef struct _Imageinfogroup Imageinfogroup;
 typedef struct _Imageinfo Imageinfo;
 typedef struct _iText iText;
-typedef struct _iImage iImage;
 typedef struct _LinkExpr LinkExpr;
 typedef struct _Link Link;
 typedef struct _Log Log;
-typedef struct _Spin Spin;
 typedef struct _Managedfile Managedfile;
 typedef struct _Managedgobject Managedgobject;
 typedef struct _Managedgvalue Managedgvalue;
@@ -153,15 +152,16 @@ typedef struct _Managed Managed;
 typedef struct _Managedstring Managedstring;
 typedef struct _Matrix Matrix;
 typedef struct _Model Model;
-typedef struct _Pane Pane;
 typedef struct _Panechild Panechild;
+typedef struct _Pane Pane;
 typedef struct _ParseConst ParseConst;
 typedef struct _ParseNode ParseNode;
 typedef struct _Reduce Reduce;
 typedef struct _Rhs Rhs;
+typedef struct _Rhsview Rhsview;
 typedef struct _Row Row;
 typedef struct _Rowview Rowview;
-typedef struct _Rhsview Rhsview;
+typedef struct _Spin Spin;
 typedef struct _Subcolumn Subcolumn;
 typedef struct _Subcolumnview Subcolumnview;
 typedef struct _Symbol Symbol;
@@ -177,8 +177,8 @@ typedef struct _Workspacedefs Workspacedefs;
 typedef struct _Workspacegroupview Workspacegroupview;
 typedef struct _Workspacegroup Workspacegroup;
 typedef struct _Workspaceroot Workspaceroot;
-typedef struct _Workspaceview Workspaceview;
 typedef struct _Workspaceviewlabel Workspaceviewlabel;
+typedef struct _Workspaceview Workspaceview;
 typedef struct _Workspace Workspace;
 
 #include "spin.h"
@@ -219,6 +219,7 @@ typedef struct _Workspace Workspace;
 #include "column.h"
 #include "expr.h"
 #include "itext.h"
+#include "iimage.h"
 #include "log.h"
 #include "trace.h"
 #include "row.h"

@@ -212,29 +212,6 @@ rowview_edit_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 		error_alert(button);
 }
 
-/* Show info.
- */
-static gboolean
-rowview_header(Rowview *rview)
-{
-	Row *row = ROW(VOBJECT(rview)->iobject);
-	Model *graphic = row->child_rhs->graphic;
-
-	if (graphic)
-		model_header(GTK_WIDGET(rview->sview), graphic);
-
-	return TRUE;
-}
-
-/* Info in menu.
- */
-static void
-rowview_header_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
-{
-	if (!rowview_header(rview))
-		error_alert(button);
-}
-
 /* Clone the current item.
  */
 static void
@@ -622,8 +599,6 @@ rowview_class_init(RowviewClass *class)
 	pane = rowview_popup_menu = popup_build(_("Row menu"));
 	popup_add_but(pane, _("_Edit"),
 		POPUP_FUNC(rowview_edit_cb));
-	popup_add_but(pane, _("_Header"),
-		POPUP_FUNC(rowview_header_cb));
 	popup_add_but(pane, STOCK_DUPLICATE,
 		POPUP_FUNC(rowview_clone_cb));
 	popup_add_but(pane, _("U_ngroup"),

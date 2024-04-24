@@ -273,13 +273,8 @@ classmodel_iimage_link(Classmodel *classmodel, iImage *iimage)
 		printf("\n");
 #endif /*DEBUG*/
 
-		printf("classmodel_iimage_link: FIXME\n");
-		/*
-		iimage->classmodels =
-			g_slist_prepend(iimage->classmodels, classmodel);
-		classmodel->iimages =
-			g_slist_prepend(classmodel->iimages, iimage);
-		 */
+		iimage->classmodels = g_slist_prepend(iimage->classmodels, classmodel);
+		classmodel->iimages = g_slist_prepend(classmodel->iimages, iimage);
 	}
 }
 
@@ -295,13 +290,8 @@ classmodel_iimage_unlink(Classmodel *classmodel, iImage *iimage)
 		printf("\n");
 #endif /*DEBUG*/
 
-		printf("classmodel_iimage_unlink: FIXME\n");
-		/*
-		iimage->classmodels =
-			g_slist_remove(iimage->classmodels, classmodel);
-		classmodel->iimages =
-			g_slist_remove(classmodel->iimages, iimage);
-		 */
+		iimage->classmodels = g_slist_remove(iimage->classmodels, classmodel);
+		classmodel->iimages = g_slist_remove(classmodel->iimages, iimage);
 	}
 
 	return NULL;
@@ -324,6 +314,7 @@ classmodel_iimage_expr_model(Model *model, ClassmodelSearch *parms)
 	/* Look for iimages which aren't super ... ie. if this is a class
 	 * derived from Image, display on the derived class, not on the
 	 * superclass.
+	 */
 	if (IS_IIMAGE(model) &&
 		HEAPMODEL(model)->row->sym &&
 		!is_super(HEAPMODEL(model)->row->sym) &&
@@ -333,9 +324,6 @@ classmodel_iimage_expr_model(Model *model, ClassmodelSearch *parms)
 		if (iimage->value.ii == parms->ii)
 			classmodel_iimage_link(parms->classmodel, iimage);
 	}
-	 */
-
-	printf("classmodel_iimage_expr_model: FIXME\n");
 
 	return NULL;
 }
@@ -357,8 +345,7 @@ classmodel_iimage_expr(Expr *expr, ClassmodelSearch *parms)
 		 * derived value, and link to us.
 		 */
 		(void) icontainer_map_all(ICONTAINER(expr->row->top_row),
-			(icontainer_map_fn) classmodel_iimage_expr_model,
-			parms);
+			(icontainer_map_fn) classmodel_iimage_expr_model, parms);
 	}
 
 	return NULL;
@@ -402,22 +389,19 @@ classmodel_dict_new(Classmodel *classmodel,
 	ClassmodelMember *options, int noptions, Heap *heap, PElement *out)
 {
 	PElement list = *out;
-	int i;
 
 	/* Make first RHS ... the end of the list.
 	 */
 	heap_list_init(&list);
 
-	for (i = 0; i < noptions; i++) {
+	for (int i = 0; i < noptions; i++) {
 		PElement pair, key, value;
 
 		if (!heap_list_add(heap, &list, &pair) ||
 			!heap_list_add(heap, &pair, &key) ||
 			!heap_list_add(heap, &pair, &value) ||
-			!heap_managedstring_new(heap,
-				options[i].member_name, &key) ||
-			!classmodel_class_member_new(classmodel,
-				&options[i], heap, &value))
+			!heap_managedstring_new(heap, options[i].member_name, &key) ||
+			!classmodel_class_member_new(classmodel, &options[i], heap, &value))
 			return FALSE;
 
 		(void) heap_list_next(&list);
@@ -544,12 +528,11 @@ classmodel_class_instance_new(Classmodel *classmodel)
 			return FALSE;
 	}
 	else {
-		int i;
-		PElement rhs;
-
 		heap_appl_init(root, &fn);
 
-		for (i = 0; i < class->n_members; i++) {
+		for (int i = 0; i < class->n_members; i++) {
+			PElement rhs;
+
 			if (!heap_appl_add(heap, root, &rhs))
 				return FALSE;
 

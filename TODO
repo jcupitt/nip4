@@ -1,5 +1,11 @@
 - add image viewer
 
+	iimageview next
+
+	then maybe we get a thumbnail!
+
+	popup viewer after that
+
 - columns "slip" during background scroll drag
 
 	- we drag the shadow, not the actual cview

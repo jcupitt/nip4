@@ -76,17 +76,17 @@ typedef struct {
 	guint offset; /* Struct offset */
 } ClassmodelMember;
 
-#define TYPE_CLASSMODEL (classmodel_get_type())
+#define CLASSMODEL_TYPE (classmodel_get_type())
 #define CLASSMODEL(obj) \
-	(G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_CLASSMODEL, Classmodel))
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), CLASSMODEL_TYPE, Classmodel))
 #define CLASSMODEL_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_CAST((klass), TYPE_CLASSMODEL, ClassmodelClass))
+	(G_TYPE_CHECK_CLASS_CAST((klass), CLASSMODEL_TYPE, ClassmodelClass))
 #define IS_CLASSMODEL(obj) \
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_CLASSMODEL))
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj), CLASSMODEL_TYPE))
 #define IS_CLASSMODEL_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_TYPE((klass), TYPE_CLASSMODEL))
+	(G_TYPE_CHECK_CLASS_TYPE((klass), CLASSMODEL_TYPE))
 #define CLASSMODEL_GET_CLASS(obj) \
-	(G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_CLASSMODEL, ClassmodelClass))
+	(G_TYPE_INSTANCE_GET_CLASS((obj), CLASSMODEL_TYPE, ClassmodelClass))
 
 struct _Classmodel {
 	Heapmodel parent_class;
