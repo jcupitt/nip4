@@ -324,8 +324,8 @@ apply_image_call(Reduce *rc,
 
 	PElement rhs;
 	char buf[VIPS_PATH_MAX];
-    char filename[VIPS_PATH_MAX];
-    char mode[VIPS_PATH_MAX];
+	char filename[VIPS_PATH_MAX];
+	char mode[VIPS_PATH_MAX];
 
 	char *fn;
 	Imageinfo *ii;
@@ -338,7 +338,7 @@ apply_image_call(Reduce *rc,
 	/* The buf might be something like n3862.pyr.tif:1, ie. contain some
 	 * load options. Split and search just for the filename component.
 	 */
-    vips__filename_split8(buf, filename, mode);
+	vips__filename_split8(buf, filename, mode);
 
 	/* Try to load image from given string.
 	 */
@@ -1233,17 +1233,16 @@ static BuiltinInfo builtin_table[] = {
 	 */
 	{ "im_header_get_typeof", N_("get header field type"),
 		FALSE, VIPS_NUMBER(header_get_typeof_args),
-		&header_get_typeof_args[0], apply_header_get_type_call},
+		&header_get_typeof_args[0], apply_header_get_type_call },
 	{ "im_header_int", N_("get int valued field"),
 		FALSE, VIPS_NUMBER(header_get_typeof_args),
-		&header_get_typeof_args[0], apply_header_int_call},
+		&header_get_typeof_args[0], apply_header_int_call },
 	{ "im_header_double", N_("get double valued field"),
 		FALSE, VIPS_NUMBER(header_get_typeof_args),
-		&header_get_typeof_args[0], apply_header_double_call},
+		&header_get_typeof_args[0], apply_header_double_call },
 	{ "im_header_string", N_("get string valued field"),
 		FALSE, VIPS_NUMBER(header_get_typeof_args),
-		&header_get_typeof_args[0], apply_header_string_call},
-
+		&header_get_typeof_args[0], apply_header_string_call },
 
 };
 
