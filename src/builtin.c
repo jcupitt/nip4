@@ -546,11 +546,14 @@ apply_header_string_call(Reduce *rc,
 	Imageinfo *ii = reduce_get_image(rc, &rhs);
 
 	VipsImage *image = imageinfo_get_underlying(ii);
+
 	const char *value;
 	if (vips_image_get_string(image, buf, &value))
 		reduce_throw(rc);
 
-	if (!heap_string_new(rc->heap, value, out))
+	// a managedstring, since value might go away ... take a copy and control
+	// it with our GC
+	if (!heap_managedstring_new(rc->heap, value, out))
 		reduce_throw(rc);
 }
 

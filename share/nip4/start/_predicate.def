@@ -101,7 +101,7 @@ is_list_len_more n x
 
 is_list_len_more_equal n x
 	= true, n == 0
-	= false, x == [] 
+	= false, x == []
 	= is_list_len_more_equal (n - 1) (tl x);
 
 /* is_rectangular l: is l a rectangular data structure
@@ -192,7 +192,7 @@ is_String x = is_instanceof "String" x;
 
 /* A list of the form [[1,2],[3,4],[5,6]...]
  */
-is_xy_list l 
+is_xy_list l
 	= is_list l && all (map xy l)
 {
 	xy l = is_real_list l && is_list_len 2 l;
@@ -221,7 +221,7 @@ get_type x
 	= oo_unary_function get_type_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_type")
 {
-	get_type_op = Operator "get_type" get_type 
+	get_type_op = Operator "get_type" get_type
 		Operator_type.COMPOUND false;
 
 	// get the type from a VIPS image ... but only if it makes sense with
@@ -234,9 +234,9 @@ get_type x
 		= Image_type.LABQ, coding == Image_coding.LABPACK
 		= Image_type.scRGB, coding == Image_coding.RAD
 		= Image_type.GREY16, type == Image_type.GREY16 && is_bands 1
-		= Image_type.HISTOGRAM, type == Image_type.HISTOGRAM && 
+		= Image_type.HISTOGRAM, type == Image_type.HISTOGRAM &&
 			(width == 1 || height == 1)
-		= Image_type.B_W, is_bands 1 
+		= Image_type.B_W, is_bands 1
 		= Image_type.CMYK, type == Image_type.CMYK && is_bands 4
 		= type, is_colorimetric && is_bands 3
 		= Image_type.sRGB, !is_colorimetric && is_bands 3
@@ -249,18 +249,18 @@ get_type x
 		width = get_header "Xsize" im;
 		height = get_header "Ysize" im;
 
-		// 3-band colorimetric types we allow ... the things which the 
+		// 3-band colorimetric types we allow ... the things which the
 		// Colour/Convert To menu can make, excluding mono.
 		ok_types = [
-			Image_type.sRGB, 
-			Image_type.scRGB, 
-			Image_type.RGB16, 
-			Image_type.LAB, 
-			Image_type.LABQ, 
-			Image_type.LABS, 
-			Image_type.LCH, 
-			Image_type.XYZ, 
-			Image_type.YXY, 
+			Image_type.sRGB,
+			Image_type.scRGB,
+			Image_type.RGB16,
+			Image_type.LAB,
+			Image_type.LABQ,
+			Image_type.LABS,
+			Image_type.LCH,
+			Image_type.XYZ,
+			Image_type.YXY,
 			Image_type.UCS
 		];
 		is_colorimetric = member ok_types type;
@@ -272,33 +272,33 @@ get_type x
 
 has_format x = has_member "format" x || is_Arrow x || is_image x;
 
-get_format x 
+get_format x
 	= x.format, has_member "format" x
 	= x.image.format, is_Arrow x
 	= get_header "BandFmt" x, is_image x
 	= oo_unary_function get_format_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_format")
 {
-	get_format_op = Operator "get_format" get_format 
+	get_format_op = Operator "get_format" get_format
 		Operator_type.COMPOUND false;
 }
 
 has_bits x = has_member "bits" x || is_Arrow x || is_image x;
 
-get_bits x 
+get_bits x
 	= x.bits, has_member "bits" x
 	= x.image.bits, is_Arrow x
 	= get_header "Bbits" x, is_image x
 	= oo_unary_function get_bits_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_bits")
 {
-	get_bits_op = Operator "get_bits" get_format 
+	get_bits_op = Operator "get_bits" get_format
 		Operator_type.COMPOUND false;
 }
 
 has_bands x = is_image x || has_member "bands" x || is_Arrow x;
 
-get_bands x 
+get_bands x
 	= x.bands, has_member "bands" x
 	= x.image.bands, is_Arrow x
 	= get_header "Bands" x, is_image x
@@ -307,13 +307,13 @@ get_bands x
 	= oo_unary_function get_bands_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_bands")
 {
-	get_bands_op = Operator "get_bands" get_bands 
+	get_bands_op = Operator "get_bands" get_bands
 		Operator_type.COMPOUND false;
 }
 
 has_coding x = has_member "coding" x || is_Arrow x || is_image x;
 
-get_coding x 
+get_coding x
 	= x.coding, has_member "coding" x
 	= x.image.coding, is_Arrow x
 	= get_header "Coding" x, is_image x
@@ -321,59 +321,59 @@ get_coding x
 	= oo_unary_function get_coding_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_coding")
 {
-	get_coding_op = Operator "get_coding" get_coding 
+	get_coding_op = Operator "get_coding" get_coding
 		Operator_type.COMPOUND false;
 }
 
 has_xres x = has_member "xres" x || is_Arrow x || is_image x;
 
-get_xres x 
+get_xres x
 	= x.xres, has_member "xres" x
 	= x.image.xres, is_Arrow x
 	= get_header "Xres" x, is_image x
 	= oo_unary_function get_xres_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_xres")
 {
-	get_xres_op = Operator "get_xres" get_xres 
+	get_xres_op = Operator "get_xres" get_xres
 		Operator_type.COMPOUND false;
 }
 
 has_yres x = has_member "yres" x || is_Arrow x || is_image x;
 
-get_yres x 
+get_yres x
 	= x.yres, has_member "yres" x
 	= x.image.yres, is_Arrow x
 	= get_header "Yres" x, is_image x
 	= oo_unary_function get_yres_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_yres")
 {
-	get_yres_op = Operator "get_yres" get_yres 
+	get_yres_op = Operator "get_yres" get_yres
 		Operator_type.COMPOUND false;
 }
 
 has_xoffset x = has_member "xoffset" x || is_Arrow x || is_image x;
 
-get_xoffset x 
+get_xoffset x
 	= x.xoffset, has_member "xoffset" x
 	= x.image.xoffset, is_Arrow x
 	= get_header "Xoffset" x, is_image x
 	= oo_unary_function get_xoffset_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_xoffset")
 {
-	get_xoffset_op = Operator "get_xoffset" get_xoffset 
+	get_xoffset_op = Operator "get_xoffset" get_xoffset
 		Operator_type.COMPOUND false;
 }
 
 has_yoffset x = has_member "yoffset" x || is_Arrow x || is_image x;
 
-get_yoffset x 
+get_yoffset x
 	= x.yoffset, has_member "yoffset" x
 	= x.image.yoffset, is_Arrow x
 	= get_header "Yoffset" x, is_image x
 	= oo_unary_function get_yoffset_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_yoffset")
 {
-	get_yoffset_op = Operator "get_yoffset" get_yoffset 
+	get_yoffset_op = Operator "get_yoffset" get_yoffset
 		Operator_type.COMPOUND false;
 }
 
@@ -383,14 +383,14 @@ get_value x = x.value;
 
 has_image x = is_image x || is_Image x || is_Arrow x;
 
-get_image x 
+get_image x
 	= x.value, is_Image x
 	= x.image.value, is_Arrow x
 	= x, is_image x
 	= oo_unary_function get_image_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_image")
 {
-	get_image_op = Operator "get_image" get_image 
+	get_image_op = Operator "get_image" get_image
 		Operator_type.COMPOUND false;
 }
 
@@ -398,11 +398,11 @@ has_number x = is_number x || is_Real x;
 
 get_number x
 	= x.value, is_Real x
-	= x, is_number x 
+	= x, is_number x
 	= oo_unary_function get_number_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_number")
 {
-	get_number_op = Operator "get_number" get_number 
+	get_number_op = Operator "get_number" get_number
 		Operator_type.COMPOUND false;
 }
 
@@ -414,7 +414,7 @@ get_real x
 	= oo_unary_function get_real_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_real")
 {
-	get_real_op = Operator "get_real" get_real 
+	get_real_op = Operator "get_real" get_real
 		Operator_type.COMPOUND false;
 }
 
@@ -426,7 +426,7 @@ get_width x
 	= oo_unary_function get_width_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_width")
 {
-	get_width_op = Operator "get_width" get_width 
+	get_width_op = Operator "get_width" get_width
 		Operator_type.COMPOUND false;
 }
 
@@ -438,7 +438,7 @@ get_height x
 	= oo_unary_function get_height_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_height")
 {
-	get_height_op = Operator "get_height" get_height 
+	get_height_op = Operator "get_height" get_height
 		Operator_type.COMPOUND false;
 }
 
@@ -449,7 +449,7 @@ get_left x
 	= oo_unary_function get_left_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_left")
 {
-	get_left_op = Operator "get_left" get_left 
+	get_left_op = Operator "get_left" get_left
 		Operator_type.COMPOUND false;
 }
 
@@ -460,7 +460,7 @@ get_top x
 	= oo_unary_function get_top_op x, is_class x
 	= error (_ "bad arguments to " ++ "get_top")
 {
-	get_top_op = Operator "get_top" get_top 
+	get_top_op = Operator "get_top" get_top
 		Operator_type.COMPOUND false;
 }
 
@@ -500,7 +500,8 @@ get_header field x
 		= im_header_double field im, type == dtype
 		= im_header_string field im, type == stype1 || type == stype2
 		= error (_ "image has no field " ++ field), type == 0
-		= error (_ "unknown type for field " ++ field)
+		= error (_ "unknown type for field " ++ field ++ " " ++ print
+type)
 	{
 		type = im_header_get_typeof field im;
 
