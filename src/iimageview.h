@@ -42,10 +42,8 @@
 typedef struct _iImageview {
 	Graphicview parent_object;
 
-	guint popup_sid; /* id for popup menu */
-
+	GtkWidget *top;
 	Imagedisplay *id;
-	Conversion *conv;
 	GtkWidget *label;
 } iImageview;
 

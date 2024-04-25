@@ -28,23 +28,43 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
-#include "ip.h"
+#include "nip4.h"
 
-static GraphicviewClass *parent_class = NULL;
+G_DEFINE_TYPE(iImageview, iimageview, VIEW_TYPE)
+
+static void
+iimageview_dispose(GObject *object)
+{
+	iImageview *iimageview;
+
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(IS_IIMAGEVIEW(object));
+
+	iimageview = IIMAGEVIEW(object);
+
+#ifdef DEBUG
+	printf("iimageview_dispose:\n");
+#endif /*DEBUG*/
+
+	UNPARENT(iimageview->top);
+
+	G_OBJECT_CLASS(iimageview_parent_class)->dispose(object);
+}
 
 static void
 iimageview_realize(GtkWidget *widget)
 {
-	GTK_WIDGET_CLASS(parent_class)->realize(widget);
+	GTK_WIDGET_CLASS(iimageview_parent_class)->realize(widget);
 
 	/* Mark us as a symbol drag-to widget.
 	 */
 	set_symbol_drag_type(widget);
 }
 
+/*
 GtkWidget *
 iimageview_drag_window_new(int width, int height)
 {
@@ -54,9 +74,7 @@ iimageview_drag_window_new(int width, int height)
 	gtk_widget_set_app_paintable(GTK_WIDGET(window), TRUE);
 	gtk_widget_set_size_request(window, width, height);
 	gtk_widget_realize(window);
-#ifdef HAVE_SET_OPACITY
 	gdk_window_set_opacity(window->window, 0.5);
-#endif /*HAVE_SET_OPACITY*/
 
 	return window;
 }
@@ -68,10 +86,6 @@ iimageview_drag_begin(GtkWidget *widget, GdkDragContext *context)
 	Conversion *conv = iimageview->conv;
 	GtkWidget *window;
 	Imagedisplay *id;
-
-#ifdef DEBUG
-	printf("iimageview_drag_begin: \n");
-#endif /*DEBUG*/
 
 	window = iimageview_drag_window_new(
 		conv->canvas.width, conv->canvas.height);
@@ -87,10 +101,6 @@ iimageview_drag_begin(GtkWidget *widget, GdkDragContext *context)
 static void
 iimageview_drag_end(GtkWidget *widget, GdkDragContext *context)
 {
-#ifdef DEBUG
-	printf("iimageview_drag_end:\n");
-#endif /*DEBUG*/
-
 	gtk_object_set_data(GTK_OBJECT(widget),
 		"nip2-drag-window", NULL);
 }
@@ -99,10 +109,6 @@ static void
 iimageview_drag_data_get(GtkWidget *widget, GdkDragContext *context,
 	GtkSelectionData *selection_data, guint info, guint time)
 {
-#ifdef DEBUG
-	printf("iimageview_drag_data_get:\n");
-#endif /*DEBUG*/
-
 	if (info == TARGET_SYMBOL) {
 		iImageview *iimageview = IIMAGEVIEW(widget);
 		iImage *iimage = IIMAGE(VOBJECT(iimageview)->iobject);
@@ -110,8 +116,6 @@ iimageview_drag_data_get(GtkWidget *widget, GdkDragContext *context,
 		char txt[256];
 		VipsBuf buf = VIPS_BUF_STATIC(txt);
 
-		/* Drag the fully-qualified row name.
-		 */
 		row_qualified_name_relative(main_workspaceroot->sym,
 			row, &buf);
 		gtk_selection_data_set(selection_data,
@@ -126,11 +130,6 @@ iimageview_drag_data_received(GtkWidget *widget, GdkDragContext *context,
 	gint x, gint y, GtkSelectionData *selection_data,
 	guint info, guint time)
 {
-
-#ifdef DEBUG
-	printf("iimageview_drag_data_received:\n");
-#endif /*DEBUG*/
-
 	if (info == TARGET_SYMBOL && selection_data->length > 0 &&
 		selection_data->format == 8) {
 		const char *from_row_path = (const char *) selection_data->data;
@@ -139,13 +138,8 @@ iimageview_drag_data_received(GtkWidget *widget, GdkDragContext *context,
 		Row *row = HEAPMODEL(iimage)->row;
 		Row *from_row;
 
-#ifdef DEBUG
-		printf(" seen TARGET_SYMBOL \"%s\"\n",
-			from_row_path);
-#endif /*DEBUG*/
+		printf(" seen TARGET_SYMBOL \"%s\"\n", from_row_path);
 
-		/* Block drags to ourselves ... pointless.
-		 */
 		if ((from_row = row_parse_name(main_workspaceroot->sym,
 				 from_row_path)) &&
 			from_row != row) {
@@ -153,9 +147,6 @@ iimageview_drag_data_received(GtkWidget *widget, GdkDragContext *context,
 			char txt[256];
 			VipsBuf buf = VIPS_BUF_STATIC(txt);
 
-			/* Qualify relative to us. We don't want to embed
-			 * workspace names unless we have to.
-			 */
 			if (row->top_row->sym)
 				row_qualified_name_relative(row->top_row->sym,
 					from_row, &buf);
@@ -168,13 +159,11 @@ iimageview_drag_data_received(GtkWidget *widget, GdkDragContext *context,
 				symbol_recalculate_all();
 			}
 
-			/* Usually the drag-from row will be selected, very
-			 * annoying. Select the drag-to row.
-			 */
 			row_select(row);
 		}
 	}
 }
+ */
 
 /* Not the same as model->edit :-( if this is a region, don't pop the region
  * edit box, pop a viewer on the image.
@@ -197,18 +186,7 @@ iimageview_link(View *view, Model *model, View *parent)
 
 	Rowview *rview;
 
-	VIEW_CLASS(parent_class)->link(view, model, parent);
-
-	if ((rview = ROWVIEW(parent->parent))) {
-		Row *row = ROW(VOBJECT(rview)->iobject);
-
-		rowview_menu_attach(rview, GTK_WIDGET(iimageview->id));
-
-		if (row->popup && row->top_row == row) {
-			row->popup = FALSE;
-			iimageview_edit(GTK_WIDGET(view), iimageview);
-		}
-	}
+	VIEW_CLASS(iimageview_parent_class)->link(view, model, parent);
 }
 
 static void
@@ -227,15 +205,14 @@ iimageview_refresh(vObject *vobject)
 	printf("iimageview_refresh\n");
 #endif /*DEBUG*/
 
-	w = IM_MAX(GTK_WIDGET(iimageview->id)->requisition.width,
+	w = VIPS_MAX(GTK_WIDGET(iimageview->id)->requisition.width,
 		DISPLAY_THUMBNAIL);
 	h = DISPLAY_THUMBNAIL;
 	conversion_set_image(iimageview->conv, iimage->value.ii);
 	gtk_widget_set_size_request(GTK_WIDGET(iimageview->id), w, h);
 	gtk_widget_queue_draw(GTK_WIDGET(iimageview->id));
 
-	set_gcaption(iimageview->label, "%s",
-		NN(IOBJECT(iimage)->caption));
+	set_gcaption(iimageview->label, "%s", IOBJECT(iimage)->caption);
 
 	/* Set scale/offset for the thumbnail. Use the prefs setting, or if
 	 * there's a setting for this image, override with that.
@@ -260,34 +237,43 @@ iimageview_refresh(vObject *vobject)
 	conversion_set_params(iimageview->conv,
 		enabled, scale, offset, falsecolour, type);
 
-	VOBJECT_CLASS(parent_class)->refresh(vobject);
+	VOBJECT_CLASS(iimageview_parent_class)->refresh(vobject);
 }
 
 static void
 iimageview_class_init(iImageviewClass *class)
 {
+	GObjectClass *object_class = (GObjectClass *) class;
 	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
 
-	parent_class = g_type_class_peek_parent(class);
+	BIND_RESOURCE("iimageview.ui");
 
-	/* Create signals.
-	 */
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
+		GTK_TYPE_BIN_LAYOUT);
 
-	/* Init methods.
-	 */
+	BIND_VARIABLE(iImageview, top);
+	BIND_VARIABLE(iImageview, imagedisplay);
+	BIND_VARIABLE(iImageview, label);
+
+	object_class->dispose = iimageview_dispose;
+
 	widget_class->realize = iimageview_realize;
+	printf("iimageview_class_init: FIXME ... implement drag-drop\n");
+	/*
 	widget_class->drag_begin = iimageview_drag_begin;
 	widget_class->drag_end = iimageview_drag_end;
 	widget_class->drag_data_get = iimageview_drag_data_get;
 	widget_class->drag_data_received = iimageview_drag_data_received;
+	 */
 
 	vobject_class->refresh = iimageview_refresh;
 
 	view_class->link = iimageview_link;
 }
 
+/*
 static void
 iimageview_doubleclick_one_cb(GtkWidget *widget, GdkEvent *event,
 	iImageview *iimageview)
@@ -328,73 +314,25 @@ iimageview_tooltip_generate(GtkWidget *widget,
 	vips_buf_rewind(buf);
 	vips_buf_appends(buf, vips_buf_all(&iimage->caption_buffer));
 	if (im) {
-		double size = (double) im->Ysize * IM_IMAGE_SIZEOF_LINE(im);
+		double size = (double) im->Ysize * VIPS_IMAGE_SIZEOF_LINE(im);
 
 		vips_buf_appends(buf, ", ");
 		vips_buf_append_size(buf, size);
 		vips_buf_appendf(buf, ", %.3gx%.3g p/mm", im->Xres, im->Yres);
 	}
 }
+ */
 
 static void
 iimageview_init(iImageview *iimageview)
 {
-	GtkWidget *eb;
-	GtkWidget *vbox;
-
-#ifdef DEBUG
-	printf("iimageview_init\n");
-#endif /*DEBUG*/
-
-	eb = gtk_event_box_new();
-	gtk_box_pack_start(GTK_BOX(iimageview), eb, FALSE, FALSE, 0);
-	vbox = gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(eb), vbox);
-	gtk_widget_show(vbox);
-
-	iimageview->conv = conversion_new(NULL);
-	iimageview->conv->tile_size = 16;
-	iimageview->id = imagedisplay_new(iimageview->conv);
-	imagedisplay_set_shrink_to_fit(iimageview->id, TRUE);
-	gtk_box_pack_start(GTK_BOX(vbox),
-		GTK_WIDGET(iimageview->id), FALSE, FALSE, 0);
-	gtk_widget_show(GTK_WIDGET(iimageview->id));
-
-	/* Need these events in the enclosing workspaceview.
-	 */
-	gtk_widget_add_events(GTK_WIDGET(iimageview->id),
-		GDK_POINTER_MOTION_MASK |
-			GDK_POINTER_MOTION_HINT_MASK |
-			GDK_BUTTON_PRESS_MASK |
-			GDK_BUTTON_RELEASE_MASK);
-
-	iimageview->label = gtk_label_new("");
-	gtk_misc_set_alignment(GTK_MISC(iimageview->label), 0, 0.5);
-	gtk_misc_set_padding(GTK_MISC(iimageview->label), 2, 0);
-	gtk_box_pack_start(GTK_BOX(vbox),
-		GTK_WIDGET(iimageview->label), FALSE, FALSE, 0);
-	gtk_widget_show(GTK_WIDGET(iimageview->label));
-
-	/* Set as file drop destination
-	 */
-	filedrop_register(GTK_WIDGET(iimageview),
-		(FiledropFunc) iimageview_filedrop, iimageview);
-
-	doubleclick_add(GTK_WIDGET(iimageview), FALSE,
-		DOUBLECLICK_FUNC(iimageview_doubleclick_one_cb), iimageview,
-		DOUBLECLICK_FUNC(iimageview_doubleclick_two_cb), iimageview);
-
-	set_tooltip_generate(eb,
-		(TooltipGenerateFn) iimageview_tooltip_generate, iimageview, NULL);
-
-	gtk_widget_set_name(eb, "caption_widget");
-	gtk_widget_show(GTK_WIDGET(eb));
+	gtk_widget_init_template(GTK_WIDGET(iimageview));
 }
 
 View *
 iimageview_new(void)
 {
-	iImageview *iimageview = gtk_type_new(IIMAGEVIEW_TYPE);
+	iImageview *iimageview = g_object_new(IIMAGEVIEW_TYPE, NULL);
 
 	return VIEW(iimageview);
 }

@@ -1,6 +1,19 @@
 - add image viewer
 
-	iimageview next
+	doing iimageview, see iimageview_refresh
+
+	copied in
+
+		imagedisplay.c
+		imagedisplay.h
+		tile.c
+		tilecache.c
+		tilecache.h
+		tile.h
+		tilesource.c
+		tilesource.h
+
+	need to link them up!
 
 	then maybe we get a thumbnail!
 
