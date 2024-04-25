@@ -778,7 +778,7 @@ tilesource_page_flip(void *user_data)
 			timeout = tilesource->delay[i];
 	}
 
-	/* vipsdisp can struggle at more than 30fps.
+	/* gtk can struggle at more than 30fps.
 	 */
 	timeout = VIPS_CLIP(33, timeout, 100000);
 
@@ -1209,7 +1209,7 @@ tilesource_class_init(TilesourceClass *class)
 		G_SIGNAL_RUN_LAST,
 		G_STRUCT_OFFSET(TilesourceClass, area_changed),
 		NULL, NULL,
-		vipsdisp_VOID__POINTER_INT,
+		nip4_VOID__POINTER_INT,
 		G_TYPE_NONE, 2,
 		G_TYPE_POINTER,
 		G_TYPE_INT);

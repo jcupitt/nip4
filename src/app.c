@@ -196,6 +196,7 @@ app_startup(GApplication *app)
 	(void) g_type_class_ref(TYPE_VECTOR);
 	 */
 
+	(void) g_type_class_ref(IMAGEDISPLAY_TYPE);
 	(void) g_type_class_ref(IIMAGE_TYPE);
 	(void) g_type_class_ref(WORKSPACE_TYPE);
 	(void) g_type_class_ref(COLUMN_TYPE);

@@ -181,6 +181,7 @@ typedef struct _Workspaceviewlabel Workspaceviewlabel;
 typedef struct _Workspaceview Workspaceview;
 typedef struct _Workspace Workspace;
 
+#include "enumtypes.h"
 #include "spin.h"
 #include "tile.h"
 #include "tilesource.h"
@@ -224,6 +225,7 @@ typedef struct _Workspace Workspace;
 #include "expr.h"
 #include "itext.h"
 #include "iimage.h"
+#include "iregion.h"
 #include "log.h"
 #include "trace.h"
 #include "row.h"
@@ -245,6 +247,7 @@ typedef struct _Workspace Workspace;
 #include "workspaceroot.h"
 #include "workspacegroup.h"
 #include "graphicview.h"
+#include "iimageview.h"
 #include "columnview.h"
 #include "prefcolumnview.h"
 #include "prefworkspaceview.h"

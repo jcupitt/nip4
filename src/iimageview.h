@@ -43,7 +43,7 @@ typedef struct _iImageview {
 	Graphicview parent_object;
 
 	GtkWidget *top;
-	Imagedisplay *id;
+	Imagedisplay *imagedisplay;
 	GtkWidget *label;
 } iImageview;
 

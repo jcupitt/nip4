@@ -120,9 +120,7 @@ iimage_info(iObject *iobject, VipsBuf *buf)
 static View *
 iimage_view_new(Model *model, View *parent)
 {
-	printf("iimage_view_new: FIXME\n");
-	// return iimageview_new();
-	return NULL;
+	return iimageview_new();
 }
 
 static void

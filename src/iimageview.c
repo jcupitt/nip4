@@ -33,7 +33,7 @@
 
 #include "nip4.h"
 
-G_DEFINE_TYPE(iImageview, iimageview, VIEW_TYPE)
+G_DEFINE_TYPE(iImageview, iimageview, GRAPHICVIEW_TYPE)
 
 static void
 iimageview_dispose(GObject *object)
@@ -173,8 +173,10 @@ iimageview_edit(GtkWidget *parent, iImageview *iimageview)
 {
 	iImage *iimage = IIMAGE(VOBJECT(iimageview)->iobject);
 
-	if (IS_IREGION(iimage) && iimage->value.ii)
-		imageview_new(iimage, parent);
+	if (IS_IREGION(iimage) && iimage->value.ii) {
+		printf("iimageview_edit: FIXME\n");
+		// imageview_new(iimage, parent);
+	}
 	else
 		model_edit(parent, MODEL(iimage));
 }
@@ -202,30 +204,31 @@ iimageview_refresh(vObject *vobject)
 	gboolean falsecolour, type;
 
 #ifdef DEBUG
-	printf("iimageview_refresh\n");
 #endif /*DEBUG*/
+	printf("iimageview_refresh: FIXME\n");
 
-	w = VIPS_MAX(GTK_WIDGET(iimageview->id)->requisition.width,
+	/*
+	w = VIPS_MAX(GTK_WIDGET(iimageview->imagedisplay)->requisition.width,
 		DISPLAY_THUMBNAIL);
 	h = DISPLAY_THUMBNAIL;
 	conversion_set_image(iimageview->conv, iimage->value.ii);
-	gtk_widget_set_size_request(GTK_WIDGET(iimageview->id), w, h);
-	gtk_widget_queue_draw(GTK_WIDGET(iimageview->id));
+	gtk_widget_set_size_request(GTK_WIDGET(iimageview->imagedisplay), w, h);
+	gtk_widget_queue_draw(GTK_WIDGET(iimageview->imagedisplay));
 
 	set_gcaption(iimageview->label, "%s", IOBJECT(iimage)->caption);
+	 */
 
 	/* Set scale/offset for the thumbnail. Use the prefs setting, or if
 	 * there's a setting for this image, override with that.
-	 */
 	enabled = DISPLAY_CONVERSION;
 	scale = row->ws->scale;
 	offset = row->ws->offset;
 	falsecolour = FALSE;
 	type = TRUE;
+	 */
 
 	/* If the image_width has been set, a viewer must have popped down and
 	 * set it, so the recorded settings must be valid.
-	 */
 	if (MODEL(iimage)->window_width != -1) {
 		enabled = iimage->show_convert;
 		scale = iimage->scale;
@@ -236,6 +239,7 @@ iimageview_refresh(vObject *vobject)
 
 	conversion_set_params(iimageview->conv,
 		enabled, scale, offset, falsecolour, type);
+	 */
 
 	VOBJECT_CLASS(iimageview_parent_class)->refresh(vobject);
 }
