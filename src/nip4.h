@@ -182,6 +182,10 @@ typedef struct _Workspaceview Workspaceview;
 typedef struct _Workspace Workspace;
 
 #include "spin.h"
+#include "tile.h"
+#include "tilesource.h"
+#include "tilecache.h"
+#include "imagedisplay.h"
 #include "formula.h"
 #include "util.h"
 #include "app.h"

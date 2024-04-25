@@ -7,9 +7,9 @@
 		imagedisplay.c
 		imagedisplay.h
 		tile.c
+		tile.h
 		tilecache.c
 		tilecache.h
-		tile.h
 		tilesource.c
 		tilesource.h
 
