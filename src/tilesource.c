@@ -29,8 +29,8 @@
 
 /*
 #define DEBUG_VERBOSE
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -1094,7 +1094,7 @@ tilesource_class_init(TilesourceClass *class)
 		g_param_spec_enum("mode",
 			_("Mode"),
 			_("Display mode"),
-			TYPE_MODE,
+			TILESOURCE_MODE_TYPE,
 			TILESOURCE_MODE_MULTIPAGE,
 			G_PARAM_READWRITE));
 
@@ -1253,9 +1253,9 @@ tilesource_print(Tilesource *tilesource)
 	printf("\tpages_same_size = %d\n", tilesource->pages_same_size);
 	printf("\tall_mono = %d\n", tilesource->all_mono);
 	printf("\ttype = %s\n",
-		vips_enum_nick(TYPE_SOURCE_TYPE, tilesource->type));
+		vips_enum_nick(TILESOURCE_TYPE_TYPE, tilesource->type));
 	printf("\tmode = %s\n",
-		vips_enum_nick(TYPE_SOURCE_MODE, tilesource->mode));
+		vips_enum_nick(TILESOURCE_MODE_TYPE, tilesource->mode));
 	printf("\tdelay = %p\n", tilesource->delay);
 	printf("\tn_delay = %d\n", tilesource->n_delay);
 	printf("\tdisplay_width = %d\n", tilesource->display_width);

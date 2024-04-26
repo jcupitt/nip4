@@ -14,7 +14,6 @@
     <file preprocess="xml-stripblanks">formula.ui</file>
     <file preprocess="xml-stripblanks">itextview.ui</file>
     <file preprocess="xml-stripblanks">iimageview.ui</file>
-    <file>mainwindow.css</file>
-    <file>columnview.css</file>
+    <file>nip4.css</file>
   </gresource>
 </gresources>

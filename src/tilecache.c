@@ -30,10 +30,10 @@
 #include "nip4.h"
 
 /*
-#define DEBUG
+ */
 #define DEBUG_RENDER_TIME
 #define DEBUG_VERBOSE
- */
+#define DEBUG
 
 enum {
 	/* Properties.
@@ -169,6 +169,10 @@ tilecache_texture(TilecacheBackground background)
 static void
 tilecache_init(Tilecache *tilecache)
 {
+#ifdef DEBUG
+	printf("tilecache_init:\n");
+#endif /*DEBUG*/
+
 	tilecache->background = TILECACHE_BACKGROUND_CHECKERBOARD;
 	tilecache->background_texture = tilecache_texture(tilecache->background);
 }

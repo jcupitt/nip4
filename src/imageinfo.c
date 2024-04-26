@@ -81,12 +81,12 @@ most of the jobs above are pushed down into vips8 now ... except for
 #include "nip4.h"
 
 /*
- */
 #define DEBUG
 #define DEBUG_MAKE
 #define DEBUG_RGB
 #define DEBUG_OPEN
 #define DEBUG_CHECK
+ */
 
 G_DEFINE_TYPE(Imageinfogroup, imageinfogroup, ICONTAINER_TYPE)
 
@@ -591,6 +591,9 @@ static int
 imageinfo_proxy_eval(Imageinfoproxy *proxy)
 {
 	Imageinfo *imageinfo = proxy->imageinfo;
+
+	printf("imageinfo_proxy_eval: FIXME\n");
+	return;
 
 	if (imageinfo && imageinfo->im->time)
 		if (progress_update_percent(imageinfo->im->time->percent,

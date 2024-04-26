@@ -50,6 +50,7 @@ iimageview_dispose(GObject *object)
 #endif /*DEBUG*/
 
 	UNPARENT(iimageview->top);
+	VIPS_UNREF(iimageview->tilesource);
 
 	G_OBJECT_CLASS(iimageview_parent_class)->dispose(object);
 }
@@ -197,6 +198,8 @@ iimageview_refresh(vObject *vobject)
 	iImageview *iimageview = IIMAGEVIEW(vobject);
 	iImage *iimage = IIMAGE(vobject->iobject);
 	Row *row = HEAPMODEL(iimage)->row;
+	Imageinfo *ii = iimage->value.ii;
+	VipsImage *image = imageinfo_get(FALSE, ii);
 
 	int w, h;
 	gboolean enabled;
@@ -207,16 +210,29 @@ iimageview_refresh(vObject *vobject)
 #endif /*DEBUG*/
 	printf("iimageview_refresh: FIXME\n");
 
-	/*
-	w = VIPS_MAX(GTK_WIDGET(iimageview->imagedisplay)->requisition.width,
-		DISPLAY_THUMBNAIL);
-	h = DISPLAY_THUMBNAIL;
-	conversion_set_image(iimageview->conv, iimage->value.ii);
-	gtk_widget_set_size_request(GTK_WIDGET(iimageview->imagedisplay), w, h);
-	gtk_widget_queue_draw(GTK_WIDGET(iimageview->imagedisplay));
+	if (iimageview->imagedisplay) {
+		if (!iimageview->tilesource ||
+			image != tilesource_get_image(iimageview->tilesource)) {
+			printf("iimageview_refresh: "
+					"use tilesource_new_from_file() if we can\n");
+			VIPS_UNREF(iimageview->tilesource);
+			iimageview->tilesource = tilesource_new_from_image(image);
 
-	set_gcaption(iimageview->label, "%s", IOBJECT(iimage)->caption);
-	 */
+			g_object_set(iimageview->imagedisplay,
+				"bestfit", TRUE,
+				"tilesource", iimageview->tilesource,
+				NULL);
+
+			// image tilesources are always loaded and can start painting
+			// right away
+			g_object_set(iimageview->tilesource,
+				"loaded", TRUE,
+				NULL);
+		}
+	}
+
+	if (iimageview->label)
+		set_glabel(iimageview->label, "%s", IOBJECT(iimage)->caption);
 
 	/* Set scale/offset for the thumbnail. Use the prefs setting, or if
 	 * there's a setting for this image, override with that.

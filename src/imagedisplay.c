@@ -30,9 +30,9 @@
 #include "nip4.h"
 
 /*
+ */
 #define DEBUG_VERBOSE
 #define DEBUG
- */
 
 // the focus colour we paint
 // FIXME ... we should somehow get this from the theme, I'm not sure how
@@ -95,7 +95,7 @@ G_DEFINE_TYPE_WITH_CODE(Imagedisplay, imagedisplay, GTK_TYPE_DRAWING_AREA,
 	G_IMPLEMENT_INTERFACE(GTK_TYPE_SCROLLABLE, NULL));
 
 enum {
-	/* Set the tilecache we display.
+	/* Set the tilesource we display.
 	 */
 	PROP_TILESOURCE = 1,
 
@@ -106,7 +106,7 @@ enum {
 	PROP_VADJUSTMENT,
 	PROP_VSCROLL_POLICY,
 
-	/* We need bestfit off for eg. suplicate.
+	/* We need bestfit off for eg. duplicate.
 	 */
 	PROP_BESTFIT,
 
@@ -699,7 +699,7 @@ imagedisplay_class_init(ImagedisplayClass *class)
 	widget_class->snapshot = imagedisplay_snapshot;
 
 	g_object_class_install_property(gobject_class, PROP_TILESOURCE,
-		g_param_spec_object("tile-source",
+		g_param_spec_object("tilesource",
 			_("Tile source"),
 			_("The tile source to be displayed"),
 			TILESOURCE_TYPE,

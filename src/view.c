@@ -22,13 +22,13 @@
  */
 
 /*
- */
 #define DEBUG
 #define DEBUG_VIEWCHILD
+ */
 
 /* Time each refresh
- */
 #define DEBUG_TIME
+ */
 
 #include "nip4.h"
 
