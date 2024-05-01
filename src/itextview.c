@@ -36,6 +36,25 @@
 G_DEFINE_TYPE(iTextview, itextview, VIEW_TYPE)
 
 static void
+itextview_dispose(GObject *object)
+{
+	iTextview *itextview;
+
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(IS_ITEXTVIEW(object));
+
+	itextview = ITEXTVIEW(object);
+
+#ifdef DEBUG
+	printf("itextview_dispose:\n");
+#endif /*DEBUG*/
+
+	UNPARENT(itextview->formula);
+
+	G_OBJECT_CLASS(itextview_parent_class)->dispose(object);
+}
+
+static void
 itextview_refresh(vObject *vobject)
 {
 	iTextview *itextview = ITEXTVIEW(vobject);
@@ -192,6 +211,7 @@ itextview_activate(Formula *formula, iTextview *itextview)
 static void
 itextview_class_init(iTextviewClass *class)
 {
+	GObjectClass *object_class = (GObjectClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
 
@@ -211,6 +231,8 @@ itextview_class_init(iTextviewClass *class)
 
 	/* Init methods.
 	 */
+	object_class->dispose = itextview_dispose;
+
 	vobject_class->refresh = itextview_refresh;
 
 	view_class->link = itextview_link;

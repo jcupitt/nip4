@@ -42,7 +42,7 @@ rhsview_dispose(GObject *object)
 	Rhsview *rhsview;
 
 	g_return_if_fail(object != NULL);
-	g_return_if_fail(IS_ROWVIEW(object));
+	g_return_if_fail(IS_RHSVIEW(object));
 
 	rhsview = RHSVIEW(object);
 
