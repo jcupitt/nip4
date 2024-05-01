@@ -1,4 +1,5 @@
-// watch an iobject and call _refresh on idle if it changes
+// watch an iobject and call _refresh on idle if it changes ... the base class
+// for all of our view wisgets
 
 /*
 
@@ -189,13 +190,11 @@ vobject_iobject_destroy(iObject *iobject, vObject *vobject)
 		G_OBJECT_TYPE_NAME(iobject), iobject->name);
 #endif /*DEBUG*/
 
-	// added the explicit dequeue since unparenting does nopt drop the
-	// refcount to 0 and trigger _dispose, as it probably should
-	//
-	// we need to fix vobject refcounts so that widgets are disposed correctly
-	printf("vobject_iobject_destroy: FIXME view object refcounts are wrong\n");
-	vobject_refresh_dequeue(vobject);
-	UNPARENT(vobject);
+	printf("vobject_iobject_destroy: FIXME model has gone, should view go?\n"
+			"\tmodel %s \"%s\"\n"
+			"\tview %s\n",
+		G_OBJECT_TYPE_NAME(iobject), iobject->name,
+        G_OBJECT_TYPE_NAME(vobject));
 }
 
 /* Link to iobject.
@@ -267,9 +266,8 @@ vobject_iobject_weak_notify(gpointer user_data, GObject *dead_object)
 
 	g_assert(!vobject->iobject || G_OBJECT(vobject->iobject) == dead_object);
 
+	// don't unerf, this is just a weakref going away
 	vobject->iobject = NULL;
-
-	UNPARENT(vobject);
 }
 
 static void

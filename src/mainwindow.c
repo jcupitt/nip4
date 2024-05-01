@@ -124,6 +124,8 @@ main_window_dispose(GObject *object)
 
 	VIPS_FREEF(g_timer_destroy, main->progress_timer);
 	VIPS_FREEF(g_source_remove, main->refresh_timeout);
+	IDESTROY(main->wsg);
+	UNPARENT(main->wsgview);
 
 	G_OBJECT_CLASS(main_window_parent_class)->dispose(object);
 }
@@ -416,7 +418,7 @@ main_window_init(MainWindow *main)
 	GtkEventController *controller;
 
 #ifdef DEBUG
-	puts("main_window_init");
+	printf("main_window_init:\n");
 #endif /*DEBUG*/
 
 	main->progress_timer = g_timer_new();
@@ -557,6 +559,7 @@ main_window_wsg_changed(Workspacegroup *wsg, MainWindow *main)
 static void
 main_window_wsg_destroy(Workspacegroup *wsg, MainWindow *main)
 {
+	printf("main_window_wsg_destroy:\n");
 	main->wsg = NULL;
 }
 

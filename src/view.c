@@ -134,7 +134,7 @@ view_viewchild_changed(Model *model, ViewChild *viewchild)
 			G_OBJECT_TYPE_NAME(child));
 #endif /*DEBUG_VIEWCHILD*/
 
-		UNPARENT(child);
+		VIPS_UNREF(child);
 	}
 	else if (display && !child) {
 #ifdef DEBUG_VIEWCHILD
@@ -608,15 +608,8 @@ view_real_child_add(View *parent, View *child)
 	g_assert(viewchild);
 	g_assert(viewchild->child_view == NULL);
 
-	/* Not all views are true widgets (ie. get _ref()'s and _sink()'d by a
-	 * parent in gtk_container()). Ref and sink ourselves to ensure that
-	 * even these odd views get unfloated. See also
-	 * view_real_child_remove(). Affects the tool/toolkit views, and
-	 * rowview at least.
-	 */
 	child->parent = parent;
 	viewchild->child_view = child;
-	g_object_ref_sink(G_OBJECT(child));
 }
 
 static void
@@ -632,13 +625,9 @@ view_real_child_remove(View *parent, View *child)
 	viewchild = slist_map(parent->managed,
 		(SListMapFn) view_viewchild_test_child_model, VOBJECT(child)->iobject);
 
-	/* Can have floating views which are not part of the viewchild system.
-	 */
 	if (viewchild &&
-		viewchild->child_view == child) {
+		viewchild->child_view == child)
 		viewchild->child_view = NULL;
-		g_object_unref(G_OBJECT(child));
-	}
 
 	child->parent = NULL;
 }

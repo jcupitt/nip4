@@ -57,8 +57,6 @@ subcolumnview_dispose(GObject *object)
 
 	sview = SUBCOLUMNVIEW(object);
 
-	// UNPARENT(sview->group);
-
 	/* Destroying us won't automatically destroy our rowviews, since they
 	 * are not true child-widgets. Do it by hand.
 	 */

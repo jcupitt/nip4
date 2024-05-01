@@ -1,3 +1,30 @@
+- add row remove, or column remove so we can watch widgets being unreffed
+
+- should view ref/unref children?
+
+	might be necessary for views that are not true widgets? eg. rowview
+	or toolkitview
+
+	are view child add/remove being called when the models are destroyed?
+	or is something else watching model create/destroy?
+
+	view_real_child_add() and view_real_child_remove() could have refsink
+	and unref added
+
+- view_unlink() has:
+
+    FREESID(view->pos_changed_sid, VOBJECT(view)->iobject);
+    FREESID(view->scrollto_sid, VOBJECT(view)->iobject);
+    FREESID(view->layout_sid, VOBJECT(view)->iobject);
+    FREESID(view->reset_sid, VOBJECT(view)->iobject);
+    FREESID(view->front_sid, VOBJECT(view)->iobject);
+    FREESID(view->child_add_sid, VOBJECT(view)->iobject);
+    FREESID(view->child_remove_sid, VOBJECT(view)->iobject);
+    FREESID(view->child_detach_sid, VOBJECT(view)->iobject);
+    FREESID(view->child_attach_sid, VOBJECT(view)->iobject);
+
+  we could use signal_connect_object for all these
+
 - imageinfo_proxy_eval() seems to be called during tilecache fill?
 
 - stray allocations on exit
