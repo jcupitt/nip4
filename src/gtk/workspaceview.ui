@@ -5,7 +5,7 @@
     <section>
       <item>
         <attribute name="label">New column</attribute>
-        <attribute name="action">win.new-column</attribute>
+        <attribute name="action">win.column-new</attribute>
       </item>
       <item>
         <attribute name="label">Group selected</attribute>

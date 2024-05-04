@@ -359,6 +359,18 @@ workspaceview_child_add(View *parent, View *child)
 }
 
 static void
+workspaceview_child_remove(View *parent, View *child)
+{
+	Workspaceview *wview = WORKSPACEVIEW(parent);
+
+	printf("workspaceview_child_remove:\n");
+
+	gtk_fixed_remove(GTK_FIXED(wview->fixed), GTK_WIDGET(child));
+
+	VIEW_CLASS(workspaceview_parent_class)->child_remove(parent, child);
+}
+
+static void
 workspaceview_child_position(View *parent, View *child)
 {
 	Workspaceview *wview = WORKSPACEVIEW(parent);
@@ -629,7 +641,7 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 
 	printf("workspaceview_action: %s\n", name);
 
-	if (g_str_equal(name, "new-column")) {
+	if (g_str_equal(name, "column-new")) {
 		Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 		workspace_column_new(ws);
@@ -816,7 +828,7 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 	case WVIEW_DRAG:
 		wview->state = WVIEW_WAIT;
 		if (wview->drag_cview)
-			UNPARENT(wview->drag_cview->shadow);
+			VIPS_UNREF(wview->drag_cview->shadow);
 
 		// Move columns to their final position.
 		model_layout(MODEL(ws));
@@ -865,6 +877,7 @@ workspaceview_class_init(WorkspaceviewClass *class)
 
 	view_class->link = workspaceview_link;
 	view_class->child_add = workspaceview_child_add;
+	view_class->child_remove = workspaceview_child_remove;
 	view_class->child_position = workspaceview_child_position;
 	view_class->child_front = workspaceview_child_front;
 	view_class->layout = workspaceview_layout;

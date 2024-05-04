@@ -3,7 +3,7 @@
   <template class="Spin" parent="GtkWidget">
     <child>
 
-      <object class="GtkBox">
+      <object class="GtkBox" id="top">
         <property name="orientation">vertical</property>
 	<property name="tooltip-text">Expand or collapse row</property>
 

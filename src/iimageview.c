@@ -199,7 +199,6 @@ iimageview_refresh(vObject *vobject)
 	iImage *iimage = IIMAGE(vobject->iobject);
 	Row *row = HEAPMODEL(iimage)->row;
 	Imageinfo *ii = iimage->value.ii;
-	VipsImage *image = imageinfo_get(FALSE, ii);
 
 	int w, h;
 	gboolean enabled;
@@ -211,23 +210,28 @@ iimageview_refresh(vObject *vobject)
 	printf("iimageview_refresh: FIXME\n");
 
 	if (iimageview->imagedisplay) {
+		VipsImage *image = imageinfo_get(FALSE, ii);
+
 		if (!iimageview->tilesource ||
 			image != tilesource_get_image(iimageview->tilesource)) {
 			printf("iimageview_refresh: "
 					"use tilesource_new_from_file() if we can\n");
 			VIPS_UNREF(iimageview->tilesource);
-			iimageview->tilesource = tilesource_new_from_image(image);
+			if (image)
+				iimageview->tilesource = tilesource_new_from_image(image);
 
-			g_object_set(iimageview->imagedisplay,
-				"bestfit", TRUE,
-				"tilesource", iimageview->tilesource,
-				NULL);
+			if (iimageview->tilesource) {
+				g_object_set(iimageview->imagedisplay,
+					"bestfit", TRUE,
+					"tilesource", iimageview->tilesource,
+					NULL);
 
-			// image tilesources are always loaded and can start painting
-			// right away
-			g_object_set(iimageview->tilesource,
-				"loaded", TRUE,
-				NULL);
+				// image tilesources are always loaded and can start painting
+				// right away
+				g_object_set(iimageview->tilesource,
+					"loaded", TRUE,
+					NULL);
+			}
 		}
 	}
 

@@ -22,9 +22,9 @@
  */
 
 /*
-#define DEBUG
 #define DEBUG_VIEWCHILD
  */
+#define DEBUG
 
 /* Time each refresh
 #define DEBUG_TIME
@@ -97,6 +97,26 @@ void
 view_reset_all(void)
 {
 	(void) slist_map(view_resettable, (SListMapFn) view_reset, NULL);
+}
+
+static void *
+view_viewchild_destroy(ViewChild *viewchild)
+{
+	View *parent_view = viewchild->parent_view;
+	View *child_view = viewchild->child_view;
+
+#ifdef DEBUG_VIEWCHILD
+	printf("view_viewchild_destroy: view %s watching model %s\n",
+		G_OBJECT_TYPE_NAME(viewchild->parent_view),
+		G_OBJECT_TYPE_NAME(viewchild->child_model));
+#endif /*DEBUG_VIEWCHILD*/
+
+	FREESID(viewchild->child_model_changed_sid, viewchild->child_model);
+	parent_view->managed = g_slist_remove(parent_view->managed, viewchild);
+
+	g_free(viewchild);
+
+	return NULL;
 }
 
 /* Should a viewchild be displayed? If model->display is true, also give the
@@ -176,30 +196,6 @@ view_viewchild_new(View *parent_view, Model *child_model)
 }
 
 static void *
-view_viewchild_destroy(ViewChild *viewchild)
-{
-	View *parent_view = viewchild->parent_view;
-	View *child_view = viewchild->child_view;
-
-#ifdef DEBUG_VIEWCHILD
-	printf("view_viewchild_destroy: view %s watching model %s\n",
-		G_OBJECT_TYPE_NAME(viewchild->parent_view),
-		G_OBJECT_TYPE_NAME(viewchild->child_model));
-#endif /*DEBUG_VIEWCHILD*/
-
-	if (child_view) {
-		g_assert(child_view->parent == parent_view);
-		child_view->parent = NULL;
-	}
-	FREESID(viewchild->child_model_changed_sid, viewchild->child_model);
-	parent_view->managed = g_slist_remove(parent_view->managed, viewchild);
-
-	g_free(viewchild);
-
-	return NULL;
-}
-
-static void *
 view_viewchild_test_child_model(ViewChild *viewchild, Model *child_model)
 {
 #ifdef DEBUG
@@ -254,7 +250,8 @@ view_child_remove(View *child)
 {
 	View *parent = child->parent;
 
-	VIEW_GET_CLASS(parent)->child_remove(parent, child);
+	if (parent)
+		VIEW_GET_CLASS(parent)->child_remove(parent, child);
 }
 
 /* Child needs repositioning.

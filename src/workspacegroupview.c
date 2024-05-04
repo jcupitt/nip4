@@ -140,7 +140,13 @@ workspacegroupview_child_add(View *parent, View *child)
 static void
 workspacegroupview_child_remove(View *parent, View *child)
 {
+	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(parent);
+	Workspace *ws = WORKSPACE(VOBJECT(child)->iobject);
+
 	printf("workspacegroupview_child_remove:\n");
+
+	gtk_notebook_remove_page(GTK_NOTEBOOK(wsgview->notebook),
+		ICONTAINER(ws)->pos);
 
 	VIEW_CLASS(workspacegroupview_parent_class)->child_remove(parent, child);
 }

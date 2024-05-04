@@ -50,6 +50,20 @@ enum {
 
 static guint spin_signals[LAST_SIGNAL] = { 0 };
 
+static void
+spin_dispose(GObject *gobject)
+{
+	Spin *spin = SPIN(gobject);
+
+#ifdef DEBUG
+	printf("spin_dispose:\n");
+#endif /*DEBUG*/
+
+	UNPARENT(spin->top);
+
+	G_OBJECT_CLASS(spin_parent_class)->dispose(gobject);
+}
+
 /* Default up and down signal handlers.
  */
 static void
@@ -88,14 +102,15 @@ spin_class_init(SpinClass *class)
 	GObjectClass *gobject_class = (GObjectClass *) class;
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(class);
 
+	BIND_RESOURCE("spin.ui");
+
 	gtk_widget_class_set_layout_manager_type(widget_class,
 		GTK_TYPE_BIN_LAYOUT);
-	gtk_widget_class_set_template_from_resource(widget_class,
-		APP_PATH "/spin.ui");
-	gtk_widget_class_bind_template_callback(widget_class,
-		spin_up);
-	gtk_widget_class_bind_template_callback(widget_class,
-		spin_down);
+
+	BIND_CALLBACK(spin_up);
+	BIND_CALLBACK(spin_down);
+
+	BIND_VARIABLE(Spin, top);
 
 	/* Create signals.
 	 */
@@ -113,6 +128,8 @@ spin_class_init(SpinClass *class)
 		NULL, NULL,
 		g_cclosure_marshal_VOID__VOID,
 		G_TYPE_NONE, 0);
+
+	gobject_class->dispose = spin_dispose;
 
 	class->up_click = spin_real_up_click;
 	class->down_click = spin_real_down_click;

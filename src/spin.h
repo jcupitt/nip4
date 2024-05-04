@@ -42,6 +42,7 @@
 typedef struct _Spin {
 	GtkWidget parent_object;
 
+	GtkWidget *top;
 } Spin;
 
 typedef struct _SpinClass {

@@ -4,30 +4,30 @@
     <section>
       <item>
         <attribute name='label' translatable='yes'>Edit caption</attribute>
-        <attribute name='action'>win.tab-rename</attribute>
+        <attribute name='action'>win.column-edit-caption</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>Select all</attribute>
-        <attribute name='action'>win.tab-select-all</attribute>
+        <attribute name='action'>win.column-select-all</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>Duplicate</attribute>
-        <attribute name='action'>win.tab-duplicate</attribute>
+        <attribute name='action'>win.column-duplicate</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>Merge into column ...</attribute>
-        <attribute name='action'>win.tab-merge</attribute>
+        <attribute name='action'>win.column-merge</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>Save as ...</attribute>
-        <attribute name='action'>win.tab-saveas</attribute>
+        <attribute name='action'>win.column-saveas</attribute>
       </item>
     </section>
 
     <section>
       <item>
         <attribute name='label' translatable='yes'>Delete ...</attribute>
-        <attribute name='action'>win.tab-delete</attribute>
+        <attribute name='action'>win.column-delete</attribute>
       </item>
     </section>
   </menu>

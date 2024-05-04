@@ -62,14 +62,8 @@ rowview_dispose(GObject *object)
 	printf("\n");
 #endif /*DEBUG*/
 
+	UNPARENT(rview->top);
 	VIPS_FREE(rview->last_tooltip);
-
-	/* Kill children ... must do this ourselves, since we are not a
-	 * self-contained widget.
-	 */
-	UNPARENT(rview->spin);
-	UNPARENT(rview->but);
-	UNPARENT(rview->rhsview);
 
 	G_OBJECT_CLASS(rowview_parent_class)->dispose(object);
 }
@@ -448,6 +442,8 @@ rowview_child_add(View *parent, View *child)
 	g_assert(IS_RHSVIEW(child));
 	g_assert(!rview->rhsview);
 
+	// we don't hold a ref to rhsview, the grid in the enclosing subcolumnview
+	// does
 	rview->rhsview = RHSVIEW(child);
 
 	VIEW_CLASS(rowview_parent_class)->child_add(parent, child);

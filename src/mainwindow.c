@@ -122,10 +122,10 @@ main_window_dispose(GObject *object)
 	printf("main_window_dispose:\n");
 #endif /*DEBUG*/
 
+	IDESTROY(main->wsg);
+
 	VIPS_FREEF(g_timer_destroy, main->progress_timer);
 	VIPS_FREEF(g_source_remove, main->refresh_timeout);
-	IDESTROY(main->wsg);
-	UNPARENT(main->wsgview);
 
 	G_OBJECT_CLASS(main_window_parent_class)->dispose(object);
 }
@@ -388,6 +388,9 @@ static void
 main_window_view_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
+	printf("main_window_view_action: %s\n",
+			g_action_get_name(G_ACTION(action)));
+
 	MainWindow *main = MAIN_WINDOW(user_data);
 
 	if (main->action_view &&
@@ -406,10 +409,19 @@ static GActionEntry main_window_entries[] = {
 	{ "saveas", main_window_saveas_action },
 	{ "save", main_window_save_action },
 	{ "close", main_window_close_action },
-
-	{ "new-column", main_window_view_action },
-
 	{ "fullscreen", action_toggle, NULL, "false", main_window_fullscreen },
+
+	// workspaceview rightclick menu
+	{ "column-new", main_window_view_action },
+
+	// column menu
+	{ "column-edit-caption", main_window_view_action },
+	{ "column-select-all", main_window_view_action },
+	{ "column-duplicate", main_window_view_action },
+	{ "column-merge", main_window_view_action },
+	{ "column-saveas", main_window_view_action },
+	{ "column-delete", main_window_view_action },
+
 };
 
 static void

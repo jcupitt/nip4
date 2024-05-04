@@ -190,11 +190,18 @@ vobject_iobject_destroy(iObject *iobject, vObject *vobject)
 		G_OBJECT_TYPE_NAME(iobject), iobject->name);
 #endif /*DEBUG*/
 
-	printf("vobject_iobject_destroy: FIXME model has gone, should view go?\n"
+	printf("vobject_iobject_destroy: FIXME model has gone\n"
 			"\tmodel %s \"%s\"\n"
 			"\tview %s\n",
 		G_OBJECT_TYPE_NAME(iobject), iobject->name,
         G_OBJECT_TYPE_NAME(vobject));
+
+	view_child_remove(VIEW(vobject));
+
+	// don't unref, this is just a weakref going away
+	g_assert(!vobject->iobject ||
+			G_OBJECT(vobject->iobject) == iobject);
+	vobject->iobject = NULL;
 }
 
 /* Link to iobject.
@@ -253,35 +260,17 @@ vobject_real_refresh(vObject *vobject)
 }
 
 static void
-vobject_iobject_weak_notify(gpointer user_data, GObject *dead_object)
-{
-	vObject *vobject = VOBJECT(user_data);
-
-#ifdef DEBUG
-	iObject *iobject = vobject->iobject;
-
-	printf("vobject_iobject_weak_notify: iobject %s \"%s\"\n",
-		G_OBJECT_TYPE_NAME(iobject), iobject->name);
-#endif /*DEBUG*/
-
-	g_assert(!vobject->iobject || G_OBJECT(vobject->iobject) == dead_object);
-
-	// don't unerf, this is just a weakref going away
-	vobject->iobject = NULL;
-}
-
-static void
 vobject_real_link(vObject *vobject, iObject *iobject)
 {
 	g_assert(!vobject->iobject);
 
+	// a weak ref ... we break the link when the model is destroyed
 	vobject->iobject = iobject;
-	g_object_weak_ref(G_OBJECT(iobject), vobject_iobject_weak_notify, vobject);
+	g_signal_connect_object(iobject, "destroy",
+		G_CALLBACK(vobject_iobject_destroy), vobject, 0);
 
 	g_signal_connect_object(iobject, "changed",
 		G_CALLBACK(vobject_iobject_changed), vobject, G_CONNECT_DEFAULT);
-	g_signal_connect_object(iobject, "destroy",
-		G_CALLBACK(vobject_iobject_destroy), vobject, 0);
 }
 
 static void
@@ -316,7 +305,9 @@ vobject_refresh(vObject *vobject)
 {
 	vObjectClass *vobject_class = VOBJECT_GET_CLASS(vobject);
 
-	if (vobject_class->refresh)
+	// don't refresh if there's no model
+	if (vobject->iobject &&
+		vobject_class->refresh)
 		vobject_class->refresh(vobject);
 
 	return NULL;

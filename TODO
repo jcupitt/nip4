@@ -1,15 +1,12 @@
-- add row remove, or column remove so we can watch widgets being unreffed
+- stray allocations on ^Q with thumbnails
 
-- should view ref/unref children?
+- column drag has broken
 
-	might be necessary for views that are not true widgets? eg. rowview
-	or toolkitview
+- column delete needs to
 
-	are view child add/remove being called when the models are destroyed?
-	or is something else watching model create/destroy?
-
-	view_real_child_add() and view_real_child_remove() could have refsink
-	and unref added
+	queue a layout
+	mark the filemodel as dirty
+	queue a main_window refresh
 
 - view_unlink() has:
 
@@ -23,13 +20,18 @@
     FREESID(view->child_detach_sid, VOBJECT(view)->iobject);
     FREESID(view->child_attach_sid, VOBJECT(view)->iobject);
 
-  we could use signal_connect_object for all these
+  could we use signal_connect_object for all these?
+
+- rowview has a right_click_menu for the button
+
+  do we make a separate menu for every rowview? can we share them?
 
 - imageinfo_proxy_eval() seems to be called during tilecache fill?
 
-- stray allocations on exit
-
 - add popup image viewer
+
+
+
 
 - imagedisplay should not draw the focus rect ... get the base widget class
   to do that for us

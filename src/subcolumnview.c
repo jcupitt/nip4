@@ -35,14 +35,6 @@
 
 G_DEFINE_TYPE(Subcolumnview, subcolumnview, VIEW_TYPE)
 
-static void *
-subcolumnview_destroy_sub(Rowview *rview, Subcolumnview *sview)
-{
-	UNPARENT(rview);
-
-	return NULL;
-}
-
 static void
 subcolumnview_dispose(GObject *object)
 {
@@ -57,11 +49,6 @@ subcolumnview_dispose(GObject *object)
 
 	sview = SUBCOLUMNVIEW(object);
 
-	/* Destroying us won't automatically destroy our rowviews, since they
-	 * are not true child-widgets. Do it by hand.
-	 */
-	(void) view_map(VIEW(sview),
-		(view_map_fn) subcolumnview_destroy_sub, sview, NULL);
 	UNPARENT(sview->grid);
 
 	G_OBJECT_CLASS(subcolumnview_parent_class)->dispose(object);
@@ -89,6 +76,32 @@ subcolumnview_link(View *view, Model *model, View *parent)
 	 */
 	if (!scol->is_top)
 		sview->rhsview = RHSVIEW(parent);
+}
+
+static void
+subcolumnview_child_add(View *parent, View *child)
+{
+	Subcolumnview *sview = SUBCOLUMNVIEW(parent);
+	Rowview *rview = ROWVIEW(child);
+
+	// the rowview is not a true child widget (we attach rview members to the
+	// subcolumn grid in rowview_refresh(), we never attach rview itself),
+	// so sview must hold an explicit ref
+	g_object_ref_sink(rview);
+
+	VIEW_CLASS(subcolumnview_parent_class)->child_add(parent, child);
+}
+
+static void
+subcolumnview_child_remove(View *parent, View *child)
+{
+	Subcolumnview *sview = SUBCOLUMNVIEW(parent);
+	Rowview *rview = ROWVIEW(child);
+
+	VIEW_CLASS(subcolumnview_parent_class)->child_remove(parent, child);
+
+	// drop the ref we were holding to rview
+	VIPS_UNREF(rview);
 }
 
 static void *
@@ -179,6 +192,8 @@ subcolumnview_class_init(SubcolumnviewClass *class)
 	vobject_class->refresh = subcolumnview_refresh;
 
 	view_class->link = subcolumnview_link;
+	view_class->child_add = subcolumnview_child_add;
+	view_class->child_remove = subcolumnview_child_remove;
 }
 
 static void

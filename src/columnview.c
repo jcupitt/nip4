@@ -452,6 +452,10 @@ columnview_refresh(vObject *vobject)
 	Columnview *cview = COLUMNVIEW(vobject);
 	Columnview *shadow = cview->shadow;
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
+
+	if (!col)
+		return;
+
 	gboolean editable = col->ws->mode != WORKSPACE_MODE_NOEDIT;
 
 #ifdef DEBUG
@@ -573,6 +577,17 @@ columnview_child_add(View *parent, View *child)
 	gtk_box_prepend(GTK_BOX(cview->body), GTK_WIDGET(sview));
 }
 
+static void
+columnview_child_remove(View *parent, View *child)
+{
+	Columnview *cview = COLUMNVIEW(parent);
+	Subcolumnview *sview = SUBCOLUMNVIEW(child);
+
+	gtk_box_remove(GTK_BOX(cview->body), GTK_WIDGET(sview));
+
+	VIEW_CLASS(columnview_parent_class)->child_remove(parent, child);
+}
+
 /* Scroll to keep the text entry at the bottom of the columnview on screen.
  * We can't use the position/size of the text widget for positioning, since it
  * may not be properly realized yet ... make the bottom of the column visible
@@ -601,6 +616,9 @@ static void
 columnview_menu(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Columnview *cview)
 {
+	// menu will act on this widget
+	main_window_set_action_view(cview);
+
 	gtk_popover_set_pointing_to(GTK_POPOVER(cview->right_click_menu),
 		&(const GdkRectangle){ x, y, 1, 1 });
 
@@ -629,6 +647,21 @@ columnview_activate(GtkEntry *self, gpointer user_data)
 	}
 
 	set_gentry(self, NULL);
+}
+
+static void
+columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
+{
+	Columnview *cview = COLUMNVIEW(view);
+	const char *name = g_action_get_name(G_ACTION(action));
+
+	printf("columnview_action: %s\n", name);
+
+	if (g_str_equal(name, "column-delete")) {
+		Column *col = COLUMN(VOBJECT(cview)->iobject);
+
+		iobject_destroy(col);
+	}
 }
 
 static void
@@ -663,7 +696,9 @@ columnview_class_init(ColumnviewClass *class)
 
 	view_class->link = columnview_link;
 	view_class->child_add = columnview_child_add;
+	view_class->child_remove = columnview_child_remove;
 	view_class->scrollto = columnview_scrollto;
+	view_class->action = columnview_action;
 
 	printf("columnview_class_init: columnview menu FIXME\n");
 }
