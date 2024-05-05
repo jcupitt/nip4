@@ -22,8 +22,8 @@
  */
 
 /*
- */
 #define DEBUG_FATAL
+ */
 #define DEBUG
 
 #include "nip4.h"
@@ -410,9 +410,41 @@ main(int argc, char **argv)
 
 	status = g_application_run(G_APPLICATION(app), argc, argv);
 
-	VIPS_UNREF(main_imageinfogroup);
+	/* Remove any ws retain files.
+     */
+    workspacegroup_autosave_clean();
 
-	vips_shutdown();
+    /* Junk all symbols. This may remove a bunch of intermediate images
+     * too.
+     */
+    //UNREF(main_watchgroup);
+    VIPS_UNREF(main_symbol_root);
+    VIPS_UNREF(main_toolkitgroup);
+    VIPS_UNREF(main_workspaceroot);
+
+    /* Junk reduction machine ... this should remove all image temps.
+     */
+    reduce_destroy(reduce_context);
+
+#ifdef HAVE_LIBGOFFICE
+    /* Not quite sure what this does, but don't do it in batch mode.
+     */
+    if( !main_option_batch )
+        libgoffice_shutdown ();
+#endif /*HAVE_LIBGOFFICE*/
+
+    path_rewrite_free_all();
+
+    /* Should have freed everything now.
+     */
+
+    /* Make sure!
+     */
+    VIPS_UNREF(main_imageinfogroup);
+    heap_check_all_destroyed();
+    vips_shutdown();
+    managed_check_all_destroyed();
+    util_check_all_destroyed();
 
 	return status;
 }

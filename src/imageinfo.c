@@ -82,9 +82,9 @@ most of the jobs above are pushed down into vips8 now ... except for
 
 /*
 #define DEBUG_RGB
-#define DEBUG_OPEN
 #define DEBUG_CHECK
  */
+#define DEBUG_OPEN
 #define DEBUG_MAKE
 #define DEBUG
 
@@ -600,7 +600,7 @@ imageinfo_init(Imageinfo *imageinfo)
 }
 
 static int
-imageinfo_proxy_eval(Imageinfoproxy *proxy)
+imageinfo_proxy_eval(VipsImage *im, Imageinfoproxy *proxy)
 {
 	Imageinfo *imageinfo = proxy->imageinfo;
 
@@ -616,7 +616,7 @@ imageinfo_proxy_eval(Imageinfoproxy *proxy)
 }
 
 static int
-imageinfo_proxy_invalidate(Imageinfoproxy *proxy)
+imageinfo_proxy_invalidate(VipsImage *im, Imageinfoproxy *proxy)
 {
 	Imageinfo *imageinfo = proxy->imageinfo;
 
@@ -627,7 +627,7 @@ imageinfo_proxy_invalidate(Imageinfoproxy *proxy)
 }
 
 static int
-imageinfo_proxy_preclose(Imageinfoproxy *proxy)
+imageinfo_proxy_preclose(VipsImage *im, Imageinfoproxy *proxy)
 {
 	Imageinfo *imageinfo = proxy->imageinfo;
 
@@ -890,6 +890,10 @@ imageinfo_new_input(Imageinfogroup *imageinfogroup, GtkWidget *parent,
 {
 	Imageinfo *imageinfo;
 	ImageinfoOpen open;
+
+#ifdef DEBUG_OPEN
+	printf("imageinfo_new_input: %s\n", name);
+#endif /*DEBUG_OPEN*/
 
 	if ((imageinfo = imageinfogroup_lookup(imageinfogroup, name))) {
 		/* We always make a new non-heap pointer.

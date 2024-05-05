@@ -48,16 +48,6 @@ struct _View {
 
 	/* My instance vars.
 	 */
-	guint pos_changed_sid; /* Signals we use to watch iObject */
-	guint scrollto_sid;
-	guint layout_sid;
-	guint front_sid;
-	guint reset_sid;
-	guint child_add_sid;
-	guint child_remove_sid;
-	guint child_detach_sid;
-	guint child_attach_sid;
-
 	View *parent;	 /* Enclosing view (if any) */
 	GSList *managed; /* List of ViewChild for us */
 
@@ -129,7 +119,6 @@ void *view_model_test(View *child, Model *model);
 GType view_get_type(void);
 
 void view_link(View *view, Model *model, View *parent);
-void view_unlink(View *view);
 void view_child_add(View *parent, View *child);
 void view_child_remove(View *child);
 void view_child_position(View *child);

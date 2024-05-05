@@ -14,31 +14,11 @@
 
 	subcolumnviews do not ref their rowviews, perhaps that's the issue?
 
-- stray allocations on ^Q with thumbnails
-
-	what if we collapse a row? is iimageview disposed?
-
-	what if we then ^Q? do we see stray allocations?
-
 - column delete needs to
 
 	queue a layout
 	mark the filemodel as dirty
 	queue a main_window refresh
-
-- view_unlink() has:
-
-    FREESID(view->pos_changed_sid, VOBJECT(view)->iobject);
-    FREESID(view->scrollto_sid, VOBJECT(view)->iobject);
-    FREESID(view->layout_sid, VOBJECT(view)->iobject);
-    FREESID(view->reset_sid, VOBJECT(view)->iobject);
-    FREESID(view->front_sid, VOBJECT(view)->iobject);
-    FREESID(view->child_add_sid, VOBJECT(view)->iobject);
-    FREESID(view->child_remove_sid, VOBJECT(view)->iobject);
-    FREESID(view->child_detach_sid, VOBJECT(view)->iobject);
-    FREESID(view->child_attach_sid, VOBJECT(view)->iobject);
-
-  could we use signal_connect_object for all these?
 
 - rowview has a right_click_menu for the button
 

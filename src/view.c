@@ -22,9 +22,9 @@
  */
 
 /*
- */
 #define DEBUG_VIEWCHILD
 #define DEBUG
+ */
 
 /* Time each refresh
 #define DEBUG_TIME
@@ -250,10 +250,12 @@ view_child_remove(View *child)
 {
 	View *parent = child->parent;
 
+#ifdef DEBUG
 	printf("view_child_remove: child %s %p\n",
 			G_OBJECT_TYPE_NAME(child), child);
 	if (parent)
 		printf("\tparent %s %p\n", G_OBJECT_TYPE_NAME(parent), parent);
+#endif /*DEBUG*/
 
 	if (parent)
 		VIEW_GET_CLASS(parent)->child_remove(parent, child);
@@ -280,26 +282,6 @@ view_child_front(View *child)
 		VIEW_GET_CLASS(parent)->child_front(parent, child);
 }
 
-/* Break link to model.
- */
-void
-view_unlink(View *view)
-{
-	g_assert(view != NULL);
-	g_assert(VOBJECT(view)->iobject != NULL);
-	g_assert(IS_VIEW(view) && IS_MODEL(VOBJECT(view)->iobject));
-
-	FREESID(view->pos_changed_sid, VOBJECT(view)->iobject);
-	FREESID(view->scrollto_sid, VOBJECT(view)->iobject);
-	FREESID(view->layout_sid, VOBJECT(view)->iobject);
-	FREESID(view->reset_sid, VOBJECT(view)->iobject);
-	FREESID(view->front_sid, VOBJECT(view)->iobject);
-	FREESID(view->child_add_sid, VOBJECT(view)->iobject);
-	FREESID(view->child_remove_sid, VOBJECT(view)->iobject);
-	FREESID(view->child_detach_sid, VOBJECT(view)->iobject);
-	FREESID(view->child_attach_sid, VOBJECT(view)->iobject);
-}
-
 static void
 view_dispose(GObject *object)
 {
@@ -322,9 +304,6 @@ view_dispose(GObject *object)
 		view_scannable_unregister(view);
 	if (view->resettable)
 		view_resettable_unregister(view);
-
-	if (VOBJECT(view)->iobject)
-		view_unlink(view);
 
 	if (view->parent)
 		view_child_remove(view);
@@ -564,24 +543,24 @@ view_real_link(View *view, Model *model, View *parent_view)
 	if (parent_view)
 		view_child_add(parent_view, view);
 
-	view->pos_changed_sid = g_signal_connect(model, "pos_changed",
-		G_CALLBACK(view_model_pos_changed), view);
-	view->scrollto_sid = g_signal_connect(model, "scrollto",
-		G_CALLBACK(view_model_scrollto), view);
-	view->layout_sid = g_signal_connect(model, "layout",
-		G_CALLBACK(view_model_layout), view);
-	view->reset_sid = g_signal_connect(model, "reset",
-		G_CALLBACK(view_model_reset), view);
-	view->front_sid = g_signal_connect(model, "front",
-		G_CALLBACK(view_model_front), view);
-	view->child_add_sid = g_signal_connect(model, "child_add",
-		G_CALLBACK(view_model_child_add), view);
-	view->child_remove_sid = g_signal_connect(model, "child_remove",
-		G_CALLBACK(view_model_child_remove), view);
-	view->child_detach_sid = g_signal_connect(model, "child_detach",
-		G_CALLBACK(view_model_child_detach), view);
-	view->child_attach_sid = g_signal_connect(model, "child_attach",
-		G_CALLBACK(view_model_child_attach), view);
+	g_signal_connect_object(model, "pos_changed",
+		G_CALLBACK(view_model_pos_changed), view, 0);
+	g_signal_connect_object(model, "scrollto",
+		G_CALLBACK(view_model_scrollto), view, 0);
+	g_signal_connect_object(model, "layout",
+		G_CALLBACK(view_model_layout), view, 0);
+	g_signal_connect_object(model, "reset",
+		G_CALLBACK(view_model_reset), view, 0);
+	g_signal_connect_object(model, "front",
+		G_CALLBACK(view_model_front), view, 0);
+	g_signal_connect_object(model, "child_add",
+		G_CALLBACK(view_model_child_add), view, 0);
+	g_signal_connect_object(model, "child_remove",
+		G_CALLBACK(view_model_child_remove), view, 0);
+	g_signal_connect_object(model, "child_detach",
+		G_CALLBACK(view_model_child_detach), view, 0);
+	g_signal_connect_object(model, "child_attach",
+		G_CALLBACK(view_model_child_attach), view, 0);
 
 	icontainer_map(ICONTAINER(model),
 		(icontainer_map_fn) view_real_link_sub, view, NULL);
@@ -709,22 +688,6 @@ view_class_init(ViewClass *class)
 static void
 view_init(View *view)
 {
-	/* Init our instance fields.
-	 */
-	view->pos_changed_sid = 0;
-	view->scrollto_sid = 0;
-	view->layout_sid = 0;
-	view->reset_sid = 0;
-	view->front_sid = 0;
-	view->child_add_sid = 0;
-	view->child_remove_sid = 0;
-	view->child_detach_sid = 0;
-	view->child_attach_sid = 0;
-
-	view->parent = NULL;
-
-	view->scannable = FALSE;
-	view->resettable = FALSE;
 }
 
 /* Trigger the reset method for a view.
