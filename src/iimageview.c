@@ -49,8 +49,8 @@ iimageview_dispose(GObject *object)
 	printf("iimageview_dispose:\n");
 #endif /*DEBUG*/
 
-	UNPARENT(iimageview->top);
 	VIPS_UNREF(iimageview->tilesource);
+	gtk_widget_dispose_template(GTK_WIDGET(iimageview), IIMAGEVIEW_TYPE);
 
 	G_OBJECT_CLASS(iimageview_parent_class)->dispose(object);
 }

@@ -33,8 +33,8 @@
 */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -60,6 +60,7 @@ spin_dispose(GObject *gobject)
 #endif /*DEBUG*/
 
 	UNPARENT(spin->top);
+	gtk_widget_dispose_template(GTK_WIDGET(spin), SPIN_TYPE);
 
 	G_OBJECT_CLASS(spin_parent_class)->dispose(gobject);
 }

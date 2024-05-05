@@ -81,12 +81,12 @@ most of the jobs above are pushed down into vips8 now ... except for
 #include "nip4.h"
 
 /*
-#define DEBUG
-#define DEBUG_MAKE
 #define DEBUG_RGB
 #define DEBUG_OPEN
 #define DEBUG_CHECK
  */
+#define DEBUG_MAKE
+#define DEBUG
 
 G_DEFINE_TYPE(Imageinfogroup, imageinfogroup, ICONTAINER_TYPE)
 
@@ -94,6 +94,10 @@ static void
 imageinfogroup_finalize(GObject *gobject)
 {
 	Imageinfogroup *imageinfogroup = IMAGEINFOGROUP(gobject);
+
+#ifdef DEBUG_MAKE
+	printf("imageinfogroup_finalize: %p\n", imageinfogroup);
+#endif /*DEBUG_MAKE*/
 
 	VIPS_FREEF(g_hash_table_destroy, imageinfogroup->filename_hash);
 
@@ -107,6 +111,10 @@ imageinfogroup_child_add(iContainer *parent, iContainer *child, int pos)
 	Imageinfo *imageinfo = IMAGEINFO(child);
 	const char *name = IOBJECT(imageinfo)->name;
 	GSList *hits;
+
+#ifdef DEBUG_MAKE
+	printf("imageinfogroup_child_add: %s\n", name);
+#endif /*DEBUG_MAKE*/
 
 	hits = (GSList *) g_hash_table_lookup(imageinfogroup->filename_hash, name);
 	hits = g_slist_prepend(hits, imageinfo);
@@ -123,6 +131,10 @@ imageinfogroup_child_remove(iContainer *parent, iContainer *child)
 	Imageinfo *imageinfo = IMAGEINFO(child);
 	const char *name = IOBJECT(imageinfo)->name;
 	GSList *hits;
+
+#ifdef DEBUG_MAKE
+	printf("imageinfogroup_child_remove: %s\n", name);
+#endif /*DEBUG_MAKE*/
 
 	hits = (GSList *) g_hash_table_lookup(imageinfogroup->filename_hash,
 		name);
@@ -161,9 +173,9 @@ imageinfogroup_class_init(ImageinfogroupClass *class)
 static void
 imageinfogroup_init(Imageinfogroup *imageinfogroup)
 {
-#ifdef DEBUG
+#ifdef DEBUG_MAKE
 	printf("imageinfogroup_init\n");
-#endif /*DEBUG*/
+#endif /*DEBUG_MAKE*/
 
 	imageinfogroup->filename_hash =
 		g_hash_table_new(g_str_hash, g_str_equal);

@@ -49,7 +49,7 @@ itextview_dispose(GObject *object)
 	printf("itextview_dispose:\n");
 #endif /*DEBUG*/
 
-	UNPARENT(itextview->formula);
+	gtk_widget_dispose_template(GTK_WIDGET(itextview), ITEXTVIEW_TYPE);
 
 	G_OBJECT_CLASS(itextview_parent_class)->dispose(object);
 }

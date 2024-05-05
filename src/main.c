@@ -365,11 +365,6 @@ main(int argc, char **argv)
 		g_warning(_("unable to read max file descriptors"));
 #endif /*HAVE_GETRLIMIT*/
 
-	/* Magickload will lock up on eg. AVI files.
-	 */
-	printf("nip4.main: blocking VipsForeignLoadMagick\n");
-	vips_operation_block_set("VipsForeignLoadMagick", TRUE);
-
 	main_stdin = ifile_open_read_stdin();
 
 	path_init();
@@ -414,6 +409,8 @@ main(int argc, char **argv)
 	app = app_new();
 
 	status = g_application_run(G_APPLICATION(app), argc, argv);
+
+	VIPS_UNREF(main_imageinfogroup);
 
 	vips_shutdown();
 

@@ -22,8 +22,8 @@
  */
 
 /*
-#define DEBUG_VIEWCHILD
  */
+#define DEBUG_VIEWCHILD
 #define DEBUG
 
 /* Time each refresh
@@ -154,7 +154,7 @@ view_viewchild_changed(Model *model, ViewChild *viewchild)
 			G_OBJECT_TYPE_NAME(child));
 #endif /*DEBUG_VIEWCHILD*/
 
-		VIPS_UNREF(child);
+		view_child_remove(child);
 	}
 	else if (display && !child) {
 #ifdef DEBUG_VIEWCHILD
@@ -250,6 +250,11 @@ view_child_remove(View *child)
 {
 	View *parent = child->parent;
 
+	printf("view_child_remove: child %s %p\n",
+			G_OBJECT_TYPE_NAME(child), child);
+	if (parent)
+		printf("\tparent %s %p\n", G_OBJECT_TYPE_NAME(parent), parent);
+
 	if (parent)
 		VIEW_GET_CLASS(parent)->child_remove(parent, child);
 }
@@ -306,7 +311,7 @@ view_dispose(GObject *object)
 	view = VIEW(object);
 
 #ifdef DEBUG
-	printf("view_dispose: \"%s\"\n", G_OBJECT_TYPE_NAME(object));
+	printf("view_dispose: %p \"%s\"\n", object, G_OBJECT_TYPE_NAME(object));
 #endif /*DEBUG*/
 
 	/* We're probably changing the size of our enclosing column.

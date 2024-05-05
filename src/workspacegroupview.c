@@ -25,8 +25,8 @@
 #include "nip4.h"
 
 /*
- */
 #define DEBUG
+ */
 
 G_DEFINE_TYPE(Workspacegroupview, workspacegroupview, VIEW_TYPE)
 
@@ -39,7 +39,7 @@ workspacegroupview_dispose(GObject *object)
 	printf("workspacegroupview_dispose:\n");
 #endif /*DEBUG*/
 
-	UNPARENT(wsgview->notebook);
+	gtk_widget_dispose_template(GTK_WIDGET(wsgview), WORKSPACEGROUPVIEW_TYPE);
 
 	G_OBJECT_CLASS(workspacegroupview_parent_class)->dispose(object);
 }
@@ -145,10 +145,11 @@ workspacegroupview_child_remove(View *parent, View *child)
 
 	printf("workspacegroupview_child_remove:\n");
 
+	VIEW_CLASS(workspacegroupview_parent_class)->child_remove(parent, child);
+
+	// must be at the end since this will unref the child
 	gtk_notebook_remove_page(GTK_NOTEBOOK(wsgview->notebook),
 		ICONTAINER(ws)->pos);
-
-	VIEW_CLASS(workspacegroupview_parent_class)->child_remove(parent, child);
 }
 
 static void

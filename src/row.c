@@ -44,8 +44,8 @@
  */
 
 /* Trace create/destroy.
- */
 #define DEBUG_NEW
+ */
 
 /* Dirty/clean stuff.
 #define DEBUG_DIRTY

@@ -186,21 +186,17 @@ static void
 vobject_iobject_destroy(iObject *iobject, vObject *vobject)
 {
 #ifdef DEBUG
-	printf("vobject_iobject_destroy: iobject %s \"%s\"\n",
-		G_OBJECT_TYPE_NAME(iobject), iobject->name);
-#endif /*DEBUG*/
-
-	printf("vobject_iobject_destroy: FIXME model has gone\n"
+	printf("vobject_iobject_destroy:\n"
 			"\tmodel %s \"%s\"\n"
 			"\tview %s\n",
 		G_OBJECT_TYPE_NAME(iobject), iobject->name,
         G_OBJECT_TYPE_NAME(vobject));
+#endif /*DEBUG*/
 
 	view_child_remove(VIEW(vobject));
 
-	// don't unref, this is just a weakref going away
-	g_assert(!vobject->iobject ||
-			G_OBJECT(vobject->iobject) == iobject);
+	// it's a weakref going away
+	g_assert(!vobject->iobject || G_OBJECT(vobject->iobject) == iobject);
 	vobject->iobject = NULL;
 }
 

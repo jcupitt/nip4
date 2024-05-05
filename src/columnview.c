@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -377,6 +377,15 @@ columnview_add_shadow(Columnview *old_cview)
 	}
 }
 
+void
+columnview_remove_shadow(Columnview *cview)
+{
+	if (cview->shadow) {
+		view_child_remove(VIEW(cview->shadow));
+		cview->shadow = NULL;
+	}
+}
+
 static void
 columnview_dispose(GObject *object)
 {
@@ -393,17 +402,22 @@ columnview_dispose(GObject *object)
 	printf("columnview_dispose:\n");
 #endif /*DEBUG*/
 
-	UNPARENT(cview->top);
-	UNPARENT(cview->shadow);
-	UNPARENT(cview->right_click_menu);
+	if (cview->shadow)
+		view_child_remove(VIEW(cview->shadow));
 
-	/* The column has gone .. relayout.
+	/* The column has maybe gone ... queue a relayout.
+	 *
+	 * should this be automatic? seems wierd to be calling this exp.licitly
+	 * here
 	 */
+	printf("columnview_dispose: FIXME ... move to column_dispose()?\n");
 	if (col &&
 		col->ws) {
 		workspace_set_needs_layout(col->ws, TRUE);
 		main_window_layout();
 	}
+
+	gtk_widget_dispose_template(GTK_WIDGET(cview), COLUMNVIEW_TYPE);
 
 	G_OBJECT_CLASS(columnview_parent_class)->dispose(object);
 }
@@ -583,9 +597,10 @@ columnview_child_remove(View *parent, View *child)
 	Columnview *cview = COLUMNVIEW(parent);
 	Subcolumnview *sview = SUBCOLUMNVIEW(child);
 
-	gtk_box_remove(GTK_BOX(cview->body), GTK_WIDGET(sview));
-
 	VIEW_CLASS(columnview_parent_class)->child_remove(parent, child);
+
+	// must be at the end since this will unref the child
+	gtk_box_remove(GTK_BOX(cview->body), GTK_WIDGET(sview));
 }
 
 /* Scroll to keep the text entry at the bottom of the columnview on screen.

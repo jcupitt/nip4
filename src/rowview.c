@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -62,8 +62,8 @@ rowview_dispose(GObject *object)
 	printf("\n");
 #endif /*DEBUG*/
 
-	UNPARENT(rview->top);
 	VIPS_FREE(rview->last_tooltip);
+	gtk_widget_dispose_template(GTK_WIDGET(rview), ROWVIEW_TYPE);
 
 	G_OBJECT_CLASS(rowview_parent_class)->dispose(object);
 }
@@ -436,8 +436,6 @@ static void
 rowview_child_add(View *parent, View *child)
 {
 	Rowview *rview = ROWVIEW(parent);
-
-	printf("rowview_child_add: child = %p\n", child);
 
 	g_assert(IS_RHSVIEW(child));
 	g_assert(!rview->rhsview);

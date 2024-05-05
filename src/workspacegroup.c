@@ -148,7 +148,7 @@ workspacegroup_dispose(GObject *gobject)
 	wsg = WORKSPACEGROUP(gobject);
 
 #ifdef DEBUG
-	printf("workspacegroup_dispose %s\n", IOBJECT(wsg)->name);
+	printf("workspacegroup_dispose: %s\n", IOBJECT(wsg)->name);
 #endif /*DEBUG*/
 
 	VIPS_FREEF(g_source_remove, wsg->autosave_timeout);

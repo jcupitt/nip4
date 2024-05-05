@@ -1274,6 +1274,7 @@ tilesource_set_image(Tilesource *tilesource, VipsImage *image)
 
 	/* Note the base open ... this gets used for eg. the titlebar.
 	 */
+	g_assert(!tilesource->base);
 	tilesource->base = image;
 	g_object_ref(tilesource->base);
 
@@ -1337,10 +1338,6 @@ Tilesource *
 tilesource_new_from_image(VipsImage *image)
 {
 	g_autoptr(Tilesource) tilesource = g_object_new(TILESOURCE_TYPE, NULL);
-
-	/* Only call this once.
-	 */
-	g_assert(!tilesource->image);
 
 	if (tilesource_set_image(tilesource, image))
 		return NULL;

@@ -29,8 +29,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -50,7 +50,7 @@ rhsview_dispose(GObject *object)
 	printf("rhsview_dispose:\n");
 #endif /*DEBUG*/
 
-	UNPARENT(rhsview->grid);
+	gtk_widget_dispose_template(GTK_WIDGET(rhsview), RHSVIEW_TYPE);
 
 	G_OBJECT_CLASS(rhsview_parent_class)->dispose(object);
 }
@@ -178,9 +178,11 @@ rhsview_child_remove(View *parent, View *child)
 	else
 		rhsview->graphic = NULL;
 
-	gtk_grid_remove(GTK_GRID(rhsview->grid), GTK_WIDGET(child));
-
 	VIEW_CLASS(rhsview_parent_class)->child_remove(parent, child);
+
+	// must be at the end since this will unref the child
+	if (rhsview->grid)
+		gtk_grid_remove(GTK_GRID(rhsview->grid), GTK_WIDGET(child));
 }
 
 static void

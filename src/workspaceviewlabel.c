@@ -64,8 +64,8 @@ workspaceviewlabel_dispose(GObject *object)
 	printf("workspaceviewlabel_dispose:\n");
 #endif /*DEBUG*/
 
-	VIPS_FREEF(gtk_widget_unparent, wviewlabel->top);
-	UNPARENT(wviewlabel->right_click_menu);
+	gtk_widget_dispose_template(GTK_WIDGET(wviewlabel),
+		WORKSPACEVIEWLABEL_TYPE);
 
 	G_OBJECT_CLASS(workspaceviewlabel_parent_class)->dispose(object);
 }

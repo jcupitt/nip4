@@ -49,7 +49,7 @@ subcolumnview_dispose(GObject *object)
 
 	sview = SUBCOLUMNVIEW(object);
 
-	UNPARENT(sview->grid);
+	gtk_widget_dispose_template(GTK_WIDGET(sview), SUBCOLUMNVIEW_TYPE);
 
 	G_OBJECT_CLASS(subcolumnview_parent_class)->dispose(object);
 }
@@ -84,12 +84,12 @@ subcolumnview_child_add(View *parent, View *child)
 	Subcolumnview *sview = SUBCOLUMNVIEW(parent);
 	Rowview *rview = ROWVIEW(child);
 
+	VIEW_CLASS(subcolumnview_parent_class)->child_add(parent, child);
+
 	// the rowview is not a true child widget (we attach rview members to the
 	// subcolumn grid in rowview_refresh(), we never attach rview itself),
 	// so sview must hold an explicit ref
 	g_object_ref_sink(rview);
-
-	VIEW_CLASS(subcolumnview_parent_class)->child_add(parent, child);
 }
 
 static void

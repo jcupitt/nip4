@@ -25,8 +25,8 @@
  */
 
 /* show path searches
- */
 #define DEBUG_SEARCH
+ */
 
 /* show path rewrites
 #define DEBUG_REWRITE

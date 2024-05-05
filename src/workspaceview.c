@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 /* Define to trace button press events.
 #define EVENT
@@ -191,9 +191,7 @@ workspaceview_dispose(GObject *object)
 	wview = WORKSPACEVIEW(object);
 
 	FREESID(wview->watch_changed_sid, main_watchgroup);
-	VIPS_UNREF(wview->popup);
-	UNPARENT(wview->right_click_menu);
-	UNPARENT(wview->scrolled_window);
+	gtk_widget_dispose_template(GTK_WIDGET(wview), WORKSPACEVIEW_TYPE);
 
 	G_OBJECT_CLASS(workspaceview_parent_class)->dispose(object);
 }
@@ -365,9 +363,10 @@ workspaceview_child_remove(View *parent, View *child)
 
 	printf("workspaceview_child_remove:\n");
 
-	gtk_fixed_remove(GTK_FIXED(wview->fixed), GTK_WIDGET(child));
-
 	VIEW_CLASS(workspaceview_parent_class)->child_remove(parent, child);
+
+	// must be at the end since this will unref the child
+	gtk_fixed_remove(GTK_FIXED(wview->fixed), GTK_WIDGET(child));
 }
 
 static void
@@ -828,7 +827,7 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 	case WVIEW_DRAG:
 		wview->state = WVIEW_WAIT;
 		if (wview->drag_cview)
-			VIPS_UNREF(wview->drag_cview->shadow);
+			columnview_remove_shadow(wview->drag_cview);
 
 		// Move columns to their final position.
 		model_layout(MODEL(ws));

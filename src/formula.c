@@ -168,8 +168,7 @@ formula_dispose(GObject *object)
 	formula = FORMULA(object);
 
 	formula_refresh_unqueue(formula);
-
-	UNPARENT(formula->hbox);
+	gtk_widget_dispose_template(GTK_WIDGET(formula), FORMULA_TYPE);
 
 	G_OBJECT_CLASS(formula_parent_class)->dispose(object);
 }
