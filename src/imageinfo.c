@@ -759,8 +759,12 @@ imageinfo_open_image_input(const char *filename, ImageinfoOpen *open)
 	Imageinfo *imageinfo;
 	VipsImage *im;
 
-	if (!(im = vips_image_new_from_file(filename, NULL)))
-		return NULL;
+	// always open all pages, if we can
+	if (!(im = vips_image_new_from_file(filename, "n", -1, NULL))) {
+		vips_error_clear();
+		if (!(im = vips_image_new_from_file(filename, NULL)))
+			return NULL;
+	}
 
 	if (!(imageinfo = imageinfo_new(open->imageinfogroup,
 			  open->heap, im, open->filename))) {

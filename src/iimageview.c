@@ -230,7 +230,14 @@ iimageview_refresh(vObject *vobject)
 				// right away
 				g_object_set(iimageview->tilesource,
 					"loaded", TRUE,
+					"visible", TRUE,
 					NULL);
+
+				// we will need to disable visible for thumbnails that are
+				// off-screen, in a closed column, or in a workspace that's
+				// not at the front of the stack or performance will be
+				// horrible
+				printf("iimageview_refresh: FIXME ... don't set visible\n");
 			}
 		}
 	}
