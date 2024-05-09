@@ -83,10 +83,10 @@ most of the jobs above are pushed down into vips8 now ... except for
 /*
 #define DEBUG_RGB
 #define DEBUG_CHECK
- */
 #define DEBUG_OPEN
 #define DEBUG_MAKE
 #define DEBUG
+ */
 
 G_DEFINE_TYPE(Imageinfogroup, imageinfogroup, ICONTAINER_TYPE)
 

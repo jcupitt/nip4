@@ -29,8 +29,8 @@
 
 /*
 #define DEBUG_VERBOSE
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -445,7 +445,7 @@ workspace_column_new(Workspace *ws)
 	}
 
 	workspace_set_needs_layout(ws, TRUE);
-	main_window_layout();
+	mainwindow_layout();
 
 	workspace_column_select(ws, col);
 	column_scrollto(col, MODEL_SCROLL_TOP);

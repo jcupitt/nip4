@@ -414,7 +414,7 @@ columnview_dispose(GObject *object)
 	if (col &&
 		col->ws) {
 		workspace_set_needs_layout(col->ws, TRUE);
-		main_window_layout();
+		mainwindow_layout();
 	}
 
 	gtk_widget_dispose_template(GTK_WIDGET(cview), COLUMNVIEW_TYPE);
@@ -632,7 +632,7 @@ columnview_menu(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Columnview *cview)
 {
 	// menu will act on this widget
-	main_window_set_action_view(cview);
+	mainwindow_set_action_view(cview);
 
 	gtk_popover_set_pointing_to(GTK_POPOVER(cview->right_click_menu),
 		&(const GdkRectangle){ x, y, 1, 1 });

@@ -40,18 +40,18 @@ app_init(App *app)
 static void
 app_activate(GApplication *gapp)
 {
-	MainWindow *main;
+	Mainwindow *main;
 
 	printf("app_activate:\n");
 
-	main = main_window_new(APP(gapp));
+	main = mainwindow_new(APP(gapp));
 
 	/* Make a start workspace and workspacegroup.
 	 * stuff into.
 	 */
 	Workspacegroup *wsg = workspacegroup_new_blank(main_workspaceroot, NULL);
 	Workspace *ws = WORKSPACE(icontainer_get_nth_child(ICONTAINER(wsg), 0));
-	main_window_set_wsg(main, wsg);
+	mainwindow_set_wsg(main, wsg);
 
 	gtk_window_present(GTK_WINDOW(main));
 }
@@ -70,13 +70,13 @@ app_new_activated(GSimpleAction *action,
 	app_activate(G_APPLICATION(user_data));
 }
 
-static MainWindow *
-app_win(App *app)
+static Mainwindow *
+app_main(App *app)
 {
 	GList *windows = gtk_application_get_windows(GTK_APPLICATION(app));
 
 	if (windows)
-		return MAIN_WINDOW(windows->data);
+		return MAINWINDOW(windows->data);
 	else
 		return NULL;
 }
@@ -86,7 +86,7 @@ app_about_activated(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
 	App *app = APP(user_data);
-	MainWindow *win = app_win(app);
+	Mainwindow *win = app_main(app);
 
 	static const char *authors[] = {
 		"jcupitt",
@@ -159,7 +159,7 @@ app_startup(GApplication *app)
 
 	/* Build our GUI widgets.
 	 */
-	MAIN_WINDOW_TYPE;
+	MAINWINDOW_TYPE;
 	VIEW_TYPE;
 	WORKSPACEGROUPVIEW_TYPE;
 	WORKSPACEVIEW_TYPE;
@@ -224,16 +224,16 @@ static void
 app_open(GApplication *app, GFile **files, int n_files, const char *hint)
 {
 	for (int i = 0; i < n_files; i++) {
-		MainWindow *win = main_window_new(APP(app));
-		main_window_set_gfile(win, files[i]);
-		gtk_window_present(GTK_WINDOW(win));
+		Mainwindow *main = mainwindow_new(APP(app));
+		mainwindow_set_gfile(main, files[i]);
+		gtk_window_present(GTK_WINDOW(main));
 	}
 }
 
 static void
 app_shutdown(GApplication *app)
 {
-	MainWindow *win;
+	Mainwindow *main;
 
 #ifdef DEBUG
 	printf("app_shutdown:\n");
@@ -242,8 +242,8 @@ app_shutdown(GApplication *app)
 	/* Force down all our windows ... this will not happen automatically
 	 * on _quit().
 	 */
-	while ((win = app_win(APP(app))))
-		gtk_window_destroy(GTK_WINDOW(win));
+	while ((main = app_main(APP(app))))
+		gtk_window_destroy(GTK_WINDOW(main));
 
 	G_APPLICATION_CLASS(app_parent_class)->shutdown(app);
 }

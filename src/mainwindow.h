@@ -21,23 +21,23 @@
 
  */
 
-#ifndef __MAIN_WINDOW_H
-#define __MAIN_WINDOW_H
+#ifndef __MAINWINDOW_H
+#define __MAINWINDOW_H
 
-#define MAIN_WINDOW_TYPE (main_window_get_type())
+#define MAINWINDOW_TYPE (mainwindow_get_type())
 
-#define NIP4_MAIN_WINDOW MAIN_WINDOW
+#define NIP4_MAINWINDOW MAINWINDOW
 
-G_DECLARE_FINAL_TYPE(MainWindow, main_window,
-	NIP4, MAIN_WINDOW, GtkApplicationWindow)
+G_DECLARE_FINAL_TYPE(Mainwindow, mainwindow,
+	NIP4, MAINWINDOW, GtkApplicationWindow)
 
-extern gboolean main_window_auto_recalc;
+extern gboolean mainwindow_auto_recalc;
 
-MainWindow *main_window_new(App *app);
-void main_window_set_wsg(MainWindow *main, Workspacegroup *wsg);
-void main_window_set_gfile(MainWindow *win, GFile *gfile);
-void main_window_cull(void);
-void main_window_layout(void);
-void main_window_set_action_view(View *action_view);
+Mainwindow *mainwindow_new(App *app);
+void mainwindow_set_wsg(Mainwindow *main, Workspacegroup *wsg);
+void mainwindow_set_gfile(Mainwindow *main, GFile *gfile);
+void mainwindow_cull(void);
+void mainwindow_layout(void);
+void mainwindow_set_action_view(View *action_view);
 
-#endif /* __MAIN_WINDOW_H */
+#endif /* __MAINWINDOW_H */

@@ -652,7 +652,7 @@ workspaceview_background_menu(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Workspaceview *wview)
 {
 	// gets picked up by menu actions
-	main_window_set_action_view(VIEW(wview));
+	mainwindow_set_action_view(VIEW(wview));
 
 	gtk_popover_set_pointing_to(GTK_POPOVER(wview->right_click_menu),
 		&(const GdkRectangle){ x, y, 1, 1 });
@@ -734,7 +734,10 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
+
+#ifdef DEBUG
 	printf("workspaceview_drag_update: %g x %g\n", offset_x, offset_y);
+#endif /*DEBUG*/
 
 	switch (wview->state) {
 	case WVIEW_EDIT:
@@ -752,7 +755,9 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 		break;
 
 	case WVIEW_DRAG:
+#ifdef DEBUG
 		printf("workspaceview_drag_update: DRAG %p\n", wview->drag_cview);
+#endif /*DEBUG*/
 		// offset_x / offset_y are in ->fixed's coordinate system, but that
 
 		// start_x + offset_x gives the current mouse pos in ->fixed's
@@ -766,13 +771,17 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 				&fixed, &screen))
 			return;
 
+#ifdef DEBUG
 		printf("screen = %g x %g\n", screen.x, screen.y);
+#endif /*DEBUG*/
 
 		// we can now get screen-relative offset
 		int screen_offset_x = screen.x - wview->screen_x;
 		int screen_offset_y = screen.y - wview->screen_y;
 
+#ifdef DEBUG
 		printf("screen offset = %d x %d\n", screen_offset_x, screen_offset_y);
+#endif /*DEBUG*/
 
 		if (wview->drag_cview) {
 			Column *col = COLUMN(VOBJECT(wview->drag_cview)->iobject);
@@ -809,7 +818,9 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
+#ifdef DEBUG
 	printf("workspaceview_drag_end: %g x %g\n", offset_x, offset_y);
+#endif /*DEBUG*/
 
 	/* Back to wait.
 	 */

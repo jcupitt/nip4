@@ -247,7 +247,7 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 
 		// If dragging the tab has emptied the old wsg, we can junk
 		// the window.
-		main_window_cull();
+		mainwindow_cull();
 	}
 
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
@@ -259,7 +259,7 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 					"for this window."),
 			ws->compat_major,
 			ws->compat_minor);
-		// FIXME ... or display in main_window error area?
+		printf("workspacegroupview_switch_page_cb: FIXME ... or display in mainwindow error area?\n");
 		error_alert(GTK_WIDGET(wview));
 	}
 }
@@ -270,7 +270,7 @@ workspacegroupview_page_added_cb(GtkNotebook *notebook,
 {
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
 	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
-	MainWindow *main = MAIN_WINDOW(gtk_widget_get_root(GTK_WIDGET(notebook)));
+	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(notebook)));
 
 	filemodel_set_window_hint(FILEMODEL(wsg), GTK_WINDOW(main));
 }

@@ -1160,7 +1160,7 @@ symbol_recalculate_idle_cb(void)
 
 	run_again = TRUE;
 
-	if (!main_window_auto_recalc)
+	if (!mainwindow_auto_recalc)
 		/* Auto-calc has been turned off during a recomp.
 		 */
 		run_again = FALSE;
@@ -1233,7 +1233,7 @@ symbol_recalculate_all(void)
 	 */
 	(void) view_scan_all();
 
-	if (main_window_auto_recalc)
+	if (mainwindow_auto_recalc)
 		symbol_recalculate_all_force(FALSE);
 }
 
