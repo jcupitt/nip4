@@ -47,7 +47,7 @@ rhsview_dispose(GObject *object)
 	rhsview = RHSVIEW(object);
 
 #ifdef DEBUG
-	printf("rhsview_dispose:\n");
+	printf("rhsview_dispose: %p\n", rhsview);
 #endif /*DEBUG*/
 
 	gtk_widget_dispose_template(GTK_WIDGET(rhsview), RHSVIEW_TYPE);
@@ -179,6 +179,10 @@ rhsview_child_remove(View *parent, View *child)
 		rhsview->graphic = NULL;
 
 	VIEW_CLASS(rhsview_parent_class)->child_remove(parent, child);
+
+	printf("rhsview_child_remove: grid_remove\n");
+	printf("\tparent %s %p\n", G_OBJECT_TYPE_NAME(parent), parent);
+	printf("\tchild %s %p\n", G_OBJECT_TYPE_NAME(child), child);
 
 	// must be at the end since this will unref the child
 	if (rhsview->grid)

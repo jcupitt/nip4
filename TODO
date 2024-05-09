@@ -1,5 +1,26 @@
 - try
 
+	load ~/pics/x.ws
+	expand thumbnail once and rhsview adds itextview
+	shrink once and view_dispose runs for itextview
+
+  woo!
+
+	load ~/pics/x.ws
+	expand thumbnail once and rhsview adds itextview
+	expand thumbnail once more and rhsview adds subcolumnview
+		(plus many subwidgets after that)
+	contract thumbnail
+	lots of gtk_grid_remove() errors
+
+  maybe we are killing widgets more than once?
+
+
+
+
+
+- try
+
 	expand a thumbnail
 	expand super as well
 	close outermost subcolumn
