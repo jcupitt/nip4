@@ -64,7 +64,7 @@
 
   </menu>
 
-  <template class="MainWindow" parent="GtkApplicationWindow">
+  <template class="Mainwindow" parent="GtkApplicationWindow">
     <property name="title" translatable="yes">Main window</property>
     <property name="default-width">1000</property>
     <property name="default-height">800</property>
