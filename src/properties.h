@@ -1,4 +1,4 @@
-/* a drawing area that draws an image
+/* show image properties
  */
 
 /*
@@ -25,22 +25,15 @@
 
 	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
 
- */
+*/
 
-#ifndef __IMAGEDISPLAY_H
-#define __IMAGEDISPLAY_H
+#ifndef __PROPERTIES_H
+#define __PROPERTIES_H
 
-#define IMAGEDISPLAY_TYPE (imagedisplay_get_type())
-#define IMAGEDISPLAY NIP4_IMAGEDISPLAY
+#define PROPERTIES_TYPE (properties_get_type())
 
-G_DECLARE_FINAL_TYPE(Imagedisplay, imagedisplay,
-	NIP4, IMAGEDISPLAY, GtkDrawingArea)
+G_DECLARE_FINAL_TYPE(Properties, properties, NIP4, PROPERTIES, GtkWidget);
 
-void imagedisplay_image_to_gtk(Imagedisplay *imagedisplay,
-	double x_image, double y_image, double *x_gtk, double *y_gtk);
-void imagedisplay_gtk_to_image(Imagedisplay *imagedisplay,
-	double x_gtk, double y_gtk, double *x_image, double *y_image);
+#define PROPERTIES NIP4_PROPERTIES
 
-Imagedisplay *imagedisplay_new(Tilesource *tilesource);
-
-#endif /* __IMAGEDISPLAY_H */
+#endif /* __PROPERTIES_H */

@@ -1,4 +1,4 @@
-/* a drawing area that draws an image
+/* the display control widgets
  */
 
 /*
@@ -25,22 +25,18 @@
 
 	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
 
- */
+*/
 
-#ifndef __IMAGEDISPLAY_H
-#define __IMAGEDISPLAY_H
+#ifndef __DISPLAYBAR_H
+#define __DISPLAYBAR_H
 
-#define IMAGEDISPLAY_TYPE (imagedisplay_get_type())
-#define IMAGEDISPLAY NIP4_IMAGEDISPLAY
+#define DISPLAYBAR_TYPE (displaybar_get_type())
 
-G_DECLARE_FINAL_TYPE(Imagedisplay, imagedisplay,
-	NIP4, IMAGEDISPLAY, GtkDrawingArea)
+G_DECLARE_FINAL_TYPE(Displaybar, displaybar, NIP4, DISPLAYBAR, GtkWidget)
 
-void imagedisplay_image_to_gtk(Imagedisplay *imagedisplay,
-	double x_image, double y_image, double *x_gtk, double *y_gtk);
-void imagedisplay_gtk_to_image(Imagedisplay *imagedisplay,
-	double x_gtk, double y_gtk, double *x_image, double *y_image);
+#define DISPLAYBAR(obj) \
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), DISPLAYBAR_TYPE, Displaybar))
 
-Imagedisplay *imagedisplay_new(Tilesource *tilesource);
+Displaybar *displaybar_new(Imagewindow *win);
 
-#endif /* __IMAGEDISPLAY_H */
+#endif /* __DISPLAYBAR_H */

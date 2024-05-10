@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="displaybar-menu">
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Scale</attribute>
+        <attribute name='action'>win.scale</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Falsecolour</attribute>
+        <attribute name='action'>win.falsecolour</attribute>
+      </item>
+
+      <item>
+        <attribute name='label' translatable='yes'>Log scale</attribute>
+        <attribute name='action'>win.log</attribute>
+      </item>
+
+      <item>
+        <attribute name='label' translatable='yes'>Enable colour management</attribute>
+        <attribute name='action'>win.icc</attribute>
+      </item>
+
+      <item>
+        <attribute name='label' translatable='yes'>Preserve view settings on new image</attribute>
+        <attribute name='action'>win.preserve</attribute>
+      </item>
+
+    </section>
+
+    <section>
+
+      <item>
+        <attribute name='label' translatable='yes'>Multipage</attribute>
+        <attribute name='action'>win.mode</attribute>
+        <attribute name='target'>multipage</attribute>
+      </item>
+
+      <item>
+        <attribute name='label' translatable='yes'>Toilet roll</attribute>
+        <attribute name='action'>win.mode</attribute>
+        <attribute name='target'>toilet-roll</attribute>
+      </item>
+
+      <item>
+        <attribute name='label' translatable='yes'>Animated</attribute>
+        <attribute name='action'>win.mode</attribute>
+        <attribute name='target'>animated</attribute>
+      </item>
+
+      <item>
+        <attribute name='label' translatable='yes'>Pages as bands</attribute>
+        <attribute name='action'>win.mode</attribute>
+        <attribute name='target'>pages-as-bands</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Checkerboard background</attribute>
+        <attribute name='action'>win.background</attribute>
+        <attribute name='target'>checkerboard</attribute>
+      </item>
+
+      <item>
+        <attribute name='label' translatable='yes'>White background</attribute>
+        <attribute name='action'>win.background</attribute>
+        <attribute name='target'>white</attribute>
+      </item>
+
+      <item>
+        <attribute name='label' translatable='yes'>Black background</attribute>
+        <attribute name='action'>win.background</attribute>
+        <attribute name='target'>black</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Reset</attribute>
+        <attribute name='action'>win.reset</attribute>
+      </item>
+    </section>
+  </menu>
+
+  <object class="GtkAdjustment" id="page_adj">
+    <property name="lower">0</property>
+    <property name="upper">100</property>
+    <property name="step-increment">1</property>
+  </object>
+
+  <template class="Displaybar" parent="GtkWidget">
+    <child>
+      <object class="GtkActionBar" id="action_bar">
+        <property name="revealed">false</property>
+
+        <child type="center">
+          <object class="GtkBox">
+            <property name="hexpand">True</property>
+            <property name="spacing">5</property>
+
+            <child>
+  	      <object class="GtkMenuButton" id="gears">
+	        <property name="hexpand">False</property>
+	        <property name="direction">none</property>
+                <property name="menu-model">displaybar-menu</property>
+	      </object>
+            </child>
+
+            <child>
+              <object class="GtkSpinButton" id="page">
+                <property name="adjustment">page_adj</property>
+                <property name="climb-rate">1</property>
+                <property name="digits">0</property>
+                <property name="numeric">true</property>
+	      </object>
+            </child>
+
+            <child>
+              <object class="Tslider" id="scale">
+                <property name="hexpand">True</property>
+              </object>
+            </child>
+
+            <child>
+              <object class="Tslider" id="offset">
+                <property name="hexpand">True</property>
+              </object>
+            </child>
+
+          </object>
+        </child>
+
+      </object>
+    </child>
+  </template>
+</interface>

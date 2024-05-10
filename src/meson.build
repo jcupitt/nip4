@@ -13,6 +13,7 @@ resources = gnome.compile_resources(
 # headers for enum scanning
 headers = files (
   'tilesource.h',
+  'tilecache.h',
 )
 
 sources = files (
@@ -24,10 +25,12 @@ sources = files (
   'column.c',
   'columnview.c',
   'compile.c',
+  'displaybar.c',
   'dump.c',
   'expr.c',
   'filemodel.c',
   'formula.c',
+  'fuzzy.c',
   'graphicview.c',
   'gtkutil.c',
   'heap.c',
@@ -37,6 +40,9 @@ sources = files (
   'iimageview.c',
   'imagedisplay.c',
   'imageinfo.c',
+  'imageui.c',
+  'imagewindow.c',
+  'infobar.c',
   'iobject.c',
   'itext.c',
   'itextview.c',
@@ -58,11 +64,13 @@ sources = files (
   'prefs.c',
   'prefworkspaceview.c',
   'progress.c',
+  'properties.c',
   'reduce.c',
   'rhs.c',
   'rhsview.c',
   'row.c',
   'rowview.c',
+  'saveoptions.c',
   'secret.c',
   'spin.c',
   'subcolumn.c',
@@ -80,6 +88,7 @@ sources = files (
   'toolview.c',
   'trace.c',
   'tree.c',
+  'tslider.c',
   'util.c',
   'view.c',
   'vipsobject.c',

@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="imagewindow-menu">
+    <section>
+      <attribute name="display-hint">horizontal-buttons</attribute>
+      <item>
+        <attribute name="label">Open image</attribute>
+        <attribute name="action">win.replace</attribute>
+        <attribute name="verb-icon">document-open-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="label">Previous image</attribute>
+        <attribute name="action">win.prev_image</attribute>
+        <attribute name="verb-icon">go-previous-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="label">Next image</attribute>
+        <attribute name="action">win.next_image</attribute>
+        <attribute name="verb-icon">go-next-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="label">Reload</attribute>
+        <attribute name="action">win.reload</attribute>
+        <attribute name="verb-icon">view-refresh-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="label">Copy</attribute>
+        <attribute name="action">win.copy</attribute>
+        <attribute name="verb-icon">edit-copy-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="label">Paste</attribute>
+        <attribute name="action">win.paste</attribute>
+        <attribute name="verb-icon">edit-paste-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="label">Fullscreen</attribute>
+        <attribute name="action">win.fullscreen</attribute>
+        <attribute name="verb-icon">view-fullscreen-symbolic</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>New window</attribute>
+        <attribute name='action'>app.new</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Duplicate window</attribute>
+        <attribute name='action'>win.duplicate</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Next page</attribute>
+        <attribute name='action'>win.next</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Previous page</attribute>
+        <attribute name='action'>win.prev</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Save as ...</attribute>
+        <attribute name='action'>win.saveas</attribute>
+      </item>
+    </section>
+
+    <section>
+      <submenu>
+        <attribute name="label">Zoom</attribute>
+        <section>
+          <item>
+            <attribute name="label" translatable="yes">Zoom in</attribute>
+            <attribute name="action">win.magin</attribute>
+          </item>
+          <item>
+            <attribute name="label" translatable="yes">Zoom out</attribute>
+            <attribute name="action">win.magout</attribute>
+          </item>
+          <item>
+            <attribute name="label" translatable="yes">1:1</attribute>
+            <attribute name="action">win.oneone</attribute>
+          </item>
+          <item>
+            <attribute name="label" translatable="yes">Best fit</attribute>
+            <attribute name="action">win.bestfit</attribute>
+          </item>
+        </section>
+      </submenu>
+
+      <section>
+        <submenu>
+          <attribute name="label">View</attribute>
+          <section>
+
+            <item>
+              <attribute name="label" translatable="yes">Display control bar</attribute>
+              <attribute name="action">win.control</attribute>
+            </item>
+            <item>
+              <attribute name="label" translatable="yes">Info bar</attribute>
+              <attribute name="action">win.info</attribute>
+            </item>
+            <item>
+              <attribute name="label" translatable="yes">Properties</attribute>
+              <attribute name="action">win.properties</attribute>
+            </item>
+  
+          </section>
+        </submenu>
+      </section>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Close</attribute>
+        <attribute name='action'>win.close</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>About vipsdisp</attribute>
+        <attribute name='action'>app.about</attribute>
+      </item>
+    </section>
+
+  </menu>
+
+  <template class="Imagewindow" parent="GtkApplicationWindow">
+    <property name="title" translatable="yes">Image window</property>
+    <property name="default-width">1100</property>
+    <property name="default-height">1000</property>
+
+    <child type="titlebar">
+      <object class="GtkHeaderBar" id="header">
+
+        <child type="start">
+          <object class="GtkButton">
+            <property name="icon-name">document-open-symbolic</property>
+            <property name="action-name">win.replace</property>
+            <property name="tooltip-text">Open image</property>
+          </object>
+        </child>
+
+        <child type="start">
+          <object class="GtkButton">
+            <property name="icon-name">go-previous-symbolic</property>
+            <property name="action-name">win.prev_image</property>
+            <property name="tooltip-text">Previous image</property>
+          </object>
+        </child>
+
+        <child type="start">
+          <object class="GtkButton">
+            <property name="icon-name">go-next-symbolic</property>
+            <property name="action-name">win.next_image</property>
+            <property name="tooltip-text">Next image</property>
+          </object>
+        </child>
+
+        <child type="start">
+          <object class="GtkButton">
+            <property name="icon-name">view-refresh-symbolic</property>
+            <property name="action-name">win.reload</property>
+            <property name="tooltip-text">Reload</property>
+          </object>
+        </child>
+
+        <child type="title">
+          <object class="GtkBox" id="content_box">
+            <property name="valign">center</property>
+            <property name="spacing">2</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel" id="title">
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+                <property name="ellipsize">start</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="subtitle">
+                <attributes>
+                  <attribute name="weight" value="light"/>
+                </attributes>
+                <property name="ellipsize">end</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child type="end">
+          <object class="GtkMenuButton" id="gears">
+            <property name="direction">none</property>
+            <property name="menu-model">imagewindow-menu</property>
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+
+        <child>
+          <object class="GtkActionBar" id="progress_bar">
+            <property name="revealed">false</property>
+
+            <child type="center">
+              <object class="GtkProgressBar" id="progress">
+                <property name="hexpand">true</property>
+                <property name="show-text">true</property>
+              </object>
+            </child>
+
+            <child type="end">
+              <object class="GtkButton" id="progress_cancel">
+                <property name="label">Cancel</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkInfoBar" id="error_bar">
+            <property name="message-type">error</property>
+            <property name="show-close-button">true</property>
+            <property name="revealed">false</property>
+            <child>
+              <object class="GtkLabel" id="error_label">
+                <property name="ellipsize">middle</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox" id="main_box">
+            <property name="orientation">horizontal</property>
+
+            <child>
+              <object class="GtkStack" id="stack">
+                <property name="hexpand">true</property>
+                <property name="vexpand">true</property>
+
+                  <!-- Imageui go in here -->
+              </object>
+            </child>
+
+            <child>
+              <object class="Properties" id="properties">
+                <property name="hexpand">true</property>
+                <property name="vexpand">true</property>
+              </object>
+            </child>
+
+            <child> 
+              <object class="GtkGestureClick">
+                <property name="button">3</property>
+                <signal name="pressed" handler="imagewindow_pressed_cb"/>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkPopoverMenu" id="right_click_menu">
+                <property name="has-arrow">0</property>
+                <property name="menu-model">imagewindow-menu</property>
+              </object> 
+            </child>
+
+          </object>
+        </child>
+
+        <child>
+          <object class="Displaybar" id="display_bar">
+          </object>
+        </child>
+
+        <child>
+          <object class="Infobar" id="info_bar">
+          </object>
+        </child>
+
+      </object>
+    </child>
+  </template>
+</interface>

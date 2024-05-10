@@ -1,4 +1,4 @@
-/* a drawing area that draws an image
+/* show image save options
  */
 
 /*
@@ -25,22 +25,18 @@
 
 	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
 
- */
+*/
 
-#ifndef __IMAGEDISPLAY_H
-#define __IMAGEDISPLAY_H
+#ifndef __SAVE_OPTIONS_H
+#define __SAVE_OPTIONS_H
 
-#define IMAGEDISPLAY_TYPE (imagedisplay_get_type())
-#define IMAGEDISPLAY NIP4_IMAGEDISPLAY
+#define SAVE_OPTIONS_TYPE (save_options_get_type())
 
-G_DECLARE_FINAL_TYPE(Imagedisplay, imagedisplay,
-	NIP4, IMAGEDISPLAY, GtkDrawingArea)
+#define SAVE_OPTIONS NIP4_SAVE_OPTIONS
 
-void imagedisplay_image_to_gtk(Imagedisplay *imagedisplay,
-	double x_image, double y_image, double *x_gtk, double *y_gtk);
-void imagedisplay_gtk_to_image(Imagedisplay *imagedisplay,
-	double x_gtk, double y_gtk, double *x_image, double *y_image);
+G_DECLARE_FINAL_TYPE(SaveOptions, save_options, NIP4, SAVE_OPTIONS, GtkDialog);
 
-Imagedisplay *imagedisplay_new(Tilesource *tilesource);
+SaveOptions *save_options_new(GtkWindow *parent_window,
+	VipsImage *in, const char *filename);
 
-#endif /* __IMAGEDISPLAY_H */
+#endif /* __SAVE_OPTIONS_H */

@@ -1,4 +1,4 @@
-/* a drawing area that draws an image
+/* a status bar for the iamge display window
  */
 
 /*
@@ -25,22 +25,18 @@
 
 	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
 
- */
+*/
 
-#ifndef __IMAGEDISPLAY_H
-#define __IMAGEDISPLAY_H
+#ifndef __INFOBAR_H
+#define __INFOBAR_H
 
-#define IMAGEDISPLAY_TYPE (imagedisplay_get_type())
-#define IMAGEDISPLAY NIP4_IMAGEDISPLAY
+#define INFOBAR_TYPE (infobar_get_type())
 
-G_DECLARE_FINAL_TYPE(Imagedisplay, imagedisplay,
-	NIP4, IMAGEDISPLAY, GtkDrawingArea)
+G_DECLARE_FINAL_TYPE(Infobar, infobar, NIP4, INFOBAR, GtkWidget)
 
-void imagedisplay_image_to_gtk(Imagedisplay *imagedisplay,
-	double x_image, double y_image, double *x_gtk, double *y_gtk);
-void imagedisplay_gtk_to_image(Imagedisplay *imagedisplay,
-	double x_gtk, double y_gtk, double *x_image, double *y_image);
+#define INFOBAR(obj) \
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), INFOBAR_TYPE, Infobar))
 
-Imagedisplay *imagedisplay_new(Tilesource *tilesource);
+Infobar *infobar_new(Imagewindow *win);
 
-#endif /* __IMAGEDISPLAY_H */
+#endif /* __INFOBAR_H */

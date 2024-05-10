@@ -2,18 +2,29 @@
 
 <gresources>
   <gresource prefix="/org/libvips/nip4">
-    <file preprocess="xml-stripblanks">mainwindow.ui</file>
-    <file preprocess="xml-stripblanks">workspacegroupview.ui</file>
-    <file preprocess="xml-stripblanks">workspaceview.ui</file>
+
     <file preprocess="xml-stripblanks">columnview.ui</file>
-    <file preprocess="xml-stripblanks">workspaceviewlabel.ui</file>
-    <file preprocess="xml-stripblanks">subcolumnview.ui</file>
-    <file preprocess="xml-stripblanks">spin.ui</file>
-    <file preprocess="xml-stripblanks">rowview.ui</file>
-    <file preprocess="xml-stripblanks">rhsview.ui</file>
+    <file preprocess="xml-stripblanks">displaybar.ui</file>
     <file preprocess="xml-stripblanks">formula.ui</file>
-    <file preprocess="xml-stripblanks">itextview.ui</file>
     <file preprocess="xml-stripblanks">iimageview.ui</file>
+    <file preprocess="xml-stripblanks">imageui.ui</file>
+    <file preprocess="xml-stripblanks">imagewindow.ui</file>
+    <file preprocess="xml-stripblanks">infobar.ui</file>
+    <file preprocess="xml-stripblanks">itextview.ui</file>
+    <file preprocess="xml-stripblanks">mainwindow.ui</file>
+    <file preprocess="xml-stripblanks">properties.ui</file>
+    <file preprocess="xml-stripblanks">rhsview.ui</file>
+    <file preprocess="xml-stripblanks">rowview.ui</file>
+    <file preprocess="xml-stripblanks">saveoptions.ui</file>
+    <file preprocess="xml-stripblanks">spin.ui</file>
+    <file preprocess="xml-stripblanks">subcolumnview.ui</file>
+    <file preprocess="xml-stripblanks">tslider.ui</file>
+    <file preprocess="xml-stripblanks">workspacegroupview.ui</file>
+    <file preprocess="xml-stripblanks">workspaceviewlabel.ui</file>
+    <file preprocess="xml-stripblanks">workspaceview.ui</file>
+
     <file>nip4.css</file>
+    <file>properties.css</file>
+    <file>saveoptions.css</file>
   </gresource>
 </gresources>

@@ -1,34 +1,7 @@
-- try
+- try fixing the displayimage focus indicator in vipsdisp?o
 
-	load ~/pics/x.ws
-	expand thumbnail once and rhsview adds itextview
-	shrink once and view_dispose runs for itextview
+  them make an image display window for nip4
 
-  woo!
-
-	load ~/pics/x.ws
-	expand thumbnail once and rhsview adds itextview
-	expand thumbnail once more and rhsview adds subcolumnview
-		(plus many subwidgets after that)
-	contract thumbnail
-	lots of gtk_grid_remove() errors
-
-  maybe we are killing widgets more than once?
-
-
-
-
-
-- try
-
-	expand a thumbnail
-	expand super as well
-	close outermost subcolumn
-	lots of
-
-		gtk_grid_remove: assertion 'gtk_widget_get_parent (child) == GTK_WIDGET (grid)' failed
-
-	presumably the parent is NULL
 
 - column delete needs to
 
@@ -45,7 +18,6 @@
 - add popup image viewer
 
 - hook up a progress bar for eg st-francis.jpg load?
-
 
 - imagedisplay should not draw the focus rect ... get the base widget class
   to do that for us
@@ -99,6 +71,9 @@
 - animate workspace layout
 
 - animate scroll-to-keep-column-visible
+
+	have a look at gtk_viewport_set_scroll_to_focus() ... could this
+	do the work for us?
 
 - watch column resize and trigger ws relayout
 
