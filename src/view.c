@@ -22,9 +22,9 @@
  */
 
 /*
- */
 #define DEBUG_VIEWCHILD
 #define DEBUG
+ */
 
 /* Time each refresh
 #define DEBUG_TIME
@@ -110,6 +110,11 @@ view_viewchild_destroy(ViewChild *viewchild)
 		G_OBJECT_TYPE_NAME(viewchild->parent_view),
 		G_OBJECT_TYPE_NAME(viewchild->child_model));
 #endif /*DEBUG_VIEWCHILD*/
+
+	if (child_view) {
+        g_assert(child_view->parent == parent_view);
+        child_view->parent = NULL;
+    }
 
 	FREESID(viewchild->child_model_changed_sid, viewchild->child_model);
 	parent_view->managed = g_slist_remove(parent_view->managed, viewchild);
@@ -198,12 +203,6 @@ view_viewchild_new(View *parent_view, Model *child_model)
 static void *
 view_viewchild_test_child_model(ViewChild *viewchild, Model *child_model)
 {
-#ifdef DEBUG
-	printf("view_viewchild_test_child_model: model %s \"%s\"\n",
-		G_OBJECT_TYPE_NAME(child_model),
-		IOBJECT(child_model)->name);
-#endif /*DEBUG*/
-
 	if (viewchild->child_model == child_model)
 		return viewchild;
 
@@ -412,7 +411,8 @@ view_model_child_add(Model *parent, Model *child, int pos, View *parent_view)
 	ViewChild *viewchild;
 
 #ifdef DEBUG
-	printf("view_model_child_add: parent %s \"%s\"\n",
+	printf("view_model_child_add\n");
+	printf("\tparent = %s \"%s\"\n",
 		G_OBJECT_TYPE_NAME(parent), IOBJECT(parent)->name);
 #endif /*DEBUG*/
 
@@ -440,16 +440,14 @@ view_model_child_remove(iContainer *parent, iContainer *child,
 	ViewChild *viewchild;
 
 #ifdef DEBUG
-	{
-		printf("view_model_child_remove: child %s \"%s\"; "
-			   "parent %s \"%s\"\n",
-			G_OBJECT_TYPE_NAME(child), IOBJECT(child)->name,
-			G_OBJECT_TYPE_NAME(parent), IOBJECT(parent)->name);
-
-		printf("view_model_child_remove: parent_view = view of %s \"%s\"\n",
-			G_OBJECT_TYPE_NAME(VOBJECT(parent_view)->iobject),
-			IOBJECT(VOBJECT(parent_view)->iobject)->name);
-	}
+	printf("view_model_child_remove:\n");
+	printf("\tchild = %s \"%s\"\n",
+		G_OBJECT_TYPE_NAME(child), IOBJECT(child)->name);
+	printf("\tparent = %s \"%s\"\n",
+		G_OBJECT_TYPE_NAME(parent), IOBJECT(parent)->name);
+	printf("\tparent_view of object = %s \"%s\"\n",
+		G_OBJECT_TYPE_NAME(VOBJECT(parent_view)->iobject),
+		IOBJECT(VOBJECT(parent_view)->iobject)->name);
 #endif /*DEBUG*/
 
 	viewchild = slist_map(parent_view->managed,
@@ -470,11 +468,11 @@ view_model_child_detach(iContainer *old_parent, iContainer *child,
 	ViewChild *viewchild;
 
 #ifdef DEBUG
-	printf("view_model_child_detach: child %s \"%s\", old_parent %s \"%s\"\n",
-		G_OBJECT_TYPE_NAME(child),
-		IOBJECT(child)->name,
-		G_OBJECT_TYPE_NAME(old_parent),
-		IOBJECT(old_parent)->name);
+	printf("view_model_child_detach:\n");
+	printf("\tchild = %s \"%s\"\n",
+		G_OBJECT_TYPE_NAME(child), IOBJECT(child)->name);
+	printf("\told_parent = %s \"%s\"\n",
+		G_OBJECT_TYPE_NAME(old_parent), IOBJECT(old_parent)->name);
 
 	printf("view_model_child_detach: old_parent_view = view of %s \"%s\"\n",
 		G_OBJECT_TYPE_NAME(VOBJECT(old_parent_view)->iobject),
@@ -500,6 +498,16 @@ view_model_child_attach(iContainer *new_parent, iContainer *child, int pos,
 	View *new_parent_view)
 {
 	ViewChild *viewchild;
+
+#ifdef DEBUG
+	printf("view_model_child_attach:\n");
+	printf("\tnew_parent =  %s \"%s\"\n",
+		G_OBJECT_TYPE_NAME(new_parent), IOBJECT(new_parent)->name);
+	printf("\tchild =  %s \"%s\"\n",
+		G_OBJECT_TYPE_NAME(child), IOBJECT(child)->name);
+	printf("\tnew_parent_view =  %s \"%s\"\n",
+		G_OBJECT_TYPE_NAME(new_parent_view), IOBJECT(new_parent_view)->name);
+#endif /*DEBUG*/
 
 	g_assert(!slist_map(new_parent_view->managed,
 		(SListMapFn) view_viewchild_test_child_model, child));
@@ -577,8 +585,10 @@ view_real_child_add(View *parent, View *child)
 	g_assert(child->parent == NULL);
 
 #ifdef DEBUG
-	printf("view_real_child_add: parent %p %s, child %p %s\n",
-		parent, G_OBJECT_TYPE_NAME(parent),
+	printf("view_real_child_add:\n");
+	printf("\tparent = %p %s\n",
+		parent, G_OBJECT_TYPE_NAME(parent));
+	printf("\tchild = %p %s\n",
 		child, G_OBJECT_TYPE_NAME(child));
 #endif /*DEBUG*/
 
@@ -599,8 +609,11 @@ view_real_child_remove(View *parent, View *child)
 	ViewChild *viewchild;
 
 #ifdef DEBUG
-	printf("view_real_child_remove: parent %s, child %s\n",
-		G_OBJECT_TYPE_NAME(parent), G_OBJECT_TYPE_NAME(child));
+	printf("view_real_child_remove:\n");
+	printf("\tparent = %p %s\n",
+		parent, G_OBJECT_TYPE_NAME(parent));
+	printf("\tchild = %p %s\n",
+		child, G_OBJECT_TYPE_NAME(child));
 #endif /*DEBUG*/
 
 	viewchild = slist_map(parent->managed,

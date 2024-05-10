@@ -29,8 +29,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -148,20 +148,24 @@ rhsview_child_add(View *parent, View *child)
 {
 	Rhsview *rhsview = RHSVIEW(parent);
 
-	if (IS_SUBCOLUMNVIEW(child)) {
-		gtk_grid_attach(GTK_GRID(rhsview->grid), GTK_WIDGET(child), 0, 1, 1, 1);
+	int y;
+
+	if (IS_GRAPHICVIEW(child)) {
+		y = 0;
+		rhsview->graphic = child;
+	}
+	else if (IS_SUBCOLUMNVIEW(child)) {
+		y = 1;
 		rhsview->scol = child;
 	}
 	else if (IS_ITEXTVIEW(child)) {
-		gtk_grid_attach(GTK_GRID(rhsview->grid), GTK_WIDGET(child), 0, 2, 1, 1);
+		y = 2;
 		rhsview->itext = child;
 	}
-	else {
-		g_assert(IS_GRAPHICVIEW(child));
+	else
+		g_assert_not_reached();
 
-		gtk_grid_attach(GTK_GRID(rhsview->grid), GTK_WIDGET(child), 0, 0, 1, 1);
-		rhsview->graphic = child;
-	}
+	gtk_grid_attach(GTK_GRID(rhsview->grid), GTK_WIDGET(child), 0, y, 1, 1);
 
 	VIEW_CLASS(rhsview_parent_class)->child_add(parent, child);
 }
@@ -180,12 +184,10 @@ rhsview_child_remove(View *parent, View *child)
 
 	VIEW_CLASS(rhsview_parent_class)->child_remove(parent, child);
 
-	printf("rhsview_child_remove: grid_remove\n");
-	printf("\tparent %s %p\n", G_OBJECT_TYPE_NAME(parent), parent);
-	printf("\tchild %s %p\n", G_OBJECT_TYPE_NAME(child), child);
-
-	// must be at the end since this will unref the child
-	if (rhsview->grid)
+	// we may already have been detached from our parent by an enclosing
+	// rhsview ... only remove if we're attached
+	if (rhsview->grid &&
+		gtk_widget_get_parent(rhsview->grid))
 		gtk_grid_remove(GTK_GRID(rhsview->grid), GTK_WIDGET(child));
 }
 

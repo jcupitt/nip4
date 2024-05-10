@@ -41,8 +41,8 @@ subcolumnview_dispose(GObject *object)
 	Subcolumnview *sview;
 
 #ifdef DEBUG
-	printf("subcolumnview_dispose\n");
 #endif /*DEBUG*/
+	printf("subcolumnview_dispose\n");
 
 	g_return_if_fail(object != NULL);
 	g_return_if_fail(IS_SUBCOLUMNVIEW(object));
