@@ -776,7 +776,7 @@ imagedisplay_new(Tilesource *tilesource)
 #endif /*DEBUG*/
 
 	imagedisplay = g_object_new(imagedisplay_get_type(),
-		"tile-source", tilesource,
+		"tilesource", tilesource,
 		NULL);
 
 	return imagedisplay;

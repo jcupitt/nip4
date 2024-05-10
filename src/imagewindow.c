@@ -719,7 +719,7 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 			NULL);
 
 	g_object_set(win->properties,
-		"tile-source", new_tilesource,
+		"tilesource", new_tilesource,
 		NULL);
 
 	/* Update title and subtitle.

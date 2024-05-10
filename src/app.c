@@ -171,6 +171,10 @@ app_startup(GApplication *app)
 	RHSVIEW_TYPE;
 	FORMULA_TYPE;
 	ITEXTVIEW_TYPE;
+	PROPERTIES_TYPE;
+	DISPLAYBAR_TYPE;
+	INFOBAR_TYPE;
+	TSLIDER_TYPE;
 
 	/* We have to init some of our other classes to get them registered
 	 * with the XML loader.

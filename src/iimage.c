@@ -134,6 +134,7 @@ iimage_edit(GtkWidget *parent, Model *model)
 		GtkApplication *app = gtk_window_get_application(GTK_WINDOW(main));
 		Imagewindow *win = imagewindow_new(APP(app));
 
+		imagewindow_open_image(win, image);
 		gtk_window_present(GTK_WINDOW(win));
 	}
 }

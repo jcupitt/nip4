@@ -396,7 +396,7 @@ properties_class_init(PropertiesClass *class)
 	gobject_class->get_property = properties_get_property;
 
 	g_object_class_install_property(gobject_class, PROP_TILESOURCE,
-		g_param_spec_object("tile-source",
+		g_param_spec_object("tilesource",
 			_("Tile source"),
 			_("The tile source whose properties we display"),
 			TILESOURCE_TYPE,
