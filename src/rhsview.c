@@ -192,6 +192,21 @@ rhsview_child_remove(View *parent, View *child)
 }
 
 static void
+rhsview_action(GSimpleAction *action, GVariant *parameter, View *view)
+{
+	Rhsview *rview = RHSVIEW(view);
+	const char *name = g_action_get_name(G_ACTION(action));
+
+	printf("rhsview_action: %s\n", name);
+
+	if (g_str_equal(name, "row-edit")) {
+		Rhs *rhs = RHS(VOBJECT(rview)->iobject);
+
+		model_edit(GTK_WIDGET(rview), rhs);
+	}
+}
+
+static void
 rhsview_class_init(RhsviewClass *class)
 {
 	GObjectClass *object_class = (GObjectClass *) class;
@@ -219,6 +234,7 @@ rhsview_class_init(RhsviewClass *class)
 	view_class->child_add = rhsview_child_add;
 	view_class->child_remove = rhsview_child_remove;
 	view_class->reset = rhsview_reset;
+	view_class->action = rhsview_action;
 }
 
 static void

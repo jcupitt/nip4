@@ -175,8 +175,8 @@ iimageview_edit(GtkWidget *parent, iImageview *iimageview)
 	iImage *iimage = IIMAGE(VOBJECT(iimageview)->iobject);
 
 	if (IS_IREGION(iimage) && iimage->value.ii) {
-		printf("iimageview_edit: FIXME\n");
-		// imageview_new(iimage, parent);
+		printf("iimageview_edit: FIXME region edit\n");
+	    //imageview_new( iimage, parent );
 	}
 	else
 		model_edit(parent, MODEL(iimage));

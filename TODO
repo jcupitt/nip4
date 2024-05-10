@@ -1,7 +1,6 @@
-- try fixing the displayimage focus indicator in vipsdisp?o
+- need to set an image on the image viewer
 
-  them make an image display window for nip4
-
+- uncomment the extra css load in app.c and column select colours stop working
 
 - column delete needs to
 

@@ -209,8 +209,8 @@ app_startup(GApplication *app)
 	 */
 	GtkCssProvider *provider = gtk_css_provider_new();
 	gtk_css_provider_load_from_resource(provider, APP_PATH "/nip4.css");
-	gtk_css_provider_load_from_resource(provider, APP_PATH "/saveoptions.css");
-	gtk_css_provider_load_from_resource(provider, APP_PATH "/properties.css");
+	//gtk_css_provider_load_from_resource(provider, APP_PATH "/saveoptions.css");
+	//gtk_css_provider_load_from_resource(provider, APP_PATH "/properties.css");
 	gtk_style_context_add_provider_for_display(gdk_display_get_default(),
 		GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
 

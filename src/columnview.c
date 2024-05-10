@@ -714,8 +714,6 @@ columnview_class_init(ColumnviewClass *class)
 	view_class->child_remove = columnview_child_remove;
 	view_class->scrollto = columnview_scrollto;
 	view_class->action = columnview_action;
-
-	printf("columnview_class_init: columnview menu FIXME\n");
 }
 
 static void

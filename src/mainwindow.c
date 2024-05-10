@@ -422,6 +422,9 @@ static GActionEntry mainwindow_entries[] = {
 	{ "column-saveas", mainwindow_view_action },
 	{ "column-delete", mainwindow_view_action },
 
+	// row menu
+	{ "row-edit", mainwindow_view_action },
+
 };
 
 static void

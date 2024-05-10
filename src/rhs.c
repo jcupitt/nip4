@@ -88,6 +88,15 @@ rhs_view_new(Model *model, View *parent)
 	return rhsview_new();
 }
 
+static void
+rhs_edit(GtkWidget *parent, Model *model)
+{
+	Rhs *rhs = RHS(model);
+
+	if (rhs->graphic)
+		model_edit(parent, rhs->graphic);
+}
+
 static gboolean
 rhs_load(Model *model,
 	ModelLoadState *state, Model *parent, xmlNode *xnode)
@@ -366,6 +375,7 @@ rhs_class_init(RhsClass *class)
 	icontainer_class->parent_add = rhs_parent_add;
 
 	model_class->view_new = rhs_view_new;
+	model_class->edit = rhs_edit;
 	model_class->load = rhs_load;
 	model_class->save = rhs_save;
 

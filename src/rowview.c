@@ -464,7 +464,9 @@ static void
 rowview_menu(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Rowview *rview)
 {
-	printf("rowview_menu: FIXME ... set client data\n");
+	printf("rowview_menu:\n");
+
+	mainwindow_set_action_view(rview->rhsview);
 
 	gtk_popover_set_pointing_to(GTK_POPOVER(rview->right_click_menu),
 		&(const GdkRectangle){ x, y, 1, 1 });
@@ -572,6 +574,7 @@ rowview_class_init(RowviewClass *class)
 	BIND_VARIABLE(Rowview, top);
 	BIND_VARIABLE(Rowview, spin);
 	BIND_VARIABLE(Rowview, but);
+	BIND_VARIABLE(Rowview, right_click_menu);
 
 	/* Create signals.
 	 */

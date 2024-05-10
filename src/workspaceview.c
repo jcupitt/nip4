@@ -500,8 +500,8 @@ workspaceview_layout_find_similar_x(Columnview *cview,
 		snap = TRUE;
 
 	if (snap) {
-		layout->current_columns = g_slist_prepend(
-			layout->current_columns, cview);
+		layout->current_columns =
+			g_slist_prepend(layout->current_columns, cview);
 		layout->area.width = VIPS_MAX(layout->area.width, w);
 	}
 
