@@ -8,9 +8,6 @@
         <attribute name='action'>win.row-edit</attribute>
       </item>
       <item>
-        <attribute name='label' translatable='yes'>Header ...</attribute>
-      </item>
-      <item>
         <attribute name='label' translatable='yes'>Duplicate</attribute>
       </item>
       <item>

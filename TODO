@@ -1,4 +1,21 @@
-- need to set an image on the image viewer
+- can we share a tilesource for all images? then maybe thumbnails would update
+  when we move the display control bar?
+
+  could have two views open on the same image and they'd share display
+  settings? it might be annoying
+
+  perhaps updating the thumbnail on imagewindow close is best
+
+- imagewindow on CMU-1.svs seems not to see pyramid? or is it just very slow?
+
+- imagewindow should update imageinfo when
+
+	< > in imagewindow
+	paste into image window
+	replace file in imagewindow
+
+
+
 
 - uncomment the extra css load in app.c and column select colours stop working
 

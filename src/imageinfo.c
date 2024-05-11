@@ -772,6 +772,7 @@ imageinfo_open_image_input(const char *filename, ImageinfoOpen *open)
 		return NULL;
 	}
 	MANAGED_REF(imageinfo);
+	imageinfo->from_file = TRUE;
 
 #ifdef DEBUG_OPEN
 	printf("imageinfo_open_image_input: opened VIPS \"%s\"\n", filename);
@@ -921,7 +922,6 @@ imageinfo_new_input(Imageinfogroup *imageinfogroup, GtkWidget *parent,
 		return NULL;
 	}
 
-	imageinfo->from_file = TRUE;
 	imageinfo_attach_check(imageinfo);
 
 	return imageinfo;
@@ -1973,3 +1973,4 @@ imageinfo_colour_edit(GtkWidget *parent, Imageinfo *imageinfo)
 {
 	printf("imageinfo_colour_edit: FIXME\n");
 }
+

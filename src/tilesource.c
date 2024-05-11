@@ -1347,6 +1347,28 @@ tilesource_new_from_image(VipsImage *image)
 	return g_steal_pointer(&tilesource);
 }
 
+// use the file interface if we can, so we get fast zooming
+Tilesource *
+tilesource_new_from_imageinfo(Imageinfo *ii)
+{
+	if (imageinfo_is_from_file(ii))
+		return callv_string_filename(
+			(callv_string_fn) tilesource_new_from_file, IOBJECT(ii)->name,
+			NULL, NULL, NULL);
+	else
+		return tilesource_new_from_image(imageinfo_get(FALSE, ii));
+}
+
+gboolean
+tilesource_has_imageinfo(Tilesource *tilesource, Imageinfo *ii)
+{
+	if (imageinfo_is_from_file(ii) &&
+		tilesource->filename)
+		return g_str_equal(IOBJECT(ii)->name, tilesource->filename);
+	else
+		return imageinfo_get(FALSE, ii) == tilesource->image;
+}
+
 /* Detect a TIFF pyramid made of subifds following a roughly /2 shrink.
  */
 static void

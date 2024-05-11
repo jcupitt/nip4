@@ -210,15 +210,11 @@ iimageview_refresh(vObject *vobject)
 	printf("iimageview_refresh: FIXME\n");
 
 	if (iimageview->imagedisplay) {
-		VipsImage *image = imageinfo_get(FALSE, ii);
-
 		if (!iimageview->tilesource ||
-			image != tilesource_get_image(iimageview->tilesource)) {
-			printf("iimageview_refresh: "
-					"use tilesource_new_from_file() if we can\n");
+			!tilesource_has_imageinfo(iimageview->tilesource, ii)) {
 			VIPS_UNREF(iimageview->tilesource);
-			if (image)
-				iimageview->tilesource = tilesource_new_from_image(image);
+			if (ii)
+				iimageview->tilesource = tilesource_new_from_imageinfo(ii);
 
 			if (iimageview->tilesource) {
 				g_object_set(iimageview->imagedisplay,

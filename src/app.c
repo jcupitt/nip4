@@ -60,6 +60,7 @@ static void
 app_quit_activated(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
+	printf("app_quit_activated: FIXME ... check for modified etc.\n");
 	g_application_quit(G_APPLICATION(user_data));
 }
 
