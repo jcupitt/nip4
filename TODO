@@ -12,10 +12,16 @@
 	paste into image window
 	replace file in imagewindow
 
+  currently done by iimage_replace(), from iimage_graphic_replace(), from
+  classmodel_graphic_replace()
 
+  that's just for replace from file dialogs, we want a non-filesel replace
 
+  how do other widgets do it? trigger the _edit method ... maybe replace from
+  file should call Image_file.Image_file_edit? (is that right?)
 
-- uncomment the extra css load in app.c and column select colours stop working
+- uncomment the extra css load in app.c and column select colours stop
+  working, how bizarre
 
 - column delete needs to
 
@@ -25,16 +31,20 @@
 
   should this be in the model base class?
 
-- rowview has a right_click_menu for the button
+- rowview has a right_click_menu for the button and it doesn't work well
 
   do we make a separate menu for every rowview? can we share them?
 
-- add popup image viewer
+  should probably just be a label
+
+  try styling a label to look more spreadsheety
 
 - hook up a progress bar for eg st-francis.jpg load?
 
 - imagedisplay should not draw the focus rect ... get the base widget class
   to do that for us
+
+  doesn't seem to be possible with drawing area?
 
 - columns "slip" during background scroll drag
 
@@ -69,8 +79,6 @@
 	still 2 after the unparent
 
   patched around this in vobject_iobject_destroy, but we still need to fix it
-
-- style columns to be more griddy ... use a label for row name, add some bars
 
 - revise column open/close code
 
