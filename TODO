@@ -6,8 +6,6 @@
 
   perhaps updating the thumbnail on imagewindow close is best
 
-- imagewindow on CMU-1.svs seems not to see pyramid? or is it just very slow?
-
 - imagewindow should update imageinfo when
 
 	< > in imagewindow

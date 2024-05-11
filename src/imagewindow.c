@@ -168,7 +168,7 @@ imagewindow_set_error(Imagewindow *win, const char *message)
 	gtk_info_bar_set_revealed(GTK_INFO_BAR(win->error_bar), TRUE);
 }
 
-static void
+void
 imagewindow_error(Imagewindow *win)
 {
 	imagewindow_set_error(win, vips_error_buffer());
@@ -1822,6 +1822,25 @@ imagewindow_open_gfiles(Imagewindow *win, GFile **gfiles, int n_files)
 }
 
 void
+imagewindow_open_tilesource(Imagewindow *win, Tilesource *tilesource)
+{
+#ifdef DEBUG
+	printf("imagewindow_open_image:\n");
+#endif /*DEBUG*/
+
+	Imageui *imageui = imageui_new(tilesource);
+	if (!imageui) {
+		imagewindow_error(win);
+		return;
+	}
+
+	imagewindow_files_free(win);
+	imagewindow_imageui_add(win, imageui);
+	imagewindow_imageui_set_visible(win,
+		imageui, GTK_STACK_TRANSITION_TYPE_SLIDE_DOWN);
+}
+
+void
 imagewindow_open_image(Imagewindow *win, VipsImage *image)
 {
 #ifdef DEBUG
@@ -1834,16 +1853,5 @@ imagewindow_open_image(Imagewindow *win, VipsImage *image)
 		return;
 	}
 
-	Imageui *imageui = imageui_new(tilesource);
-	if (!imageui) {
-		imagewindow_error(win);
-		return;
-	}
-
-	// no longer have a file backed image
-	imagewindow_files_free(win);
-
-	imagewindow_imageui_add(win, imageui);
-	imagewindow_imageui_set_visible(win,
-		imageui, GTK_STACK_TRANSITION_TYPE_SLIDE_DOWN);
+	imagewindow_open_tilesource(win, tilesource);
 }
