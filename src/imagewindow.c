@@ -76,6 +76,11 @@ typedef struct _ViewSettings {
 struct _Imagewindow {
 	GtkApplicationWindow parent;
 
+	/* A ref to the iimage we came from ... this is what we update on open
+	 * etc.
+	 */
+	iImage *iimage;
+
 	/* The imageui we are currently displaying, or NULL. This is not
 	 * a reference --- the real refs are in @stack.
 	 */
@@ -168,7 +173,7 @@ imagewindow_set_error(Imagewindow *win, const char *message)
 	gtk_info_bar_set_revealed(GTK_INFO_BAR(win->error_bar), TRUE);
 }
 
-void
+static void
 imagewindow_error(Imagewindow *win)
 {
 	imagewindow_set_error(win, vips_error_buffer());
@@ -805,22 +810,12 @@ imagewindow_open_current_file(Imagewindow *win,
 		printf("imagewindow_open_current_file: %s:\n", filename);
 #endif /*DEBUG*/
 
-		/* An old image selected again?
-		 */
 		imageui = NULL;
 		if ((active = imagewindow_active_lookup_by_filename(win, filename)))
+			// reselect old image
 			imageui = active->imageui;
 		else {
-			/* FIXME ... we only want to revalidate if eg. the timestamp has
-			 * changed, or perhaps on F5?
-			VipsImage *image;
-			if( (image = vips_image_new_from_file( filename,
-					"revalidate", TRUE, NULL )) )
-				VIPS_UNREF( image );
-			else
-				imagewindow_error( win );
-			 */
-
+			// new image
 			g_autoptr(Tilesource) tilesource =
 				tilesource_new_from_file(filename);
 			if (!tilesource) {
@@ -835,6 +830,11 @@ imagewindow_open_current_file(Imagewindow *win,
 			}
 
 			imagewindow_imageui_add(win, imageui);
+		}
+
+		if(win->iimage) {
+			iimage_replace(win->iimage, filename);
+			symbol_recalculate_all_force(FALSE);
 		}
 
 		imagewindow_imageui_set_visible(win, imageui, transition);
@@ -852,6 +852,7 @@ imagewindow_dispose(GObject *object)
 
 	imagewindow_files_free(win);
 
+	VIPS_UNREF(win->iimage);
 	VIPS_UNREF(win->save_folder);
 	VIPS_UNREF(win->load_folder);
 	VIPS_FREEF(gtk_widget_unparent, win->right_click_menu);
@@ -1854,4 +1855,24 @@ imagewindow_open_image(Imagewindow *win, VipsImage *image)
 	}
 
 	imagewindow_open_tilesource(win, tilesource);
+}
+
+void
+imagewindow_open_iimage(Imagewindow *win, iImage *iimage)
+{
+	Imageinfo *ii = iimage->value.ii;
+
+	if (ii) {
+		g_autoptr(Tilesource) tilesource = tilesource_new_from_imageinfo(ii);
+
+		if (!tilesource)
+			imagewindow_error(win);
+		else {
+			imagewindow_open_tilesource(win, tilesource);
+
+			VIPS_UNREF(win->iimage);
+			win->iimage = iimage;
+			g_object_ref(iimage);
+		}
+	}
 }

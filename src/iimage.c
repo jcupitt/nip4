@@ -127,21 +127,13 @@ static void
 iimage_edit(GtkWidget *parent, Model *model)
 {
 	iImage *iimage = IIMAGE(model);
+	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(parent));
+	GtkApplication *app = gtk_window_get_application(GTK_WINDOW(main));
+	Imagewindow *win = imagewindow_new(APP(app));
 
-	if (iimage->value.ii) {
-		Mainwindow *main = MAINWINDOW(gtk_widget_get_root(parent));
-		GtkApplication *app = gtk_window_get_application(GTK_WINDOW(main));
-		Imagewindow *win = imagewindow_new(APP(app));
-		g_autoptr(Tilesource) tilesource =
-			tilesource_new_from_imageinfo(iimage->value.ii);
+	imagewindow_open_iimage(win, iimage);
 
-		if (!tilesource)
-			imagewindow_error(win);
-		else
-			imagewindow_open_tilesource(win, tilesource);
-
-		gtk_window_present(GTK_WINDOW(win));
-	}
+	gtk_window_present(GTK_WINDOW(win));
 }
 
 static xmlNode *
@@ -229,8 +221,7 @@ iimage_update_heap(Heapmodel *heapmodel)
 	VIPS_FREE(CLASSMODEL(iimage)->filename);
 
 	if (value->ii && imageinfo_is_from_file(value->ii))
-		VIPS_SETSTR(CLASSMODEL(iimage)->filename,
-			IOBJECT(value->ii)->name);
+		VIPS_SETSTR(CLASSMODEL(iimage)->filename, IOBJECT(value->ii)->name);
 
 	/* Classmodel _update_heap() will do _instance_new() from the fixed up
 	 * model.

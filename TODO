@@ -1,3 +1,23 @@
+- < > on imagewindow crashes
+
+  see imagewindow_open_current_file() and iimage_replace()
+
+  could just call iimage_replace() directly
+
+  so imagewindow_open_current_file() can call iimage_replace(), it needs to
+  know the iimage it represents
+
+  iimage_edit() makes the imagewindow ... we should move this code into
+  imagewindow_new_from_iimage()
+
+	paste into image window
+
+  clipboard paste would need to write a new imageinfo to the heap, and
+  couldn't be saved in workspace files
+
+- uncomment the extra css load in app.c and column select colours stop
+  working, how bizarre
+
 - can we share a tilesource for all images? then maybe thumbnails would update
   when we move the display control bar?
 
@@ -6,22 +26,6 @@
 
   perhaps updating the thumbnail on imagewindow close is best
 
-- imagewindow should update imageinfo when
-
-	< > in imagewindow
-	paste into image window
-	replace file in imagewindow
-
-  currently done by iimage_replace(), from iimage_graphic_replace(), from
-  classmodel_graphic_replace()
-
-  that's just for replace from file dialogs, we want a non-filesel replace
-
-  how do other widgets do it? trigger the _edit method ... maybe replace from
-  file should call Image_file.Image_file_edit? (is that right?)
-
-- uncomment the extra css load in app.c and column select colours stop
-  working, how bizarre
 
 - column delete needs to
 
