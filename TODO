@@ -1,19 +1,16 @@
 - < > on imagewindow crashes
 
-  see imagewindow_open_current_file() and iimage_replace()
+  when we imagewindow_open_iimage(), we need to glob and set the file list
+  from the filename
 
-  could just call iimage_replace() directly
 
-  so imagewindow_open_current_file() can call iimage_replace(), it needs to
-  know the iimage it represents
 
-  iimage_edit() makes the imagewindow ... we should move this code into
-  imagewindow_new_from_iimage()
 
-	paste into image window
 
-  clipboard paste would need to write a new imageinfo to the heap, and
-  couldn't be saved in workspace files
+- paste into image window
+
+  clipboard paste will need to write a new imageinfo to the heap, and
+  can't be saved in workspace files
 
 - uncomment the extra css load in app.c and column select colours stop
   working, how bizarre

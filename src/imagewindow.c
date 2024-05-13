@@ -28,8 +28,8 @@
 */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -714,6 +714,8 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 	VipsImage *image;
 	char *title;
 
+	printf("imagewindow_imageui_set_visible\n");
+
 	/* Save the current view settings in case we need to restore them.
 	 */
 	imagewindow_save_view_settings(win, &win->view_settings);
@@ -832,10 +834,15 @@ imagewindow_open_current_file(Imagewindow *win,
 			imagewindow_imageui_add(win, imageui);
 		}
 
-		if(win->iimage) {
+		printf("imagewindow_open_current_file: FIXME ... update the iimage we came from?\n");
+		/* do need something to prevent update loops?
+		 * we emit "changed" for a new imageui, perhaps iimage should just
+		 * listen for that?
+		if (win->iimage) {
 			iimage_replace(win->iimage, filename);
 			symbol_recalculate_all_force(FALSE);
 		}
+		 */
 
 		imagewindow_imageui_set_visible(win, imageui, transition);
 	}
@@ -981,7 +988,7 @@ imagewindow_set_from_value(Imagewindow *win, const GValue *value)
 		// modifies the string in place, so we must dup
 		g_autofree char *text = g_strstrip(g_strdup(g_value_get_string(value)));
 
-		imagewindow_open_files(win, (char **) &text, 1);
+		imagewindow_open_files(win, &text, 1);
 	}
 	else if (G_VALUE_TYPE(value) == GDK_TYPE_TEXTURE) {
 		GdkTexture *texture = g_value_get_object(value);
@@ -1357,6 +1364,8 @@ imagewindow_next_image(GSimpleAction *action,
 	GVariant *state, gpointer user_data)
 {
 	Imagewindow *win = IMAGEWINDOW(user_data);
+
+	printf("imagewindow_next_image:\n");
 
 	// if there's a background load active, do nothing
 	// we want to prevent many bg loads queueing up
@@ -1823,11 +1832,17 @@ imagewindow_open_gfiles(Imagewindow *win, GFile **gfiles, int n_files)
 }
 
 void
-imagewindow_open_tilesource(Imagewindow *win, Tilesource *tilesource)
+imagewindow_open_image(Imagewindow *win, VipsImage *image)
 {
 #ifdef DEBUG
 	printf("imagewindow_open_image:\n");
 #endif /*DEBUG*/
+
+	g_autoptr(Tilesource) tilesource = tilesource_new_from_image(image);
+	if (!tilesource) {
+		imagewindow_error(win);
+		return;
+	}
 
 	Imageui *imageui = imageui_new(tilesource);
 	if (!imageui) {
@@ -1841,20 +1856,13 @@ imagewindow_open_tilesource(Imagewindow *win, Tilesource *tilesource)
 		imageui, GTK_STACK_TRANSITION_TYPE_SLIDE_DOWN);
 }
 
-void
-imagewindow_open_image(Imagewindow *win, VipsImage *image)
+static void *
+imagewindow_open_iimage_filename(const char *filename,
+	void *a, void *b, void *c)
 {
-#ifdef DEBUG
-	printf("imagewindow_open_image:\n");
-#endif /*DEBUG*/
+	Imagewindow *win = IMAGEWINDOW(a);
 
-	g_autoptr(Tilesource) tilesource = tilesource_new_from_image(image);
-	if (!tilesource) {
-		imagewindow_error(win);
-		return;
-	}
-
-	imagewindow_open_tilesource(win, tilesource);
+	imagewindow_open_files(win, &filename, 1);
 }
 
 void
@@ -1862,17 +1870,20 @@ imagewindow_open_iimage(Imagewindow *win, iImage *iimage)
 {
 	Imageinfo *ii = iimage->value.ii;
 
+#ifdef DEBUG
+	printf("imagewindow_open_iimage:\n");
+#endif /*DEBUG*/
+
 	if (ii) {
-		g_autoptr(Tilesource) tilesource = tilesource_new_from_imageinfo(ii);
+		if (imageinfo_is_from_file(ii))
+			// we must expand $HOME etc.
+			callv_string_filename(imagewindow_open_iimage_filename,
+				IOBJECT(ii)->name, win, NULL, NULL);
+		else
+			imagewindow_open_image(win, imageinfo_get(FALSE, ii));
 
-		if (!tilesource)
-			imagewindow_error(win);
-		else {
-			imagewindow_open_tilesource(win, tilesource);
-
-			VIPS_UNREF(win->iimage);
-			win->iimage = iimage;
-			g_object_ref(iimage);
-		}
+		VIPS_UNREF(win->iimage);
+		win->iimage = iimage;
+		g_object_ref(iimage);
 	}
 }

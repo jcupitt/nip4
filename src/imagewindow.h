@@ -47,10 +47,10 @@ G_DECLARE_FINAL_TYPE(Imagewindow, imagewindow,
 
 Imagewindow *imagewindow_new(App *app);
 void imagewindow_open_files(Imagewindow *win, char **files, int n_files);
+void imagewindow_open_file(Imagewindow *win, char *filename);
 void imagewindow_open_gfiles(Imagewindow *win, GFile **gfiles, int n_files);
 void imagewindow_open_list_gfiles(Imagewindow *win, GSList *gfiles);
 void imagewindow_open_image(Imagewindow *win, VipsImage *image);
-void imagewindow_open_tilesource(Imagewindow *win, Tilesource *tilesource);
 void imagewindow_open_iimage(Imagewindow *win, iImage *ii);
 
 double imagewindow_get_zoom(Imagewindow *win);

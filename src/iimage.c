@@ -127,8 +127,8 @@ static void
 iimage_edit(GtkWidget *parent, Model *model)
 {
 	iImage *iimage = IIMAGE(model);
-	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(parent));
-	GtkApplication *app = gtk_window_get_application(GTK_WINDOW(main));
+	GtkWindow *window = GTK_WINDOW(gtk_widget_get_root(parent));
+	GtkApplication *app = gtk_window_get_application(window);
 	Imagewindow *win = imagewindow_new(APP(app));
 
 	imagewindow_open_iimage(win, iimage);
