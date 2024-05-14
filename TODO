@@ -1,9 +1,10 @@
-- < > on imagewindow crashes
+- row-delete calls iobject_destroy(row), but this doesn't remove the view
 
-  when we imagewindow_open_iimage(), we need to glob and set the file list
-  from the filename
+  how does column-delete work?
 
+  huh funny, that just does iobject_destroy() too
 
+  get row delete working for a simple case
 
 
 
@@ -12,17 +13,28 @@
   clipboard paste will need to write a new imageinfo to the heap, and
   can't be saved in workspace files
 
-- uncomment the extra css load in app.c and column select colours stop
-  working, how bizarre
+  in imagewindow_open_current_file() we write the filename back to the iimage,
+  but this needs to handle iamges without filenames too
 
-- can we share a tilesource for all images? then maybe thumbnails would update
-  when we move the display control bar?
+  maybe iimage should listen for "changed" in viewers and update the
+  thumbnail and model?
 
-  could have two views open on the same image and they'd share display
-  settings? it might be annoying
+- rowview menu image load and save needs hooking up
 
-  perhaps updating the thumbnail on imagewindow close is best
+  maybe move image load and save actions out of imagewindow.c
 
+- changes to a row need to update any viewers
+
+	A1 	$HOME/pics/k2.jpg
+	A2	$HOME/pics/shark.jpg
+	A3 	Image_file A1
+
+  what does nip2 do for this?
+
+	- imagemodel holds all model state for a view (settings etc.)
+	- one item is the iimage the model represents
+	- listens to "changed" on the iimage and updates the image in the
+	  conversion
 
 - column delete needs to
 
@@ -39,6 +51,8 @@
   should probably just be a label
 
   try styling a label to look more spreadsheety
+
+  show menu for right-click on thumbnail too
 
 - hook up a progress bar for eg st-francis.jpg load?
 

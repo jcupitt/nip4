@@ -29,8 +29,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -195,15 +195,21 @@ static void
 rhsview_action(GSimpleAction *action, GVariant *parameter, View *view)
 {
 	Rhsview *rview = RHSVIEW(view);
+	Rhs *rhs = RHS(VOBJECT(rview)->iobject);
+	Row *row = HEAPMODEL(rhs)->row;
 	const char *name = g_action_get_name(G_ACTION(action));
 
 	printf("rhsview_action: %s\n", name);
 
-	if (g_str_equal(name, "row-edit")) {
-		Rhs *rhs = RHS(VOBJECT(rview)->iobject);
-
+	if (g_str_equal(name, "row-edit"))
 		model_edit(GTK_WIDGET(rview), rhs);
-	}
+	else if (g_str_equal(name, "row-saveas") &&
+		rhs->graphic)
+		classmodel_graphic_save(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
+	else if (g_str_equal(name, "row-delete"))
+		iobject_destroy(row);
+
+
 }
 
 static void

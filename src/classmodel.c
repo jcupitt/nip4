@@ -142,46 +142,65 @@ classmodel_graphic_save_cb(iWindow *iwnd,
 }
  */
 
+static void
+classmodel_graphic_save_cb(GObject *source_object,
+	GAsyncResult *res, gpointer user_data)
+{
+	Classmodel *classmodel = CLASSMODEL(user_data);
+	ClassmodelClass *class = CLASSMODEL_GET_CLASS(classmodel);
+	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
+	GtkWidget *parent = GTK_WIDGET(dialog);
+
+	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
+	if (file) {
+		g_autofree char *filename = g_file_get_path(file);
+
+		if (class->graphic_save(classmodel, parent, filename)) {
+			VIPS_SETSTR(classmodel->filename, filename);
+            iobject_changed(IOBJECT(classmodel));
+		}
+		else
+			error_alert(parent);
+	}
+}
+
 void
 classmodel_graphic_save(Classmodel *classmodel, GtkWidget *parent)
 {
-	/*
 	ClassmodelClass *class = CLASSMODEL_GET_CLASS(classmodel);
-	GtkWidget *filesel;
-	char txt[100];
-	VipsBuf buf = VIPS_BUF_STATIC(txt);
 
 	if (!class->graphic_save) {
 		error_top(_("Not implemented."));
 		error_sub(_("_%s() method not implemented for %s."),
 			"graphic_save", IOBJECT_GET_CLASS_NAME(classmodel));
-		iwindow_alert(parent, GTK_MESSAGE_ERROR);
+		error_alert(parent);
 		return;
 	}
 
-	filesel = filesel_new();
+	GtkFileDialog *dialog = gtk_file_dialog_new();
+
+	char txt[100];
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
 	row_qualified_name(HEAPMODEL(classmodel)->row, &buf);
-	iwindow_set_title(IWINDOW(filesel), _("Save %s \"%s\""),
-		IOBJECT_GET_CLASS_NAME(classmodel), vips_buf_all(&buf));
-	filesel_set_flags(FILESEL(filesel), TRUE, TRUE);
-	filesel_set_filetype(FILESEL(filesel),
-		class->filetype,
-		watch_int_get(main_watchgroup, class->filetype_pref, 0));
-	filesel_set_filetype_pref(FILESEL(filesel), class->filetype_pref);
-	iwindow_set_parent(IWINDOW(filesel), parent);
-	idialog_set_iobject(IDIALOG(filesel), IOBJECT(classmodel));
-	filesel_set_done(FILESEL(filesel),
+	char txt2[100];
+	VipsBuf buf2 = VIPS_BUF_STATIC(txt2);
+	vips_buf_appendf(&buf2,  _("Save %s \"%s\""),
+        IOBJECT_GET_CLASS_NAME(classmodel), vips_buf_all(&buf));
+	gtk_file_dialog_set_title(dialog, vips_buf_all(&buf2));
+
+	gtk_file_dialog_set_modal(dialog, TRUE);
+
+	if (classmodel->filename) {
+		g_autoptr(GFile) file = g_file_new_for_path(classmodel->filename);
+
+		if (file)
+			gtk_file_dialog_set_initial_file(dialog, file);
+	}
+
+	gtk_file_dialog_save(dialog,
+		GTK_WINDOW(gtk_widget_get_root(parent)),
+		NULL,
 		classmodel_graphic_save_cb, classmodel);
-	iwindow_build(IWINDOW(filesel));
-
-	if (classmodel->filename)
-		filesel_set_filename(FILESEL(filesel),
-			classmodel->filename);
-
-	gtk_widget_show(GTK_WIDGET(filesel));
-	 */
-
-	printf("classmodel_graphic_save: FIXME\n");
 }
 
 /*

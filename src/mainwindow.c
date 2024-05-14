@@ -424,6 +424,11 @@ static GActionEntry mainwindow_entries[] = {
 
 	// row menu
 	{ "row-edit", mainwindow_view_action },
+	{ "row-saveas", mainwindow_view_action },
+	{ "row-replace", mainwindow_view_action },
+	{ "row-recalculate", mainwindow_view_action },
+	{ "row-reset", mainwindow_view_action },
+	{ "row-delete", mainwindow_view_action },
 
 };
 

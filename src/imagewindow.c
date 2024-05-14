@@ -770,7 +770,8 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 		gtk_label_set_text(GTK_LABEL(win->subtitle), "");
 
 	if (imageui) {
-		gtk_stack_set_transition_type(GTK_STACK(win->stack), transition);
+		printf("imagewindow_imageui_set_visible: FIXME ... rotate transitions cause a stack overflow? how odd\n");
+		// gtk_stack_set_transition_type(GTK_STACK(win->stack), transition);
 		gtk_stack_set_visible_child(GTK_STACK(win->stack), GTK_WIDGET(imageui));
 
 		/* Enable the control settings, if the displaycontrolbar is on.
@@ -838,11 +839,11 @@ imagewindow_open_current_file(Imagewindow *win,
 		/* do need something to prevent update loops?
 		 * we emit "changed" for a new imageui, perhaps iimage should just
 		 * listen for that?
+		 */
 		if (win->iimage) {
 			iimage_replace(win->iimage, filename);
 			symbol_recalculate_all_force(FALSE);
 		}
-		 */
 
 		imagewindow_imageui_set_visible(win, imageui, transition);
 	}

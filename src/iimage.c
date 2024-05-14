@@ -301,51 +301,46 @@ iimage_class_new(Classmodel *classmodel, PElement *fn, PElement *out)
 	return TRUE;
 }
 
+static void
+iimage_graphic_save_response(GtkDialog *dialog,
+	gint response, gpointer user_data)
+{
+	if (response == GTK_RESPONSE_ACCEPT ||
+		response == GTK_RESPONSE_CANCEL)
+		gtk_window_destroy(GTK_WINDOW(dialog));
+
+	// other return codes are intermediate stages of processing and we
+	// should do nothing
+}
+
 static gboolean
 iimage_graphic_save(Classmodel *classmodel,
 	GtkWidget *parent, const char *filename)
 {
 	iImage *iimage = IIMAGE(classmodel);
-	ImageValue *value = &iimage->value;
-	char buf[FILENAME_MAX];
+	VipsImage *image = imageinfo_get(FALSE, iimage->value.ii);
 
-	/* Can't happen nested-ly, so a static is OK.
-	 */
-	static GTimer *timer = NULL;
+	if (image) {
+		char buf[FILENAME_MAX];
 
-	/* We don't want $VAR etc. in the filename we pass down to the file
-	 * ops.
-	 */
-	vips_strncpy(buf, filename, FILENAME_MAX);
-	path_expand(buf);
+		/* We don't want $VAR etc. in the filename we pass down to the file
+		 * ops.
+		 */
+		vips_strncpy(buf, filename, FILENAME_MAX);
+		path_expand(buf);
 
-	/* Append the mode string. This needs an expanded filename.
-	 */
-	printf("iimage_graphic_save: FIXME ... add save options\n");
-	// filesel_add_mode(buf);
+		SaveOptions *options = save_options_new(parent, image, buf);
+		if (!options) {
+			error_alert(parent);
+			return;
+		}
 
-	if (!timer)
-		timer = g_timer_new();
-	g_timer_reset(timer);
+		g_signal_connect_object(options, "response",
+			G_CALLBACK(iimage_graphic_save_response),
+			NULL, 0);
 
-	if (value->ii)
-		if (!imageinfo_write(value->ii, buf))
-			return FALSE;
-
-	printf("iimage_graphic_save: FIXME\n");
-	// mainw_recent_add(&mainw_recent_image, filename);
-
-	if (main_option_time_save) {
-		double elapsed;
-
-		elapsed = g_timer_elapsed(timer, NULL);
-		error_top(_("Save timer."));
-		error_sub(_("Image save took %g seconds."), elapsed);
-
-		return FALSE;
+		gtk_window_present(GTK_WINDOW(options));
 	}
-
-	return TRUE;
 }
 
 gboolean

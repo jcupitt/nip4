@@ -22,9 +22,9 @@
  */
 
 /*
+ */
 #define DEBUG_VIEWCHILD
 #define DEBUG
- */
 
 /* Time each refresh
 #define DEBUG_TIME
@@ -586,10 +586,8 @@ view_real_child_add(View *parent, View *child)
 
 #ifdef DEBUG
 	printf("view_real_child_add:\n");
-	printf("\tparent = %p %s\n",
-		parent, G_OBJECT_TYPE_NAME(parent));
-	printf("\tchild = %p %s\n",
-		child, G_OBJECT_TYPE_NAME(child));
+	printf("\tparent = %p %s\n", parent, G_OBJECT_TYPE_NAME(parent));
+	printf("\tchild = %p %s\n", child, G_OBJECT_TYPE_NAME(child));
 #endif /*DEBUG*/
 
 	viewchild = slist_map(parent->managed,
@@ -601,6 +599,14 @@ view_real_child_add(View *parent, View *child)
 
 	child->parent = parent;
 	viewchild->child_view = child;
+
+    /* Not all views are true widgets (ie. get _ref()'s and _sink()'d by a
+     * parent). Ref and sink ourselves to ensure that
+     * even these odd views get unfloated. See also
+     * view_real_child_remove(). Affects the tool/toolkit views, and
+     * rowview at least.
+     */
+    g_object_ref_sink(G_OBJECT(child));
 }
 
 static void
@@ -610,18 +616,21 @@ view_real_child_remove(View *parent, View *child)
 
 #ifdef DEBUG
 	printf("view_real_child_remove:\n");
-	printf("\tparent = %p %s\n",
-		parent, G_OBJECT_TYPE_NAME(parent));
-	printf("\tchild = %p %s\n",
-		child, G_OBJECT_TYPE_NAME(child));
+	printf("\tparent = %p %s\n", parent, G_OBJECT_TYPE_NAME(parent));
+	printf("\tchild = %p %s\n", child, G_OBJECT_TYPE_NAME(child));
 #endif /*DEBUG*/
 
 	viewchild = slist_map(parent->managed,
 		(SListMapFn) view_viewchild_test_child_model, VOBJECT(child)->iobject);
 
-	if (viewchild &&
-		viewchild->child_view == child)
-		viewchild->child_view = NULL;
+    /* Can have floating views which are not part of the viewchild system, eg.
+	 * rowview.
+     */
+    if (viewchild &&
+        viewchild->child_view == child) {
+        viewchild->child_view = NULL;
+        g_object_unref(G_OBJECT(child));
+    }
 
 	child->parent = NULL;
 }

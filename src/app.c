@@ -111,6 +111,16 @@ app_about_activated(GSimpleAction *action,
 		NULL);
 }
 
+static void
+add_css(const char *filename)
+{
+	g_autoptr(GtkCssProvider) provider = gtk_css_provider_new();
+
+	gtk_css_provider_load_from_resource(provider, filename);
+	gtk_style_context_add_provider_for_display(gdk_display_get_default(),
+		GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+}
+
 static GActionEntry app_entries[] = {
 	{ "quit", app_quit_activated },
 	{ "new", app_new_activated },
@@ -212,12 +222,10 @@ app_startup(GApplication *app)
 
 	/* Some custom CSS.
 	 */
-	GtkCssProvider *provider = gtk_css_provider_new();
-	gtk_css_provider_load_from_resource(provider, APP_PATH "/nip4.css");
-	//gtk_css_provider_load_from_resource(provider, APP_PATH "/saveoptions.css");
-	//gtk_css_provider_load_from_resource(provider, APP_PATH "/properties.css");
-	gtk_style_context_add_provider_for_display(gdk_display_get_default(),
-		GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+	add_css(APP_PATH "/nip4.css");
+	add_css(APP_PATH "/saveoptions.css");
+	add_css(APP_PATH "/properties.css");
+	add_css(APP_PATH "/iimageview.css");
 
 	g_action_map_add_action_entries(G_ACTION_MAP(app),
 		app_entries, G_N_ELEMENTS(app_entries), app);

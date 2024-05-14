@@ -15,21 +15,26 @@
       </item>
       <item>
         <attribute name='label' translatable='yes'>Save as ...</attribute>
+        <attribute name='action'>win.row-saveas</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>Replace from file ...</attribute>
+        <attribute name='action'>win.row-replace</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>Recalculate</attribute>
+        <attribute name='action'>win.row-recalculate</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>Reset</attribute>
+        <attribute name='action'>win.row-reset</attribute>
       </item>
     </section>
 
     <section>
       <item>
         <attribute name='label' translatable='yes'>Delete ...</attribute>
+        <attribute name='action'>win.row-delete</attribute>
       </item>
     </section>
   </menu>

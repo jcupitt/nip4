@@ -26,5 +26,6 @@
     <file>nip4.css</file>
     <file>properties.css</file>
     <file>saveoptions.css</file>
+    <file>iimageview.css</file>
   </gresource>
 </gresources>
