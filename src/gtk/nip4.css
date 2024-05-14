@@ -11,8 +11,20 @@
   background-color: #5D7555;
 }
 
-#label {
-  color: #802020;
+.selected_widget {
+  background-color: #83A67F;
 }
+
+.error_widget {
+  background-color: #802020;
+}
+
+.widget {
+  background-color: #404040;
+}
+
+
+
+
 
 

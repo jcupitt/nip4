@@ -76,4 +76,6 @@ void action_toggle(GSimpleAction *action,
 void action_radio(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data);
 
+guint get_modifiers(GtkEventController *controller);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(cairo_t, cairo_destroy)

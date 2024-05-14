@@ -42,19 +42,26 @@
 struct _Rowview {
 	View view;
 
-	Subcolumnview *sview; /* Enclosing subcolumnview */
+	Subcolumnview *sview;	/* Enclosing subcolumnview */
 
-	gboolean visible; /* Currently visible */
-	int rnum;		  /* Row of subcolumn we are in */
+	gboolean visible;		/* Currently visible */
+	int rnum;				/* Row of subcolumn we are in */
 
-	GtkWidget *top;	  /* Enclosing box for our widgets */
-	GtkWidget *spin;  /* Class display open/close widgets */
-	GtkWidget *but;	  /* Name button */
-	Rhsview *rhsview; /* Our rhs */
+	GtkWidget *top;			/* Enclosing box for our widgets */
+	GtkWidget *spin;		/* Class display open/close widgets */
+	GtkWidget *frame;		/* Row name box */
+	GtkWidget *label;		/* Row label */
+	Rhsview *rhsview;		/* Our rhs */
 
 	GtkWidget *right_click_menu;
 
-	char *last_tooltip; /* Last tooltip we set */
+	/* Last tooltip we set.
+	 */
+	char *last_tooltip;
+
+	/* Currently set css class.
+	 */
+	const char *css_class;
 };
 
 typedef struct _RowviewClass {

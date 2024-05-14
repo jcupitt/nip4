@@ -1893,11 +1893,11 @@ row_select_toggle(Row *row)
 /* Do a select action using a modifier.
  */
 void
-row_select_modifier(Row *row, guint state)
+row_select_modifier(Row *row, GdkModifierType modifiers)
 {
-	if (state & GDK_CONTROL_MASK)
+	if (modifiers & GDK_CONTROL_MASK)
 		row_select_toggle(row);
-	else if (state & GDK_SHIFT_MASK)
+	else if (modifiers & GDK_SHIFT_MASK)
 		row_select_extend(row);
 	else
 		row_select(row);

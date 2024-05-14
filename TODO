@@ -4,10 +4,6 @@
 
   huh funny, that just does iobject_destroy() too
 
-  get row delete working for a simple case
-
-
-
 - paste into image window
 
   clipboard paste will need to write a new imageinfo to the heap, and
@@ -44,13 +40,7 @@
 
   should this be in the model base class?
 
-- rowview has a right_click_menu for the button and it doesn't work well
-
-  do we make a separate menu for every rowview? can we share them?
-
-  should probably just be a label
-
-  try styling a label to look more spreadsheety
+- do we make a separate menu for every rowview? can we share them?
 
   show menu for right-click on thumbnail too
 

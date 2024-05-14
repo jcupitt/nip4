@@ -143,12 +143,6 @@ subcolumnview_refresh(vObject *vobject)
 
 	sview->rows = model_rows;
 
-	/* Top-level subcolumns look different in no-edit mode.
-	 */
-	int spacing = scol->is_top && editable ? 0 : 5;
-	gtk_grid_set_row_spacing(GTK_GRID(sview->grid), spacing);
-	gtk_grid_set_column_spacing(GTK_GRID(sview->grid), spacing);
-
 	/* Nested subcols: we just change the left indent.
 	if (!scol->is_top && editable) {
 		gtk_alignment_set_padding(GTK_ALIGNMENT(sview->align),

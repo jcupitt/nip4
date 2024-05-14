@@ -83,6 +83,25 @@ rowview_attach(Rowview *rview, GtkWidget *child, int x)
 	g_object_unref(child);
 }
 
+static const char *
+rowview_css(Rowview *rview)
+{
+	Row *row = ROW(VOBJECT(rview)->iobject);
+
+	if (row->err)
+		return "error_widget";
+	else if (row->selected)
+		return "selected_widget";
+	else if (row->show == ROW_SHOW_PARENT)
+		return "parent_widget";
+	else if (row->show == ROW_SHOW_CHILD)
+		return "child_widget";
+	else if (row->dirty)
+		return "dirty_widget";
+	else
+		return "widget";
+}
+
 static void
 rowview_update_widgets(Rowview *rview)
 {
@@ -108,32 +127,23 @@ rowview_update_widgets(Rowview *rview)
 		rview->rnum = pos;
 
 		rowview_attach(rview, rview->spin, 0);
-		rowview_attach(rview, rview->but, 1);
+		rowview_attach(rview, rview->frame, 1);
 		if (rview->rhsview)
 			rowview_attach(rview, GTK_WIDGET(rview->rhsview), 2);
 	}
 
-	/* Set colours.
+	if (rview->css_class) {
+		gtk_widget_remove_css_class(rview->frame, rview->css_class);
+		rview->css_class = NULL;
+	}
+	rview->css_class = rowview_css(rview);
+	if (rview->css_class)
+		gtk_widget_add_css_class(rview->frame, rview->css_class);
+
+	/* Update label.
 	 */
-	gchar *name = "";
-
-	if (row->selected)
-		name = "selected_widget";
-	else if (row->show == ROW_SHOW_PARENT)
-		name = "parent_widget";
-	else if (row->show == ROW_SHOW_CHILD)
-		name = "child_widget";
-	else if (row->err)
-		name = "error_widget";
-	else if (row->dirty)
-		name = "dirty_widget";
-
-	gtk_widget_set_name(rview->but, name);
-
-	/* Update button.
-	 */
-	gtk_button_set_label(rview->but, row_name(row));
-	gtk_widget_set_visible(rview->but, rview->visible && editable);
+	set_glabel(rview->label, row_name(row));
+	gtk_widget_set_visible(rview->frame, rview->visible && editable);
 
 	/* Spin visible only if this is a class.
 	 */
@@ -164,16 +174,6 @@ rowview_refresh(vObject *vobject)
 	VOBJECT_CLASS(rowview_parent_class)->refresh(vobject);
 }
 
-/* Single click on button callback.
-static void
-rowview_single_cb(GtkWidget *wid, GdkEvent *event, Rowview *rview)
-{
-	Row *row = ROW(VOBJECT(rview)->iobject);
-
-	row_select_modifier(row, event->button.state);
-}
- */
-
 /* Edit our object.
  */
 static gboolean
@@ -187,15 +187,6 @@ rowview_edit(Rowview *rview)
 
 	return TRUE;
 }
-
-/* Double click on button callback.
-static void
-rowview_double_cb(GtkWidget *button, GdkEvent *event, Rowview *rview)
-{
-	if (!rowview_edit(rview))
-		error_alert(button);
-}
- */
 
 /* Edit in menu.
  */
@@ -414,21 +405,21 @@ rowview_link(View *view, Model *model, View *parent)
 	printf("rowview_link: FIXME ... drag n drop for rows\n");
 	/* Only drag n drop top level rows.
 	if (row->top_row == row) {
-		gtk_drag_source_set(rview->but, GDK_BUTTON1_MASK,
+		gtk_drag_source_set(rview->frame, GDK_BUTTON1_MASK,
 			rowview_target_table, VIPS_NUMBER(rowview_target_table),
 			GDK_ACTION_COPY);
-		gtk_signal_connect(GTK_OBJECT(rview->but), "drag_data_get",
+		gtk_signal_connect(GTK_OBJECT(rview->frame), "drag_data_get",
 			GTK_SIGNAL_FUNC(rowview_drag_data_get), rview);
 
-		gtk_drag_dest_set(rview->but, GTK_DEST_DEFAULT_ALL,
+		gtk_drag_dest_set(rview->frame, GTK_DEST_DEFAULT_ALL,
 			rowview_target_table, VIPS_NUMBER(rowview_target_table),
 			GDK_ACTION_COPY);
-		gtk_signal_connect(GTK_OBJECT(rview->but),
+		gtk_signal_connect(GTK_OBJECT(rview->frame),
 			"drag_data_received",
 			GTK_SIGNAL_FUNC(rowview_drag_data_received), rview);
 	}
 
-	rowview_menu_attach(rview, rview->but);
+	rowview_menu_attach(rview, rview->frame);
 	 */
 }
 
@@ -458,6 +449,23 @@ rowview_child_remove(View *parent, View *child)
 	rview->rhsview = NULL;
 
 	VIEW_CLASS(rowview_parent_class)->child_remove(parent, child);
+}
+
+static void
+rowview_click(GtkGestureClick *gesture,
+	guint n_press, double x, double y, Rowview *rview)
+{
+	Row *row = ROW(VOBJECT(rview)->iobject);
+
+	if (n_press == 1) {
+		guint state = get_modifiers(GTK_EVENT_CONTROLLER(gesture));
+
+		row_select_modifier(row, state);
+	}
+	else {
+		if (!rowview_edit(rview))
+			error_alert(GTK_WIDGET(rview));
+	}
 }
 
 static void
@@ -492,27 +500,6 @@ rowview_down_click(GtkGestureClick *gesture, Rowview *rview)
 
 	rhs_vislevel_more(rhs);
 	workspace_set_modified(row->ws, TRUE);
-}
-
-static void
-rowview_but_clicked(GtkButton *self, gpointer user_data)
-{
-	Rowview *rview = ROWVIEW(user_data);
-	Row *row = ROW(VOBJECT(rview)->iobject);
-
-	printf("rowview_but_clicked:\n");
-
-	/*
-	 * do we need to connect to the gesture instead if we want single abd
-	 * double click?
-	 *
-	 * how do we read modifiers for range select/
-	 *
-	 * maybe a simple label would be better than a button
-	 *
-		rowview_single_cb
-		rowview_double_cb
-	 */
 }
 
 /*
@@ -564,16 +551,17 @@ rowview_class_init(RowviewClass *class)
 	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
 		GTK_TYPE_BIN_LAYOUT);
 
+	BIND_CALLBACK(rowview_click);
 	BIND_CALLBACK(rowview_menu);
 	BIND_CALLBACK(rowview_up_click);
 	BIND_CALLBACK(rowview_down_click);
-	BIND_CALLBACK(rowview_but_clicked);
 
 	printf("rowview_class_init: need button enter, leave, focus, tooltip\n");
 
 	BIND_VARIABLE(Rowview, top);
 	BIND_VARIABLE(Rowview, spin);
-	BIND_VARIABLE(Rowview, but);
+	BIND_VARIABLE(Rowview, frame);
+	BIND_VARIABLE(Rowview, label);
 	BIND_VARIABLE(Rowview, right_click_menu);
 
 	/* Create signals.
