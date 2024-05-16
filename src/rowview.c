@@ -246,7 +246,7 @@ static void
 rowview_save_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 {
 	/*
-	iWindow *iwnd = IWINDOW(view_get_toplevel(VIEW(rview)));
+	GtkWindow *window = view_get_window(VIEW(rview));
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	Model *graphic = row->child_rhs->graphic;
 
@@ -262,7 +262,7 @@ static void
 rowview_replace_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 {
 	/*
-	iWindow *iwnd = IWINDOW(view_get_toplevel(VIEW(rview)));
+	GtkWindow *window = view_get_window(VIEW(rview));
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	Model *graphic = row->child_rhs->graphic;
 

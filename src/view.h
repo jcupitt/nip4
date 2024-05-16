@@ -33,14 +33,16 @@
 #define VIEW_GET_CLASS(obj) \
 	(G_TYPE_INSTANCE_GET_CLASS((obj), VIEW_TYPE, ViewClass))
 
-/* We track all of the children of our model, listening to "changed", so we
- * can lazily add or remove child views of us as the model requests.
+/* Each view also tracks all of the children of the model, listening to
+ * "changed", so it can add or remove child views as "display" on the child
+ * model changes.
  */
 typedef struct _ViewChild {
-	View *parent_view;			   /* Us */
-	Model *child_model;			   /* The child we are watching */
-	guint child_model_changed_sid; /* Listen to "changed" on child here */
-	View *child_view;			   /* The child view for this model */
+	View *view;						/* Us */
+	Model *child_model;				/* The child model we are watching */
+	View *child_view;				/* NULL, or the child view */
+
+	guint child_model_changed_sid;	/* Listen to changed with this */
 } ViewChild;
 
 struct _View {
@@ -48,11 +50,15 @@ struct _View {
 
 	/* My instance vars.
 	 */
-	View *parent;	 /* Enclosing view (if any) */
-	GSList *managed; /* List of ViewChild for us */
+	GSList *managed;				/* List of ViewChild for this view */
 
-	gboolean scannable;	 /* On scannable list */
-	gboolean resettable; /* On resettable list */
+	/* The parent view. Not all views are true widgets, eg. rowview, so we
+	 * can't use gtk_widget_get_parent().
+	 */
+	View *parent;
+
+	gboolean scannable;				/* On scannable list */
+	gboolean resettable;			/* On resettable list */
 };
 
 typedef struct _ViewClass {
@@ -143,7 +149,7 @@ void view_changed_cb(View *view);
 
 void view_not_implemented_cb(GtkWidget *menu, GtkWidget *host, View *view);
 
-GtkWidget *view_get_toplevel(View *view);
-
+GtkWindow *view_get_window(View *view);
 Columnview *view_get_columnview(View *child);
+
 void *view_resize(View *view);

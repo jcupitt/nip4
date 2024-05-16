@@ -40,6 +40,7 @@
   </menu>
 
   <template class="Rowview" parent="View">
+
     <child>
       <object class="GtkBox" id="top">
 
@@ -47,20 +48,6 @@
           <object class="Spin" id="spin">
             <signal name="up_click" handler="rowview_up_click"/>
             <signal name="down_click" handler="rowview_down_click"/>
-
-            <child>
-              <object class="GtkGestureClick">
-	        <property name="button">3</property>
-	        <signal name="pressed" handler="rowview_menu"/>
-              </object>
-            </child>
-
-            <child>
-              <object class="GtkPopoverMenu" id="right_click_menu">
-	        <property name="has-arrow">0</property>
-	        <property name="menu-model">rowview-menu</property>
-              </object>
-            </child>
 
           </object>
         </child>
@@ -83,6 +70,13 @@
               <object class="GtkGestureClick">
 	        <property name="button">1</property>
 	        <signal name="pressed" handler="rowview_click"/>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkPopoverMenu" id="right_click_menu">
+                <property name="has-arrow">0</property>
+                <property name="menu-model">rowview-menu</property>
               </object>
             </child>
 

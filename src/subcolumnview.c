@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -85,11 +85,6 @@ subcolumnview_child_add(View *parent, View *child)
 	Rowview *rview = ROWVIEW(child);
 
 	VIEW_CLASS(subcolumnview_parent_class)->child_add(parent, child);
-
-	// the rowview is not a true child widget (we attach rview members to the
-	// subcolumn grid in rowview_refresh(), we never attach rview itself),
-	// so sview must hold an explicit ref
-	g_object_ref_sink(rview);
 }
 
 static void
@@ -99,9 +94,6 @@ subcolumnview_child_remove(View *parent, View *child)
 	Rowview *rview = ROWVIEW(child);
 
 	VIEW_CLASS(subcolumnview_parent_class)->child_remove(parent, child);
-
-	// drop the ref we were holding to rview
-	VIPS_UNREF(rview);
 }
 
 static void *

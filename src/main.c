@@ -445,6 +445,7 @@ main(int argc, char **argv)
     vips_shutdown();
     managed_check_all_destroyed();
     util_check_all_destroyed();
+    view_dump();
 
 	return status;
 }

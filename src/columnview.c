@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -123,7 +123,7 @@ columnview_merge_cb(GtkWidget *wid, GtkWidget *host, Columnview *cview)
 {
 	/*
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
-	iWindow *iwnd = IWINDOW(view_get_toplevel(VIEW(cview)));
+	GtkWindow *window = view_get_window(VIEW(cview));
 	GtkWidget *filesel = filesel_new();
 
 	iwindow_set_title(IWINDOW(filesel),
@@ -178,7 +178,7 @@ columnview_save_as_cb(GtkWidget *wid, GtkWidget *host, Columnview *cview)
 {
 	/*
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
-	iWindow *iwnd = IWINDOW(view_get_toplevel(VIEW(cview)));
+	GtkWindow *window = view_get_window(VIEW(cview));
 	GtkWidget *filesel = filesel_new();
 
 	iwindow_set_title(IWINDOW(filesel),
@@ -277,7 +277,7 @@ columnview_to_menu_cb(GtkWidget *wid, GtkWidget *host, Columnview *cview)
 {
 	/*
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
-	iWindow *iwnd = IWINDOW(view_get_toplevel(VIEW(cview)));
+	GtkWindow *window = view_get_window(VIEW(cview));
 	GtkWidget *ss = stringset_new();
 	char *name;
 	char *kit_name;
@@ -439,7 +439,7 @@ columnview_destroy_cb(GtkWidget *wid, GtkWidget *host, Columnview *cview)
 {
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
 
-	model_check_destroy(view_get_toplevel(VIEW(cview)), MODEL(col));
+	model_check_destroy(GTK_WIDGET(cview), MODEL(col));
 }
 
 /* Delete this column with a click on the 'x' button.
@@ -449,7 +449,7 @@ columnview_destroy2_cb(GtkWidget *wid, Columnview *cview)
 {
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
 
-	model_check_destroy(view_get_toplevel(VIEW(cview)), MODEL(col));
+	model_check_destroy(GTK_WIDGET(cview), MODEL(col));
 }
 
 /* Add a caption entry to a columnview if not there.
@@ -597,6 +597,10 @@ columnview_child_remove(View *parent, View *child)
 	Columnview *cview = COLUMNVIEW(parent);
 	Subcolumnview *sview = SUBCOLUMNVIEW(child);
 
+#ifdef DEBUG
+	printf("columnview_child_remove:\n");
+#endif /*DEBUG*/
+
 	VIEW_CLASS(columnview_parent_class)->child_remove(parent, child);
 
 	// must be at the end since this will unref the child
@@ -680,6 +684,17 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 }
 
 static void
+columnview_close_clicked(GtkButton *button, void *user_data)
+{
+	Columnview *cview = COLUMNVIEW(user_data);
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
+
+	printf("columnview_close_clicked:\n");
+
+	iobject_destroy(col);
+}
+
+static void
 columnview_class_init(ColumnviewClass *class)
 {
 	GObjectClass *object_class = (GObjectClass *) class;
@@ -694,6 +709,7 @@ columnview_class_init(ColumnviewClass *class)
 
 	BIND_CALLBACK(columnview_menu);
 	BIND_CALLBACK(columnview_activate);
+	BIND_CALLBACK(columnview_close_clicked);
 
 	BIND_VARIABLE(Columnview, top);
 	BIND_VARIABLE(Columnview, title);

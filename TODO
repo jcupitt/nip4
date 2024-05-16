@@ -1,8 +1,11 @@
-- row-delete calls iobject_destroy(row), but this doesn't remove the view
 
-  how does column-delete work?
+- maybe put a frame around rowview, use a vbox for subcolumn, and a size group
+  for alignment
 
-  huh funny, that just does iobject_destroy() too
+- why is rhsview made dynamically? can't we make this in the .ui file?
+
+  the things that make up rhsview (text, graphic, formula) do need to be
+  dynamic it's true, but rhsview itself could be static, you'd think
 
 - paste into image window
 

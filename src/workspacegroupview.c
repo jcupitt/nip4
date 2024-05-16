@@ -189,11 +189,11 @@ workspacegroupview_child_front(View *parent, View *child)
 }
 
 static void
-workspacegroupview_new_tab(GtkButton *button, void *user_data)
+workspacegroupview_new_tab_clicked(GtkButton *button, void *user_data)
 {
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
 
-	printf("workspacegroupview_new_tab:\n");
+	printf("workspacegroupview_new_tab_clicked:\n");
 }
 
 static void
@@ -209,7 +209,7 @@ workspacegroupview_class_init(WorkspacegroupviewClass *class)
 
 	BIND_VARIABLE(Workspacegroupview, notebook);
 
-	BIND_CALLBACK(workspacegroupview_new_tab);
+	BIND_CALLBACK(workspacegroupview_new_tab_clicked);
 
 	G_OBJECT_CLASS(class)->dispose = workspacegroupview_dispose;
 
@@ -446,7 +446,7 @@ workspacegroupview_merge_cb(GtkWidget *wid, GtkWidget *host,
 	Workspaceview *wview)
 {
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	iWindow *iwnd = IWINDOW(view_get_toplevel(VIEW(wview)));
+	GtkWindow *window = view_get_window(VIEW(wview));
 	GtkWidget *filesel = filesel_new();
 
 	if (ws->locked)
@@ -493,7 +493,7 @@ workspacegroupview_save_as_cb(GtkWidget *wid, GtkWidget *host,
 	Workspaceview *wview)
 {
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	iWindow *iwnd = IWINDOW(view_get_toplevel(VIEW(wview)));
+	GtkWindow *window = view_get_window(VIEW(wview));
 	GtkWidget *filesel = filesel_new();
 
 	iwindow_set_title(IWINDOW(filesel),
@@ -526,7 +526,7 @@ workspacegroupview_delete_cb(GtkWidget *wid, GtkWidget *host,
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 	if (!ws->locked)
-		model_check_destroy(view_get_toplevel(VIEW(wview)),
+		model_check_destroy(GTK_WIDGET(wview),
 			MODEL(ws), workspacegroupview_delete_done_cb);
 }
  */

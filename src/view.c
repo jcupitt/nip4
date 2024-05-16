@@ -25,6 +25,7 @@
  */
 #define DEBUG_VIEWCHILD
 #define DEBUG
+#define DEBUG_LEAK
 
 /* Time each refresh
 #define DEBUG_TIME
@@ -37,6 +38,33 @@ G_DEFINE_TYPE(View, view, VOBJECT_TYPE)
 static GSList *view_scannable = NULL;
 
 static GSList *view_resettable = NULL;
+
+#ifdef DEBUG_LEAK
+#warning "DEBUG_LEAK is on in view.c"
+static GSList *all_view_widgets = NULL;
+#endif /*DEBUG_LEAK*/
+
+#ifdef DEBUG_LEAK
+void
+view_dump(void)
+{
+	if (all_view_widgets) {
+		printf("view_dump():\n");
+
+		for (GSList *p = all_view_widgets; p; p = p->next) {
+			View *view = VIEW(p->data);
+			iObject *model = VOBJECT(view)->iobject;
+
+			printf("%p %s count=%d ",
+				view, G_OBJECT_TYPE_NAME(view), G_OBJECT(view)->ref_count);
+			if (model)
+				printf("%s %s ",
+					G_OBJECT_TYPE_NAME(model), IOBJECT(model)->name);
+			printf("\n");
+		}
+	}
+}
+#endif /*DEBUG_LEAK*/
 
 void
 view_scannable_register(View *view)
@@ -102,22 +130,15 @@ view_reset_all(void)
 static void *
 view_viewchild_destroy(ViewChild *viewchild)
 {
-	View *parent_view = viewchild->parent_view;
+	View *view = viewchild->view;
 	View *child_view = viewchild->child_view;
 
 #ifdef DEBUG_VIEWCHILD
-	printf("view_viewchild_destroy: view %s watching model %s\n",
-		G_OBJECT_TYPE_NAME(viewchild->parent_view),
-		G_OBJECT_TYPE_NAME(viewchild->child_model));
+	printf("view_viewchild_destroy: %s\n", G_OBJECT_TYPE_NAME(child_view));
 #endif /*DEBUG_VIEWCHILD*/
 
-	if (child_view) {
-        g_assert(child_view->parent == parent_view);
-        child_view->parent = NULL;
-    }
-
 	FREESID(viewchild->child_model_changed_sid, viewchild->child_model);
-	parent_view->managed = g_slist_remove(parent_view->managed, viewchild);
+	view->managed = g_slist_remove(view->managed, viewchild);
 
 	g_free(viewchild);
 
@@ -130,14 +151,12 @@ view_viewchild_destroy(ViewChild *viewchild)
 static gboolean
 view_viewchild_display(ViewChild *viewchild)
 {
-	View *parent_view = viewchild->parent_view;
+	View *view = viewchild->view;
 	Model *child_model = viewchild->child_model;
-	ViewClass *parent_view_class = VIEW_GET_CLASS(parent_view);
+	ViewClass *view_class = VIEW_GET_CLASS(view);
 
-	if (child_model->display && parent_view_class->display)
-		return parent_view_class->display(parent_view, child_model);
-
-	return child_model->display;
+	return (child_model->display && view_class->display) ?
+		view_class->display(view, child_model) : child_model->display;
 }
 
 /* One of the children of the model we watch has changed ... create or destroy
@@ -168,40 +187,39 @@ view_viewchild_changed(Model *model, ViewChild *viewchild)
 			IOBJECT(model)->name);
 #endif /*DEBUG_VIEWCHILD*/
 
-		model_view_new(model, viewchild->parent_view);
+		// this will set the viewchild->child_view pointer, see
+		// view_real_child_add()
+		model_view_new(model, viewchild->view);
 	}
 }
 
 static ViewChild *
-view_viewchild_new(View *parent_view, Model *child_model)
+view_viewchild_new(View *view, Model *child_model)
 {
 	ViewChild *viewchild;
 
 #ifdef DEBUG_VIEWCHILD
 	printf("view_viewchild_new: view \"%s\" watching %s \"%s\"\n",
-		G_OBJECT_TYPE_NAME(parent_view),
-		G_OBJECT_TYPE_NAME(child_model),
-		IOBJECT(child_model)->name);
+		G_OBJECT_TYPE_NAME(view),
+		G_OBJECT_TYPE_NAME(child_model), IOBJECT(child_model)->name);
 #endif /*DEBUG_VIEWCHILD*/
 
 	if (!(viewchild = INEW(NULL, ViewChild)))
 		return NULL;
 
-	viewchild->parent_view = parent_view;
+	viewchild->view = view;
 	viewchild->child_model = child_model;
-	viewchild->child_model_changed_sid =
-		g_signal_connect(child_model, "changed",
-			G_CALLBACK(view_viewchild_changed), viewchild);
+	viewchild->child_model_changed_sid = g_signal_connect(child_model,
+		"changed", G_CALLBACK(view_viewchild_changed), viewchild);
 	viewchild->child_view = NULL;
 
-	parent_view->managed =
-		g_slist_append(parent_view->managed, viewchild);
+	view->managed = g_slist_append(view->managed, viewchild);
 
 	return viewchild;
 }
 
 static void *
-view_viewchild_test_child_model(ViewChild *viewchild, Model *child_model)
+view_viewchild_child_model_equal(ViewChild *viewchild, Model *child_model)
 {
 	if (viewchild->child_model == child_model)
 		return viewchild;
@@ -218,7 +236,7 @@ view_hasmodel(View *view)
 }
 
 void *
-view_model_test(View *view, Model *model)
+view_model_equal(View *view, Model *model)
 {
 	if (VOBJECT(view)->iobject == IOBJECT(model))
 		return view;
@@ -311,6 +329,10 @@ view_dispose(GObject *object)
 		(SListMapFn) view_viewchild_destroy, NULL);
 
 	G_OBJECT_CLASS(view_parent_class)->dispose(object);
+
+#ifdef DEBUG_LEAK
+	all_view_widgets = g_slist_remove(all_view_widgets, view);
+#endif /*DEBUG_LEAK*/
 }
 
 static void
@@ -406,7 +428,7 @@ view_model_front(Model *model, View *view)
 /* Called for model child_add signal ... start watching that child.
  */
 static void
-view_model_child_add(Model *parent, Model *child, int pos, View *parent_view)
+view_model_child_add(Model *parent, Model *child, int pos, View *view)
 {
 	ViewChild *viewchild;
 
@@ -418,15 +440,15 @@ view_model_child_add(Model *parent, Model *child, int pos, View *parent_view)
 
 	g_assert(IS_MODEL(parent));
 	g_assert(IS_MODEL(child));
-	g_assert(IS_VIEW(parent_view));
+	g_assert(IS_VIEW(view));
 
 #ifdef DEBUG
-	viewchild = slist_map(parent_view->managed,
-		(SListMapFn) view_viewchild_test_child_model, child);
+	viewchild = slist_map(view->managed,
+		(SListMapFn) view_viewchild_child_model_equal, child);
 	g_assert(!viewchild);
 #endif /*DEBUG*/
 
-	viewchild = view_viewchild_new(parent_view, child);
+	viewchild = view_viewchild_new(view, child);
 	view_viewchild_changed(child, viewchild);
 }
 
@@ -434,8 +456,7 @@ view_model_child_add(Model *parent, Model *child, int pos, View *parent_view)
  * may have been finalized already.
  */
 static void
-view_model_child_remove(iContainer *parent, iContainer *child,
-	View *parent_view)
+view_model_child_remove(iContainer *parent, iContainer *child, View *view)
 {
 	ViewChild *viewchild;
 
@@ -445,13 +466,12 @@ view_model_child_remove(iContainer *parent, iContainer *child,
 		G_OBJECT_TYPE_NAME(child), IOBJECT(child)->name);
 	printf("\tparent = %s \"%s\"\n",
 		G_OBJECT_TYPE_NAME(parent), IOBJECT(parent)->name);
-	printf("\tparent_view of object = %s \"%s\"\n",
-		G_OBJECT_TYPE_NAME(VOBJECT(parent_view)->iobject),
-		IOBJECT(VOBJECT(parent_view)->iobject)->name);
+	printf("\tview = %s\n",
+		G_OBJECT_TYPE_NAME(view));
 #endif /*DEBUG*/
 
-	viewchild = slist_map(parent_view->managed,
-		(SListMapFn) view_viewchild_test_child_model, child);
+	viewchild = slist_map(view->managed,
+		(SListMapFn) view_viewchild_child_model_equal, child);
 
 	g_assert(viewchild);
 
@@ -463,7 +483,7 @@ view_model_child_remove(iContainer *parent, iContainer *child,
  */
 static void
 view_model_child_detach(iContainer *old_parent, iContainer *child,
-	View *old_parent_view)
+	View *old_view)
 {
 	ViewChild *viewchild;
 
@@ -474,13 +494,13 @@ view_model_child_detach(iContainer *old_parent, iContainer *child,
 	printf("\told_parent = %s \"%s\"\n",
 		G_OBJECT_TYPE_NAME(old_parent), IOBJECT(old_parent)->name);
 
-	printf("view_model_child_detach: old_parent_view = view of %s \"%s\"\n",
-		G_OBJECT_TYPE_NAME(VOBJECT(old_parent_view)->iobject),
-		IOBJECT(VOBJECT(old_parent_view)->iobject)->name);
+	printf("view_model_child_detach: old_view = view of %s \"%s\"\n",
+		G_OBJECT_TYPE_NAME(VOBJECT(old_view)->iobject),
+		IOBJECT(VOBJECT(old_view)->iobject)->name);
 #endif /*DEBUG*/
 
-	viewchild = slist_map(old_parent_view->managed,
-		(SListMapFn) view_viewchild_test_child_model, child);
+	viewchild = slist_map(old_view->managed,
+		(SListMapFn) view_viewchild_child_model_equal, child);
 
 	g_assert(viewchild);
 	g_assert(!child->temp_view);
@@ -495,7 +515,7 @@ view_model_child_detach(iContainer *old_parent, iContainer *child,
  */
 static void
 view_model_child_attach(iContainer *new_parent, iContainer *child, int pos,
-	View *new_parent_view)
+	View *new_view)
 {
 	ViewChild *viewchild;
 
@@ -505,28 +525,28 @@ view_model_child_attach(iContainer *new_parent, iContainer *child, int pos,
 		G_OBJECT_TYPE_NAME(new_parent), IOBJECT(new_parent)->name);
 	printf("\tchild =  %s \"%s\"\n",
 		G_OBJECT_TYPE_NAME(child), IOBJECT(child)->name);
-	printf("\tnew_parent_view =  %s \"%s\"\n",
-		G_OBJECT_TYPE_NAME(new_parent_view), IOBJECT(new_parent_view)->name);
+	printf("\tnew_view =  %s \"%s\"\n",
+		G_OBJECT_TYPE_NAME(new_view), IOBJECT(new_view)->name);
 #endif /*DEBUG*/
 
-	g_assert(!slist_map(new_parent_view->managed,
-		(SListMapFn) view_viewchild_test_child_model, child));
+	g_assert(!slist_map(new_view->managed,
+		(SListMapFn) view_viewchild_child_model_equal, child));
 
-	viewchild = view_viewchild_new(new_parent_view, MODEL(child));
+	viewchild = view_viewchild_new(new_view, MODEL(child));
 
 	g_assert(child->temp_view && IS_VIEW(child->temp_view));
 	viewchild->child_view = child->temp_view;
 	child->temp_view = NULL;
 
-	viewchild->child_view->parent = new_parent_view;
+	viewchild->child_view->parent = new_view;
 }
 
 static void *
-view_real_link_sub(Model *child_model, View *parent_view)
+view_real_link_sub(Model *child_model, View *view)
 {
 	ViewChild *viewchild;
 
-	viewchild = view_viewchild_new(parent_view, child_model);
+	viewchild = view_viewchild_new(view, child_model);
 	view_viewchild_changed(child_model, viewchild);
 
 	return NULL;
@@ -542,7 +562,7 @@ view_real_link(View *view, Model *model, View *parent_view)
 	g_assert(!VOBJECT(view)->iobject);
 
 #ifdef DEBUG
-	printf("view_real_link: linking %s to model %s \"%s\"\n",
+	printf("view_real_link: view %s to model %s \"%s\"\n",
 		G_OBJECT_TYPE_NAME(view),
 		G_OBJECT_TYPE_NAME(model), IOBJECT(model)->name);
 #endif /*DEBUG*/
@@ -579,6 +599,8 @@ view_real_link(View *view, Model *model, View *parent_view)
 static void
 view_real_child_add(View *parent, View *child)
 {
+	Model *child_model = VOBJECT(child)->iobject;
+
 	ViewChild *viewchild;
 
 	g_assert(IS_VIEW(parent) && IS_VIEW(child));
@@ -591,13 +613,11 @@ view_real_child_add(View *parent, View *child)
 #endif /*DEBUG*/
 
 	viewchild = slist_map(parent->managed,
-		(SListMapFn) view_viewchild_test_child_model,
-		VOBJECT(child)->iobject);
+		(SListMapFn) view_viewchild_child_model_equal, child_model);
 
 	g_assert(viewchild);
 	g_assert(viewchild->child_view == NULL);
 
-	child->parent = parent;
 	viewchild->child_view = child;
 
     /* Not all views are true widgets (ie. get _ref()'s and _sink()'d by a
@@ -607,11 +627,16 @@ view_real_child_add(View *parent, View *child)
      * rowview at least.
      */
     g_object_ref_sink(G_OBJECT(child));
+
+	g_assert(!child->parent);
+	child->parent = parent;
 }
 
 static void
 view_real_child_remove(View *parent, View *child)
 {
+	Model *child_model = VOBJECT(child)->iobject;
+
 	ViewChild *viewchild;
 
 #ifdef DEBUG
@@ -621,18 +646,13 @@ view_real_child_remove(View *parent, View *child)
 #endif /*DEBUG*/
 
 	viewchild = slist_map(parent->managed,
-		(SListMapFn) view_viewchild_test_child_model, VOBJECT(child)->iobject);
+		(SListMapFn) view_viewchild_child_model_equal, child_model);
 
-    /* Can have floating views which are not part of the viewchild system, eg.
-	 * rowview.
-     */
-    if (viewchild &&
-        viewchild->child_view == child) {
-        viewchild->child_view = NULL;
-        g_object_unref(G_OBJECT(child));
-    }
-
+	g_assert(child->parent);
+	g_assert(child->parent == parent);
 	child->parent = NULL;
+
+	g_object_unref(G_OBJECT(child));
 }
 
 static void
@@ -663,6 +683,7 @@ static void *
 view_real_scan(View *view)
 {
 	Model *model = MODEL(VOBJECT(view)->iobject);
+
 	Heapmodel *heapmodel;
 
 	view_scannable_unregister(view);
@@ -710,6 +731,9 @@ view_class_init(ViewClass *class)
 static void
 view_init(View *view)
 {
+#ifdef DEBUG_LEAK
+	all_view_widgets = g_slist_prepend(all_view_widgets, view);
+#endif /*DEBUG_LEAK*/
 }
 
 /* Trigger the reset method for a view.
@@ -782,7 +806,7 @@ view_map(View *view, view_map_fn fn, void *a, void *b)
 		(SListMap3Fn) view_map_sub, (void *) fn, a, b);
 }
 
-/* Apply a function to view, and to all it's children.
+/* Apply a function to view, and to all its children.
  */
 void *
 view_map_all(View *view, view_map_fn fn, void *a)
@@ -801,7 +825,7 @@ view_save_as_cb(GtkWidget *menu, GtkWidget *host, View *view)
 	Model *model = MODEL(VOBJECT(view)->iobject);
 
 	if (IS_FILEMODEL(model)) {
-		GtkWindow *win = GTK_WINDOW(view_get_toplevel(view));
+		GtkWindow *window = view_get_window(view);
 
 		printf("view_save_as_cb: FIXME\n");
 		// filemodel_inter_saveas(win, FILEMODEL(model));
@@ -814,7 +838,7 @@ view_save_cb(GtkWidget *menu, GtkWidget *host, View *view)
 	Model *model = MODEL(VOBJECT(view)->iobject);
 
 	if (IS_FILEMODEL(model)) {
-		GtkWindow *win = GTK_WINDOW(view_get_toplevel(view));
+		GtkWindow *window = view_get_window(view);
 
 		printf("view_save_cb: FIXME\n");
 		// filemodel_inter_save(win, FILEMODEL(model));
@@ -827,7 +851,7 @@ view_close_cb(GtkWidget *menu, GtkWidget *host, View *view)
 	Model *model = MODEL(VOBJECT(view)->iobject);
 
 	if (IS_FILEMODEL(model)) {
-		GtkWindow *win = GTK_WINDOW(view_get_toplevel(view));
+		GtkWindow *window = view_get_window(view);
 
 		printf("view_close_cb: FIXME\n");
 		// filemodel_inter_savenclose(win, FILEMODEL(model));
@@ -860,13 +884,13 @@ view_not_implemented_cb(GtkWidget *menu, GtkWidget *host, View *view)
 	error_alert(GTK_WIDGET(view));
 }
 
-GtkWidget *
-view_get_toplevel(View *view)
+GtkWindow *
+view_get_window(View *view)
 {
-	while (IS_VIEW(view) && view->parent)
+	while (view->parent)
 		view = view->parent;
 
-	return GTK_WIDGET(gtk_widget_get_root(GTK_WIDGET(view)));
+	return GTK_WINDOW(gtk_widget_get_root(GTK_WIDGET(view)));
 }
 
 Columnview *

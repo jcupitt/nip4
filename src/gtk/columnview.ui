@@ -63,6 +63,7 @@
               <object class="GtkButton">
                 <property name="icon-name">window-close-symbolic</property>
 		<property name="has-frame">false</property>
+		<signal name="clicked" handler="columnview_close_clicked"/>
               </object>
             </child>
 
