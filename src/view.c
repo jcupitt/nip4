@@ -134,7 +134,7 @@ view_viewchild_destroy(ViewChild *viewchild)
 	View *child_view = viewchild->child_view;
 
 #ifdef DEBUG_VIEWCHILD
-	printf("view_viewchild_destroy: %s\n", G_OBJECT_TYPE_NAME(child_view));
+	printf("view_viewchild_destroy: %s\n", G_OBJECT_TYPE_NAME(view));
 #endif /*DEBUG_VIEWCHILD*/
 
 	FREESID(viewchild->child_model_changed_sid, viewchild->child_model);
