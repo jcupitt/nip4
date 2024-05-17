@@ -527,7 +527,9 @@ columnview_refresh(vObject *vobject)
 
 	/* Set open/closed.
 	 */
-	gtk_expander_set_expanded(GTK_EXPANDER(cview->top), col->open);
+	gtk_button_set_icon_name(GTK_BUTTON(cview->expand_button), col->open ?
+		"pan-down-symbolic" : "pan-end-symbolic");
+	gtk_widget_set_visible(cview->body, col->open);
 
 	/* Closed columns are hidden in NOEDIT mode.
 	 */
@@ -642,6 +644,15 @@ columnview_scrollto(View *view, ModelScrollPosition position)
 }
 
 static void
+columnview_expand_clicked(GtkGestureClick *gesture,
+	guint n_press, double x, double y, Columnview *cview)
+{
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
+
+	column_set_open(col, !col->open);
+}
+
+static void
 columnview_menu(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Columnview *cview)
 {
@@ -717,12 +728,14 @@ columnview_class_init(ColumnviewClass *class)
 	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
 		GTK_TYPE_BIN_LAYOUT);
 
+	BIND_CALLBACK(columnview_expand_clicked);
 	BIND_CALLBACK(columnview_menu);
 	BIND_CALLBACK(columnview_activate);
 	BIND_CALLBACK(columnview_close_clicked);
 
 	BIND_VARIABLE(Columnview, top);
 	BIND_VARIABLE(Columnview, title);
+	BIND_VARIABLE(Columnview, expand_button);
 	BIND_VARIABLE(Columnview, label);
 	BIND_VARIABLE(Columnview, head);
 	BIND_VARIABLE(Columnview, body);

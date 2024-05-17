@@ -1,6 +1,9 @@
-- improve column titlebar
+- nip4.css should use classes for selected and shadow, not ids
 
-  do our own show/hide of the box
+  expand and close buttons in column title should be grey when label text is
+  grey
+
+  column entry needs a background colour to make it more visible
 
 - ^W on main window does not kill image windows
 
@@ -41,6 +44,8 @@
 	queue a main_window refresh
 
   should this be in the model base class?
+
+  same for column_set_open()
 
 - hook up a progress bar for eg st-francis.jpg load?
 

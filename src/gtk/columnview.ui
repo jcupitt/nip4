@@ -36,47 +36,60 @@
   <template class="Columnview" parent="View">
     <child>
 
-      <object class="GtkExpander" id="top">
-        <property name="expanded">true</property>
+      <object class="GtkBox" id="top">
+        <property name="orientation">vertical</property>
 
-        <child type="label">
-          <object class="GtkBox" id="title">
-            <property name="margin-start">10</property>
-            <property name="hexpand">true</property>
-
-            <child>
-              <object class="GtkLabel" id="label">
-                <property name="margin-start">10</property>
-                <property name="label">A - </property>
-              </object>
-            </child>
-
-            <child>
-              <object class="GtkLabel" id="head">
+	<!-- titlebar -->
+	<child>
+          <object class="GtkFrame" id="title">
+	    <child>
+             <object class="GtkBox">
                 <property name="hexpand">true</property>
-                <property name="halign">start</property>
-                <property name="label">this column does stuff</property>
-              </object>
-            </child>
 
-            <child>
-              <object class="GtkButton">
-                <property name="icon-name">window-close-symbolic</property>
-		<property name="has-frame">false</property>
-		<signal name="clicked" handler="columnview_close_clicked"/>
-              </object>
-            </child>
+                <child>
+                  <object class="GtkButton" id="expand_button">
+                    <property name="icon-name">pan-down-symbolic</property>
+		    <property name="has-frame">false</property>
+		    <signal name="clicked" handler="columnview_expand_clicked"/>
+                  </object>
+                </child>
 
-            <child>
-              <object class="GtkPopoverMenu" id="right_click_menu">
-                <property name="menu-model">columnview-menu</property>
-              </object>
-            </child>
+                <child>
+                  <object class="GtkLabel" id="label">
+                    <property name="margin-start">10</property>
+                    <property name="label">A - </property>
+                  </object>
+                </child>
 
-            <child>
-              <object class="GtkGestureClick">
-                <property name="button">3</property>
-                  <signal name="pressed" handler="columnview_menu"/>
+                <child>
+                  <object class="GtkLabel" id="head">
+                    <property name="hexpand">true</property>
+                    <property name="halign">start</property>
+                    <property name="label">this column does stuff</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkButton">
+                    <property name="icon-name">window-close-symbolic</property>
+		    <property name="has-frame">false</property>
+		    <signal name="clicked" handler="columnview_close_clicked"/>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkPopoverMenu" id="right_click_menu">
+                    <property name="menu-model">columnview-menu</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkGestureClick">
+                    <property name="button">3</property>
+                      <signal name="pressed" handler="columnview_menu"/>
+                  </object>
+                </child>
+
               </object>
             </child>
 

@@ -5,11 +5,11 @@
 
       <object class="GtkBox" id="top">
         <property name="orientation">vertical</property>
-	<property name="tooltip-text">Expand or collapse row</property>
+        <property name="tooltip-text">Expand or collapse row</property>
 
         <child>
           <object class="GtkImage">
-            <property name="icon-name">go-up-symbolic</property>
+            <property name="icon-name">pan-up-symbolic</property>
 
             <child>
               <object class="GtkGestureClick">
@@ -21,8 +21,8 @@
         </child>
 
         <child>
-	  <object class="GtkImage">
-            <property name="icon-name">go-down-symbolic</property>
+          <object class="GtkImage">
+            <property name="icon-name">pan-down-symbolic</property>
 
             <child>
               <object class="GtkGestureClick">
