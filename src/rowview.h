@@ -53,8 +53,6 @@ struct _Rowview {
 	GtkWidget *label;		/* Row label */
 	Rhsview *rhsview;		/* Our rhs */
 
-	GtkWidget *right_click_menu;
-
 	/* Last tooltip we set.
 	 */
 	char *last_tooltip;

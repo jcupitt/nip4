@@ -468,18 +468,36 @@ rowview_click(GtkGestureClick *gesture,
 	}
 }
 
+static Workspaceview *
+rowview_workspaceview(Rowview *rview)
+{
+	View *p;
+
+	for (p = VIEW(rview); !IS_WORKSPACEVIEW(p); p = p->parent)
+		;
+
+	return WORKSPACEVIEW(p);
+}
+
 static void
 rowview_menu(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Rowview *rview)
 {
-	printf("rowview_menu:\n");
+	Workspaceview *wsview = rowview_workspaceview(rview);
+
+	printf("rowview_menu: %g %g\n", x, y);
 
 	mainwindow_set_action_view(rview->rhsview);
 
-	gtk_popover_set_pointing_to(GTK_POPOVER(rview->right_click_menu),
-		&(const GdkRectangle){ x, y, 1, 1 });
+	graphene_point_t rowview_point = GRAPHENE_POINT_INIT(x, y);
+	graphene_point_t wsview_point;
+	if (gtk_widget_compute_point(rview->frame, wsview->fixed,
+		&rowview_point, &wsview_point)) {
+		gtk_popover_set_pointing_to(GTK_POPOVER(wsview->rowview_menu),
+			&(const GdkRectangle){ wsview_point.x, wsview_point.y, 1, 1 });
 
-	gtk_popover_popup(GTK_POPOVER(rview->right_click_menu));
+		gtk_popover_popup(GTK_POPOVER(wsview->rowview_menu));
+	}
 }
 
 static void
@@ -562,7 +580,6 @@ rowview_class_init(RowviewClass *class)
 	BIND_VARIABLE(Rowview, spin);
 	BIND_VARIABLE(Rowview, frame);
 	BIND_VARIABLE(Rowview, label);
-	BIND_VARIABLE(Rowview, right_click_menu);
 
 	/* Create signals.
 	 */

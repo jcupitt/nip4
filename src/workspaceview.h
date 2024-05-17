@@ -74,6 +74,7 @@ struct _Workspaceview {
 	GtkWidget *popup_jump;
 
 	GtkWidget *right_click_menu;
+	GtkWidget *rowview_menu;
 
 	/* Our state machine for interactions.
 	 */

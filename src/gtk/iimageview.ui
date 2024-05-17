@@ -6,6 +6,20 @@
         <property name="orientation">vertical</property>
 
         <child>
+          <object class="GtkGestureClick">
+	        <property name="button">1</property>
+	        <signal name="pressed" handler="iimageview_click"/>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkGestureClick">
+            <property name="button">3</property>
+            <signal name="pressed" handler="iimageview_menu"/>
+          </object>
+        </child>
+
+        <child>
           <object class="Imagedisplay" id="imagedisplay">
             <property name="content-height">64</property>
             <property name="can-focus">false</property>

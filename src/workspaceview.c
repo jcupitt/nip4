@@ -873,6 +873,7 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_VARIABLE(Workspaceview, scrolled_window);
 	BIND_VARIABLE(Workspaceview, fixed);
 	BIND_VARIABLE(Workspaceview, right_click_menu);
+	BIND_VARIABLE(Workspaceview, rowview_menu);
 
 	BIND_CALLBACK(workspaceview_background_menu);
 	BIND_CALLBACK(workspaceview_drag_begin);

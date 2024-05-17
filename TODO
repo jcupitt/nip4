@@ -1,3 +1,10 @@
+- improve column titlebar
+
+  do our own show/hide of the box
+
+- style iimageview caption
+
+- column drag is broken
 
 - maybe put a frame around rowview, use a vbox for subcolumn, and a size group
   for alignment
@@ -18,10 +25,6 @@
   thumbnail and model?
 
 - error_alert() should go (use window error bars)
-
-- rowview menu should be defined in workspace.ui?
-
-  needs to pop up on iimageview too
 
 - imagewindow progress stuff should go?
 
@@ -45,10 +48,6 @@
 	queue a main_window refresh
 
   should this be in the model base class?
-
-- do we make a separate menu for every rowview? can we share them?
-
-  show menu for right-click on thumbnail too
 
 - hook up a progress bar for eg st-francis.jpg load?
 

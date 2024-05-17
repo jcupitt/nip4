@@ -18,6 +18,44 @@
     </section>
   </menu>
 
+  <menu id="workspaceview-rowview-menu">
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Edit</attribute>
+        <attribute name='action'>win.row-edit</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Duplicate</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Ungroup</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Save as ...</attribute>
+        <attribute name='action'>win.row-saveas</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Replace from file ...</attribute>
+        <attribute name='action'>win.row-replace</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Recalculate</attribute>
+        <attribute name='action'>win.row-recalculate</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Reset</attribute>
+        <attribute name='action'>win.row-reset</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Delete ...</attribute>
+        <attribute name='action'>win.row-delete</attribute>
+      </item>
+    </section>
+  </menu>
+
   <template class="Workspaceview" parent="View">
     <child>
       <object class="GtkScrolledWindow" id="scrolled_window">
@@ -28,9 +66,14 @@
 
             <child>
               <object class="GtkPopoverMenu" id="right_click_menu">
-                <property name="has-arrow">0</property>
+                <property name="menu-model">workspaceview-menu</property>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkPopoverMenu" id="rowview_menu">
                 <property name="menu-model">
-                  workspaceview-menu
+                  workspaceview-rowview-menu
                 </property>
               </object>
             </child>

@@ -267,6 +267,77 @@ iimageview_refresh(vObject *vobject)
 	VOBJECT_CLASS(iimageview_parent_class)->refresh(vobject);
 }
 
+static Workspaceview *
+iimageview_workspaceview(iImageview *iimageview)
+{
+	View *p;
+
+	for (p = VIEW(iimageview); !IS_WORKSPACEVIEW(p); p = p->parent)
+		;
+
+	return WORKSPACEVIEW(p);
+}
+
+static Rhsview *
+iimageview_rhsview(iImageview *iimageview)
+{
+	View *p;
+
+	for (p = VIEW(iimageview); !IS_RHSVIEW(p); p = p->parent)
+		;
+
+	return RHSVIEW(p);
+}
+
+static void
+iimageview_menu(GtkGestureClick *gesture,
+	guint n_press, double x, double y, iImageview *iimageview)
+{
+	Workspaceview *wsview = iimageview_workspaceview(iimageview);
+	Rhsview *rhsview = iimageview_rhsview(iimageview);
+
+	mainwindow_set_action_view(rhsview);
+
+	graphene_point_t iimageview_point = GRAPHENE_POINT_INIT(x, y);
+	graphene_point_t wsview_point;
+	if (gtk_widget_compute_point(iimageview->top, wsview->fixed,
+		&iimageview_point, &wsview_point)) {
+		gtk_popover_set_pointing_to(GTK_POPOVER(wsview->rowview_menu),
+			&(const GdkRectangle){ wsview_point.x, wsview_point.y, 1, 1 });
+
+		gtk_popover_popup(GTK_POPOVER(wsview->rowview_menu));
+	}
+}
+
+static Rowview *
+iimageview_rowview(iImageview *iimageview)
+{
+	View *p;
+
+	for (p = VIEW(iimageview); !IS_ROWVIEW(p); p = p->parent)
+		;
+
+	return ROWVIEW(p);
+}
+
+static void
+iimageview_click(GtkGestureClick *gesture,
+	guint n_press, double x, double y, iImageview *iimageview)
+{
+	if (n_press == 1) {
+		Rowview *rowview = iimageview_rowview(iimageview);
+		Row *row = ROW(VOBJECT(rowview)->iobject);
+		guint state = get_modifiers(GTK_EVENT_CONTROLLER(gesture));
+
+		row_select_modifier(row, state);
+	}
+	else {
+		iImage *iimage = IIMAGE(VOBJECT(iimageview)->iobject);
+
+		model_edit(GTK_WIDGET(iimageview), MODEL(iimage));
+	}
+}
+
 static void
 iimageview_class_init(iImageviewClass *class)
 {
@@ -283,6 +354,9 @@ iimageview_class_init(iImageviewClass *class)
 	BIND_VARIABLE(iImageview, top);
 	BIND_VARIABLE(iImageview, imagedisplay);
 	BIND_VARIABLE(iImageview, label);
+
+	BIND_CALLBACK(iimageview_menu);
+	BIND_CALLBACK(iimageview_click);
 
 	object_class->dispose = iimageview_dispose;
 

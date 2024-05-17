@@ -69,7 +69,6 @@
 
             <child>
               <object class="GtkPopoverMenu" id="right_click_menu">
-                <property name="has-arrow">0</property>
                 <property name="menu-model">columnview-menu</property>
               </object>
             </child>
