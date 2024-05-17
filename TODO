@@ -2,16 +2,9 @@
 
   do our own show/hide of the box
 
-- style iimageview caption
+- ^W on main window does not kill image windows
 
-- column drag is broken
-
-- maybe put a frame around rowview, use a vbox for subcolumn, and a size group
-  for alignment
-
-	looks pretty ugly :(
-
-- click on ws background should deselect rows
+- maybe vertical columns should sizegroup their width together?
 
 - paste into image window
 

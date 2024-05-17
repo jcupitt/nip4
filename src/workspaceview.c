@@ -28,12 +28,8 @@
  */
 
 /*
+ */
 #define DEBUG
- */
-
-/* Define to trace button press events.
-#define EVENT
- */
 
 #include "nip4.h"
 
@@ -750,7 +746,6 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 {
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-
 
 #ifdef DEBUG
 	printf("workspaceview_drag_update: %g x %g\n", offset_x, offset_y);

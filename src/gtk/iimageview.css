@@ -1,3 +1,5 @@
-#iImageview #GtkLabel {
-    background-color: red;
+.caption {
+    background-color: #eed680;
+    color: black;
+    font-size: x-small;
 }

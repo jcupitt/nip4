@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -347,33 +347,40 @@ columnview_get_position(Columnview *cview, int *x, int *y, int *w, int *h)
 }
 
 void
-columnview_add_shadow(Columnview *old_cview)
+columnview_add_shadow(Columnview *cview)
 {
-	Column *col = COLUMN(VOBJECT(old_cview)->iobject);
-	Workspaceview *wview = old_cview->wview;
-
 	printf("columnview_add_shadow:\n");
 
-	if (!old_cview->shadow) {
-		Columnview *new_cview;
+	if (!cview->shadow) {
+		Column *col = COLUMN(VOBJECT(cview)->iobject);
+		Workspaceview *wview = cview->wview;
 
-		new_cview = COLUMNVIEW(columnview_new());
-		new_cview->wview = wview;
-		VIEW(new_cview)->parent = VIEW(wview);
-		VOBJECT(new_cview)->iobject = IOBJECT(col);
+		Columnview *shadow;
 
+		/* We can't use model_view_new() etc as we don't want the shadow to be
+		 * part of the viewchild system, or to auto update when col updates.
+		 */
+		shadow = COLUMNVIEW(columnview_new());
+		shadow->wview = wview;
+		VIEW(shadow)->parent = VIEW(wview);
+		VOBJECT(shadow)->iobject = IOBJECT(col);
+		cview->shadow = shadow;
+		shadow->master = cview;
+
+		/* Duplicate the ref_sink that view_real_child_add() does, so we can
+		 * dispose correctly.
+		 */
+		g_object_ref_sink(G_OBJECT(shadow));
+
+		/* So shadow has a single ref held by fixed.
+		 */
 		gtk_fixed_put(GTK_FIXED(wview->fixed),
-			GTK_WIDGET(new_cview), col->x, col->y);
-
-		gtk_widget_show(GTK_WIDGET(new_cview));
-
-		old_cview->shadow = new_cview;
-		new_cview->master = old_cview;
+			GTK_WIDGET(shadow), col->x, col->y);
 
 		/* The shadow will be on top of the real column and hide it.
 		 * Put the real column to the front.
 		 */
-		model_front(MODEL(col));
+		view_child_front(VIEW(cview));
 	}
 }
 
@@ -381,7 +388,10 @@ void
 columnview_remove_shadow(Columnview *cview)
 {
 	if (cview->shadow) {
-		view_child_remove(VIEW(cview->shadow));
+		Workspaceview *wview = cview->wview;
+
+		cview->shadow->master = NULL;
+		gtk_fixed_remove(GTK_FIXED(wview->fixed), GTK_WIDGET(cview->shadow));
 		cview->shadow = NULL;
 	}
 }

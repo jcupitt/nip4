@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <template class="iImageview" parent="Graphicview">
+    <property name="hexpand">true</property>
     <child>
       <object class="GtkBox" id="top">
         <property name="orientation">vertical</property>
@@ -28,6 +29,10 @@
 
         <child>
           <object class="GtkLabel" id="label">
+            <property name="xalign">0</property>
+            <style>
+              <class name="caption"/>
+            </style>
           </object>
         </child>
 
