@@ -648,6 +648,23 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 }
 
 static void
+workspaceview_click(GtkGestureClick *gesture,
+	guint n_press, double x, double y, Workspaceview *wview)
+{
+	/* Search for a click on any part of a columnview.
+	 */
+	Columnview *cview = workspaceview_find_columnview(wview, x, y);
+
+	printf("workspaceview_click:\n");
+
+	if (!cview) {
+		Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+		workspace_deselect_all(ws);
+	}
+}
+
+static void
 workspaceview_background_menu(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Workspaceview *wview)
 {
@@ -875,6 +892,7 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_VARIABLE(Workspaceview, right_click_menu);
 	BIND_VARIABLE(Workspaceview, rowview_menu);
 
+	BIND_CALLBACK(workspaceview_click);
 	BIND_CALLBACK(workspaceview_background_menu);
 	BIND_CALLBACK(workspaceview_drag_begin);
 	BIND_CALLBACK(workspaceview_drag_update);

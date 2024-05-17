@@ -457,6 +457,8 @@ rowview_click(GtkGestureClick *gesture,
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
 
+	printf("rowview_click:\n");
+
 	if (n_press == 1) {
 		guint state = get_modifiers(GTK_EVENT_CONTROLLER(gesture));
 

@@ -65,6 +65,13 @@
             <!-- columns are added as children of the fixed -->
 
             <child>
+              <object class="GtkGestureClick">
+                <property name="button">1</property>
+                  <signal name="pressed" handler="workspaceview_click"/>
+              </object>
+            </child>
+
+            <child>
               <object class="GtkPopoverMenu" id="right_click_menu">
                 <property name="menu-model">workspaceview-menu</property>
               </object>
