@@ -64,6 +64,7 @@ struct _Columnview {
 	GtkWidget *head;			/* Columnview caption */
 	GtkWidget *entry;			/* Text entry at bottom */
 	GtkWidget *capedit;			/* Shadow text for editing caption */
+	GtkWidget *revealer;		/* Animate visibility for body */
 	GtkWidget *body;			/* The body of the columnview */
 
 	/* Context menu for titlebar.

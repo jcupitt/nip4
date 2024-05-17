@@ -499,14 +499,6 @@ columnview_refresh(vObject *vobject)
 	printf("columnview_refresh: %s\n", IOBJECT(col)->name);
 #endif /*DEBUG*/
 
-	if (cview->css_class) {
-		gtk_widget_remove_css_class(cview->title, cview->css_class);
-		cview->css_class = NULL;
-	}
-	cview->css_class = columnview_css(cview);
-	if (cview->css_class)
-		gtk_widget_add_css_class(cview->title, cview->css_class);
-
 	/* If this column has a shadow, workspaceview will have put a layout
 	 * position into it. See workspaceview_layout_set_pos().
 	 */
@@ -550,7 +542,7 @@ columnview_refresh(vObject *vobject)
 	 */
 	gtk_button_set_icon_name(GTK_BUTTON(cview->expand_button), col->open ?
 		"pan-down-symbolic" : "pan-end-symbolic");
-	gtk_widget_set_visible(cview->body, col->open);
+	gtk_revealer_set_reveal_child(cview->revealer, col->open);
 
 	/* Closed columns are hidden in NOEDIT mode.
 	 */
@@ -591,6 +583,14 @@ columnview_refresh(vObject *vobject)
 	}
 	else if (!col->selected)
 		cview->selected = FALSE;
+
+	if (cview->css_class) {
+		gtk_widget_remove_css_class(cview->title, cview->css_class);
+		cview->css_class = NULL;
+	}
+	cview->css_class = columnview_css(cview);
+	if (cview->css_class)
+		gtk_widget_add_css_class(cview->title, cview->css_class);
 
 	VOBJECT_CLASS(columnview_parent_class)->refresh(vobject);
 }
@@ -752,6 +752,7 @@ columnview_class_init(ColumnviewClass *class)
 	BIND_VARIABLE(Columnview, expand_button);
 	BIND_VARIABLE(Columnview, label);
 	BIND_VARIABLE(Columnview, head);
+	BIND_VARIABLE(Columnview, revealer);
 	BIND_VARIABLE(Columnview, body);
 	BIND_VARIABLE(Columnview, entry);
 	BIND_VARIABLE(Columnview, right_click_menu);

@@ -1,6 +1,4 @@
-- nip4.css should use classes for selected and shadow, not ids
-
-  expand and close buttons in column title should be grey when label text is
+- expand and close buttons in column title should be grey when label text is
   grey
 
   column entry needs a background colour to make it more visible

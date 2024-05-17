@@ -98,17 +98,24 @@
 
 	<!-- content -->
         <child>
-          <object class="GtkBox" id="body">
-            <property name="orientation">vertical</property>
+          <object class="GtkRevealer" id="revealer">
+            <property name="transition-type">swing-down</property>
 
-	    <!-- subcolumnview inserted as the first child of this box -->
+	    <child>
+              <object class="GtkBox" id="body">
+                <property name="orientation">vertical</property>
 
-            <child>
-	      <object class="GtkEntry" id="entry">
-                <property name="margin-top">3</property>
-                <property name="margin-start">55</property>
-                <signal name="activate" handler="columnview_activate"/>
-	      </object>
+	        <!-- subcolumnview inserted as the first child of this box -->
+
+                <child>
+	          <object class="GtkEntry" id="entry">
+                    <property name="margin-top">3</property>
+                    <property name="margin-start">55</property>
+                    <signal name="activate" handler="columnview_activate"/>
+	          </object>
+                </child>
+
+              </object>
             </child>
 
           </object>
