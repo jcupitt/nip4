@@ -22,8 +22,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 /* Time each refresh
 #define DEBUG_TIME

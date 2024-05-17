@@ -208,8 +208,9 @@ rhsview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		classmodel_graphic_save(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
 	else if (g_str_equal(name, "row-delete"))
 		iobject_destroy(row);
-
-
+	else if (g_str_equal(name, "row-replace") &&
+		rhs->graphic)
+		classmodel_graphic_replace(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
 }
 
 static void

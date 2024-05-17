@@ -115,33 +115,6 @@ classmodel_get_instance(Classmodel *classmodel)
 	return class && class->get_instance ? class->get_instance(classmodel) : NULL;
 }
 
-/*
-static void
-classmodel_graphic_save_cb(iWindow *iwnd,
-	void *client, iWindowNotifyFn nfn, void *sys)
-{
-	Filesel *filesel = FILESEL(iwnd);
-	Classmodel *classmodel = CLASSMODEL(client);
-	ClassmodelClass *class = CLASSMODEL_GET_CLASS(classmodel);
-	char *filename;
-
-	if ((filename = filesel_get_filename(filesel))) {
-		if (class->graphic_save(classmodel, GTK_WIDGET(iwnd), filename)) {
-			VIPS_SETSTR(classmodel->filename, filename);
-			iobject_changed(IOBJECT(classmodel));
-
-			nfn(sys, IWINDOW_YES);
-		}
-		else
-			nfn(sys, IWINDOW_ERROR);
-
-		g_free(filename);
-	}
-	else
-		nfn(sys, IWINDOW_ERROR);
-}
- */
-
 static void
 classmodel_graphic_save_cb(GObject *source_object,
 	GAsyncResult *res, gpointer user_data)
@@ -149,13 +122,13 @@ classmodel_graphic_save_cb(GObject *source_object,
 	Classmodel *classmodel = CLASSMODEL(user_data);
 	ClassmodelClass *class = CLASSMODEL_GET_CLASS(classmodel);
 	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-	GtkWidget *parent = GTK_WIDGET(dialog);
+	GtkWidget *parent = g_object_get_data(G_OBJECT(dialog), "nip4-parent");
 
 	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
 	if (file) {
 		g_autofree char *filename = g_file_get_path(file);
 
-		if (class->graphic_save(classmodel, parent, filename)) {
+		if (!class->graphic_save(classmodel, parent, filename)) {
 			VIPS_SETSTR(classmodel->filename, filename);
             iobject_changed(IOBJECT(classmodel));
 		}
@@ -197,24 +170,28 @@ classmodel_graphic_save(Classmodel *classmodel, GtkWidget *parent)
 			gtk_file_dialog_set_initial_file(dialog, file);
 	}
 
+	g_object_set_data(G_OBJECT(dialog), "nip4-parent", parent);
+
 	gtk_file_dialog_save(dialog,
 		GTK_WINDOW(gtk_widget_get_root(parent)),
 		NULL,
 		classmodel_graphic_save_cb, classmodel);
 }
 
-/*
 static void
-classmodel_graphic_replace_cb(iWindow *iwnd,
-	void *client, iWindowNotifyFn nfn, void *sys)
+classmodel_graphic_replace_cb(GObject *source_object,
+	GAsyncResult *res, gpointer user_data)
 {
-	Filesel *filesel = FILESEL(iwnd);
-	Classmodel *classmodel = CLASSMODEL(client);
+	Classmodel *classmodel = CLASSMODEL(user_data);
 	ClassmodelClass *class = CLASSMODEL_GET_CLASS(classmodel);
-	char *filename;
+	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
+	GtkWidget *parent = g_object_get_data(G_OBJECT(dialog), "nip4-parent");
 
-	if ((filename = filesel_get_filename(filesel))) {
-		if (class->graphic_replace(classmodel, GTK_WIDGET(iwnd), filename)) {
+	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
+	if (file) {
+		g_autofree char *filename = g_file_get_path(file);
+
+		if (!class->graphic_replace(classmodel, parent, filename)) {
 			g_object_ref(G_OBJECT(classmodel));
 
 			symbol_recalculate_all();
@@ -222,60 +199,52 @@ classmodel_graphic_replace_cb(iWindow *iwnd,
 			iobject_changed(IOBJECT(classmodel));
 
 			g_object_unref(G_OBJECT(classmodel));
-
-			nfn(sys, IWINDOW_YES);
 		}
 		else
-			nfn(sys, IWINDOW_ERROR);
-
-		g_free(filename);
+			error_alert(parent);
 	}
-	else
-		nfn(sys, IWINDOW_ERROR);
 }
- */
 
 void
 classmodel_graphic_replace(Classmodel *classmodel, GtkWidget *parent)
 {
-	/*
 	ClassmodelClass *class = CLASSMODEL_GET_CLASS(classmodel);
-	GtkWidget *filesel;
-	char txt[100];
-	VipsBuf buf = VIPS_BUF_STATIC(txt);
 
 	if (!class->graphic_replace) {
 		error_top(_("Not implemented."));
 		error_sub(_("_%s() method not implemented for %s."),
 			"graphic_replace",
 			IOBJECT_GET_CLASS_NAME(classmodel));
-		iwindow_alert(parent, GTK_MESSAGE_ERROR);
+		error_alert(parent);
 		return;
 	}
 
+	GtkFileDialog *dialog = gtk_file_dialog_new();
+
+	char txt[100];
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
 	row_qualified_name(HEAPMODEL(classmodel)->row, &buf);
-	filesel = filesel_new();
-	iwindow_set_title(IWINDOW(filesel), _("Replace %s \"%s\""),
-		IOBJECT_GET_CLASS_NAME(classmodel), vips_buf_all(&buf));
-	filesel_set_flags(FILESEL(filesel), TRUE, FALSE);
-	filesel_set_filetype(FILESEL(filesel),
-		class->filetype,
-		watch_int_get(main_watchgroup, class->filetype_pref, 0));
-	filesel_set_filetype_pref(FILESEL(filesel), class->filetype_pref);
-	iwindow_set_parent(IWINDOW(filesel), parent);
-	idialog_set_iobject(IDIALOG(filesel), IOBJECT(classmodel));
-	filesel_set_done(FILESEL(filesel),
+	char txt2[100];
+	VipsBuf buf2 = VIPS_BUF_STATIC(txt2);
+	vips_buf_appendf(&buf2,  _("Replace %s \"%s\""),
+        IOBJECT_GET_CLASS_NAME(classmodel), vips_buf_all(&buf));
+	gtk_file_dialog_set_title(dialog, vips_buf_all(&buf2));
+
+	gtk_file_dialog_set_modal(dialog, TRUE);
+
+	if (classmodel->filename) {
+		g_autoptr(GFile) file = g_file_new_for_path(classmodel->filename);
+
+		if (file)
+			gtk_file_dialog_set_initial_file(dialog, file);
+	}
+
+	g_object_set_data(G_OBJECT(dialog), "nip4-parent", parent);
+
+	gtk_file_dialog_open(dialog,
+		GTK_WINDOW(gtk_widget_get_root(parent)),
+		NULL,
 		classmodel_graphic_replace_cb, classmodel);
-	iwindow_build(IWINDOW(filesel));
-
-	if (classmodel->filename)
-		filesel_set_filename(FILESEL(filesel),
-			classmodel->filename);
-
-	gtk_widget_show(GTK_WIDGET(filesel));
-	 */
-
-	printf("classmodel_graphic_replace: FIXME\n");
 }
 
 /* Make and break links between classmodels and the iimages displaying them.

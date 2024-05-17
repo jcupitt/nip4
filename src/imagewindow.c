@@ -93,11 +93,8 @@ struct _Imagewindow {
 	int current_file;
 	gboolean preserve;
 
-	/* The current save and load directories.
+	/* Widgets.
 	 */
-	GFile *save_folder;
-	GFile *load_folder;
-
 	GtkWidget *right_click_menu;
 	GtkWidget *title;
 	GtkWidget *subtitle;
@@ -861,8 +858,6 @@ imagewindow_dispose(GObject *object)
 	imagewindow_files_free(win);
 
 	VIPS_UNREF(win->iimage);
-	VIPS_UNREF(win->save_folder);
-	VIPS_UNREF(win->load_folder);
 	VIPS_FREEF(gtk_widget_unparent, win->right_click_menu);
 	VIPS_FREEF(g_timer_destroy, win->progress_timer);
 
@@ -1148,118 +1143,14 @@ imagewindow_duplicate_action(GSimpleAction *action,
 	gtk_window_present(GTK_WINDOW(new_win));
 }
 
-static GFile *
-get_parent(GFile *file)
-{
-	GFile *parent = g_file_get_parent(file);
-
-	return parent ? parent : g_file_new_for_path("/");
-}
-
-static void
-imagewindow_replace_result(GObject *source_object,
-	GAsyncResult *res, gpointer user_data)
-{
-	Imagewindow *win = IMAGEWINDOW(user_data);
-	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-
-	g_autoptr(GListModel) list =
-		gtk_file_dialog_open_multiple_finish(dialog, res, NULL);
-	if (list) {
-		if (g_list_model_get_item_type(list) == G_TYPE_FILE) {
-			int n_files = g_list_model_get_n_items(list);
-			g_autofree GFile **files = VIPS_ARRAY(NULL, n_files + 1, GFile *);
-			for (int i = 0; i < n_files; i++)
-				files[i] = G_FILE(g_list_model_get_object(list, i));
-
-			// update the default load directory
-			VIPS_UNREF(win->load_folder);
-			if (n_files > 0) {
-				g_autoptr(GFile) file =
-					G_FILE(g_list_model_get_object(list, 0));
-				win->load_folder = get_parent(file);
-			}
-
-			imagewindow_error_hide(win);
-			imagewindow_open_gfiles(win, files, n_files);
-
-			for (int i = 0; i < n_files; i++)
-				VIPS_UNREF(files[i]);
-			VIPS_FREE(files);
-		}
-	}
-}
-
 static void
 imagewindow_replace_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
 	Imagewindow *win = IMAGEWINDOW(user_data);
-	Tilesource *tilesource = imagewindow_get_tilesource(win);
 
-	GtkFileDialog *dialog;
-
-	dialog = gtk_file_dialog_new();
-	gtk_file_dialog_set_title(dialog, "Replace from file");
-	gtk_file_dialog_set_accept_label(dialog, "Replace");
-	gtk_file_dialog_set_modal(dialog, TRUE);
-
-	if (tilesource) {
-		g_autoptr(GFile) file = tilesource_get_file(tilesource);
-		if (file)
-			gtk_file_dialog_set_initial_file(dialog, file);
-	}
-	else if (win->load_folder)
-		gtk_file_dialog_set_initial_folder(dialog, win->load_folder);
-
-	gtk_file_dialog_open_multiple(dialog, GTK_WINDOW(win), NULL,
-		imagewindow_replace_result, win);
-}
-
-static void
-imagewindow_saveas_options_response(GtkDialog *dialog,
-	gint response, gpointer user_data)
-{
-	if (response == GTK_RESPONSE_ACCEPT ||
-		response == GTK_RESPONSE_CANCEL)
-		gtk_window_destroy(GTK_WINDOW(dialog));
-
-	// other return codes are intermediate stages of processing and we
-	// should do nothing
-}
-
-static void
-imagewindow_on_file_save_cb(GObject *source_object,
-	GAsyncResult *res, gpointer user_data)
-{
-	Imagewindow *win = IMAGEWINDOW(user_data);
-	Tilesource *tilesource = imagewindow_get_tilesource(win);
-	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-
-	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
-	if (file && tilesource) {
-		SaveOptions *options;
-
-		// note the save directory for next time
-		VIPS_UNREF(win->save_folder);
-		win->save_folder = get_parent(file);
-
-		g_autofree char *filename = g_file_get_path(file);
-
-		options = save_options_new(GTK_WINDOW(win),
-			tilesource_get_base_image(tilesource), filename);
-
-		if (!options) {
-			imagewindow_error(win);
-			return;
-		}
-
-		g_signal_connect_object(options, "response",
-			G_CALLBACK(imagewindow_saveas_options_response),
-			NULL, 0);
-
-		gtk_window_present(GTK_WINDOW(options));
-	}
+	if (win->iimage)
+		classmodel_graphic_replace(CLASSMODEL(win->iimage), GTK_WIDGET(win));
 }
 
 static void
@@ -1267,24 +1158,17 @@ imagewindow_saveas_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
 	Imagewindow *win = IMAGEWINDOW(user_data);
-	Tilesource *tilesource = imagewindow_get_tilesource(win);
 
-	if (tilesource) {
-		GtkFileDialog *dialog;
+	if (win->iimage)
+		classmodel_graphic_save(CLASSMODEL(win->iimage), GTK_WIDGET(win));
+}
 
-		dialog = gtk_file_dialog_new();
-		gtk_file_dialog_set_title(dialog, "Save file");
-		gtk_file_dialog_set_modal(dialog, TRUE);
+static GFile *
+get_parent(GFile *file)
+{
+	GFile *parent = g_file_get_parent(file);
 
-		g_autoptr(GFile) file = tilesource_get_file(tilesource);
-		if (file)
-			gtk_file_dialog_set_initial_file(dialog, file);
-		else if (win->save_folder)
-			gtk_file_dialog_set_initial_folder(dialog, win->save_folder);
-
-		gtk_file_dialog_save(dialog, GTK_WINDOW(win), NULL,
-			&imagewindow_on_file_save_cb, win);
-	}
+	return parent ? parent : g_file_new_for_path("/");
 }
 
 static void
@@ -1635,10 +1519,6 @@ imagewindow_init(Imagewindow *win)
 
 	win->progress_timer = g_timer_new();
 	win->settings = g_settings_new(APPLICATION_ID);
-	char *cwd = g_get_current_dir();
-	win->save_folder = g_file_new_for_path(cwd);
-	win->load_folder = g_file_new_for_path(cwd);
-	g_free(cwd);
 
 	gtk_widget_init_template(GTK_WIDGET(win));
 

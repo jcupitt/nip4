@@ -2,10 +2,9 @@
 - maybe put a frame around rowview, use a vbox for subcolumn, and a size group
   for alignment
 
-- why is rhsview made dynamically? can't we make this in the .ui file?
+	looks pretty ugly :(
 
-  the things that make up rhsview (text, graphic, formula) do need to be
-  dynamic it's true, but rhsview itself could be static, you'd think
+- click on ws background should deselect rows
 
 - paste into image window
 
@@ -18,9 +17,13 @@
   maybe iimage should listen for "changed" in viewers and update the
   thumbnail and model?
 
-- rowview menu image load and save needs hooking up
+- error_alert() should go (use window error bars)
 
-  maybe move image load and save actions out of imagewindow.c
+- rowview menu should be defined in workspace.ui?
+
+  needs to pop up on iimageview too
+
+- imagewindow progress stuff should go?
 
 - changes to a row need to update any viewers
 
