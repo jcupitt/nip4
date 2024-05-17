@@ -470,6 +470,19 @@ columnview_add_caption(Columnview *cview)
 	printf("columnview_add_caption: FIXME\n");
 }
 
+static const char *
+columnview_css(Columnview *cview)
+{
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
+
+	if (cview->master)
+		return "shadow_widget";
+	else if (col->selected)
+		return "selected_widget";
+	else
+		return "widget";
+}
+
 static void
 columnview_refresh(vObject *vobject)
 {
@@ -485,6 +498,14 @@ columnview_refresh(vObject *vobject)
 #ifdef DEBUG
 	printf("columnview_refresh: %s\n", IOBJECT(col)->name);
 #endif /*DEBUG*/
+
+	if (cview->css_class) {
+		gtk_widget_remove_css_class(cview->title, cview->css_class);
+		cview->css_class = NULL;
+	}
+	cview->css_class = columnview_css(cview);
+	if (cview->css_class)
+		gtk_widget_add_css_class(cview->title, cview->css_class);
 
 	/* If this column has a shadow, workspaceview will have put a layout
 	 * position into it. See workspaceview_layout_set_pos().
@@ -564,19 +585,12 @@ columnview_refresh(vObject *vobject)
 
 	/* Set select state.
 	 */
-	if (cview->master)
-		gtk_widget_set_name(cview->title, "shadow_column");
-	else if (col->selected && !cview->selected) {
-		gtk_widget_set_name(cview->title, "selected_column");
+	if (col->selected && !cview->selected) {
 		cview->selected = TRUE;
 		gtk_widget_grab_focus(cview->entry);
 	}
-	else if (!col->selected) {
-		// Always do this, even if cview->selected, so we set on the
-		// first _refresh().
-		gtk_widget_set_name(cview->title, "column");
+	else if (!col->selected)
 		cview->selected = FALSE;
-	}
 
 	VOBJECT_CLASS(columnview_parent_class)->refresh(vobject);
 }

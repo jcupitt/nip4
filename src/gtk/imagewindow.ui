@@ -242,7 +242,7 @@
                 <property name="hexpand">true</property>
                 <property name="vexpand">true</property>
 
-                  <!-- Imageui go in here -->
+                  <!-- Imageui goes in here -->
               </object>
             </child>
 

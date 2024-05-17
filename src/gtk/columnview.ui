@@ -96,6 +96,7 @@
           </object>
         </child>
 
+	<!-- content -->
         <child>
           <object class="GtkBox" id="body">
             <property name="orientation">vertical</property>

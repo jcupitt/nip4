@@ -1,13 +1,4 @@
-#selected_column {
-  background-color: #83A67F;
-}
-
-#column {
-  background-color: #C5D2C8;
-  color: grey;
-}
-
-#shadow_column {
+.shadow_widget {
   background-color: #5D7555;
 }
 

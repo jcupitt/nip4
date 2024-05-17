@@ -95,6 +95,8 @@ struct _Columnview {
 	 */
 	int old_width;
 	int old_height;
+
+	const char *css_class;
 };
 
 typedef struct _ColumnviewClass {
