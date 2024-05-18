@@ -73,6 +73,25 @@ columnview_caption_edit_activate(GtkEntry *self, gpointer user_data)
 	vobject_refresh_queue(VOBJECT(cview));
 }
 
+static gboolean
+columnview_caption_key_pressed(GtkEventControllerKey *self,
+	guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+{
+	Columnview *cview = COLUMNVIEW(user_data);
+
+	gboolean handled;
+
+	handled = FALSE;
+
+	if (keyval == GDK_KEY_Escape) {
+	    cview->state = COL_WAIT;
+	    vobject_refresh_queue(VOBJECT(cview));
+		handled = TRUE;
+	}
+
+	return handled;
+}
+
 /* Select all objects in menu's column.
  */
 static void
@@ -366,7 +385,8 @@ columnview_add_shadow(Columnview *cview)
 		 */
 		g_object_ref_sink(G_OBJECT(shadow));
 
-		/* So shadow has a single ref held by fixed.
+		/* So shadow will have two refs: one held by fixed, one ready to be
+		 * droped by view dispose.
 		 */
 		gtk_fixed_put(GTK_FIXED(wview->fixed),
 			GTK_WIDGET(shadow), col->x, col->y);
@@ -385,7 +405,7 @@ columnview_remove_shadow(Columnview *cview)
 		Workspaceview *wview = cview->wview;
 
 		cview->shadow->master = NULL;
-		gtk_fixed_remove(GTK_FIXED(wview->fixed), GTK_WIDGET(cview->shadow));
+		view_child_remove(cview->shadow);
 		cview->shadow = NULL;
 	}
 }
@@ -754,6 +774,7 @@ columnview_class_init(ColumnviewClass *class)
 	BIND_CALLBACK(columnview_activate);
 	BIND_CALLBACK(columnview_close_clicked);
 	BIND_CALLBACK(columnview_caption_edit_activate);
+	BIND_CALLBACK(columnview_caption_key_pressed);
 
 	BIND_VARIABLE(Columnview, top);
 	BIND_VARIABLE(Columnview, title);

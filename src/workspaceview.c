@@ -333,7 +333,7 @@ workspaceview_child_add(View *parent, View *child)
 	Column *column = COLUMN(VOBJECT(cview)->iobject);
 	Workspaceview *wview = WORKSPACEVIEW(parent);
 
-	printf("workspaceview_child_add: watch resize of columns\n");
+	printf("workspaceview_child_add: FIXME watch resize of columns\n");
 	// g_signal_connect(child, "size_allocate",
 	// G_CALLBACK(workspaceview_child_size_cb), parent);
 
@@ -345,9 +345,6 @@ workspaceview_child_add(View *parent, View *child)
 	cview->lx = column->x;
 	cview->ly = column->y;
 
-	printf("workspaceview_child_add: adding column at %d x %d\n",
-		column->x, column->y);
-
 	gtk_fixed_put(GTK_FIXED(wview->fixed),
 		GTK_WIDGET(cview), column->x, column->y);
 }
@@ -356,8 +353,6 @@ static void
 workspaceview_child_remove(View *parent, View *child)
 {
 	Workspaceview *wview = WORKSPACEVIEW(parent);
-
-	printf("workspaceview_child_remove:\n");
 
 	VIEW_CLASS(workspaceview_parent_class)->child_remove(parent, child);
 
@@ -370,9 +365,6 @@ workspaceview_child_position(View *parent, View *child)
 {
 	Workspaceview *wview = WORKSPACEVIEW(parent);
 	Columnview *cview = COLUMNVIEW(child);
-
-	printf("workspaceview_child_position: move child to %d x %d\n",
-		cview->lx, cview->ly);
 
 	gtk_fixed_move(GTK_FIXED(wview->fixed),
 		GTK_WIDGET(cview), cview->lx, cview->ly);

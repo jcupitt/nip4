@@ -1,7 +1,3 @@
-- occasional stray view in view_dump()
-
-  does it come from column drag? maybe a left over shadow?
-
 - column delete needs to
 
 	queue a layout
@@ -10,11 +6,16 @@
 
   should this be in the model base class?
 
+	iobject_destroy()
+	iobject_real_destroy()
+
   same for column_set_open()
 
   same for column select
 
   same for column resize on a row getting bigger
+
+  same for row delete
 
 - columns "slip" during background scroll drag
 
