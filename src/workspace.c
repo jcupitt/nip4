@@ -1296,8 +1296,8 @@ workspace_selected_remove5(Column *col)
 static gboolean
 workspace_selected_remove(Workspace *ws)
 {
+	g_autoptr(GSList) cs = NULL;
 	Row *row;
-	GSList *cs = NULL;
 
 	if ((row = (Row *) workspace_selected_map(ws,
 			 (row_map_fn) workspace_selected_remove2, NULL, NULL))) {
@@ -1309,54 +1309,50 @@ workspace_selected_remove(Workspace *ws)
 	(void) workspace_map_column(ws,
 		(column_map_fn) workspace_selected_remove4, &cs);
 	(void) workspace_selected_map_sym(ws,
-		(symbol_map_fn) g_object_unref, NULL, NULL);
+		(symbol_map_fn) iobject_destroy, NULL, NULL);
 	(void) slist_map(cs,
 		(SListMapFn) workspace_selected_remove5, NULL);
 
-	VIPS_FREEF(g_slist_free, cs);
 	symbol_recalculate_all();
 	workspace_set_modified(ws, TRUE);
 
 	return TRUE;
 }
 
-/* Callback for workspace_selected_remove_yesno. Remove selected items.
 static void
-workspace_selected_remove_yesno_cb(iWindow *iwnd, void *client,
-	iWindowNotifyFn nfn, void *sys)
+workspace_selected_remove_yesno_cb(GObject *source_object,
+	GAsyncResult *result, gpointer user_data)
 {
-	Workspace *ws = WORKSPACE(client);
+	GtkAlertDialog *alert = GTK_ALERT_DIALOG(source_object);
+	Workspace *ws = WORKSPACE(user_data);
+	GtkWidget *parent = g_object_get_data(G_OBJECT(alert), "nip4-parent");
+	int choice = gtk_alert_dialog_choose_finish(alert, result, NULL);
 
-	if (workspace_selected_remove(ws))
-		nfn(sys, IWINDOW_YES);
-	else
-		nfn(sys, IWINDOW_ERROR);
+	if (choice == 1 &&
+		!workspace_selected_remove(ws))
+		mainwindow_error(MAINWINDOW(view_get_window(parent)));
 }
- */
 
 /* Ask before removing selected.
  */
 void
 workspace_selected_remove_yesno(Workspace *ws, GtkWidget *parent)
 {
-	char txt[30];
-	VipsBuf buf = VIPS_BUF_STATIC(txt);
+	if (workspace_selected_any(ws)) {
+		char txt[30];
+		VipsBuf buf = VIPS_BUF_STATIC(txt);
+		const char* labels[] = { "Cancel", "OK", NULL };
 
-	if (!workspace_selected_any(ws))
-		return;
+		workspace_selected_names(ws, &buf, ", ");
 
-	workspace_selected_names(ws, &buf, ", ");
-
-	printf("workspace_selected_remove_yesno: FIXME\n");
-
-	/*
-	box_yesno(parent,
-		workspace_selected_remove_yesno_cb, iwindow_true_cb, ws,
-		iwindow_notify_null, NULL,
-		GTK_STOCK_DELETE,
-		_("Delete selected objects?"),
-		_("Are you sure you want to delete %s?"), vips_buf_all(&buf));
-	 */
+		GtkAlertDialog *alert = gtk_alert_dialog_new(
+			_("Are you sure you want to delete %s?"), vips_buf_all(&buf));
+		gtk_alert_dialog_set_buttons(alert, labels);
+		gtk_alert_dialog_set_modal(alert, TRUE);
+		g_object_set_data(G_OBJECT(alert), "nip4-parent", parent);
+		gtk_alert_dialog_choose(alert, view_get_window(parent), NULL,
+			workspace_selected_remove_yesno_cb, ws);
+	}
 }
 
 /* Sub fn of below ... add a new index expression.

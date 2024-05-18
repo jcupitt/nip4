@@ -1,3 +1,9 @@
+- spin up on an image thumbnail, thumbnail goes correctly
+
+  spin down, thumb does not reappear!
+
+  ^Q now crashes
+
 - column delete needs to
 
 	queue a layout

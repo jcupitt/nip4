@@ -224,6 +224,7 @@ rhsview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	Rhsview *rview = RHSVIEW(view);
 	Rhs *rhs = RHS(VOBJECT(rview)->iobject);
 	Row *row = HEAPMODEL(rhs)->row;
+	Workspace *ws = row->top_col->ws;
 	const char *name = g_action_get_name(G_ACTION(action));
 
 	printf("rhsview_action: %s\n", name);
@@ -233,8 +234,11 @@ rhsview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	else if (g_str_equal(name, "row-saveas") &&
 		rhs->graphic)
 		classmodel_graphic_save(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
-	else if (g_str_equal(name, "row-delete"))
-		iobject_destroy(row);
+	else if (g_str_equal(name, "row-delete")) {
+		workspace_deselect_all(ws);
+		row_select(row);
+		workspace_selected_remove_yesno(ws, GTK_WIDGET(rview));
+	}
 	else if (g_str_equal(name, "row-replace") &&
 		rhs->graphic)
 		classmodel_graphic_replace(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
