@@ -30,8 +30,8 @@
 #include "nip4.h"
 
 /*
- */
 #define DEBUG
+ */
 
 struct _Workspaceviewlabel {
 	GtkWidget parent_instance;
@@ -201,12 +201,14 @@ workspaceviewlabel_refresh(Workspaceviewlabel *wviewlabel)
 		set_tooltip(wviewlabel->label, "%s", IOBJECT(ws)->caption);
 
 	if (ws->locked)
-		gtk_image_set_from_icon_name(GTK_IMAGE(wviewlabel->lock), "locked");
+		gtk_image_set_from_icon_name(GTK_IMAGE(wviewlabel->lock),
+				"system-lock-screen-symbolic");
 	else
 		gtk_image_clear(GTK_IMAGE(wviewlabel->lock));
 
 	if (ws->errors)
-		gtk_image_set_from_icon_name(GTK_IMAGE(wviewlabel->error), "alert");
+		gtk_image_set_from_icon_name(GTK_IMAGE(wviewlabel->error),
+				"dialog-warning-symbolic");
 	else
 		gtk_image_clear(GTK_IMAGE(wviewlabel->error));
 }

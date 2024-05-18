@@ -36,14 +36,14 @@
   <template class="Columnview" parent="View">
     <child>
 
-      <object class="GtkBox" id="top">
-        <property name="orientation">vertical</property>
+      <object class="GtkFrame" id="top">
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
 
-	<!-- titlebar -->
-	<child>
-          <object class="GtkFrame" id="title">
+            <!-- titlebar -->
 	    <child>
-             <object class="GtkBox">
+              <object class="GtkBox" id="title">
                 <property name="hexpand">true</property>
 
                 <child>
@@ -93,26 +93,27 @@
               </object>
             </child>
 
-          </object>
-        </child>
+	    <!-- content -->
+            <child>
+              <object class="GtkRevealer" id="revealer">
+                <property name="transition-type">slide-down</property>
 
-	<!-- content -->
-        <child>
-          <object class="GtkRevealer" id="revealer">
-            <property name="transition-type">swing-down</property>
+	        <child>
+                  <object class="GtkBox" id="body">
+                    <property name="orientation">vertical</property>
 
-	    <child>
-              <object class="GtkBox" id="body">
-                <property name="orientation">vertical</property>
+		    <!-- subcolumnview inserted as the first child of this
+		         box -->
 
-	        <!-- subcolumnview inserted as the first child of this box -->
+                    <child>
+	              <object class="GtkEntry" id="entry">
+                        <property name="margin-top">3</property>
+                        <property name="margin-start">55</property>
+                        <signal name="activate" handler="columnview_activate"/>
+	              </object>
+                    </child>
 
-                <child>
-	          <object class="GtkEntry" id="entry">
-                    <property name="margin-top">3</property>
-                    <property name="margin-start">55</property>
-                    <signal name="activate" handler="columnview_activate"/>
-	          </object>
+                  </object>
                 </child>
 
               </object>
