@@ -15,5 +15,14 @@
   color: grey;
 }
 
+.error_top {
+  font-size: large;
+  font-weight: bold;
+}
+
+.error_sub {
+  font-size: small;
+}
+
 
 

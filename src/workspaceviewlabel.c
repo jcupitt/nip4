@@ -202,13 +202,13 @@ workspaceviewlabel_refresh(Workspaceviewlabel *wviewlabel)
 
 	if (ws->locked)
 		gtk_image_set_from_icon_name(GTK_IMAGE(wviewlabel->lock),
-				"system-lock-screen-symbolic");
+			"system-lock-screen-symbolic");
 	else
 		gtk_image_clear(GTK_IMAGE(wviewlabel->lock));
 
 	if (ws->errors)
 		gtk_image_set_from_icon_name(GTK_IMAGE(wviewlabel->error),
-				"dialog-warning-symbolic");
+			"dialog-warning-symbolic");
 	else
 		gtk_image_clear(GTK_IMAGE(wviewlabel->error));
 }

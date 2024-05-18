@@ -26,11 +26,65 @@
 struct _App {
 	GtkApplication parent;
 
+	gboolean welcome;
+
 	// all application settings go in here
 	GSettings *settings;
 };
 
 G_DEFINE_TYPE(App, app, GTK_TYPE_APPLICATION);
+
+enum {
+	PROP_WELCOME = 1,
+};
+
+static void
+app_set_property(GObject *object,
+	guint prop_id, const GValue *value, GParamSpec *pspec)
+{
+	App *app = (App *) object;
+
+#ifdef DEBUG
+	{
+		g_autofree char *str = g_strdup_value_contents(value);
+		printf("app_set_property: %d %s\n", prop_id, str);
+	}
+#endif /*DEBUG*/
+
+	switch (prop_id) {
+	case PROP_WELCOME:
+		app->welcome = g_value_get_boolean(value);
+		break;
+
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+		break;
+	}
+}
+
+static void
+app_get_property(GObject *object,
+	guint prop_id, GValue *value, GParamSpec *pspec)
+{
+	App *app = (App *) object;
+
+	switch (prop_id) {
+	case PROP_WELCOME:
+		g_value_set_boolean(value, app->welcome);
+		break;
+
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+		break;
+	}
+
+#ifdef DEBUG
+	{
+		g_autofree char *str = g_strdup_value_contents(value);
+		printf("app_get_property: %d %s\n", prop_id, str);
+	}
+#endif /*DEBUG*/
+}
 
 static void
 app_init(App *app)
@@ -266,16 +320,27 @@ app_shutdown(GApplication *app)
 static void
 app_class_init(AppClass *class)
 {
+	G_OBJECT_CLASS(class)->set_property = app_set_property;
+	G_OBJECT_CLASS(class)->get_property = app_get_property;
+
 	G_APPLICATION_CLASS(class)->startup = app_startup;
 	G_APPLICATION_CLASS(class)->activate = app_activate;
 	G_APPLICATION_CLASS(class)->open = app_open;
 	G_APPLICATION_CLASS(class)->shutdown = app_shutdown;
+
+	g_object_class_install_property(G_OBJECT_CLASS(class), PROP_WELCOME,
+		g_param_spec_boolean("welcome",
+			_("welcome"),
+			_("Welcome"),
+			FALSE,
+			G_PARAM_READWRITE));
 }
 
 App *
-app_new(void)
+app_new(gboolean welcome)
 {
 	return g_object_new(APP_TYPE,
+		"welcome", welcome,
 		"application-id", APPLICATION_ID,
 		"flags", G_APPLICATION_HANDLES_OPEN,
 		"inactivity-timeout", 3000,

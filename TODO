@@ -1,5 +1,3 @@
-- implement column duplicate
-
 - expand and close buttons in column title should be grey when label text is
   grey
 
@@ -30,8 +28,6 @@
 
   maybe iimage should listen for "changed" in viewers and update the
   thumbnail and model?
-
-- error_alert() should go (use window error bars)
 
 - imagewindow progress stuff should go?
 

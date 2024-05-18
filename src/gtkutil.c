@@ -191,9 +191,9 @@ change_state(GtkWidget *widget, const char *name, GVariant *state)
 void
 set_state(GtkWidget *to, GSettings *settings, const char *name)
 {
-    g_autoptr(GVariant) var = g_settings_get_value(settings, name);
+	g_autoptr(GVariant) var = g_settings_get_value(settings, name);
 
-    change_state(to, name, var);
+	change_state(to, name, var);
 }
 
 GVariant *

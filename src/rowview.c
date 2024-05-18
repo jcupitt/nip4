@@ -194,34 +194,7 @@ static void
 rowview_edit_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 {
 	if (!rowview_edit(rview))
-		error_alert(button);
-}
-
-/* Clone the current item.
- */
-static void
-rowview_clone_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
-{
-	Row *row = ROW(VOBJECT(rview)->iobject);
-	Workspace *ws = row->top_col->ws;
-
-	/* Only allow clone of top level rows.
-	 */
-	if (row->top_row != row) {
-		error_top(_("Can't duplicate."));
-		error_sub("%s",
-			_("You can only duplicate top level rows."));
-		error_alert(button);
-		return;
-	}
-
-	workspace_deselect_all(ws);
-	row_select(row);
-	if (!workspace_selected_duplicate(ws))
-		error_alert(button);
-	workspace_deselect_all(ws);
-
-	symbol_recalculate_all();
+		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
 }
 
 /* Ungroup the current item.
@@ -344,7 +317,7 @@ rowview_drag(Rowview *rview_from, Rowview *rview_to)
 	Row *row_to = ROW(VOBJECT(rview_to)->iobject);
 
 	if (row_from->top_col != row_to->top_col) {
-		error_top(_("Not implemented."));
+		error_top(_("Not implemented"));
 		error_sub(_("Drag between columns not yet implemented."));
 		error_alert(GTK_WIDGET(rview_from));
 		return;
@@ -466,7 +439,7 @@ rowview_click(GtkGestureClick *gesture,
 	}
 	else {
 		if (!rowview_edit(rview))
-			error_alert(GTK_WIDGET(rview));
+			mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
 	}
 }
 
@@ -494,7 +467,7 @@ rowview_menu(GtkGestureClick *gesture,
 	graphene_point_t rowview_point = GRAPHENE_POINT_INIT(x, y);
 	graphene_point_t wsview_point;
 	if (gtk_widget_compute_point(rview->frame, wsview->fixed,
-		&rowview_point, &wsview_point)) {
+			&rowview_point, &wsview_point)) {
 		gtk_popover_set_pointing_to(GTK_POPOVER(wsview->rowview_menu),
 			&(const GdkRectangle){ wsview_point.x, wsview_point.y, 1, 1 });
 

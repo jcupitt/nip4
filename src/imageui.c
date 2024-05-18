@@ -93,7 +93,6 @@ struct _Imageui {
 	gint64 last_frame_time;
 
 	gboolean should_animate;
-
 };
 
 G_DEFINE_TYPE(Imageui, imageui, GTK_TYPE_WIDGET);
@@ -111,7 +110,7 @@ enum {
 /* Our signals.
  */
 enum {
-	SIG_CHANGED,		/* New mouse position, magnification, etc. */
+	SIG_CHANGED, /* New mouse position, magnification, etc. */
 
 	SIG_LAST
 };
@@ -414,9 +413,7 @@ imageui_tick(GtkWidget *widget, GdkFrameClock *frame_clock, gpointer user_data)
 	Imageui *imageui = IMAGEUI(user_data);
 
 	gint64 frame_time = gdk_frame_clock_get_frame_time(frame_clock);
-	double dt = imageui->last_frame_time > 0 ?
-		(double) (frame_time - imageui->last_frame_time) / G_TIME_SPAN_SECOND :
-		1.0 / G_TIME_SPAN_SECOND;
+	double dt = imageui->last_frame_time > 0 ? (double) (frame_time - imageui->last_frame_time) / G_TIME_SPAN_SECOND : 1.0 / G_TIME_SPAN_SECOND;
 	double zoom = imageui_get_zoom(imageui);
 
 	double new_zoom;
@@ -432,8 +429,7 @@ imageui_tick(GtkWidget *widget, GdkFrameClock *frame_clock, gpointer user_data)
 		// 0/1/etc. discrete zoom
 		imageui->zoom_progress += dt;
 
-		double duration = imageui->should_animate ?
-			ZOOM_DURATION : imageui->zoom_progress;
+		double duration = imageui->should_animate ? ZOOM_DURATION : imageui->zoom_progress;
 
 		// 0-1 progress in zoom animation
 		double t = ease_out_cubic(imageui->zoom_progress / duration);
@@ -982,7 +978,6 @@ imageui_class_init(ImageuiClass *class)
 		NULL, NULL,
 		g_cclosure_marshal_VOID__VOID,
 		G_TYPE_NONE, 0);
-
 }
 
 Imageui *

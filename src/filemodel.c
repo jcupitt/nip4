@@ -90,7 +90,7 @@ filemodel_top_load(Filemodel *filemodel,
 			return filemodel;
 	}
 	else {
-		error_top(_("Not implemented."));
+		error_top(_("Not implemented"));
 		error_sub(_("_%s() not implemented for class \"%s\"."),
 			"top_load",
 			G_OBJECT_CLASS_NAME(filemodel_class));
@@ -156,7 +156,7 @@ filemodel_top_save(Filemodel *filemodel, const char *filename)
 		return result;
 	}
 	else {
-		error_top(_("Not implemented."));
+		error_top(_("Not implemented"));
 		error_sub(_("_%s() not implemented for class \"%s\"."),
 			"top_save",
 			G_OBJECT_CLASS_NAME(filemodel_class));
@@ -320,7 +320,7 @@ filemodel_top_save_xml(Filemodel *filemodel, const char *filename)
 	char namespace[256];
 
 	if (!(xdoc = xmlNewDoc((xmlChar *) "1.0"))) {
-		error_top(_("XML library error."));
+		error_top(_("XML library error"));
 		error_sub(_("model_save_filename: xmlNewDoc() failed"));
 		return FALSE;
 	}
@@ -335,7 +335,7 @@ filemodel_top_save_xml(Filemodel *filemodel, const char *filename)
 	if (!(xdoc->children = xmlNewDocNode(xdoc,
 			  NULL, (xmlChar *) "root", NULL)) ||
 		!set_sprop(xdoc->children, "xmlns", namespace)) {
-		error_top(_("XML library error."));
+		error_top(_("XML library error"));
 		error_sub(_("model_save_filename: xmlNewDocNode() failed"));
 		xmlFreeDoc(xdoc);
 		return FALSE;
@@ -350,7 +350,7 @@ filemodel_top_save_xml(Filemodel *filemodel, const char *filename)
 	if (calli_string_filename(
 			(calli_string_fn) filemodel_xml_save_format_file,
 			filename, xdoc, NULL, NULL)) {
-		error_top(_("Save failed."));
+		error_top(_("Save failed"));
 		error_sub(_("Save of %s \"%s\" to file \"%s\" failed.\n%s"),
 			IOBJECT_GET_CLASS_NAME(filemodel),
 			IOBJECT(filemodel)->name,
@@ -405,7 +405,7 @@ filemodel_real_top_save(Filemodel *filemodel, const char *filename)
 			return FALSE;
 	}
 	else {
-		error_top(_("Not implemented."));
+		error_top(_("Not implemented"));
 		error_sub(_("filemodel_real_top_save: no save method"));
 		return FALSE;
 	}
@@ -486,7 +486,7 @@ filemodel_load_all_xml(Filemodel *filemodel,
 	if (!(xnode = xmlDocGetRootElement(state->xdoc)) ||
 		!xnode->nsDef ||
 		!is_prefix(NAMESPACE, (char *) xnode->nsDef->href)) {
-		error_top(_("Load failed."));
+		error_top(_("Load failed"));
 		error_sub(_("Can't load XML file \"%s\", it's not a %s save file."),
 			state->filename, PACKAGE);
 		return FALSE;
@@ -494,7 +494,7 @@ filemodel_load_all_xml(Filemodel *filemodel,
 	if (sscanf((char *) xnode->nsDef->href + strlen(NAMESPACE) + 1,
 			"%d.%d.%d",
 			&state->major, &state->minor, &state->micro) != 3) {
-		error_top(_("Load failed."));
+		error_top(_("Load failed"));
 		error_sub(_("Can't load XML file \"%s\", "
 					"unable to extract version information from namespace."),
 			state->filename);
@@ -594,7 +594,7 @@ filemodel_load_all(Filemodel *filemodel, Model *parent,
 			return FALSE;
 	}
 	else {
-		error_top(_("Not implemented."));
+		error_top(_("Not implemented"));
 		error_sub(_("_%s() not implemented for class \"%s\"."), "load", tname);
 		return FALSE;
 	}
@@ -631,7 +631,7 @@ filemodel_load_all_openfile(Filemodel *filemodel, Model *parent, iOpenFile *of)
 			return FALSE;
 	}
 	else {
-		error_top(_("Not implemented."));
+		error_top(_("Not implemented"));
 		error_sub(_("_%s() not implemented for class \"%s\"."), "load", tname);
 		return FALSE;
 	}

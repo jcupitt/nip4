@@ -61,33 +61,6 @@ columnview_select_cb(GtkWidget *wid, GtkWidget *host, Columnview *cview)
 	column_select_symbols(col);
 }
 
-/* Clone a column.
- */
-static void
-columnview_clone_cb(GtkWidget *wid, GtkWidget *host, Columnview *cview)
-{
-	Column *col = COLUMN(VOBJECT(cview)->iobject);
-	Workspace *ws = col->ws;
-
-	char new_name[MAX_STRSIZE];
-	Column *newcol;
-
-	workspace_column_name_new(ws, new_name);
-	newcol = workspace_column_get(ws, new_name);
-	iobject_set(IOBJECT(newcol), NULL, IOBJECT(col)->caption);
-	newcol->x = col->x + 100;
-	newcol->y = col->y;
-
-	workspace_deselect_all(ws);
-	column_select_symbols(col);
-	workspace_column_select(ws, newcol);
-	if (!workspace_selected_duplicate(ws))
-		error_alert(GTK_WIDGET(cview));
-	workspace_deselect_all(ws);
-
-	symbol_recalculate_all();
-}
-
 /*
 static void
 columnview_merge_sub(iWindow *iwnd,
@@ -211,10 +184,7 @@ columnview_filename(char *file, const char *caption)
 			name[i] = '_';
 
 	for (i = 0;; i++) {
-		vips_snprintf(file, FILENAME_MAX,
-			"$SAVEDIR" G_DIR_SEPARATOR_S "data" G_DIR_SEPARATOR_S
-			"%s-%d.ws",
-			name, i);
+		vips_snprintf(file, FILENAME_MAX, "$SAVEDIR/data/%s-%d.ws", name, i);
 		if (!existsf("%s", file))
 			break;
 	}
@@ -540,8 +510,8 @@ columnview_refresh(vObject *vobject)
 
 	/* Set open/closed.
 	 */
-	gtk_button_set_icon_name(GTK_BUTTON(cview->expand_button), col->open ?
-		"pan-down-symbolic" : "pan-end-symbolic");
+	gtk_button_set_icon_name(GTK_BUTTON(cview->expand_button),
+		col->open ? "pan-down-symbolic" : "pan-end-symbolic");
 	gtk_revealer_set_reveal_child(cview->revealer, col->open);
 
 	/* Closed columns are hidden in NOEDIT mode.
@@ -695,7 +665,7 @@ columnview_activate(GtkEntry *self, gpointer user_data)
 		return;
 
 	if (!(sym = workspace_add_def_recalc(ws, text))) {
-		error_alert(self);
+		mainwindow_error(MAINWINDOW(view_get_window(VIEW(cview))));
 		symbol_recalculate_all();
 		return;
 	}
@@ -708,6 +678,8 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 {
 	Columnview *cview = COLUMNVIEW(view);
 	const char *name = g_action_get_name(G_ACTION(action));
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
+	Workspace *ws = col->ws;
 
 	printf("columnview_action: %s\n", name);
 
@@ -715,6 +687,25 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		Column *col = COLUMN(VOBJECT(cview)->iobject);
 
 		iobject_destroy(col);
+	}
+	else if (g_str_equal(name, "column-duplicate")) {
+		char new_name[MAX_STRSIZE];
+		Column *new_col;
+
+		workspace_column_name_new(ws, new_name);
+		new_col = workspace_column_get(ws, new_name);
+		iobject_set(IOBJECT(new_col), NULL, IOBJECT(col)->caption);
+		new_col->x = col->x + 100;
+		new_col->y = col->y;
+
+		workspace_deselect_all(ws);
+		column_select_symbols(col);
+		workspace_column_select(ws, new_col);
+		if (!workspace_selected_duplicate(ws))
+			mainwindow_error(MAINWINDOW(view_get_window(view)));
+		workspace_deselect_all(ws);
+
+		symbol_recalculate_all();
 	}
 }
 

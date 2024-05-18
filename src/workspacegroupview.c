@@ -253,14 +253,13 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 
 	if (ws->compat_major) {
-		error_top(_("Compatibility mode."));
+		error_top(_("Compatibility mode"));
 		error_sub(_("This workspace was created by version %d.%d. "
 					"A set of compatibility menus have been loaded "
 					"for this window."),
 			ws->compat_major,
 			ws->compat_minor);
-		printf("workspacegroupview_switch_page_cb: FIXME ... or display in mainwindow error area?\n");
-		error_alert(GTK_WIDGET(wview));
+		mainwindow_error(MAINWINDOW(view_get_window(VIEW(wview))));
 	}
 }
 

@@ -815,7 +815,7 @@ heap_getmem(Heap *heap)
 	}
 
 	if (!heap->free) {
-		error_top(_("Heap full."));
+		error_top(_("Heap full"));
 		if (heap->compile) {
 			char txt[100];
 			VipsBuf buf = VIPS_BUF_STATIC(txt);
@@ -1782,7 +1782,7 @@ heap_copy(Heap *heap, Compile *compile, PElement *out)
 	 * systems if we're using (or any of our libs are using) threads.
 	 */
 	if ((char *) main_c_stack_base - (char *) &heap > 2000000) {
-		error_top(_("Overflow error."));
+		error_top(_("Overflow error"));
 		error_sub(_("C stack overflow. Circular definition."));
 		return FALSE;
 	}
@@ -1797,7 +1797,7 @@ heap_copy(Heap *heap, Compile *compile, PElement *out)
 	 * systems if we're using (or any of our libs are using) threads.
 	 */
 	if ((char *) main_c_stack_base - (char *) &heap > 2000000) {
-		error_top(_("Overflow error."));
+		error_top(_("Overflow error"));
 		error_sub(_("C stack overflow. Expression too complex."));
 		return FALSE;
 	}
@@ -1921,7 +1921,7 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 			vips_value_set_array_double(out, realvec, n);
 		}
 		else {
-			error_top(_("Unimplemented list type."));
+			error_top(_("Unimplemented list type"));
 			return FALSE;
 		}
 	}
@@ -1934,7 +1934,7 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 		char txt[100];
 		VipsBuf buf = VIPS_BUF_STATIC(txt);
 
-		error_top(_("Unimplemented argument type."));
+		error_top(_("Unimplemented argument type"));
 		(void) itext_value(rc, &buf, in);
 		error_sub(_("Cannot convert %s to GValue."), vips_buf_all(&buf));
 		return FALSE;
@@ -2030,7 +2030,7 @@ heap_gvalue_to_ip(GValue *in, PElement *out)
 		g_value_unset(&temp);
 	}
 	else {
-		error_top(_("Unimplemented type."));
+		error_top(_("Unimplemented type"));
 		error_sub(_("Unable to convert %s to a nip type."),
 			G_VALUE_TYPE_NAME(in));
 

@@ -127,7 +127,7 @@ trace_push(void)
 #endif
 
 	if (trace_buffer_stack_p >= SPINE_SIZE) {
-		error_top(_("Overflow error."));
+		error_top(_("Overflow error"));
 		error_sub(_("Trace buffer stack overflow."));
 		reduce_throw(reduce_context);
 	}

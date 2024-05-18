@@ -103,7 +103,7 @@ static void *
 vo_gather_required(PElement *item, Vo *vo)
 {
 	if (vo->nargs_supplied >= MAX_VIPS_ARGS) {
-		error_top(_("Too many arguments."));
+		error_top(_("Too many arguments"));
 		error_sub(_("No more than %d arguments allowed."),
 			MAX_VIPS_ARGS);
 		return item;
@@ -236,7 +236,7 @@ vo_args(Vo *vo, PElement *required, PElement *optional)
 			(VipsArgumentMapFn) vo_set_required_input, vo, NULL))
 		return FALSE;
 	if (vo->nargs_supplied != vo->nargs_required) {
-		error_top(_("Wrong number of required arguments."));
+		error_top(_("Wrong number of required arguments"));
 		error_sub(_("Operation \"%s\" has %d required arguments, "
 					"you supplied %d."),
 			vo->name,
@@ -273,7 +273,7 @@ vo_object_new(Reduce *rc, const char *name,
 	/* Ask the object to construct.
 	 */
 	if (vips_object_build(vo->object)) {
-		error_top(_("VIPS library error."));
+		error_top(_("VIPS library error"));
 		error_sub("%s", vips_error_buffer());
 		vips_error_clear();
 		vo_free(vo);
@@ -406,7 +406,7 @@ vo_call(Reduce *rc, const char *name,
 	 * old one from the cache.
 	 */
 	if (vips_cache_operation_buildp((VipsOperation **) &vo->object)) {
-		error_top(_("VIPS library error."));
+		error_top(_("VIPS library error"));
 		error_sub("%s", vips_error_buffer());
 		vips_error_clear();
 		vips_object_unref_outputs(vo->object);

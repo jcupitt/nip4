@@ -76,7 +76,7 @@ typedef unsigned char NodeFlags;
 	G_STMT_START \
 	{ \
 		(FLAGS) = ((FLAGS) & (FLAG_SERIAL ^ FLAG_ALL)) | \
-			((SERIAL) &FLAG_SERIAL); \
+			((SERIAL) & FLAG_SERIAL); \
 	} \
 	G_STMT_END
 

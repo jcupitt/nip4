@@ -26,6 +26,7 @@
       </item>
       <item>
         <attribute name='label' translatable='yes'>Duplicate</attribute>
+        <attribute name='action'>win.row-duplicate</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>Ungroup</attribute>

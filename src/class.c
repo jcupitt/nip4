@@ -46,7 +46,7 @@ class_is_class(PElement *instance)
 
 		if (!itext_value(reduce_context, &buf, instance))
 			return FALSE;
-		error_top(_("Bad argument."));
+		error_top(_("Bad argument"));
 		error_sub(_("Object %s is not a class."),
 			vips_buf_all(&buf));
 
@@ -185,7 +185,7 @@ class_get_member(PElement *instance, const char *name,
 		return result;
 	}
 
-	error_top(_("Member not found."));
+	error_top(_("Member not found"));
 	error_sub(_("Member \"%s\" not found in class \"%s\"."),
 		name, IOBJECT(PEGETCLASSCOMPILE(instance)->sym)->name);
 
@@ -329,7 +329,7 @@ class_member_secret(ClassBuildInfo *pbi,
 		 * 'this'.
 		 */
 		if (pos < 0 || pos >= pbi->sym->expr->compile->nsecret) {
-			error_top(_("No such secret."));
+			error_top(_("No such secret"));
 			error_sub(_("Editing local classes which reference "
 						"non-local objects is a bit broken at the "
 						"moment :-("));
@@ -653,7 +653,7 @@ class_guess_args(PElement arg[], PElement *fn)
 		if ((i = class_guess_args(arg, &left)) == -1)
 			return -1;
 		if (i >= MAX_SYSTEM) {
-			error_top(_("Too many arguments."));
+			error_top(_("Too many arguments"));
 			error_sub(_("You can't have more than %d "
 						"arguments to a superclass constructor."),
 				MAX_SYSTEM);
@@ -790,7 +790,7 @@ class_new_super(Heap *heap,
 					(SListMap2Fn) symbol_name_error,
 					&buf, NULL);
 
-				error_top(_("Bad superclass."));
+				error_top(_("Bad superclass"));
 				error_sub(_("Superclass constructor \"%s\" "
 							"refers to non-local symbols %s"),
 					symbol_name(super_compile->sym),
@@ -799,7 +799,7 @@ class_new_super(Heap *heap,
 				return FALSE;
 			}
 			if (len - 1 + fn_len != super_compile->nparam) {
-				error_top(_("Wrong number of arguments."));
+				error_top(_("Wrong number of arguments"));
 				error_sub(_("Superclass constructor \"%s\" "
 							"expects %d arguments, not %d."),
 					symbol_name(super_compile->sym),
@@ -849,7 +849,7 @@ class_new_super(Heap *heap,
 			char txt2[300];
 			VipsBuf buf2 = VIPS_BUF_STATIC(txt2);
 
-			error_top(_("Bad superclass."));
+			error_top(_("Bad superclass"));
 
 			itext_value(reduce_context, &buf1, &arg0);
 			vips_buf_appendf(&buf2,
@@ -884,7 +884,7 @@ class_new(Heap *heap, Compile *compile, HeapNode **arg, PElement *out)
 	/* Make a set of arg pointers.
 	 */
 	if (compile->nparam + compile->nsecret >= MAX_SYSTEM) {
-		error_top(_("Too many arguments."));
+		error_top(_("Too many arguments"));
 		error_sub(_("Too many arguments to class constructor \"%s\". "
 					"No more than %d arguments are supported."),
 			symbol_name(compile->sym), MAX_SYSTEM);
@@ -975,13 +975,13 @@ class_newv(Heap *heap, const char *name, PElement *out, ...)
 
 	if (!(sym = compile_lookup(symbol_root->expr->compile, name)) ||
 		!is_value(sym) || !is_class(sym->expr->compile)) {
-		error_top(_("Class not found."));
+		error_top(_("Class not found"));
 		error_sub(_("Class \"%s\" not found."), name);
 		return FALSE;
 	}
 	compile = sym->expr->compile;
 	if (compile->nparam >= MAX_SYSTEM) {
-		error_top(_("Too many arguments."));
+		error_top(_("Too many arguments"));
 		error_sub(_("Too many arguments to class constructor \"%s\". "
 					"No more than %d arguments are supported."),
 			symbol_name(compile->sym), MAX_SYSTEM);
@@ -1019,7 +1019,7 @@ class_typecheck_error(PElement *instance, const char *name, const char *type)
 		!itext_value(reduce_context, &buf, &val))
 		return;
 
-	error_top(_("Bad argument."));
+	error_top(_("Bad argument"));
 	error_sub("%s", vips_buf_all(&buf));
 }
 

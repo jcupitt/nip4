@@ -187,10 +187,10 @@ vobject_iobject_destroy(iObject *iobject, vObject *vobject)
 {
 #ifdef DEBUG
 	printf("vobject_iobject_destroy:\n"
-			"\tmodel %s \"%s\"\n"
-			"\tview %s\n",
+		   "\tmodel %s \"%s\"\n"
+		   "\tview %s\n",
 		G_OBJECT_TYPE_NAME(iobject), iobject->name,
-        G_OBJECT_TYPE_NAME(vobject));
+		G_OBJECT_TYPE_NAME(vobject));
 #endif /*DEBUG*/
 
 	view_child_remove(VIEW(vobject));

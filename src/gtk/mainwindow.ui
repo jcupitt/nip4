@@ -141,14 +141,38 @@
             <property name="message-type">error</property>
             <property name="show-close-button">true</property>
             <property name="revealed">false</property>
+
             <child>
-              <object class="GtkLabel" id="error_label">
-                <property name="ellipsize">middle</property>
-                <attributes>
-                  <attribute name="weight" value="bold"/>
-                </attributes>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="hexpand">true</property>
+                <property name="spacing">15</property>
+
+                <child>
+                  <object class="GtkLabel" id="error_top">
+                    <property name="ellipsize">middle</property>
+                    <property name="selectable">true</property>
+                    <property name="can-focus">false</property>
+                    <style>
+                      <class name="error_top"/>
+                    </style>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel" id="error_sub">
+                    <property name="ellipsize">middle</property>
+                    <property name="selectable">true</property>
+                    <property name="can-focus">false</property>
+                    <style>
+                      <class name="error_sub"/>
+                    </style>
+                  </object>
+                </child>
+
               </object>
             </child>
+
           </object>
         </child>
 

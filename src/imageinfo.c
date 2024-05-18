@@ -819,7 +819,7 @@ imageinfo_new_from_pixbuf(Imageinfogroup *imageinfogroup,
 	guchar *bytes = gdk_pixbuf_get_pixels_with_length(pixbuf, &length);
 	size_t vips_length = VIPS_IMAGE_SIZEOF_LINE(ii->im) * height;
 	if (vips_length != length) {
-		error_top(_("Unable to create image."));
+		error_top(_("Unable to create image"));
 		error_sub(_("vips expected %zd bytes, gdkpixbuf made %d"),
 			vips_length, length);
 		return NULL;
@@ -915,7 +915,7 @@ imageinfo_new_input(Imageinfogroup *imageinfogroup, GtkWidget *parent,
 	if (!(imageinfo = (Imageinfo *) callv_string_filename(
 			  (callv_string_fn) imageinfo_open_image_input,
 			  name, &open, NULL, NULL))) {
-		error_top(_("Unable to open image."));
+		error_top(_("Unable to open image"));
 		error_sub(_("Unable to open file \"%s\" as image."),
 			name);
 		error_vips();
@@ -1019,7 +1019,7 @@ imageinfo_write(Imageinfo *imageinfo, const char *name)
 		char mode[FILENAME_MAX];
 
 		vips__filename_split8(name, filename, mode);
-		error_top(_("Unable to write to file."));
+		error_top(_("Unable to write to file"));
 		error_sub(_("Error writing image to file \"%s\"."), filename);
 		error_vips();
 
@@ -1035,7 +1035,7 @@ imageinfo_make_paintable(Imageinfo *imageinfo)
 	progress_begin();
 	if (vips_image_inplace(imageinfo->im)) {
 		progress_end();
-		error_top(_("Unable to paint on image."));
+		error_top(_("Unable to paint on image"));
 		error_sub(_("Unable to get write permission for "
 					"file \"%s\".\nCheck permission settings."),
 			imageinfo->im->filename);
@@ -1658,7 +1658,7 @@ imageinfo_paint_text(Imageinfo *imageinfo,
 			"dpi", get_dpi(),
 			NULL) ||
 		vips_image_write(t1, im)) {
-		error_top(_("Unable to paint text."));
+		error_top(_("Unable to paint text"));
 		error_sub(_("Unable to paint text \"%s\" in font \"%s\"."),
 			text, font_name);
 		error_vips();
@@ -1973,4 +1973,3 @@ imageinfo_colour_edit(GtkWidget *parent, Imageinfo *imageinfo)
 {
 	printf("imageinfo_colour_edit: FIXME\n");
 }
-

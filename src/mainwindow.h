@@ -33,6 +33,7 @@ G_DECLARE_FINAL_TYPE(Mainwindow, mainwindow,
 
 extern gboolean mainwindow_auto_recalc;
 
+void mainwindow_error(Mainwindow *main);
 Mainwindow *mainwindow_new(App *app);
 void mainwindow_set_wsg(Mainwindow *main, Workspacegroup *wsg);
 void mainwindow_set_gfile(Mainwindow *main, GFile *gfile);

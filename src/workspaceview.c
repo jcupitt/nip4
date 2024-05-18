@@ -943,7 +943,7 @@ workspaceview_load(Workspace *ws, const char *filename)
 
 	error_clear();
 
-	error_top(_("Unknown file type."));
+	error_top(_("Unknown file type"));
 	error_sub(_("Unable to load \"%s\"."), filename);
 
 	return FALSE;
@@ -1006,7 +1006,7 @@ workspaceview_column_new_action_cb2(GtkWidget *wid, GtkWidget *host,
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 	if (!workspace_column_new(ws))
-		error_alert(GTK_WIDGET(wview));
+		mainwindow_error(MAINWINDOW(view_get_window(VIEW(wview))));
 }
 
 static void
@@ -1025,9 +1025,9 @@ workspaceview_next_error_action_cb2(GtkWidget *wid, GtkWidget *host,
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 	if (!workspace_next_error(ws)) {
-		error_top(_("No errors in tab."));
+		error_top(_("No errors in tab"));
 		error_sub("%s", _("There are no errors (that I can see) in this tab."));
-		error_alert(GTK_WIDGET(wview));
+		mainwindow_error(MAINWINDOW(view_get_window(VIEW(wview))));
 	}
 }
 

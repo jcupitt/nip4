@@ -191,7 +191,7 @@ model_loadstate_error_get(ModelLoadState *state)
 	char *utf8;
 
 	utf8 = f2utf8(vips_buf_all(&state->error_log));
-	error_top(_("Load failed."));
+	error_top(_("Load failed"));
 	error_sub(_("Unable to load from file \"%s\". Error log is:\n%s"),
 		state->filename, utf8);
 	g_free(utf8);
@@ -418,7 +418,7 @@ model_edit(GtkWidget *parent, Model *model)
 	if (model_class->edit)
 		model_class->edit(parent, model);
 	else {
-		error_top(_("Not implemented."));
+		error_top(_("Not implemented"));
 		error_sub(_("_%s() not implemented for class \"%s\"."),
 			"edit",
 			G_OBJECT_CLASS_NAME(model_class));
@@ -473,7 +473,7 @@ model_load(Model *model,
 			return model;
 	}
 	else {
-		error_top(_("Not implemented."));
+		error_top(_("Not implemented"));
 		error_sub(_("_%s() not implemented for class \"%s\"."),
 			"load",
 			G_OBJECT_CLASS_NAME(model_class));
@@ -492,7 +492,7 @@ model_load_text(Model *model, Model *parent, iOpenFile *of)
 			return model;
 	}
 	else {
-		error_top("Not implemented.");
+		error_top("Not implemented");
 		error_sub(_("_%s() not implemented for class \"%s\"."),
 			"load_text",
 			G_OBJECT_CLASS_NAME(model_class));
@@ -538,7 +538,7 @@ model_real_save(Model *model, xmlNode *xnode)
 	xmlNode *xthis;
 
 	if (!(xthis = xmlNewChild(xnode, NULL, (xmlChar *) tname, NULL))) {
-		error_top(_("XML library error."));
+		error_top(_("XML library error"));
 		error_sub(_("model_save: xmlNewChild() failed"));
 		return NULL;
 	}
@@ -606,7 +606,7 @@ model_real_load(Model *model,
 	/* Should just be a sanity check.
 	 */
 	if (g_ascii_strcasecmp((char *) xnode->name, tname) != 0) {
-		error_top(_("XML load error."));
+		error_top(_("XML load error"));
 		error_sub(_("Can't load node of type \"%s\" into "
 					"object of type \"%s\""),
 			xnode->name, tname);

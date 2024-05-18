@@ -130,7 +130,7 @@ classmodel_graphic_save_cb(GObject *source_object,
 
 		if (!class->graphic_save(classmodel, parent, filename)) {
 			VIPS_SETSTR(classmodel->filename, filename);
-            iobject_changed(IOBJECT(classmodel));
+			iobject_changed(IOBJECT(classmodel));
 		}
 		else
 			error_alert(parent);
@@ -143,7 +143,7 @@ classmodel_graphic_save(Classmodel *classmodel, GtkWidget *parent)
 	ClassmodelClass *class = CLASSMODEL_GET_CLASS(classmodel);
 
 	if (!class->graphic_save) {
-		error_top(_("Not implemented."));
+		error_top(_("Not implemented"));
 		error_sub(_("_%s() method not implemented for %s."),
 			"graphic_save", IOBJECT_GET_CLASS_NAME(classmodel));
 		error_alert(parent);
@@ -157,8 +157,8 @@ classmodel_graphic_save(Classmodel *classmodel, GtkWidget *parent)
 	row_qualified_name(HEAPMODEL(classmodel)->row, &buf);
 	char txt2[100];
 	VipsBuf buf2 = VIPS_BUF_STATIC(txt2);
-	vips_buf_appendf(&buf2,  _("Save %s \"%s\""),
-        IOBJECT_GET_CLASS_NAME(classmodel), vips_buf_all(&buf));
+	vips_buf_appendf(&buf2, _("Save %s \"%s\""),
+		IOBJECT_GET_CLASS_NAME(classmodel), vips_buf_all(&buf));
 	gtk_file_dialog_set_title(dialog, vips_buf_all(&buf2));
 
 	gtk_file_dialog_set_modal(dialog, TRUE);
@@ -211,7 +211,7 @@ classmodel_graphic_replace(Classmodel *classmodel, GtkWidget *parent)
 	ClassmodelClass *class = CLASSMODEL_GET_CLASS(classmodel);
 
 	if (!class->graphic_replace) {
-		error_top(_("Not implemented."));
+		error_top(_("Not implemented"));
 		error_sub(_("_%s() method not implemented for %s."),
 			"graphic_replace",
 			IOBJECT_GET_CLASS_NAME(classmodel));
@@ -226,8 +226,8 @@ classmodel_graphic_replace(Classmodel *classmodel, GtkWidget *parent)
 	row_qualified_name(HEAPMODEL(classmodel)->row, &buf);
 	char txt2[100];
 	VipsBuf buf2 = VIPS_BUF_STATIC(txt2);
-	vips_buf_appendf(&buf2,  _("Replace %s \"%s\""),
-        IOBJECT_GET_CLASS_NAME(classmodel), vips_buf_all(&buf));
+	vips_buf_appendf(&buf2, _("Replace %s \"%s\""),
+		IOBJECT_GET_CLASS_NAME(classmodel), vips_buf_all(&buf));
 	gtk_file_dialog_set_title(dialog, vips_buf_all(&buf2));
 
 	gtk_file_dialog_set_modal(dialog, TRUE);
@@ -863,7 +863,7 @@ classmodel_parse_option(const char *key, PElement *value,
 		if (strcmp(key, options[i].member_name) == 0)
 			break;
 	if (i == noptions) {
-		error_top(_("Unknown option."));
+		error_top(_("Unknown option"));
 		error_sub(_("Option \"%s\" not known."), key);
 
 		return value;
@@ -936,7 +936,7 @@ classmodel_get_item(Classmodel *classmodel,
 		if ((l = heap_get_realvec(value, vec, m->extent)) < 0)
 			return FALSE;
 		if (l != m->extent) {
-			error_top(_("Bad value."));
+			error_top(_("Bad value"));
 			error_sub(_("%d band value only"), m->extent);
 			return FALSE;
 		}

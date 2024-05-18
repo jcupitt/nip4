@@ -22,8 +22,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -48,7 +48,8 @@ struct _Mainwindow {
 	GtkWidget *progress;
 	GtkWidget *progress_cancel;
 	GtkWidget *error_bar;
-	GtkWidget *error_label;
+	GtkWidget *error_top;
+	GtkWidget *error_sub;
 	GtkWidget *wsgview;
 
 	/* Throttle progress bar updates to a few per second with this.
@@ -69,19 +70,11 @@ static gint mainwindow_layout_timeout = 0;
 
 G_DEFINE_TYPE(Mainwindow, mainwindow, GTK_TYPE_APPLICATION_WINDOW);
 
-static void
+void
 mainwindow_error(Mainwindow *main)
 {
-	char txt[256];
-	VipsBuf buf = VIPS_BUF_STATIC(txt);
-
-	vips_buf_appendf(&buf, "<span weight=\"regular\"><span size=\"large\">%s</span>\n%s</span>",
-		error_get_top(), error_get_sub());
-	gtk_label_set_markup(GTK_LABEL(main->error_label), vips_buf_all(&buf));
-#ifdef DEBUG
-	printf("mainwindow_set_error: %s\n", vips_buf_all(&buf));
-#endif /*DEBUG*/
-
+	set_glabel(GTK_LABEL(main->error_top), error_get_top());
+	set_glabel(GTK_LABEL(main->error_sub), error_get_sub());
 	gtk_info_bar_set_revealed(GTK_INFO_BAR(main->error_bar), TRUE);
 }
 
@@ -389,7 +382,7 @@ mainwindow_view_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
 	printf("mainwindow_view_action: %s\n",
-			g_action_get_name(G_ACTION(action)));
+		g_action_get_name(G_ACTION(action)));
 
 	Mainwindow *main = MAINWINDOW(user_data);
 
@@ -425,6 +418,7 @@ static GActionEntry mainwindow_entries[] = {
 	// row menu
 	{ "row-edit", mainwindow_view_action },
 	{ "row-saveas", mainwindow_view_action },
+	{ "row-duplicate", mainwindow_view_action },
 	{ "row-replace", mainwindow_view_action },
 	{ "row-recalculate", mainwindow_view_action },
 	{ "row-reset", mainwindow_view_action },
@@ -472,7 +466,8 @@ mainwindow_init(Mainwindow *main)
 	g_signal_connect(controller, "drop",
 		G_CALLBACK(mainwindow_dnd_drop), main);
 	gtk_widget_add_controller(main->imagedisplay, controller);
-	 */
+	) */
+
 }
 
 static void
@@ -489,7 +484,8 @@ mainwindow_class_init(MainwindowClass *class)
 	BIND_VARIABLE(Mainwindow, progress);
 	BIND_VARIABLE(Mainwindow, progress_cancel);
 	BIND_VARIABLE(Mainwindow, error_bar);
-	BIND_VARIABLE(Mainwindow, error_label);
+	BIND_VARIABLE(Mainwindow, error_top);
+	BIND_VARIABLE(Mainwindow, error_sub);
 	BIND_VARIABLE(Mainwindow, wsgview);
 }
 
@@ -670,6 +666,25 @@ mainwindow_new(App *app)
 
 	// we can't do this in _init() since we need app to be set
 	mainwindow_init_settings(main);
+
+	gboolean welcome;
+	g_object_get(app, "welcome", &welcome, NULL);
+	if (welcome) {
+		char save_dir[FILENAME_MAX];
+		char buf[256];
+
+		vips_snprintf(buf, 256, _("Welcome to %s-%s!"), PACKAGE, VERSION);
+		vips_strncpy(save_dir, get_savedir(), FILENAME_MAX);
+		path_expand(save_dir);
+		error_top("%s", buf);
+		error_sub(
+			_("A new directory has been created to hold startup, "
+			  "data and temporary files: %s\n"
+			  "If you've used previous versions of %s, you might want "
+			  "to copy files over from your old work area."),
+			save_dir, PACKAGE);
+		mainwindow_error(main);
+	}
 
 	return main;
 }

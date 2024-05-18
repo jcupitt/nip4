@@ -114,7 +114,7 @@ workspaceroot_new(const char *name)
 	Workspaceroot *wsr;
 
 	if (compile_lookup(symbol_root->expr->compile, name)) {
-		error_top(_("Name clash."));
+		error_top(_("Name clash"));
 		error_sub(_("Can't create workspaceroot \"%s\". "
 					"A symbol with that name already exists."),
 			name);

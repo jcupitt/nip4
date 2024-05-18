@@ -215,12 +215,12 @@ workspace_selected_one(Workspace *ws)
 	if (len == 1)
 		return (Row *) (ws->selected->data);
 	else if (len == 0) {
-		error_top(_("No objects selected."));
+		error_top(_("No objects selected"));
 		error_sub(_("Select exactly one object and try again."));
 		return NULL;
 	}
 	else {
-		error_top(_("More than one object selected."));
+		error_top(_("More than one object selected"));
 		error_sub(_("Select exactly one object and try again."));
 		return NULL;
 	}
@@ -1121,7 +1121,7 @@ workspace_new(Workspacegroup *wsg, const char *name)
 #endif /*DEBUG*/
 
 	if (compile_lookup(wsr->sym->expr->compile, name)) {
-		error_top(_("Name clash."));
+		error_top(_("Name clash"));
 		error_sub(_("Can't create workspace \"%s\". "
 					"A symbol with that name already exists."),
 			name);
@@ -1180,7 +1180,7 @@ workspace_add_action(Workspace *ws,
 	vips_buf_appends(&buf, action);
 	if (nparam > 0 && workspace_selected_any(ws)) {
 		if (nparam != workspace_selected_num(ws)) {
-			error_top(_("Wrong number of arguments."));
+			error_top(_("Wrong number of arguments"));
 			error_sub(_("%s needs %d arguments, there are %d selected."),
 				name, nparam, workspace_selected_num(ws));
 			return FALSE;
@@ -1189,7 +1189,7 @@ workspace_add_action(Workspace *ws,
 		vips_buf_appends(&buf, " ");
 		workspace_selected_names(ws, &buf, " ");
 		if (vips_buf_is_full(&buf)) {
-			error_top(_("Overflow error."));
+			error_top(_("Overflow error"));
 			error_sub(_("Too many names selected."));
 			return FALSE;
 		}
@@ -1301,7 +1301,7 @@ workspace_selected_remove(Workspace *ws)
 
 	if ((row = (Row *) workspace_selected_map(ws,
 			 (row_map_fn) workspace_selected_remove2, NULL, NULL))) {
-		error_top(_("You can only remove top level rows."));
+		error_top(_("You can only remove top level rows"));
 		error_sub(_("Not all selected objects are top level rows."));
 		return FALSE;
 	}
@@ -1414,7 +1414,7 @@ workspace_ungroup_row(Row *row)
 			VipsBuf buf = VIPS_BUF_STATIC(txt);
 
 			row_qualified_name(row, &buf);
-			error_top(_("Unable to ungroup."));
+			error_top(_("Unable to ungroup"));
 			error_sub(_("Row \"%s\" is not a Group or a list."),
 				vips_buf_all(&buf));
 

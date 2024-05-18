@@ -49,7 +49,7 @@ void
 view_dump(void)
 {
 	if (all_view_widgets) {
-		printf("view_dump():\n");
+		printf("view_dump(): %d views\n", g_slist_length(all_view_widgets));
 
 		for (GSList *p = all_view_widgets; p; p = p->next) {
 			View *view = VIEW(p->data);
@@ -155,8 +155,7 @@ view_viewchild_display(ViewChild *viewchild)
 	Model *child_model = viewchild->child_model;
 	ViewClass *view_class = VIEW_GET_CLASS(view);
 
-	return (child_model->display && view_class->display) ?
-		view_class->display(view, child_model) : child_model->display;
+	return (child_model->display && view_class->display) ? view_class->display(view, child_model) : child_model->display;
 }
 
 /* One of the children of the model we watch has changed ... create or destroy
@@ -269,7 +268,7 @@ view_child_remove(View *child)
 
 #ifdef DEBUG
 	printf("view_child_remove: child %s %p\n",
-			G_OBJECT_TYPE_NAME(child), child);
+		G_OBJECT_TYPE_NAME(child), child);
 	if (parent)
 		printf("\tparent %s %p\n", G_OBJECT_TYPE_NAME(parent), parent);
 #endif /*DEBUG*/
@@ -328,11 +327,11 @@ view_dispose(GObject *object)
 	slist_map(view->managed,
 		(SListMapFn) view_viewchild_destroy, NULL);
 
-	G_OBJECT_CLASS(view_parent_class)->dispose(object);
-
 #ifdef DEBUG_LEAK
 	all_view_widgets = g_slist_remove(all_view_widgets, view);
 #endif /*DEBUG_LEAK*/
+
+	G_OBJECT_CLASS(view_parent_class)->dispose(object);
 }
 
 static void
@@ -620,13 +619,13 @@ view_real_child_add(View *parent, View *child)
 
 	viewchild->child_view = child;
 
-    /* Not all views are true widgets (ie. get _ref()'s and _sink()'d by a
-     * parent). Ref and sink ourselves to ensure that
-     * even these odd views get unfloated. See also
-     * view_real_child_remove(). Affects the tool/toolkit views, and
-     * rowview at least.
-     */
-    g_object_ref_sink(G_OBJECT(child));
+	/* Not all views are true widgets (ie. get _ref()'s and _sink()'d by a
+	 * parent). Ref and sink ourselves to ensure that
+	 * even these odd views get unfloated. See also
+	 * view_real_child_remove(). Affects the tool/toolkit views, and
+	 * rowview at least.
+	 */
+	g_object_ref_sink(G_OBJECT(child));
 
 	g_assert(!child->parent);
 	child->parent = parent;
@@ -880,8 +879,8 @@ view_changed_cb(View *view)
 void
 view_not_implemented_cb(GtkWidget *menu, GtkWidget *host, View *view)
 {
-	error_top(_("Not implemented."));
-	error_alert(GTK_WIDGET(view));
+	error_top(_("Not implemented"));
+	mainwindow_error(MAINWINDOW(view_get_window(view)));
 }
 
 GtkWindow *

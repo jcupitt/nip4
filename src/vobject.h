@@ -36,8 +36,8 @@
 typedef struct _vObject {
 	GtkWidget parent_instance;
 
-	iObject *iobject;		/* weakref to iObject we are watching */
-	gboolean dirty;			/* In need of refreshment */
+	iObject *iobject; /* weakref to iObject we are watching */
+	gboolean dirty;	  /* In need of refreshment */
 } vObject;
 
 typedef struct _vObjectClass {

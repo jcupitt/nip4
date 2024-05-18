@@ -38,11 +38,11 @@
  * model changes.
  */
 typedef struct _ViewChild {
-	View *view;						/* Us */
-	Model *child_model;				/* The child model we are watching */
-	View *child_view;				/* NULL, or the child view */
+	View *view;			/* Us */
+	Model *child_model; /* The child model we are watching */
+	View *child_view;	/* NULL, or the child view */
 
-	guint child_model_changed_sid;	/* Listen to changed with this */
+	guint child_model_changed_sid; /* Listen to changed with this */
 } ViewChild;
 
 struct _View {
@@ -50,15 +50,15 @@ struct _View {
 
 	/* My instance vars.
 	 */
-	GSList *managed;				/* List of ViewChild for this view */
+	GSList *managed; /* List of ViewChild for this view */
 
 	/* The parent view. Not all views are true widgets, eg. rowview, so we
 	 * can't use gtk_widget_get_parent().
 	 */
 	View *parent;
 
-	gboolean scannable;				/* On scannable list */
-	gboolean resettable;			/* On resettable list */
+	gboolean scannable;	 /* On scannable list */
+	gboolean resettable; /* On resettable list */
 };
 
 typedef struct _ViewClass {

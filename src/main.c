@@ -135,7 +135,7 @@ get_prefix(void)
 		const char *prefix;
 
 		if (!(prefix = vips_guess_prefix(main_argv0, "VIPSHOME"))) {
-			error_top(_("Unable to find install area."));
+			error_top(_("Unable to find install area"));
 			error_vips();
 
 			return NULL;
@@ -145,6 +145,18 @@ get_prefix(void)
 	}
 
 	return prefix_buffer;
+}
+
+/* Make sure a savedir exists. Used to build the "~/.nip2-xx/tmp" etc.
+ * directory tree.
+ */
+static void
+main_mkdir(const char *dir)
+{
+	if (!existsf("%s/%s", get_savedir(), dir))
+		if (!mkdirf("%s/%s", get_savedir(), dir))
+			vips_error_exit(_("unable to make %s %s: %s"),
+				get_savedir(), dir, g_strerror(errno));
 }
 
 static void *
@@ -368,6 +380,20 @@ main(int argc, char **argv)
 	main_stdin = ifile_open_read_stdin();
 
 	path_init();
+
+	/* First time we've been run? Welcome message.
+	 */
+	gboolean welcome = FALSE;
+	if (!existsf("%s", get_savedir()))
+		welcome = TRUE;
+
+	/* Always make these in case some get deleted.
+	 */
+	main_mkdir("");
+	main_mkdir("tmp");
+	main_mkdir("start");
+	main_mkdir("data");
+
 	reduce_context = reduce_new();
 
 	main_symbol_root = symbol_root_init();
@@ -406,46 +432,46 @@ main(int argc, char **argv)
 	 */
 	symbol_recalculate_all_force(TRUE);
 
-	app = app_new();
+	app = app_new(welcome);
 
 	status = g_application_run(G_APPLICATION(app), argc, argv);
 
 	/* Remove any ws retain files.
-     */
-    workspacegroup_autosave_clean();
+	 */
+	workspacegroup_autosave_clean();
 
-    /* Junk all symbols. This may remove a bunch of intermediate images
-     * too.
-     */
-    //UNREF(main_watchgroup);
-    VIPS_UNREF(main_symbol_root);
-    VIPS_UNREF(main_toolkitgroup);
-    VIPS_UNREF(main_workspaceroot);
+	/* Junk all symbols. This may remove a bunch of intermediate images
+	 * too.
+	 */
+	// UNREF(main_watchgroup);
+	VIPS_UNREF(main_symbol_root);
+	VIPS_UNREF(main_toolkitgroup);
+	VIPS_UNREF(main_workspaceroot);
 
-    /* Junk reduction machine ... this should remove all image temps.
-     */
-    reduce_destroy(reduce_context);
+	/* Junk reduction machine ... this should remove all image temps.
+	 */
+	reduce_destroy(reduce_context);
 
 #ifdef HAVE_LIBGOFFICE
-    /* Not quite sure what this does, but don't do it in batch mode.
-     */
-    if( !main_option_batch )
-        libgoffice_shutdown ();
+	/* Not quite sure what this does, but don't do it in batch mode.
+	 */
+	if (!main_option_batch)
+		libgoffice_shutdown();
 #endif /*HAVE_LIBGOFFICE*/
 
-    path_rewrite_free_all();
+	path_rewrite_free_all();
 
-    /* Should have freed everything now.
-     */
+	/* Should have freed everything now.
+	 */
 
-    /* Make sure!
-     */
-    VIPS_UNREF(main_imageinfogroup);
-    heap_check_all_destroyed();
-    vips_shutdown();
-    managed_check_all_destroyed();
-    util_check_all_destroyed();
-    view_dump();
+	/* Make sure!
+	 */
+	VIPS_UNREF(main_imageinfogroup);
+	heap_check_all_destroyed();
+	vips_shutdown();
+	managed_check_all_destroyed();
+	util_check_all_destroyed();
+	view_dump();
 
 	return status;
 }

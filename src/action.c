@@ -84,7 +84,7 @@ static void
 action_boperror(Reduce *rc, Compile *compile, const char *str,
 	int op, const char *name, PElement *a, PElement *b)
 {
-	const char *top_str = str ? str : _("Bad arguments.");
+	const char *top_str = str ? str : _("Bad arguments");
 	const char *op_name = op >= 0 ? decode_BinOp(op) : name;
 
 	char txt[MAX_ERROR_FRAG];
@@ -159,7 +159,7 @@ action_nomerror(Reduce *rc, Compile *compile, PElement *a, PElement *b)
 		vips_buf_all(&buf3));
 	vips_buf_appendf(&buf, "\n");
 
-	error_top(_("Member not found."));
+	error_top(_("Member not found"));
 	error_sub("%s", vips_buf_all(&buf));
 	reduce_throw(rc);
 }
@@ -170,7 +170,7 @@ static void
 action_uoperror(Reduce *rc, Compile *compile,
 	const char *str, int op, const char *name, PElement *a)
 {
-	const char *top_str = str ? str : _("Bad argument.");
+	const char *top_str = str ? str : _("Bad argument");
 	const char *op_name = op >= 0 ? decode_UnOp(op) : name;
 
 	char txt[MAX_ERROR_FRAG];

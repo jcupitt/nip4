@@ -132,8 +132,8 @@ G_DEFINE_TYPE(Imagewindow, imagewindow, GTK_TYPE_APPLICATION_WINDOW);
 /* Our signals.
  */
 enum {
-	SIG_CHANGED,			/* A new imageui and tilesource */
-	SIG_STATUS_CHANGED, 	/* New mouse position */
+	SIG_CHANGED,		/* A new imageui and tilesource */
+	SIG_STATUS_CHANGED, /* New mouse position */
 	SIG_LAST
 };
 
@@ -663,7 +663,7 @@ imagewindow_imageui_changed(Imageui *imageui, Imagewindow *win)
 
 	const char *str = vips_enum_string(TILECACHE_BACKGROUND_TYPE, background);
 	if (str) {
-		GVariant * state = g_variant_new_string(str);
+		GVariant *state = g_variant_new_string(str);
 		change_state(GTK_WIDGET(win), "background", state);
 
 		imagewindow_status_changed(win);
@@ -728,8 +728,7 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 
 	/* Update title and subtitle.
 	 */
-	title = new_tilesource ?
-		(char *) tilesource_get_path(new_tilesource) : NULL;
+	title = new_tilesource ? (char *) tilesource_get_path(new_tilesource) : NULL;
 	title = (char *) tilesource_get_path(new_tilesource);
 	gtk_label_set_text(GTK_LABEL(win->title), title ? title : "Untitled");
 
@@ -756,7 +755,7 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 					vips_image_get_coding(image)));
 		vips_buf_appends(&buf, ", ");
 
-		vips_buf_append_size( &buf,
+		vips_buf_append_size(&buf,
 			(double) image->Ysize * VIPS_IMAGE_SIZEOF_LINE(image));
 		vips_buf_appends(&buf, ", ");
 
@@ -1408,7 +1407,7 @@ imagewindow_background(GSimpleAction *action,
 	TilecacheBackground background =
 		vips_enum_from_nick("vipsdisp", TILECACHE_BACKGROUND_TYPE, str);
 
-	if(win->imageui)
+	if (win->imageui)
 		g_object_set(win->imageui,
 			"background", background,
 			NULL);

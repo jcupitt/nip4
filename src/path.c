@@ -541,7 +541,7 @@ path_map_dir(const char *dir, const char *patt, path_map_fn fn, void *a)
 	if (!(result = path_scan_dir(dir, &search))) {
 		/* Not found? Maybe - error message anyway.
 		 */
-		error_top(_("Not found."));
+		error_top(_("Not found"));
 		error_sub(_("File \"%s\" not found."), patt);
 	}
 
@@ -572,7 +572,7 @@ path_find_file(const char *filename)
 			 (path_map_fn) g_strdup, NULL)))
 		return fname;
 
-	error_top(_("Not found."));
+	error_top(_("Not found"));
 	error_sub(_("File \"%s\" not found on path"), filename);
 
 	return NULL;

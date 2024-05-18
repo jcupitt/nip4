@@ -283,7 +283,7 @@ row_error_set(Row *row)
 
 			row_qualified_name(row, &buf);
 
-			error_top(_("Error in row."));
+			error_top(_("Error in row"));
 			/* Elements are name of row, principal error,
 			 * secondary error.
 			 */

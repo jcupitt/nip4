@@ -176,7 +176,7 @@ iimageview_edit(GtkWidget *parent, iImageview *iimageview)
 
 	if (IS_IREGION(iimage) && iimage->value.ii) {
 		printf("iimageview_edit: FIXME region edit\n");
-	    //imageview_new( iimage, parent );
+		// imageview_new( iimage, parent );
 	}
 	else
 		model_edit(parent, MODEL(iimage));
@@ -301,7 +301,7 @@ iimageview_menu(GtkGestureClick *gesture,
 	graphene_point_t iimageview_point = GRAPHENE_POINT_INIT(x, y);
 	graphene_point_t wsview_point;
 	if (gtk_widget_compute_point(iimageview->top, wsview->fixed,
-		&iimageview_point, &wsview_point)) {
+			&iimageview_point, &wsview_point)) {
 		gtk_popover_set_pointing_to(GTK_POPOVER(wsview->rowview_menu),
 			&(const GdkRectangle){ wsview_point.x, wsview_point.y, 1, 1 });
 

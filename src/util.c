@@ -173,7 +173,7 @@ error_vips(void)
 void
 error_vips_all(void)
 {
-	error_top(_("VIPS library error."));
+	error_top(_("VIPS library error"));
 	error_vips();
 }
 
@@ -224,7 +224,7 @@ set_prop(xmlNode *xnode, const char *name, const char *fmt, ...)
 	va_end(ap);
 
 	if (!xmlSetProp(xnode, (xmlChar *) name, (xmlChar *) value)) {
-		error_top(_("Unable to set XML property."));
+		error_top(_("Unable to set XML property"));
 		error_sub(_("Unable to set property \"%s\" to value \"%s\"."),
 			name, value);
 		return FALSE;
@@ -1837,7 +1837,7 @@ ifile_open_read(const char *name, ...)
 		return NULL;
 
 	if (!(of->fname_real = path_find_file(of->fname))) {
-		error_top(_("Unable to open."));
+		error_top(_("Unable to open"));
 		error_sub(_("Unable to open file \"%s\" for reading.\n%s."),
 			of->fname, g_strerror(errno));
 		return NULL;
@@ -1845,7 +1845,7 @@ ifile_open_read(const char *name, ...)
 
 	if (!(of->fp = (FILE *) callv_string_filename((callv_string_fn) fopen,
 			  of->fname_real, "r", NULL, NULL))) {
-		error_top(_("Unable to open."));
+		error_top(_("Unable to open"));
 		error_sub(_("Unable to open file \"%s\" for reading.\n%s."),
 			of->fname_real, g_strerror(errno));
 		return NULL;
@@ -1917,7 +1917,7 @@ ifile_write(iOpenFile *of, const char *fmt, ...)
 	va_start(ap, fmt);
 	if (vfprintf(of->fp, fmt, ap) == EOF) {
 		of->last_errno = errno;
-		error_top(_("Unable to write."));
+		error_top(_("Unable to write"));
 		error_sub(_("Unable to write to file \"%s\".\n%s."),
 			of->fname_real, g_strerror(of->last_errno));
 		return FALSE;
@@ -1954,7 +1954,7 @@ ifile_read(iOpenFile *of)
 	len = ftell(of->fp);
 	rewind(of->fp);
 	if (len < 0 || len > 1024 * 1024) {
-		error_top(_("Unable to read."));
+		error_top(_("Unable to read"));
 		error_sub(_("File \"%s\" too large."), of->fname_real);
 		return NULL;
 	}
@@ -1990,7 +1990,7 @@ ifile_read_buffer(iOpenFile *of, char *buffer, size_t max)
 		/* File too large for buffer.
 		 */
 		of->last_errno = errno;
-		error_top(_("Unable to read."));
+		error_top(_("Unable to read"));
 		error_sub(_("Unable to read from file \"%s\".\n%s."),
 			of->fname_real, g_strerror(of->last_errno));
 		return NULL;
@@ -2256,7 +2256,7 @@ temp_name(char *name, const char *type)
 
 	fd = g_mkstemp(buf);
 	if (fd == -1) {
-		error_top(_("Unable to create temporary file."));
+		error_top(_("Unable to create temporary file"));
 		error_sub(_("Unable to make file \"%s\"\n%s"), buf, g_strerror(errno));
 		return FALSE;
 	}
@@ -2465,7 +2465,7 @@ imalloc(VipsImage *im, size_t len)
 		VipsBuf buf = VIPS_BUF_STATIC(txt);
 
 		vips_buf_append_size(&buf, len);
-		error_top(_("Out of memory."));
+		error_top(_("Out of memory"));
 		error_sub(_("Request for %s of RAM triggered memory "
 					"allocation failure."),
 			vips_buf_all(&buf));

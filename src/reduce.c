@@ -131,7 +131,7 @@ reduce_error_typecheck(Reduce *rc,
 	char txt[1024];
 	VipsBuf buf = VIPS_BUF_STATIC(txt);
 
-	error_top(_("Typecheck error."));
+	error_top(_("Typecheck error"));
 	vips_buf_appendf(&buf,
 		_("%s expected %s, instead saw:"), name, type);
 	vips_buf_appends(&buf, "\n  ");
@@ -144,7 +144,7 @@ reduce_error_typecheck(Reduce *rc,
 static void
 reduce_error_toobig(Reduce *rc, const char *name)
 {
-	error_top(_("Overflow error."));
+	error_top(_("Overflow error"));
 	error_sub(_("%s too long."), name);
 	reduce_throw(rc);
 }
@@ -528,7 +528,7 @@ reduce_get_line_size(Reduce *rc, PElement *base, int *w, int *h)
 	if (*w == 0)
 		*w = l;
 	else if (*w != l) {
-		error_top(_("Not rectangular."));
+		error_top(_("Not rectangular"));
 		error_sub(_("Matrix of real is not rectangular. "
 					"Found row of length %d, should be %d."),
 			l, *w);
@@ -554,7 +554,7 @@ reduce_get_matrix_size(Reduce *rc,
 		(reduce_map_list_fn) reduce_get_line_size, &w, &h);
 
 	if (w == 0 || h == 0) {
-		error_top(_("Zero dimension."));
+		error_top(_("Zero dimension"));
 		error_sub(_("Matrix has width %d, height %d."), w, h);
 		reduce_throw(rc);
 	}
@@ -594,7 +594,7 @@ reduce_get_line(Reduce *rc, PElement *base, GetMatrixInfo *gmi)
 	if (gmi->h == 0)
 		gmi->w = l;
 	else if (l != gmi->w) {
-		error_top(_("Not rectangular."));
+		error_top(_("Not rectangular"));
 		error_sub(_("Matrix of real is not rectangular. "
 					"Found row of length %d, should be %d."),
 			l, gmi->w);
@@ -932,7 +932,7 @@ reduce_list_index(Reduce *rc, PElement *base, int n, PElement *out)
 	HeapNode *hn;
 
 	if (n < 0) {
-		error_top(_("Bad argument."));
+		error_top(_("Bad argument"));
 		error_sub(_("List index must be positive, not %d"), n);
 		reduce_throw(rc);
 	}
@@ -945,7 +945,7 @@ reduce_list_index(Reduce *rc, PElement *base, int n, PElement *out)
 
 	for (i = n;;) {
 		if (PEISELIST(&p)) {
-			error_top(_("Bad argument."));
+			error_top(_("Bad argument"));
 			error_sub(_("List only has %d elements, "
 						"unable to get element %d."),
 				n - i, n);
@@ -990,7 +990,7 @@ argserror(Reduce *rc, PElement *a)
 
 	itext_value_ev(rc, &buf, a);
 
-	error_top(_("No arguments allowed."));
+	error_top(_("No arguments allowed"));
 	error_sub(_("Object \"%s\" should have no arguments."),
 		vips_buf_all(&buf));
 	reduce_throw(rc);
@@ -1087,7 +1087,7 @@ reduce_spine(Reduce *rc, PElement *out)
 	 * systems if we're using (or any of our libs are using) threads.
 	 */
 	if ((char *) main_c_stack_base - (char *) &rc > 2000000) {
-		error_top(_("Overflow error."));
+		error_top(_("Overflow error"));
 		error_sub(_("C stack overflow. Expression too complex."));
 		reduce_throw(rc);
 	}
@@ -1104,7 +1104,7 @@ reduce_start:
 	reduce_total_recomputations += 1;
 	if ((reduce_total_recomputations % 100000) == 0) {
 		if (progress_update_expr(reduce_current_expr)) {
-			error_top(_("Cancelled."));
+			error_top(_("Cancelled"));
 			error_sub(_("Evaluation cancelled."));
 			reduce_throw(rc);
 		}
@@ -1197,7 +1197,7 @@ reduce_start:
 			 * links to dirty syms through dynamic dependencies.
 			 */
 			if (sym->dirty) {
-				error_top(_("No value."));
+				error_top(_("No value"));
 				error_sub(_("Symbol \"%s\" has no value."),
 					symbol_name(sym));
 				reduce_throw(rc);

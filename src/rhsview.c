@@ -191,6 +191,33 @@ rhsview_child_remove(View *parent, View *child)
 		gtk_grid_remove(GTK_GRID(rhsview->grid), GTK_WIDGET(child));
 }
 
+/* Clone the current item.
+ */
+static void
+rhsview_duplicate(Rhsview *rview)
+{
+	Rhs *rhs = RHS(VOBJECT(rview)->iobject);
+	Row *row = HEAPMODEL(rhs)->row;
+	Workspace *ws = row->top_col->ws;
+
+	/* Only allow clone of top level rows.
+	 */
+	if (row->top_row != row) {
+		error_top("%s", _("Can't duplicate"));
+		error_sub("%s", _("You can only duplicate top level rows."));
+		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+		return;
+	}
+
+	workspace_deselect_all(ws);
+	row_select(row);
+	if (!workspace_selected_duplicate(ws))
+		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+	workspace_deselect_all(ws);
+
+	symbol_recalculate_all();
+}
+
 static void
 rhsview_action(GSimpleAction *action, GVariant *parameter, View *view)
 {
@@ -211,6 +238,8 @@ rhsview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	else if (g_str_equal(name, "row-replace") &&
 		rhs->graphic)
 		classmodel_graphic_replace(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
+	else if (g_str_equal(name, "row-duplicate"))
+		rhsview_duplicate(rview);
 }
 
 static void
