@@ -1,7 +1,20 @@
+- implement column duplicate
+
 - expand and close buttons in column title should be grey when label text is
   grey
 
+	doesn't seem to be possible with gtkimage
+
   column entry needs a background colour to make it more visible
+
+	entry text {
+	  background-color: dimgrey;
+	}
+
+  works, but looks terrible
+
+- we have the css_name thing in several _refresh() methods ... should this be
+  in the base class?
 
 - ^W on main window does not kill image windows
 
@@ -35,6 +48,8 @@
 	- listens to "changed" on the iimage and updates the image in the
 	  conversion
 
+  row delete should also kill any viewers on that row
+
 - column delete needs to
 
 	queue a layout
@@ -44,6 +59,10 @@
   should this be in the model base class?
 
   same for column_set_open()
+
+  same for column select
+
+  same for column resize on a row getting bigger
 
 - hook up a progress bar for eg st-francis.jpg load?
 
@@ -67,46 +86,12 @@
 	... but does not set filename on filemodel
 	don't see filename in header bar
 
-- try
-
-	wkkfhwf
-
-  segv ... looks like the rowview is not being destroyed when we destroy
-  the zombie symbol?
-
-	vobject_iobject_destroy() is being called for the row
-
-	it's calling UNPARENT
-
-	but that isn't triggering dispose, so we still call refresh
-
-	has refcount 2 at that point ... something else has a ref?
-
-	still 2 after the unparent
-
-  patched around this in vobject_iobject_destroy, but we still need to fix it
-
-- revise column open/close code
-
-	- watch signal on expander and use it to set the model
-
-	- also need to set expander state in refresh I guess?
-
-	- do column open/close animate?
-
-	- click on column titlebar should not open/close column
-
 - animate workspace layout
 
 - animate scroll-to-keep-column-visible
 
 	have a look at gtk_viewport_set_scroll_to_focus() ... could this
 	do the work for us?
-
-- watch column resize and trigger ws relayout
-
-	- useful for eg relayout after column select, or col open/close, or
-	  row add
 
 - use a filemanager style left bar for the toolkit browser
 
