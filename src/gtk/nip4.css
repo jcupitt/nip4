@@ -24,5 +24,14 @@
   font-size: small;
 }
 
+.column_name {
+  font-weight: bold;
+}
+
+.column_caption {
+  font-size: small;
+  font-style: italic;
+}
+
 
 

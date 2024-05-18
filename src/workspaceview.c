@@ -647,8 +647,6 @@ static void
 workspaceview_click(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Workspaceview *wview)
 {
-	/* Search for a click on any part of a columnview.
-	 */
 	Columnview *cview = workspaceview_find_columnview(wview, x, y);
 
 	printf("workspaceview_click:\n");
@@ -658,6 +656,8 @@ workspaceview_click(GtkGestureClick *gesture,
 
 		workspace_deselect_all(ws);
 	}
+
+	// we detect single click in drag_update
 }
 
 static void

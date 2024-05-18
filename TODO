@@ -1,3 +1,43 @@
+- occasional stray view in view_dump()
+
+  does it come from column drag? maybe a left over shadow?
+
+- column delete needs to
+
+	queue a layout
+	mark the filemodel as dirty
+	queue a main_window refresh
+
+  should this be in the model base class?
+
+  same for column_set_open()
+
+  same for column select
+
+  same for column resize on a row getting bigger
+
+- columns "slip" during background scroll drag
+
+	- we drag the shadow, not the actual cview
+
+	- should the shadow include all the column widgets? we could just draw
+	  a box? maybe CSS bg colour?
+
+- changes to a row need to update any viewers
+
+	A1 	$HOME/pics/k2.jpg
+	A2	$HOME/pics/shark.jpg
+	A3 	Image_file A1
+
+  what does nip2 do for this?
+
+	- imagemodel holds all model state for a view (settings etc.)
+	- one item is the iimage the model represents
+	- listens to "changed" on the iimage and updates the image in the
+	  conversion
+
+  row delete should also kill any viewers on that row
+
 - expand and close buttons in column title should be grey when label text is
   grey
 
@@ -31,48 +71,12 @@
 
 - imagewindow progress stuff should go?
 
-- changes to a row need to update any viewers
-
-	A1 	$HOME/pics/k2.jpg
-	A2	$HOME/pics/shark.jpg
-	A3 	Image_file A1
-
-  what does nip2 do for this?
-
-	- imagemodel holds all model state for a view (settings etc.)
-	- one item is the iimage the model represents
-	- listens to "changed" on the iimage and updates the image in the
-	  conversion
-
-  row delete should also kill any viewers on that row
-
-- column delete needs to
-
-	queue a layout
-	mark the filemodel as dirty
-	queue a main_window refresh
-
-  should this be in the model base class?
-
-  same for column_set_open()
-
-  same for column select
-
-  same for column resize on a row getting bigger
-
 - hook up a progress bar for eg st-francis.jpg load?
 
 - imagedisplay should not draw the focus rect ... get the base widget class
   to do that for us
 
   doesn't seem to be possible with drawing area?
-
-- columns "slip" during background scroll drag
-
-	- we drag the shadow, not the actual cview
-
-	- should the shadow include all the column widgets? we could just draw
-	  a box? maybe CSS bg colour?
 
 - try
 
@@ -94,8 +98,6 @@
 	- does this need libadiwata?
 
 	- where should workspace local defs go?
-
-- need to do column caption edit
 
 - status bar? space free indicator is handy ... could this go somewhere else?
   maybe in "about"?

@@ -45,6 +45,7 @@
 	    <child>
               <object class="GtkBox" id="title">
                 <property name="hexpand">true</property>
+                <property name="spacing">15</property>
 
                 <child>
                   <object class="GtkButton" id="expand_button">
@@ -55,18 +56,38 @@
                 </child>
 
                 <child>
-                  <object class="GtkLabel" id="label">
-                    <property name="margin-start">10</property>
-                    <property name="label">A - </property>
+                  <object class="GtkLabel" id="name">
+                    <property name="label">A</property>
+                    <style>
+                      <class name="column_name"/>
+                    </style>
                   </object>
                 </child>
 
                 <child>
-                  <object class="GtkLabel" id="head">
-                    <property name="hexpand">true</property>
-                    <property name="halign">start</property>
-                    <property name="label">this column does stuff</property>
-                  </object>
+		  <object class="GtkStack" id="caption_edit_stack">
+                    <property name="transition-type">slide-down</property>
+
+                    <child>
+                      <object class="GtkLabel" id="caption">
+                        <property name="hexpand">true</property>
+                        <property name="halign">start</property>
+                        <property name="label">this column does stuff</property>
+                        <style>
+                          <class name="column_caption"/>
+                        </style>
+                      </object>
+                    </child>
+
+                    <child>
+	              <object class="GtkEntry" id="caption_edit">
+                        <property name="hexpand">true</property>
+			<signal name="activate"
+				handler="columnview_caption_edit_activate"/>
+                      </object>
+                    </child>
+
+		  </object>
                 </child>
 
                 <child>
@@ -74,6 +95,13 @@
                     <property name="icon-name">window-close-symbolic</property>
 		    <property name="has-frame">false</property>
 		    <signal name="clicked" handler="columnview_close_clicked"/>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkGestureClick">
+                    <property name="button">1</property>
+                      <signal name="pressed" handler="columnview_pressed"/>
                   </object>
                 </child>
 

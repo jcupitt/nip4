@@ -35,17 +35,41 @@
 
 G_DEFINE_TYPE(Columnview, columnview, VIEW_TYPE)
 
-/* Edit caption ... right button menu on title bar.
- */
 static void
-columnview_caption_cb(GtkWidget *wid, GtkWidget *host, Columnview *cview)
+columnview_edit(Columnview *cview)
 {
-	/* Edit caption!
-	 */
-	if (cview->state == COL_EDIT)
-		return;
+	if (cview->state != COL_EDIT) {
+		Column *col = COLUMN(VOBJECT(cview)->iobject);
 
-	cview->state = COL_EDIT;
+		cview->state = COL_EDIT;
+
+		if (IOBJECT(col)->caption) {
+			GtkEntryBuffer *buffer =
+				gtk_entry_buffer_new(IOBJECT(col)->caption, -1);
+			gtk_entry_set_buffer(GTK_ENTRY(cview->caption_edit), buffer);
+		}
+
+		vobject_refresh_queue(VOBJECT(cview));
+		gtk_widget_grab_focus(cview->caption_edit);
+	}
+}
+
+static void
+columnview_caption_edit_activate(GtkEntry *self, gpointer user_data)
+{
+	Columnview *cview = COLUMNVIEW(user_data);
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
+	Workspace *ws = col->ws;
+
+	GtkEntryBuffer *buffer = gtk_entry_get_buffer(self);
+	const char *text = gtk_entry_buffer_get_text(buffer);
+
+	if (text && strspn(text, WHITESPACE) != strlen(text)) {
+		VIPS_SETSTR(IOBJECT(col)->caption, text);
+		workspace_set_modified(ws, TRUE);
+	}
+
+	cview->state = COL_WAIT;
 	vobject_refresh_queue(VOBJECT(cview));
 }
 
@@ -493,49 +517,30 @@ columnview_refresh(vObject *vobject)
 
 	/* Titlebar off in no-edit mode.
 	 */
-	gtk_widget_set_visible(cview->head, editable);
+	gtk_widget_set_visible(cview->title, editable);
 
-	/* Update names.
+	/* Update name and caption.
 	 */
-	set_glabel(cview->label, "%s - ", IOBJECT(col)->name);
+	set_glabel(cview->name, "%s", IOBJECT(col)->name);
 	if (IOBJECT(col)->caption)
-		set_glabel(cview->head, "%s", IOBJECT(col)->caption);
+		set_glabel(cview->caption, "%s", IOBJECT(col)->caption);
 	else {
 		char buf[256];
 
-		vips_snprintf(buf, 256, "<i>%s</i>",
-			_("doubleclick to set title"));
-		gtk_label_set_markup(GTK_LABEL(cview->head), buf);
+		set_glabel(cview->caption, "double-click to set caption");
 	}
+	gtk_stack_set_visible_child(GTK_STACK(cview->caption_edit_stack),
+		cview->state == COL_EDIT ? cview->caption_edit : cview->caption);
 
 	/* Set open/closed.
 	 */
 	gtk_button_set_icon_name(GTK_BUTTON(cview->expand_button),
 		col->open ? "pan-down-symbolic" : "pan-end-symbolic");
-	gtk_revealer_set_reveal_child(cview->revealer, col->open);
+	gtk_revealer_set_reveal_child(GTK_REVEALER(cview->revealer), col->open);
 
 	/* Closed columns are hidden in NOEDIT mode.
 	 */
 	gtk_widget_set_visible(GTK_WIDGET(cview), editable || col->open);
-
-	/* Set caption edit.
-	if (cview->state == COL_EDIT) {
-		columnview_add_caption(cview);
-
-		gtk_widget_show(cview->capedit);
-		gtk_widget_hide(cview->headfr);
-
-		if (IOBJECT(col)->caption) {
-			set_gentry(cview->capedit, "%s", IOBJECT(col)->caption);
-			gtk_editable_select_region(GTK_EDITABLE(cview->capedit), 0, -1);
-		}
-		gtk_widget_grab_focus(cview->capedit);
-	}
-	else {
-		gtk_widget_show(cview->headfr);
-		VIPS_FREEF(gtk_widget_unparent, cview->capedit);
-	}
-	 */
 
 	/* Set bottom entry visibility.
 	 */
@@ -628,6 +633,14 @@ columnview_scrollto(View *view, ModelScrollPosition position)
 }
 
 static void
+columnview_pressed(GtkGestureClick *gesture,
+	guint n_press, double x, double y, Columnview *cview)
+{
+	if (n_press == 2)
+		columnview_edit(cview);
+}
+
+static void
 columnview_expand_clicked(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Columnview *cview)
 {
@@ -641,7 +654,7 @@ columnview_menu(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Columnview *cview)
 {
 	// menu will act on this widget
-	mainwindow_set_action_view(cview);
+	mainwindow_set_action_view(VIEW(cview));
 
 	gtk_popover_set_pointing_to(GTK_POPOVER(cview->right_click_menu),
 		&(const GdkRectangle){ x, y, 1, 1 });
@@ -670,7 +683,7 @@ columnview_activate(GtkEntry *self, gpointer user_data)
 		return;
 	}
 
-	set_gentry(self, NULL);
+	set_gentry(GTK_WIDGET(self), NULL);
 }
 
 static void
@@ -686,7 +699,7 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	if (g_str_equal(name, "column-delete")) {
 		Column *col = COLUMN(VOBJECT(cview)->iobject);
 
-		iobject_destroy(col);
+		iobject_destroy(IOBJECT(col));
 	}
 	else if (g_str_equal(name, "column-duplicate")) {
 		char new_name[MAX_STRSIZE];
@@ -707,6 +720,8 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 
 		symbol_recalculate_all();
 	}
+	else if (g_str_equal(name, "column-edit-caption"))
+		columnview_edit(cview);
 }
 
 static void
@@ -733,16 +748,20 @@ columnview_class_init(ColumnviewClass *class)
 	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
 		GTK_TYPE_BIN_LAYOUT);
 
+	BIND_CALLBACK(columnview_pressed);
 	BIND_CALLBACK(columnview_expand_clicked);
 	BIND_CALLBACK(columnview_menu);
 	BIND_CALLBACK(columnview_activate);
 	BIND_CALLBACK(columnview_close_clicked);
+	BIND_CALLBACK(columnview_caption_edit_activate);
 
 	BIND_VARIABLE(Columnview, top);
 	BIND_VARIABLE(Columnview, title);
 	BIND_VARIABLE(Columnview, expand_button);
-	BIND_VARIABLE(Columnview, label);
-	BIND_VARIABLE(Columnview, head);
+	BIND_VARIABLE(Columnview, name);
+	BIND_VARIABLE(Columnview, caption_edit_stack);
+	BIND_VARIABLE(Columnview, caption);
+	BIND_VARIABLE(Columnview, caption_edit);
 	BIND_VARIABLE(Columnview, revealer);
 	BIND_VARIABLE(Columnview, body);
 	BIND_VARIABLE(Columnview, entry);

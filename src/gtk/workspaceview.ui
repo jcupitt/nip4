@@ -63,7 +63,7 @@
         <child>
           <object class="GtkFixed" id="fixed">
 
-            <!-- columns are added as children of the fixed -->
+            <!-- columns are added as children of this fixed -->
 
             <child>
               <object class="GtkGestureClick">
