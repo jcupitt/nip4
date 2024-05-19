@@ -33,8 +33,8 @@
 */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 

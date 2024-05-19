@@ -22,6 +22,7 @@
  */
 
 /*
+ */
 #define DEBUG_VIEWCHILD
  */
 #define DEBUG
@@ -167,23 +168,24 @@ view_viewchild_changed(Model *model, ViewChild *viewchild)
 	gboolean display = view_viewchild_display(viewchild);
 	View *child = viewchild->child_view;
 
+#ifdef DEBUG_VIEWCHILD
+	printf("view_viewchild_changed: %s \"%s\" display=%d, child=%p\n",
+		G_OBJECT_TYPE_NAME(model),
+		IOBJECT(model)->name,
+		display,
+		child);
+#endif /*DEBUG_VIEWCHILD*/
+
 	if (!display && child) {
 #ifdef DEBUG_VIEWCHILD
-		printf("view_viewchild_changed: %s \"%s\", removing view\n",
-			G_OBJECT_TYPE_NAME(model),
-			IOBJECT(model)->name);
-
-		printf("view_viewchild_changed: %s\n",
-			G_OBJECT_TYPE_NAME(child));
+		printf("\tremoving view %s\n", G_OBJECT_TYPE_NAME(child));
 #endif /*DEBUG_VIEWCHILD*/
 
 		view_child_remove(child);
 	}
 	else if (display && !child) {
 #ifdef DEBUG_VIEWCHILD
-		printf("view_viewchild_changed: %s \"%s\", adding view\n",
-			G_OBJECT_TYPE_NAME(model),
-			IOBJECT(model)->name);
+		printf("\tadding view\n");
 #endif /*DEBUG_VIEWCHILD*/
 
 		// this will set the viewchild->child_view pointer, see
@@ -321,11 +323,37 @@ view_dispose(GObject *object)
 	if (view->resettable)
 		view_resettable_unregister(view);
 
+	// unlink from parent
 	if (view->parent)
 		view_child_remove(view);
+	g_assert(!view->parent);
 
-	slist_map(view->managed,
-		(SListMapFn) view_viewchild_destroy, NULL);
+#ifdef DEBUG_LEAK
+	// we should have no living child widgets
+	gboolean stray_children = FALSE;
+	for (GSList *p = view->managed; p; p = p->next) {
+		ViewChild *viewchild = (ViewChild *) p->data;
+
+		if (viewchild->child_view) {
+			iObject *child_model = VOBJECT(viewchild->child_view)->iobject;
+
+			printf("%p %s count=%d ",
+				viewchild->child_view,
+				G_OBJECT_TYPE_NAME(viewchild->child_view),
+				G_OBJECT(viewchild->child_view)->ref_count);
+			if (child_model)
+				printf("%s %s ",
+					G_OBJECT_TYPE_NAME(child_model),
+					IOBJECT(child_model)->name);
+			printf("\n");
+			stray_children = TRUE;
+		}
+	}
+	g_assert(!stray_children);
+#endif /*DEBUG_LEAK*/
+
+	// just a viewchild skeleton we can free
+	slist_map(view->managed, (SListMapFn) view_viewchild_destroy, NULL);
 
 #ifdef DEBUG_LEAK
 	all_view_widgets = g_slist_remove(all_view_widgets, view);
@@ -591,8 +619,6 @@ view_real_link(View *view, Model *model, View *parent_view)
 
 	icontainer_map(ICONTAINER(model),
 		(icontainer_map_fn) view_real_link_sub, view, NULL);
-
-	gtk_widget_show(GTK_WIDGET(view));
 }
 
 static void
@@ -650,6 +676,10 @@ view_real_child_remove(View *parent, View *child)
 	g_assert(child->parent);
 	g_assert(child->parent == parent);
 	child->parent = NULL;
+
+    if (viewchild &&
+        viewchild->child_view == child)
+        viewchild->child_view = NULL;
 
 	g_object_unref(G_OBJECT(child));
 }
