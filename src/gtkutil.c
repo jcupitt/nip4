@@ -312,3 +312,39 @@ get_modifiers(GtkEventController *controller)
 
 	return gdk_device_get_modifier_state(keyboard_device);
 }
+
+static void
+alert_yesno_cb(GObject *source_object,
+	GAsyncResult *result, gpointer user_data)
+{
+	GtkAlertDialog *alert = GTK_ALERT_DIALOG(source_object);
+	GtkWindow *parent = g_object_get_data(G_OBJECT(alert), "nip4-parent");
+	Yesno yesno = g_object_get_data(G_OBJECT(alert), "nip4-yesno");
+	int choice = gtk_alert_dialog_choose_finish(alert, result, NULL);
+
+	if (choice == 1)
+		yesno(parent, user_data);
+}
+
+/* Ask before doing something.
+ */
+void
+alert_yesno(GtkWindow *parent, Yesno yesno, void *user_data,
+	const char *format, ...)
+{
+	va_list ap;
+	char buf[1000];
+
+	va_start(ap, format);
+	(void) vips_vsnprintf(buf, sizeof(buf), format, ap);
+	va_end(ap);
+
+	const char* labels[] = { "Cancel", "OK", NULL };
+
+	GtkAlertDialog *alert = gtk_alert_dialog_new("%s", buf);
+	gtk_alert_dialog_set_buttons(alert, labels);
+	gtk_alert_dialog_set_modal(alert, TRUE);
+	g_object_set_data(G_OBJECT(alert), "nip4-parent", parent);
+	g_object_set_data(G_OBJECT(alert), "nip4-yesno", yesno);
+	gtk_alert_dialog_choose(alert, parent, NULL, alert_yesno_cb, user_data);
+}

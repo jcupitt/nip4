@@ -1320,17 +1320,12 @@ workspace_selected_remove(Workspace *ws)
 }
 
 static void
-workspace_selected_remove_yesno_cb(GObject *source_object,
-	GAsyncResult *result, gpointer user_data)
+workspace_selected_remove_yesno_cb(GtkWindow *parent, gpointer user_data)
 {
-	GtkAlertDialog *alert = GTK_ALERT_DIALOG(source_object);
 	Workspace *ws = WORKSPACE(user_data);
-	GtkWidget *parent = g_object_get_data(G_OBJECT(alert), "nip4-parent");
-	int choice = gtk_alert_dialog_choose_finish(alert, result, NULL);
 
-	if (choice == 1 &&
-		!workspace_selected_remove(ws))
-		mainwindow_error(MAINWINDOW(view_get_window(parent)));
+	if (!workspace_selected_remove(ws))
+		mainwindow_error(MAINWINDOW(parent));
 }
 
 /* Ask before removing selected.
@@ -1341,17 +1336,11 @@ workspace_selected_remove_yesno(Workspace *ws, GtkWidget *parent)
 	if (workspace_selected_any(ws)) {
 		char txt[30];
 		VipsBuf buf = VIPS_BUF_STATIC(txt);
-		const char* labels[] = { "Cancel", "OK", NULL };
 
 		workspace_selected_names(ws, &buf, ", ");
-
-		GtkAlertDialog *alert = gtk_alert_dialog_new(
+		alert_yesno(view_get_window(parent),
+			workspace_selected_remove_yesno_cb, ws,
 			_("Are you sure you want to delete %s?"), vips_buf_all(&buf));
-		gtk_alert_dialog_set_buttons(alert, labels);
-		gtk_alert_dialog_set_modal(alert, TRUE);
-		g_object_set_data(G_OBJECT(alert), "nip4-parent", parent);
-		gtk_alert_dialog_choose(alert, view_get_window(parent), NULL,
-			workspace_selected_remove_yesno_cb, ws);
 	}
 }
 

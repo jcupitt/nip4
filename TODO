@@ -23,12 +23,15 @@
 
   same for row delete
 
+	that does
+
+	    iobject_destroy(row)
+	    symbol_recalculate_all();
+	    workspace_set_modified(ws, TRUE);
+
+	maybe this isn't easy to automate?
+
 - columns "slip" during background scroll drag
-
-	- we drag the shadow, not the actual cview
-
-	- should the shadow include all the column widgets? we could just draw
-	  a box? maybe CSS bg colour?
 
 - changes to a row need to update any viewers
 

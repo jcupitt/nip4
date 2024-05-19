@@ -29,8 +29,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -115,8 +115,7 @@ rhsview_refresh(vObject *vobject)
 			rhs->flags & RHS_SCOL)
 			model_display(rhs->itext, FALSE);
 		else
-			model_display(rhs->itext,
-				rhs->flags & RHS_ITEXT);
+			model_display(rhs->itext, rhs->flags & RHS_ITEXT);
 		break;
 
 	default:

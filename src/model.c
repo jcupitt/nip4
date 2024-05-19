@@ -395,8 +395,7 @@ model_display(Model *model, gboolean display)
 	if (model) {
 		g_assert(IS_MODEL(model));
 
-		g_signal_emit(G_OBJECT(model),
-			model_signals[SIG_DISPLAY], 0, display);
+		g_signal_emit(G_OBJECT(model), model_signals[SIG_DISPLAY], 0, display);
 	}
 }
 
