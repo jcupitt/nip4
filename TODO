@@ -1,8 +1,20 @@
-- spin up on an image thumbnail, thumbnail goes correctly
+- open twice on image thumbnail, close twice, ^Q, segv
 
-  spin down, thumb does not reappear!
+  subcolumnview will not automatically kill its child views, since they are
+  not true children
 
-  ^Q now crashes
+	  - views should listen for parent_dispose and kill themselves?
+	  - views shoud be containers and track children properly?
+	  - have a special thing just for subcolumnview?
+
+  subcolumnview_dispose
+  view_dispose: 0x56b1013b1170 "Subcolumnview"
+  0x56b1013e6620 Rowview count=1 Row filename
+  0x56b1013b3100 Rowview count=1 Row super
+  0x56b1013e0d60 Rowview count=1 Row value
+
+  subcolumnview will have many widget children (spin, label, rhs)*3 and they
+  will go, but rowview will not
 
 - column delete needs to
 
@@ -22,6 +34,12 @@
   same for column resize on a row getting bigger
 
   same for row delete
+
+  we call
+
+	view_resize(view);
+
+  in view_dispose(), isn't this enough?
 
 - columns "slip" during background scroll drag
 
