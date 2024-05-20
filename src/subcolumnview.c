@@ -35,6 +35,16 @@
 
 G_DEFINE_TYPE(Subcolumnview, subcolumnview, VIEW_TYPE)
 
+static void *
+subcolumnview_dispose_sub(void *item, void *a)
+{
+	View *child = VIEW(item);
+
+	view_child_remove(child);
+
+	return NULL;
+}
+
 static void
 subcolumnview_dispose(GObject *object)
 {
@@ -50,6 +60,11 @@ subcolumnview_dispose(GObject *object)
 	sview = SUBCOLUMNVIEW(object);
 
 	gtk_widget_dispose_template(GTK_WIDGET(sview), SUBCOLUMNVIEW_TYPE);
+
+	printf("subcolumnview_dispose: removing %d children\n",
+		g_slist_length(sview->rows));
+	slist_map(sview->rows, subcolumnview_dispose_sub, NULL);
+	VIPS_FREEF(g_slist_free, sview->rows);
 
 	G_OBJECT_CLASS(subcolumnview_parent_class)->dispose(object);
 }
@@ -84,6 +99,9 @@ subcolumnview_child_add(View *parent, View *child)
 	Subcolumnview *sview = SUBCOLUMNVIEW(parent);
 	Rowview *rview = ROWVIEW(child);
 
+	g_assert(!g_slist_find(sview->rows, child));
+	sview->rows = g_slist_prepend(sview->rows, child);
+
 	VIEW_CLASS(subcolumnview_parent_class)->child_add(parent, child);
 }
 
@@ -92,6 +110,9 @@ subcolumnview_child_remove(View *parent, View *child)
 {
 	Subcolumnview *sview = SUBCOLUMNVIEW(parent);
 	Rowview *rview = ROWVIEW(child);
+
+	g_assert(g_slist_find(sview->rows, child));
+	sview->rows = g_slist_remove(sview->rows, child);
 
 	VIEW_CLASS(subcolumnview_parent_class)->child_remove(parent, child);
 }
@@ -111,7 +132,7 @@ subcolumnview_refresh_sub(Rowview *rview, Subcolumnview *sview)
 	for (i = 0; i <= scol->vislevel; i++)
 		if (subcolumn_visibility[i].pred(row)) {
 			rowview_set_visible(rview, TRUE);
-			sview->nvis++;
+			sview->n_vis++;
 			break;
 		}
 	if (i > scol->vislevel)
@@ -125,15 +146,14 @@ subcolumnview_refresh(vObject *vobject)
 {
 	Subcolumnview *sview = SUBCOLUMNVIEW(vobject);
 	Subcolumn *scol = SUBCOLUMN(VOBJECT(sview)->iobject);
-	int model_rows = icontainer_get_n_children(ICONTAINER(scol));
-	int old_nvis = sview->nvis;
+	int old_n_vis = sview->n_vis;
 	gboolean editable = scol->top_col->ws->mode != WORKSPACE_MODE_NOEDIT;
 
 #ifdef DEBUG
 	printf("subcolumnview_refresh\n");
 #endif /*DEBUG*/
 
-	sview->rows = model_rows;
+	sview->n_rows = icontainer_get_n_children(ICONTAINER(scol));
 
 	/* Nested subcols: we just change the left indent.
 	if (!scol->is_top && editable) {
@@ -146,11 +166,11 @@ subcolumnview_refresh(vObject *vobject)
 	}
 	 */
 
-	sview->nvis = 0;
+	sview->n_vis = 0;
 	(void) view_map(VIEW(sview),
 		(view_map_fn) subcolumnview_refresh_sub, sview, NULL);
 
-	if (sview->nvis != old_nvis) {
+	if (sview->n_vis != old_n_vis) {
 		view_resize(VIEW(sview));
 		iobject_changed(IOBJECT(scol->top_col));
 	}
