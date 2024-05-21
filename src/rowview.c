@@ -63,7 +63,9 @@ rowview_dispose(GObject *object)
 #endif /*DEBUG*/
 
 	VIPS_FREE(rview->last_tooltip);
-	gtk_widget_dispose_template(GTK_WIDGET(rview), ROWVIEW_TYPE);
+	// we may run more than once ... only dispose the template the first time
+	if (rview->spin)
+		gtk_widget_dispose_template(GTK_WIDGET(rview), ROWVIEW_TYPE);
 
 	G_OBJECT_CLASS(rowview_parent_class)->dispose(object);
 }
@@ -75,8 +77,13 @@ rowview_attach(Rowview *rview, GtkWidget *child, int x)
 
 	g_object_ref(child);
 
-	if (gtk_widget_get_parent(child))
-		gtk_widget_unparent(child);
+	GtkWidget *parent = gtk_widget_get_parent(child);
+	if (parent) {
+		if (IS_ROWVIEW(parent))
+			gtk_widget_unparent(child);
+		else
+			gtk_grid_remove(GTK_GRID(sview->grid), child);
+	}
 
 	gtk_grid_attach(GTK_GRID(sview->grid), child, x, rview->rnum, 1, 1);
 
@@ -551,7 +558,6 @@ rowview_class_init(RowviewClass *class)
 
 	printf("rowview_class_init: need button enter, leave, focus, tooltip\n");
 
-	BIND_VARIABLE(Rowview, top);
 	BIND_VARIABLE(Rowview, spin);
 	BIND_VARIABLE(Rowview, frame);
 	BIND_VARIABLE(Rowview, label);

@@ -22,9 +22,9 @@
  */
 
 /*
- */
 #define DEBUG_VIEWCHILD
 #define DEBUG
+ */
 #define DEBUG_LEAK
 
 /* Time each refresh
@@ -348,7 +348,7 @@ view_dispose(GObject *object)
 			stray_children = TRUE;
 		}
 	}
-	g_assert(!stray_children);
+	//g_assert(!stray_children);
 #endif /*DEBUG_LEAK*/
 
 	// just a viewchild skeleton we can free
@@ -644,16 +644,14 @@ view_real_child_add(View *parent, View *child)
 
 	viewchild->child_view = child;
 
-	/* Not all views are true widgets (ie. get _ref()'s and _sink()'d by a
-	 * parent). Ref and sink ourselves to ensure that
-	 * even these odd views get unfloated. See also
-	 * view_real_child_remove(). Affects the tool/toolkit views, and
-	 * rowview at least.
-	 */
-	g_object_ref_sink(G_OBJECT(child));
-
 	g_assert(!child->parent);
 	child->parent = parent;
+
+	/* We don't ref and unref ... our superclasses will add the view to the
+	 * enclosing widget and that will hold a ref for us. Views without an
+	 * enclosing widget (eg. rowview) need a ref/uref in the enclosing view
+	 * instead., see subcolumnview.
+	 */
 }
 
 static void
@@ -679,8 +677,6 @@ view_real_child_remove(View *parent, View *child)
     if (viewchild &&
         viewchild->child_view == child)
         viewchild->child_view = NULL;
-
-	g_object_unref(G_OBJECT(child));
 }
 
 static void
