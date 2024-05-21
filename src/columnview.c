@@ -92,18 +92,6 @@ columnview_caption_key_pressed(GtkEventControllerKey *self,
 	return handled;
 }
 
-/* Select all objects in menu's column.
- */
-static void
-columnview_select_cb(GtkWidget *wid, GtkWidget *host, Columnview *cview)
-{
-	Column *col = COLUMN(VOBJECT(cview)->iobject);
-	Workspace *ws = col->ws;
-
-	workspace_deselect_all(ws);
-	column_select_symbols(col);
-}
-
 /*
 static void
 columnview_merge_sub(iWindow *iwnd,
@@ -742,6 +730,10 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	}
 	else if (g_str_equal(name, "column-edit-caption"))
 		columnview_edit(cview);
+	else if (g_str_equal(name, "column-select-all")) {
+		workspace_deselect_all(ws);
+		column_select_symbols(col);
+	}
 }
 
 static void

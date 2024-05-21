@@ -1,35 +1,48 @@
-- column delete needs to
-
-	queue a layout
-	mark the filemodel as dirty
-	queue a main_window refresh
-
-  should this be in the model base class?
-
-	iobject_destroy()
-	iobject_real_destroy()
-
+- column delete (uses iobject_destroy(col))
+  row delete (uses IDESTROY(row))
   same for column_set_open()
-
-  same for column select
-
+  same for workspace_column_select()
   same for column resize on a row getting bigger
-
   same for row delete
 
-	that does
+	mark the filemodel as dirty
+	queue a main_window refresh to update the titlebar
+	queue a layout
 
-	    iobject_destroy(row)
-	    symbol_recalculate_all();
-	    workspace_set_modified(ws, TRUE);
+  perhaps:
 
-	maybe this isn't easy to automate?
+	- column is the only filemodel that gets saved inside another
+	  filemodel and has no heap representation ... so we need a
+	  workspace_set_modified(ws, TRUE) in column_dispose, column_select,
+	  column_set_open
 
-  we call
+	- workspace_set_modified(ws, TRUE) emits "changed" on the wsg ...
+	  mainwindow should listen for that and queue a refresh
 
-	view_resize(view);
+	- most models are heapmodels ... maybe track ->ws here? currently
+	  tracked in row.c, we can just move that over
 
-  in view_dispose(), isn't this enough?
+	- heapmodel_dispose() can workspace_set_modified() and
+	  symbol_recalculate_all()
+
+	- view_real_child_remove() and child_add() can queue a relayout
+
+		workspace_set_needs_layout(ws, TRUE);
+
+			adds the ws to the dirty list
+
+		mainwindow_layout() sets a layout timeout for all tagged
+		workspaces
+
+
+
+
+
+	- what does view_resize() do? lets get rid of it, looks like a relic
+
+
+
+
 
 - columns "slip" during background scroll drag
 

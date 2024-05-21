@@ -313,10 +313,6 @@ view_dispose(GObject *object)
 	printf("view_dispose: %p \"%s\"\n", object, G_OBJECT_TYPE_NAME(object));
 #endif /*DEBUG*/
 
-	/* We're probably changing the size of our enclosing column.
-	 */
-	view_resize(view);
-
 	if (view->scannable)
 		view_scannable_unregister(view);
 	if (view->resettable)
@@ -649,8 +645,8 @@ view_real_child_add(View *parent, View *child)
 
 	/* We don't ref and unref ... our superclasses will add the view to the
 	 * enclosing widget and that will hold a ref for us. Views without an
-	 * enclosing widget (eg. rowview) need a ref/uref in the enclosing view
-	 * instead., see subcolumnview.
+	 * enclosing widget (eg. rowview) need a ref/unref in the enclosing view
+	 * instead, see subcolumnview.
 	 */
 }
 
@@ -931,16 +927,3 @@ view_get_columnview(View *child)
 	return COLUMNVIEW(view);
 }
 
-/* A view has changed size ... rethink the enclosing column geo. Helps table
- * to not break.
- */
-void *
-view_resize(View *view)
-{
-	Columnview *cview = view_get_columnview(view);
-
-	if (cview)
-		gtk_widget_queue_resize(GTK_WIDGET(cview));
-
-	return NULL;
-}

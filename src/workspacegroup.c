@@ -720,7 +720,8 @@ workspacegroup_set_modified(Filemodel *filemodel, gboolean modified)
 
 	workspacegroup_checkmark(wsg);
 
-	FILEMODEL_CLASS(workspacegroup_parent_class)->set_modified(filemodel, modified);
+	FILEMODEL_CLASS(workspacegroup_parent_class)->
+		set_modified(filemodel, modified);
 }
 
 static void

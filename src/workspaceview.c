@@ -448,8 +448,7 @@ typedef struct _WorkspaceLayout {
 static void *
 workspaceview_layout_add(View *view, WorkspaceLayout *layout)
 {
-	layout->undone_columns =
-		g_slist_prepend(layout->undone_columns, view);
+	layout->undone_columns = g_slist_prepend(layout->undone_columns, view);
 
 	return NULL;
 }

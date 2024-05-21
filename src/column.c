@@ -155,7 +155,8 @@ column_parent_add(iContainer *child)
 static View *
 column_view_new(Model *model, View *parent)
 {
-	return IS_PREFWORKSPACEVIEW(parent) ? prefcolumnview_new() : columnview_new();
+	return IS_PREFWORKSPACEVIEW(parent) ?
+		prefcolumnview_new() : columnview_new();
 }
 
 static xmlNode *
@@ -176,8 +177,7 @@ column_save(Model *model, xmlNode *xnode)
 	if (!set_iprop(xthis, "x", x) ||
 		!set_iprop(xthis, "y", y) ||
 		!set_sprop(xthis, "open", bool_to_char(col->open)) ||
-		!set_sprop(xthis, "selected",
-			bool_to_char(col->selected)) ||
+		!set_sprop(xthis, "selected", bool_to_char(col->selected)) ||
 		!set_sprop(xthis, "sform", bool_to_char(FALSE)) ||
 		!set_iprop(xthis, "next", col->next) ||
 		!set_sprop(xthis, "name", IOBJECT(col)->name))
@@ -203,7 +203,7 @@ column_save_test(Model *model)
 		/* Only save columns containing selected rows.
 		 */
 		return column_map(col,
-				   (row_map_fn) row_is_selected, NULL, NULL) != NULL;
+			(row_map_fn) row_is_selected, NULL, NULL) != NULL;
 
 	return TRUE;
 }

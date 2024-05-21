@@ -44,18 +44,18 @@
 struct _Filemodel {
 	Model model;
 
-	char *filename;		 /* File we read this thing from */
-	gboolean modified;	 /* Set if modified (and should be saved) */
-	gboolean registered; /* Set if on list of things to save on quit */
-	gboolean auto_load;	 /* TRUE if loaded from path_start */
+	char *filename;			/* File we read this thing from */
+	gboolean modified;		/* Set if modified (and should be saved) */
+	gboolean registered;	/* Set if on list of things to save on quit */
+	gboolean auto_load;		/* TRUE if loaded from path_start */
 
-	int x_off; /* Save offset for things below this */
+	int x_off;				/* Save offset for things below this */
 	int y_off;
 
 	/* When we loaded this filemodel, the version numbers we saw in the
 	 * XML file.
 	 */
-	gboolean versioned; /* Set means from a versioned file */
+	gboolean versioned;		/* Set means from a versioned file */
 	int major;
 	int minor;
 	int micro;
