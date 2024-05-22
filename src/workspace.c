@@ -43,7 +43,9 @@ static GSList *workspace_needs_layout = NULL;
 // FIXME ... will need revising
 const char *filesel_type_workspace = ".ws";
 
-void
+static gint workspace_layout_timeout = 0;
+
+static void
 workspace_set_needs_layout(Workspace *ws, gboolean needs_layout)
 {
 #ifdef DEBUG_VERBOSE
@@ -51,27 +53,53 @@ workspace_set_needs_layout(Workspace *ws, gboolean needs_layout)
 		ws, IOBJECT(ws)->name, needs_layout);
 #endif /*DEBUG_VERBOSE*/
 
-	if (!ws->needs_layout &&
-		needs_layout &&
-		!ws->in_dispose) {
-		g_assert(!g_slist_find(workspace_needs_layout, ws));
+	if (needs_layout != ws->needs_layout) {
+		g_assert(!g_slist_find(workspace_needs_layout, ws) == needs_layout);
 
-		ws->needs_layout = TRUE;
-		workspace_needs_layout = g_slist_prepend(workspace_needs_layout, ws);
-	}
+		if (needs_layout)
+			workspace_needs_layout =
+				g_slist_prepend(workspace_needs_layout, ws);
+		else
+			workspace_needs_layout =
+				g_slist_remove(workspace_needs_layout, ws);
 
-	if (ws->needs_layout && !needs_layout) {
-		g_assert(g_slist_find(workspace_needs_layout, ws));
-
-		ws->needs_layout = FALSE;
-		workspace_needs_layout = g_slist_remove(workspace_needs_layout, ws);
+		ws->needs_layout = needs_layout;
 	}
 }
 
-GSList *
-workspace_get_needs_layout()
+static void *
+workspace_layout_sub(Workspace *ws)
 {
-	return workspace_needs_layout;
+	model_layout(MODEL(ws));
+	workspace_set_needs_layout(ws, FALSE);
+	workspace_set_modified(ws, TRUE);
+
+	return NULL;
+}
+
+static gboolean
+workspace_layout_timeout_cb(gpointer user_data)
+{
+	printf("workspace_layout_timeout_cb:\n");
+
+	workspace_layout_timeout = 0;
+
+	slist_map(workspace_needs_layout,
+		(SListMapFn) workspace_layout_sub, NULL);
+
+	return FALSE;
+}
+
+void
+workspace_queue_layout(Workspace *ws)
+{
+	printf("workspace_queue_layout:\n");
+
+	workspace_set_needs_layout(ws, TRUE);
+
+	VIPS_FREEF(g_source_remove, workspace_layout_timeout);
+	workspace_layout_timeout = g_timeout_add(300,
+		(GSourceFunc) workspace_layout_timeout_cb, NULL);
 }
 
 Workspacegroup *
@@ -444,9 +472,6 @@ workspace_column_new(Workspace *ws)
 		col->y = old_col->y;
 	}
 
-	workspace_set_needs_layout(ws, TRUE);
-	mainwindow_layout();
-
 	workspace_column_select(ws, col);
 	column_scrollto(col, MODEL_SCROLL_TOP);
 
@@ -703,6 +728,8 @@ workspace_current(iContainer *parent, iContainer *child)
 		current->selected = FALSE;
 	if (col)
 		col->selected = TRUE;
+	if (ws)
+		workspace_queue_layout(ws);
 
 	ICONTAINER_CLASS(workspace_parent_class)->current(parent, child);
 }

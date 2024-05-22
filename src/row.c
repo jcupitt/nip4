@@ -620,6 +620,7 @@ row_parent_remove(iContainer *child)
 	 */
 	row_dirty_clear(row);
 	row_deselect(row);
+	workspace_queue_layout(row->ws);
 
 	/* Don't clear error ... we may no longer have the link to expr. See
 	 * row_dispose() for that.

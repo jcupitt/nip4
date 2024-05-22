@@ -605,6 +605,8 @@ static void
 workspaceview_layout(View *view)
 {
 	Workspaceview *wview = WORKSPACEVIEW(view);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
 	WorkspaceLayout layout;
 
 	layout.wview = wview;
@@ -845,6 +847,7 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 
 		// Move columns to their final position.
 		model_layout(MODEL(ws));
+
 		workspace_set_modified(ws, TRUE);
 
 		break;

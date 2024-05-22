@@ -123,8 +123,7 @@ typedef struct _WorkspaceClass {
 
 extern const char *filesel_type_workspace;
 
-void workspace_set_needs_layout(Workspace *ws, gboolean needs_layout);
-GSList *workspace_get_needs_layout();
+void workspace_queue_layout(Workspace *ws);
 
 Workspacegroup *workspace_get_workspacegroup(Workspace *ws);
 Workspaceroot *workspace_get_workspaceroot(Workspace *ws);

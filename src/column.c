@@ -71,6 +71,25 @@ column_map_symbol(Column *col, symbol_map_fn fn, void *a)
 }
 
 static void
+column_dispose(GObject *gobject)
+{
+	Column *col;
+
+	g_return_if_fail(gobject != NULL);
+	g_return_if_fail(IS_COLUMN(gobject));
+
+#ifdef DEBUG
+	printf("column_dispose\n");
+#endif /*DEBUG*/
+
+	col = COLUMN(gobject);
+
+	workspace_queue_layout(col->ws);
+
+	G_OBJECT_CLASS(column_parent_class)->dispose(gobject);
+}
+
+static void
 column_finalize(GObject *gobject)
 {
 	Column *col;
@@ -266,6 +285,8 @@ column_class_init(ColumnClass *class)
 
 	/* Init methods.
 	 */
+	gobject_class->dispose = column_dispose;
+
 	iobject_class->user_name = _("Column");
 
 	icontainer_class->child_add = column_child_add;
@@ -440,7 +461,7 @@ column_set_open(Column *col, gboolean open)
 		Workspace *ws = col->ws;
 
 		col->open = open;
-		workspace_set_modified(ws, TRUE);
+		workspace_queue_layout(ws);
 		iobject_changed(IOBJECT(col));
 	}
 }

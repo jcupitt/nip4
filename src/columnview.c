@@ -417,18 +417,6 @@ columnview_dispose(GObject *object)
 	if (cview->shadow)
 		view_child_remove(VIEW(cview->shadow));
 
-	/* The column has maybe gone ... queue a relayout.
-	 *
-	 * should this be automatic? seems wierd to be calling this exp.licitly
-	 * here
-	 */
-	printf("columnview_dispose: FIXME ... move to column_dispose()?\n");
-	if (col &&
-		col->ws) {
-		workspace_set_needs_layout(col->ws, TRUE);
-		mainwindow_layout();
-	}
-
 	gtk_widget_dispose_template(GTK_WIDGET(cview), COLUMNVIEW_TYPE);
 
 	G_OBJECT_CLASS(columnview_parent_class)->dispose(object);
@@ -725,6 +713,7 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		if (!workspace_selected_duplicate(ws))
 			mainwindow_error(MAINWINDOW(view_get_window(view)));
 		workspace_deselect_all(ws);
+		workspace_queue_layout(ws);
 
 		symbol_recalculate_all();
 	}

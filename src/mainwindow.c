@@ -696,36 +696,6 @@ mainwindow_cull(void)
 	printf("mainwindow_cull: FIXME ... implement this\n");
 }
 
-static void *
-mainwindow_layout_sub(Workspace *ws)
-{
-	model_layout(MODEL(ws));
-	workspace_set_needs_layout(ws, FALSE);
-
-	return NULL;
-}
-
-static gboolean
-mainwindow_layout_timeout_cb(gpointer user_data)
-{
-	printf("mainwindow_layout_timeout_cb:\n");
-
-	mainwindow_layout_timeout = 0;
-
-	slist_map(workspace_get_needs_layout(),
-		(SListMapFn) mainwindow_layout_sub, NULL);
-
-	return FALSE;
-}
-
-void
-mainwindow_layout(void)
-{
-	VIPS_FREEF(g_source_remove, mainwindow_layout_timeout);
-	mainwindow_layout_timeout = g_timeout_add(300,
-		(GSourceFunc) mainwindow_layout_timeout_cb, NULL);
-}
-
 void
 mainwindow_set_action_view(View *action_view)
 {
