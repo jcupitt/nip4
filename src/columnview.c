@@ -350,13 +350,13 @@ columnview_get_position(Columnview *cview, int *x, int *y, int *w, int *h)
 void
 columnview_add_shadow(Columnview *cview)
 {
-	printf("columnview_add_shadow:\n");
-
 	if (!cview->shadow) {
 		Column *col = COLUMN(VOBJECT(cview)->iobject);
 		Workspaceview *wview = cview->wview;
 
 		Columnview *shadow;
+
+		printf("columnview_add_shadow:\n");
 
 		/* We can't use model_view_new() etc as we don't want the shadow to be
 		 * part of the viewchild system, or to auto update when col updates.
@@ -368,13 +368,7 @@ columnview_add_shadow(Columnview *cview)
 		cview->shadow = shadow;
 		shadow->master = cview;
 
-		/* Duplicate the ref_sink that view_real_child_add() does, so we can
-		 * dispose correctly.
-		 */
-		g_object_ref_sink(G_OBJECT(shadow));
-
-		/* So shadow will have two refs: one held by fixed, one ready to be
-		 * droped by view dispose.
+		/* Shadow will have one ref held by fixed.
 		 */
 		gtk_fixed_put(GTK_FIXED(wview->fixed),
 			GTK_WIDGET(shadow), col->x, col->y);
@@ -391,6 +385,8 @@ columnview_remove_shadow(Columnview *cview)
 {
 	if (cview->shadow) {
 		Workspaceview *wview = cview->wview;
+
+		printf("columnview_remove_shadow:\n");
 
 		cview->shadow->master = NULL;
 		view_child_remove(cview->shadow);
