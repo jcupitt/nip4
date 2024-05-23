@@ -1,5 +1,7 @@
 
-- columns "slip" during background scroll drag
+- on load, should scroll to make selected column visible
+
+- animate workspace layout
 
 - changes to a row need to update any viewers
 
@@ -63,13 +65,6 @@
 	save wsg
 	... but does not set filename on filemodel
 	don't see filename in header bar
-
-- animate workspace layout
-
-- animate scroll-to-keep-column-visible
-
-	have a look at gtk_viewport_set_scroll_to_focus() ... could this
-	do the work for us?
 
 - use a filemanager style left bar for the toolkit browser
 

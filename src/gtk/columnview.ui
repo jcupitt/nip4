@@ -40,6 +40,7 @@
         <child>
           <object class="GtkBox">
             <property name="orientation">vertical</property>
+            <property name="spacing">1</property>
 
             <!-- titlebar -->
 	    <child>

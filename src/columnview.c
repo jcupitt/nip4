@@ -610,18 +610,27 @@ columnview_scrollto(View *view, ModelScrollPosition position)
 {
 	Columnview *cview = COLUMNVIEW(view);
 	Workspaceview *wview = cview->wview;
+
 	int x, y, w, h;
 
 	columnview_get_position(cview, &x, &y, &w, &h);
 
-	if (position == MODEL_SCROLL_BOTTOM)
-		/* 35 is supposed to be enough to ensure the whole of the edit
-		 * box gets on the screen.
-		 */
-		workspaceview_scroll(wview, x, y + h, w, 35);
-	else
-		// workspaceview_scroll(wview, x, y, w, cview->title->allocation.height);
-		workspaceview_scroll(wview, x, y, w, 50);
+	switch (position) {
+	case MODEL_SCROLL_BOTTOM:
+		y += h - 50;
+		h = 50;
+		break;
+
+	case MODEL_SCROLL_TOP:
+		h = 50;
+		break;
+
+	default:
+		g_assert_not_reached();
+		break;
+	}
+
+	workspaceview_scroll(wview, x, y, w, h);
 }
 
 static void

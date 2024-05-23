@@ -80,8 +80,6 @@ workspace_layout_sub(Workspace *ws)
 static gboolean
 workspace_layout_timeout_cb(gpointer user_data)
 {
-	printf("workspace_layout_timeout_cb:\n");
-
 	workspace_layout_timeout = 0;
 
 	slist_map(workspace_needs_layout,
@@ -93,8 +91,6 @@ workspace_layout_timeout_cb(gpointer user_data)
 void
 workspace_queue_layout(Workspace *ws)
 {
-	printf("workspace_queue_layout:\n");
-
 	workspace_set_needs_layout(ws, TRUE);
 
 	VIPS_FREEF(g_source_remove, workspace_layout_timeout);
