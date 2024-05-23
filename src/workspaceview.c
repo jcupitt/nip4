@@ -836,6 +836,7 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 			Column *col = COLUMN(VOBJECT(wview->drag_cview)->iobject);
 
 			workspace_column_select(ws, col);
+			workspace_queue_layout(ws);
 		}
 
 		break;

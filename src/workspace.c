@@ -474,6 +474,7 @@ workspace_column_new(Workspace *ws)
 
 	workspace_column_select(ws, col);
 	column_scrollto(col, MODEL_SCROLL_TOP);
+	workspace_queue_layout(ws);
 
 	return col;
 }
@@ -728,8 +729,6 @@ workspace_current(iContainer *parent, iContainer *child)
 		current->selected = FALSE;
 	if (col)
 		col->selected = TRUE;
-	if (ws)
-		workspace_queue_layout(ws);
 
 	ICONTAINER_CLASS(workspace_parent_class)->current(parent, child);
 }
