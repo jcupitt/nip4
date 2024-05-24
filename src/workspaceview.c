@@ -518,26 +518,12 @@ workspaceview_layout_set_pos(Columnview *cview, WorkspaceLayout *layout)
 	col->y = layout->out_y;
 	iobject_changed(IOBJECT(col));
 
-	// remove any previous width lock we set
-	gtk_widget_set_size_request(GTK_WIDGET(cview), -1, -1);
-
 	int x, y, w, h;
 	columnview_get_position(cview, &x, &y, &w, &h);
 	layout->out_y += h + workspaceview_layout_vspacing;
 
 	// find the widest column
 	layout->area.width = VIPS_MAX(layout->area.width, w);
-
-	return NULL;
-}
-
-/* Force all columns to the same width.
- */
-static void *
-workspaceview_layout_set_width(Columnview *cview, WorkspaceLayout *layout)
-{
-	// lock width to max, let height float
-	gtk_widget_set_size_request(GTK_WIDGET(cview), layout->area.width, -1);
 
 	return NULL;
 }
@@ -569,9 +555,6 @@ workspaceview_layout_loop(WorkspaceLayout *layout)
 	layout->area.width = 0;
 	slist_map(layout->current_columns,
 		(SListMapFn) workspaceview_layout_set_pos, layout);
-
-	slist_map(layout->current_columns,
-		(SListMapFn) workspaceview_layout_set_width, layout);
 
 	layout->out_x += layout->area.width + workspaceview_layout_hspacing;
 

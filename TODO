@@ -1,10 +1,3 @@
-- stack columns vertically, then try dragging another column through them
-
-  we can split the columns apart!
-
-  layout doesn't seem to be using the right x/y pos for cols if you trigger a
-  layout during an animation
-
 - set A1 to [1..100], should relayout
 
   queue a relayout on all row changes?
