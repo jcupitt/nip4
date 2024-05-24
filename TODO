@@ -1,6 +1,29 @@
+- stack columns vertically, then try dragging another column through them
+
+  we can split the columns apart!
+
+  layout doesn't seem to be using the right x/y pos for cols if you trigger a
+  layout during an animation
+
 - set A1 to [1..100], should relayout
 
   queue a relayout on all row changes?
+
+  or can we detect column width changes?
+
+  looks like we need to implement custom resize for columnview
+
+	https://docs.gtk.org/gtk4/class.Widget.html#height-for-width-geometry-management
+
+	implement
+
+		measure
+		get_request_mode
+		size_allocate
+
+	and maybe don't set the gtk layout manager?
+
+	just forward to frame, but note sizes as they pass through
 
 - size columns together? not clear how easy sizegroup makes this
 

@@ -378,7 +378,7 @@ columnview_add_shadow(Columnview *cview)
 		shadow->x = cview->x;
 		shadow->y = cview->y;
 
-		/* Match the size of tyhe original as well.
+		/* Match the size of the original as well.
 		 */
 		int x, y, w, h;
 		columnview_get_position(cview, &x, &y, &w, &h);

@@ -464,7 +464,7 @@ workspace_column_new(Workspace *ws)
 	/* Position just to right of currently selected column.
 	 */
 	if ((old_col = workspace_get_column(ws))) {
-		col->x = old_col->x + 50;
+		col->x = old_col->x + 110;
 		col->y = old_col->y;
 	}
 

@@ -37,11 +37,12 @@ G_DEFINE_TYPE(Workspaceview, workspaceview, VIEW_TYPE)
 
 /* Params for "Align Columns" function.
  */
-static const int workspaceview_layout_snap_threshold = 40;
+static const int workspaceview_layout_snap_threshold = 100;
 static const int workspaceview_layout_hspacing = 10;
 static const int workspaceview_layout_vspacing = 10;
 static const int workspaceview_layout_left = WORKSPACEVIEW_MARGIN_LEFT;
 static const int workspaceview_layout_top = WORKSPACEVIEW_MARGIN_TOP;
+static const double workspaceview_animation_duration = 0.5;
 
 /* From clutter-easing.c, based on Robert Penner's infamous easing equations,
  * MIT license.
@@ -67,8 +68,6 @@ static gboolean
 workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 	gpointer user_data)
 {
-	const double animation_duration = 0.5;
-
     Workspaceview *wview = WORKSPACEVIEW(user_data);
 
     gint64 frame_time = gdk_frame_clock_get_frame_time(frame_clock);
@@ -97,7 +96,7 @@ workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 
 		// 0-1 progress in animation
 		double duration = wview->should_animate ?
-			animation_duration : cview->elapsed;
+			workspaceview_animation_duration : cview->elapsed;
 		double t = VIPS_CLIP(0, ease_out_cubic(cview->elapsed / duration), 1);
 
 		if (cview->shadow ||
@@ -467,11 +466,8 @@ workspaceview_layout_add(View *view, WorkspaceLayout *layout)
 static void *
 workspaceview_layout_find_leftmost(Columnview *cview, WorkspaceLayout *layout)
 {
-	int x, y, w, h;
-
-	columnview_get_position(cview, &x, &y, &w, &h);
-	if (x < layout->area.left) {
-		layout->area.left = x;
+	if (cview->x < layout->area.left) {
+		layout->area.left = cview->x;
 		layout->cview = cview;
 	}
 
@@ -487,21 +483,18 @@ workspaceview_layout_find_similar_x(Columnview *cview,
 
 	/* Special case: a colum at zero makes a new column on the far left.
 	 */
-	columnview_get_position(cview, &x, &y, &w, &h);
 	snap = FALSE;
 	if (layout->area.left == 0 &&
-		x == 0)
+		cview->x == 0)
 		snap = TRUE;
 
 	if (layout->area.left > 0 &&
-		ABS(x - layout->area.left) < workspaceview_layout_snap_threshold)
+		ABS(cview->x - layout->area.left) < workspaceview_layout_snap_threshold)
 		snap = TRUE;
 
-	if (snap) {
+	if (snap)
 		layout->current_columns =
 			g_slist_prepend(layout->current_columns, cview);
-		layout->area.width = VIPS_MAX(layout->area.width, w);
-	}
 
 	return NULL;
 }
@@ -511,29 +504,40 @@ workspaceview_layout_find_similar_x(Columnview *cview,
 static int
 workspaceview_layout_sort_y(Columnview *a, Columnview *b)
 {
-	int ax, ay, aw, ah;
-	int bx, by, bw, bh;
-
-	columnview_get_position(a, &ax, &ay, &aw, &ah);
-	columnview_get_position(b, &bx, &by, &bw, &bh);
-
-	return ay - by;
+	return a->y - b->y;
 }
 
 static void *
 workspaceview_layout_set_pos(Columnview *cview, WorkspaceLayout *layout)
 {
-	Column *column = COLUMN(VOBJECT(cview)->iobject);
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
 
 	/* columnview_refresh() will move the views and the shadow.
 	 */
-	column->x = layout->out_x;
-	column->y = layout->out_y;
-	iobject_changed(IOBJECT(column));
+	col->x = layout->out_x;
+	col->y = layout->out_y;
+	iobject_changed(IOBJECT(col));
+
+	// remove any previous width lock we set
+	gtk_widget_set_size_request(GTK_WIDGET(cview), -1, -1);
 
 	int x, y, w, h;
 	columnview_get_position(cview, &x, &y, &w, &h);
 	layout->out_y += h + workspaceview_layout_vspacing;
+
+	// find the widest column
+	layout->area.width = VIPS_MAX(layout->area.width, w);
+
+	return NULL;
+}
+
+/* Force all columns to the same width.
+ */
+static void *
+workspaceview_layout_set_width(Columnview *cview, WorkspaceLayout *layout)
+{
+	// lock width to max, let height float
+	gtk_widget_set_size_request(GTK_WIDGET(cview), layout->area.width, -1);
 
 	return NULL;
 }
@@ -549,16 +553,12 @@ workspaceview_layout_strike(Columnview *cview, WorkspaceLayout *layout)
 static void
 workspaceview_layout_loop(WorkspaceLayout *layout)
 {
-	int x, y, w, h;
-
 	layout->cview = NULL;
 	layout->area.left = INT_MAX;
 	slist_map(layout->undone_columns,
 		(SListMapFn) workspaceview_layout_find_leftmost, layout);
 
 	layout->current_columns = NULL;
-	columnview_get_position(layout->cview, &x, &y, &w, &h);
-	layout->area.width = w;
 	slist_map(layout->undone_columns,
 		(SListMapFn) workspaceview_layout_find_similar_x, layout);
 
@@ -566,8 +566,12 @@ workspaceview_layout_loop(WorkspaceLayout *layout)
 		(GCompareFunc) workspaceview_layout_sort_y);
 
 	layout->out_y = workspaceview_layout_top;
+	layout->area.width = 0;
 	slist_map(layout->current_columns,
 		(SListMapFn) workspaceview_layout_set_pos, layout);
+
+	slist_map(layout->current_columns,
+		(SListMapFn) workspaceview_layout_set_width, layout);
 
 	layout->out_x += layout->area.width + workspaceview_layout_hspacing;
 
