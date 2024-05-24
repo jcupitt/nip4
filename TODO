@@ -1,8 +1,17 @@
+- set A1 to [1..100], should relayout
+
+  queue a relayout on all row changes?
+
+- size columns together? not clear how easy sizegroup makes this
+
+  could do this in layout with gtk_widget_set_size_request() and setting -1
+  for height
+
+- do we animate columns into place on load? this might look dumb
 
 - on load, should scroll to make selected column visible
 
-- animate workspace layout
-
+	not so easy ... this would have to be on a timeout I think
 - changes to a row need to update any viewers
 
 	A1 	$HOME/pics/k2.jpg

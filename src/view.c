@@ -323,6 +323,9 @@ view_dispose(GObject *object)
 		view_child_remove(view);
 	g_assert(!view->parent);
 
+	g_assert(g_slist_length(view->children) == 0);
+	VIPS_FREEF(g_slist_free, view->children);
+
 #ifdef DEBUG_LEAK
 	// we should have no living child widgets
 	gboolean stray_children = FALSE;
@@ -344,7 +347,7 @@ view_dispose(GObject *object)
 			stray_children = TRUE;
 		}
 	}
-	//g_assert(!stray_children);
+	g_assert(!stray_children);
 #endif /*DEBUG_LEAK*/
 
 	// just a viewchild skeleton we can free
@@ -643,6 +646,9 @@ view_real_child_add(View *parent, View *child)
 	g_assert(!child->parent);
 	child->parent = parent;
 
+	g_assert(!g_slist_find(parent->children, child));
+	parent->children = g_slist_prepend(parent->children, child);
+
 	/* We don't ref and unref ... our superclasses will add the view to the
 	 * enclosing widget and that will hold a ref for us. Views without an
 	 * enclosing widget (eg. rowview) need a ref/unref in the enclosing view
@@ -669,6 +675,9 @@ view_real_child_remove(View *parent, View *child)
 	g_assert(child->parent);
 	g_assert(child->parent == parent);
 	child->parent = NULL;
+
+	g_assert(g_slist_find(parent->children, child));
+	parent->children = g_slist_remove(parent->children, child);
 
     if (viewchild &&
         viewchild->child_view == child)

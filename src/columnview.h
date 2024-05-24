@@ -42,18 +42,14 @@
 /* State ... for mouse titlebar interactions.
  */
 typedef enum {
-	COL_WAIT,	/* Rest state */
-	COL_SELECT, /* Select start, but no drag yet */
-	COL_DRAG,	/* Drag state */
-	COL_EDIT	/* Editing caption */
+	COL_WAIT,						/* Rest state */
+	COL_SELECT,						/* Select start, but no drag yet */
+	COL_DRAG,						/* Drag state */
+	COL_EDIT						/* Editing caption */
 } ColumnviewState;
 
 struct _Columnview {
 	View view;
-
-	/* Our enclosing workspaceview.
-	 */
-	Workspaceview *wview;
 
 	/* Display parts.
 	 */
@@ -82,21 +78,31 @@ struct _Columnview {
 
 	/* Appearance state info.
 	 */
-	ColumnviewState state; /* Waiting or dragging */
-	int start_x;		   /* Drag start */
+	ColumnviewState state;			/* Waiting or dragging */
+
+	/* Current position. Though it will be drawn somewhere between x/y and
+	 * start_x/start_y, depending on elapsed time.
+	 *
+	 * We can't use col->x/y, since every columnview needs a separate
+	 * position, including the shadow. Copy to/from col->x/y on update.
+	 */
+	int x;
+	int y;
+
+	/* Start position for animation towards x/y
+	 */
+	int start_x;
 	int start_y;
 
-	int lx, ly; /* last pos we set */
-	int sx, sy; /* Drag start point */
-	int rx, ry; /* Drag offset */
-	int tx, ty; /* Tally window pos in root cods */
-
-	gboolean selected; /* Last drawn in selected state? */
-
-	/* We watch resize events and trigger a workspace relayout with these.
+	/* Time in seconds since the start of the animation.
 	 */
-	int old_width;
-	int old_height;
+	double elapsed;
+
+	/* TRUE if an animation is in progress.
+	 */
+	gboolean animating;
+
+	gboolean selected;				/* Last drawn in selected state? */
 
 	const char *css_class;
 };
@@ -108,10 +114,11 @@ typedef struct _ColumnviewClass {
 	 */
 } ColumnviewClass;
 
-void columnview_get_position(Columnview *cview,
-	int *x, int *y, int *w, int *h);
+void columnview_get_position(Columnview *cview, int *x, int *y, int *w, int *h);
+Workspaceview *columnview_get_wview(Columnview *cview);
 void columnview_add_shadow(Columnview *old_cview);
 void columnview_remove_shadow(Columnview *cview);
+void columnview_animate_to(Columnview *cview, int x, int y);
 
 GType columnview_get_type(void);
 View *columnview_new(void);

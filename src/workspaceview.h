@@ -101,6 +101,12 @@ struct _Workspaceview {
 	/* Only show the compat warning once.
 	 */
 	gboolean popped_compat;
+
+	/* For layout animation.
+	 */
+	guint tick_handler;
+	gint64 last_frame_time;
+    gboolean should_animate;
 };
 
 typedef struct _WorkspaceviewClass {

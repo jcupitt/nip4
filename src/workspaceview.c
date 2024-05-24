@@ -37,11 +37,107 @@ G_DEFINE_TYPE(Workspaceview, workspaceview, VIEW_TYPE)
 
 /* Params for "Align Columns" function.
  */
-static const int workspaceview_layout_snap_threshold = 30;
+static const int workspaceview_layout_snap_threshold = 40;
 static const int workspaceview_layout_hspacing = 10;
 static const int workspaceview_layout_vspacing = 10;
 static const int workspaceview_layout_left = WORKSPACEVIEW_MARGIN_LEFT;
 static const int workspaceview_layout_top = WORKSPACEVIEW_MARGIN_TOP;
+
+/* From clutter-easing.c, based on Robert Penner's infamous easing equations,
+ * MIT license.
+ */
+static double
+ease_out_cubic(double t)
+{
+    double p = t - 1;
+
+    return p * p * p + 1;
+}
+
+static void
+workspaceview_stop_animation(Workspaceview *wview)
+{
+    if (wview->tick_handler) {
+        gtk_widget_remove_tick_callback(GTK_WIDGET(wview), wview->tick_handler);
+        wview->tick_handler = 0;
+    }
+}
+
+static gboolean
+workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
+	gpointer user_data)
+{
+	const double animation_duration = 0.5;
+
+    Workspaceview *wview = WORKSPACEVIEW(user_data);
+
+    gint64 frame_time = gdk_frame_clock_get_frame_time(frame_clock);
+    double dt = wview->last_frame_time > 0 ?
+        (double) (frame_time - wview->last_frame_time) / G_TIME_SPAN_SECOND :
+        1.0 / G_TIME_SPAN_SECOND;
+
+#ifdef DEBUG
+    printf("workspaceview_tick: dt = %g\n", dt);
+#endif /*DEBUG*/
+
+	gboolean finished = TRUE;
+
+	for (GSList *p = VIEW(wview)->children; p; p = p->next) {
+		Columnview *cview = COLUMNVIEW(p->data);
+		Column *col = COLUMN(VOBJECT(cview)->iobject);
+
+		int x;
+		int y;
+
+		if (!cview->animating)
+			continue;
+
+		// elapsed time in seconds
+		cview->elapsed += dt;
+
+		// 0-1 progress in animation
+		double duration = wview->should_animate ?
+			animation_duration : cview->elapsed;
+		double t = VIPS_CLIP(0, ease_out_cubic(cview->elapsed / duration), 1);
+
+		if (cview->shadow ||
+			t == 1.0) {
+			/* If this column is being dragged by the user, don't animate, just
+			 * set the final position immediately.
+			 *
+			 * Likewise, if time is up, make sure we set the exact position
+			 * requested.
+			 */
+			x = cview->x;
+			y = cview->y;
+			cview->animating = FALSE;
+		}
+		else {
+			finished = FALSE;
+			x = cview->start_x + t * (cview->x - cview->start_x);
+			y = cview->start_y + t * (cview->y - cview->start_y);
+		}
+
+		gtk_fixed_move(GTK_FIXED(wview->fixed), GTK_WIDGET(cview), x, y);
+	}
+
+	if (finished)
+		workspaceview_stop_animation(wview);
+
+    wview->last_frame_time = frame_time;
+
+    return G_SOURCE_CONTINUE;
+}
+
+static void
+workspaceview_start_animation(Workspaceview *wview)
+{
+    if (!wview->tick_handler) {
+        wview->last_frame_time = -1;
+        wview->tick_handler = gtk_widget_add_tick_callback(GTK_WIDGET(wview),
+			workspaceview_tick, wview, NULL);
+    }
+}
 
 static void
 workspaceview_scroll_to(Workspaceview *wview, int x, int y)
@@ -185,6 +281,7 @@ workspaceview_dispose(GObject *object)
 
 	wview = WORKSPACEVIEW(object);
 
+	workspaceview_stop_animation(wview);
 	FREESID(wview->watch_changed_sid, main_watchgroup);
 	gtk_widget_dispose_template(GTK_WIDGET(wview), WORKSPACEVIEW_TYPE);
 
@@ -215,24 +312,21 @@ workspaceview_realize(GtkWidget *widget)
 static void
 workspaceview_pick_xy(Workspaceview *wview, int *x, int *y)
 {
-	/* Position already set? No change.
+	/* Only if there's no position set yet.
 	 */
-	if (*x >= 0)
-		return;
+	if (*x < 0) {
+		*x = wview->next_x + wview->vp.left;
+		*y = wview->next_y + wview->vp.top;
 
-	/* Set this position.
-	 */
-	*x = wview->next_x + wview->vp.left;
-	*y = wview->next_y + wview->vp.top;
-
-	/* And move on.
-	 */
-	wview->next_x += 30;
-	wview->next_y += 30;
-	if (wview->next_x > 300)
-		wview->next_x = 3;
-	if (wview->next_y > 200)
-		wview->next_y = 3;
+		/* And move on.
+		 */
+		wview->next_x += 30;
+		wview->next_y += 30;
+		if (wview->next_x > 300)
+			wview->next_x = 3;
+		if (wview->next_y > 200)
+			wview->next_y = 3;
+	}
 }
 
 static void
@@ -258,18 +352,14 @@ workspaceview_child_add(View *parent, View *child)
 	Column *column = COLUMN(VOBJECT(cview)->iobject);
 	Workspaceview *wview = WORKSPACEVIEW(parent);
 
-	printf("workspaceview_child_add: FIXME watch resize of columns\n");
-
 	VIEW_CLASS(workspaceview_parent_class)->child_add(parent, child);
 
 	/* Pick start xy pos.
 	 */
 	workspaceview_pick_xy(wview, &column->x, &column->y);
-	cview->lx = column->x;
-	cview->ly = column->y;
-
-	gtk_fixed_put(GTK_FIXED(wview->fixed),
-		GTK_WIDGET(cview), column->x, column->y);
+	gtk_fixed_put(GTK_FIXED(wview->fixed), GTK_WIDGET(cview),
+		column->x, column->y);
+	columnview_animate_to(cview, column->x, column->y);
 }
 
 static void
@@ -287,10 +377,8 @@ static void
 workspaceview_child_position(View *parent, View *child)
 {
 	Workspaceview *wview = WORKSPACEVIEW(parent);
-	Columnview *cview = COLUMNVIEW(child);
 
-	gtk_fixed_move(GTK_FIXED(wview->fixed),
-		GTK_WIDGET(cview), cview->lx, cview->ly);
+	workspaceview_start_animation(wview);
 
 	VIEW_CLASS(workspaceview_parent_class)->child_position(parent, child);
 }
@@ -300,12 +388,12 @@ workspaceview_child_front(View *parent, View *child)
 {
 	Workspaceview *wview = WORKSPACEVIEW(parent);
 	Columnview *cview = COLUMNVIEW(child);
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
 
 	g_object_ref(cview);
 
 	gtk_fixed_remove(GTK_FIXED(wview->fixed), GTK_WIDGET(cview));
-	gtk_fixed_put(GTK_FIXED(wview->fixed),
-		GTK_WIDGET(cview), cview->lx, cview->ly);
+	gtk_fixed_put(GTK_FIXED(wview->fixed), GTK_WIDGET(cview), col->x, col->y);
 
 	g_object_unref(cview);
 }
@@ -437,35 +525,15 @@ workspaceview_layout_set_pos(Columnview *cview, WorkspaceLayout *layout)
 {
 	Column *column = COLUMN(VOBJECT(cview)->iobject);
 
-	int x, y, w, h;
-	gboolean changed;
-
-	/* If this column is being dragged, put the xy we allocate into the
-	 * shadow instead.
+	/* columnview_refresh() will move the views and the shadow.
 	 */
-	changed = FALSE;
-	if (cview->shadow) {
-		if (cview->shadow->lx != layout->out_x ||
-			cview->shadow->ly != layout->out_y) {
-			cview->shadow->lx = layout->out_x;
-			cview->shadow->ly = layout->out_y;
-			changed = TRUE;
-		}
-	}
-	else {
-		if (column->x != layout->out_x ||
-			column->y != layout->out_y) {
-			column->x = layout->out_x;
-			column->y = layout->out_y;
-			changed = TRUE;
-		}
-	}
+	column->x = layout->out_x;
+	column->y = layout->out_y;
+	iobject_changed(IOBJECT(column));
 
+	int x, y, w, h;
 	columnview_get_position(cview, &x, &y, &w, &h);
 	layout->out_y += h + workspaceview_layout_vspacing;
-
-	if (changed)
-		iobject_changed(IOBJECT(column));
 
 	return NULL;
 }
@@ -617,8 +685,8 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 
 			wview->drag_cview = title;
 			wview->state = WVIEW_SELECT;
-			wview->obj_x = col->x;
-			wview->obj_y = col->y;
+			wview->obj_x = cview->x;
+			wview->obj_y = cview->y;
 		}
 		else if (!cview) {
 			// drag on background ... note the scroll position of the fixed
@@ -674,11 +742,13 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 			columnview_get_position(wview->drag_cview, &x, &y, &w, &h);
 
 			// don't let x/y go -ve (layout hates it)
-			col->x = VIPS_CLIP(0, VIPS_RINT(wview->obj_x + offset_x), wview->width - w);
-			col->y = VIPS_CLIP(0, VIPS_RINT(wview->obj_y + offset_y), wview->height - h);
-			iobject_changed(IOBJECT(col));
+			columnview_animate_to(wview->drag_cview,
+				VIPS_CLIP(0,
+					VIPS_RINT(wview->obj_x + offset_x), wview->width - w),
+				VIPS_CLIP(0,
+					VIPS_RINT(wview->obj_y + offset_y), wview->height - h));
 
-			// Move other columns about.
+			// move other columns about (won't touch drag_cview)
 			model_layout(MODEL(ws));
 
 			// top, since we want the titlebar to be visible
@@ -687,9 +757,7 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 		else {
 			// we don't want to drag the window with its own coordinate
 			// system, we'll get feedback
-			graphene_point_t fixed = GRAPHENE_POINT_INIT(
-				offset_x,
-				offset_y);
+			graphene_point_t fixed = GRAPHENE_POINT_INIT(offset_x, offset_y);
 			graphene_point_t screen;
 			if (!gtk_widget_compute_point(wview->fixed, GTK_WIDGET(wview),
 					&fixed, &screen))
@@ -738,10 +806,7 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 		wview->state = WVIEW_WAIT;
 		if (wview->drag_cview)
 			columnview_remove_shadow(wview->drag_cview);
-
-		// Move columns to their final position.
 		model_layout(MODEL(ws));
-
 		workspace_set_modified(ws, TRUE);
 
 		break;
@@ -944,6 +1009,8 @@ workspaceview_init(Workspaceview *wview)
 		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview);
 	g_signal_connect(G_OBJECT(wview->vadj), "changed",
 		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview);
+
+	wview->should_animate = TRUE;
 
 	// a lot of stuff to go in here
 	printf("workspaceview_init: FIXME we must do stuff\n");

@@ -306,7 +306,7 @@ rowview_scrollto(View *view, ModelScrollPosition position)
 {
 	Rowview *rview = ROWVIEW(view);
 	Columnview *cview = view_get_columnview(VIEW(rview));
-	Workspaceview *wview = cview->wview;
+	Workspaceview *wview = columnview_get_wview(cview);
 
 	int x, y, w, h;
 
@@ -623,7 +623,8 @@ void
 rowview_get_position(Rowview *rview, int *x, int *y, int *w, int *h)
 {
 	Columnview *cview = view_get_columnview(VIEW(rview));
-	GtkWidget *fixed = cview->wview->fixed;
+	Workspaceview *wview = columnview_get_wview(cview);
+	GtkWidget *fixed = wview->fixed;
 
 	graphene_rect_t bounds;
 

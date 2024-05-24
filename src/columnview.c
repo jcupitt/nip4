@@ -331,20 +331,26 @@ columnview_get_position(Columnview *cview, int *x, int *y, int *w, int *h)
 		*y = bounds.origin.y;
 		*w = bounds.size.width;
 		*h = bounds.size.height;
-
-#ifdef DEBUG
-		printf("columnview_get_position: %s, x = %d, y = %d, w = %d, h = %d\n",
-			IOBJECT(col)->name, *x, *y, *w, *h);
-#endif /*DEBUG*/
 	}
-	else {
-		/* Nothing there yet ... guess.
-		 */
+
+	if (*w == 0 || *h == 0) {
+		// we're probably not realised yet ... use the saved position
 		*x = col->x;
 		*y = col->y;
 		*w = 200;
 		*h = 50;
 	}
+
+#ifdef DEBUG
+	printf("columnview_get_position: %s, x = %d, y = %d, w = %d, h = %d\n",
+		IOBJECT(col)->name, *x, *y, *w, *h);
+#endif /*DEBUG*/
+}
+
+Workspaceview *
+columnview_get_wview(Columnview *cview)
+{
+	return WORKSPACEVIEW(VIEW(cview)->parent);
 }
 
 void
@@ -352,7 +358,7 @@ columnview_add_shadow(Columnview *cview)
 {
 	if (!cview->shadow) {
 		Column *col = COLUMN(VOBJECT(cview)->iobject);
-		Workspaceview *wview = cview->wview;
+		Workspaceview *wview = columnview_get_wview(cview);
 
 		Columnview *shadow;
 
@@ -362,16 +368,29 @@ columnview_add_shadow(Columnview *cview)
 		 * part of the viewchild system, or to auto update when col updates.
 		 */
 		shadow = COLUMNVIEW(columnview_new());
-		shadow->wview = wview;
-		VIEW(shadow)->parent = VIEW(wview);
+		VIEW(shadow)->parent = VIEW(cview)->parent;
 		VOBJECT(shadow)->iobject = IOBJECT(col);
 		cview->shadow = shadow;
 		shadow->master = cview;
 
+		/* Position it in the right place immediatly.
+		 */
+		shadow->x = cview->x;
+		shadow->y = cview->y;
+
+		/* Match the size of tyhe original as well.
+		 */
+		int x, y, w, h;
+		columnview_get_position(cview, &x, &y, &w, &h);
+		gtk_widget_set_size_request(GTK_WIDGET(shadow), w, h);
+
+		// needs to be on the view children list so it gets animated
+		VIEW(wview)->children = g_slist_prepend(VIEW(wview)->children, shadow);
+
 		/* Shadow will have one ref held by fixed.
 		 */
 		gtk_fixed_put(GTK_FIXED(wview->fixed),
-			GTK_WIDGET(shadow), col->x, col->y);
+			GTK_WIDGET(shadow), shadow->x, shadow->y);
 
 		/* The shadow will be on top of the real column and hide it.
 		 * Put the real column to the front.
@@ -384,12 +403,12 @@ void
 columnview_remove_shadow(Columnview *cview)
 {
 	if (cview->shadow) {
-		Workspaceview *wview = cview->wview;
+		Workspaceview *wview = columnview_get_wview(cview);
 
 		printf("columnview_remove_shadow:\n");
 
 		cview->shadow->master = NULL;
-		view_child_remove(cview->shadow);
+		view_child_remove(VIEW(cview->shadow));
 		cview->shadow = NULL;
 	}
 }
@@ -469,6 +488,25 @@ columnview_css(Columnview *cview)
 		return "widget";
 }
 
+void
+columnview_animate_to(Columnview *cview, int x, int y)
+{
+	if (cview->x != x ||
+		cview->y != y) {
+		// the current position is the new start, the next position is the new
+		// target
+		cview->start_x = cview->x;
+		cview->start_y = cview->y;
+		cview->x = x;
+		cview->y = y;
+		cview->elapsed = 0.0;
+		cview->animating = TRUE;
+
+		// start animation
+		view_child_position(VIEW(cview));
+	}
+}
+
 static void
 columnview_refresh(vObject *vobject)
 {
@@ -489,23 +527,10 @@ columnview_refresh(vObject *vobject)
 	 * position into it. See workspaceview_layout_set_pos().
 	 */
 	if (shadow)
-		view_child_position(VIEW(shadow));
-
-	if (col->x != cview->lx ||
-		col->y != cview->ly) {
-#ifdef DEBUG
-		printf("columnview_refresh: move column %s to %d x %d\n",
-			IOBJECT(col)->name, col->x, col->y);
-#endif /*DEBUG*/
-
-		cview->lx = col->x;
-		cview->ly = col->y;
-		view_child_position(VIEW(cview));
-
-		/* Update the save offset hints too.
-		 */
-		filemodel_set_offset(FILEMODEL(col), cview->lx, cview->ly);
-	}
+		columnview_animate_to(shadow, col->x, col->y);
+	else
+		columnview_animate_to(cview, col->x, col->y);
+	filemodel_set_offset(FILEMODEL(col), col->x, col->y);
 
 	/* Titlebar off in no-edit mode.
 	 */
@@ -563,17 +588,6 @@ columnview_refresh(vObject *vobject)
 }
 
 static void
-columnview_link(View *view, Model *model, View *parent)
-{
-	Columnview *cview = COLUMNVIEW(view);
-	Workspaceview *wview = WORKSPACEVIEW(parent);
-
-	VIEW_CLASS(columnview_parent_class)->link(view, model, parent);
-
-	cview->wview = wview;
-}
-
-static void
 columnview_child_add(View *parent, View *child)
 {
 	Columnview *cview = COLUMNVIEW(parent);
@@ -609,10 +623,9 @@ static void
 columnview_scrollto(View *view, ModelScrollPosition position)
 {
 	Columnview *cview = COLUMNVIEW(view);
-	Workspaceview *wview = cview->wview;
+	Workspaceview *wview = columnview_get_wview(cview);
 
 	int x, y, w, h;
-
 	columnview_get_position(cview, &x, &y, &w, &h);
 
 	switch (position) {
@@ -780,7 +793,6 @@ columnview_class_init(ColumnviewClass *class)
 
 	vobject_class->refresh = columnview_refresh;
 
-	view_class->link = columnview_link;
 	view_class->child_add = columnview_child_add;
 	view_class->child_remove = columnview_child_remove;
 	view_class->scrollto = columnview_scrollto;
