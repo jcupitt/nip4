@@ -1,23 +1,12 @@
 
-- changes to a row need to update any viewers
+- open view, delete row, window not popped down
 
-	A1 	$HOME/pics/k2.jpg
-	A2	$HOME/pics/shark.jpg
-	A3	A1
-	A4 	Image_file A3
+  open view, channge row once works, change row a seecond time fails to update
 
-  what does nip2 do for this?
-
-	- imagemodel holds all model state for a view (settings etc.)
-	- one item is the iimage the model represents
-	- listens to "changed" on the iimage and updates the image in the
-	  conversion
-
-  nip4 imagewindow.c tracks iImage, so just listen for "changed" on that
+  open view, ^Q on main window, bad cast
 
 
 
-- row delete should also kill any viewers
 
 - expand and close buttons in column title should be grey when label text is
   grey

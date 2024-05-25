@@ -80,6 +80,8 @@ struct _Imagewindow {
 	 * etc.
 	 */
 	iImage *iimage;
+	guint iimage_changed_sid;
+	guint iimage_destroy_sid;
 
 	/* The imageui we are currently displaying, or NULL. This is not
 	 * a reference --- the real refs are in @stack.
@@ -856,6 +858,8 @@ imagewindow_dispose(GObject *object)
 
 	imagewindow_files_free(win);
 
+	FREESID(win->iimage_changed_sid, win->iimage);
+	FREESID(win->iimage_destroy_sid, win->iimage);
 	VIPS_UNREF(win->iimage);
 	VIPS_FREEF(gtk_widget_unparent, win->right_click_menu);
 	VIPS_FREEF(g_timer_destroy, win->progress_timer);
@@ -1751,6 +1755,18 @@ imagewindow_iimage_changed(iImage *iimage, Imagewindow *win)
 #ifdef DEBUG
 #endif /*DEBUG*/
 	printf("imagewindow_iimage_changed:\n");
+
+	imagewindow_open_iimage(win, iimage);
+}
+
+static void
+imagewindow_iimage_destroy(iImage *iimage, Imagewindow *win)
+{
+#ifdef DEBUG
+#endif /*DEBUG*/
+	printf("imagewindow_iimage_destroy:\n");
+
+	IDESTROY(win);
 }
 
 void
@@ -1774,7 +1790,12 @@ imagewindow_open_iimage(Imagewindow *win, iImage *iimage)
 		win->iimage = iimage;
 		g_object_ref(iimage);
 
-		g_signal_connect_object(iimage, "changed",
-			G_CALLBACK(imagewindow_iimage_changed), win, 0);
+		FREESID(win->iimage_changed_sid, win->iimage);
+		win->iimage_changed_sid = g_signal_connect(iimage, "changed",
+			G_CALLBACK(imagewindow_iimage_changed), win);
+
+		FREESID(win->iimage_destroy_sid, win->iimage);
+		win->iimage_destroy_sid = g_signal_connect(iimage, "destroy",
+			G_CALLBACK(imagewindow_iimage_destroy), win);
 	}
 }
