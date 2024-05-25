@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -365,6 +365,9 @@ static void
 workspaceview_child_remove(View *parent, View *child)
 {
 	Workspaceview *wview = WORKSPACEVIEW(parent);
+
+	if (wview->drag_cview == COLUMNVIEW(child))
+		wview->drag_cview = NULL;
 
 	VIEW_CLASS(workspaceview_parent_class)->child_remove(parent, child);
 

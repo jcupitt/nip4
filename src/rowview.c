@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -175,8 +175,11 @@ static void
 rowview_refresh(vObject *vobject)
 {
 	Rowview *rview = ROWVIEW(vobject);
+	Row *row = ROW(VOBJECT(rview)->iobject);
+	Workspace *ws = row->top_col->ws;
 
 	rowview_update_widgets(rview);
+	workspace_queue_layout(ws);
 
 	VOBJECT_CLASS(rowview_parent_class)->refresh(vobject);
 }

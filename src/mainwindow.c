@@ -65,9 +65,6 @@ struct _Mainwindow {
 // current autocalc state
 gboolean mainwindow_auto_recalc = TRUE;
 
-// relayout timer
-static gint mainwindow_layout_timeout = 0;
-
 G_DEFINE_TYPE(Mainwindow, mainwindow, GTK_TYPE_APPLICATION_WINDOW);
 
 void
