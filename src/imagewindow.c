@@ -1745,6 +1745,14 @@ imagewindow_open_iimage_filename(const char *filename,
 	imagewindow_open_files(win, &filename, 1);
 }
 
+static void
+imagewindow_iimage_changed(iImage *iimage, Imagewindow *win)
+{
+#ifdef DEBUG
+#endif /*DEBUG*/
+	printf("imagewindow_iimage_changed:\n");
+}
+
 void
 imagewindow_open_iimage(Imagewindow *win, iImage *iimage)
 {
@@ -1765,5 +1773,8 @@ imagewindow_open_iimage(Imagewindow *win, iImage *iimage)
 		VIPS_UNREF(win->iimage);
 		win->iimage = iimage;
 		g_object_ref(iimage);
+
+		g_signal_connect_object(iimage, "changed",
+			G_CALLBACK(imagewindow_iimage_changed), win, 0);
 	}
 }

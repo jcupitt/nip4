@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -124,6 +124,14 @@ subcolumnview_child_remove(View *parent, View *child)
 #endif /*DEBUG*/
 
 	VIEW_CLASS(subcolumnview_parent_class)->child_remove(parent, child);
+
+	/* rowview_refresh() attaches spin, frame and rhsview to the grid, we need
+	 * to remove them here.
+	 */
+	gtk_grid_remove(GTK_GRID(sview->grid), rview->spin);
+	gtk_grid_remove(GTK_GRID(sview->grid), rview->frame);
+	if (rview->rhsview)
+		gtk_grid_remove(GTK_GRID(sview->grid), GTK_WIDGET(rview->rhsview));
 
 	g_assert(g_slist_find(sview->rows, child));
 	sview->rows = g_slist_remove(sview->rows, child);

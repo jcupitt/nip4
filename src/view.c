@@ -22,9 +22,9 @@
  */
 
 /*
- */
 #define DEBUG_VIEWCHILD
 #define DEBUG
+ */
 #define DEBUG_LEAK
 
 /* Time each refresh

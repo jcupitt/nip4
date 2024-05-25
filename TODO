@@ -1,14 +1,10 @@
 
-- row delete is broken
-
-	rhs seems to go, but not frame or spin
-
-
 - changes to a row need to update any viewers
 
 	A1 	$HOME/pics/k2.jpg
 	A2	$HOME/pics/shark.jpg
-	A3 	Image_file A1
+	A3	A1
+	A4 	Image_file A3
 
   what does nip2 do for this?
 
@@ -17,7 +13,11 @@
 	- listens to "changed" on the iimage and updates the image in the
 	  conversion
 
-  row delete should also kill any viewers on that row
+  nip4 imagewindow.c tracks iImage, so just listen for "changed" on that
+
+
+
+- row delete should also kill any viewers
 
 - expand and close buttons in column title should be grey when label text is
   grey
