@@ -1,7 +1,5 @@
 - open view, channge row once works, change row a seecond time fails to update
 
-- spin down on a row, columns below do not move
-
 
 - expand and close buttons in column title should be grey when label text is
   grey
@@ -18,8 +16,6 @@
 
 - we have the css_name thing in several _refresh() methods ... should this be
   in the base class?
-
-- ^W on main window does not kill image windows
 
 - paste into image window
 
