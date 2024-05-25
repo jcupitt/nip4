@@ -130,10 +130,12 @@ app_main(App *app)
 {
 	GList *windows = gtk_application_get_windows(GTK_APPLICATION(app));
 
-	if (windows)
-		return MAINWINDOW(windows->data);
-	else
-		return NULL;
+	// can have non-mainwindow windows
+	for (GSList *p = windows; p; p = p->next)
+		if (IS_MAINWINDOW(p->data))
+			return MAINWINDOW(p->data);
+
+	return NULL;
 }
 
 static void

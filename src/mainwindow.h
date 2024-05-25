@@ -26,7 +26,8 @@
 
 #define MAINWINDOW_TYPE (mainwindow_get_type())
 
-#define NIP4_MAINWINDOW MAINWINDOW
+#define MAINWINDOW NIP4_MAINWINDOW
+#define IS_MAINWINDOW NIP4_IS_MAINWINDOW
 
 G_DECLARE_FINAL_TYPE(Mainwindow, mainwindow,
 	NIP4, MAINWINDOW, GtkApplicationWindow)

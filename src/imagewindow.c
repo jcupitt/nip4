@@ -860,7 +860,6 @@ imagewindow_dispose(GObject *object)
 
 	FREESID(win->iimage_changed_sid, win->iimage);
 	FREESID(win->iimage_destroy_sid, win->iimage);
-	VIPS_UNREF(win->iimage);
 	VIPS_FREEF(gtk_widget_unparent, win->right_click_menu);
 	VIPS_FREEF(g_timer_destroy, win->progress_timer);
 
@@ -1766,7 +1765,7 @@ imagewindow_iimage_destroy(iImage *iimage, Imagewindow *win)
 #endif /*DEBUG*/
 	printf("imagewindow_iimage_destroy:\n");
 
-	IDESTROY(win);
+	gtk_window_destroy(GTK_WINDOW(win));
 }
 
 void
@@ -1786,9 +1785,8 @@ imagewindow_open_iimage(Imagewindow *win, iImage *iimage)
 		else
 			imagewindow_open_image(win, imageinfo_get(FALSE, ii));
 
-		VIPS_UNREF(win->iimage);
+		// not a reference .. we watch for destroy
 		win->iimage = iimage;
-		g_object_ref(iimage);
 
 		FREESID(win->iimage_changed_sid, win->iimage);
 		win->iimage_changed_sid = g_signal_connect(iimage, "changed",

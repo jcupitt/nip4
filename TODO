@@ -1,11 +1,6 @@
+- open view, channge row once works, change row a seecond time fails to update
 
-- open view, delete row, window not popped down
-
-  open view, channge row once works, change row a seecond time fails to update
-
-  open view, ^Q on main window, bad cast
-
-
+- spin down on a row, columns below do not move
 
 
 - expand and close buttons in column title should be grey when label text is
