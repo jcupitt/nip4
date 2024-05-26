@@ -583,28 +583,6 @@ rowview_class_init(RowviewClass *class)
 	view_class->child_remove = rowview_child_remove;
 	view_class->reset = rowview_reset;
 	view_class->scrollto = rowview_scrollto;
-
-	/* Other init.
-	GtkWidget *pane;
-	pane = rowview_popup_menu = popup_build(_("Row menu"));
-	popup_add_but(pane, _("_Edit"),
-		POPUP_FUNC(rowview_edit_cb));
-	popup_add_but(pane, STOCK_DUPLICATE,
-		POPUP_FUNC(rowview_clone_cb));
-	popup_add_but(pane, _("U_ngroup"),
-		POPUP_FUNC(rowview_ungroup_cb));
-	popup_add_but(pane, GTK_STOCK_SAVE_AS,
-		POPUP_FUNC(rowview_save_cb));
-	popup_add_but(pane, _("Replace From _File"),
-		POPUP_FUNC(rowview_replace_cb));
-	popup_add_but(pane, _("_Recalculate"),
-		POPUP_FUNC(rowview_recalc_cb));
-	popup_add_but(pane, _("Re_set"),
-		POPUP_FUNC(rowview_clear_edited_cb));
-	menu_add_sep(pane);
-	popup_add_but(pane, GTK_STOCK_DELETE,
-		POPUP_FUNC(rowview_remove_cb));
-	 */
 }
 
 static void

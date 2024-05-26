@@ -37,7 +37,7 @@ G_DEFINE_TYPE(Workspaceview, workspaceview, VIEW_TYPE)
 
 /* Params for "Align Columns" function.
  */
-static const int workspaceview_layout_snap_threshold = 100;
+static const int workspaceview_layout_snap = 100;
 static const int workspaceview_layout_hspacing = 10;
 static const int workspaceview_layout_vspacing = 10;
 static const int workspaceview_layout_left = WORKSPACEVIEW_MARGIN_LEFT;
@@ -492,7 +492,7 @@ workspaceview_layout_find_similar_x(Columnview *cview,
 		snap = TRUE;
 
 	if (layout->area.left > 0 &&
-		ABS(cview->x - layout->area.left) < workspaceview_layout_snap_threshold)
+		ABS(cview->x - layout->area.left) < workspaceview_layout_snap)
 		snap = TRUE;
 
 	if (snap)
@@ -679,12 +679,9 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 			wview->obj_y = cview->y;
 		}
 		else if (!cview) {
-			// drag on background ... note the scroll position of the fixed
-			// at the start of drag
+			// drag on background
 			wview->drag_cview = NULL;
 			wview->state = WVIEW_SELECT;
-			wview->obj_x = wview->vp.left;
-			wview->obj_y = wview->vp.top;
 		}
 		break;
 
@@ -749,14 +746,12 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 			// system, we'll get feedback
 			graphene_point_t fixed = GRAPHENE_POINT_INIT(offset_x, offset_y);
 			graphene_point_t screen;
-			if (!gtk_widget_compute_point(wview->fixed, GTK_WIDGET(wview),
+			if (!gtk_widget_compute_point(wview->fixed, wview->scrolled_window,
 					&fixed, &screen))
 				return;
 
 			// drag on background
-			int new_x = VIPS_MAX(0, VIPS_RINT(wview->obj_x - screen.x));
-			int new_y = VIPS_MAX(0, VIPS_RINT(wview->obj_y - screen.y));
-			workspaceview_scroll_to(wview, new_x, new_y);
+			workspaceview_scroll_to(wview, -screen.x, -screen.y);
 		}
 
 		break;

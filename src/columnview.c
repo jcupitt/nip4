@@ -588,6 +588,18 @@ columnview_refresh(vObject *vobject)
 }
 
 static void
+columnview_link(View *view, Model *model, View *parent)
+{
+	Column *col = COLUMN(model);
+	Columnview *cview = COLUMNVIEW(view);
+
+	cview->x = col->x;
+	cview->y = col->y;
+
+	VIEW_CLASS(columnview_parent_class)->link(view, model, parent);
+}
+
+static void
 columnview_child_add(View *parent, View *child)
 {
 	Columnview *cview = COLUMNVIEW(parent);
@@ -793,6 +805,7 @@ columnview_class_init(ColumnviewClass *class)
 
 	vobject_class->refresh = columnview_refresh;
 
+	view_class->link = columnview_link;
 	view_class->child_add = columnview_child_add;
 	view_class->child_remove = columnview_child_remove;
 	view_class->scrollto = columnview_scrollto;
