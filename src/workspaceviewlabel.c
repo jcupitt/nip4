@@ -118,6 +118,8 @@ static void
 workspaceviewlabel_menu(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Workspaceviewlabel *wviewlabel)
 {
+	mainwindow_set_action_view(VIEW(wviewlabel->wview));
+
 	gtk_popover_set_pointing_to(GTK_POPOVER(wviewlabel->right_click_menu),
 		&(const GdkRectangle){ x, y, 1, 1 });
 

@@ -401,6 +401,9 @@ static GActionEntry mainwindow_entries[] = {
 	{ "close", mainwindow_close_action },
 	{ "fullscreen", action_toggle, NULL, "false", mainwindow_fullscreen },
 
+	// workspace tab menu
+	{ "tab-duplicate", mainwindow_view_action },
+
 	// workspaceview rightclick menu
 	{ "column-new", mainwindow_view_action },
 

@@ -1,12 +1,13 @@
+
+
+- see if having a rowview menu for every row has a significant overhead
+
+	it's very unclear
+
 - right click menu on row and ws background do not position popup menu
   correctly
 
-	need to translate to container coordinates
-
-	nope, we do that, there seems to be confusion in the menu code ...
-	perhaps we can't share the rowview menu
-
-- open view, channge row once works, change row a seecond time fails to update
+- open view, change row once works, change row a seecond time fails to update
 
 - should share tilesource between iimageview and imagewindow? we seem to
   reload right now

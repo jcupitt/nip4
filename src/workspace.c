@@ -53,7 +53,8 @@ workspace_set_needs_layout(Workspace *ws, gboolean needs_layout)
 		ws, IOBJECT(ws)->name, needs_layout);
 #endif /*DEBUG_VERBOSE*/
 
-	if (needs_layout != ws->needs_layout) {
+	if (!ws->in_dispose &&
+		needs_layout != ws->needs_layout) {
 		g_assert(!g_slist_find(workspace_needs_layout, ws) == needs_layout);
 
 		if (needs_layout)
@@ -1838,3 +1839,4 @@ workspace_duplicate(Workspace *ws)
 
 	return TRUE;
 }
+

@@ -606,15 +606,15 @@ static void
 workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 {
 	Workspaceview *wview = WORKSPACEVIEW(view);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 	const char *name = g_action_get_name(G_ACTION(action));
 
 	printf("workspaceview_action: %s\n", name);
 
-	if (g_str_equal(name, "column-new")) {
-		Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-
+	if (g_str_equal(name, "column-new"))
 		workspace_column_new(ws);
-	}
+	else if (g_str_equal(name, "tab-duplicate"))
+		workspace_duplicate(ws);
 }
 
 static void
