@@ -1,4 +1,18 @@
+- dragging tabs does not reorder workspaces
 
+- need to call
+
+	filemodel_set_modified(FILEMODEL(ws), TRUE)
+
+  in various places where the user modifies a workspace ... we can't just
+  rely on layout to do this for us
+
+	column select
+	ws tab drag
+	new column
+	new workspace
+
+- scroll to selected on ws change is annoying
 
 - see if having a rowview menu for every row has a significant overhead
 

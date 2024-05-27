@@ -827,6 +827,10 @@ workspacegroup_new_from_file(Workspaceroot *wsr,
 {
 	Workspacegroup *wsg;
 
+#ifdef DEBUG
+#endif /*DEBUG*/
+	printf("workspacegroup_new_from_file: %s\n", filename);
+
 	if (!(wsg = workspacegroup_new(wsr)))
 		return NULL;
 
@@ -859,8 +863,8 @@ workspacegroup_new_from_openfile(Workspaceroot *wsr, iOpenFile *of)
 	char name[FILENAME_MAX];
 
 #ifdef DEBUG
-	printf("workspacegroup_new_from_openfile: %s\n", of->fname);
 #endif /*DEBUG*/
+	printf("workspacegroup_new_from_openfile: %s\n", of->fname);
 
 	if (!(wsg = workspacegroup_new(wsr)))
 		return NULL;
@@ -963,8 +967,6 @@ workspacegroup_save_current(Workspacegroup *wsg, const char *filename)
 		return FALSE;
 	}
 
-	filemodel_set_modified(FILEMODEL(wsg), FALSE);
-
 	return TRUE;
 }
 
@@ -979,6 +981,8 @@ workspacegroup_save_all(Workspacegroup *wsg, const char *filename)
 
 		return FALSE;
 	}
+
+	filemodel_set_modified(FILEMODEL(wsg), FALSE);
 
 	return TRUE;
 }

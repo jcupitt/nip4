@@ -73,7 +73,6 @@ workspace_layout_sub(Workspace *ws)
 {
 	model_layout(MODEL(ws));
 	workspace_set_needs_layout(ws, FALSE);
-	workspace_set_modified(ws, TRUE);
 
 	return NULL;
 }

@@ -108,6 +108,11 @@ filemodel_set_modified(Filemodel *filemodel, gboolean modified)
 {
 	FilemodelClass *filemodel_class = FILEMODEL_GET_CLASS(filemodel);
 
+	/*
+	printf("filemodel_set_modified: %s, %d\n",
+		IOBJECT(filemodel)->name, modified);
+	 */
+
 	if (filemodel_class->set_modified)
 		filemodel_class->set_modified(filemodel, modified);
 }

@@ -346,7 +346,7 @@ mainwindow_save_action(GSimpleAction *action,
 	else {
 		// we have a filename associated with this workspacegroup ... we can
 		// just save directly
-		if (!workspacegroup_save_current(main->wsg, filename))
+		if (!workspacegroup_save_all(main->wsg, filename))
 			mainwindow_error(main);
 	}
 }
