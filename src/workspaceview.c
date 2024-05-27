@@ -615,6 +615,10 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		workspace_column_new(ws);
 	else if (g_str_equal(name, "tab-duplicate"))
 		workspace_duplicate(ws);
+	else if (g_str_equal(name, "tab-delete")) {
+		if (!ws->locked)
+			model_check_destroy(GTK_WIDGET(wview), MODEL(ws));
+	}
 }
 
 static void

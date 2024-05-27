@@ -127,14 +127,10 @@ workspacegroupview_child_add(View *parent, View *child)
 	gtk_notebook_insert_page(GTK_NOTEBOOK(wsgview->notebook),
 		GTK_WIDGET(wview), GTK_WIDGET(wview->label), ICONTAINER(ws)->pos);
 
-	// or can we do this in the .ui?
-	printf("workspacegroupview_child_add: FIXME ... set reorderable/detachable?\n");
-	/*
 	gtk_notebook_set_tab_reorderable(GTK_NOTEBOOK(wsgview->notebook),
 		GTK_WIDGET(wview), TRUE);
 	gtk_notebook_set_tab_detachable(GTK_NOTEBOOK(wsgview->notebook),
 		GTK_WIDGET(wview), TRUE);
-	 */
 }
 
 static void
@@ -192,8 +188,10 @@ static void
 workspacegroupview_new_tab_clicked(GtkButton *button, void *user_data)
 {
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
+	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
 
-	printf("workspacegroupview_new_tab_clicked:\n");
+	if (!workspace_new_blank(wsg))
+		mainwindow_error(MAINWINDOW(view_get_window(VIEW(wsgview))));
 }
 
 static void
