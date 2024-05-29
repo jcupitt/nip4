@@ -46,10 +46,6 @@
 
 ## small
 
-- add tab rename
-
-- remove workspace "status" machinery eg. workspace_set_status()
-
 - load x.ws, flip to tab 2, layout is incorrect
   scroll to selected on ws change is annoying
 

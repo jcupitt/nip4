@@ -407,9 +407,10 @@ static GActionEntry mainwindow_entries[] = {
 	{ "fullscreen", action_toggle, NULL, "false", mainwindow_fullscreen },
 
 	// workspace tab menu
+	{ "tab-rename", mainwindow_view_action },
 	{ "tab-duplicate", mainwindow_view_action },
-	{ "tab-delete", mainwindow_view_action },
 	{ "tab-lock", action_toggle, NULL, "false", mainwindow_view_action },
+	{ "tab-delete", mainwindow_view_action },
 
 	// workspaceview rightclick menu
 	{ "column-new", mainwindow_view_action },

@@ -630,6 +630,10 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		(void) workspace_next_error(ws);
 		mainwindow_error(MAINWINDOW(view_get_window(VIEW(wview))));
 	}
+	else if (g_str_equal(name, "tab-rename"))
+		g_object_set(wview->label,
+			"edit", TRUE,
+			NULL);
 }
 
 static void

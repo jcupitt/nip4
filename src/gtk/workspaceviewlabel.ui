@@ -47,32 +47,55 @@
         <property name="spacing">5</property>
 
         <child>
-          <object class="GtkLabel" id="label">
-            <property name="label" translatable="yes">tab 1</property>
+          <object class="GtkStack" id="name_edit_stack">
+            <property name="transition-type">slide-down</property>
 
-              <child>
-                <object class="GtkPopoverMenu" id="right_click_menu">
-                  <property name="menu-model">workspaceviewlabel-menu</property>
-                </object>
-              </child>
+            <child>
+              <object class="GtkLabel" id="label">
+                <property name="label">tab1</property>
+                <property name="width-chars">6</property>
 
-              <child>
-                <object class="GtkGestureClick">
-                  <property name="button">3</property>
-                  <signal name="pressed" handler="workspaceviewlabel_menu"/>
-                </object>
-              </child>
+                <child>
+                  <object class="GtkPopoverMenu" id="right_click_menu">
+                    <property name="menu-model">workspaceviewlabel-menu</property>
+                  </object>
+                </child>
 
-              <child>
-                <object class="GtkGestureClick">
-                  <property name="button">1</property>
-                  <signal name="pressed" handler="workspaceviewlabel_pressed"/>
-                </object>
-              </child>
+                <child>
+                  <object class="GtkGestureClick">
+                    <property name="button">3</property>
+                    <signal name="pressed" handler="workspaceviewlabel_menu"/>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkGestureClick">
+                    <property name="button">1</property>
+		    <signal name="pressed"
+                      handler="workspaceviewlabel_pressed"/>
+                  </object>
+                </child>
+
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkEntry" id="label_edit">
+                <property name="hexpand">true</property>
+                <property name="hexpand">true</property>
+                <signal name="activate"
+                  handler="workspaceviewlabel_name_edit_activate"/>
+                  <child>
+                    <object class="GtkEventControllerKey">
+                      <signal name="key-pressed"
+                        handler="workspaceviewlabel_name_edit_key_pressed"/>
+                    </object>
+                  </child>
+              </object>
+            </child>
 
           </object>
         </child>
-
 
         <child>
           <object class="GtkImage" id="lock">
