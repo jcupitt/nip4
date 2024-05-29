@@ -1,22 +1,70 @@
-- dragging tabs does not reorder workspaces
+- start x2.ws, new workspace, ^Q, assert fail
 
-- need to call
+  works with x3.ws?
 
-	filemodel_set_modified(FILEMODEL(ws), TRUE)
+  x3 new ws is:
 
-  in various places where the user modifies a workspace ... we can't just
-  rely on layout to do this for us
+	workspaceview_init: FIXME we must do stuff
+	workspacegroupview_child_add:
+	workspaceview_link: FIXME toolkitbrowser, panes, etc.
+	icontainer_real_current: parent Workspace "tab1"; child Column "A"
+	icontainer_real_current: parent Workspacegroup "x3"; child Workspace "tab1"
+	workspacegroupview_child_front:
+	set_symbol_drag_type: FIXME .. implement this
 
-	column select
-	ws tab drag
-	new column
-	new workspace
+  x2 new ws is
 
-- scroll to selected on ws change is annoying
+	workspaceview_init: FIXME we must do stuff
+	workspacegroupview_child_add:
+	workspaceview_link: FIXME toolkitbrowser, panes, etc.
+	icontainer_real_current: parent Workspace "tab3"; child Column "A"
+	icontainer_real_current: parent Workspacegroup "x2"; child Workspace "tab3"
+	workspacegroupview_child_front:
+	set_symbol_drag_type: FIXME .. implement this
+
+  ^Q assert fail is
+
+	view_model_child_attach
+	icontainer_reparent
+	workspacegroupview_switch_page_cb
+	gtk_notebook_switch_page
+	gtk_notebook_remove
+	workspacegroupview_child_remove
+
+
+- add "lock tab" to tab menu
+
+- click on tab error indicator should say something about the error
+
+  click on label of a row with an error should give some error feedback
+
+- drag tab to new wsg, ^Q, assert fails in view_real_child_remove()
+
+- can't drag tabs into an existing workspacegroupview
+
+	see https://docs.gtk.org/gtk4/method.Notebook.set_tab_detachable.html
+
+- load x.ws, flip to tab 2, layout is incorrect
+  scroll to selected on ws change is annoying
+
+	look at what happens on page flip
+
+	maybe nothing?
+
+	bad layout seems to be caused by a model_layout on a tab that hasn't
+	been displayed ... perhaps the sizes are wrong?
+
+	need to layout when we select a tab
+
+
+
+
 
 - see if having a rowview menu for every row has a significant overhead
 
 	it's very unclear
+
+	x.ws has 1,000 rows
 
 - right click menu on row and ws background do not position popup menu
   correctly

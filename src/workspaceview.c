@@ -786,7 +786,6 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 
 			workspace_column_select(ws, col);
 			column_scrollto(col, MODEL_SCROLL_TOP);
-			workspace_queue_layout(ws);
 		}
 
 		break;

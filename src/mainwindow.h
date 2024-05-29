@@ -41,5 +41,6 @@ void mainwindow_set_gfile(Mainwindow *main, GFile *gfile);
 void mainwindow_cull(void);
 void mainwindow_layout(void);
 void mainwindow_set_action_view(View *action_view);
+Workspacegroupview *mainwindow_get_workspacegroupview(Mainwindow *main);
 
 #endif /* __MAINWINDOW_H */

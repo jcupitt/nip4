@@ -65,6 +65,9 @@ struct _Mainwindow {
 // current autocalc state
 gboolean mainwindow_auto_recalc = TRUE;
 
+// every alive mainwindow
+static GSList *mainwindow_all = NULL;
+
 G_DEFINE_TYPE(Mainwindow, mainwindow, GTK_TYPE_APPLICATION_WINDOW);
 
 void
@@ -116,6 +119,8 @@ mainwindow_dispose(GObject *object)
 
 	VIPS_FREEF(g_timer_destroy, main->progress_timer);
 	VIPS_FREEF(g_source_remove, main->refresh_timeout);
+
+    mainwindow_all = g_slist_remove(mainwindow_all, main);
 
 	G_OBJECT_CLASS(mainwindow_parent_class)->dispose(object);
 }
@@ -469,6 +474,7 @@ mainwindow_init(Mainwindow *main)
 	gtk_widget_add_controller(main->imagedisplay, controller);
 	) */
 
+    mainwindow_all = g_slist_prepend(mainwindow_all, main);
 }
 
 static void
@@ -690,11 +696,27 @@ mainwindow_new(App *app)
 	return main;
 }
 
+static void *
+mainwindow_cull_sub(Mainwindow *main)
+{
+	printf("mainwindow_cull_sub: %p %s, n_children = %d\n",
+			main,
+			FILEMODEL(main->wsg)->filename,
+			icontainer_get_n_children(ICONTAINER(main->wsg)));
+    if (icontainer_get_n_children(ICONTAINER(main->wsg)) == 0) {
+		printf("mainwindow_cull_sub: killing window\n");
+        filemodel_set_modified(FILEMODEL(main->wsg), FALSE);
+		gtk_window_destroy(GTK_WINDOW(main));
+    }
+
+    return NULL;
+}
+
 void
 mainwindow_cull(void)
 {
-	// destroy any empty Mainwindow (may have had all tabs dragged out)
-	printf("mainwindow_cull: FIXME ... implement this\n");
+    slist_map(mainwindow_all,
+        (SListMapFn) mainwindow_cull_sub, NULL);
 }
 
 void
@@ -705,4 +727,10 @@ mainwindow_set_action_view(View *action_view)
 
 	if (main)
 		main->action_view = action_view;
+}
+
+Workspacegroupview *
+mainwindow_get_workspacegroupview(Mainwindow *main)
+{
+	return main->wsgview;
 }

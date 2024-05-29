@@ -453,6 +453,8 @@ workspace_column_pick(Workspace *ws)
 Column *
 workspace_column_new(Workspace *ws)
 {
+	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+
 	char new_name[MAX_STRSIZE];
 	Column *old_col;
 	Column *col;
@@ -471,6 +473,7 @@ workspace_column_new(Workspace *ws)
 	workspace_column_select(ws, col);
 	column_scrollto(col, MODEL_SCROLL_TOP);
 	workspace_queue_layout(ws);
+	filemodel_set_modified(FILEMODEL(wsg), TRUE);
 
 	return col;
 }
@@ -1177,6 +1180,8 @@ workspace_new_blank(Workspacegroup *wsg)
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 
 	iobject_set(IOBJECT(ws), NULL, _("Default empty tab"));
+
+	filemodel_set_modified(FILEMODEL(wsg), TRUE);
 
 	return ws;
 }

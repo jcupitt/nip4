@@ -237,14 +237,18 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
 	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
 
-	if (ICONTAINER(ws)->parent != ICONTAINER(wsg)) {
-		icontainer_reparent(ICONTAINER(wsg), ICONTAINER(ws), -1);
+	printf("workspacegroupview_switch_page_cb:\n");
 
+	// we can come here during gtk_notebook_page_remove
+	if (!old_wsg)
+		return;
+
+	if (old_wsg != wsg) {
+		icontainer_reparent(ICONTAINER(wsg), ICONTAINER(ws), -1);
 		filemodel_set_modified(FILEMODEL(wsg), TRUE);
 		filemodel_set_modified(FILEMODEL(old_wsg), TRUE);
 
-		// If dragging the tab has emptied the old wsg, we can junk
-		// the window.
+		// the old mainwindow might now be empty
 		mainwindow_cull();
 	}
 
@@ -259,6 +263,14 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 			ws->compat_minor);
 		mainwindow_error(MAINWINDOW(view_get_window(VIEW(wview))));
 	}
+
+    /* How bizarre, pages sometimes fail to set up correctly. Force a
+     * resize to get everything to init.
+    if (wsgview &&
+        wsgview->notebook)
+        gtk_widget_queue_resize(GTK_WIDGET(wsgview->notebook));
+     */
+
 }
 
 static void
@@ -272,37 +284,39 @@ workspacegroupview_page_added_cb(GtkNotebook *notebook,
 	filemodel_set_window_hint(FILEMODEL(wsg), GTK_WINDOW(main));
 }
 
-/*
 static GtkNotebook *
 workspacegroupview_create_window_cb(GtkNotebook *notebook,
-	GtkWidget *page, int x, int y, gpointer user_data)
+	GtkWidget *page, gpointer user_data)
 {
 	Workspaceview *wview = WORKSPACEVIEW(page);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 	Workspacegroup *wsg = WORKSPACEGROUP(ICONTAINER(ws)->parent);
 	Workspaceroot *wsr = wsg->wsr;
 
-	Mainw *new_mainw;
+	Mainwindow *new_main;
 	Workspacegroup *new_wsg;
 	char name[256];
 
-	printf( "workspacegroupview_create_window_cb: wsg = %s, ws = %s\n",
-		IOBJECT( wsg )->name, IOBJECT( ws )->name);
-	printf( "workspacegroupview_create_window_cb: x = %d, y = %d\n", x, y );
+	printf("workspacegroupview_create_window_cb: wsg = %s, ws = %s\n",
+		IOBJECT(wsg)->name, IOBJECT(ws)->name);
 
 	workspaceroot_name_new(wsr, name);
 	new_wsg = workspacegroup_new(wsr);
 
-	printf( "workspacegroupview_create_window_cb: new wsg = %s\n", name );
+	printf("workspacegroupview_create_window_cb: new wsg = %s\n", name);
 
 	iobject_set(IOBJECT(new_wsg), name, NULL);
-	new_mainw = mainw_new(new_wsg);
-	gtk_window_move(GTK_WINDOW(new_mainw), x, y);
-	gtk_widget_show(GTK_WIDGET(new_mainw));
 
-	return GTK_NOTEBOOK(new_mainw->wsgview->notebook);
+	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(wview)));
+	GtkApplication *app = gtk_window_get_application(GTK_WINDOW(main));
+	new_main = mainwindow_new(app);
+	mainwindow_set_wsg(new_main, new_wsg);
+	gtk_window_present(GTK_WINDOW(new_main));
+	Workspacegroupview *new_wsgview =
+		mainwindow_get_workspacegroupview(new_main);
+
+	return GTK_NOTEBOOK(new_wsgview->notebook);
 }
- */
 
 static void
 workspacegroupview_page_reordered_cb(GtkNotebook *notebook,
@@ -388,18 +402,6 @@ workspacegroupview_select_all_cb(GtkWidget *wid, GtkWidget *host,
 
 	if (!ws->locked)
 		workspace_select_all(ws);
-}
-
-static void
-workspacegroupview_duplicate_cb(GtkWidget *wid, GtkWidget *host,
-	Workspaceview *wview)
-{
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-
-	if (!workspace_duplicate(ws)) {
-		error_alert(host);
-		return;
-	}
 }
 
 static void
@@ -505,27 +507,6 @@ workspacegroupview_save_as_cb(GtkWidget *wid, GtkWidget *host,
 
 	gtk_widget_show(GTK_WIDGET(filesel));
 }
-
-// ws has been destroyed.
-static void
-workspacegroupview_delete_done_cb(iWindow *iwnd, void *client,
-	iWindowNotifyFn nfn, void *sys)
-{
-	mainw_cull();
-
-	nfn(sys, IWINDOW_YES);
-}
-
-static void
-workspacegroupview_delete_cb(GtkWidget *wid, GtkWidget *host,
-	Workspaceview *wview)
-{
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-
-	if (!ws->locked)
-		model_check_destroy(GTK_WIDGET(wview),
-			MODEL(ws), workspacegroupview_delete_done_cb);
-}
  */
 
 static void
@@ -535,17 +516,14 @@ workspacegroupview_init(Workspacegroupview *wsgview)
 
 	gtk_widget_init_template(GTK_WIDGET(wsgview));
 
-	/*
 	g_signal_connect(wsgview->notebook, "switch_page",
 		G_CALLBACK(workspacegroupview_switch_page_cb), wsgview);
 	g_signal_connect(wsgview->notebook, "page_added",
 		G_CALLBACK(workspacegroupview_page_added_cb), wsgview);
 	g_signal_connect(wsgview->notebook, "page_reordered",
 		G_CALLBACK(workspacegroupview_page_reordered_cb), wsgview);
-
 	g_signal_connect(wsgview->notebook, "create_window",
 		G_CALLBACK(workspacegroupview_create_window_cb), wsgview);
-	 */
 
 	printf("workspacegroupview_init: FIXME .. implement tab doubleclick\n");
 	/*
