@@ -13,7 +13,7 @@
       </item>
       <item>
         <attribute name='label' translatable='yes'>Next error</attribute>
-        <attribute name='action'>app.new</attribute>
+        <attribute name='action'>win.next-error</attribute>
       </item>
     </section>
     <section>

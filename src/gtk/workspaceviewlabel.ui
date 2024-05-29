@@ -49,36 +49,46 @@
         <child>
           <object class="GtkLabel" id="label">
             <property name="label" translatable="yes">tab 1</property>
+
+              <child>
+                <object class="GtkPopoverMenu" id="right_click_menu">
+                  <property name="menu-model">workspaceviewlabel-menu</property>
+                </object>
+              </child>
+
+              <child>
+                <object class="GtkGestureClick">
+                  <property name="button">3</property>
+                  <signal name="pressed" handler="workspaceviewlabel_menu"/>
+                </object>
+              </child>
+
+              <child>
+                <object class="GtkGestureClick">
+                  <property name="button">1</property>
+                  <signal name="pressed" handler="workspaceviewlabel_pressed"/>
+                </object>
+              </child>
+
           </object>
         </child>
 
+
         <child>
           <object class="GtkImage" id="lock">
+            <property name="icon-name">system-lock-screen-symbolic</property>
           </object>
         </child>
 
         <child>
           <object class="GtkImage" id="error">
-          </object>
-        </child>
-
-        <child>
-          <object class="GtkPopoverMenu" id="right_click_menu">
-            <property name="menu-model">workspaceviewlabel-menu</property>
-          </object>
-        </child>
-
-        <child>
-          <object class="GtkGestureClick">
-            <property name="button">3</property>
-            <signal name="pressed" handler="workspaceviewlabel_menu"/>
-          </object>
-        </child>
-
-        <child>
-          <object class="GtkGestureClick">
-            <property name="button">1</property>
-            <signal name="pressed" handler="workspaceviewlabel_pressed"/>
+            <property name="icon-name">dialog-warning-symbolic</property>
+            <child>
+              <object class="GtkGestureClick">
+                <property name="button">1</property>
+                <signal name="pressed" handler="workspaceviewlabel_error_pressed"/>
+              </object>
+            </child>
           </object>
         </child>
 

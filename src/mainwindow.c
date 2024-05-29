@@ -413,6 +413,7 @@ static GActionEntry mainwindow_entries[] = {
 
 	// workspaceview rightclick menu
 	{ "column-new", mainwindow_view_action },
+	{ "next-error", mainwindow_view_action },
 
 	// column menu
 	{ "column-edit-caption", mainwindow_view_action },

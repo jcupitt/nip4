@@ -1,5 +1,8 @@
 ## tab drag
 
+- workspaceviewlabel_pressed() should not change workspace, we reply on
+  notebook for that, though it can trigger layout
+
 - drag tab to new wsg, ^Q, assert fails in view_real_child_remove()
 
 - can't drag tabs into an existing workspacegroupview
@@ -43,14 +46,7 @@
 
 ## small
 
-- implement next-error
-
-  click on tab error indicator should trigger next-error
-
-  click (or hover?) on label of a row with an error should give some error
-  feedback
-
-	can mousegesture spot hover?
+- remove workspace "status" machinery eg. workspace_set_status()
 
 - load x.ws, flip to tab 2, layout is incorrect
   scroll to selected on ws change is annoying

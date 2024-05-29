@@ -625,6 +625,11 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		GVariant *locked = g_variant_new_boolean(ws->locked);
 		g_simple_action_set_state(action, locked);
 	}
+	else if (g_str_equal(name, "next-error")) {
+		// could use return status to style error bar?
+		(void) workspace_next_error(ws);
+		mainwindow_error(MAINWINDOW(view_get_window(VIEW(wview))));
+	}
 }
 
 static void
@@ -963,19 +968,6 @@ workspaceview_group_action_cb2(GtkWidget *wid, GtkWidget *host,
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 	workspace_selected_group(ws);
-}
-
-static void
-workspaceview_next_error_action_cb2(GtkWidget *wid, GtkWidget *host,
-	Workspaceview *wview)
-{
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-
-	if (!workspace_next_error(ws)) {
-		error_top(_("No errors in tab"));
-		error_sub("%s", _("There are no errors (that I can see) in this tab."));
-		mainwindow_error(MAINWINDOW(view_get_window(VIEW(wview))));
-	}
 }
 
 static void

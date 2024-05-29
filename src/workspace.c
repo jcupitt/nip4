@@ -1522,8 +1522,11 @@ workspace_next_error(Workspace *ws)
 
 	int found;
 
-	if (!ws->errors)
+	if (!ws->errors) {
+		error_top(_("No errors in tab"));
+		error_sub("%s", _("There are no errors (that I can see) in this tab."));
 		return FALSE;
+	}
 
 	/* Search for the one after the last one.
 	 */
@@ -1546,9 +1549,9 @@ workspace_next_error(Workspace *ws)
 	model_scrollto(MODEL(ws->last_error), MODEL_SCROLL_TOP);
 
 	row_qualified_name(ws->last_error->expr->row, &buf);
-	vips_buf_appends(&buf, ": ");
-	vips_buf_appends(&buf, ws->last_error->expr->error_top);
-	workspace_set_status(ws, "%s", vips_buf_firstline(&buf));
+	error_top(_("%s in %s"),
+			ws->last_error->expr->error_top, vips_buf_all(&buf));
+	error_sub(ws->last_error->expr->error_sub);
 
 	return TRUE;
 }

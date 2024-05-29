@@ -138,6 +138,19 @@ workspaceviewlabel_pressed(GtkGestureClick *gesture,
 }
 
 static void
+workspaceviewlabel_error_pressed(GtkGestureClick *gesture,
+	guint n_press, double x, double y, Workspaceviewlabel *wviewlabel)
+{
+	Workspaceview *wview = wviewlabel->wview;
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+	printf("workspaceviewlabel_error_pressed:\n");
+
+	(void) workspace_next_error(ws);
+	mainwindow_error(MAINWINDOW(view_get_window(VIEW(wview))));
+}
+
+static void
 workspaceviewlabel_class_init(WorkspaceviewlabelClass *class)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
@@ -162,6 +175,7 @@ workspaceviewlabel_class_init(WorkspaceviewlabelClass *class)
 
 	BIND_CALLBACK(workspaceviewlabel_menu);
 	BIND_CALLBACK(workspaceviewlabel_pressed);
+	BIND_CALLBACK(workspaceviewlabel_error_pressed);
 
 	gobject_class->dispose = workspaceviewlabel_dispose;
 	gobject_class->set_property = workspaceviewlabel_set_property;
@@ -202,15 +216,6 @@ workspaceviewlabel_refresh(Workspaceviewlabel *wviewlabel)
 	if (IOBJECT(ws)->caption)
 		set_tooltip(wviewlabel->label, "%s", IOBJECT(ws)->caption);
 
-	if (ws->locked)
-		gtk_image_set_from_icon_name(GTK_IMAGE(wviewlabel->lock),
-			"system-lock-screen-symbolic");
-	else
-		gtk_image_clear(GTK_IMAGE(wviewlabel->lock));
-
-	if (ws->errors)
-		gtk_image_set_from_icon_name(GTK_IMAGE(wviewlabel->error),
-			"dialog-warning-symbolic");
-	else
-		gtk_image_clear(GTK_IMAGE(wviewlabel->error));
+	gtk_widget_set_visible(wviewlabel->lock, ws->locked);
+	gtk_widget_set_visible(wviewlabel->error, ws->errors);
 }
