@@ -409,6 +409,7 @@ static GActionEntry mainwindow_entries[] = {
 	// workspace tab menu
 	{ "tab-duplicate", mainwindow_view_action },
 	{ "tab-delete", mainwindow_view_action },
+	{ "tab-lock", action_toggle, NULL, "false", mainwindow_view_action },
 
 	// workspaceview rightclick menu
 	{ "column-new", mainwindow_view_action },

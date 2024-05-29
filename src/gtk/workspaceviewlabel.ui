@@ -27,6 +27,13 @@
 
     <section>
       <item>
+        <attribute name='label' translatable='yes'>Lock tab</attribute>
+        <attribute name='action'>win.tab-lock</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
         <attribute name='label' translatable='yes'>Delete ...</attribute>
         <attribute name='action'>win.tab-delete</attribute>
       </item>

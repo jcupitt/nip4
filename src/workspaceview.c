@@ -619,6 +619,12 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		if (!ws->locked)
 			model_check_destroy(GTK_WIDGET(wview), MODEL(ws));
 	}
+	else if (g_str_equal(name, "tab-lock")) {
+		workspace_set_locked(ws, !ws->locked);
+
+		GVariant *locked = g_variant_new_boolean(ws->locked);
+		g_simple_action_set_state(action, locked);
+	}
 }
 
 static void

@@ -1,3 +1,11 @@
+## tab drag
+
+- drag tab to new wsg, ^Q, assert fails in view_real_child_remove()
+
+- can't drag tabs into an existing workspacegroupview
+
+	see https://docs.gtk.org/gtk4/method.Notebook.set_tab_detachable.html
+
 - start x2.ws, new workspace, ^Q, assert fail
 
   works with x3.ws?
@@ -31,18 +39,18 @@
 	gtk_notebook_remove
 	workspacegroupview_child_remove
 
+  stray views being left after drag?
 
-- add "lock tab" to tab menu
+## small
 
-- click on tab error indicator should say something about the error
+- implement next-error
 
-  click on label of a row with an error should give some error feedback
+  click on tab error indicator should trigger next-error
 
-- drag tab to new wsg, ^Q, assert fails in view_real_child_remove()
+  click (or hover?) on label of a row with an error should give some error
+  feedback
 
-- can't drag tabs into an existing workspacegroupview
-
-	see https://docs.gtk.org/gtk4/method.Notebook.set_tab_detachable.html
+	can mousegesture spot hover?
 
 - load x.ws, flip to tab 2, layout is incorrect
   scroll to selected on ws change is annoying
@@ -54,7 +62,7 @@
 	bad layout seems to be caused by a model_layout on a tab that hasn't
 	been displayed ... perhaps the sizes are wrong?
 
-	need to layout when we select a tab
+	need to layout on every tab select?
 
 
 
