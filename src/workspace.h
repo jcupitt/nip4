@@ -93,8 +93,6 @@ struct _Workspace {
 	gboolean rpane_open;
 	int rpane_position;
 
-	char *status; /* Status message */
-
 	/* Visualisation defaults for this ws.
 	 */
 	double scale;
@@ -183,9 +181,6 @@ gboolean workspace_selected_ungroup(Workspace *ws);
 gboolean workspace_selected_group(Workspace *ws);
 
 gboolean workspace_next_error(Workspace *ws);
-
-void workspace_set_status(Workspace *ws, const char *fmt, ...)
-	__attribute__((format(printf, 2, 3)));
 
 void workspace_set_mode(Workspace *ws, WorkspaceMode mode);
 

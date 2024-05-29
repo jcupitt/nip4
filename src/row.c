@@ -1973,42 +1973,6 @@ row_hide_dependents(Row *row)
 	}
 }
 
-/* Set help for a row. Used by rowview and itextview etc. on mouseover.
- */
-void
-row_set_status(Row *row)
-{
-	Expr *expr = row->expr;
-
-	char txt[MAX_LINELENGTH];
-	VipsBuf buf = VIPS_BUF_STATIC(txt);
-
-	/* No symbol? eg. on load error.
-	 */
-	if (!expr)
-		return;
-
-	row_qualified_name(row, &buf);
-
-	if (expr->err) {
-		vips_buf_appends(&buf, ": ");
-		vips_buf_appends(&buf, expr->error_top);
-	}
-	else if (row->child_rhs->itext) {
-		iText *itext = ITEXT(row->child_rhs->itext);
-
-		vips_buf_appends(&buf, " = ");
-
-		if (row->ws &&
-			row->ws->mode != WORKSPACE_MODE_FORMULA)
-			vips_buf_appends(&buf, itext->formula);
-		else
-			vips_buf_appends(&buf, vips_buf_all(&itext->value));
-	}
-
-	workspace_set_status(row->ws, "%s", vips_buf_firstline(&buf));
-}
-
 /* Sub fn of below ... search inside a row hierarcy. Context is (eg.) row
  * "A1", path is (eg.) "super.name".
  */

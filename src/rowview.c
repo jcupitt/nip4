@@ -515,7 +515,6 @@ rowview_enter_cb(GtkWidget *widget, Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
 
-	row_set_status(row);
 	row_show_dependents(row);
 }
 

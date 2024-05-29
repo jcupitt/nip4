@@ -55,7 +55,7 @@ workspace_set_needs_layout(Workspace *ws, gboolean needs_layout)
 
 	if (!ws->in_dispose &&
 		needs_layout != ws->needs_layout) {
-		g_assert(!g_slist_find(workspace_needs_layout, ws) == needs_layout);
+		g_assert((!g_slist_find(workspace_needs_layout, ws)) == needs_layout);
 
 		if (needs_layout)
 			workspace_needs_layout =
@@ -662,7 +662,6 @@ workspace_finalize(GObject *gobject)
 
 	ws = WORKSPACE(gobject);
 
-	VIPS_FREE(ws->status);
 	VIPS_FREE(ws->local_defs);
 
 	workspace_all = g_slist_remove(workspace_all, ws);
@@ -1122,8 +1121,6 @@ workspace_init(Workspace *ws)
 	ws->rpane_open = WORKSPACE_RPANE_OPEN;
 	ws->rpane_position = WORKSPACE_RPANE_POSITION;
 
-	ws->status = NULL;
-
 	ws->scale = 1.0;
 	ws->offset = 0.0;
 
@@ -1554,20 +1551,6 @@ workspace_next_error(Workspace *ws)
 	error_sub(ws->last_error->expr->error_sub);
 
 	return TRUE;
-}
-
-void
-workspace_set_status(Workspace *ws, const char *fmt, ...)
-{
-	va_list ap;
-	char buf[256];
-
-	va_start(ap, fmt);
-	(void) vips_vsnprintf(buf, 256, fmt, ap);
-	va_end(ap);
-
-	VIPS_SETSTR(ws->status, buf);
-	iobject_changed(IOBJECT(ws));
 }
 
 void
