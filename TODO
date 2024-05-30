@@ -1,3 +1,47 @@
+## rowview menu
+
+- see if having a rowview menu for every row has a significant overhead
+
+	it's very unclear
+
+	x.ws has 1,000 rows
+
+- right click menu on row and ws background do not position popup menu
+  correctly
+
+## imagewindow
+
+- open view, change row once works, change row a seecond time fails to update
+
+- should share tilesource between iimageview and imagewindow? we seem to
+  reload right now
+
+- next/prev image in imagewindow should update iimage?
+
+  scale/offset/etc. in imagewindow should update iimage?
+
+- paste into image window
+
+  clipboard paste will need to write a new imageinfo to the heap, and
+  can't be saved in workspace files
+
+  in imagewindow_open_current_file() we write the filename back to the iimage,
+  but this needs to handle iamges without filenames too
+
+  maybe iimage should listen for "changed" in viewers and update the
+  thumbnail and model?
+
+- imagewindow progress stuff should go?
+
+- hook up a progress bar for eg st-francis.jpg load?
+
+- make a "progress" widget with throttled updates? could share with
+  saveoptions, and move some code out of mainwindow
+
+	we have progress.c, does that work?
+
+- add region display
+
 ## tab drag
 
 - workspaceviewlabel_pressed() should not change workspace, we reply on
@@ -44,20 +88,50 @@
 
   stray views being left after drag?
 
+## toolkit browser
+
+- use a filemanager style left bar for the toolkit browser
+
+	does this need libadiwata?
+
+	where should workspace local defs go?
+
+	need something like lpane / rpane
+
 ## small
+
+- status bar? space free indicator is handy ... could this go somewhere else?
+  maybe in "about"?
+
+  polish "about nip4"
+
+- there's a 20ms timeout in vobject_refresh_queue() ... tune this
 
 - we have workspacegroup_save_selected() and workspace_selected_save() ???
 
-- open dialogs have a "open read only" toggle at the bottom argh
+- try
 
-	not clear how to remove this
+	save with no filename
+	pops save dialog
+	save wsg
+	... but does not set filename on filemodel
+	don't see filename in header bar
+
+## ideas
 
 - look at adding file type stuff, there are hooks for it, see
   gtk_file_dialog_set_default_filter() and:
 
 	https://docs.gtk.org/gtk4/class.FileFilter.html
 
-- polish "about nip4"
+- we have the css_name thing in several _refresh() methods ... should this be
+  in the base class?
+
+## can't fix
+
+- open dialogs have a "open read only" toggle at the bottom argh
+
+	not clear how to remove this
 
 - scroll to selected on ws change is annoying, where does it come from>?
 
@@ -76,26 +150,6 @@
 
 	no idea why this is happening
 
-
-
-
-
-
-- see if having a rowview menu for every row has a significant overhead
-
-	it's very unclear
-
-	x.ws has 1,000 rows
-
-- right click menu on row and ws background do not position popup menu
-  correctly
-
-- open view, change row once works, change row a seecond time fails to update
-
-- should share tilesource between iimageview and imagewindow? we seem to
-  reload right now
-
-
 - expand and close buttons in column title should be grey when label text is
   grey
 
@@ -109,50 +163,8 @@
 
   works, but looks terrible
 
-- we have the css_name thing in several _refresh() methods ... should this be
-  in the base class?
-
-- paste into image window
-
-  clipboard paste will need to write a new imageinfo to the heap, and
-  can't be saved in workspace files
-
-  in imagewindow_open_current_file() we write the filename back to the iimage,
-  but this needs to handle iamges without filenames too
-
-  maybe iimage should listen for "changed" in viewers and update the
-  thumbnail and model?
-
-- imagewindow progress stuff should go?
-
-- hook up a progress bar for eg st-francis.jpg load?
-
 - imagedisplay should not draw the focus rect ... get the base widget class
   to do that for us
 
-  doesn't seem to be possible with drawing area?
-
-- try
-
-	save with no filename
-	pops save dialog
-	save wsg
-	... but does not set filename on filemodel
-	don't see filename in header bar
-
-- use a filemanager style left bar for the toolkit browser
-
-	- does this need libadiwata?
-
-	- where should workspace local defs go?
-
-- status bar? space free indicator is handy ... could this go somewhere else?
-  maybe in "about"?
-
-- make a "progress" widget with throttled updates? could share with
-  saveoptions, and move some code out of mainwindow
-
-	- we have progress.c, does that work?
-
-- there's a 20ms timeout in vobject_refresh_queue() ... tune this
+	  doesn't seem to be possible with drawing area?
 
