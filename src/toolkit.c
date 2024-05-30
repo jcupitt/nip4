@@ -125,8 +125,6 @@ toolkit_class_init(ToolkitClass *class)
 	model_class->view_new = toolkit_view_new;
 	model_class->save_text = toolkit_save_text;
 	model_class->load_text = toolkit_load_text;
-
-	filemodel_class->filetype = ".def";
 }
 
 static void

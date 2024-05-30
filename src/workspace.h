@@ -119,8 +119,6 @@ typedef struct _WorkspaceClass {
 	 */
 } WorkspaceClass;
 
-extern const char *filesel_type_workspace;
-
 void workspace_queue_layout(Workspace *ws);
 
 Workspacegroup *workspace_get_workspacegroup(Workspace *ws);

@@ -746,7 +746,6 @@ workspacegroup_class_init(WorkspacegroupClass *class)
 	model_class->view_new = workspacegroup_view_new;
 	model_class->save = workspacegroup_save;
 
-	filemodel_class->filetype = filesel_type_workspace;
 	filemodel_class->top_load = workspacegroup_top_load;
 	filemodel_class->set_modified = workspacegroup_set_modified;
 }

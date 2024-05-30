@@ -408,9 +408,6 @@ iimage_class_init(iImageClass *class)
 	classmodel_class->graphic_save = iimage_graphic_save;
 	classmodel_class->graphic_replace = iimage_graphic_replace;
 
-	classmodel_class->filetype = "*.jpg";
-	classmodel_class->filetype_pref = "IMAGE_FILE_TYPE";
-
 	/* Static init.
 	 */
 	model_register_loadable(MODEL_CLASS(class));

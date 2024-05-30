@@ -685,6 +685,7 @@ workspaceview_merge(Workspaceview *wview)
 
 	dialog = gtk_file_dialog_new();
 	gtk_file_dialog_set_title(dialog, "Merge into tab");
+	gtk_file_dialog_set_accept_label(dialog, "Merge");
 	gtk_file_dialog_set_modal(dialog, TRUE);
 
 	GFile *load_folder = mainwindow_get_load_folder(main);
@@ -983,7 +984,6 @@ workspaceview_load(Workspace *ws, const char *filename)
 	/* workspace_load_file() needs to recalc to work, try to avoid that by
 	 * doing .defs first.
 	 */
-	printf("workspaceview_load: def filetype test FIXME\n");
 	if (vips_iscasepostfix(filename, ".def")) {
 		if (toolkit_new_from_file(main_toolkitgroup, filename))
 			return TRUE;

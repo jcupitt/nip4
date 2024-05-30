@@ -40,9 +40,6 @@ static GSList *workspace_all = NULL;
 
 static GSList *workspace_needs_layout = NULL;
 
-// FIXME ... will need revising
-const char *filesel_type_workspace = ".ws";
-
 static gint workspace_layout_timeout = 0;
 
 static void

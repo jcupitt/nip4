@@ -128,6 +128,7 @@ columnview_merge(Columnview *cview)
 
 	dialog = gtk_file_dialog_new();
 	gtk_file_dialog_set_title(dialog, "Merge into column");
+	gtk_file_dialog_set_accept_label(dialog, "Merge");
 	gtk_file_dialog_set_modal(dialog, TRUE);
 
 	GFile *load_folder = mainwindow_get_load_folder(main);

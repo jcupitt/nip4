@@ -82,10 +82,6 @@ typedef struct _FilemodelClass {
 		ModelLoadState *state, Model *parent, xmlNode *xnode);
 	void (*set_modified)(Filemodel *filemodel, gboolean modified);
 	gboolean (*top_save)(Filemodel *filemodel, const char *filename);
-
-	// FIXME ... this will need revising
-	const char *filetype;
-	const char *filetype_pref;
 } FilemodelClass;
 
 void filemodel_register(Filemodel *filemodel);

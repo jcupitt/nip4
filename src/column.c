@@ -298,8 +298,6 @@ column_class_init(ColumnClass *class)
 	model_class->save_test = column_save_test;
 	model_class->load = column_load;
 
-	filemodel_class->filetype = filesel_type_workspace;
-
 	/* Static init.
 	 */
 	model_register_loadable(MODEL_CLASS(class));

@@ -166,7 +166,6 @@ mainwindow_dispose(GObject *object)
 #endif /*DEBUG*/
 
 	IDESTROY(main->wsg);
-
 	VIPS_FREEF(g_timer_destroy, main->progress_timer);
 	VIPS_FREEF(g_source_remove, main->refresh_timeout);
 
@@ -319,12 +318,12 @@ mainwindow_open_action(GSimpleAction *action,
 
 	dialog = gtk_file_dialog_new();
 	gtk_file_dialog_set_title(dialog, "Open workspace");
-	gtk_file_dialog_set_accept_label(dialog, "Open");
 	gtk_file_dialog_set_modal(dialog, TRUE);
 
 	// if we have a loaded file, use that folder, else
-	if (main->load_folder)
-		gtk_file_dialog_set_initial_folder(dialog, main->load_folder);
+	GFile *load_folder = mainwindow_get_load_folder(main);
+	if (load_folder)
+		gtk_file_dialog_set_initial_folder(dialog, load_folder);
 
 	gtk_file_dialog_open(dialog, GTK_WINDOW(main), NULL,
 		mainwindow_open_result, main);
@@ -362,8 +361,9 @@ mainwindow_merge_action(GSimpleAction *action,
 	gtk_file_dialog_set_accept_label(dialog, "Merge");
 	gtk_file_dialog_set_modal(dialog, TRUE);
 
-	if (main->load_folder)
-		gtk_file_dialog_set_initial_folder(dialog, main->load_folder);
+	GFile *load_folder = mainwindow_get_load_folder(main);
+	if (load_folder)
+		gtk_file_dialog_set_initial_folder(dialog, load_folder);
 
 	gtk_file_dialog_open(dialog, GTK_WINDOW(main), NULL,
 		mainwindow_merge_result, main);
@@ -399,9 +399,7 @@ mainwindow_saveas_sub(GObject *source_object,
 
 	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
 	if (file) {
-		// note the save directory for next time
-		VIPS_UNREF(main->save_folder);
-		main->save_folder = get_parent(file);
+		mainwindow_set_save_folder(main, file);
 
 		g_autofree char *filename = g_file_get_path(file);
 
@@ -420,9 +418,9 @@ mainwindow_saveas(Mainwindow *main)
 	gtk_file_dialog_set_title(dialog, "Save workspace as");
 	gtk_file_dialog_set_modal(dialog, TRUE);
 
-	// if we loaded from a file, use that dir, else
-	if (main->save_folder)
-		gtk_file_dialog_set_initial_folder(dialog, main->save_folder);
+	GFile *save_folder = mainwindow_get_save_folder(main);
+	if (save_folder)
+		gtk_file_dialog_set_initial_folder(dialog, save_folder);
 
 	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
 		&mainwindow_saveas_sub, main);

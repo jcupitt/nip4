@@ -182,11 +182,12 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
 	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
 
-	printf("workspacegroupview_switch_page_cb:\n");
-
 	// we can come here during gtk_notebook_page_remove
 	if (!old_wsg)
 		return;
+
+	// we must layout in case this tab was previously laid out while hidden
+	workspace_queue_layout(ws);
 
 	if (old_wsg != wsg) {
 		icontainer_reparent(ICONTAINER(wsg), ICONTAINER(ws), -1);
@@ -208,14 +209,6 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 			ws->compat_minor);
 		mainwindow_error(MAINWINDOW(view_get_window(VIEW(wview))));
 	}
-
-    /* How bizarre, pages sometimes fail to set up correctly. Force a
-     * resize to get everything to init.
-    if (wsgview &&
-        wsgview->notebook)
-        gtk_widget_queue_resize(GTK_WIDGET(wsgview->notebook));
-     */
-
 }
 
 static void
@@ -293,167 +286,6 @@ workspacegroupview_page_reordered_cb(GtkNotebook *notebook,
 	}
 }
 
-/*
-static void
-workspacegroupview_tab_double_cb(GtkNotebook *notebook, GdkEvent *event,
-	Workspacegroupview *wsgview)
-{
-	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
-
-	int i;
-	GtkWidget *page;
-	GtkWidget *tab;
-
-	i = gtk_notebook_get_n_pages(notebook);
-	page = gtk_notebook_get_nth_page(notebook, i - 1);
-	tab = gtk_notebook_get_tab_label(notebook, page);
-
-	if (event->button.x > tab->allocation.x + tab->allocation.width &&
-		!workspace_new_blank(wsg))
-		error_alert(GTK_WIDGET(wsgview));
-}
-
-static void
-workspacegroupview_add_workspace_cb(GtkWidget *wid,
-	Workspacegroupview *wsgview)
-{
-	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
-
-	if (!workspace_new_blank(wsg))
-		error_alert(GTK_WIDGET(wsgview));
-}
-
-static void
-workspacegroupview_add_workspace_cb2(GtkWidget *wid, GtkWidget *host,
-	Workspacegroupview *wsgview)
-{
-	workspacegroupview_add_workspace_cb(wid, wsgview);
-}
-
-static void
-workspacegroupview_load_workspace_cb2(GtkWidget *wid, GtkWidget *host,
-	Workspacegroupview *wsgview)
-{
-	Mainw *mainw = MAINW(iwindow_get_root(GTK_WIDGET(wsgview)));
-
-	mainw_workspace_merge(mainw);
-}
-
-static void
-workspacegroupview_select_all_cb(GtkWidget *wid, GtkWidget *host,
-	Workspaceview *wview)
-{
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-
-	if (!ws->locked)
-		workspace_select_all(ws);
-}
-
-static void
-workspacegroupview_merge_sub(iWindow *iwnd,
-	void *client, iWindowNotifyFn nfn, void *sys)
-{
-	Filesel *filesel = FILESEL(iwnd);
-	Workspace *ws = WORKSPACE(client);
-	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-
-	char *filename;
-	Column *col;
-
-	if ((filename = filesel_get_filename(filesel))) {
-		icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
-
-		progress_begin();
-
-		column_clear_last_new();
-
-		if (!workspace_merge_file(ws, filename))
-			nfn(sys, IWINDOW_ERROR);
-		else {
-			symbol_recalculate_all();
-			nfn(sys, IWINDOW_YES);
-		}
-
-		if ((col = column_get_last_new()))
-			column_scrollto(col, MODEL_SCROLL_TOP);
-
-		progress_end();
-
-		g_free(filename);
-	}
-	else
-		nfn(sys, IWINDOW_ERROR);
-}
-
-static void
-workspacegroupview_merge_cb(GtkWidget *wid, GtkWidget *host,
-	Workspaceview *wview)
-{
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	GtkWindow *window = view_get_window(VIEW(wview));
-	GtkWidget *filesel = filesel_new();
-
-	if (ws->locked)
-		return;
-
-	iwindow_set_title(IWINDOW(filesel),
-		_("Merge Into Tab \"%s\""), IOBJECT(ws)->name);
-	filesel_set_flags(FILESEL(filesel), FALSE, FALSE);
-	filesel_set_filetype(FILESEL(filesel), filesel_type_workspace, 0);
-	iwindow_set_parent(IWINDOW(filesel), GTK_WIDGET(iwnd));
-	idialog_set_iobject(IDIALOG(filesel), IOBJECT(ws));
-	filesel_set_done(FILESEL(filesel),
-		workspacegroupview_merge_sub, ws);
-	iwindow_build(IWINDOW(filesel));
-
-	gtk_widget_show(GTK_WIDGET(filesel));
-}
-
-static void
-workspacegroupview_save_as_sub(iWindow *iwnd,
-	void *client, iWindowNotifyFn nfn, void *sys)
-{
-	Filesel *filesel = FILESEL(iwnd);
-	Workspace *ws = WORKSPACE(client);
-	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-
-	char *filename;
-
-	if ((filename = filesel_get_filename(filesel))) {
-		icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
-		if (!workspacegroup_save_current(wsg, filename))
-			nfn(sys, IWINDOW_ERROR);
-		else
-			nfn(sys, IWINDOW_YES);
-
-		g_free(filename);
-	}
-	else
-		nfn(sys, IWINDOW_ERROR);
-}
-
-static void
-workspacegroupview_save_as_cb(GtkWidget *wid, GtkWidget *host,
-	Workspaceview *wview)
-{
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	GtkWindow *window = view_get_window(VIEW(wview));
-	GtkWidget *filesel = filesel_new();
-
-	iwindow_set_title(IWINDOW(filesel),
-		_("Save Tab \"%s\""), IOBJECT(ws)->name);
-	filesel_set_flags(FILESEL(filesel), FALSE, TRUE);
-	filesel_set_filetype(FILESEL(filesel), filesel_type_workspace, 0);
-	iwindow_set_parent(IWINDOW(filesel), GTK_WIDGET(iwnd));
-	idialog_set_iobject(IDIALOG(filesel), IOBJECT(ws));
-	filesel_set_done(FILESEL(filesel),
-		workspacegroupview_save_as_sub, ws);
-	iwindow_build(IWINDOW(filesel));
-
-	gtk_widget_show(GTK_WIDGET(filesel));
-}
- */
-
 static void
 workspacegroupview_init(Workspacegroupview *wsgview)
 {
@@ -469,62 +301,6 @@ workspacegroupview_init(Workspacegroupview *wsgview)
 		G_CALLBACK(workspacegroupview_page_reordered_cb), wsgview);
 	g_signal_connect(wsgview->notebook, "create_window",
 		G_CALLBACK(workspacegroupview_create_window_cb), wsgview);
-
-	printf("workspacegroupview_init: FIXME .. implement tab doubleclick\n");
-	/*
-	doubleclick_add(wsgview->notebook, FALSE,
-		NULL, NULL,
-		DOUBLECLICK_FUNC(workspacegroupview_tab_double_cb),
-		wsgview);
-	 */
-
-	printf("workspacegroupview_init: FIXME .. implement tab gutter menu\n");
-	/*
-	wsgview->gutter_menu = popup_build(_("Tab gutter menu"));
-	popup_add_but(wsgview->gutter_menu, _("New Tab"),
-		POPUP_FUNC(workspacegroupview_add_workspace_cb2));
-	popup_add_but(wsgview->gutter_menu, _("Merge Into Workspace"),
-		POPUP_FUNC(workspacegroupview_load_workspace_cb2));
-	popup_attach(wsgview->notebook, wsgview->gutter_menu, wsgview);
-	 */
-
-	/*
-	GtkWidget *but;
-	GtkWidget *icon;
-
-	but = gtk_button_new();
-	gtk_button_set_relief(GTK_BUTTON(but), GTK_RELIEF_NONE);
-	set_tooltip(but, _("Add a workspace"));
-	icon = gtk_image_new_from_stock(GTK_STOCK_ADD, GTK_ICON_SIZE_MENU);
-	gtk_container_add(GTK_CONTAINER(but), icon);
-	gtk_widget_show(icon);
-	gtk_widget_show(but);
-	gtk_notebook_set_action_widget(GTK_NOTEBOOK(wsgview->notebook),
-		but, GTK_PACK_END);
-	g_signal_connect(but, "clicked",
-		G_CALLBACK(workspacegroupview_add_workspace_cb), wsgview);
-
-	gtk_box_pack_start(GTK_BOX(wsgview), wsgview->notebook, TRUE, TRUE, 0);
-	gtk_widget_show(wsgview->notebook);
-	 */
-
-	printf("workspacegroupview_init: add tab menu\n");
-	/*
-	wsgview->tab_menu = popup_build(_("Tab menu"));
-	popup_add_but(wsgview->tab_menu, _("Rename"),
-		POPUP_FUNC(workspacegroupview_rename_cb));
-	popup_add_but(wsgview->tab_menu, _("Select All"),
-		POPUP_FUNC(workspacegroupview_select_all_cb));
-	popup_add_but(wsgview->tab_menu, STOCK_DUPLICATE,
-		POPUP_FUNC(workspacegroupview_duplicate_cb));
-	popup_add_but(wsgview->tab_menu, _("Merge Into Tab"),
-		POPUP_FUNC(workspacegroupview_merge_cb));
-	popup_add_but(wsgview->tab_menu, GTK_STOCK_SAVE_AS,
-		POPUP_FUNC(workspacegroupview_save_as_cb));
-	menu_add_sep(wsgview->tab_menu);
-	popup_add_but(wsgview->tab_menu, GTK_STOCK_DELETE,
-		POPUP_FUNC(workspacegroupview_delete_cb));
-	 */
 }
 
 View *

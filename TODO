@@ -48,24 +48,23 @@
 
 - we have workspacegroup_save_selected() and workspace_selected_save() ???
 
-- use gtk_file_dialog_set_accept_label() in all file dialogs? see eg.
-  mainwindow_merge_action()
+- open dialogs have a "open read only" toggle at the bottom argh
 
-- don't use main->load_folder etc. directly
+	not clear how to remove this
+
+- look at adding file type stuff, there are hooks for it, see
+  gtk_file_dialog_set_default_filter() and:
+
+	https://docs.gtk.org/gtk4/class.FileFilter.html
 
 - polish "about nip4"
 
-- load x.ws, flip to tab 2, layout is incorrect
-  scroll to selected on ws change is annoying
+- scroll to selected on ws change is annoying, where does it come from>?
 
-	look at what happens on page flip
+	see workspacegroupview_switch_page_cb()
 
-	maybe nothing?
+  add a breakpoint for the scrolling and see what triggers it
 
-	bad layout seems to be caused by a model_layout on a tab that hasn't
-	been displayed ... perhaps the sizes are wrong?
-
-	need to layout on every tab select?
 
 
 

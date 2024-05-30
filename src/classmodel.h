@@ -124,9 +124,6 @@ typedef struct _ClassmodelClass {
 	gboolean (*graphic_save)(Classmodel *, GtkWidget *, const char *);
 	gboolean (*graphic_replace)(Classmodel *, GtkWidget *, const char *);
 
-	const char **filetype;
-	const char *filetype_pref;
-
 	ClassmodelMember *members;
 	int n_members;
 	void (*reset)(Classmodel *);
