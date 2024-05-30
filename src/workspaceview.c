@@ -143,6 +143,8 @@ workspaceview_scroll_to(Workspaceview *wview, int x, int y)
 {
 	int nx, ny;
 
+	// printf("workspaceview_scroll_to: x=%d y=%d\n", x, y);
+
 	nx = VIPS_CLIP(0, x, wview->width - wview->vp.width);
 	ny = VIPS_CLIP(0, y, wview->height - wview->vp.height);
 
@@ -178,8 +180,13 @@ workspaceview_scroll(Workspaceview *wview, int x, int y, int w, int h)
 	if (y < ny)
 		ny = y;
 
-	gtk_adjustment_set_value(wview->hadj, nx);
-	gtk_adjustment_set_value(wview->vadj, ny);
+	workspaceview_scroll_to(wview, nx, ny);
+}
+
+void
+workspaceview_scroll_reset(Workspaceview *wview)
+{
+	workspaceview_scroll_to(wview, wview->vp.left, wview->vp.top);
 }
 
 /* Update our geometry from the fixed widget.

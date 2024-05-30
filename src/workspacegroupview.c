@@ -182,9 +182,13 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
 	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
 
+	printf("workspacegroupview_switch_page_cb:\n");
+
 	// we can come here during gtk_notebook_page_remove
 	if (!old_wsg)
 		return;
+
+	workspaceview_scroll_reset(wview);
 
 	// we must layout in case this tab was previously laid out while hidden
 	workspace_queue_layout(ws);

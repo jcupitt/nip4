@@ -61,9 +61,20 @@
 
 - scroll to selected on ws change is annoying, where does it come from>?
 
-	see workspacegroupview_switch_page_cb()
+	comment out workspacegroupview_switch_page_cb() and it's still there
 
   add a breakpoint for the scrolling and see what triggers it
+
+  do we have a separate scrolled_window for each tab? what does the
+  gtk_adjustment_set_value for the swin when we flip to it?
+
+	wtf gtk_adjustment_set_value() is not being called on page flip,
+	yet it's scrolling!
+
+	maybe we should reset the scrollbars in
+	workspacegroupview_switch_page_cb() from the saved view port
+
+	no idea why this is happening
 
 
 

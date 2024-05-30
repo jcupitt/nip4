@@ -116,7 +116,7 @@ typedef struct _WorkspaceviewClass {
 } WorkspaceviewClass;
 
 void workspaceview_scroll(Workspaceview *wview, int x, int y, int w, int h);
-void workspaceview_scroll_background(Workspaceview *wview, int u, int v);
+void workspaceview_scroll_reset(Workspaceview *wview);
 
 GType workspaceview_get_type(void);
 View *workspaceview_new(void);
