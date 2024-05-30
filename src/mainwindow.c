@@ -83,7 +83,7 @@ mainwindow_set_action_view(View *action_view)
 Workspacegroupview *
 mainwindow_get_workspacegroupview(Mainwindow *main)
 {
-	return main->wsgview;
+	return WORKSPACEGROUPVIEW(main->wsgview);
 }
 
 GFile *
@@ -123,8 +123,8 @@ mainwindow_set_load_folder(Mainwindow *main, GFile *file)
 void
 mainwindow_error(Mainwindow *main)
 {
-	set_glabel(GTK_LABEL(main->error_top), error_get_top());
-	set_glabel(GTK_LABEL(main->error_sub), error_get_sub());
+	set_glabel(main->error_top, error_get_top());
+	set_glabel(main->error_sub, error_get_sub());
 	gtk_info_bar_set_revealed(GTK_INFO_BAR(main->error_bar), TRUE);
 }
 
@@ -331,6 +331,66 @@ mainwindow_open_action(GSimpleAction *action,
 }
 
 static void
+mainwindow_merge_result(GObject *source_object,
+	GAsyncResult *res, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
+
+	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
+	if (file) {
+		g_autofree char *filename = g_file_get_path(file);
+
+		if (!workspacegroup_merge_workspaces(main->wsg, filename))
+			mainwindow_error(main);
+
+		symbol_recalculate_all();
+	}
+}
+
+static void
+mainwindow_merge_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	GtkFileDialog *dialog;
+	GFile *file;
+
+	dialog = gtk_file_dialog_new();
+	gtk_file_dialog_set_title(dialog, "Merge workspace");
+	gtk_file_dialog_set_accept_label(dialog, "Merge");
+	gtk_file_dialog_set_modal(dialog, TRUE);
+
+	if (main->load_folder)
+		gtk_file_dialog_set_initial_folder(dialog, main->load_folder);
+
+	gtk_file_dialog_open(dialog, GTK_WINDOW(main), NULL,
+		mainwindow_merge_result, main);
+}
+
+static void
+mainwindow_duplicate_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	Workspacegroup *new_wsg;
+	if (!(new_wsg = workspacegroup_duplicate(main->wsg)))
+		mainwindow_error(main);
+	else {
+		GtkApplication *app = gtk_window_get_application(GTK_WINDOW(main));
+		Mainwindow *new_main = g_object_new(MAINWINDOW_TYPE,
+			"application", app,
+			NULL);
+
+		mainwindow_set_wsg(new_main, new_wsg);
+		gtk_window_present(GTK_WINDOW(new_main));
+		symbol_recalculate_all();
+	}
+}
+
+static void
 mainwindow_saveas_sub(GObject *source_object,
 	GAsyncResult *res, gpointer user_data)
 {
@@ -448,8 +508,10 @@ mainwindow_view_action(GSimpleAction *action,
 static GActionEntry mainwindow_entries[] = {
 	// main window actions
 	{ "open", mainwindow_open_action },
-	{ "saveas", mainwindow_saveas_action },
+	{ "merge", mainwindow_merge_action },
+	{ "duplicate", mainwindow_duplicate_action },
 	{ "save", mainwindow_save_action },
+	{ "saveas", mainwindow_saveas_action },
 	{ "close", mainwindow_close_action },
 	{ "fullscreen", action_toggle, NULL, "false", mainwindow_fullscreen },
 

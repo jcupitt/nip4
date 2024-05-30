@@ -48,11 +48,10 @@
 
 - we have workspacegroup_save_selected() and workspace_selected_save() ???
 
-- add tab "merge into ..."
+- use gtk_file_dialog_set_accept_label() in all file dialogs? see eg.
+  mainwindow_merge_action()
 
-- do we need workspace "merge into ..." as well?
-
-- add "duplicate workspace"
+- don't use main->load_folder etc. directly
 
 - polish "about nip4"
 

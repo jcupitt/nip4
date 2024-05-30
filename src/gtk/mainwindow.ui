@@ -21,12 +21,16 @@
         <attribute name='action'>app.new</attribute>
       </item>
       <item>
-        <attribute name='label' translatable='yes'>Duplicate workspace</attribute>
-        <attribute name='action'>win.duplicate</attribute>
-      </item>
-      <item>
         <attribute name='label' translatable='yes'>Open workspace ...</attribute>
         <attribute name='action'>win.open</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Merge workspace ...</attribute>
+        <attribute name='action'>win.merge</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Duplicate workspace</attribute>
+        <attribute name='action'>win.duplicate</attribute>
       </item>
     </section>
 
