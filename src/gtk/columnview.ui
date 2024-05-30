@@ -16,7 +16,7 @@
         <attribute name='action'>win.column-duplicate</attribute>
       </item>
       <item>
-        <attribute name='label' translatable='yes'>Merge into column ...</attribute>
+        <attribute name='label' translatable='yes'>Merge into ...</attribute>
         <attribute name='action'>win.column-merge</attribute>
       </item>
       <item>

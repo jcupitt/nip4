@@ -50,11 +50,7 @@
 
 - add tab "merge into ..."
 
-- add column "merge into ..."
-
 - do we need workspace "merge into ..." as well?
-
-- remove caption stuff for workspaces, eg. second arg in workspace_rename()
 
 - add "duplicate workspace"
 

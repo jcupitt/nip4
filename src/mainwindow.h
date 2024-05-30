@@ -34,16 +34,19 @@ G_DECLARE_FINAL_TYPE(Mainwindow, mainwindow,
 
 extern gboolean mainwindow_auto_recalc;
 
+void mainwindow_set_action_view(View *action_view);
+void mainwindow_set_save_folder(Mainwindow *main, GFile *save_folder);
+GFile *mainwindow_get_save_folder(Mainwindow *main);
+void mainwindow_set_load_folder(Mainwindow *main, GFile *save_folder);
+GFile *mainwindow_get_load_folder(Mainwindow *main);
+
 void mainwindow_error(Mainwindow *main);
 Mainwindow *mainwindow_new(App *app);
 void mainwindow_set_wsg(Mainwindow *main, Workspacegroup *wsg);
 void mainwindow_set_gfile(Mainwindow *main, GFile *gfile);
 void mainwindow_cull(void);
 void mainwindow_layout(void);
-void mainwindow_set_action_view(View *action_view);
 Workspacegroupview *mainwindow_get_workspacegroupview(Mainwindow *main);
 
-void mainwindow_set_save_folder(Mainwindow *main, GFile *save_folder);
-GFile *mainwindow_get_save_folder(Mainwindow *main);
 
 #endif /* __MAINWINDOW_H */

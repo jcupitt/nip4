@@ -691,12 +691,12 @@ icontainer_real_current(iContainer *parent, iContainer *child)
 	g_assert(!child || ICONTAINER_IS_CHILD(parent, child));
 
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("icontainer_real_current: parent %s \"%s\"; "
 		   "child %s \"%s\"\n",
 		G_OBJECT_TYPE_NAME(parent), IOBJECT(parent)->name,
 		child ? G_OBJECT_TYPE_NAME(child) : "NULL",
 		child ? IOBJECT(child)->name : "NULL");
+#endif /*DEBUG*/
 
 	old_current = parent->current;
 	parent->current = child;

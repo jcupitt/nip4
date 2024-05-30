@@ -61,8 +61,8 @@ subcolumnview_dispose(GObject *object)
 
 	gtk_widget_dispose_template(GTK_WIDGET(sview), SUBCOLUMNVIEW_TYPE);
 
-	printf("subcolumnview_dispose: %d children remain\n",
-		g_slist_length(sview->rows));
+	//printf("subcolumnview_dispose: %d children remain\n",
+		//g_slist_length(sview->rows));
 	slist_map(sview->rows, subcolumnview_dispose_sub, NULL);
 	VIPS_FREEF(g_slist_free, sview->rows);
 

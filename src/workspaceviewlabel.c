@@ -190,7 +190,7 @@ workspaceviewlabel_name_edit_activate(GtkEntry *self, gpointer user_data)
 	const char *text = gtk_entry_buffer_get_text(buffer);
 
 	if (text && strspn(text, WHITESPACE) != strlen(text))
-		workspace_rename(ws, text, NULL);
+		workspace_rename(ws, text);
 
 	g_object_set(wviewlabel,
 		"edit", FALSE,
@@ -284,8 +284,6 @@ workspaceviewlabel_refresh(Workspaceviewlabel *wviewlabel)
 	gtk_label_set_text(GTK_LABEL(wviewlabel->label), IOBJECT(ws)->name);
 	GtkEntryBuffer *buffer = gtk_entry_buffer_new(IOBJECT(ws)->name, -1);
 	gtk_entry_set_buffer(GTK_ENTRY(wviewlabel->label_edit), buffer);
-	if (IOBJECT(ws)->caption)
-		set_tooltip(wviewlabel->label, "%s", IOBJECT(ws)->caption);
 
 	gtk_stack_set_visible_child(GTK_STACK(wviewlabel->name_edit_stack),
 		wviewlabel->edit ? wviewlabel->label_edit : wviewlabel->label);

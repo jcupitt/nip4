@@ -71,6 +71,56 @@ static GSList *mainwindow_all = NULL;
 G_DEFINE_TYPE(Mainwindow, mainwindow, GTK_TYPE_APPLICATION_WINDOW);
 
 void
+mainwindow_set_action_view(View *action_view)
+{
+	GtkWidget *widget = GTK_WIDGET(action_view);
+	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(widget));
+
+	if (main)
+		main->action_view = action_view;
+}
+
+Workspacegroupview *
+mainwindow_get_workspacegroupview(Mainwindow *main)
+{
+	return main->wsgview;
+}
+
+GFile *
+mainwindow_get_save_folder(Mainwindow *main)
+{
+	return main->save_folder;
+}
+
+static GFile *
+get_parent(GFile *file)
+{
+	GFile *parent = g_file_get_parent(file);
+
+	return parent ? parent : g_file_new_for_path("/");
+}
+
+void
+mainwindow_set_save_folder(Mainwindow *main, GFile *file)
+{
+	VIPS_UNREF(main->save_folder);
+	main->save_folder = get_parent(file);
+}
+
+GFile *
+mainwindow_get_load_folder(Mainwindow *main)
+{
+	return main->load_folder;
+}
+
+void
+mainwindow_set_load_folder(Mainwindow *main, GFile *file)
+{
+	VIPS_UNREF(main->load_folder);
+	main->load_folder = get_parent(file);
+}
+
+void
 mainwindow_error(Mainwindow *main)
 {
 	set_glabel(GTK_LABEL(main->error_top), error_get_top());
@@ -221,14 +271,6 @@ mainwindow_error_response(GtkWidget *button, int response,
 	Mainwindow *main)
 {
 	mainwindow_error_hide(main);
-}
-
-static GFile *
-get_parent(GFile *file)
-{
-	GFile *parent = g_file_get_parent(file);
-
-	return parent ? parent : g_file_new_for_path("/");
 }
 
 static void
@@ -415,6 +457,7 @@ static GActionEntry mainwindow_entries[] = {
 	{ "tab-rename", mainwindow_view_action },
 	{ "tab-select-all", mainwindow_view_action },
 	{ "tab-duplicate", mainwindow_view_action },
+	{ "tab-merge", mainwindow_view_action },
 	{ "tab-saveas", mainwindow_view_action },
 	{ "tab-lock", action_toggle, NULL, "false", mainwindow_view_action },
 	{ "tab-delete", mainwindow_view_action },
@@ -727,33 +770,4 @@ mainwindow_cull(void)
 {
     slist_map(mainwindow_all,
         (SListMapFn) mainwindow_cull_sub, NULL);
-}
-
-void
-mainwindow_set_action_view(View *action_view)
-{
-	GtkWidget *widget = GTK_WIDGET(action_view);
-	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(widget));
-
-	if (main)
-		main->action_view = action_view;
-}
-
-Workspacegroupview *
-mainwindow_get_workspacegroupview(Mainwindow *main)
-{
-	return main->wsgview;
-}
-
-GFile *
-mainwindow_get_save_folder(Mainwindow *main)
-{
-	return main->save_folder;
-}
-
-void
-mainwindow_set_save_folder(Mainwindow *main, GFile *file)
-{
-	VIPS_UNREF(main->save_folder);
-	main->save_folder = get_parent(file);
 }

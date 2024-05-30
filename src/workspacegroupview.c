@@ -58,61 +58,6 @@ workspacegroupview_realize(GtkWidget *widget)
 	set_symbol_drag_type(widget);
 }
 
-/*
-static void
-workspacegroupview_rename_sub(iWindow *iwnd, void *client,
-	iWindowNotifyFn nfn, void *sys)
-{
-	Workspace *ws = WORKSPACE(client);
-	Stringset *ss = STRINGSET(iwnd);
-	StringsetChild *name = stringset_child_get(ss, _("Name"));
-	StringsetChild *caption = stringset_child_get(ss, _("Caption"));
-
-	char name_text[1024];
-	char caption_text[1024];
-
-	if (!get_geditable_name(name->entry, name_text, 1024) ||
-		!get_geditable_string(caption->entry, caption_text, 1024)) {
-		nfn(sys, IWINDOW_ERROR);
-		return;
-	}
-
-	if (!workspace_rename(ws, name_text, caption_text)) {
-		nfn(sys, IWINDOW_ERROR);
-		return;
-	}
-
-	nfn(sys, IWINDOW_YES);
-}
-
-static void
-workspacegroupview_rename_cb(GtkWidget *wid, GtkWidget *host,
-	Workspaceview *wview)
-{
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	GtkWidget *ss = stringset_new();
-
-	if (ws->locked)
-		return;
-
-	stringset_child_new(STRINGSET(ss),
-		_("Name"), IOBJECT(ws)->name,
-		_("Set tab name here"));
-	stringset_child_new(STRINGSET(ss),
-		_("Caption"), IOBJECT(ws)->caption,
-		_("Set tab caption here"));
-
-	iwindow_set_title(IWINDOW(ss),
-		_("Rename Tab \"%s\""), IOBJECT(ws)->name);
-	idialog_set_callbacks(IDIALOG(ss),
-		iwindow_true_cb, NULL, NULL, ws);
-	idialog_add_ok(IDIALOG(ss),
-		workspacegroupview_rename_sub, _("Rename Tab"));
-	iwindow_set_parent(IWINDOW(ss), GTK_WIDGET(wview));
-	iwindow_build(IWINDOW(ss));
-}
- */
-
 static void
 workspacegroupview_child_add(View *parent, View *child)
 {

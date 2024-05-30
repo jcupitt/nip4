@@ -92,57 +92,50 @@ columnview_caption_key_pressed(GtkEventControllerKey *self,
 	return handled;
 }
 
-/*
 static void
-columnview_merge_sub(iWindow *iwnd,
-	void *client, iWindowNotifyFn nfn, void *sys)
+columnview_merge_sub(GObject *source_object,
+	GAsyncResult *res, gpointer user_data)
 {
-	Filesel *filesel = FILESEL(iwnd);
-	Column *col = COLUMN(client);
+	Columnview *cview = COLUMNVIEW(user_data);
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
 	Workspace *ws = col->ws;
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+	Mainwindow *main = MAINWINDOW(view_get_window(cview));
+	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
 
-	char *filename;
-	iWindowResult result;
+	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
+	if (file) {
+		mainwindow_set_load_folder(main, file);
 
-	result = IWINDOW_YES;
-	progress_begin();
+		g_autofree char *filename = g_file_get_path(file);
 
-	if ((filename = filesel_get_filename(filesel))) {
 		if (!workspacegroup_merge_rows(wsg, filename))
-			result = IWINDOW_ERROR;
-
-		g_free(filename);
+			mainwindow_error(main);
+		symbol_recalculate_all();
 	}
-
-	symbol_recalculate_all();
-	progress_end();
-
-	nfn(sys, result);
 }
- */
 
 static void
-columnview_merge_cb(GtkWidget *wid, GtkWidget *host, Columnview *cview)
+columnview_merge(Columnview *cview)
 {
-	/*
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
-	GtkWindow *window = view_get_window(VIEW(cview));
-	GtkWidget *filesel = filesel_new();
+	Workspace *ws = col->ws;
+	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+	Mainwindow *main = MAINWINDOW(view_get_window(cview));
 
-	iwindow_set_title(IWINDOW(filesel),
-		_("Merge Into Column \"%s\""), IOBJECT(col)->name);
-	filesel_set_flags(FILESEL(filesel), FALSE, FALSE);
-	filesel_set_filetype(FILESEL(filesel), filesel_type_workspace, 0);
-	iwindow_set_parent(IWINDOW(filesel), GTK_WIDGET(iwnd));
-	idialog_set_iobject(IDIALOG(filesel), IOBJECT(col));
-	filesel_set_done(FILESEL(filesel), columnview_merge_sub, col);
-	iwindow_build(IWINDOW(filesel));
+	GtkFileDialog *dialog;
+	GFile *file;
 
-	gtk_widget_show(GTK_WIDGET(filesel));
-	 */
+	dialog = gtk_file_dialog_new();
+	gtk_file_dialog_set_title(dialog, "Merge into column");
+	gtk_file_dialog_set_modal(dialog, TRUE);
 
-	printf("columnview_merge_cb: FIXME\n");
+	GFile *load_folder = mainwindow_get_load_folder(main);
+	if (load_folder)
+		gtk_file_dialog_set_initial_folder(dialog, load_folder);
+
+	gtk_file_dialog_open(dialog, GTK_WINDOW(main), NULL,
+		&columnview_merge_sub, cview);
 }
 
 static void
@@ -150,6 +143,7 @@ columnview_saveas_sub(GObject *source_object,
 	GAsyncResult *res, gpointer user_data)
 {
 	Columnview *cview = COLUMNVIEW(user_data);
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
 	Workspace *ws = col->ws;
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
 	Mainwindow *main = MAINWINDOW(view_get_window(cview));
@@ -742,6 +736,8 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		workspace_queue_layout(ws);
 		symbol_recalculate_all();
 	}
+	else if (g_str_equal(name, "column-merge"))
+		columnview_merge(cview);
 	else if (g_str_equal(name, "column-saveas"))
 		columnview_saveas(cview);
 	else if (g_str_equal(name, "column-delete"))

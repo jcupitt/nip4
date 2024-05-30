@@ -650,6 +650,52 @@ workspaceview_saveas(Workspaceview *wview)
 }
 
 static void
+workspaceview_merge_sub(GObject *source_object,
+	GAsyncResult *res, gpointer user_data)
+{
+	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+	Mainwindow *main = MAINWINDOW(view_get_window(wview));
+	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
+
+	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
+	if (file) {
+		mainwindow_set_save_folder(main, file);
+
+		g_autofree char *filename = g_file_get_path(file);
+
+		if (!workspace_merge_file(ws, filename))
+			mainwindow_error(main);
+	}
+}
+
+static void
+workspaceview_merge(Workspaceview *wview)
+{
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+	Mainwindow *main = MAINWINDOW(view_get_window(wview));
+
+	GtkFileDialog *dialog;
+	GFile *file;
+
+	// we can only save the current tab
+	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
+
+	dialog = gtk_file_dialog_new();
+	gtk_file_dialog_set_title(dialog, "Merge into tab");
+	gtk_file_dialog_set_modal(dialog, TRUE);
+
+	GFile *load_folder = mainwindow_get_load_folder(main);
+	if (load_folder)
+		gtk_file_dialog_set_initial_folder(dialog, load_folder);
+
+	gtk_file_dialog_open(dialog, GTK_WINDOW(main), NULL,
+		&workspaceview_merge_sub, wview);
+}
+
+static void
 workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 {
 	Workspaceview *wview = WORKSPACEVIEW(view);
@@ -661,18 +707,6 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 
 	if (g_str_equal(name, "column-new"))
 		workspace_column_new(ws);
-	else if (g_str_equal(name, "tab-duplicate"))
-		workspace_duplicate(ws);
-	else if (g_str_equal(name, "tab-delete")) {
-		if (!ws->locked)
-			model_check_destroy(GTK_WIDGET(wview), MODEL(ws));
-	}
-	else if (g_str_equal(name, "tab-lock")) {
-		workspace_set_locked(ws, !ws->locked);
-
-		GVariant *locked = g_variant_new_boolean(ws->locked);
-		g_simple_action_set_state(action, locked);
-	}
 	else if (g_str_equal(name, "next-error")) {
 		// could use return status to style error bar?
 		(void) workspace_next_error(ws);
@@ -686,8 +720,22 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		if(!ws->locked)
 			workspace_select_all(ws);
 	}
+	else if (g_str_equal(name, "tab-duplicate"))
+		workspace_duplicate(ws);
+	else if (g_str_equal(name, "tab-merge"))
+		workspaceview_merge(wview);
 	else if (g_str_equal(name, "tab-saveas"))
 		workspaceview_saveas(wview);
+	else if (g_str_equal(name, "tab-lock")) {
+		workspace_set_locked(ws, !ws->locked);
+
+		GVariant *locked = g_variant_new_boolean(ws->locked);
+		g_simple_action_set_state(action, locked);
+	}
+	else if (g_str_equal(name, "tab-delete")) {
+		if (!ws->locked)
+			model_check_destroy(GTK_WIDGET(wview), MODEL(ws));
+	}
 }
 
 static void
@@ -760,7 +808,6 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 
 	case WVIEW_SELECT:
 	case WVIEW_DRAG:
-	case WVIEW_EDIT:
 		break;
 
 	default:
@@ -780,7 +827,6 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 #endif /*DEBUG*/
 
 	switch (wview->state) {
-	case WVIEW_EDIT:
 	case WVIEW_WAIT:
 		break;
 
@@ -868,7 +914,6 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 
 		break;
 
-	case WVIEW_EDIT:
 	case WVIEW_WAIT:
 		break;
 
@@ -1007,16 +1052,6 @@ workspaceview_filedrop(Workspaceview *wview, const char *filename)
 		symbol_recalculate_all();
 
 	return result;
-}
-
-static void
-workspaceview_column_new_action_cb2(GtkWidget *wid, GtkWidget *host,
-	Workspaceview *wview)
-{
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-
-	if (!workspace_column_new(ws))
-		mainwindow_error(MAINWINDOW(view_get_window(VIEW(wview))));
 }
 
 static void

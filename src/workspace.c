@@ -830,8 +830,6 @@ workspace_load(Model *model,
 
 	if (get_sprop(xnode, "name", buf, FILENAME_MAX))
 		VIPS_SETSTR(IOBJECT(ws)->name, buf);
-	if (get_sprop(xnode, "caption", buf, FILENAME_MAX))
-		VIPS_SETSTR(IOBJECT(ws)->caption, buf);
 
 	/* Don't use get_sprop() and avoid a limit on def size.
 	 */
@@ -868,8 +866,7 @@ workspace_save(Model *model, xmlNode *xnode)
 		!set_iprop(xthis, "rpane_position", ws->rpane_position) ||
 		!set_sprop(xthis, "rpane_open", bool_to_char(ws->rpane_open)) ||
 		!set_sprop(xthis, "local_defs", ws->local_defs) ||
-		!set_sprop(xthis, "name", IOBJECT(ws)->name) ||
-		!set_sprop(xthis, "caption", IOBJECT(ws)->caption))
+		!set_sprop(xthis, "name", IOBJECT(ws)->name))
 		return NULL;
 
 	/* We have to save our workspacegroup's filename here for compt with
@@ -1778,11 +1775,11 @@ workspace_selected_save(Workspace *ws, const char *filename)
 }
 
 gboolean
-workspace_rename(Workspace *ws, const char *name, const char *caption)
+workspace_rename(Workspace *ws, const char *name)
 {
 	if (!symbol_rename(ws->sym, name))
 		return FALSE;
-	iobject_set(IOBJECT(ws), IOBJECT(ws->sym)->name, caption);
+	iobject_set(IOBJECT(ws), IOBJECT(ws->sym)->name, NULL);
 	workspace_set_modified(ws, TRUE);
 
 	symbol_recalculate_all();

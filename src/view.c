@@ -310,8 +310,8 @@ view_dispose(GObject *object)
 	view = VIEW(object);
 
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("view_dispose: %p \"%s\"\n", object, G_OBJECT_TYPE_NAME(object));
+#endif /*DEBUG*/
 
 	if (view->scannable)
 		view_scannable_unregister(view);
@@ -323,7 +323,7 @@ view_dispose(GObject *object)
 		view_child_remove(view);
 	g_assert(!view->parent);
 
-	printf("view_dispose: n_children = %d\n", g_slist_length(view->children));
+	//printf("view_dispose: n_children = %d\n", g_slist_length(view->children));
 	g_assert(g_slist_length(view->children) == 0);
 	VIPS_FREEF(g_slist_free, view->children);
 

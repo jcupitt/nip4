@@ -193,7 +193,6 @@ gboolean workspace_merge_file(Workspace *ws, const char *filename);
 gboolean workspace_selected_duplicate(Workspace *ws);
 gboolean workspace_selected_save(Workspace *ws, const char *filename);
 
-gboolean workspace_rename(Workspace *ws,
-	const char *name, const char *caption);
+gboolean workspace_rename(Workspace *ws, const char *name);
 void workspace_set_locked(Workspace *ws, gboolean locked);
 gboolean workspace_duplicate(Workspace *ws);

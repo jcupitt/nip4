@@ -50,7 +50,6 @@ typedef enum {
 	WVIEW_WAIT,					/* Rest state */
 	WVIEW_SELECT,				/* Select start, but no drag yet */
 	WVIEW_DRAG,					/* Drag state */
-	WVIEW_EDIT					/* Editing caption */
 } WorkspaceviewState;
 
 struct _Workspaceview {
