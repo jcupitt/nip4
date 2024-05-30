@@ -16,7 +16,7 @@
         <attribute name='action'>win.tab-duplicate</attribute>
       </item>
       <item>
-        <attribute name='label' translatable='yes'>Merge into tab ...</attribute>
+        <attribute name='label' translatable='yes'>Merge into ...</attribute>
         <attribute name='action'>win.tab-merge</attribute>
       </item>
       <item>
@@ -27,7 +27,7 @@
 
     <section>
       <item>
-        <attribute name='label' translatable='yes'>Lock tab</attribute>
+        <attribute name='label' translatable='yes'>Lock</attribute>
         <attribute name='action'>win.tab-lock</attribute>
       </item>
     </section>

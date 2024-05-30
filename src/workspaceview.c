@@ -603,10 +603,58 @@ workspaceview_layout(View *view)
 }
 
 static void
+workspaceview_saveas_sub(GObject *source_object,
+	GAsyncResult *res, gpointer user_data)
+{
+	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+	Mainwindow *main = MAINWINDOW(view_get_window(wview));
+	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
+
+	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
+	if (file) {
+		mainwindow_set_save_folder(main, file);
+
+		g_autofree char *filename = g_file_get_path(file);
+
+		icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
+		if (!workspacegroup_save_current(wsg, filename))
+			mainwindow_error(main);
+	}
+}
+
+static void
+workspaceview_saveas(Workspaceview *wview)
+{
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+	Mainwindow *main = MAINWINDOW(view_get_window(wview));
+
+	GtkFileDialog *dialog;
+	GFile *file;
+
+	// we can only save the current tab
+	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
+
+	dialog = gtk_file_dialog_new();
+	gtk_file_dialog_set_title(dialog, "Save tab as");
+	gtk_file_dialog_set_modal(dialog, TRUE);
+
+	GFile *save_folder = mainwindow_get_save_folder(main);
+	if (save_folder)
+		gtk_file_dialog_set_initial_folder(dialog, save_folder);
+
+	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
+		&workspaceview_saveas_sub, wview);
+}
+
+static void
 workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 {
 	Workspaceview *wview = WORKSPACEVIEW(view);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
 	const char *name = g_action_get_name(G_ACTION(action));
 
 	printf("workspaceview_action: %s\n", name);
@@ -634,6 +682,12 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		g_object_set(wview->label,
 			"edit", TRUE,
 			NULL);
+	else if (g_str_equal(name, "tab-select-all")) {
+		if(!ws->locked)
+			workspace_select_all(ws);
+	}
+	else if (g_str_equal(name, "tab-saveas"))
+		workspaceview_saveas(wview);
 }
 
 static void

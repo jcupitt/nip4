@@ -289,7 +289,7 @@ mainwindow_open_action(GSimpleAction *action,
 }
 
 static void
-mainwindow_on_file_save(GObject *source_object,
+mainwindow_saveas_sub(GObject *source_object,
 	GAsyncResult *res, gpointer user_data)
 {
 	Mainwindow *main = MAINWINDOW(user_data);
@@ -303,9 +303,27 @@ mainwindow_on_file_save(GObject *source_object,
 
 		g_autofree char *filename = g_file_get_path(file);
 
-		if (!workspacegroup_save_current(main->wsg, filename))
+		if (!workspacegroup_save_all(main->wsg, filename))
 			mainwindow_error(main);
 	}
+}
+
+static void
+mainwindow_saveas(Mainwindow *main)
+{
+	GtkFileDialog *dialog;
+	GFile *file;
+
+	dialog = gtk_file_dialog_new();
+	gtk_file_dialog_set_title(dialog, "Save workspace as");
+	gtk_file_dialog_set_modal(dialog, TRUE);
+
+	// if we loaded from a file, use that dir, else
+	if (main->save_folder)
+		gtk_file_dialog_set_initial_folder(dialog, main->save_folder);
+
+	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
+		&mainwindow_saveas_sub, main);
 }
 
 static void
@@ -314,19 +332,7 @@ mainwindow_saveas_action(GSimpleAction *action,
 {
 	Mainwindow *main = MAINWINDOW(user_data);
 
-	GtkFileDialog *dialog;
-	GFile *file;
-
-	dialog = gtk_file_dialog_new();
-	gtk_file_dialog_set_title(dialog, "Save file");
-	gtk_file_dialog_set_modal(dialog, TRUE);
-
-	// if we loaded from a file, use that dir, else
-	if (main->save_folder)
-		gtk_file_dialog_set_initial_folder(dialog, main->save_folder);
-
-	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
-		&mainwindow_on_file_save, main);
+	mainwindow_saveas(main);
 }
 
 static void
@@ -344,10 +350,9 @@ mainwindow_save_action(GSimpleAction *action,
 		return;
 
 	const char *filename;
-	if (!(filename = FILEMODEL(main->wsg)->filename)) {
+	if (!(filename = FILEMODEL(main->wsg)->filename))
 		// no filename, we need to go via save-as
-		mainwindow_saveas_action(action, parameter, user_data);
-	}
+		mainwindow_saveas(main);
 	else {
 		// we have a filename associated with this workspacegroup ... we can
 		// just save directly
@@ -408,7 +413,9 @@ static GActionEntry mainwindow_entries[] = {
 
 	// workspace tab menu
 	{ "tab-rename", mainwindow_view_action },
+	{ "tab-select-all", mainwindow_view_action },
 	{ "tab-duplicate", mainwindow_view_action },
+	{ "tab-saveas", mainwindow_view_action },
 	{ "tab-lock", action_toggle, NULL, "false", mainwindow_view_action },
 	{ "tab-delete", mainwindow_view_action },
 
@@ -736,4 +743,17 @@ Workspacegroupview *
 mainwindow_get_workspacegroupview(Mainwindow *main)
 {
 	return main->wsgview;
+}
+
+GFile *
+mainwindow_get_save_folder(Mainwindow *main)
+{
+	return main->save_folder;
+}
+
+void
+mainwindow_set_save_folder(Mainwindow *main, GFile *file)
+{
+	VIPS_UNREF(main->save_folder);
+	main->save_folder = get_parent(file);
 }

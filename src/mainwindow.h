@@ -43,4 +43,7 @@ void mainwindow_layout(void);
 void mainwindow_set_action_view(View *action_view);
 Workspacegroupview *mainwindow_get_workspacegroupview(Mainwindow *main);
 
+void mainwindow_set_save_folder(Mainwindow *main, GFile *save_folder);
+GFile *mainwindow_get_save_folder(Mainwindow *main);
+
 #endif /* __MAINWINDOW_H */

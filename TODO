@@ -46,6 +46,20 @@
 
 ## small
 
+- we have workspacegroup_save_selected() and workspace_selected_save() ???
+
+- add tab "merge into ..."
+
+- add column "merge into ..."
+
+- do we need workspace "merge into ..." as well?
+
+- remove caption stuff for workspaces, eg. second arg in workspace_rename()
+
+- add "duplicate workspace"
+
+- polish "about nip4"
+
 - load x.ws, flip to tab 2, layout is incorrect
   scroll to selected on ws change is annoying
 

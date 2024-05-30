@@ -145,59 +145,53 @@ columnview_merge_cb(GtkWidget *wid, GtkWidget *host, Columnview *cview)
 	printf("columnview_merge_cb: FIXME\n");
 }
 
-/* Callback from save browser.
 static void
-columnview_save_as_sub(iWindow *iwnd,
-	void *client, iWindowNotifyFn nfn, void *sys)
+columnview_saveas_sub(GObject *source_object,
+	GAsyncResult *res, gpointer user_data)
 {
-	Filesel *filesel = FILESEL(iwnd);
-	Column *col = COLUMN(client);
+	Columnview *cview = COLUMNVIEW(user_data);
 	Workspace *ws = col->ws;
-	char *filename;
+	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+	Mainwindow *main = MAINWINDOW(view_get_window(cview));
+	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
 
-	workspace_deselect_all(ws);
-	column_select_symbols(col);
+	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
+	if (file) {
+		mainwindow_set_save_folder(main, file);
 
-	if ((filename = filesel_get_filename(filesel))) {
-		if (workspace_selected_save(ws, filename)) {
-			workspace_deselect_all(ws);
-			nfn(sys, IWINDOW_YES);
-		}
-		else
-			nfn(sys, IWINDOW_ERROR);
+		g_autofree char *filename = g_file_get_path(file);
 
-		g_free(filename);
+		workspace_deselect_all(ws);
+		column_select_symbols(col);
+		if (!workspacegroup_save_selected(wsg, filename))
+			mainwindow_error(main);
 	}
-	else
-		nfn(sys, IWINDOW_ERROR);
 }
- */
 
-/* Save a column ... can't just do view_save_as_cb(), since we need to save
- * the enclosing workspace too. Hence we have to save_selected on the ws, but
- * only after we have the filename.
- */
 static void
-columnview_save_as_cb(GtkWidget *wid, GtkWidget *host, Columnview *cview)
+columnview_saveas(Columnview *cview)
 {
-	/*
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
-	GtkWindow *window = view_get_window(VIEW(cview));
-	GtkWidget *filesel = filesel_new();
+	Workspace *ws = col->ws;
+	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+	Mainwindow *main = MAINWINDOW(view_get_window(cview));
 
-	iwindow_set_title(IWINDOW(filesel),
-		_("Save Column \"%s\""), IOBJECT(col)->name);
-	filesel_set_flags(FILESEL(filesel), FALSE, TRUE);
-	filesel_set_filetype(FILESEL(filesel), filesel_type_workspace, 0);
-	iwindow_set_parent(IWINDOW(filesel), GTK_WIDGET(iwnd));
-	idialog_set_iobject(IDIALOG(filesel), IOBJECT(col));
-	filesel_set_done(FILESEL(filesel), columnview_save_as_sub, col);
-	iwindow_build(IWINDOW(filesel));
+	GtkFileDialog *dialog;
+	GFile *file;
 
-	gtk_widget_show(GTK_WIDGET(filesel));
-	 */
+	// we can only save the current tab
+	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 
-	printf("columnview_save_as_cb:\n");
+	dialog = gtk_file_dialog_new();
+	gtk_file_dialog_set_title(dialog, "Save column as");
+	gtk_file_dialog_set_modal(dialog, TRUE);
+
+	GFile *save_folder = mainwindow_get_save_folder(main);
+	if (save_folder)
+		gtk_file_dialog_set_initial_folder(dialog, save_folder);
+
+	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
+		&columnview_saveas_sub, cview);
 }
 
 /* Make a name for a column menu file, based on what we're going to call the
@@ -722,10 +716,11 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 
 	printf("columnview_action: %s\n", name);
 
-	if (g_str_equal(name, "column-delete")) {
-		Column *col = COLUMN(VOBJECT(cview)->iobject);
-
-		iobject_destroy(IOBJECT(col));
+	if (g_str_equal(name, "column-edit-caption"))
+		columnview_edit(cview);
+	else if (g_str_equal(name, "column-select-all")) {
+		workspace_deselect_all(ws);
+		column_select_symbols(col);
 	}
 	else if (g_str_equal(name, "column-duplicate")) {
 		char new_name[MAX_STRSIZE];
@@ -742,17 +737,15 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		workspace_column_select(ws, new_col);
 		if (!workspace_selected_duplicate(ws))
 			mainwindow_error(MAINWINDOW(view_get_window(view)));
+
 		workspace_deselect_all(ws);
 		workspace_queue_layout(ws);
-
 		symbol_recalculate_all();
 	}
-	else if (g_str_equal(name, "column-edit-caption"))
-		columnview_edit(cview);
-	else if (g_str_equal(name, "column-select-all")) {
-		workspace_deselect_all(ws);
-		column_select_symbols(col);
-	}
+	else if (g_str_equal(name, "column-saveas"))
+		columnview_saveas(cview);
+	else if (g_str_equal(name, "column-delete"))
+		iobject_destroy(IOBJECT(col));
 }
 
 static void
