@@ -38,11 +38,11 @@
  * model changes.
  */
 typedef struct _ViewChild {
-	View *view;				/* Us */
-	Model *child_model;		/* The child model we are watching */
-	View *child_view;		/* NULL, or the child view */
+	View *view;						/* Us */
+	Model *child_model;				/* The child model we are watching */
+	View *child_view;				/* NULL, or the child view */
 
-	guint child_model_changed_sid; /* Listen to changed with this */
+	guint child_model_changed_sid;	/* Listen to changed with this */
 } ViewChild;
 
 struct _View {
@@ -50,16 +50,16 @@ struct _View {
 
 	/* My instance vars.
 	 */
-	GSList *managed;		/* List of ViewChild for this view */
-	GSList *children;		/* All child views (not refs) */
+	GSList *managed;				/* List of ViewChild for this view */
+	GSList *children;				/* All child views (each is a ref) */
 
 	/* The parent view. Not all views are true widgets, eg. rowview, so we
 	 * can't use gtk_widget_get_parent().
 	 */
 	View *parent;
 
-	gboolean scannable;		/* On scannable list */
-	gboolean resettable;	/* On resettable list */
+	gboolean scannable;				/* On scannable list */
+	gboolean resettable;			/* On resettable list */
 };
 
 typedef struct _ViewClass {
@@ -67,18 +67,18 @@ typedef struct _ViewClass {
 
 	/* Create/destroy
 
-		link				this view is about to be linked to this model
-							with this parent view
+		link						this view is about to be linked to this
+									model with this parent view
 
-		child_add			this view has just gained a child
+		child_add					this view has just gained a child
 
-		child_remove		this view is about to lose a child
+		child_remove				this view is about to lose a child
 
-		child_position		this child needs repositioning
+		child_position				this child needs repositioning
 
-		child_front			pop this child to the front
+		child_front					pop this child to the front
 
-		display				should this child be displayed
+		display						should this child be displayed
 
 	 */
 
@@ -91,15 +91,15 @@ typedef struct _ViewClass {
 
 	/* State change
 
-		reset				reset edit mode ... eg. text pops back to
-							value display
+		reset						reset edit mode ... eg. text pops back to
+									value display
 
-		scan				scan widgets, reading any new text off the
-							display
+		scan						scan widgets, reading any new text off the
+									display
 
-		scrollto			try to make this view visible
+		scrollto					try to make this view visible
 
-		layout				try to lay children out
+		layout						try to lay children out
 
 	 */
 	void (*reset)(View *);

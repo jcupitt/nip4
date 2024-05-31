@@ -65,8 +65,6 @@ workspacegroupview_child_add(View *parent, View *child)
 	Workspaceview *wview = WORKSPACEVIEW(child);
 	Workspace *ws = WORKSPACE(VOBJECT(child)->iobject);
 
-	printf("workspacegroupview_child_add:\n");
-
 	VIEW_CLASS(workspacegroupview_parent_class)->child_add(parent, child);
 
 	gtk_notebook_insert_page(GTK_NOTEBOOK(wsgview->notebook),
@@ -84,13 +82,10 @@ workspacegroupview_child_remove(View *parent, View *child)
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(parent);
 	Workspace *ws = WORKSPACE(VOBJECT(child)->iobject);
 
-	printf("workspacegroupview_child_remove:\n");
-
-	VIEW_CLASS(workspacegroupview_parent_class)->child_remove(parent, child);
-
-	// must be at the end since this will unref the child
 	gtk_notebook_remove_page(GTK_NOTEBOOK(wsgview->notebook),
 		ICONTAINER(ws)->pos);
+
+	VIEW_CLASS(workspacegroupview_parent_class)->child_remove(parent, child);
 }
 
 static void
@@ -98,8 +93,6 @@ workspacegroupview_child_position(View *parent, View *child)
 {
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(parent);
 	Workspaceview *wview = WORKSPACEVIEW(child);
-
-	printf("workspacegroupview_child_position:\n");
 
 	gtk_notebook_reorder_child(GTK_NOTEBOOK(wsgview->notebook),
 		GTK_WIDGET(wview), ICONTAINER(wview)->pos);
@@ -115,8 +108,6 @@ workspacegroupview_child_front(View *parent, View *child)
 
 	int page;
 	GtkWidget *current_front;
-
-	printf("workspacegroupview_child_front:\n");
 
 	page = gtk_notebook_get_current_page(GTK_NOTEBOOK(wsgview->notebook));
 	current_front =
@@ -177,32 +168,17 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 	GtkWidget *page, guint page_num, gpointer user_data)
 {
 	Workspaceview *wview = notebookpage_get_workspaceview(page);
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	Workspacegroup *old_wsg = WORKSPACEGROUP(ICONTAINER(ws)->parent);
-	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
-	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
 
-	printf("workspacegroupview_switch_page_cb:\n");
-
-	// we can come here during gtk_notebook_page_remove
-	if (!old_wsg)
+	// we can come here during destruction ... make sure our model is still
+	// around
+	if (!VOBJECT(wview)->iobject)
 		return;
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 	workspaceview_scroll_reset(wview);
 
 	// we must layout in case this tab was previously laid out while hidden
 	workspace_queue_layout(ws);
-
-	if (old_wsg != wsg) {
-		icontainer_reparent(ICONTAINER(wsg), ICONTAINER(ws), -1);
-		filemodel_set_modified(FILEMODEL(wsg), TRUE);
-		filemodel_set_modified(FILEMODEL(old_wsg), TRUE);
-
-		// the old mainwindow might now be empty
-		mainwindow_cull();
-	}
-
-	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 
 	if (ws->compat_major) {
 		error_top(_("Compatibility mode"));
@@ -232,32 +208,28 @@ workspacegroupview_create_window_cb(GtkNotebook *notebook,
 {
 	Workspaceview *wview = WORKSPACEVIEW(page);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	Workspacegroup *wsg = WORKSPACEGROUP(ICONTAINER(ws)->parent);
-	Workspaceroot *wsr = wsg->wsr;
+	Workspacegroup *old_wsg = WORKSPACEGROUP(ICONTAINER(ws)->parent);
+	Workspaceroot *wsr = old_wsg->wsr;
+	Mainwindow *old_main = MAINWINDOW(view_get_window(VIEW(wview)));
+	GtkApplication *app = gtk_window_get_application(GTK_WINDOW(old_main));
+	Workspacegroup *new_wsg = workspacegroup_new(wsr);
 
-	Mainwindow *new_main;
-	Workspacegroup *new_wsg;
-	char name[256];
+#ifdef DEBUG
+	printf("workspacegroupview_create_window_cb:\n");
+	printf("\told_wsg %p (%s)\n", old_wsg, IOBJECT(old_wsg)->name);
+	printf("\tws %p (%s)\n", ws, IOBJECT(ws)->name);
+	printf("\tnew_wsg %p (%s)\n", new_wsg, IOBJECT(new_wsg)->name);
+#endif /*DEBUG*/
 
-	printf("workspacegroupview_create_window_cb: wsg = %s, ws = %s\n",
-		IOBJECT(wsg)->name, IOBJECT(ws)->name);
-
-	workspaceroot_name_new(wsr, name);
-	new_wsg = workspacegroup_new(wsr);
-
-	printf("workspacegroupview_create_window_cb: new wsg = %s\n", name);
-
-	iobject_set(IOBJECT(new_wsg), name, NULL);
-
-	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(wview)));
-	GtkApplication *app = gtk_window_get_application(GTK_WINDOW(main));
-	new_main = mainwindow_new(app);
+	Mainwindow *new_main = mainwindow_new(app);
 	mainwindow_set_wsg(new_main, new_wsg);
-	gtk_window_present(GTK_WINDOW(new_main));
-	Workspacegroupview *new_wsgview =
-		mainwindow_get_workspacegroupview(new_main);
+	// viewchild on the model will spot the _detach / _attach and also
+	// reparent the view
+	icontainer_reparent(ICONTAINER(new_wsg), ICONTAINER(ws), 0);
 
-	return GTK_NOTEBOOK(new_wsgview->notebook);
+	gtk_window_present(GTK_WINDOW(new_main));
+
+	return GTK_NOTEBOOK(mainwindow_get_workspacegroupview(new_main)->notebook);
 }
 
 static void
@@ -293,7 +265,9 @@ workspacegroupview_page_reordered_cb(GtkNotebook *notebook,
 static void
 workspacegroupview_init(Workspacegroupview *wsgview)
 {
+#ifdef DEBUG
 	printf("workspacegroupview_init:\n");
+#endif /*DEBUG*/
 
 	gtk_widget_init_template(GTK_WIDGET(wsgview));
 

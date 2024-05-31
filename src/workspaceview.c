@@ -376,10 +376,9 @@ workspaceview_child_remove(View *parent, View *child)
 	if (wview->drag_cview == COLUMNVIEW(child))
 		wview->drag_cview = NULL;
 
-	VIEW_CLASS(workspaceview_parent_class)->child_remove(parent, child);
-
-	// must be at the end since this will unref the child
 	gtk_fixed_remove(GTK_FIXED(wview->fixed), GTK_WIDGET(child));
+
+	VIEW_CLASS(workspaceview_parent_class)->child_remove(parent, child);
 }
 
 static void

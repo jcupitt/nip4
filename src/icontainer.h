@@ -58,7 +58,7 @@ struct _iContainer {
 	 */
 	iContainer *current;
 
-	/* Track the view here during reparent.
+	/* Save the view here during reparent, see view detach and attach.
 	 */
 	View *temp_view;
 };

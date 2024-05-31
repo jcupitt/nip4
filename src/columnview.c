@@ -355,6 +355,9 @@ columnview_add_shadow(Columnview *cview)
 
 		/* We can't use model_view_new() etc as we don't want the shadow to be
 		 * part of the viewchild system, or to auto update when col updates.
+		 *
+		 * So we have to replicate all that code here :( This is very
+		 * fragile.
 		 */
 		shadow = COLUMNVIEW(columnview_new());
 		VIEW(shadow)->parent = VIEW(cview)->parent;
@@ -375,9 +378,8 @@ columnview_add_shadow(Columnview *cview)
 
 		// needs to be on the view children list so it gets animated
 		VIEW(wview)->children = g_slist_prepend(VIEW(wview)->children, shadow);
+		g_object_ref(shadow);
 
-		/* Shadow will have one ref held by fixed.
-		 */
 		gtk_fixed_put(GTK_FIXED(wview->fixed),
 			GTK_WIDGET(shadow), shadow->x, shadow->y);
 
@@ -393,8 +395,6 @@ columnview_remove_shadow(Columnview *cview)
 {
 	if (cview->shadow) {
 		Workspaceview *wview = columnview_get_wview(cview);
-
-		printf("columnview_remove_shadow:\n");
 
 		cview->shadow->master = NULL;
 		view_child_remove(VIEW(cview->shadow));
@@ -415,7 +415,7 @@ columnview_dispose(GObject *object)
 	col = COLUMN(VOBJECT(cview)->iobject);
 
 #ifdef DEBUG
-	printf("columnview_dispose:\n");
+	printf("columnview_dispose: cview=%p\n", cview);
 #endif /*DEBUG*/
 
 	if (cview->shadow)
@@ -594,6 +594,8 @@ columnview_child_add(View *parent, View *child)
 	Columnview *cview = COLUMNVIEW(parent);
 	Subcolumnview *sview = SUBCOLUMNVIEW(child);
 
+	printf("columnview_child_add: cview=%p sview=%p\n", cview, sview);
+
 	VIEW_CLASS(columnview_parent_class)->child_add(parent, child);
 
 	gtk_box_prepend(GTK_BOX(cview->body), GTK_WIDGET(sview));
@@ -606,13 +608,12 @@ columnview_child_remove(View *parent, View *child)
 	Subcolumnview *sview = SUBCOLUMNVIEW(child);
 
 #ifdef DEBUG
-	printf("columnview_child_remove:\n");
+	printf("columnview_child_remove: cview=%p sview=%p\n", cview, sview);
 #endif /*DEBUG*/
 
-	VIEW_CLASS(columnview_parent_class)->child_remove(parent, child);
-
-	// must be at the end since this will unref the child
 	gtk_box_remove(GTK_BOX(cview->body), GTK_WIDGET(sview));
+
+	VIEW_CLASS(columnview_parent_class)->child_remove(parent, child);
 }
 
 /* Scroll to keep the text entry at the bottom of the columnview on screen.

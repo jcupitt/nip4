@@ -299,6 +299,14 @@ view_child_front(View *child)
 		VIEW_GET_CLASS(parent)->child_front(parent, child);
 }
 
+static void *
+view_dispose_sub(View *child, View *parent)
+{
+	view_child_remove(child);
+
+	return NULL;
+}
+
 static void
 view_dispose(GObject *object)
 {
@@ -313,22 +321,14 @@ view_dispose(GObject *object)
 	printf("view_dispose: %p \"%s\"\n", object, G_OBJECT_TYPE_NAME(object));
 #endif /*DEBUG*/
 
-	if (view->scannable)
-		view_scannable_unregister(view);
-	if (view->resettable)
-		view_resettable_unregister(view);
-
-	// unlink from parent
-	if (view->parent)
-		view_child_remove(view);
-	g_assert(!view->parent);
-
+	// remove all child views
+	(void) slist_map(view->children, (SListMapFn) view_dispose_sub, view);
 	//printf("view_dispose: n_children = %d\n", g_slist_length(view->children));
 	g_assert(g_slist_length(view->children) == 0);
 	VIPS_FREEF(g_slist_free, view->children);
 
 #ifdef DEBUG_LEAK
-	// we should have no living child widgets
+	// all child widgets on vioewchild should now be null
 	gboolean stray_children = FALSE;
 	for (GSList *p = view->managed; p; p = p->next) {
 		ViewChild *viewchild = (ViewChild *) p->data;
@@ -353,6 +353,11 @@ view_dispose(GObject *object)
 
 	// just a viewchild skeleton we can free
 	slist_map(view->managed, (SListMapFn) view_viewchild_destroy, NULL);
+
+	if (view->scannable)
+		view_scannable_unregister(view);
+	if (view->resettable)
+		view_resettable_unregister(view);
 
 #ifdef DEBUG_LEAK
 	all_view_widgets = g_slist_remove(all_view_widgets, view);
@@ -504,8 +509,8 @@ view_model_child_remove(iContainer *parent, iContainer *child, View *view)
 	(void) view_viewchild_destroy(viewchild);
 }
 
-/* Called for model parent_detach signal ... remove the viewchild for this
- * child. child_attach will build a new one.
+/* Called for model parent_detach signal ... the child model will no longer
+ * have a parent model, so any view of child must go.
  */
 static void
 view_model_child_detach(iContainer *old_parent, iContainer *child,
@@ -527,17 +532,18 @@ view_model_child_detach(iContainer *old_parent, iContainer *child,
 
 	viewchild = slist_map(old_view->managed,
 		(SListMapFn) view_viewchild_child_model_equal, child);
-
 	g_assert(viewchild);
-	g_assert(!child->temp_view);
 
+	/* Save the child view, ready to reparent in _attach.
+	 */
+	g_assert(!child->temp_view);
 	child->temp_view = viewchild->child_view;
 
 	(void) view_viewchild_destroy(viewchild);
 }
 
-/* Called for model child_attach signal ... make a new viewchild on the new
- * parent view.
+/* Called for model child_attach signal ... attach the saved view to the new
+ * parent.
  */
 static void
 view_model_child_attach(iContainer *new_parent, iContainer *child, int pos,
@@ -547,12 +553,12 @@ view_model_child_attach(iContainer *new_parent, iContainer *child, int pos,
 
 #ifdef DEBUG
 	printf("view_model_child_attach:\n");
-	printf("\tnew_parent =  %s \"%s\"\n",
-		G_OBJECT_TYPE_NAME(new_parent), IOBJECT(new_parent)->name);
-	printf("\tchild =  %s \"%s\"\n",
-		G_OBJECT_TYPE_NAME(child), IOBJECT(child)->name);
-	printf("\tnew_view =  %s \"%s\"\n",
-		G_OBJECT_TYPE_NAME(new_view), IOBJECT(new_view)->name);
+	printf("\tnew_parent = %p %s \"%s\"\n",
+		new_parent, G_OBJECT_TYPE_NAME(new_parent), IOBJECT(new_parent)->name);
+	printf("\tchild = %p %s \"%s\"\n",
+		child, G_OBJECT_TYPE_NAME(child), IOBJECT(child)->name);
+	printf("\tnew_view = %p %s\n",
+		new_view, G_OBJECT_TYPE_NAME(new_view));
 #endif /*DEBUG*/
 
 	g_assert(!slist_map(new_view->managed,
@@ -560,11 +566,27 @@ view_model_child_attach(iContainer *new_parent, iContainer *child, int pos,
 
 	viewchild = view_viewchild_new(new_view, MODEL(child));
 
-	g_assert(child->temp_view && IS_VIEW(child->temp_view));
-	viewchild->child_view = child->temp_view;
+	// reparent the view
+	View *child_view = child->temp_view;
+	g_assert(child_view);
+	g_assert(IS_VIEW(child_view));
+
+	View *old_parent_view = child_view->parent;
+	g_assert(old_parent_view);
+	g_assert(IS_VIEW(old_parent_view));
+
+	viewchild->child_view = child_view;
 	child->temp_view = NULL;
 
-	viewchild->child_view->parent = new_view;
+	// also reparent the view on the ->children list
+	g_assert(g_slist_find(old_parent_view->children, child_view));
+	old_parent_view->children =
+		g_slist_remove(old_parent_view->children, child_view);
+
+	g_assert(!g_slist_find(new_view->children, child_view));
+	new_view->children = g_slist_prepend(new_view->children, child_view);
+
+	child_view->parent = new_view;
 }
 
 static void *
@@ -650,11 +672,13 @@ view_real_child_add(View *parent, View *child)
 	g_assert(!g_slist_find(parent->children, child));
 	parent->children = g_slist_prepend(parent->children, child);
 
-	/* We don't ref and unref ... our superclasses will add the view to the
-	 * enclosing widget and that will hold a ref for us. Views without an
-	 * enclosing widget (eg. rowview) need a ref/unref in the enclosing view
-	 * instead, see subcolumnview.
+	/* parent holds an explicit ref to each child, and many parents hold
+	 * indiorect refs too via eg. the gtk_grid they use to hold child widgets.
+	 *
+	 * Having out own refs lets us control when child_dispose() runs and
+	 * thereby guarantee that all children are dispsed before their parents.
 	 */
+	g_object_ref_sink(child);
 }
 
 static void
@@ -683,6 +707,10 @@ view_real_child_remove(View *parent, View *child)
     if (viewchild &&
         viewchild->child_view == child)
         viewchild->child_view = NULL;
+
+	/* This will be the final unref and trigger child dispose.
+	 */
+	g_object_unref(child);
 }
 
 static void

@@ -25,8 +25,8 @@
 /*
 #define DEBUG_VERBOSE
 #define DEBUG
- */
 #define DEBUG_SANITY
+ */
 
 #include "nip4.h"
 
@@ -810,7 +810,7 @@ icontainer_class_init(iContainerClass *class)
 		ICONTAINER_TYPE, G_TYPE_INT);
 
 #ifdef DEBUG_SANITY
-	printf("*** DEBUG_SANITY is on ... expect slowness\n");
+	printf("*** icontainer.c DEBUG_SANITY is on ... expect slowness\n");
 #endif /*DEBUG_SANITY*/
 }
 

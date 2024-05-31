@@ -51,11 +51,6 @@ struct _Subcolumnview {
 	GtkWidget *grid; /* Central grid area for column */
 	int n_rows;		 /* Number of rows atm */
 	int n_vis;		 /* Number of children currently visible */
-
-	/* All our rows. These are not true gtkwidgets (they are never added to a
-	 * parent), so we have to unparent them by hand.
-	 */
-	GSList *rows;
 };
 
 typedef struct _SubcolumnviewClass {

@@ -181,13 +181,9 @@ rhsview_child_remove(View *parent, View *child)
 	else
 		rhsview->graphic = NULL;
 
-	VIEW_CLASS(rhsview_parent_class)->child_remove(parent, child);
+	gtk_grid_remove(GTK_GRID(rhsview->grid), GTK_WIDGET(child));
 
-	// we may already have been detached from our parent by an enclosing
-	// rhsview ... only remove if we're attached
-	if (rhsview->grid &&
-		gtk_widget_get_parent(rhsview->grid))
-		gtk_grid_remove(GTK_GRID(rhsview->grid), GTK_WIDGET(child));
+	VIEW_CLASS(rhsview_parent_class)->child_remove(parent, child);
 }
 
 /* Clone the current item.

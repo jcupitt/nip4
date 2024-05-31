@@ -1,13 +1,28 @@
+## tab drag
+
+- tab name vanishes in old wsgview
+
+	is workspacegroupviewlabel doing something wrong?
+
+	maybe we can force a redraw somehow?
+
+	newer gtk4 doesn't seem to help
+
+- need to set notebook group name for DnD
+
+- can't drag tabs into an existing workspacegroupview
+
+	see https://docs.gtk.org/gtk4/method.Notebook.set_tab_detachable.html
+
+	will need to add code to workspacegroupview_switch_page_cb()
+
 ## rowview menu
 
-- see if having a rowview menu for every row has a significant overhead
+- right click menu on row and ws background position popup menu correctly, but
+  trigger an unwanted scroll event :(
 
-	it's very unclear
-
-	x.ws has 1,000 rows
-
-- right click menu on row and ws background do not position popup menu
-  correctly
+  maybe the rowview and ws menu popups should be on the enclosing and
+  unscrolling wsg instead? this is what imagewindow does (I think?)
 
 ## imagewindow
 
@@ -41,52 +56,6 @@
 	we have progress.c, does that work?
 
 - add region display
-
-## tab drag
-
-- workspaceviewlabel_pressed() should not change workspace, we reply on
-  notebook for that, though it can trigger layout
-
-- drag tab to new wsg, ^Q, assert fails in view_real_child_remove()
-
-- can't drag tabs into an existing workspacegroupview
-
-	see https://docs.gtk.org/gtk4/method.Notebook.set_tab_detachable.html
-
-- start x2.ws, new workspace, ^Q, assert fail
-
-  works with x3.ws?
-
-  x3 new ws is:
-
-	workspaceview_init: FIXME we must do stuff
-	workspacegroupview_child_add:
-	workspaceview_link: FIXME toolkitbrowser, panes, etc.
-	icontainer_real_current: parent Workspace "tab1"; child Column "A"
-	icontainer_real_current: parent Workspacegroup "x3"; child Workspace "tab1"
-	workspacegroupview_child_front:
-	set_symbol_drag_type: FIXME .. implement this
-
-  x2 new ws is
-
-	workspaceview_init: FIXME we must do stuff
-	workspacegroupview_child_add:
-	workspaceview_link: FIXME toolkitbrowser, panes, etc.
-	icontainer_real_current: parent Workspace "tab3"; child Column "A"
-	icontainer_real_current: parent Workspacegroup "x2"; child Workspace "tab3"
-	workspacegroupview_child_front:
-	set_symbol_drag_type: FIXME .. implement this
-
-  ^Q assert fail is
-
-	view_model_child_attach
-	icontainer_reparent
-	workspacegroupview_switch_page_cb
-	gtk_notebook_switch_page
-	gtk_notebook_remove
-	workspacegroupview_child_remove
-
-  stray views being left after drag?
 
 ## toolkit browser
 
@@ -167,4 +136,21 @@
   to do that for us
 
 	  doesn't seem to be possible with drawing area?
+
+- see if having a rowview menu for every row has a significant overhead
+
+	x.ws has 1,000 rows
+
+		before 366mb
+		after: 566mb
+
+	about 200mb, so /1000 is 200kb per row
+
+	a significant saving!
+
+	ws load is much faster without a menu per row
+
+- when we drag a tab out, can we position the new window more intelligently?
+
+	doesn't seem to be possible
 

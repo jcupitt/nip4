@@ -35,23 +35,13 @@
 
 G_DEFINE_TYPE(Subcolumnview, subcolumnview, VIEW_TYPE)
 
-static void *
-subcolumnview_dispose_sub(void *item, void *a)
-{
-	View *child = VIEW(item);
-
-	view_child_remove(child);
-
-	return NULL;
-}
-
 static void
 subcolumnview_dispose(GObject *object)
 {
 	Subcolumnview *sview;
 
 #ifdef DEBUG
-	printf("subcolumnview_dispose\n");
+	printf("subcolumnview_dispose: %p\n", object);
 #endif /*DEBUG*/
 
 	g_return_if_fail(object != NULL);
@@ -60,11 +50,6 @@ subcolumnview_dispose(GObject *object)
 	sview = SUBCOLUMNVIEW(object);
 
 	gtk_widget_dispose_template(GTK_WIDGET(sview), SUBCOLUMNVIEW_TYPE);
-
-	//printf("subcolumnview_dispose: %d children remain\n",
-		//g_slist_length(sview->rows));
-	slist_map(sview->rows, subcolumnview_dispose_sub, NULL);
-	VIPS_FREEF(g_slist_free, sview->rows);
 
 	G_OBJECT_CLASS(subcolumnview_parent_class)->dispose(object);
 }
@@ -103,13 +88,6 @@ subcolumnview_child_add(View *parent, View *child)
 	printf("subcolumnview_child_add:\n");
 #endif /*DEBUG*/
 
-	/* rowview does not get added to a parent view (it's not a true widget)
-	 * so we must ref and unref it. See subvolumnview_dispose().
-	 */
-	g_assert(!g_slist_find(sview->rows, child));
-	sview->rows = g_slist_prepend(sview->rows, child);
-	g_object_ref_sink(G_OBJECT(child));
-
 	VIEW_CLASS(subcolumnview_parent_class)->child_add(parent, child);
 }
 
@@ -123,8 +101,6 @@ subcolumnview_child_remove(View *parent, View *child)
 	printf("subcolumnview_child_remove:\n");
 #endif /*DEBUG*/
 
-	VIEW_CLASS(subcolumnview_parent_class)->child_remove(parent, child);
-
 	/* rowview_refresh() attaches spin, frame and rhsview to the grid, we need
 	 * to remove them here.
 	 */
@@ -135,9 +111,7 @@ subcolumnview_child_remove(View *parent, View *child)
 			gtk_grid_remove(GTK_GRID(sview->grid), GTK_WIDGET(rview->rhsview));
 	}
 
-	g_assert(g_slist_find(sview->rows, child));
-	sview->rows = g_slist_remove(sview->rows, child);
-	g_object_unref(G_OBJECT(child));
+	VIEW_CLASS(subcolumnview_parent_class)->child_remove(parent, child);
 }
 
 static void *
