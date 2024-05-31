@@ -6,6 +6,7 @@
       <object class="GtkNotebook" id="notebook">
         <property name="hexpand">true</property>
         <property name="vexpand">true</property>
+        <property name="group-name">nip4-mainwindow-tab-bar</property>
 
 	<!-- workspaceview.c adds pages to this notebook -->
 

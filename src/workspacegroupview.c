@@ -25,10 +25,18 @@
 #include "nip4.h"
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 G_DEFINE_TYPE(Workspacegroupview, workspacegroupview, VIEW_TYPE)
+
+/* GTypes we handle in copy/paste and drag/drop paste ... needed for tab drop.
+ *
+ * Created in _class_init(), since some of these types are only defined at
+ * runtime.
+ */
+static GType *workspacegroupview_supported_types;
+static int workspacegroupview_n_supported_types;
 
 static void
 workspacegroupview_dispose(GObject *object)
@@ -153,6 +161,19 @@ workspacegroupview_class_init(WorkspacegroupviewClass *class)
 	view_class->child_remove = workspacegroupview_child_remove;
 	view_class->child_position = workspacegroupview_child_position;
 	view_class->child_front = workspacegroupview_child_front;
+
+	GType supported_types[] = {
+        GDK_TYPE_FILE_LIST,
+        G_TYPE_FILE,
+        GDK_TYPE_TEXTURE,
+        G_TYPE_STRING,
+    };
+
+	workspacegroupview_n_supported_types = VIPS_NUMBER(supported_types);
+    workspacegroupview_supported_types =
+        VIPS_ARRAY(NULL, workspacegroupview_n_supported_types + 1, GType);
+    for (int i = 0; i < workspacegroupview_n_supported_types; i++)
+        workspacegroupview_supported_types[i] = supported_types[i];
 }
 
 static Workspaceview *
@@ -168,6 +189,10 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 	GtkWidget *page, guint page_num, gpointer user_data)
 {
 	Workspaceview *wview = notebookpage_get_workspaceview(page);
+
+#ifdef DEBUG
+	printf("workspacegroupview_switch_page_cb:\n");
+#endif /*DEBUG*/
 
 	// we can come here during destruction ... make sure our model is still
 	// around
@@ -198,6 +223,10 @@ workspacegroupview_page_added_cb(GtkNotebook *notebook,
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
 	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
 	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(notebook)));
+
+#ifdef DEBUG
+	printf("workspacegroupview_page_added_cb:\n");
+#endif /*DEBUG*/
 
 	filemodel_set_window_hint(FILEMODEL(wsg), GTK_WINDOW(main));
 }
@@ -243,6 +272,10 @@ workspacegroupview_page_reordered_cb(GtkNotebook *notebook,
 	int i;
 	gboolean changed;
 
+#ifdef DEBUG
+	printf("workspacegroupview_page_reordered_cb:\n");
+#endif /*DEBUG*/
+
 	changed = FALSE;
 
 	for (i = 0; i < gtk_notebook_get_n_pages(notebook); i++) {
@@ -279,6 +312,15 @@ workspacegroupview_init(Workspacegroupview *wsgview)
 		G_CALLBACK(workspacegroupview_page_reordered_cb), wsgview);
 	g_signal_connect(wsgview->notebook, "create_window",
 		G_CALLBACK(workspacegroupview_create_window_cb), wsgview);
+
+    /* We are a drop target for tabs.
+     */
+	GtkEventController *controller = GTK_EVENT_CONTROLLER(
+        gtk_drop_target_new(G_TYPE_INVALID, GDK_ACTION_COPY));
+    gtk_drop_target_set_gtypes(GTK_DROP_TARGET(controller),
+        workspacegroupview_supported_types,
+        workspacegroupview_n_supported_types);
+    gtk_widget_add_controller(wsgview->notebook, controller);
 }
 
 View *

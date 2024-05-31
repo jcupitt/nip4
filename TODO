@@ -1,20 +1,8 @@
 ## tab drag
 
-- tab name vanishes in old wsgview
+- drag tab onto existing mainwindow does not reparent workspace
 
-	is workspacegroupviewlabel doing something wrong?
-
-	maybe we can force a redraw somehow?
-
-	newer gtk4 doesn't seem to help
-
-- need to set notebook group name for DnD
-
-- can't drag tabs into an existing workspacegroupview
-
-	see https://docs.gtk.org/gtk4/method.Notebook.set_tab_detachable.html
-
-	will need to add code to workspacegroupview_switch_page_cb()
+	add reparent code to workspacegroupview_switch_page_cb()?
 
 ## rowview menu
 
@@ -68,6 +56,8 @@
 	need something like lpane / rpane
 
 ## small
+
+- ^S on workspace with no associated file does not pop up save dialog
 
 - status bar? space free indicator is handy ... could this go somewhere else?
   maybe in "about"?
@@ -153,4 +143,18 @@
 - when we drag a tab out, can we position the new window more intelligently?
 
 	doesn't seem to be possible
+
+- tab name vanishes in old wsgview, current tab indicators stop working
+
+	in workspacegroupview_create_window_cb()
+
+	is workspaceviewlabel doing something wrong?
+
+	maybe we can force a redraw somehow?
+
+	wsview->label hide/show?
+
+		tried lots of things, none worked
+
+	newer gtk4 doesn't seem to help
 
