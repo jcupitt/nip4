@@ -1,8 +1,15 @@
 ## tab drag
 
-- drag tab onto existing mainwindow does not reparent workspace
+- need to mark wses modified when we drag tabs
 
-	add reparent code to workspacegroupview_switch_page_cb()?
+- culling empty mainwindow at the end of drag does not work
+
+- dragging tabs about can make workspaceviews leak, but only
+  sometimes (!!?!?!)
+
+	view_dump(): 2 views
+	0x5555596c76f0 Workspaceview count=4
+	0x5555595c1860 Workspaceview count=1
 
 ## rowview menu
 
@@ -57,7 +64,12 @@
 
 ## small
 
+- do we still need filemodel_set_window_hint()? looks ugly
+
 - ^S on workspace with no associated file does not pop up save dialog
+
+  if we pop up a save dialog and do save-as, it's not setting the filemodel
+  filename and the title bar does not update
 
 - status bar? space free indicator is handy ... could this go somewhere else?
   maybe in "about"?

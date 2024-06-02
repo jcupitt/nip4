@@ -25,8 +25,8 @@
 #include "nip4.h"
 
 /*
- */
 #define DEBUG
+ */
 
 G_DEFINE_TYPE(Workspacegroupview, workspacegroupview, VIEW_TYPE)
 
@@ -188,6 +188,7 @@ static void
 workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 	GtkWidget *page, guint page_num, gpointer user_data)
 {
+	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(notebook)));
 	Workspaceview *wview = notebookpage_get_workspaceview(page);
 
 #ifdef DEBUG
@@ -196,10 +197,19 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 
 	// we can come here during destruction ... make sure our model is still
 	// around
-	if (!VOBJECT(wview)->iobject)
+	if (!VOBJECT(wview)->iobject) {
+		printf("\treturn ... no model for page\n");
 		return;
+	}
+
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
+#ifdef DEBUG
+	printf("\tws = %p (%s)\n", ws, IOBJECT(ws)->name);
+	printf("\tmain = %p\n", main);
+#endif /*DEBUG*/
+
+	// try to stop annoying extra scrolls
 	workspaceview_scroll_reset(wview);
 
 	// we must layout in case this tab was previously laid out while hidden
@@ -212,23 +222,38 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 					"for this window."),
 			ws->compat_major,
 			ws->compat_minor);
-		mainwindow_error(MAINWINDOW(view_get_window(VIEW(wview))));
+		mainwindow_error(main);
 	}
 }
 
+/* We come here for tab drag, so we reparent if the enclosing notebook is part
+ * of a different mainwindow.
+ */
 static void
 workspacegroupview_page_added_cb(GtkNotebook *notebook,
 	GtkWidget *page, guint page_num, gpointer user_data)
 {
-	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
-	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
+	/* Parent model we are adding to.
+	 */
 	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(notebook)));
+	Workspacegroupview *wsgview = mainwindow_get_workspacegroupview(main);
+	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
+
+	/* Child model from page.
+	 */
+	Workspaceview *wview = notebookpage_get_workspaceview(page);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 #ifdef DEBUG
 	printf("workspacegroupview_page_added_cb:\n");
+	printf("\tmain = %p\n", main);
+	printf("\twsg = %p (%s)\n", wsg, IOBJECT(wsg)->name);
+	printf("\tws = %p (%s)\n", ws, IOBJECT(ws)->name);
 #endif /*DEBUG*/
 
-	filemodel_set_window_hint(FILEMODEL(wsg), GTK_WINDOW(main));
+	/* _repareht does nothing is the parent is already correct.
+	 */
+	icontainer_reparent(ICONTAINER(wsg), ICONTAINER(ws), 0);
 }
 
 static GtkNotebook *
@@ -238,25 +263,38 @@ workspacegroupview_create_window_cb(GtkNotebook *notebook,
 	Workspaceview *wview = WORKSPACEVIEW(page);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 	Workspacegroup *old_wsg = WORKSPACEGROUP(ICONTAINER(ws)->parent);
+
+#ifdef DEBUG
+	printf("workspacegroupview_create_window_cb:\n");
+	printf("\tws = %p (%s)\n", ws, IOBJECT(ws)->name);
+	printf("\told_wsg = %p\n", old_wsg);
+#endif /*DEBUG*/
+
 	Workspaceroot *wsr = old_wsg->wsr;
 	Mainwindow *old_main = MAINWINDOW(view_get_window(VIEW(wview)));
 	GtkApplication *app = gtk_window_get_application(GTK_WINDOW(old_main));
 	Workspacegroup *new_wsg = workspacegroup_new(wsr);
 
 #ifdef DEBUG
-	printf("workspacegroupview_create_window_cb:\n");
-	printf("\told_wsg %p (%s)\n", old_wsg, IOBJECT(old_wsg)->name);
-	printf("\tws %p (%s)\n", ws, IOBJECT(ws)->name);
-	printf("\tnew_wsg %p (%s)\n", new_wsg, IOBJECT(new_wsg)->name);
+	printf("\told_wsg = %p (%s)\n", old_wsg, IOBJECT(old_wsg)->name);
+	printf("\tnew_wsg = %p (%s)\n", new_wsg, IOBJECT(new_wsg)->name);
 #endif /*DEBUG*/
+
+	/* Don't reparent here ... detect reparent in page_added and do it there.
+	 *
+	 * We have two cases: drag tab to background (this cb makes the new
+	 * window), and drag tab to existing window (this cb won't be called).
+	 * page_added is the common path.
+	 */
 
 	Mainwindow *new_main = mainwindow_new(app);
 	mainwindow_set_wsg(new_main, new_wsg);
-	// viewchild on the model will spot the _detach / _attach and also
-	// reparent the view
-	icontainer_reparent(ICONTAINER(new_wsg), ICONTAINER(ws), 0);
-
 	gtk_window_present(GTK_WINDOW(new_main));
+
+#ifdef DEBUG
+	printf("\told_main = %p\n", old_main);
+	printf("\tnew_main = %p\n", new_main);
+#endif /*DEBUG*/
 
 	return GTK_NOTEBOOK(mainwindow_get_workspacegroupview(new_main)->notebook);
 }

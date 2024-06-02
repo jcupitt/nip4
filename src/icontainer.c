@@ -25,8 +25,8 @@
 /*
 #define DEBUG_VERBOSE
 #define DEBUG
-#define DEBUG_SANITY
  */
+#define DEBUG_SANITY
 
 #include "nip4.h"
 
@@ -487,17 +487,28 @@ icontainer_reparent(iContainer *parent, iContainer *child, int pos)
 	icontainer_sanity(child);
 #endif /*DEBUG_SANITY*/
 
-	/* These must always happen as a pair.
-	 */
-	g_signal_emit(G_OBJECT(old_parent),
-		icontainer_signals[SIG_CHILD_DETACH], 0, child);
-	g_signal_emit(G_OBJECT(parent),
-		icontainer_signals[SIG_CHILD_ATTACH], 0, child, pos);
+	if (child->parent != parent) {
+#ifdef DEBUG
+		printf("icontainer_reparent:\n");
+		printf("\tparent = (%p) %s \"%s\"\n",
+			parent, G_OBJECT_TYPE_NAME(parent), IOBJECT(parent)->name);
+		printf("\tchild = (%p) %s \"%s\"\n",
+			child, G_OBJECT_TYPE_NAME(child), IOBJECT(child)->name);
+		printf("\tpos = %d\n", pos);
+#endif /*DEBUG*/
 
-	icontainer_pos_renumber(parent);
-	iobject_changed(IOBJECT(parent));
-	iobject_changed(IOBJECT(old_parent));
-	iobject_changed(IOBJECT(child));
+		/* These must always happen as a pair.
+		 */
+		g_signal_emit(G_OBJECT(old_parent),
+			icontainer_signals[SIG_CHILD_DETACH], 0, child);
+		g_signal_emit(G_OBJECT(parent),
+			icontainer_signals[SIG_CHILD_ATTACH], 0, child, pos);
+
+		icontainer_pos_renumber(parent);
+		iobject_changed(IOBJECT(parent));
+		iobject_changed(IOBJECT(old_parent));
+		iobject_changed(IOBJECT(child));
+	}
 
 #ifdef DEBUG_SANITY
 	icontainer_sanity(old_parent);
