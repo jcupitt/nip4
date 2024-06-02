@@ -1,9 +1,5 @@
 ## tab drag
 
-- need to mark wses modified when we drag tabs
-
-- culling empty mainwindow at the end of drag does not work
-
 - dragging tabs about can make workspaceviews leak, but only
   sometimes (!!?!?!)
 

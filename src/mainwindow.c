@@ -828,6 +828,8 @@ mainwindow_cull_sub(Mainwindow *main)
 void
 mainwindow_cull(void)
 {
+	printf("mainwindow_cull:\n");
+
     slist_map(mainwindow_all,
         (SListMapFn) mainwindow_cull_sub, NULL);
 }

@@ -251,9 +251,17 @@ workspacegroupview_page_added_cb(GtkNotebook *notebook,
 	printf("\tws = %p (%s)\n", ws, IOBJECT(ws)->name);
 #endif /*DEBUG*/
 
-	/* _repareht does nothing is the parent is already correct.
-	 */
-	icontainer_reparent(ICONTAINER(wsg), ICONTAINER(ws), 0);
+	if (ICONTAINER(ws)->parent != ICONTAINER(wsg)) {
+		// we want the from and to wsgs to be modified on tab drag
+		workspace_set_modified(ws, TRUE);
+
+		icontainer_reparent(ICONTAINER(wsg), ICONTAINER(ws), 0);
+
+		workspace_set_modified(ws, TRUE);
+
+		// we may have left an empty mainwindow
+		mainwindow_cull();
+	}
 }
 
 static GtkNotebook *
@@ -327,10 +335,8 @@ workspacegroupview_page_reordered_cb(GtkNotebook *notebook,
 		}
 	}
 
-	if (changed) {
+	if (changed)
 		icontainer_pos_sort(ICONTAINER(wsg));
-		filemodel_set_modified(FILEMODEL(wsg), TRUE);
-	}
 }
 
 static void
