@@ -60,13 +60,6 @@
 
 ## small
 
-- do we still need filemodel_set_window_hint()? looks ugly
-
-- ^S on workspace with no associated file does not pop up save dialog
-
-  if we pop up a save dialog and do save-as, it's not setting the filemodel
-  filename and the title bar does not update
-
 - status bar? space free indicator is handy ... could this go somewhere else?
   maybe in "about"?
 
@@ -75,14 +68,6 @@
 - there's a 20ms timeout in vobject_refresh_queue() ... tune this
 
 - we have workspacegroup_save_selected() and workspace_selected_save() ???
-
-- try
-
-	save with no filename
-	pops save dialog
-	save wsg
-	... but does not set filename on filemodel
-	don't see filename in header bar
 
 ## ideas
 

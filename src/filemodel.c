@@ -117,20 +117,6 @@ filemodel_set_modified(Filemodel *filemodel, gboolean modified)
 		filemodel_class->set_modified(filemodel, modified);
 }
 
-void
-filemodel_set_window_hint(Filemodel *filemodel, GtkWindow *win)
-{
-	/* This can be called repeatedly if objects are moved between windows.
-	 */
-	filemodel->window_hint = win;
-}
-
-GtkWindow *
-filemodel_get_window_hint(Filemodel *filemodel)
-{
-	return filemodel->window_hint;
-}
-
 gboolean
 filemodel_top_save(Filemodel *filemodel, const char *filename)
 {
@@ -456,8 +442,6 @@ filemodel_init(Filemodel *filemodel)
 	filemodel->major = MAJOR_VERSION;
 	filemodel->minor = MINOR_VERSION;
 	filemodel->micro = MICRO_VERSION;
-
-	filemodel->window_hint = NULL;
 }
 
 void

@@ -982,6 +982,7 @@ workspacegroup_save_all(Workspacegroup *wsg, const char *filename)
 	}
 
 	filemodel_set_modified(FILEMODEL(wsg), FALSE);
+	filemodel_set_filename(FILEMODEL(wsg), filename);
 
 	return TRUE;
 }
