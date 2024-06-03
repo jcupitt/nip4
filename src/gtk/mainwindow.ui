@@ -17,12 +17,15 @@
 
     <section>
       <item>
+        <attribute name='label' translatable='yes'>Open ...</attribute>
+        <attribute name='action'>win.open</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
         <attribute name='label' translatable='yes'>New workspace</attribute>
         <attribute name='action'>app.new</attribute>
-      </item>
-      <item>
-        <attribute name='label' translatable='yes'>Open workspace ...</attribute>
-        <attribute name='action'>win.open</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>Merge workspace ...</attribute>

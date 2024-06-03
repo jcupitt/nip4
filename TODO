@@ -15,6 +15,10 @@
   maybe the rowview and ws menu popups should be on the enclosing and
   unscrolling wsg instead? this is what imagewindow does (I think?)
 
+	currently defined in gtk/workspaceview.ui
+
+	move to workspacegroup and attach to notebook?
+
 ## imagewindow
 
 - open view, change row once works, change row a seecond time fails to update
@@ -58,6 +62,10 @@
 
 	need something like lpane / rpane
 
+	just a pane with a revealer to make the lhs or rhs show and hide
+
+	remove the "open" button from the top bar?
+
 ## small
 
 - there's a 20ms timeout in vobject_refresh_queue() ... tune this
@@ -65,11 +73,6 @@
 - we have workspacegroup_save_selected() and workspace_selected_save() ???
 
 ## ideas
-
-- look at adding file type stuff, there are hooks for it, see
-  gtk_file_dialog_set_default_filter() and:
-
-	https://docs.gtk.org/gtk4/class.FileFilter.html
 
 - we have the css_name thing in several _refresh() methods ... should this be
   in the base class?

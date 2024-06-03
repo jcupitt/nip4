@@ -272,6 +272,83 @@ mainwindow_error_response(GtkWidget *button, int response,
 	mainwindow_error_hide(main);
 }
 
+static gboolean
+mainwindow_open_workspace(Mainwindow *main, const char *filename)
+{
+	GtkApplication *app = gtk_window_get_application(GTK_WINDOW(main));
+
+	Workspacegroup *wsg;
+	if (!(wsg = workspacegroup_new_from_file(main_workspaceroot,
+			  filename, filename))) {
+		return FALSE;
+	}
+
+	Mainwindow *new_main = g_object_new(MAINWINDOW_TYPE,
+		"application", app,
+		NULL);
+
+	mainwindow_set_wsg(new_main, wsg);
+	mainwindow_set_gfile(new_main, NULL);
+	gtk_window_present(GTK_WINDOW(new_main));
+
+	/* If we had an empty wsg, perhaps we've just started up,
+	 * kill it.
+	 */
+	if (workspacegroup_is_empty(main->wsg)) {
+		filemodel_set_modified(FILEMODEL(main->wsg), FALSE);
+		gtk_window_destroy(GTK_WINDOW(main));
+	}
+
+	return TRUE;
+}
+
+static Workspace *
+mainwindow_get_workspace(Mainwindow *main)
+{
+	Workspace *ws;
+
+	if (main->wsg &&
+		(ws = WORKSPACE(ICONTAINER(main->wsg)->current)))
+		return ws;
+
+	return NULL;
+}
+
+static gboolean
+mainwindow_open_definition(Mainwindow *main, const char *filename)
+{
+	// turn it into eg. (Image_file "filename")
+	char txt[MAX_STRSIZE];
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
+	if (!workspace_load_file_buf(&buf, filename)) {
+		mainwindow_error(main);
+		return;
+	}
+
+	Workspace *ws = mainwindow_get_workspace(main);
+	if (!workspace_add_def_recalc(ws, vips_buf_all(&buf))) {
+		error_top(_("Load failed."));
+		error_sub(_("Unable to execute:\n   %s"), vips_buf_all(&buf));
+		return FALSE;
+	}
+
+	symbol_recalculate_all();
+
+	return TRUE;
+}
+
+typedef gboolean (*FileTypeHandler)(Mainwindow *main, const char *filename);
+
+typedef struct _FileType {
+	char *suffix;
+	FileTypeHandler handler;
+} FileType;
+
+static FileType mainwindow_file_types[] = {
+	{ ".ws", mainwindow_open_workspace },
+	{ "", mainwindow_open_definition }
+};
+
 static void
 mainwindow_open_result(GObject *source_object,
 	GAsyncResult *res, gpointer user_data)
@@ -281,29 +358,19 @@ mainwindow_open_result(GObject *source_object,
 
 	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
 	if (file) {
-		Workspacegroup *wsg;
+		mainwindow_set_load_folder(main, file);
 
 		g_autofree char *filename = g_file_get_path(file);
 
-		GtkApplication *app = gtk_window_get_application(GTK_WINDOW(main));
+		for (int i = 0; i < VIPS_NUMBER(mainwindow_file_types); i++)
+			if (vips_iscasepostfix(filename, mainwindow_file_types[i].suffix)) {
+				if (!mainwindow_file_types[i].handler(main, filename))
+					mainwindow_error(main);
+				return;
+			}
 
-		// quick hack ... yuk!
-
-		if (!(wsg = workspacegroup_new_from_file(main_workspaceroot,
-				  filename, filename))) {
-			mainwindow_error(main);
-			return;
-		}
-
-		Mainwindow *new_main = g_object_new(MAINWINDOW_TYPE,
-			"application", app,
-			NULL);
-
-		mainwindow_set_wsg(new_main, wsg);
-
-		mainwindow_set_gfile(new_main, NULL);
-
-		gtk_window_present(GTK_WINDOW(new_main));
+		// the last item in mainwindow_file_types should catch everything
+		g_assert_not_reached();
 	}
 }
 
@@ -607,18 +674,6 @@ mainwindow_class_init(MainwindowClass *class)
 	BIND_VARIABLE(Mainwindow, error_top);
 	BIND_VARIABLE(Mainwindow, error_sub);
 	BIND_VARIABLE(Mainwindow, wsgview);
-}
-
-static Workspace *
-mainwindow_get_workspace(Mainwindow *main)
-{
-	Workspace *ws;
-
-	if (main->wsg &&
-		(ws = WORKSPACE(ICONTAINER(main->wsg)->current)))
-		return ws;
-
-	return NULL;
 }
 
 static void
