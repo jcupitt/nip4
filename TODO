@@ -7,18 +7,6 @@
 	0x5555596c76f0 Workspaceview count=4
 	0x5555595c1860 Workspaceview count=1
 
-## rowview menu
-
-- right click menu on row and ws background position popup menu correctly, but
-  trigger an unwanted scroll event :(
-
-  maybe the rowview and ws menu popups should be on the enclosing and
-  unscrolling wsg instead? this is what imagewindow does (I think?)
-
-	currently defined in gtk/workspaceview.ui
-
-	move to workspacegroup and attach to notebook?
-
 ## imagewindow
 
 - open view, change row once works, change row a seecond time fails to update
@@ -52,6 +40,10 @@
 
 - add region display
 
+## vips8
+
+- action_proc_add() etc. etc. in action.c needs updating for vips8
+
 ## toolkit browser
 
 - use a filemanager style left bar for the toolkit browser
@@ -65,6 +57,15 @@
 	just a pane with a revealer to make the lhs or rhs show and hide
 
 	remove the "open" button from the top bar?
+
+	use a treeview?
+
+		see the lpane in program.c, but show as tools, not as
+		definitions
+
+	put workspace local defs in a pullout on the right? or maybe a popup
+
+	put inside workspaceview, since tools are per workspace?
 
 ## small
 

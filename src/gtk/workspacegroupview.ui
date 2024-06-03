@@ -1,6 +1,100 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
 
+  <menu id="workspacegroup-menu">
+    <section>
+      <item>
+        <attribute name="label">New column</attribute>
+        <attribute name="action">win.column-new</attribute>
+      </item>
+      <item>
+        <attribute name="label">Group selected</attribute>
+        <attribute name="action">win.prev</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Next error</attribute>
+        <attribute name='action'>win.next-error</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Fullscreen</attribute>
+        <attribute name="action">win.fullscreen</attribute>
+      </item>
+    </section>
+  </menu>
+
+  <menu id="workspacegroup-row-menu">
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>View</attribute>
+        <attribute name='action'>win.row-edit</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Duplicate</attribute>
+        <attribute name='action'>win.row-duplicate</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Ungroup</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Save as ...</attribute>
+        <attribute name='action'>win.row-saveas</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Replace from file ...</attribute>
+        <attribute name='action'>win.row-replace</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Recalculate</attribute>
+        <attribute name='action'>win.row-recalculate</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Reset</attribute>
+        <attribute name='action'>win.row-reset</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Delete ...</attribute>
+        <attribute name='action'>win.row-delete</attribute>
+      </item>
+    </section>
+  </menu>
+
+  <menu id="workspacegroup-column-menu">
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Edit caption</attribute>
+        <attribute name='action'>win.column-edit-caption</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Select all</attribute>
+        <attribute name='action'>win.column-select-all</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Duplicate</attribute>
+        <attribute name='action'>win.column-duplicate</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Merge into ...</attribute>
+        <attribute name='action'>win.column-merge</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Save as ...</attribute>
+        <attribute name='action'>win.column-saveas</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Delete ...</attribute>
+        <attribute name='action'>win.column-delete</attribute>
+      </item>
+    </section>
+  </menu>
+
   <template class="Workspacegroupview" parent="View">
     <child>
       <object class="GtkNotebook" id="notebook">
@@ -17,7 +111,31 @@
             <signal name="clicked" handler="workspacegroupview_new_tab_clicked"/>
           </object>
         </child>
+      </object>
+    </child>
 
+    <child>
+      <object class="GtkPopoverMenu" id="workspace_menu">
+        <property name="menu-model">workspacegroup-menu</property>
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkPopoverMenu" id="row_menu">
+        <property name="menu-model">workspacegroup-row-menu</property>
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkPopoverMenu" id="column_menu">
+        <property name="menu-model">workspacegroup-column-menu</property>
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkGestureClick">
+        <property name="button">3</property>
+        <signal name="pressed" handler="workspacegroupview_background_menu"/>
       </object>
     </child>
 

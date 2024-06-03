@@ -465,27 +465,6 @@ rowview_workspaceview(Rowview *rview)
 }
 
 static void
-rowview_menu(GtkGestureClick *gesture,
-	guint n_press, double x, double y, Rowview *rview)
-{
-	Workspaceview *wsview = rowview_workspaceview(rview);
-
-	printf("rowview_menu: %g %g\n", x, y);
-
-	mainwindow_set_action_view(rview->rhsview);
-
-	graphene_point_t rowview_point = GRAPHENE_POINT_INIT(x, y);
-	graphene_point_t wsview_point;
-	if (gtk_widget_compute_point(rview->frame, wsview->fixed,
-			&rowview_point, &wsview_point)) {
-		gtk_popover_set_pointing_to(GTK_POPOVER(wsview->rowview_menu),
-			&(const GdkRectangle){ wsview_point.x, wsview_point.y, 1, 1 });
-
-		gtk_popover_popup(GTK_POPOVER(wsview->rowview_menu));
-	}
-}
-
-static void
 rowview_up_click(GtkGestureClick *gesture, Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
@@ -544,6 +523,60 @@ rowview_tooltip_generate(GtkWidget *widget, VipsBuf *buf, Rowview *rview)
 }
  */
 
+/* Clone the current item.
+ */
+static void
+rowview_duplicate(Rowview *rview)
+{
+	Row *row = ROW(VOBJECT(rview)->iobject);
+	Workspace *ws = row->top_col->ws;
+
+	/* Only allow clone of top level rows.
+	 */
+	if (row->top_row != row) {
+		error_top("%s", _("Can't duplicate"));
+		error_sub("%s", _("You can only duplicate top level rows."));
+		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+		return;
+	}
+
+	workspace_deselect_all(ws);
+	row_select(row);
+	if (!workspace_selected_duplicate(ws))
+		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+	workspace_deselect_all(ws);
+
+	symbol_recalculate_all();
+}
+
+static void
+rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
+{
+	Rowview *rview = ROWVIEW(view);
+	Row *row = ROW(VOBJECT(rview)->iobject);
+	Rhs *rhs = row->child_rhs;
+	Workspace *ws = row->top_col->ws;
+	const char *name = g_action_get_name(G_ACTION(action));
+
+	printf("rowview_action: %s\n", name);
+
+	if (g_str_equal(name, "row-edit"))
+		model_edit(GTK_WIDGET(rview), rhs);
+	else if (g_str_equal(name, "row-saveas") &&
+		rhs->graphic)
+		classmodel_graphic_save(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
+	else if (g_str_equal(name, "row-delete")) {
+		workspace_deselect_all(ws);
+		row_select(row);
+		workspace_selected_remove_yesno(ws, GTK_WIDGET(rview));
+	}
+	else if (g_str_equal(name, "row-replace") &&
+		rhs->graphic)
+		classmodel_graphic_replace(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
+	else if (g_str_equal(name, "row-duplicate"))
+		rowview_duplicate(rview);
+}
+
 static void
 rowview_class_init(RowviewClass *class)
 {
@@ -558,7 +591,6 @@ rowview_class_init(RowviewClass *class)
 		GTK_TYPE_BIN_LAYOUT);
 
 	BIND_CALLBACK(rowview_click);
-	BIND_CALLBACK(rowview_menu);
 	BIND_CALLBACK(rowview_up_click);
 	BIND_CALLBACK(rowview_down_click);
 
@@ -582,6 +614,7 @@ rowview_class_init(RowviewClass *class)
 	view_class->child_remove = rowview_child_remove;
 	view_class->reset = rowview_reset;
 	view_class->scrollto = rowview_scrollto;
+	view_class->action = rowview_action;
 }
 
 static void

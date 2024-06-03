@@ -1,38 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
 
-  <menu id="columnview-menu">
-    <section>
-      <item>
-        <attribute name='label' translatable='yes'>Edit caption</attribute>
-        <attribute name='action'>win.column-edit-caption</attribute>
-      </item>
-      <item>
-        <attribute name='label' translatable='yes'>Select all</attribute>
-        <attribute name='action'>win.column-select-all</attribute>
-      </item>
-      <item>
-        <attribute name='label' translatable='yes'>Duplicate</attribute>
-        <attribute name='action'>win.column-duplicate</attribute>
-      </item>
-      <item>
-        <attribute name='label' translatable='yes'>Merge into ...</attribute>
-        <attribute name='action'>win.column-merge</attribute>
-      </item>
-      <item>
-        <attribute name='label' translatable='yes'>Save as ...</attribute>
-        <attribute name='action'>win.column-saveas</attribute>
-      </item>
-    </section>
-
-    <section>
-      <item>
-        <attribute name='label' translatable='yes'>Delete ...</attribute>
-        <attribute name='action'>win.column-delete</attribute>
-      </item>
-    </section>
-  </menu>
-
   <template class="Columnview" parent="View">
     <child>
 
@@ -113,19 +81,6 @@
                   </object>
                 </child>
 
-                <child>
-                  <object class="GtkPopoverMenu" id="right_click_menu">
-                    <property name="menu-model">columnview-menu</property>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkGestureClick">
-                    <property name="button">3</property>
-                      <signal name="pressed" handler="columnview_menu"/>
-                  </object>
-                </child>
-
               </object>
             </child>
 
@@ -163,5 +118,4 @@
 
   </template>
 </interface>
-
 

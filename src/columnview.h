@@ -64,9 +64,9 @@ struct _Columnview {
 	GtkWidget *revealer;			/* Animate visibility for body */
 	GtkWidget *body;				/* The body of the columnview */
 
-	/* Context menu for titlebar.
+	/* Our child view.
 	 */
-	GtkWidget *right_click_menu;
+	Subcolumnview *sview;
 
 	/* A shadow for this cview, used during drag to show where this column
 	 * will end up.
@@ -122,3 +122,5 @@ void columnview_animate_to(Columnview *cview, int x, int y);
 
 GType columnview_get_type(void);
 View *columnview_new(void);
+
+Rowview *columnview_find_rowview(Columnview *cview, int x, int y);

@@ -139,6 +139,54 @@ workspacegroupview_new_tab_clicked(GtkButton *button, void *user_data)
 }
 
 static void
+workspacegroupview_background_menu(GtkGestureClick *gesture,
+	guint n_press, double x, double y, void *user_data)
+{
+	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
+	GtkNotebook *notebook = GTK_NOTEBOOK(wsgview->notebook);
+	int page_number = gtk_notebook_get_current_page(notebook);
+	Workspaceview *wview =
+		WORKSPACEVIEW(gtk_notebook_get_nth_page(notebook, page_number));
+
+	// translate (x,y) to workspace coordinates for the current page
+	graphene_point_t wsgview_point = GRAPHENE_POINT_INIT(x, y);
+	graphene_point_t wview_point;
+	if (gtk_widget_compute_point(GTK_WIDGET(wsgview), GTK_WIDGET(wview->fixed),
+		&wsgview_point, &wview_point)) {
+		Columnview *title = workspaceview_find_columnview_title(wview,
+				wview_point.x, wview_point.y);
+		Columnview *cview = workspaceview_find_columnview(wview,
+				wview_point.x, wview_point.y);
+
+		GtkWidget *menu = NULL;
+		if (title) {
+			mainwindow_set_action_view(VIEW(title));
+			menu = wsgview->column_menu;
+		}
+		else if (!cview) {
+			mainwindow_set_action_view(VIEW(wview));
+			menu = wsgview->workspace_menu;
+		}
+		else if (cview) {
+			// search for row button in column
+			Rowview *rview =
+				columnview_find_rowview(cview, wview_point.x, wview_point.y);
+			if (rview) {
+				mainwindow_set_action_view(VIEW(rview));
+				menu = wsgview->row_menu;
+			}
+		}
+
+		if (menu) {
+			gtk_popover_set_pointing_to(GTK_POPOVER(menu),
+				&(const GdkRectangle){ x, y, 1, 1 });
+
+			gtk_popover_popup(GTK_POPOVER(menu));
+		}
+	}
+}
+
+static void
 workspacegroupview_class_init(WorkspacegroupviewClass *class)
 {
 	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
@@ -150,8 +198,12 @@ workspacegroupview_class_init(WorkspacegroupviewClass *class)
 		GTK_TYPE_BIN_LAYOUT);
 
 	BIND_VARIABLE(Workspacegroupview, notebook);
+	BIND_VARIABLE(Workspacegroupview, workspace_menu);
+	BIND_VARIABLE(Workspacegroupview, column_menu);
+	BIND_VARIABLE(Workspacegroupview, row_menu);
 
 	BIND_CALLBACK(workspacegroupview_new_tab_clicked);
+	BIND_CALLBACK(workspacegroupview_background_menu);
 
 	G_OBJECT_CLASS(class)->dispose = workspacegroupview_dispose;
 

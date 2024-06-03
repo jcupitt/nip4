@@ -289,26 +289,6 @@ iimageview_rhsview(iImageview *iimageview)
 	return RHSVIEW(p);
 }
 
-static void
-iimageview_menu(GtkGestureClick *gesture,
-	guint n_press, double x, double y, iImageview *iimageview)
-{
-	Workspaceview *wsview = iimageview_workspaceview(iimageview);
-	Rhsview *rhsview = iimageview_rhsview(iimageview);
-
-	mainwindow_set_action_view(rhsview);
-
-	graphene_point_t iimageview_point = GRAPHENE_POINT_INIT(x, y);
-	graphene_point_t wsview_point;
-	if (gtk_widget_compute_point(iimageview->top, wsview->fixed,
-			&iimageview_point, &wsview_point)) {
-		gtk_popover_set_pointing_to(GTK_POPOVER(wsview->rowview_menu),
-			&(const GdkRectangle){ wsview_point.x, wsview_point.y, 1, 1 });
-
-		gtk_popover_popup(GTK_POPOVER(wsview->rowview_menu));
-	}
-}
-
 static Rowview *
 iimageview_rowview(iImageview *iimageview)
 {
@@ -355,7 +335,6 @@ iimageview_class_init(iImageviewClass *class)
 	BIND_VARIABLE(iImageview, imagedisplay);
 	BIND_VARIABLE(iImageview, label);
 
-	BIND_CALLBACK(iimageview_menu);
 	BIND_CALLBACK(iimageview_click);
 
 	object_class->dispose = iimageview_dispose;

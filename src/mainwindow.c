@@ -73,8 +73,7 @@ G_DEFINE_TYPE(Mainwindow, mainwindow, GTK_TYPE_APPLICATION_WINDOW);
 void
 mainwindow_set_action_view(View *action_view)
 {
-	GtkWidget *widget = GTK_WIDGET(action_view);
-	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(widget));
+	Mainwindow *main = MAINWINDOW(view_get_window(action_view));
 
 	if (main)
 		main->action_view = action_view;
@@ -555,8 +554,7 @@ static void
 mainwindow_view_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
-	printf("mainwindow_view_action: %s\n",
-		g_action_get_name(G_ACTION(action)));
+	printf("mainwindow_view_action: %s\n", g_action_get_name(G_ACTION(action)));
 
 	Mainwindow *main = MAINWINDOW(user_data);
 

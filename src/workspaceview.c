@@ -235,11 +235,10 @@ workspaceview_columnview_hit(View *view, void *a, void *b)
 
 /* Find the columnview for a point.
  */
-static Columnview *
-workspaceview_find_columnview(Workspaceview *wview,
-	int start_x, int start_y)
+Columnview *
+workspaceview_find_columnview(Workspaceview *wview, int x, int y)
 {
-	graphene_point_t point = GRAPHENE_POINT_INIT(start_x, start_y);
+	graphene_point_t point = GRAPHENE_POINT_INIT(x, y);
 
 	return view_map(VIEW(wview),
 		workspaceview_columnview_hit, &point, wview);
@@ -263,11 +262,10 @@ workspaceview_columnview_title_hit(View *view, void *a, void *b)
 
 /* Find the columnview title bar for a point.
  */
-static Columnview *
-workspaceview_find_columnview_title(Workspaceview *wview,
-	int start_x, int start_y)
+Columnview *
+workspaceview_find_columnview_title(Workspaceview *wview, int x, int y)
 {
-	graphene_point_t point = GRAPHENE_POINT_INIT(start_x, start_y);
+	graphene_point_t point = GRAPHENE_POINT_INIT(x, y);
 
 	return view_map(VIEW(wview),
 		workspaceview_columnview_title_hit, &point, wview);
@@ -763,19 +761,6 @@ workspaceview_click(GtkGestureClick *gesture,
 }
 
 static void
-workspaceview_background_menu(GtkGestureClick *gesture,
-	guint n_press, double x, double y, Workspaceview *wview)
-{
-	// gets picked up by menu actions
-	mainwindow_set_action_view(VIEW(wview));
-
-	gtk_popover_set_pointing_to(GTK_POPOVER(wview->right_click_menu),
-		&(const GdkRectangle){ x, y, 1, 1 });
-
-	gtk_popover_popup(GTK_POPOVER(wview->right_click_menu));
-}
-
-static void
 workspaceview_drag_begin(GtkEventControllerMotion *self,
 	gdouble start_x, gdouble start_y, gpointer user_data)
 {
@@ -946,11 +931,8 @@ workspaceview_class_init(WorkspaceviewClass *class)
 
 	BIND_VARIABLE(Workspaceview, scrolled_window);
 	BIND_VARIABLE(Workspaceview, fixed);
-	BIND_VARIABLE(Workspaceview, right_click_menu);
-	BIND_VARIABLE(Workspaceview, rowview_menu);
 
 	BIND_CALLBACK(workspaceview_click);
-	BIND_CALLBACK(workspaceview_background_menu);
 	BIND_CALLBACK(workspaceview_drag_begin);
 	BIND_CALLBACK(workspaceview_drag_update);
 	BIND_CALLBACK(workspaceview_drag_end);

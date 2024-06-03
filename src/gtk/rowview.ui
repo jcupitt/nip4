@@ -32,13 +32,6 @@
           </object>
         </child>
 
-        <child>
-          <object class="GtkGestureClick">
-            <property name="button">3</property>
-            <signal name="pressed" handler="rowview_menu"/>
-          </object>
-        </child>
-
       </object>
     </child>
 

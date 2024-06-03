@@ -8,15 +8,8 @@
 
         <child>
           <object class="GtkGestureClick">
-	        <property name="button">1</property>
-	        <signal name="pressed" handler="iimageview_click"/>
-          </object>
-        </child>
-
-        <child>
-          <object class="GtkGestureClick">
-            <property name="button">3</property>
-            <signal name="pressed" handler="iimageview_menu"/>
+	    <property name="button">1</property>
+	    <signal name="pressed" handler="iimageview_click"/>
           </object>
         </child>
 

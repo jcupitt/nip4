@@ -186,61 +186,6 @@ rhsview_child_remove(View *parent, View *child)
 	VIEW_CLASS(rhsview_parent_class)->child_remove(parent, child);
 }
 
-/* Clone the current item.
- */
-static void
-rhsview_duplicate(Rhsview *rview)
-{
-	Rhs *rhs = RHS(VOBJECT(rview)->iobject);
-	Row *row = HEAPMODEL(rhs)->row;
-	Workspace *ws = row->top_col->ws;
-
-	/* Only allow clone of top level rows.
-	 */
-	if (row->top_row != row) {
-		error_top("%s", _("Can't duplicate"));
-		error_sub("%s", _("You can only duplicate top level rows."));
-		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
-		return;
-	}
-
-	workspace_deselect_all(ws);
-	row_select(row);
-	if (!workspace_selected_duplicate(ws))
-		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
-	workspace_deselect_all(ws);
-
-	symbol_recalculate_all();
-}
-
-static void
-rhsview_action(GSimpleAction *action, GVariant *parameter, View *view)
-{
-	Rhsview *rview = RHSVIEW(view);
-	Rhs *rhs = RHS(VOBJECT(rview)->iobject);
-	Row *row = HEAPMODEL(rhs)->row;
-	Workspace *ws = row->top_col->ws;
-	const char *name = g_action_get_name(G_ACTION(action));
-
-	printf("rhsview_action: %s\n", name);
-
-	if (g_str_equal(name, "row-edit"))
-		model_edit(GTK_WIDGET(rview), rhs);
-	else if (g_str_equal(name, "row-saveas") &&
-		rhs->graphic)
-		classmodel_graphic_save(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
-	else if (g_str_equal(name, "row-delete")) {
-		workspace_deselect_all(ws);
-		row_select(row);
-		workspace_selected_remove_yesno(ws, GTK_WIDGET(rview));
-	}
-	else if (g_str_equal(name, "row-replace") &&
-		rhs->graphic)
-		classmodel_graphic_replace(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
-	else if (g_str_equal(name, "row-duplicate"))
-		rhsview_duplicate(rview);
-}
-
 static void
 rhsview_class_init(RhsviewClass *class)
 {
@@ -269,7 +214,6 @@ rhsview_class_init(RhsviewClass *class)
 	view_class->child_add = rhsview_child_add;
 	view_class->child_remove = rhsview_child_remove;
 	view_class->reset = rhsview_reset;
-	view_class->action = rhsview_action;
 }
 
 static void

@@ -596,9 +596,10 @@ columnview_child_add(View *parent, View *child)
 
 	printf("columnview_child_add: cview=%p sview=%p\n", cview, sview);
 
-	VIEW_CLASS(columnview_parent_class)->child_add(parent, child);
-
+	cview->sview = sview;
 	gtk_box_prepend(GTK_BOX(cview->body), GTK_WIDGET(sview));
+
+	VIEW_CLASS(columnview_parent_class)->child_add(parent, child);
 }
 
 static void
@@ -612,6 +613,7 @@ columnview_child_remove(View *parent, View *child)
 #endif /*DEBUG*/
 
 	gtk_box_remove(GTK_BOX(cview->body), GTK_WIDGET(sview));
+	cview->sview = NULL;
 
 	VIEW_CLASS(columnview_parent_class)->child_remove(parent, child);
 }
@@ -663,19 +665,6 @@ columnview_expand_clicked(GtkGestureClick *gesture,
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
 
 	column_set_open(col, !col->open);
-}
-
-static void
-columnview_menu(GtkGestureClick *gesture,
-	guint n_press, double x, double y, Columnview *cview)
-{
-	// menu will act on this widget
-	mainwindow_set_action_view(VIEW(cview));
-
-	gtk_popover_set_pointing_to(GTK_POPOVER(cview->right_click_menu),
-		&(const GdkRectangle){ x, y, 1, 1 });
-
-	gtk_popover_popup(GTK_POPOVER(cview->right_click_menu));
 }
 
 static void
@@ -772,7 +761,6 @@ columnview_class_init(ColumnviewClass *class)
 
 	BIND_CALLBACK(columnview_pressed);
 	BIND_CALLBACK(columnview_expand_clicked);
-	BIND_CALLBACK(columnview_menu);
 	BIND_CALLBACK(columnview_activate);
 	BIND_CALLBACK(columnview_close_clicked);
 	BIND_CALLBACK(columnview_caption_edit_activate);
@@ -788,7 +776,6 @@ columnview_class_init(ColumnviewClass *class)
 	BIND_VARIABLE(Columnview, revealer);
 	BIND_VARIABLE(Columnview, body);
 	BIND_VARIABLE(Columnview, entry);
-	BIND_VARIABLE(Columnview, right_click_menu);
 
 	/* Init methods.
 	 */
@@ -815,4 +802,41 @@ columnview_new(void)
 	Columnview *cview = g_object_new(COLUMNVIEW_TYPE, NULL);
 
 	return VIEW(cview);
+}
+
+static void *
+columnview_rowview_hit(View *view, void *a, void *b)
+{
+	Rowview *rview = ROWVIEW(view);
+	graphene_point_t *sview_point = (graphene_point_t *) a;
+	Subcolumnview *sview = SUBCOLUMNVIEW(b);
+
+	graphene_rect_t bounds;
+	if (!gtk_widget_compute_bounds(rview->frame, GTK_WIDGET(sview), &bounds))
+		return NULL;
+
+	if (sview_point->y > bounds.origin.y &&
+		sview_point->y < bounds.origin.y + bounds.size.height)
+		return rview;
+
+	return NULL;
+}
+
+/* Find the columnview for a point.
+ */
+Rowview *
+columnview_find_rowview(Columnview *cview, int x, int y)
+{
+	Workspaceview *wview = columnview_get_wview(cview);
+
+	graphene_point_t fixed_point = GRAPHENE_POINT_INIT(x, y);
+	graphene_point_t sview_point;
+	if (gtk_widget_compute_point(GTK_WIDGET(wview->fixed), cview->sview,
+		&fixed_point, &sview_point)) {
+
+		return view_map(VIEW(cview->sview),
+			columnview_rowview_hit, &sview_point, cview->sview);
+	}
+
+	return NULL;
 }

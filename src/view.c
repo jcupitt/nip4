@@ -847,12 +847,9 @@ view_layout(View *view)
 }
 
 static void *
-view_map_sub(ViewChild *viewchild, view_map_fn fn, void *a, void *b)
+view_map_sub(View *child, view_map_fn fn, void *a, void *b)
 {
-	if (viewchild->child_view)
-		return fn(viewchild->child_view, a, b);
-
-	return NULL;
+	return fn(child, a, b);
 }
 
 /* Map over a view's children.
@@ -860,7 +857,7 @@ view_map_sub(ViewChild *viewchild, view_map_fn fn, void *a, void *b)
 void *
 view_map(View *view, view_map_fn fn, void *a, void *b)
 {
-	return slist_map3(view->managed,
+	return slist_map3(view->children,
 		(SListMap3Fn) view_map_sub, (void *) fn, a, b);
 }
 
