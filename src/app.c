@@ -143,10 +143,18 @@ app_about_activated(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
 	App *app = APP(user_data);
-	Mainwindow *win = app_main(app);
+	Mainwindow *main = app_main(app);
+
+	char txt[MAX_STRSIZE];
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
+	vips_buf_appendf(&buf, "%s", _("An image processing spreadsheet\n\n"));
+	mainwindow_about(main, &buf);
 
 	static const char *authors[] = {
 		"jcupitt",
+		"angstyloop",
+        "TingPing",
+        "earboxer",
 		NULL
 	};
 
@@ -154,13 +162,13 @@ app_about_activated(GSimpleAction *action,
 	printf("app_about_activated:\n");
 #endif /*DEBUG*/
 
-	gtk_show_about_dialog(win ? GTK_WINDOW(win) : NULL,
+	gtk_show_about_dialog(main ? GTK_WINDOW(main) : NULL,
 		"program-name", PACKAGE,
 		"logo-icon-name", APPLICATION_ID,
 		"title", _("About nip4"),
 		"authors", authors,
 		"version", VERSION,
-		"comments", _("An image processing spreadsheet"),
+		"comments", vips_buf_all(&buf),
 		"license-type", GTK_LICENSE_GPL_2_0,
 		"website-label", "Visit nip4 on github",
 		"website", "https://github.com/jcupitt/nip4",

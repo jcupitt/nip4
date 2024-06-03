@@ -833,3 +833,68 @@ mainwindow_cull(void)
     slist_map(mainwindow_all,
         (SListMapFn) mainwindow_cull_sub, NULL);
 }
+
+static void
+mainwindow_find_disc( VipsBuf *buf )
+{
+    double sz = find_space( PATH_TMP );
+
+}
+
+static void *
+mainwindow_count_images( VipsObject *object, int *n )
+{
+    if (VIPS_IS_IMAGE(object))
+        *n += 1;
+
+    return NULL;
+}
+
+static void *
+mainwindow_size_images(VipsObject *object, size_t *size)
+{
+    if (VIPS_IS_IMAGE(object))
+        *size += VIPS_IMAGE_SIZEOF_IMAGE( VIPS_IMAGE( object ) );
+
+    return NULL;
+}
+
+void
+mainwindow_about(Mainwindow *main, VipsBuf *buf)
+{
+    double sz = find_space(PATH_TMP);
+
+    if (sz < 0)
+        vips_buf_appendf(buf, _("no temp area\n"));
+    else {
+        char txt[MAX_STRSIZE];
+        VipsBuf buf2 = VIPS_BUF_STATIC(txt);
+
+        vips_buf_append_size(&buf2, sz);
+        vips_buf_appendf(buf, _("%s free"), vips_buf_all(&buf2));
+
+        vips_buf_appendf(buf, _(" in \"%s\"\n"), PATH_TMP);
+    }
+
+    Heap *heap = reduce_context->heap;
+	vips_buf_appendf(buf,
+			_("%d cells in heap, %d cells free, %d cells maximum\n"),
+			heap->ncells, heap->nfree, heap->max_fn(heap));
+
+    if (main->wsg)
+        vips_buf_appendf(buf, _("%d objects in workspace\n"),
+            workspacegroup_get_n_objects(main->wsg));
+
+	vips_buf_appendf(buf, _("using %d threads\n"), vips_concurrency_get());
+
+    size_t size;
+    int n;
+
+    size = 0;
+    n = 0;
+    vips_object_map((VipsSListMap2Fn) mainwindow_size_images, &size, NULL);
+    vips_object_map((VipsSListMap2Fn) mainwindow_count_images, &n, NULL);
+
+    vips_buf_append_size(buf,size );
+	vips_buf_appendf(buf, _(" in %d images"), n);
+}

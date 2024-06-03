@@ -60,11 +60,6 @@
 
 ## small
 
-- status bar? space free indicator is handy ... could this go somewhere else?
-  maybe in "about"?
-
-  polish "about nip4"
-
 - there's a 20ms timeout in vobject_refresh_queue() ... tune this
 
 - we have workspacegroup_save_selected() and workspace_selected_save() ???
