@@ -50,6 +50,7 @@ iimageview_dispose(GObject *object)
 #endif /*DEBUG*/
 
 	gtk_widget_dispose_template(GTK_WIDGET(iimageview), IIMAGEVIEW_TYPE);
+	VIPS_UNREF(iimageview->tilesource);
 
 	G_OBJECT_CLASS(iimageview_parent_class)->dispose(object);
 }
@@ -198,7 +199,6 @@ iimageview_refresh(vObject *vobject)
 	iImage *iimage = IIMAGE(vobject->iobject);
 	Row *row = HEAPMODEL(iimage)->row;
 	Imageinfo *ii = iimage->value.ii;
-	Tilesource *tilesource = iimage->value.tilesource;
 
 	int w, h;
 	gboolean enabled;
@@ -210,16 +210,23 @@ iimageview_refresh(vObject *vobject)
 	printf("iimageview_refresh: FIXME\n");
 
 	if (iimageview->imagedisplay) {
-		Tilesource *current_tilesource;
+		// no tilesource, or it's for an old iimage
+		if (!iimageview->tilesource ||
+			!tilesource_has_imageinfo(iimageview->tilesource, ii)) {
+			VIPS_UNREF(iimageview->tilesource);
 
-		g_object_get(iimageview->imagedisplay,
-			"tilesource", &current_tilesource,
-			NULL);
-		if (current_tilesource != tilesource)
+			if (ii)
+				iimageview->tilesource = tilesource_new_from_imageinfo(ii);
+
 			g_object_set(iimageview->imagedisplay,
 				"bestfit", TRUE,
-				"tilesource", tilesource,
+				"tilesource", iimageview->tilesource,
 				NULL);
+
+			// set the image loading, if necessary
+			if (iimageview->tilesource)
+				tilesource_background_load(iimageview->tilesource);
+		}
 	}
 
 	// we will need to disable visible for thumbnails that are

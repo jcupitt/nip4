@@ -22,9 +22,9 @@
  */
 
 /*
-#define DEBUG_FATAL
 #define DEBUG
  */
+#define DEBUG_FATAL
 
 #include "nip4.h"
 

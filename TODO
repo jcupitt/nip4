@@ -9,53 +9,8 @@
 
 ## imagewindow
 
-- should share tilesource between iimageview and imagewindow? we seem to
-  reload right now
+- make imagewindow use the tilesouurce from iimageview
 
-  we have
-
-	iimage
-
-		contains an imagevalue
-
-			contains an imageinfo
-
-				contains a set of vips images
-
-	tilesource
-
-  then
-
-	iimageview
-
-		shows an iimage
-		make a tilesource to generate tiles
-
-	imagewindow
-
-		shows an iimage
-		make a tilesource to generate tiles
-
-  so maybe just move the tilesource into the iimage? that would share scale +
-  offset etc between imagewindows and thumbnails, which might be good or bad
-
-  in fact the tilesource would go into imagevalue, see image_value_set()
-
-	iimageview calls tilesource_new_from_imageinfo()
-
-		tilesource_new_from_imageinfo() tests and calls
-		new_from_file() or new_from_image() for you
-
-	imagewindow calls tilesource_new_from_image() and
-	tilesource_new_from_file()
-
-  so use tilesource_new_from_imageinfo() in image_value_set()
-
-  then imagevalue->tilesource is used for iimageview and imagewindow
-
-  just done iimageview so far, get that working properly
-
-  do we need to spot the "loaded" signal and trigger a refresh of iimageview?
 
 
 

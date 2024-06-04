@@ -45,6 +45,10 @@ typedef struct _iImageview {
 	GtkWidget *top;
 	Imagedisplay *imagedisplay;
 	GtkWidget *label;
+
+	// the tilesource for the imagevalue on our model ... this is shared with
+	// any imagewindow for this iimageview
+	Tilesource *tilesource;
 } iImageview;
 
 typedef struct _iImageviewClass {

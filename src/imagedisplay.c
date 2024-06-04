@@ -396,24 +396,26 @@ imagedisplay_set_tilesource(Imagedisplay *imagedisplay,
 	VIPS_UNREF(imagedisplay->tilecache);
 	VIPS_UNREF(imagedisplay->tilesource);
 
-	imagedisplay->tilesource = tilesource;
-	g_object_ref(imagedisplay->tilesource);
+	if (tilesource) {
+		imagedisplay->tilesource = tilesource;
+		g_object_ref(imagedisplay->tilesource);
 
-	imagedisplay->tilecache = tilecache_new(imagedisplay->tilesource);
+		imagedisplay->tilecache = tilecache_new(imagedisplay->tilesource);
 
-	g_signal_connect_object(imagedisplay->tilecache, "changed",
-		G_CALLBACK(imagedisplay_tilecache_changed),
-		imagedisplay, 0);
-	g_signal_connect_object(imagedisplay->tilecache, "tiles-changed",
-		G_CALLBACK(imagedisplay_tilecache_tiles_changed),
-		imagedisplay, 0);
-	g_signal_connect_object(imagedisplay->tilecache, "area-changed",
-		G_CALLBACK(imagedisplay_tilecache_area_changed),
-		imagedisplay, 0);
+		g_signal_connect_object(imagedisplay->tilecache, "changed",
+			G_CALLBACK(imagedisplay_tilecache_changed),
+			imagedisplay, 0);
+		g_signal_connect_object(imagedisplay->tilecache, "tiles-changed",
+			G_CALLBACK(imagedisplay_tilecache_tiles_changed),
+			imagedisplay, 0);
+		g_signal_connect_object(imagedisplay->tilecache, "area-changed",
+			G_CALLBACK(imagedisplay_tilecache_area_changed),
+			imagedisplay, 0);
 
-	/* Do initial change to init.
-	 */
-	imagedisplay_tilecache_changed(imagedisplay->tilecache, imagedisplay);
+		/* Do initial change to init.
+		 */
+		imagedisplay_tilecache_changed(imagedisplay->tilecache, imagedisplay);
+	}
 }
 
 static void

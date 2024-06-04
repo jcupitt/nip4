@@ -1362,7 +1362,9 @@ tilesource_new_from_imageinfo(Imageinfo *ii)
 gboolean
 tilesource_has_imageinfo(Tilesource *tilesource, Imageinfo *ii)
 {
-	if (imageinfo_is_from_file(ii) &&
+	if (!ii)
+		return !tilesource->image;
+	else if (imageinfo_is_from_file(ii) &&
 		tilesource->filename)
 		return g_str_equal(IOBJECT(ii)->name, tilesource->filename);
 	else
