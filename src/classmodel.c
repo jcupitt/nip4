@@ -41,11 +41,13 @@ image_value_init(ImageValue *image, Classmodel *classmodel)
 	image->ii = NULL;
 	image->file_changed_sid = 0;
 	image->classmodel = classmodel;
+	image->tilesource = NULL;
 }
 
 void
 image_value_destroy(ImageValue *image)
 {
+	VIPS_UNREF(image->tilesource);
 	FREESID(image->file_changed_sid, image->ii);
 	MANAGED_UNREF(image->ii);
 }
@@ -78,6 +80,10 @@ image_value_set(ImageValue *image, Imageinfo *ii)
 		image->file_changed_sid = g_signal_connect(
 			G_OBJECT(image->ii), "file_changed",
 			G_CALLBACK(image_value_file_changed_cb), image);
+		image->tilesource = tilesource_new_from_imageinfo(ii);
+
+		// set the image loading, if necessary
+		tilesource_background_load(image->tilesource);
 	}
 
 #ifdef DEBUG

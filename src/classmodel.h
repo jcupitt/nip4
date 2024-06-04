@@ -60,6 +60,7 @@ typedef struct {
 	 */
 	guint file_changed_sid;
 	Classmodel *classmodel;
+	Tilesource *tilesource;
 } ImageValue;
 
 /* A member needing automation.

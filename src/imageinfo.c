@@ -605,6 +605,9 @@ imageinfo_proxy_eval(VipsImage *im, Imageinfoproxy *proxy)
 	Imageinfo *imageinfo = proxy->imageinfo;
 
 	printf("imageinfo_proxy_eval: FIXME\n");
+	if (imageinfo)
+		printf("\t%p, %d %% complete\n",
+			imageinfo->im, imageinfo->im->time->percent);
 	return;
 
 	if (imageinfo && imageinfo->im->time)

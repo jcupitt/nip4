@@ -49,7 +49,6 @@ iimageview_dispose(GObject *object)
 	printf("iimageview_dispose:\n");
 #endif /*DEBUG*/
 
-	VIPS_UNREF(iimageview->tilesource);
 	gtk_widget_dispose_template(GTK_WIDGET(iimageview), IIMAGEVIEW_TYPE);
 
 	G_OBJECT_CLASS(iimageview_parent_class)->dispose(object);
@@ -199,6 +198,7 @@ iimageview_refresh(vObject *vobject)
 	iImage *iimage = IIMAGE(vobject->iobject);
 	Row *row = HEAPMODEL(iimage)->row;
 	Imageinfo *ii = iimage->value.ii;
+	Tilesource *tilesource = iimage->value.tilesource;
 
 	int w, h;
 	gboolean enabled;
@@ -210,33 +210,23 @@ iimageview_refresh(vObject *vobject)
 	printf("iimageview_refresh: FIXME\n");
 
 	if (iimageview->imagedisplay) {
-		if (!iimageview->tilesource ||
-			!tilesource_has_imageinfo(iimageview->tilesource, ii)) {
-			VIPS_UNREF(iimageview->tilesource);
-			if (ii)
-				iimageview->tilesource = tilesource_new_from_imageinfo(ii);
+		Tilesource *current_tilesource;
 
-			if (iimageview->tilesource) {
-				g_object_set(iimageview->imagedisplay,
-					"bestfit", TRUE,
-					"tilesource", iimageview->tilesource,
-					NULL);
-
-				// image tilesources are always loaded and can start painting
-				// right away
-				g_object_set(iimageview->tilesource,
-					"loaded", TRUE,
-					"visible", TRUE,
-					NULL);
-
-				// we will need to disable visible for thumbnails that are
-				// off-screen, in a closed column, or in a workspace that's
-				// not at the front of the stack or performance will be
-				// horrible
-				printf("iimageview_refresh: FIXME ... don't set visible\n");
-			}
-		}
+		g_object_get(iimageview->imagedisplay,
+			"tilesource", &current_tilesource,
+			NULL);
+		if (current_tilesource != tilesource)
+			g_object_set(iimageview->imagedisplay,
+				"bestfit", TRUE,
+				"tilesource", tilesource,
+				NULL);
 	}
+
+	// we will need to disable visible for thumbnails that are
+	// off-screen, in a closed column, or in a workspace that's
+	// not at the front of the stack or performance will be
+	// horrible
+	printf("iimageview_refresh: FIXME ... don't set visible\n");
 
 	if (iimageview->label)
 		set_glabel(iimageview->label, "%s", IOBJECT(iimage)->caption);
