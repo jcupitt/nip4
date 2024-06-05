@@ -49,9 +49,6 @@ struct _Filemodel {
 	gboolean registered;	/* Set if on list of things to save on quit */
 	gboolean auto_load;		/* TRUE if loaded from path_start */
 
-	int x_off;				/* Save offset for things below this */
-	int y_off;
-
 	/* When we loaded this filemodel, the version numbers we saw in the
 	 * XML file.
 	 */
@@ -93,7 +90,6 @@ void filemodel_set_modified(Filemodel *filemodel, gboolean state);
 
 GType filemodel_get_type(void);
 
-void filemodel_set_offset(Filemodel *filemodel, int x_off, int y_off);
 gboolean filemodel_top_save(Filemodel *filemodel, const char *filename);
 gboolean filemodel_load_all(Filemodel *filemodel, Model *parent,
 	const char *filename, const char *filename_user);

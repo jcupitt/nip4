@@ -332,7 +332,6 @@ filemodel_top_save_xml(Filemodel *filemodel, const char *filename)
 		return FALSE;
 	}
 
-	column_set_offset(filemodel->x_off, filemodel->y_off);
 	if (model_save(MODEL(filemodel), xdoc->children)) {
 		xmlFreeDoc(xdoc);
 		return FALSE;
@@ -365,7 +364,6 @@ filemodel_top_save_text(Filemodel *filemodel, const char *filename)
 	if (!(of = ifile_open_write("%s", filename)))
 		return FALSE;
 
-	column_set_offset(filemodel->x_off, filemodel->y_off);
 	if (model_save_text(MODEL(filemodel), of)) {
 		ifile_close(of);
 		return FALSE;
@@ -433,8 +431,6 @@ filemodel_init(Filemodel *filemodel)
 	filemodel->modified = FALSE;
 	filemodel->registered = FALSE;
 	filemodel->auto_load = FALSE;
-	filemodel->x_off = 0;
-	filemodel->y_off = 0;
 
 	/* Default version.
 	 */
@@ -442,20 +438,6 @@ filemodel_init(Filemodel *filemodel)
 	filemodel->major = MAJOR_VERSION;
 	filemodel->minor = MINOR_VERSION;
 	filemodel->micro = MICRO_VERSION;
-}
-
-void
-filemodel_set_offset(Filemodel *filemodel, int x_off, int y_off)
-{
-#ifdef DEBUG
-	printf("filemodel_set_offset: %s \"%s\" %d x %d\n",
-		G_OBJECT_TYPE_NAME(filemodel),
-		IOBJECT(filemodel)->name,
-		x_off, y_off);
-#endif /*DEBUG*/
-
-	filemodel->x_off = x_off;
-	filemodel->y_off = y_off;
 }
 
 static gboolean

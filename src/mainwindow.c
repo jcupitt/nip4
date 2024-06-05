@@ -442,9 +442,7 @@ mainwindow_duplicate_action(GSimpleAction *action,
 	Mainwindow *main = MAINWINDOW(user_data);
 
 	Workspacegroup *new_wsg;
-	if (!(new_wsg = workspacegroup_duplicate(main->wsg)))
-		mainwindow_error(main);
-	else {
+	if ((new_wsg = workspacegroup_duplicate(main->wsg))) {
 		GtkApplication *app = gtk_window_get_application(GTK_WINDOW(main));
 		Mainwindow *new_main = g_object_new(MAINWINDOW_TYPE,
 			"application", app,
@@ -454,6 +452,8 @@ mainwindow_duplicate_action(GSimpleAction *action,
 		gtk_window_present(GTK_WINDOW(new_main));
 		symbol_recalculate_all();
 	}
+	else
+		mainwindow_error(main);
 }
 
 static void
@@ -469,7 +469,11 @@ mainwindow_saveas_sub(GObject *source_object,
 
 		g_autofree char *filename = g_file_get_path(file);
 
-		if (!workspacegroup_save_all(main->wsg, filename))
+		if (workspacegroup_save_all(main->wsg, filename)) {
+			filemodel_set_modified(FILEMODEL(main->wsg), FALSE);
+			filemodel_set_filename(FILEMODEL(main->wsg), filename);
+		}
+		else
 			mainwindow_error(main);
 	}
 }
@@ -522,7 +526,9 @@ mainwindow_save_action(GSimpleAction *action,
 	else {
 		// we have a filename associated with this workspacegroup ... we can
 		// just save directly
-		if (!workspacegroup_save_all(main->wsg, filename))
+		if (workspacegroup_save_all(main->wsg, filename))
+			filemodel_set_modified(FILEMODEL(main->wsg), FALSE);
+		else
 			mainwindow_error(main);
 	}
 }

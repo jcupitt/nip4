@@ -287,9 +287,6 @@ workspacegroup_load_new(Workspacegroup *wsg,
 		int major;
 		int minor;
 
-		column_set_offset(WORKSPACEVIEW_MARGIN_LEFT,
-			WORKSPACEVIEW_MARGIN_TOP);
-
 		if (!get_sprop(xws, "name", name, FILENAME_MAX) ||
 			!(ws = workspace_new(wsg, name)))
 			return FALSE;
@@ -906,14 +903,6 @@ workspacegroup_merge_columns(Workspacegroup *wsg, const char *filename)
 {
 	Workspace *ws;
 
-	if ((ws = workspacegroup_get_workspace(wsg)))
-		/* We'll do a layout after load, so just load to a huge x and
-		 * we'll be OK.
-		 */
-		column_set_offset(
-			2 * VIPS_RECT_RIGHT(&ws->area) + WORKSPACEVIEW_MARGIN_LEFT,
-			WORKSPACEVIEW_MARGIN_TOP);
-
 	workspacegroup_set_load_type(wsg, WORKSPACEGROUP_LOAD_COLUMNS);
 	if (!filemodel_load_all(FILEMODEL(wsg), MODEL(wsg->wsr),
 			filename, NULL))
@@ -977,12 +966,8 @@ workspacegroup_save_all(Workspacegroup *wsg, const char *filename)
 	workspacegroup_set_save_type(wsg, WORKSPACEGROUP_SAVE_ALL);
 	if (!filemodel_top_save(FILEMODEL(wsg), filename)) {
 		unlinkf("%s", filename);
-
 		return FALSE;
 	}
-
-	filemodel_set_modified(FILEMODEL(wsg), FALSE);
-	filemodel_set_filename(FILEMODEL(wsg), filename);
 
 	return TRUE;
 }
@@ -1005,6 +990,9 @@ workspacegroup_duplicate(Workspacegroup *wsg)
 		return NULL;
 	}
 	unlinkf("%s", filename);
+
+	filemodel_set_filename(FILEMODEL(new_wsg), FILEMODEL(wsg)->filename);
+	filemodel_set_modified(FILEMODEL(new_wsg), FILEMODEL(wsg)->modified);
 
 	return new_wsg;
 }

@@ -88,8 +88,6 @@ gboolean column_add_n_names(Column *col,
 	const char *name, VipsBuf *buf, int nparam);
 gboolean column_is_empty(Column *col);
 
-void column_set_offset(int x_off, int y_off);
-
 char *column_name_new(Column *col);
 
 void column_set_open(Column *col, gboolean open);

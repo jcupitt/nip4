@@ -519,7 +519,6 @@ columnview_refresh(vObject *vobject)
 		columnview_animate_to(shadow, col->x, col->y);
 	else
 		columnview_animate_to(cview, col->x, col->y);
-	filemodel_set_offset(FILEMODEL(col), col->x, col->y);
 
 	/* Titlebar off in no-edit mode.
 	 */

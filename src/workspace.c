@@ -1763,8 +1763,6 @@ workspace_selected_save(Workspace *ws, const char *filename)
 		(column_map_fn) workspace_selected_save_box,
 		&box);
 
-	filemodel_set_offset(FILEMODEL(wsg), box.left, box.top);
-
 	if (!workspacegroup_save_selected(wsg, filename))
 		return FALSE;
 

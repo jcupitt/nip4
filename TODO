@@ -1,14 +1,3 @@
-- column drag is messed up
-
-	load ws with 1 col, drag and drop column, save, xy are both 0 (should
-	be five)
-
-	is this filemodel_set_offset()? do we need this now we have full
-	workspace autolayout?
-
-	there's also column_set_offset(), can this go too?
-
-- after ws dupe, can get "untitled-xxxx.ws" in the title bar
 
 - ^D in mainwindow shuld dupe bottom item in current column, not whole
   workspace
