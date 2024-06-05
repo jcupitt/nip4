@@ -1,3 +1,24 @@
+- column drag is messed up
+
+	load ws with 1 col, drag and drop column, save, xy are both 0 (should
+	be five)
+
+	is this filemodel_set_offset()? do we need this now we have full
+	workspace autolayout?
+
+	there's also column_set_offset(), can this go too?
+
+- after ws dupe, can get "untitled-xxxx.ws" in the title bar
+
+- ^D in mainwindow shuld dupe bottom item in current column, not whole
+  workspace
+
+- remove settings stuff from imagewindow (should be done by nip4)
+
+- there's a 20ms timeout in vobject_refresh_queue() ... tune this
+
+- we have workspacegroup_save_selected() and workspace_selected_save() ???
+
 ## tab drag
 
 - dragging tabs about can make workspaceviews leak, but only
@@ -9,7 +30,7 @@
 
 ## imagewindow
 
-- make imagewindow use the tilesouurce from iimageview
+- make imagewindow use the tilesource from iimageview
 
 
 
@@ -68,19 +89,6 @@
 	put workspace local defs in a pullout on the right? or maybe a popup
 
 	put inside workspaceview, since tools are per workspace?
-
-## small
-
-- remove settings stuff from imagewindow (should be done by nip4)
-
-- we seem to load images twice? turn on DEBUG for tilesource and load a
-  worksapce with a thumbnail
-
-  or we do the somplete sniff twice anyway
-
-- there's a 20ms timeout in vobject_refresh_queue() ... tune this
-
-- we have workspacegroup_save_selected() and workspace_selected_save() ???
 
 ## ideas
 

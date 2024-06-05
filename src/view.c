@@ -847,17 +847,22 @@ view_layout(View *view)
 }
 
 static void *
-view_map_sub(View *child, view_map_fn fn, void *a, void *b)
+view_map_sub(ViewChild *viewchild, view_map_fn fn, void *a, void *b)
 {
-	return fn(child, a, b);
+	if (viewchild->child_view)
+		return fn(viewchild->child_view, a, b);
+
+	return NULL;
 }
 
-/* Map over a view's children.
+/* Map over a view's children. We map over the chilren of the model, then the
+ * views (if any) of each model. This way we don't iterate over eg. shadow
+ * columns.
  */
 void *
 view_map(View *view, view_map_fn fn, void *a, void *b)
 {
-	return slist_map3(view->children,
+	return slist_map3(view->managed,
 		(SListMap3Fn) view_map_sub, (void *) fn, a, b);
 }
 
