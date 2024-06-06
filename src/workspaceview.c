@@ -40,8 +40,8 @@ G_DEFINE_TYPE(Workspaceview, workspaceview, VIEW_TYPE)
 static const int workspaceview_layout_snap = 100;
 static const int workspaceview_layout_hspacing = 10;
 static const int workspaceview_layout_vspacing = 10;
-static const int workspaceview_layout_left = WORKSPACEVIEW_MARGIN_LEFT;
-static const int workspaceview_layout_top = WORKSPACEVIEW_MARGIN_TOP;
+static const int workspaceview_layout_left = 5;
+static const int workspaceview_layout_top = 5;
 static const double workspaceview_animation_duration = 0.5;
 
 /* From clutter-easing.c, based on Robert Penner's infamous easing equations,

@@ -52,6 +52,7 @@ iimage_dispose(GObject *gobject)
 	slist_map(iimage->classmodels,
 		(SListMapFn) classmodel_iimage_unlink, iimage);
 	g_assert(!iimage->classmodels);
+	VIPS_UNREF(iimage->tilesource);
 
 	G_OBJECT_CLASS(iimage_parent_class)->dispose(gobject);
 }
@@ -131,7 +132,7 @@ iimage_edit(GtkWidget *parent, Model *model)
 	GtkApplication *app = gtk_window_get_application(window);
 	Imagewindow *win = imagewindow_new(APP(app));
 
-	imagewindow_open_iimage(win, iimage);
+	imagewindow_set_iimage(win, iimage);
 
 	gtk_window_present(GTK_WINDOW(win));
 }

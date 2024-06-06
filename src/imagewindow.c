@@ -970,6 +970,8 @@ image_new_from_texture(GdkTexture *texture)
 static void
 imagewindow_set_from_value(Imagewindow *win, const GValue *value)
 {
+	printf("imagewindow_set_from_value: FIXME ... paste\n");
+	/*
 	if (G_VALUE_TYPE(value) == GDK_TYPE_FILE_LIST) {
 		GdkFileList *file_list = g_value_get_boxed(value);
 		g_autoptr(GSList) files = gdk_file_list_get_files(file_list);
@@ -986,7 +988,7 @@ imagewindow_set_from_value(Imagewindow *win, const GValue *value)
 		// modifies the string in place, so we must dup
 		g_autofree char *text = g_strstrip(g_strdup(g_value_get_string(value)));
 
-		imagewindow_open_files(win, &text, 1);
+		imagewindow_open_files(win, (char **) &text, 1);
 	}
 	else if (G_VALUE_TYPE(value) == GDK_TYPE_TEXTURE) {
 		GdkTexture *texture = g_value_get_object(value);
@@ -997,6 +999,7 @@ imagewindow_set_from_value(Imagewindow *win, const GValue *value)
 		else
 			imagewindow_error(win);
 	}
+	 */
 }
 
 static void
@@ -1095,6 +1098,8 @@ static void
 imagewindow_reload_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
+	printf("imagewindow_reload_action: FIXME\n");
+	/*
 	Imagewindow *win = IMAGEWINDOW(user_data);
 	Tilesource *tilesource = imagewindow_get_tilesource(win);
 
@@ -1104,6 +1109,7 @@ imagewindow_reload_action(GSimpleAction *action,
 		if (file)
 			imagewindow_open_gfiles(win, &file, 1);
 	}
+	 */
 }
 
 static void
@@ -1134,8 +1140,7 @@ imagewindow_duplicate_action(GSimpleAction *action,
 
 	if (win->imageui) {
 		Tilesource *tilesource = imageui_get_tilesource(win->imageui);
-		g_autoptr(Tilesource) new_tilesource =
-			tilesource_duplicate(tilesource);
+		g_autoptr(Tilesource) new_tilesource = tilesource_duplicate(tilesource);
 		Imageui *new_imageui = imageui_duplicate(new_tilesource, win->imageui);
 
 		imagewindow_imageui_add(new_win, new_imageui);
@@ -1679,54 +1684,8 @@ imagewindow_get_settings(Imagewindow *win)
 }
 
 void
-imagewindow_open_files(Imagewindow *win, char **files, int n_files)
+imagewindow_set_tilesource(Imagewindow *win, Tilesource *tilesource)
 {
-#ifdef DEBUG
-	printf("imagewindow_open_files:\n");
-#endif /*DEBUG*/
-
-	imagewindow_files_set(win, files, n_files);
-	imagewindow_open_current_file(win, GTK_STACK_TRANSITION_TYPE_ROTATE_LEFT);
-}
-
-void
-imagewindow_open_list_gfiles(Imagewindow *win, GSList *gfiles)
-{
-#ifdef DEBUG
-	printf("imagewindow_open_list_gfiles:\n");
-#endif /*DEBUG*/
-
-	imagewindow_files_set_list_gfiles(win, gfiles);
-	imagewindow_open_current_file(win, GTK_STACK_TRANSITION_TYPE_ROTATE_LEFT);
-}
-
-void
-imagewindow_open_gfiles(Imagewindow *win, GFile **gfiles, int n_files)
-{
-#ifdef DEBUG
-	printf("imagewindow_open_gfiles:\n");
-#endif /*DEBUG*/
-
-	g_auto(GStrv) files = VIPS_ARRAY(NULL, n_files + 1, char *);
-	for (int i = 0; i < n_files; i++)
-		files[i] = g_file_get_path(gfiles[i]);
-
-	imagewindow_open_files(win, files, n_files);
-}
-
-void
-imagewindow_open_image(Imagewindow *win, VipsImage *image)
-{
-#ifdef DEBUG
-	printf("imagewindow_open_image:\n");
-#endif /*DEBUG*/
-
-	g_autoptr(Tilesource) tilesource = tilesource_new_from_image(image);
-	if (!tilesource) {
-		imagewindow_error(win);
-		return;
-	}
-
 	Imageui *imageui = imageui_new(tilesource);
 	if (!imageui) {
 		imagewindow_error(win);
@@ -1734,18 +1693,11 @@ imagewindow_open_image(Imagewindow *win, VipsImage *image)
 	}
 
 	imagewindow_files_free(win);
+	if (tilesource->filename)
+		imagewindow_files_set(win, &tilesource->filename, 1);
 	imagewindow_imageui_add(win, imageui);
 	imagewindow_imageui_set_visible(win,
 		imageui, GTK_STACK_TRANSITION_TYPE_SLIDE_DOWN);
-}
-
-static void *
-imagewindow_open_iimage_filename(const char *filename,
-	void *a, void *b, void *c)
-{
-	Imagewindow *win = IMAGEWINDOW(a);
-
-	imagewindow_open_files(win, &filename, 1);
 }
 
 static void
@@ -1755,7 +1707,7 @@ imagewindow_iimage_changed(iImage *iimage, Imagewindow *win)
 #endif /*DEBUG*/
 	printf("imagewindow_iimage_changed:\n");
 
-	imagewindow_open_iimage(win, iimage);
+	imagewindow_set_tilesource(win, iimage->tilesource);
 }
 
 static void
@@ -1769,31 +1721,19 @@ imagewindow_iimage_destroy(iImage *iimage, Imagewindow *win)
 }
 
 void
-imagewindow_open_iimage(Imagewindow *win, iImage *iimage)
+imagewindow_set_iimage(Imagewindow *win, iImage *iimage)
 {
-	Imageinfo *ii = iimage->value.ii;
+	g_assert(!win->iimage);
 
 #ifdef DEBUG
-	printf("imagewindow_open_iimage:\n");
+	printf("imagewindow_set_iimage:\n");
 #endif /*DEBUG*/
 
-	if (ii) {
-		if (imageinfo_is_from_file(ii))
-			// we must expand $HOME etc.
-			callv_string_filename(imagewindow_open_iimage_filename,
-				IOBJECT(ii)->name, win, NULL, NULL);
-		else
-			imagewindow_open_image(win, imageinfo_get(FALSE, ii));
+	win->iimage= iimage;
+	win->iimage_changed_sid = g_signal_connect(iimage, "changed",
+		G_CALLBACK(imagewindow_iimage_changed), win);
+	win->iimage_destroy_sid = g_signal_connect(iimage, "destroy",
+		G_CALLBACK(imagewindow_iimage_destroy), win);
 
-		// not a reference .. we watch for destroy
-		win->iimage = iimage;
-
-		FREESID(win->iimage_changed_sid, win->iimage);
-		win->iimage_changed_sid = g_signal_connect(iimage, "changed",
-			G_CALLBACK(imagewindow_iimage_changed), win);
-
-		FREESID(win->iimage_destroy_sid, win->iimage);
-		win->iimage_destroy_sid = g_signal_connect(iimage, "destroy",
-			G_CALLBACK(imagewindow_iimage_destroy), win);
-	}
+	imagewindow_set_tilesource(win, iimage->tilesource);
 }

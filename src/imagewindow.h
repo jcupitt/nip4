@@ -46,12 +46,6 @@ G_DECLARE_FINAL_TYPE(Imagewindow, imagewindow,
 	NIP4, IMAGEWINDOW, GtkApplicationWindow)
 
 Imagewindow *imagewindow_new(App *app);
-void imagewindow_open_files(Imagewindow *win, char **files, int n_files);
-void imagewindow_open_file(Imagewindow *win, char *filename);
-void imagewindow_open_gfiles(Imagewindow *win, GFile **gfiles, int n_files);
-void imagewindow_open_list_gfiles(Imagewindow *win, GSList *gfiles);
-void imagewindow_open_image(Imagewindow *win, VipsImage *image);
-void imagewindow_open_iimage(Imagewindow *win, iImage *ii);
 
 double imagewindow_get_zoom(Imagewindow *win);
 void imagewindow_get_mouse_position(Imagewindow *win,
@@ -59,5 +53,7 @@ void imagewindow_get_mouse_position(Imagewindow *win,
 Tilesource *imagewindow_get_tilesource(Imagewindow *win);
 GtkWidget *imagewindow_get_main_box(Imagewindow *win);
 GSettings *imagewindow_get_settings(Imagewindow *win);
+
+void imagewindow_set_iimage(Imagewindow *win, iImage *iimage);
 
 #endif /* __IMAGEWINDOW_H */

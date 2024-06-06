@@ -50,7 +50,6 @@ iimageview_dispose(GObject *object)
 #endif /*DEBUG*/
 
 	gtk_widget_dispose_template(GTK_WIDGET(iimageview), IIMAGEVIEW_TYPE);
-	VIPS_UNREF(iimageview->tilesource);
 
 	G_OBJECT_CLASS(iimageview_parent_class)->dispose(object);
 }
@@ -174,7 +173,8 @@ iimageview_edit(GtkWidget *parent, iImageview *iimageview)
 {
 	iImage *iimage = IIMAGE(VOBJECT(iimageview)->iobject);
 
-	if (IS_IREGION(iimage) && iimage->value.ii) {
+	if (IS_IREGION(iimage) &&
+		iimage->value.ii) {
 		printf("iimageview_edit: FIXME region edit\n");
 		// imageview_new( iimage, parent );
 	}
@@ -211,21 +211,21 @@ iimageview_refresh(vObject *vobject)
 
 	if (iimageview->imagedisplay) {
 		// no tilesource, or it's for an old iimage
-		if (!iimageview->tilesource ||
-			!tilesource_has_imageinfo(iimageview->tilesource, ii)) {
-			VIPS_UNREF(iimageview->tilesource);
+		if (!iimage->tilesource ||
+			!tilesource_has_imageinfo(iimage->tilesource, ii)) {
+			VIPS_UNREF(iimage->tilesource);
 
 			if (ii)
-				iimageview->tilesource = tilesource_new_from_imageinfo(ii);
+				iimage->tilesource = tilesource_new_from_imageinfo(ii);
 
 			g_object_set(iimageview->imagedisplay,
 				"bestfit", TRUE,
-				"tilesource", iimageview->tilesource,
+				"tilesource", iimage->tilesource,
 				NULL);
 
 			// set the image loading, if necessary
-			if (iimageview->tilesource)
-				tilesource_background_load(iimageview->tilesource);
+			if (iimage->tilesource)
+				tilesource_background_load(iimage->tilesource);
 		}
 	}
 

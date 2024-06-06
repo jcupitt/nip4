@@ -1,8 +1,7 @@
 
-- ^D in mainwindow shuld dupe bottom item in current column, not whole
-  workspace
+- support "nip4 k2.jpg"
 
-- remove settings stuff from imagewindow (should be done by nip4)
+- remove settings stuff from imagewindow (should be done by nip4)?
 
 - there's a 20ms timeout in vobject_refresh_queue() ... tune this
 
@@ -19,16 +18,20 @@
 
 ## imagewindow
 
-- make imagewindow use the tilesource from iimageview
+- change formula, workspace icon updates, imagewindow flashes but does not
+  change
 
+  maybe remove caching of three recent images stuff?
 
+- fix "reoplace from file" etc, should update the iimage
 
+  same for paste
 
-- open view, change row once works, change row a seecond time fails to update
+  add copy/paste to mainwindow as well
 
 - next/prev image in imagewindow should update iimage?
 
-  scale/offset/etc. in imagewindow should update iimage?
+- open view, change row once works, change row a seecond time fails to update
 
 - paste into image window
 

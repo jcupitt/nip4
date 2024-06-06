@@ -39,11 +39,6 @@
 #define WORKSPACEVIEW_GET_CLASS(obj) \
 	(G_TYPE_INSTANCE_GET_CLASS((obj), WORKSPACEVIEW_TYPE, WorkspaceviewClass))
 
-/* Column margins.
- */
-#define WORKSPACEVIEW_MARGIN_LEFT (5)
-#define WORKSPACEVIEW_MARGIN_TOP (5)
-
 /* State ... for mouse titlebar interactions.
  */
 typedef enum {

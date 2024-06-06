@@ -435,12 +435,9 @@ workspace_column_pick(Workspace *ws)
 		return col;
 	}
 
-	/* Make an empty column ... always at the top left.
-	 */
 	col = column_new(ws, "A");
-	col->x = WORKSPACEVIEW_MARGIN_LEFT;
-	col->y = WORKSPACEVIEW_MARGIN_TOP;
 	workspace_column_select(ws, col);
+	workspace_queue_layout(ws);
 
 	return col;
 }

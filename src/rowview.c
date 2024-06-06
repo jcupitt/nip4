@@ -184,29 +184,6 @@ rowview_refresh(vObject *vobject)
 	VOBJECT_CLASS(rowview_parent_class)->refresh(vobject);
 }
 
-/* Edit our object.
- */
-static gboolean
-rowview_edit(Rowview *rview)
-{
-	Row *row = ROW(VOBJECT(rview)->iobject);
-	Model *graphic = row->child_rhs->graphic;
-
-	if (graphic)
-		model_edit(GTK_WIDGET(rview->sview), graphic);
-
-	return TRUE;
-}
-
-/* Edit in menu.
- */
-static void
-rowview_edit_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
-{
-	if (!rowview_edit(rview))
-		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
-}
-
 /* Ungroup the current item.
  */
 static void
@@ -434,6 +411,20 @@ rowview_child_remove(View *parent, View *child)
 	VIEW_CLASS(rowview_parent_class)->child_remove(parent, child);
 }
 
+/* Edit our object.
+ */
+static gboolean
+rowview_edit(Rowview *rview)
+{
+	Row *row = ROW(VOBJECT(rview)->iobject);
+	Model *graphic = row->child_rhs->graphic;
+
+	if (graphic)
+		model_edit(GTK_WIDGET(rview->sview), graphic);
+
+	return TRUE;
+}
+
 static void
 rowview_click(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Rowview *rview)
@@ -447,10 +438,8 @@ rowview_click(GtkGestureClick *gesture,
 
 		row_select_modifier(row, state);
 	}
-	else {
-		if (!rowview_edit(rview))
-			mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
-	}
+	else
+		rowview_edit(rview);
 }
 
 static Workspaceview *
@@ -553,6 +542,7 @@ static void
 rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 {
 	Rowview *rview = ROWVIEW(view);
+	View *graphic = rview->rhsview->graphic;
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	Rhs *rhs = row->child_rhs;
 	Workspace *ws = row->top_col->ws;
@@ -560,7 +550,8 @@ rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 
 	printf("rowview_action: %s\n", name);
 
-	if (g_str_equal(name, "row-edit"))
+	if (graphic &&
+		g_str_equal(name, "row-edit"))
 		model_edit(GTK_WIDGET(rview), rhs);
 	else if (g_str_equal(name, "row-saveas") &&
 		rhs->graphic)

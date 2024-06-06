@@ -442,7 +442,7 @@ rhs_child_edited(Rhs *rhs)
 		return TRUE;
 	else if (rhs->scol)
 		return icontainer_map(ICONTAINER(rhs->scol),
-				   (icontainer_map_fn) rhs_child_edited_sub, NULL, NULL) != NULL;
+		   (icontainer_map_fn) rhs_child_edited_sub, NULL, NULL) != NULL;
 	else
 		return FALSE;
 }

@@ -206,7 +206,7 @@ app_startup(GApplication *app)
 		{ "win.open", { "<Primary>o", NULL } },
 		{ "win.copy", { "<Primary>c", NULL } },
 		{ "win.paste", { "<Primary>v", NULL } },
-		{ "win.duplicate", { "<Primary>d", NULL } },
+		{ "win.row-duplicate", { "<Primary>d", NULL } },
 		{ "win.close", { "<Primary>w", NULL } },
 		{ "win.replace", { "<Primary>o", NULL } },
 		{ "win.save", { "<Primary>s", NULL } },

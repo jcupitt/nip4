@@ -35,11 +35,6 @@
 
 G_DEFINE_TYPE(Column, column, FILEMODEL_TYPE)
 
-/* When we merge workspaces we need to scroll to position the last new column
- * in view.
- */
-static Column *column_last_new = NULL;
-
 /* Map down a column.
  */
 void *
@@ -98,8 +93,6 @@ column_finalize(GObject *gobject)
 
 	col = COLUMN(gobject);
 
-	if (col == column_last_new)
-		column_last_new = NULL;
 	VIPS_FREEF(g_source_remove, col->scrollto_timeout);
 
 	G_OBJECT_CLASS(column_parent_class)->finalize(gobject);
@@ -220,13 +213,6 @@ column_save_test(Model *model)
 	return TRUE;
 }
 
-static void
-column_set_last_new(Column *col)
-{
-	if (!column_last_new)
-		column_last_new = col;
-}
-
 static gboolean
 column_load(Model *model,
 	ModelLoadState *state, Model *parent, xmlNode *xnode)
@@ -251,8 +237,6 @@ column_load(Model *model,
 		VIPS_SETSTR(IOBJECT(col)->caption, buf);
 	if (get_sprop(xnode, "name", buf, 256))
 		VIPS_SETSTR(IOBJECT(col)->name, buf);
-
-	column_set_last_new(col);
 
 	return MODEL_CLASS(column_parent_class)->load(model, state, parent, xnode);
 }
@@ -336,21 +320,7 @@ column_new(Workspace *ws, const char *name)
 	col->x = ws->vp.left + 50;
 	col->y = ws->vp.top;
 
-	column_set_last_new(col);
-
 	return col;
-}
-
-Column *
-column_get_last_new(void)
-{
-	return column_last_new;
-}
-
-void
-column_clear_last_new(void)
-{
-	column_last_new = NULL;
 }
 
 /* Find the bottom of the column.

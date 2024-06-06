@@ -56,8 +56,9 @@ struct _iImage {
 
 	/* Track display pos/size/etc. here.
 	 */
-	int image_left, image_top; /* Scroll position */
-	int image_mag;			   /* Scale */
+	int image_left;				/* Scroll position */
+	int image_top;
+	int image_mag;				/* Scale */
 
 	/* View attachments.
 	 */
@@ -75,6 +76,10 @@ struct _iImage {
 	/* Private ... build iobject caption here.
 	 */
 	VipsBuf caption_buffer;
+
+	// the tilesource for the imagevalue on our model ... this is shared with
+	// any imagewindow for this iimageview
+	Tilesource *tilesource;
 };
 
 typedef struct _iImageClass {

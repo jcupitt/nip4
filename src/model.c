@@ -365,6 +365,15 @@ model_register_loadable(ModelClass *model_class)
 }
 
 void
+model_edit(GtkWidget *parent, Model *model)
+{
+	ModelClass *model_class = MODEL_GET_CLASS(model);
+
+	if (model_class->edit)
+		model_class->edit(parent, model);
+}
+
+void
 model_scrollto(Model *model, ModelScrollPosition position)
 {
 	g_assert(IS_MODEL(model));
@@ -405,23 +414,6 @@ model_reset(Model *model)
 	g_assert(IS_MODEL(model));
 
 	g_signal_emit(G_OBJECT(model), model_signals[SIG_RESET], 0);
-
-	return NULL;
-}
-
-void *
-model_edit(GtkWidget *parent, Model *model)
-{
-	ModelClass *model_class = MODEL_GET_CLASS(model);
-
-	if (model_class->edit)
-		model_class->edit(parent, model);
-	else {
-		error_top(_("Not implemented"));
-		error_sub(_("_%s() not implemented for class \"%s\"."),
-			"edit",
-			G_OBJECT_CLASS_NAME(model_class));
-	}
 
 	return NULL;
 }
@@ -646,7 +638,6 @@ model_class_init(ModelClass *class)
 	iObjectClass *object_class = IOBJECT_CLASS(class);
 
 	class->view_new = NULL;
-	class->edit = NULL;
 	class->scrollto = model_real_scrollto;
 	class->layout = NULL;
 	class->front = model_real_front;

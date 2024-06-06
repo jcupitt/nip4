@@ -571,6 +571,8 @@ mainwindow_view_action(GSimpleAction *action,
 
 		if (view_class->action)
 			view_class->action(action, parameter, view);
+
+		main->action_view = NULL;
 	}
 }
 

@@ -27,7 +27,7 @@
   <menu id="workspacegroup-row-menu">
     <section>
       <item>
-        <attribute name='label' translatable='yes'>View</attribute>
+        <attribute name='label' translatable='yes'>Edit</attribute>
         <attribute name='action'>win.row-edit</attribute>
       </item>
       <item>

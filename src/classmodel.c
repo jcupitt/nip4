@@ -584,12 +584,6 @@ classmodel_parent_add(iContainer *child)
  */
 #define MAX_WIDGETS (10)
 
-static void
-classmodel_edit(GtkWidget *parent, Model *model)
-{
-	printf("classmodel_edit: FIXME\n");
-}
-
 static gboolean
 classmodel_save_member(Classmodel *classmodel,
 	ClassmodelMember *m, xmlNode *xthis)
@@ -1133,7 +1127,6 @@ classmodel_class_init(ClassmodelClass *class)
 
 	icontainer_class->parent_add = classmodel_parent_add;
 
-	model_class->edit = classmodel_edit;
 	model_class->save = classmodel_save;
 	model_class->load = classmodel_load;
 
