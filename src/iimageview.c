@@ -183,11 +183,21 @@ iimageview_edit(GtkWidget *parent, iImageview *iimageview)
 }
 
 static void
+iimageview_iimage_changed(iImage *iimage, void *user_data)
+{
+	iImageview *iimageview = IIMAGEVIEW(user_data);
+
+	printf("iimageview_iimage_changed:\n");
+}
+
+static void
 iimageview_link(View *view, Model *model, View *parent)
 {
 	iImageview *iimageview = IIMAGEVIEW(view);
+	iImage *iimage = IIMAGE(model);
 
-	Rowview *rview;
+	g_signal_connect(iimage, "changed",
+		G_CALLBACK(iimageview_iimage_changed), view);
 
 	VIEW_CLASS(iimageview_parent_class)->link(view, model, parent);
 }
@@ -209,24 +219,21 @@ iimageview_refresh(vObject *vobject)
 #endif /*DEBUG*/
 	printf("iimageview_refresh: FIXME\n");
 
-	if (iimageview->imagedisplay) {
-		// no tilesource, or it's for an old iimage
-		if (!iimage->tilesource ||
-			!tilesource_has_imageinfo(iimage->tilesource, ii)) {
-			VIPS_UNREF(iimage->tilesource);
+	iimage_tilesource_update(iimage);
 
-			if (ii)
-				iimage->tilesource = tilesource_new_from_imageinfo(ii);
+	Tilesource *current_tilesource;
+	g_object_get(iimageview->imagedisplay,
+			"tilesource", &current_tilesource,
+			NULL);
+	if (current_tilesource != iimage->tilesource) {
+		g_object_set(iimageview->imagedisplay,
+			"bestfit", TRUE,
+			"tilesource", iimage->tilesource,
+			NULL);
 
-			g_object_set(iimageview->imagedisplay,
-				"bestfit", TRUE,
-				"tilesource", iimage->tilesource,
-				NULL);
-
-			// set the image loading, if necessary
-			if (iimage->tilesource)
-				tilesource_background_load(iimage->tilesource);
-		}
+		// set the image loading, if necessary
+		if (iimage->tilesource)
+			tilesource_background_load(iimage->tilesource);
 	}
 
 	// we will need to disable visible for thumbnails that are

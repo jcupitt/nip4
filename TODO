@@ -18,12 +18,13 @@
 
 ## imagewindow
 
-- change formula, workspace icon updates, imagewindow flashes but does not
-  change
+- remove active stuff ... we should have a single tilesource we display in
+  imagewindow
 
-  maybe remove caching of three recent images stuff?
+  imagewindow_iimage_changed() should test for new tilesource before
+  updating, see iimageview
 
-- fix "reoplace from file" etc, should update the iimage
+- "replace from file" etc, should update the iimage, not just the tilesource
 
   same for paste
 

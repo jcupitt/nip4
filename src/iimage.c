@@ -189,7 +189,8 @@ iimage_load(Model *model,
 	(void) get_bprop(xnode, "falsecolour", &iimage->falsecolour);
 	(void) get_bprop(xnode, "type", &iimage->type);
 
-	return MODEL_CLASS(iimage_parent_class)->load(model, state, parent, xnode);
+	return MODEL_CLASS(iimage_parent_class)->
+		load(model, state, parent, xnode);
 }
 
 /* Need to implement _update_heap(), as not all model fields are directly
@@ -440,4 +441,22 @@ iimage_init(iImage *iimage)
 	vips_buf_init_dynamic(&iimage->caption_buffer, MAX_LINELENGTH);
 
 	iobject_set(IOBJECT(iimage), CLASS_IMAGE, NULL);
+}
+
+/* This is called from iimageview and imagewindow on iimage "changed" to
+ * remake the tilesource that they share.
+ */
+void
+iimage_tilesource_update(iImage *iimage)
+{
+	Imageinfo *ii = iimage->value.ii;
+
+	// no tilesource, or it's for an old iimage
+	if (!iimage->tilesource ||
+		!tilesource_has_imageinfo(iimage->tilesource, ii)) {
+		VIPS_UNREF(iimage->tilesource);
+
+		if (ii)
+			iimage->tilesource = tilesource_new_from_imageinfo(ii);
+	}
 }

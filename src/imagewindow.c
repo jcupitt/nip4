@@ -1707,7 +1707,10 @@ imagewindow_iimage_changed(iImage *iimage, Imagewindow *win)
 #endif /*DEBUG*/
 	printf("imagewindow_iimage_changed:\n");
 
+	iimage_tilesource_update(iimage);
 	imagewindow_set_tilesource(win, iimage->tilesource);
+	if (iimage->tilesource)
+		tilesource_background_load(iimage->tilesource);
 }
 
 static void

@@ -46,6 +46,8 @@ typedef struct _iImageview {
 	Imagedisplay *imagedisplay;
 	GtkWidget *label;
 
+
+
 } iImageview;
 
 typedef struct _iImageviewClass {
