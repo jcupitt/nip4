@@ -1,7 +1,19 @@
 
 - support "nip4 k2.jpg"
 
-- remove settings stuff from imagewindow (should be done by nip4)?
+  what do we do about a progress bar for this?
+
+  check progress.c
+
+  try:
+
+	nip4 st-francis.jpg
+
+  segv ... imageinfo_proxy_eval() is being passed a proxy with an invalid
+  imageinfo pointer
+
+
+
 
 - there's a 20ms timeout in vobject_refresh_queue() ... tune this
 
@@ -18,41 +30,13 @@
 
 ## imagewindow
 
-- remove active stuff ... we should have a single tilesource we display in
-  imagewindow
+- remove "duplicate window" from imagewindow
 
-  imagewindow_iimage_changed() should test for new tilesource before
-  updating, see iimageview
+- "open" button image imagewindow does not work
 
-- "replace from file" etc, should update the iimage, not just the tilesource
-
-  same for paste
+- fix imagewindow copy/paste
 
   add copy/paste to mainwindow as well
-
-- next/prev image in imagewindow should update iimage?
-
-- open view, change row once works, change row a seecond time fails to update
-
-- paste into image window
-
-  clipboard paste will need to write a new imageinfo to the heap, and
-  can't be saved in workspace files
-
-  in imagewindow_open_current_file() we write the filename back to the iimage,
-  but this needs to handle images without filenames too
-
-  maybe iimage should listen for "changed" in viewers and update the
-  thumbnail and model?
-
-- imagewindow progress stuff should go?
-
-- hook up a progress bar for eg st-francis.jpg load?
-
-- make a "progress" widget with throttled updates? could share with
-  saveoptions, and move some code out of mainwindow
-
-	we have progress.c, does that work?
 
 - add region display
 

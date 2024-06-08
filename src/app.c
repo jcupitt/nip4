@@ -304,7 +304,7 @@ app_open(GApplication *app, GFile **files, int n_files, const char *hint)
 {
 	for (int i = 0; i < n_files; i++) {
 		Mainwindow *main = mainwindow_new(APP(app));
-		mainwindow_set_gfile(main, files[i]);
+		mainwindow_open(main, files[i]);
 		gtk_window_present(GTK_WINDOW(main));
 	}
 }

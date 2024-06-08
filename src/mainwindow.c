@@ -290,7 +290,7 @@ mainwindow_open_workspace(Mainwindow *main, const char *filename)
 	mainwindow_set_gfile(new_main, NULL);
 	gtk_window_present(GTK_WINDOW(new_main));
 
-	/* If we had an empty wsg, perhaps we've just started up,
+	/* If we had an empty wsg (perhaps we've just started up?),
 	 * kill it.
 	 */
 	if (workspacegroup_is_empty(main->wsg)) {
@@ -306,11 +306,13 @@ mainwindow_get_workspace(Mainwindow *main)
 {
 	Workspace *ws;
 
-	if (main->wsg &&
-		(ws = WORKSPACE(ICONTAINER(main->wsg)->current)))
-		return ws;
+	if (!main->wsg) {
+	   	Workspacegroup *wsg =
+			workspacegroup_new_blank(main_workspaceroot, NULL);
+		mainwindow_set_wsg(main, wsg);
+	}
 
-	return NULL;
+	return WORKSPACE(ICONTAINER(main->wsg)->current);
 }
 
 static gboolean
@@ -348,6 +350,24 @@ static FileType mainwindow_file_types[] = {
 	{ "", mainwindow_open_definition }
 };
 
+void
+mainwindow_open(Mainwindow *main, GFile *file)
+{
+	g_autofree char *filename = g_file_get_path(file);
+
+	mainwindow_set_load_folder(main, file);
+
+	for (int i = 0; i < VIPS_NUMBER(mainwindow_file_types); i++)
+		if (vips_iscasepostfix(filename, mainwindow_file_types[i].suffix)) {
+			if (!mainwindow_file_types[i].handler(main, filename))
+				mainwindow_error(main);
+			return;
+		}
+
+	// the last item in mainwindow_file_types should catch everything
+	g_assert_not_reached();
+}
+
 static void
 mainwindow_open_result(GObject *source_object,
 	GAsyncResult *res, gpointer user_data)
@@ -356,21 +376,8 @@ mainwindow_open_result(GObject *source_object,
 	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
 
 	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
-	if (file) {
-		mainwindow_set_load_folder(main, file);
-
-		g_autofree char *filename = g_file_get_path(file);
-
-		for (int i = 0; i < VIPS_NUMBER(mainwindow_file_types); i++)
-			if (vips_iscasepostfix(filename, mainwindow_file_types[i].suffix)) {
-				if (!mainwindow_file_types[i].handler(main, filename))
-					mainwindow_error(main);
-				return;
-			}
-
-		// the last item in mainwindow_file_types should catch everything
-		g_assert_not_reached();
-	}
+	if (file)
+		mainwindow_open(main, file);
 }
 
 static void

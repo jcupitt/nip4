@@ -998,6 +998,7 @@ tilesource_get_property(GObject *object,
 static void
 tilesource_init(Tilesource *tilesource)
 {
+	printf("tilesource_init: ***\n");
 	tilesource->scale = 1.0;
 	tilesource->zoom = 1.0;
 }
@@ -1895,45 +1896,4 @@ tilesource_get_pixel(Tilesource *tilesource, int image_x, int image_y,
 		return FALSE;
 
 	return TRUE;
-}
-
-Tilesource *
-tilesource_duplicate(Tilesource *tilesource)
-{
-	Tilesource *new_tilesource;
-	TilesourceMode mode;
-	double scale;
-	double offset;
-	int page;
-	gboolean falsecolour;
-	gboolean log;
-	gboolean icc;
-	gboolean active;
-
-	if (!(new_tilesource = tilesource_new_from_file(tilesource->filename)))
-		return NULL;
-
-	g_object_get(tilesource,
-		"mode", &mode,
-		"scale", &scale,
-		"offset", &offset,
-		"page", &page,
-		"falsecolour", &falsecolour,
-		"log", &log,
-		"icc", &icc,
-		"active", &active,
-		NULL);
-
-	g_object_set(new_tilesource,
-		"mode", mode,
-		"scale", scale,
-		"offset", offset,
-		"page", page,
-		"falsecolour", falsecolour,
-		"log", log,
-		"icc", icc,
-		"active", active,
-		NULL);
-
-	return new_tilesource;
 }

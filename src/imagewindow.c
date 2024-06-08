@@ -1113,44 +1113,6 @@ imagewindow_reload_action(GSimpleAction *action,
 }
 
 static void
-imagewindow_duplicate_action(GSimpleAction *action,
-	GVariant *parameter, gpointer user_data)
-{
-	Imagewindow *win = IMAGEWINDOW(user_data);
-	GtkStackTransitionType transition = GTK_STACK_TRANSITION_TYPE_NONE;
-
-	App *app;
-	Imagewindow *new_win;
-	int width, height;
-
-	g_object_get(win, "application", &app, NULL);
-	new_win = imagewindow_new(app);
-
-	new_win->n_files = win->n_files;
-	new_win->files = g_strdupv(win->files);
-	new_win->current_file = win->current_file;
-
-	gtk_window_get_default_size(GTK_WINDOW(win), &width, &height);
-	gtk_window_set_default_size(GTK_WINDOW(new_win), width, height);
-
-	copy_state(GTK_WIDGET(new_win), GTK_WIDGET(win), "control");
-	copy_state(GTK_WIDGET(new_win), GTK_WIDGET(win), "info");
-	copy_state(GTK_WIDGET(new_win), GTK_WIDGET(win), "properties");
-	copy_state(GTK_WIDGET(new_win), GTK_WIDGET(win), "background");
-
-	if (win->imageui) {
-		Tilesource *tilesource = imageui_get_tilesource(win->imageui);
-		g_autoptr(Tilesource) new_tilesource = tilesource_duplicate(tilesource);
-		Imageui *new_imageui = imageui_duplicate(new_tilesource, win->imageui);
-
-		imagewindow_imageui_add(new_win, new_imageui);
-		imagewindow_imageui_set_visible(new_win, new_imageui, transition);
-	}
-
-	gtk_window_present(GTK_WINDOW(new_win));
-}
-
-static void
 imagewindow_replace_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
@@ -1460,7 +1422,6 @@ static GActionEntry imagewindow_entries[] = {
 	{ "oneone", imagewindow_oneone_action },
 
 	{ "reload", imagewindow_reload_action },
-	{ "duplicate", imagewindow_duplicate_action },
 	{ "replace", imagewindow_replace_action },
 	{ "saveas", imagewindow_saveas_action },
 	{ "close", imagewindow_close_action },

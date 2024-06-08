@@ -608,7 +608,6 @@ imageinfo_proxy_eval(VipsImage *im, Imageinfoproxy *proxy)
 	if (imageinfo)
 		printf("\t%p, %d %% complete\n",
 			imageinfo->im, imageinfo->im->time->percent);
-	return;
 
 	if (imageinfo && imageinfo->im->time)
 		if (progress_update_percent(imageinfo->im->time->percent,
