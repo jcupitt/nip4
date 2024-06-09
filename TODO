@@ -9,10 +9,7 @@
 
 	nip4 st-francis.jpg
 
-  segv ... imageinfo_proxy_eval() is being passed a proxy with an invalid
-  imageinfo pointer
-
-
+  cool to have a progress bar in the icon?
 
 
 - there's a 20ms timeout in vobject_refresh_queue() ... tune this

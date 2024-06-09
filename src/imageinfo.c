@@ -600,7 +600,8 @@ imageinfo_init(Imageinfo *imageinfo)
 }
 
 static int
-imageinfo_proxy_eval(VipsImage *im, Imageinfoproxy *proxy)
+imageinfo_proxy_eval(VipsImage *im, VipsProgress *progress,
+	Imageinfoproxy *proxy)
 {
 	Imageinfo *imageinfo = proxy->imageinfo;
 
