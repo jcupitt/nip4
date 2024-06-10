@@ -136,20 +136,20 @@
             </child>
 
             <child type="end">
-              <object class="GtkButton" id="progress_cancel">
+              <object class="GtkButton">
                 <property name="label">Cancel</property>
+                <signal name="clicked"
+                    handler="mainwindow_progress_cancel_clicked"/>
               </object>
             </child>
           </object>
         </child>
 
         <child>
-          <object class="GtkInfoBar" id="error_bar">
-            <property name="message-type">error</property>
-            <property name="show-close-button">true</property>
+          <object class="GtkActionBar" id="error_bar">
             <property name="revealed">false</property>
 
-            <child>
+            <child type="center">
               <object class="GtkBox">
                 <property name="orientation">vertical</property>
                 <property name="hexpand">true</property>
@@ -180,6 +180,13 @@
               </object>
             </child>
 
+            <child type="end">
+              <object class="GtkButton">
+                <property name="label">OK</property>
+                <signal name="clicked"
+                    handler="mainwindow_error_close_clicked"/>
+              </object>
+            </child>
           </object>
         </child>
 

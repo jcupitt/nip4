@@ -1,16 +1,8 @@
 
-- support "nip4 k2.jpg"
+- we don't pop up the main window until toolkits have finished loading --
+  could we do this earlier?
 
-  what do we do about a progress bar for this?
-
-  check progress.c
-
-  try:
-
-	nip4 st-francis.jpg
-
-  cool to have a progress bar in the icon?
-
+- temp files are appearing in /tmp, not ~/.nip4
 
 - there's a 20ms timeout in vobject_refresh_queue() ... tune this
 

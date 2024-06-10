@@ -599,23 +599,30 @@ imageinfo_init(Imageinfo *imageinfo)
 	imageinfo->check_tid = 0;
 }
 
-static int
+static void
+imageinfo_proxy_preeval(VipsImage *im, VipsProgress *progress,
+	Imageinfoproxy *proxy)
+{
+	progress_begin();
+}
+
+static void
 imageinfo_proxy_eval(VipsImage *im, VipsProgress *progress,
 	Imageinfoproxy *proxy)
 {
 	Imageinfo *imageinfo = proxy->imageinfo;
 
-	printf("imageinfo_proxy_eval: FIXME\n");
-	if (imageinfo)
-		printf("\t%p, %d %% complete\n",
-			imageinfo->im, imageinfo->im->time->percent);
-
 	if (imageinfo && imageinfo->im->time)
 		if (progress_update_percent(imageinfo->im->time->percent,
 				imageinfo->im->time->eta))
-			return -1;
+			vips_image_set_kill(imageinfo->im, TRUE);
+}
 
-	return 0;
+static int
+imageinfo_proxy_posteval(VipsImage *im, VipsProgress *progress,
+	Imageinfoproxy *proxy)
+{
+	progress_end();
 }
 
 static int
@@ -666,8 +673,12 @@ imageinfo_proxy_add(Imageinfo *imageinfo)
 	imageinfo->proxy->im = imageinfo->im;
 	imageinfo->proxy->imageinfo = imageinfo;
 
+	g_signal_connect(imageinfo->im, "preeval",
+		G_CALLBACK(imageinfo_proxy_preeval), imageinfo->proxy);
 	g_signal_connect(imageinfo->im, "eval",
 		G_CALLBACK(imageinfo_proxy_eval), imageinfo->proxy);
+	g_signal_connect(imageinfo->im, "posteval",
+		G_CALLBACK(imageinfo_proxy_posteval), imageinfo->proxy);
 	g_signal_connect(imageinfo->im, "invalidate",
 		G_CALLBACK(imageinfo_proxy_invalidate), imageinfo->proxy);
 	g_signal_connect(imageinfo->im, "preclose",

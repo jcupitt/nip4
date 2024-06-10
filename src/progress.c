@@ -28,7 +28,6 @@
  */
 
 /*
-#define DEBUG_MEMUSE
 #define DEBUG
  */
 
@@ -71,11 +70,6 @@ progress_begin(void)
 	if (progress->count == 1) {
 		g_timer_start(progress->busy_timer);
 		g_timer_start(progress->update_timer);
-
-#ifdef DEBUG_MEMUSE
-		printf("progress_begin:\n");
-		im__print_all();
-#endif /*DEBUG_MEMUSE*/
 	}
 }
 
@@ -98,8 +92,7 @@ progress_update(Progress *progress)
 		}
 	}
 
-	/* Update regularly, even if we're not inside a begin/end
-	 * block.
+	/* Update regularly, even if we're not inside a begin/end block.
 	 */
 	if (g_timer_elapsed(progress->update_timer, NULL) >
 		progress_update_interval) {
@@ -128,11 +121,6 @@ progress_update(Progress *progress)
 		 * for the feedback thing.
 		 */
 		process_events();
-
-#ifdef DEBUG_MEMUSE
-		printf("progress_update:\n");
-		im__print_all();
-#endif /*DEBUG_MEMUSE*/
 	}
 }
 
@@ -141,6 +129,9 @@ progress_update_percent(int percent, int eta)
 {
 	Progress *progress = progress_get();
 
+	// values of zero make no sense
+	eta += 1;
+
 	vips_buf_rewind(&progress->feedback);
 	if (eta > 30) {
 		int minutes = (eta + 30) / 60;
@@ -148,14 +139,9 @@ progress_update_percent(int percent, int eta)
 		vips_buf_appendf(&progress->feedback,
 			ngettext("%d minute left", "%d minutes left", minutes), minutes);
 	}
-	else if (eta > 5)
+	else
 		vips_buf_appendf(&progress->feedback,
 			ngettext("%d second left", "%d seconds left", eta), eta);
-	else
-		/* The empty string changes the height of the progress bar
-		 * argh.
-		 */
-		vips_buf_appendf(&progress->feedback, " ");
 
 	progress->percent = percent;
 
@@ -228,11 +214,6 @@ progress_end(void)
 
 		progress->cancel = FALSE;
 		progress->busy = FALSE;
-
-#ifdef DEBUG_MEMUSE
-		printf("progress_end:\n");
-		im__print_all();
-#endif /*DEBUG_MEMUSE*/
 	}
 }
 

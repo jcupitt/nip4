@@ -46,20 +46,18 @@ struct _Mainwindow {
 	GtkWidget *gears;
 	GtkWidget *progress_bar;
 	GtkWidget *progress;
-	GtkWidget *progress_cancel;
 	GtkWidget *error_bar;
 	GtkWidget *error_top;
 	GtkWidget *error_sub;
 	GtkWidget *wsgview;
 
-	/* Throttle progress bar updates to a few per second with this.
-	 */
-	GTimer *progress_timer;
-	double last_progress_time;
-
 	/* Batch refresh with this, it's slow.
 	 */
 	guint refresh_timeout;
+
+	/* Set for progress cancel.
+	 */
+	gboolean cancel;
 };
 
 // current autocalc state
@@ -124,7 +122,7 @@ mainwindow_error(Mainwindow *main)
 {
 	set_glabel(main->error_top, error_get_top());
 	set_glabel(main->error_sub, error_get_sub());
-	gtk_info_bar_set_revealed(GTK_INFO_BAR(main->error_bar), TRUE);
+	gtk_info_bar_set_revealed(GTK_ACTION_BAR(main->error_bar), TRUE);
 }
 
 static void
@@ -152,7 +150,7 @@ mainwindow_error_hide(Mainwindow *main)
 	printf("mainwindow_error_hide:\n");
 #endif /*DEBUG*/
 
-	gtk_info_bar_set_revealed(GTK_INFO_BAR(main->error_bar), FALSE);
+	gtk_info_bar_set_revealed(GTK_ACTION_BAR(main->error_bar), FALSE);
 }
 
 static void
@@ -165,110 +163,11 @@ mainwindow_dispose(GObject *object)
 #endif /*DEBUG*/
 
 	IDESTROY(main->wsg);
-	VIPS_FREEF(g_timer_destroy, main->progress_timer);
 	VIPS_FREEF(g_source_remove, main->refresh_timeout);
 
     mainwindow_all = g_slist_remove(mainwindow_all, main);
 
 	G_OBJECT_CLASS(mainwindow_parent_class)->dispose(object);
-}
-
-static void
-mainwindow_preeval(VipsImage *image, VipsProgress *progress, Mainwindow *main)
-{
-	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->progress_bar), TRUE);
-}
-
-typedef struct _EvalUpdate {
-	Mainwindow *main;
-	int eta;
-	int percent;
-} EvalUpdate;
-
-static gboolean
-mainwindow_eval_idle(void *user_data)
-{
-	EvalUpdate *update = (EvalUpdate *) user_data;
-	Mainwindow *main = update->main;
-
-	char str[256];
-	VipsBuf buf = VIPS_BUF_STATIC(str);
-
-	vips_buf_appendf(&buf, "%d%% complete, %d seconds to go",
-		update->percent, update->eta);
-	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(main->progress),
-		vips_buf_all(&buf));
-
-	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(main->progress),
-		update->percent / 100.0);
-
-	g_object_unref(main);
-	g_free(update);
-
-	return FALSE;
-}
-
-static void
-mainwindow_eval(VipsImage *image,
-	VipsProgress *progress, Mainwindow *main)
-{
-	double time_now;
-	EvalUpdate *update;
-
-	/* We can be ^Q'd during load. This is NULLed in _dispose.
-	 */
-	if (!main->progress_timer)
-		return;
-
-	time_now = g_timer_elapsed(main->progress_timer, NULL);
-
-	/* Throttle to 10Hz.
-	 */
-	if (time_now - main->last_progress_time < 0.1)
-		return;
-	main->last_progress_time = time_now;
-
-#ifdef DEBUG_VERBOSE
-	printf("mainwindow_eval: %d%%\n", progress->percent);
-#endif /*DEBUG_VERBOSE*/
-
-	/* This can come from the background load thread, so we can't update
-	 * the UI directly.
-	 */
-
-	update = g_new(EvalUpdate, 1);
-	update->main = main;
-	update->percent = progress->percent;
-	update->eta = progress->eta;
-
-	/* We don't want main to vanish before we process this update. The
-	 * matching unref is in the handler above.
-	 */
-	g_object_ref(main);
-
-	g_idle_add(mainwindow_eval_idle, update);
-}
-
-static void
-mainwindow_posteval(VipsImage *image,
-	VipsProgress *progress, Mainwindow *main)
-{
-	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->progress_bar), FALSE);
-}
-
-static void
-mainwindow_cancel_clicked(GtkWidget *button, Mainwindow *main)
-{
-	VipsImage *image;
-
-	// cancel
-}
-
-static void
-mainwindow_error_response(GtkWidget *button, int response,
-	Mainwindow *main)
-{
-	mainwindow_error_hide(main);
 }
 
 static gboolean
@@ -626,6 +525,34 @@ static GActionEntry mainwindow_entries[] = {
 };
 
 static void
+mainwindow_progress_begin(Progress *progress, Mainwindow *main)
+{
+	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(main->progress), 0.0);
+	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(main->progress), "");
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->progress_bar), TRUE);
+}
+
+static void
+mainwindow_progress_update(Progress *progress,
+	gboolean *cancel, Mainwindow *main)
+{
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->progress_bar), TRUE);
+	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(main->progress),
+		progress->percent / 100.0);
+	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(main->progress),
+		vips_buf_all(&progress->feedback));
+
+	if (main->cancel)
+		*cancel = TRUE;
+}
+
+static void
+mainwindow_progress_end(Progress *progress, Mainwindow *main)
+{
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->progress_bar), FALSE);
+}
+
+static void
 mainwindow_init(Mainwindow *main)
 {
 	GtkEventController *controller;
@@ -634,20 +561,12 @@ mainwindow_init(Mainwindow *main)
 	printf("mainwindow_init:\n");
 #endif /*DEBUG*/
 
-	main->progress_timer = g_timer_new();
-	main->last_progress_time = -1;
 	char *cwd = g_get_current_dir();
 	main->save_folder = g_file_new_for_path(cwd);
 	main->load_folder = g_file_new_for_path(cwd);
 	g_free(cwd);
 
 	gtk_widget_init_template(GTK_WIDGET(main));
-
-	g_signal_connect_object(main->progress_cancel, "clicked",
-		G_CALLBACK(mainwindow_cancel_clicked), main, 0);
-
-	g_signal_connect_object(main->error_bar, "response",
-		G_CALLBACK(mainwindow_error_response), main, 0);
 
 	g_action_map_add_action_entries(G_ACTION_MAP(main),
 		mainwindow_entries, G_N_ELEMENTS(mainwindow_entries),
@@ -667,7 +586,32 @@ mainwindow_init(Mainwindow *main)
 	gtk_widget_add_controller(main->imagedisplay, controller);
 	) */
 
+	Progress *progress = progress_get();
+	g_signal_connect(progress, "begin",
+		G_CALLBACK(mainwindow_progress_begin), main);
+	g_signal_connect(progress, "update",
+		G_CALLBACK(mainwindow_progress_update), main);
+	g_signal_connect(progress, "end",
+		G_CALLBACK(mainwindow_progress_end), main);
+
     mainwindow_all = g_slist_prepend(mainwindow_all, main);
+}
+
+static void
+mainwindow_progress_cancel_clicked(GtkButton *button, void *user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	// picked up by eval, see below
+	main->cancel = TRUE;
+}
+
+static void
+mainwindow_error_close_clicked(GtkButton *button, void *user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	mainwindow_error_hide(main);
 }
 
 static void
@@ -682,11 +626,13 @@ mainwindow_class_init(MainwindowClass *class)
 	BIND_VARIABLE(Mainwindow, gears);
 	BIND_VARIABLE(Mainwindow, progress_bar);
 	BIND_VARIABLE(Mainwindow, progress);
-	BIND_VARIABLE(Mainwindow, progress_cancel);
 	BIND_VARIABLE(Mainwindow, error_bar);
 	BIND_VARIABLE(Mainwindow, error_top);
 	BIND_VARIABLE(Mainwindow, error_sub);
 	BIND_VARIABLE(Mainwindow, wsgview);
+
+	BIND_CALLBACK(mainwindow_progress_cancel_clicked);
+	BIND_CALLBACK(mainwindow_error_close_clicked);
 }
 
 static void
