@@ -123,7 +123,7 @@ app_main(App *app)
 	GList *windows = gtk_application_get_windows(GTK_APPLICATION(app));
 
 	// can have non-mainwindow windows
-	for (GSList *p = windows; p; p = p->next)
+	for (GList *p = windows; p; p = p->next)
 		if (IS_MAINWINDOW(p->data))
 			return MAINWINDOW(p->data);
 
@@ -294,10 +294,16 @@ app_startup(GApplication *app)
 static void
 app_open(GApplication *app, GFile **files, int n_files, const char *hint)
 {
-	for (int i = 0; i < n_files; i++) {
-		Mainwindow *main = mainwindow_new(APP(app));
+	Mainwindow *main = mainwindow_new(APP(app));
+
+	gtk_window_present(GTK_WINDOW(main));
+
+	for (int i = 0; i < n_files; i++)
 		mainwindow_open(main, files[i]);
-	}
+
+	if (n_files > 0 &&
+		mainwindow_is_empty(main))
+		gtk_window_destroy(GTK_WINDOW(main));
 }
 
 static void

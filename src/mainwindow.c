@@ -122,7 +122,7 @@ mainwindow_error(Mainwindow *main)
 {
 	set_glabel(main->error_top, error_get_top());
 	set_glabel(main->error_sub, error_get_sub());
-	gtk_info_bar_set_revealed(GTK_ACTION_BAR(main->error_bar), TRUE);
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->error_bar), TRUE);
 }
 
 static void
@@ -150,7 +150,7 @@ mainwindow_error_hide(Mainwindow *main)
 	printf("mainwindow_error_hide:\n");
 #endif /*DEBUG*/
 
-	gtk_info_bar_set_revealed(GTK_ACTION_BAR(main->error_bar), FALSE);
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->error_bar), FALSE);
 }
 
 static void
@@ -188,14 +188,6 @@ mainwindow_open_workspace(Mainwindow *main, const char *filename)
 	mainwindow_set_wsg(new_main, wsg);
 	mainwindow_set_gfile(new_main, NULL);
 	gtk_window_present(GTK_WINDOW(new_main));
-
-	/* If we had an empty wsg (perhaps we've just started up?),
-	 * kill it.
-	 */
-	if (workspacegroup_is_empty(main->wsg)) {
-		filemodel_set_modified(FILEMODEL(main->wsg), FALSE);
-		gtk_window_destroy(GTK_WINDOW(main));
-	}
 
 	symbol_recalculate_all();
 
@@ -531,6 +523,8 @@ static GActionEntry mainwindow_entries[] = {
 static void
 mainwindow_progress_begin(Progress *progress, Mainwindow *main)
 {
+	printf("mainwindow_progress_begin:\n");
+
 	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(main->progress), 0.0);
 	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(main->progress), "");
 	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->progress_bar), TRUE);
@@ -540,6 +534,9 @@ static void
 mainwindow_progress_update(Progress *progress,
 	gboolean *cancel, Mainwindow *main)
 {
+	printf("mainwindow_progress_update: %d%% %s\n",
+			progress->percent, vips_buf_all(&progress->feedback));
+
 	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->progress_bar), TRUE);
 	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(main->progress),
 		progress->percent / 100.0);
@@ -553,6 +550,8 @@ mainwindow_progress_update(Progress *progress,
 static void
 mainwindow_progress_end(Progress *progress, Mainwindow *main)
 {
+	printf("mainwindow_progress_end:\n");
+
 	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->progress_bar), FALSE);
 }
 
@@ -911,4 +910,12 @@ mainwindow_about(Mainwindow *main, VipsBuf *buf)
 
     vips_buf_append_size(buf,size );
 	vips_buf_appendf(buf, _(" in %d images"), n);
+}
+
+gboolean
+mainwindow_is_empty(Mainwindow *main)
+{
+	// if the error bar is open, the user needs to be able to see it
+	return workspacegroup_is_empty(main->wsg) &&
+		!gtk_action_bar_get_revealed(GTK_ACTION_BAR(main->error_bar));
 }

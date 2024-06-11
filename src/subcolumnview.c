@@ -103,8 +103,12 @@ subcolumnview_child_remove(View *parent, View *child)
 
 	/* rowview_refresh() attaches spin, frame and rhsview to the grid, we need
 	 * to remove them here.
+	 *
+	 * If refresh hasn't been called, these widgets will still be attached to
+	 * the rowview and we mustn't take them off the grid.
 	 */
-	if (sview->grid) {
+	if (sview->grid &&
+		gtk_widget_get_parent(rview->spin) == sview->grid) {
 		gtk_grid_remove(GTK_GRID(sview->grid), rview->spin);
 		gtk_grid_remove(GTK_GRID(sview->grid), rview->frame);
 		if (rview->rhsview)

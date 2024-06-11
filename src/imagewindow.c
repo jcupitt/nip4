@@ -585,16 +585,8 @@ imagewindow_imageui_add(Imagewindow *win, Imageui *imageui)
 {
 	Tilesource *tilesource = imageui_get_tilesource(imageui);
 
-	g_signal_connect_object(tilesource, "preeval",
-		G_CALLBACK(imagewindow_preeval), win, 0);
-	g_signal_connect_object(tilesource, "eval",
-		G_CALLBACK(imagewindow_eval), win, 0);
-	g_signal_connect_object(tilesource, "posteval",
-		G_CALLBACK(imagewindow_posteval), win, 0);
-
 	g_signal_connect_object(tilesource, "changed",
 		G_CALLBACK(imagewindow_tilesource_changed), win, 0);
-
 	g_signal_connect_object(imageui, "changed",
 		G_CALLBACK(imagewindow_imageui_changed), win, 0);
 
