@@ -37,185 +37,14 @@ G_DEFINE_TYPE(Progress, progress, IOBJECT_TYPE)
 
 /* Our signals.
  */
-enum {
+typedef enum _ProgressSignals {
 	SIG_BEGIN,	/* Switch to busy state */
 	SIG_UPDATE, /* Busy progress update */
 	SIG_END,	/* End busy state */
 	SIG_LAST
-};
+} ProgressSignal;
 
 static guint progress_signals[SIG_LAST] = { 0 };
-
-/* Delay before we start showing busy feedback.
- */
-static const double progress_busy_delay = 1.0;
-
-/* Delay between busy updates.
- */
-static const double progress_update_interval = 0.1;
-
-void
-progress_begin(void)
-{
-	Progress *progress = progress_get();
-
-	g_assert(progress->count >= 0);
-
-#ifdef DEBUG
-	printf("progress_begin: %d\n", progress->count);
-#endif /*DEBUG*/
-
-	progress->count += 1;
-
-	if (progress->count == 1) {
-		g_timer_start(progress->busy_timer);
-		g_timer_start(progress->update_timer);
-	}
-}
-
-static void
-progress_update(Progress *progress)
-{
-	/* Don't show the process and cancel button for a bit.
-	 */
-	if (progress->count) {
-		double elapsed = g_timer_elapsed(progress->busy_timer, NULL);
-
-		if (!progress->busy &&
-			elapsed > progress_busy_delay) {
-#ifdef DEBUG
-			printf("progress_update: displaying progress bar\n");
-#endif /*DEBUG*/
-
-			g_signal_emit(G_OBJECT(progress), progress_signals[SIG_BEGIN], 0);
-			progress->busy = TRUE;
-		}
-	}
-
-	/* Update regularly, even if we're not inside a begin/end block.
-	 */
-	if (g_timer_elapsed(progress->update_timer, NULL) >
-		progress_update_interval) {
-		gboolean cancel;
-
-#ifdef DEBUG
-		printf("progress_update:\n");
-#endif /*DEBUG*/
-
-		g_timer_start(progress->update_timer);
-
-		/* Overwrite the message if we're cancelling.
-		 */
-		if (progress->cancel) {
-			vips_buf_rewind(&progress->feedback);
-			vips_buf_appends(&progress->feedback, _("Cancelling"));
-			vips_buf_appends(&progress->feedback, " ...");
-		}
-
-		cancel = FALSE;
-		g_signal_emit(progress, progress_signals[SIG_UPDATE], 0, &cancel);
-		if (cancel)
-			progress->cancel = TRUE;
-
-		/* Rather dangerous, but we need this to give nice updates
-		 * for the feedback thing.
-		 */
-		process_events();
-	}
-}
-
-gboolean
-progress_update_percent(int percent, int eta)
-{
-	Progress *progress = progress_get();
-
-	// values of zero make no sense
-	eta += 1;
-
-	vips_buf_rewind(&progress->feedback);
-	if (eta > 30) {
-		int minutes = (eta + 30) / 60;
-
-		vips_buf_appendf(&progress->feedback,
-			ngettext("%d minute left", "%d minutes left", minutes), minutes);
-	}
-	else
-		vips_buf_appendf(&progress->feedback,
-			ngettext("%d second left", "%d seconds left", eta), eta);
-
-	progress->percent = percent;
-
-	progress_update(progress);
-
-	return progress->cancel;
-}
-
-gboolean
-progress_update_expr(Expr *expr)
-{
-	Progress *progress = progress_get();
-
-	vips_buf_rewind(&progress->feedback);
-	vips_buf_appends(&progress->feedback, _("Calculating"));
-	vips_buf_appends(&progress->feedback, " ");
-	if (expr)
-		expr_name(expr, &progress->feedback);
-	else
-		vips_buf_appends(&progress->feedback, symbol_get_last_calc());
-	vips_buf_appends(&progress->feedback, " ...");
-	progress->percent = 0;
-
-	progress_update(progress);
-
-	return progress->cancel;
-}
-
-gboolean
-progress_update_loading(int percent, const char *filename)
-{
-	Progress *progress = progress_get();
-
-	vips_buf_rewind(&progress->feedback);
-	vips_buf_appends(&progress->feedback, _("Loading"));
-	vips_buf_appendf(&progress->feedback, " \"%s\"", filename);
-	progress->percent = percent;
-
-	progress_update(progress);
-
-	return progress->cancel;
-}
-
-gboolean
-progress_update_tick(void)
-{
-	Progress *progress = progress_get();
-
-	progress_update(progress);
-
-	return progress->cancel;
-}
-
-void
-progress_end(void)
-{
-	Progress *progress = progress_get();
-
-	progress->count -= 1;
-
-#ifdef DEBUG
-	printf("progress_end: %d\n", progress->count);
-#endif /*DEBUG*/
-
-	g_assert(progress->count >= 0);
-
-	if (!progress->count) {
-		if (progress->busy)
-			g_signal_emit(G_OBJECT(progress), progress_signals[SIG_END], 0);
-
-		progress->cancel = FALSE;
-		progress->busy = FALSE;
-	}
-}
 
 static void
 progress_class_init(ProgressClass *class)
@@ -280,3 +109,221 @@ progress_get(void)
 
 	return progress;
 }
+
+typedef struct _ProgressEvent {
+	ProgressSignal signal;
+	int percent;
+	int eta;
+	char *message;
+} ProgressEvent;
+
+static ProgressEvent *
+progress_event_new(ProgressSignal signal,
+	int percent, int eta, const char *message)
+{
+	ProgressEvent *event = g_new0(ProgressEvent, 1);
+
+	event->signal = signal;
+	event->percent = percent;
+	event->eta = eta;
+	event->message = g_strdup(message);
+
+	return event;
+}
+
+static void
+progress_event_free(ProgressEvent *event)
+{
+	VIPS_FREE(event->message);
+	VIPS_FREE(event);
+}
+
+static gboolean
+progress_event_idle(void *user_data)
+{
+	ProgressEvent *event = (ProgressEvent *) user_data;
+	Progress *progress = progress_get();
+
+	switch (event->signal) {
+	case SIG_BEGIN:
+		progress->count += 1;
+
+		if (progress->count == 1) {
+			g_timer_start(progress->busy_timer);
+			g_timer_start(progress->update_timer);
+		}
+
+		// don't emit BEGIN right away, we want to wait a moment
+		break;
+
+	case SIG_UPDATE:
+		if (progress->count) {
+			double elapsed = g_timer_elapsed(progress->busy_timer, NULL);
+
+			if (!progress->busy &&
+				elapsed > 0.5) {
+
+				g_signal_emit(G_OBJECT(progress),
+					progress_signals[SIG_BEGIN], 0);
+				progress->busy = TRUE;
+			}
+		}
+
+		/* Overwrite the message if we're cancelling.
+		 */
+		vips_buf_rewind(&progress->feedback);
+		if (progress->cancel) {
+			vips_buf_appends(&progress->feedback, _("Cancelling"));
+			vips_buf_appends(&progress->feedback, " ...");
+		}
+		else
+			vips_buf_appends(&progress->feedback, event->message);
+
+		progress->percent = event->percent;
+		progress->eta = event->eta;
+
+		gboolean cancel = FALSE;
+		g_signal_emit(progress, progress_signals[SIG_UPDATE], 0, &cancel);
+		if (cancel)
+			progress->cancel = TRUE;
+
+		break;
+
+	case SIG_END:
+		progress->count -= 1;
+
+		g_assert(progress->count >= 0);
+		if (!progress->count) {
+			if (progress->busy)
+				g_signal_emit(G_OBJECT(progress), progress_signals[SIG_END], 0);
+			progress->cancel = FALSE;
+			progress->busy = FALSE;
+		}
+		break;
+
+	default:
+		break;
+	}
+
+	progress_event_free(event);
+
+	return FALSE;
+}
+
+static void
+progress_event_signal(ProgressEvent *event)
+{
+	Progress *progress = progress_get();
+
+	double time_now;
+
+	/* Throttle update events to 10Hz.
+	 */
+	if (event->signal == SIG_UPDATE) {
+		time_now = g_timer_elapsed(progress->update_timer, NULL);
+
+		if (time_now - progress->last_update_time < 0.1) {
+			progress_event_free(event);
+			return;
+		}
+
+		progress->last_update_time = time_now;
+    }
+
+	g_idle_add(progress_event_idle, event);
+}
+
+void
+progress_begin(void)
+{
+	ProgressEvent *event = progress_event_new(SIG_BEGIN, 0, 0, "");
+	progress_event_signal(event);
+}
+
+gboolean
+progress_update_percent(int percent, int eta)
+{
+	Progress *progress = progress_get();
+
+	char text[256];
+	VipsBuf message = VIPS_BUF_STATIC(text);
+
+	// values of zero make no sense
+	eta += 1;
+
+	if (eta > 30) {
+		int minutes = (eta + 30) / 60;
+
+		vips_buf_appendf(&message,
+			ngettext("%d minute left", "%d minutes left", minutes), minutes);
+	}
+	else
+		vips_buf_appendf(&message,
+			ngettext("%d second left", "%d seconds left", eta), eta);
+
+	ProgressEvent *event =
+		progress_event_new(SIG_UPDATE, percent, eta, vips_buf_all(&message));
+	progress_event_signal(event);
+
+	return progress->cancel;
+}
+
+gboolean
+progress_update_expr(Expr *expr)
+{
+	Progress *progress = progress_get();
+
+	char text[256];
+	VipsBuf message = VIPS_BUF_STATIC(text);
+
+	vips_buf_appends(&message, _("Calculating"));
+	vips_buf_appends(&message, " ");
+	if (expr)
+		expr_name(expr, &message);
+	else
+		vips_buf_appends(&message, symbol_get_last_calc());
+	vips_buf_appends(&message, " ...");
+
+	ProgressEvent *event =
+		progress_event_new(SIG_UPDATE, 0, 0, vips_buf_all(&message));
+	progress_event_signal(event);
+
+	return progress->cancel;
+}
+
+gboolean
+progress_update_loading(int percent, const char *filename)
+{
+	Progress *progress = progress_get();
+
+	char text[256];
+	VipsBuf message = VIPS_BUF_STATIC(text);
+
+	vips_buf_appends(&message, _("Loading"));
+	vips_buf_appendf(&message, " \"%s\"", filename);
+
+	ProgressEvent *event =
+		progress_event_new(SIG_UPDATE, percent, 0, vips_buf_all(&message));
+	progress_event_signal(event);
+
+	return progress->cancel;
+}
+
+gboolean
+progress_update_tick(void)
+{
+	Progress *progress = progress_get();
+
+	ProgressEvent *event = progress_event_new(SIG_UPDATE, 0, 0, "");
+	progress_event_signal(event);
+
+	return progress->cancel;
+}
+
+void
+progress_end(void)
+{
+	ProgressEvent *event = progress_event_new(SIG_END, 0, 0, "");
+	progress_event_signal(event);
+}
+

@@ -537,7 +537,6 @@ mainwindow_progress_update(Progress *progress,
 	printf("mainwindow_progress_update: %d%% %s\n",
 			progress->percent, vips_buf_all(&progress->feedback));
 
-	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->progress_bar), TRUE);
 	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(main->progress),
 		progress->percent / 100.0);
 	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(main->progress),

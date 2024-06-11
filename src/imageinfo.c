@@ -612,10 +612,19 @@ imageinfo_proxy_eval(VipsImage *im, VipsProgress *progress,
 {
 	Imageinfo *imageinfo = proxy->imageinfo;
 
-	if (imageinfo && imageinfo->im->time)
-		if (progress_update_percent(imageinfo->im->time->percent,
-				imageinfo->im->time->eta))
+	if (imageinfo && imageinfo->im->time) {
+		gboolean cancel;
+
+		if (imageinfo_is_from_file(imageinfo))
+			cancel = progress_update_loading(imageinfo->im->time->percent,
+					IOBJECT(imageinfo)->name);
+		else
+			cancel = progress_update_percent(imageinfo->im->time->percent,
+				imageinfo->im->time->eta);
+
+		if (cancel)
 			vips_image_set_kill(imageinfo->im, TRUE);
+	}
 }
 
 static int

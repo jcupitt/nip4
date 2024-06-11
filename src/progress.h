@@ -54,6 +54,7 @@ typedef struct _Progress {
 	 */
 	GTimer *busy_timer;
 	GTimer *update_timer;
+	double last_update_time;
 
 	/* Trying to cancel.
 	 */
@@ -69,6 +70,7 @@ typedef struct _Progress {
 	VipsBuf feedback;
 	char buf[PROGRESS_FEEDBACK_SIZE];
 	int percent;
+	int eta;
 } Progress;
 
 typedef struct _ProgressClass {

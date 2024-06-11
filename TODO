@@ -1,11 +1,7 @@
 
-- sometimes leave the progress bar open?
+- next/prev in imagewindow often fail
 
-	do we need something to update the progress bar from a background
-	thread? imagewindow used to have code for this ... pushed events to an
-	idle queue
-
-- next/prev image often fail
+	to do with background load and region ownership
 
 - need something to make sure only one image loads at once?
 
