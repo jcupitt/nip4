@@ -1,18 +1,34 @@
+- remove imagewindow progress bar
+
+- sometimes leave the progress bar open?
+
+
+- try
+
+	nip4 suit/*.jpg
+
+  you get a separate ws window for each image
+
+	mainwindow_open() must load image files into the ws you pass in,
+	and must make a new mainwindow for any workspace files
+
+	at the end of load, cull any empty workspaces if we have more than 1
+	workspace
+
+
+
+  need something to make sure only one loads at once?
 
 - fix animated GIF support
 
 	workspace icons don't animate, although tilesource is doing page flips
 
-- temp files are appearing in /tmp, not ~/.nip4
-
-	need to set TMPDIR
-
-	see the end of path_init() ... setting TMPDIR breaks imagewindow popup
-	very strange
-
 - try:
 
 	nip4 file-that-doesnt-exist
+
+  get a segv in subcolumnview_child_remove() as it tries to remove the broken
+  Image_file row
 
 - there's a 20ms timeout in vobject_refresh_queue() ... tune this
 
@@ -28,8 +44,6 @@
 	0x5555595c1860 Workspaceview count=1
 
 ## imagewindow
-
-- remove "duplicate window" from imagewindow
 
 - "open" button image imagewindow does not work
 

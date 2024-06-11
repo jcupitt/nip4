@@ -1037,6 +1037,8 @@ tilesource_background_load_done_idle(void *user_data)
 	/* You can now fetch pixels.
 	 */
 	g_object_set(tilesource, "loaded", TRUE, NULL);
+	tilesource_update_display(tilesource);
+	tilesource_changed(tilesource);
 
 	/* Drop the ref that kept this tilesource alive during load, see
 	 * tilesource_background_load().
@@ -1770,13 +1772,6 @@ tilesource_new_from_file(const char *filename)
 void
 tilesource_background_load(Tilesource *tilesource)
 {
-	/* This will be set TRUE again at the end of the background
-	 * load, in turn that will trigger tilesource_update_display() for us.
-	 */
-	g_object_set(tilesource,
-		"loaded", FALSE,
-		NULL);
-
 	/* We ref this tilesource so it won't die before the
 	 * background load is done. The matching unref is at the end
 	 * of bg load in tilesource_background_load_done_idle().

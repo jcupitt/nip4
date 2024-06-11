@@ -197,6 +197,8 @@ mainwindow_open_workspace(Mainwindow *main, const char *filename)
 		gtk_window_destroy(GTK_WINDOW(main));
 	}
 
+	symbol_recalculate_all();
+
 	return TRUE;
 }
 
@@ -589,12 +591,12 @@ mainwindow_init(Mainwindow *main)
 	) */
 
 	Progress *progress = progress_get();
-	g_signal_connect(progress, "begin",
-		G_CALLBACK(mainwindow_progress_begin), main);
-	g_signal_connect(progress, "update",
-		G_CALLBACK(mainwindow_progress_update), main);
-	g_signal_connect(progress, "end",
-		G_CALLBACK(mainwindow_progress_end), main);
+	g_signal_connect_object(progress, "begin",
+		G_CALLBACK(mainwindow_progress_begin), main, 0);
+	g_signal_connect_object(progress, "update",
+		G_CALLBACK(mainwindow_progress_update), main, 0);
+	g_signal_connect_object(progress, "end",
+		G_CALLBACK(mainwindow_progress_end), main, 0);
 
     mainwindow_all = g_slist_prepend(mainwindow_all, main);
 }

@@ -101,9 +101,6 @@ struct _Imagewindow {
 	GtkWidget *title;
 	GtkWidget *subtitle;
 	GtkWidget *gears;
-	GtkWidget *progress_bar;
-	GtkWidget *progress;
-	GtkWidget *progress_cancel;
 	GtkWidget *error_bar;
 	GtkWidget *error_label;
 	GtkWidget *main_box;
@@ -111,11 +108,6 @@ struct _Imagewindow {
 	GtkWidget *properties;
 	GtkWidget *display_bar;
 	GtkWidget *info_bar;
-
-	/* Throttle progress bar updates to a few per second with this.
-	 */
-	GTimer *progress_timer;
-	double last_progress_time;
 
 	/* The set of active images in the stack right now. These are not
 	 * references.
@@ -456,92 +448,6 @@ imagewindow_reset_view(Imagewindow *win)
 	}
 }
 
-static void
-imagewindow_preeval(VipsImage *image,
-	VipsProgress *progress, Imagewindow *win)
-{
-	gtk_action_bar_set_revealed(GTK_ACTION_BAR(win->progress_bar), TRUE);
-}
-
-typedef struct _EvalUpdate {
-	Imagewindow *win;
-	int eta;
-	int percent;
-} EvalUpdate;
-
-static gboolean
-imagewindow_eval_idle(void *user_data)
-{
-	EvalUpdate *update = (EvalUpdate *) user_data;
-	Imagewindow *win = update->win;
-
-	char str[256];
-	VipsBuf buf = VIPS_BUF_STATIC(str);
-
-	vips_buf_appendf(&buf, "%d%% complete, %d seconds to go",
-		update->percent, update->eta);
-	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(win->progress),
-		vips_buf_all(&buf));
-
-	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(win->progress),
-		update->percent / 100.0);
-
-	g_object_unref(win);
-
-	g_free(update);
-
-	return FALSE;
-}
-
-static void
-imagewindow_eval(VipsImage *image,
-	VipsProgress *progress, Imagewindow *win)
-{
-	double time_now;
-	EvalUpdate *update;
-
-	/* We can be ^Q'd during load. This is NULLed in _dispose.
-	 */
-	if (!win->progress_timer)
-		return;
-
-	time_now = g_timer_elapsed(win->progress_timer, NULL);
-
-	/* Throttle to 10Hz.
-	 */
-	if (time_now - win->last_progress_time < 0.1)
-		return;
-	win->last_progress_time = time_now;
-
-#ifdef DEBUG_VERBOSE
-	printf("imagewindow_eval: %d%%\n", progress->percent);
-#endif /*DEBUG_VERBOSE*/
-
-	/* This can come from the background load thread, so we can't update
-	 * the UI directly.
-	 */
-
-	update = g_new(EvalUpdate, 1);
-
-	update->win = win;
-	update->percent = progress->percent;
-	update->eta = progress->eta;
-
-	/* We don't want win to vanish before we process this update. The
-	 * matching unref is in the handler above.
-	 */
-	g_object_ref(win);
-
-	g_idle_add(imagewindow_eval_idle, update);
-}
-
-static void
-imagewindow_posteval(VipsImage *image,
-	VipsProgress *progress, Imagewindow *win)
-{
-	gtk_action_bar_set_revealed(GTK_ACTION_BAR(win->progress_bar), FALSE);
-}
-
 /* Save and restore view setttings.
  */
 
@@ -860,7 +766,6 @@ imagewindow_dispose(GObject *object)
 	FREESID(win->iimage_changed_sid, win->iimage);
 	FREESID(win->iimage_destroy_sid, win->iimage);
 	VIPS_FREEF(gtk_widget_unparent, win->right_click_menu);
-	VIPS_FREEF(g_timer_destroy, win->progress_timer);
 
 	G_OBJECT_CLASS(imagewindow_parent_class)->dispose(object);
 }
@@ -1484,7 +1389,6 @@ imagewindow_init(Imagewindow *win)
 	puts("imagewindow_init");
 #endif /*DEBUG*/
 
-	win->progress_timer = g_timer_new();
 	win->settings = g_settings_new(APPLICATION_ID);
 
 	gtk_widget_init_template(GTK_WIDGET(win));
@@ -1496,8 +1400,6 @@ imagewindow_init(Imagewindow *win)
 		"image-window", win,
 		NULL);
 
-	g_signal_connect_object(win->progress_cancel, "clicked",
-		G_CALLBACK(imagewindow_cancel_clicked), win, 0);
 	g_signal_connect_object(win->error_bar, "response",
 		G_CALLBACK(imagewindow_error_response), win, 0);
 
@@ -1585,9 +1487,6 @@ imagewindow_class_init(ImagewindowClass *class)
 	BIND(title);
 	BIND(subtitle);
 	BIND(gears);
-	BIND(progress_bar);
-	BIND(progress);
-	BIND(progress_cancel);
 	BIND(error_bar);
 	BIND(error_label);
 	BIND(main_box);
