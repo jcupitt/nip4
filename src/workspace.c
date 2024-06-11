@@ -585,7 +585,7 @@ gboolean
 workspace_load_file_buf(VipsBuf *buf, const char *filename)
 {
 	if (callv_string_filenamef(
-			(callv_string_fn) vips_format_for_file, "%s", filename))
+			(callv_string_fn) vips_foreign_find_load, "%s", filename))
 		vips_buf_appends(buf, "Image_file");
 	else
 		vips_buf_appends(buf, "Matrix_file");

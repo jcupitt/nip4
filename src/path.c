@@ -629,4 +629,8 @@ path_init(void)
 	printf("\n");
 
 	printf("path_tmp_default = %s\n", path_tmp_default);
+
+	// make libvips save temps to ~/.nip4-xxx/tmp etc.
+	expand_variables(path_tmp_default, buf);
+	g_setenv("TMPDIR", buf, TRUE);
 }

@@ -696,7 +696,6 @@ imagewindow_imageui_add(Imagewindow *win, Imageui *imageui)
 
 	imagewindow_active_add(win, imageui);
 
-	// now it's in the UI, trigger a load
 	tilesource_background_load(tilesource);
 }
 

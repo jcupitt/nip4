@@ -1,8 +1,18 @@
 
-- we don't pop up the main window until toolkits have finished loading --
-  could we do this earlier?
+- fix animated GIF support
+
+	workspace icons don't animate, although tilesource is doing page flips
 
 - temp files are appearing in /tmp, not ~/.nip4
+
+	need to set TMPDIR
+
+	see the end of path_init() ... setting TMPDIR breaks imagewindow popup
+	very strange
+
+- try:
+
+	nip4 file-that-doesnt-exist
 
 - there's a 20ms timeout in vobject_refresh_queue() ... tune this
 

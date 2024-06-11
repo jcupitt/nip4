@@ -31,8 +31,8 @@
 
 /*
 #define DEBUG_VERBOSE
-#define DEBUG
  */
+#define DEBUG
 
 // the focus colour we paint
 // FIXME ... we should somehow get this from the theme, I'm not sure how

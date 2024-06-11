@@ -710,7 +710,7 @@ view_real_child_remove(View *parent, View *child)
 
 	/* This will be the final unref and trigger child dispose.
 	 */
-	g_object_unref(child);
+    g_object_unref(child);
 }
 
 static void
