@@ -28,9 +28,9 @@
  */
 
 /*
- */
 #define DEBUG_VERBOSE
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -1036,7 +1036,10 @@ tilesource_background_load_done_idle(void *user_data)
 
 	/* You can now fetch pixels.
 	 */
-	g_object_set(tilesource, "loaded", TRUE, NULL);
+	g_object_set(tilesource,
+			"loaded", TRUE,
+			"visible", TRUE,
+			NULL);
 	tilesource_update_display(tilesource);
 	tilesource_changed(tilesource);
 

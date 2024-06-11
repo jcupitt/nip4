@@ -192,7 +192,6 @@ progress_event_idle(void *user_data)
 	case SIG_END:
 		progress->count -= 1;
 
-		g_assert(progress->count >= 0);
 		if (!progress->count) {
 			if (progress->busy)
 				g_signal_emit(G_OBJECT(progress), progress_signals[SIG_END], 0);

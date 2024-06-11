@@ -3,14 +3,15 @@
 
 	to do with background load and region ownership
 
+	a libvips release build hides the error
+
+- need something to make next/prev block while the current image is loading
+
+	we had this, when dod it go?
+
+	need it back anyway
+
 - need something to make sure only one image loads at once?
-
-- fix animated GIF support
-
-	workspace icons don't animate, although tilesource is doing page flips
-
-	open a viewer, change the mode a few times, workspace icon starts
-	animating
 
 - there's a 20ms timeout in vobject_refresh_queue() ... tune this
 
