@@ -112,6 +112,8 @@ typedef struct _ViewClass {
 	void (*action)(GSimpleAction *action, GVariant *parameter, View *view);
 } ViewClass;
 
+void view_dump(void);
+
 void view_scannable_register(View *view);
 void view_scannable_unregister(View *view);
 gboolean view_scan_all(void);

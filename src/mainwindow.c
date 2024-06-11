@@ -234,6 +234,8 @@ mainwindow_open_definition(Mainwindow *main, const char *filename)
 
 	symbol_recalculate_all();
 
+	gtk_window_present(GTK_WINDOW(main));
+
 	return TRUE;
 }
 
@@ -787,16 +789,12 @@ mainwindow_new(App *app)
 		"application", app,
 		NULL);
 
-	printf("mainwindow_new: FIXME .. make col A?\n");
-
 	/* Make a start workspace and workspacegroup to load
 	 * stuff into.
-	Workspacegroup *wsg = workspacegroup_new_blank(main_workspaceroot, NULL);
-	Workspace *ws = WORKSPACE(icontainer_get_nth_child(ICONTAINER(wsg), 0));
-	mainwindow_set_wsg(main, wsg);
-
-	mainwindow_set_gfile(main, NULL);
 	 */
+	Workspacegroup *wsg = workspacegroup_new_blank(main_workspaceroot, NULL);
+	mainwindow_set_wsg(main, wsg);
+	mainwindow_set_gfile(main, NULL);
 
 	// we can't do this in _init() since we need app to be set
 	mainwindow_init_settings(main);

@@ -68,16 +68,13 @@ workspacegroup_workspace_pick(Workspacegroup *wsg)
 	printf("workspacegroup_workspace_pick:\n");
 
 	if ((ws = workspacegroup_get_workspace(wsg)))
-		return ws;
-
-	if (ICONTAINER(wsg)->children) {
+		;
+	else if (ICONTAINER(wsg)->children) {
 		ws = WORKSPACE(ICONTAINER(wsg)->children->data);
 		icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
-
-		return ws;
 	}
-
-	ws = workspace_new_blank(wsg);
+	else
+		ws = workspace_new_blank(wsg);
 
 	(void) workspace_column_pick(ws);
 

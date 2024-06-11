@@ -99,14 +99,6 @@ app_activate(GApplication *gapp)
 	printf("app_activate:\n");
 
 	main = mainwindow_new(APP(gapp));
-
-	/* Make a start workspace and workspacegroup.
-	 * stuff into.
-	 */
-	Workspacegroup *wsg = workspacegroup_new_blank(main_workspaceroot, NULL);
-	Workspace *ws = WORKSPACE(icontainer_get_nth_child(ICONTAINER(wsg), 0));
-	mainwindow_set_wsg(main, wsg);
-
 	gtk_window_present(GTK_WINDOW(main));
 }
 
@@ -305,7 +297,6 @@ app_open(GApplication *app, GFile **files, int n_files, const char *hint)
 	for (int i = 0; i < n_files; i++) {
 		Mainwindow *main = mainwindow_new(APP(app));
 		mainwindow_open(main, files[i]);
-		gtk_window_present(GTK_WINDOW(main));
 	}
 }
 
