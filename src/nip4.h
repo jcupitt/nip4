@@ -141,6 +141,8 @@ typedef struct _iContainer iContainer;
 typedef struct _iImage iImage;
 typedef struct _iRegion iRegion;
 typedef struct _iRegiongroup iRegiongroup;
+typedef struct _iRegiongroupview iRegiongroupview;
+typedef struct _Regionview Regionview;
 typedef struct _Imageinfogroup Imageinfogroup;
 typedef struct _Imageinfo Imageinfo;
 typedef struct _iText iText;
@@ -264,6 +266,7 @@ typedef struct _Workspace Workspace;
 #include "prefworkspaceview.h"
 #include "workspacegroupview.h"
 #include "workspaceview.h"
+#include "iregiongroupview.h"
 #include "workspaceviewlabel.h"
 #include "itextview.h"
 #include "toolkitview.h"

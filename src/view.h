@@ -129,7 +129,7 @@ GType view_get_type(void);
 
 void view_link(View *view, Model *model, View *parent);
 void view_child_add(View *parent, View *child);
-void view_child_remove(View *child);
+void *view_child_remove(View *child);
 void view_child_position(View *child);
 void view_child_front(View *child);
 

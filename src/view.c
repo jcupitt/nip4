@@ -262,7 +262,7 @@ view_child_add(View *parent, View *child)
 
 /* Remove a child.
  */
-void
+void *
 view_child_remove(View *child)
 {
 	View *parent = child->parent;
@@ -276,6 +276,8 @@ view_child_remove(View *child)
 
 	if (parent)
 		VIEW_GET_CLASS(parent)->child_remove(parent, child);
+
+	return NULL;
 }
 
 /* Child needs repositioning.

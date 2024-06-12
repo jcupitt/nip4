@@ -1,6 +1,12 @@
 
 ## region display
 
+- next
+
+	iregionview.[hc]
+	regionview.[hc]
+	arrow stuff
+
 - how should we draw these? look at the snapshot code again
 
 	eg. the debug tile display?

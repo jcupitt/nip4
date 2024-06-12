@@ -175,7 +175,7 @@ static View *
 iregion_view_new(Model *model, View *parent)
 {
 	printf("iregion_view_new: FIXME\n");
-	//return iregionview_new();
+	// return iregionview_new();
 	return NULL;
 }
 

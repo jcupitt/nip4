@@ -52,7 +52,7 @@ iregiongroup_update_model(Heapmodel *heapmodel)
 	if (heapmodel->row->sym)
 		model_display(MODEL(heapmodel),
 			!is_super(heapmodel->row->sym) &&
-			!is_this(heapmodel->row->sym));
+				!is_this(heapmodel->row->sym));
 
 	return NULL;
 }
@@ -61,7 +61,7 @@ static View *
 iregiongroup_view_new(Model *model, View *parent)
 {
 	printf("iregiongroup_view_new: FIXME\n");
-	//return iregiongroupview_new();
+	// return iregiongroupview_new();
 	return NULL;
 }
 

@@ -52,7 +52,7 @@
 /* Look up an object's parent class dynamically.
  */
 #define PARENT_CLASS_DYNAMIC(OBJECT) \
-    (g_type_class_peek(g_type_parent(G_TYPE_FROM_INSTANCE(OBJECT))))
+	(g_type_class_peek(g_type_parent(G_TYPE_FROM_INSTANCE(OBJECT))))
 
 void set_symbol_drag_type(GtkWidget *widget);
 
