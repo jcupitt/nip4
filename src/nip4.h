@@ -266,6 +266,7 @@ typedef struct _Workspace Workspace;
 #include "prefworkspaceview.h"
 #include "workspacegroupview.h"
 #include "workspaceview.h"
+#include "iregionview.h"
 #include "iregiongroupview.h"
 #include "workspaceviewlabel.h"
 #include "itextview.h"

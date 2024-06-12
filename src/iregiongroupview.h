@@ -32,7 +32,7 @@
 	(G_TYPE_CHECK_INSTANCE_CAST((obj), IREGIONGROUPVIEW_TYPE, iRegiongroupview))
 #define IREGIONGROUPVIEW_CLASS(klass) \
 	(G_TYPE_CHECK_CLASS_CAST((klass), IREGIONGROUPVIEW_TYPE, \
-		 iRegiongroupviewClass))
+		iRegiongroupviewClass))
 #define IS_IREGIONGROUPVIEW(obj) \
 	(G_TYPE_CHECK_INSTANCE_TYPE((obj), IREGIONGROUPVIEW_TYPE))
 #define IS_IREGIONGROUPVIEW_CLASS(klass) \

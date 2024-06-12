@@ -41,6 +41,7 @@ sources = files (
   'iregion.c',
   'iregiongroup.c',
   'iregiongroupview.c',
+  'iregionview.c',
   'imagedisplay.c',
   'imageinfo.c',
   'imageui.c',
