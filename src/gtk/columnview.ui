@@ -101,6 +101,9 @@
                         <property name="margin-top">3</property>
                         <property name="margin-start">55</property>
                         <signal name="activate" handler="columnview_activate"/>
+                        <style>
+                          <class name="column_entry"/>
+                        </style>
 	              </object>
                     </child>
 

@@ -33,5 +33,7 @@
   font-style: italic;
 }
 
-
+.column_entry > text {
+  background-color: #5D7555;
+}
 

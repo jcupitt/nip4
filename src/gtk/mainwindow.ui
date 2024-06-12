@@ -183,6 +183,7 @@
             <child type="end">
               <object class="GtkButton">
                 <property name="label">OK</property>
+                <property name="valign">center</property>
                 <signal name="clicked"
                     handler="mainwindow_error_close_clicked"/>
               </object>

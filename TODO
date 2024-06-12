@@ -1,3 +1,8 @@
+- formula could use a stack to flip between test and edit?
+
+	at the moment we use set_visible
+
+- give the entry at the bottom of the column a very dark green background
 
 - next/prev in imagewindow often fail
 
@@ -7,7 +12,7 @@
 
 - need something to make next/prev block while the current image is loading
 
-	we had this, when dod it go?
+	we had this, when did it go?
 
 	need it back anyway
 
@@ -28,13 +33,15 @@
 
 ## imagewindow
 
-- "open" button image imagewindow does not work
-
 - fix imagewindow copy/paste
 
   add copy/paste to mainwindow as well
 
 - add region display
+
+	how should we draw these? look at the snapshot code again
+
+	eg. the debug tile display?
 
 ## vips8
 

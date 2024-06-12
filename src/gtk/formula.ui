@@ -17,6 +17,8 @@
             <property name="hexpand">true</property>
             <property name="halign">start</property>
             <property name="valign">center</property>
+            <property name="margin-top">9</property>
+            <property name="margin-bottom">8</property>
           </object>
         </child>
 
