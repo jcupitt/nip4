@@ -165,7 +165,7 @@ mainwindow_dispose(GObject *object)
 	IDESTROY(main->wsg);
 	VIPS_FREEF(g_source_remove, main->refresh_timeout);
 
-    mainwindow_all = g_slist_remove(mainwindow_all, main);
+	mainwindow_all = g_slist_remove(mainwindow_all, main);
 
 	G_OBJECT_CLASS(mainwindow_parent_class)->dispose(object);
 }
@@ -200,7 +200,7 @@ mainwindow_get_workspace(Mainwindow *main)
 	Workspace *ws;
 
 	if (!main->wsg) {
-	   	Workspacegroup *wsg =
+		Workspacegroup *wsg =
 			workspacegroup_new_blank(main_workspaceroot, NULL);
 		mainwindow_set_wsg(main, wsg);
 	}
@@ -535,7 +535,7 @@ mainwindow_progress_update(Progress *progress,
 	gboolean *cancel, Mainwindow *main)
 {
 	printf("mainwindow_progress_update: %d%% %s\n",
-			progress->percent, vips_buf_all(&progress->feedback));
+		progress->percent, vips_buf_all(&progress->feedback));
 
 	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(main->progress),
 		progress->percent / 100.0);
@@ -596,7 +596,7 @@ mainwindow_init(Mainwindow *main)
 	g_signal_connect_object(progress, "end",
 		G_CALLBACK(mainwindow_progress_end), main, 0);
 
-    mainwindow_all = g_slist_prepend(mainwindow_all, main);
+	mainwindow_all = g_slist_prepend(mainwindow_all, main);
 }
 
 static void
@@ -825,16 +825,16 @@ static void *
 mainwindow_cull_sub(Mainwindow *main)
 {
 	printf("mainwindow_cull_sub: %p %s, n_children = %d\n",
-			main,
-			FILEMODEL(main->wsg)->filename,
-			icontainer_get_n_children(ICONTAINER(main->wsg)));
-    if (icontainer_get_n_children(ICONTAINER(main->wsg)) == 0) {
+		main,
+		FILEMODEL(main->wsg)->filename,
+		icontainer_get_n_children(ICONTAINER(main->wsg)));
+	if (icontainer_get_n_children(ICONTAINER(main->wsg)) == 0) {
 		printf("mainwindow_cull_sub: killing window\n");
-        filemodel_set_modified(FILEMODEL(main->wsg), FALSE);
+		filemodel_set_modified(FILEMODEL(main->wsg), FALSE);
 		gtk_window_destroy(GTK_WINDOW(main));
-    }
+	}
 
-    return NULL;
+	return NULL;
 }
 
 void
@@ -842,72 +842,71 @@ mainwindow_cull(void)
 {
 	printf("mainwindow_cull:\n");
 
-    slist_map(mainwindow_all,
-        (SListMapFn) mainwindow_cull_sub, NULL);
+	slist_map(mainwindow_all,
+		(SListMapFn) mainwindow_cull_sub, NULL);
 }
 
 static void
-mainwindow_find_disc( VipsBuf *buf )
+mainwindow_find_disc(VipsBuf *buf)
 {
-    double sz = find_space( PATH_TMP );
-
+	double sz = find_space(PATH_TMP);
 }
 
 static void *
-mainwindow_count_images( VipsObject *object, int *n )
+mainwindow_count_images(VipsObject *object, int *n)
 {
-    if (VIPS_IS_IMAGE(object))
-        *n += 1;
+	if (VIPS_IS_IMAGE(object))
+		*n += 1;
 
-    return NULL;
+	return NULL;
 }
 
 static void *
 mainwindow_size_images(VipsObject *object, size_t *size)
 {
-    if (VIPS_IS_IMAGE(object))
-        *size += VIPS_IMAGE_SIZEOF_IMAGE( VIPS_IMAGE( object ) );
+	if (VIPS_IS_IMAGE(object))
+		*size += VIPS_IMAGE_SIZEOF_IMAGE(VIPS_IMAGE(object));
 
-    return NULL;
+	return NULL;
 }
 
 void
 mainwindow_about(Mainwindow *main, VipsBuf *buf)
 {
-    double sz = find_space(PATH_TMP);
+	double sz = find_space(PATH_TMP);
 
-    if (sz < 0)
-        vips_buf_appendf(buf, _("no temp area\n"));
-    else {
-        char txt[MAX_STRSIZE];
-        VipsBuf buf2 = VIPS_BUF_STATIC(txt);
+	if (sz < 0)
+		vips_buf_appendf(buf, _("no temp area\n"));
+	else {
+		char txt[MAX_STRSIZE];
+		VipsBuf buf2 = VIPS_BUF_STATIC(txt);
 
-        vips_buf_append_size(&buf2, sz);
-        vips_buf_appendf(buf, _("%s free"), vips_buf_all(&buf2));
+		vips_buf_append_size(&buf2, sz);
+		vips_buf_appendf(buf, _("%s free"), vips_buf_all(&buf2));
 
-        vips_buf_appendf(buf, _(" in \"%s\"\n"), PATH_TMP);
-    }
+		vips_buf_appendf(buf, _(" in \"%s\"\n"), PATH_TMP);
+	}
 
-    Heap *heap = reduce_context->heap;
+	Heap *heap = reduce_context->heap;
 	vips_buf_appendf(buf,
-			_("%d cells in heap, %d cells free, %d cells maximum\n"),
-			heap->ncells, heap->nfree, heap->max_fn(heap));
+		_("%d cells in heap, %d cells free, %d cells maximum\n"),
+		heap->ncells, heap->nfree, heap->max_fn(heap));
 
-    if (main->wsg)
-        vips_buf_appendf(buf, _("%d objects in workspace\n"),
-            workspacegroup_get_n_objects(main->wsg));
+	if (main->wsg)
+		vips_buf_appendf(buf, _("%d objects in workspace\n"),
+			workspacegroup_get_n_objects(main->wsg));
 
 	vips_buf_appendf(buf, _("using %d threads\n"), vips_concurrency_get());
 
-    size_t size;
-    int n;
+	size_t size;
+	int n;
 
-    size = 0;
-    n = 0;
-    vips_object_map((VipsSListMap2Fn) mainwindow_size_images, &size, NULL);
-    vips_object_map((VipsSListMap2Fn) mainwindow_count_images, &n, NULL);
+	size = 0;
+	n = 0;
+	vips_object_map((VipsSListMap2Fn) mainwindow_size_images, &size, NULL);
+	vips_object_map((VipsSListMap2Fn) mainwindow_count_images, &n, NULL);
 
-    vips_buf_append_size(buf,size );
+	vips_buf_append_size(buf, size);
 	vips_buf_appendf(buf, _(" in %d images"), n);
 }
 

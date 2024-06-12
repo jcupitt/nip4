@@ -223,8 +223,8 @@ iimageview_refresh(vObject *vobject)
 
 	Tilesource *current_tilesource;
 	g_object_get(iimageview->imagedisplay,
-			"tilesource", &current_tilesource,
-			NULL);
+		"tilesource", &current_tilesource,
+		NULL);
 	if (current_tilesource != iimage->tilesource) {
 		g_object_set(iimageview->imagedisplay,
 			"bestfit", TRUE,

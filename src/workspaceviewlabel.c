@@ -256,7 +256,6 @@ workspaceviewlabel_class_init(WorkspaceviewlabelClass *class)
 			_("Edit tab name"),
 			FALSE,
 			G_PARAM_READWRITE));
-
 }
 
 Workspaceviewlabel *

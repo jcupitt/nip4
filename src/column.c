@@ -162,8 +162,7 @@ column_parent_add(iContainer *child)
 static View *
 column_view_new(Model *model, View *parent)
 {
-	return IS_PREFWORKSPACEVIEW(parent) ?
-		prefcolumnview_new() : columnview_new();
+	return IS_PREFWORKSPACEVIEW(parent) ? prefcolumnview_new() : columnview_new();
 }
 
 static xmlNode *
@@ -208,7 +207,7 @@ column_save_test(Model *model)
 		/* Only save columns containing selected rows.
 		 */
 		return column_map(col,
-			(row_map_fn) row_is_selected, NULL, NULL) != NULL;
+				   (row_map_fn) row_is_selected, NULL, NULL) != NULL;
 
 	return TRUE;
 }

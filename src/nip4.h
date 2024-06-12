@@ -139,6 +139,8 @@ typedef struct _Heap Heap;
 typedef struct _Heapmodel Heapmodel;
 typedef struct _iContainer iContainer;
 typedef struct _iImage iImage;
+typedef struct _iRegion iRegion;
+typedef struct _iRegiongroup iRegiongroup;
 typedef struct _Imageinfogroup Imageinfogroup;
 typedef struct _Imageinfo Imageinfo;
 typedef struct _iText iText;
@@ -233,6 +235,7 @@ typedef struct _Workspace Workspace;
 #include "expr.h"
 #include "itext.h"
 #include "iimage.h"
+#include "iregiongroup.h"
 #include "iregion.h"
 #include "log.h"
 #include "trace.h"

@@ -339,7 +339,7 @@ alert_yesno(GtkWindow *parent, Yesno yesno, void *user_data,
 	(void) vips_vsnprintf(buf, sizeof(buf), format, ap);
 	va_end(ap);
 
-	const char* labels[] = { "Cancel", "OK", NULL };
+	const char *labels[] = { "Cancel", "OK", NULL };
 
 	GtkAlertDialog *alert = gtk_alert_dialog_new("%s", buf);
 	gtk_alert_dialog_set_buttons(alert, labels);

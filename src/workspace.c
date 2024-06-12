@@ -168,7 +168,7 @@ gboolean
 workspace_is_empty(Workspace *ws)
 {
 	return workspace_map_symbol(ws,
-		(symbol_map_fn) workspace_is_empty_sub, NULL) == NULL;
+			   (symbol_map_fn) workspace_is_empty_sub, NULL) == NULL;
 }
 
 /* Map a function over all selected rows in a workspace.
@@ -1538,7 +1538,7 @@ workspace_next_error(Workspace *ws)
 
 	row_qualified_name(ws->last_error->expr->row, &buf);
 	error_top(_("%s in %s"),
-			ws->last_error->expr->error_top, vips_buf_all(&buf));
+		ws->last_error->expr->error_top, vips_buf_all(&buf));
 	error_sub(ws->last_error->expr->error_sub);
 
 	return TRUE;
@@ -1818,4 +1818,3 @@ workspace_duplicate(Workspace *ws)
 
 	return TRUE;
 }
-

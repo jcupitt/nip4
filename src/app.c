@@ -145,8 +145,8 @@ app_about_activated(GSimpleAction *action,
 	static const char *authors[] = {
 		"jcupitt",
 		"angstyloop",
-        "TingPing",
-        "earboxer",
+		"TingPing",
+		"earboxer",
 		NULL
 	};
 
@@ -254,7 +254,6 @@ app_startup(GApplication *app)
 	(void) g_type_class_ref(TYPE_FONTNAME);
 	(void) g_type_class_ref(TYPE_GROUP);
 	(void) g_type_class_ref(TYPE_IARROW);
-	(void) g_type_class_ref(TYPE_IREGION);
 	(void) g_type_class_ref(TYPE_MATRIX);
 	(void) g_type_class_ref(TYPE_NUMBER);
 	(void) g_type_class_ref(TYPE_OPTION);
@@ -269,6 +268,7 @@ app_startup(GApplication *app)
 
 	(void) g_type_class_ref(IMAGEDISPLAY_TYPE);
 	(void) g_type_class_ref(IIMAGE_TYPE);
+	(void) g_type_class_ref(IREGION_TYPE);
 	(void) g_type_class_ref(WORKSPACE_TYPE);
 	(void) g_type_class_ref(COLUMN_TYPE);
 	(void) g_type_class_ref(SUBCOLUMN_TYPE);

@@ -617,7 +617,7 @@ imageinfo_proxy_eval(VipsImage *im, VipsProgress *progress,
 
 		if (imageinfo_is_from_file(imageinfo))
 			cancel = progress_update_loading(imageinfo->im->time->percent,
-					IOBJECT(imageinfo)->name);
+				IOBJECT(imageinfo)->name);
 		else
 			cancel = progress_update_percent(imageinfo->im->time->percent,
 				imageinfo->im->time->eta);

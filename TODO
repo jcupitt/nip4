@@ -1,8 +1,11 @@
-- formula could use a stack to flip between test and edit?
 
-	at the moment we use set_visible
+## region display
 
-- give the entry at the bottom of the column a very dark green background
+- how should we draw these? look at the snapshot code again
+
+	eg. the debug tile display?
+
+## small
 
 - next/prev in imagewindow often fail
 
@@ -36,12 +39,6 @@
 - fix imagewindow copy/paste
 
   add copy/paste to mainwindow as well
-
-- add region display
-
-	how should we draw these? look at the snapshot code again
-
-	eg. the debug tile display?
 
 ## vips8
 

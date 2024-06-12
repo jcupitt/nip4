@@ -227,7 +227,7 @@ progress_event_signal(ProgressEvent *event)
 		}
 
 		progress->last_update_time = time_now;
-    }
+	}
 
 	g_idle_add(progress_event_idle, event);
 }
@@ -325,4 +325,3 @@ progress_end(void)
 	ProgressEvent *event = progress_event_new(SIG_END, 0, 0, "");
 	progress_event_signal(event);
 }
-

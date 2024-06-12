@@ -710,27 +710,27 @@ model_check_destroy_yesno(GtkWidget *parent, void *user_data)
 {
 	Model *model = MODEL(user_data);
 
-    IDESTROY(model);
-    symbol_recalculate_all();
+	IDESTROY(model);
+	symbol_recalculate_all();
 }
 
 void
 model_check_destroy(GtkWidget *parent, Model *model)
 {
 	char txt[30];
-    VipsBuf buf = VIPS_BUF_STATIC( txt );
-    const char *name;
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
+	const char *name;
 
-    if (IS_SYMBOL(model)) {
-        symbol_qualified_name(SYMBOL(model), &buf);
-        name = vips_buf_all(&buf);
-    }
-    else
-        name = IOBJECT(model)->name;
+	if (IS_SYMBOL(model)) {
+		symbol_qualified_name(SYMBOL(model), &buf);
+		name = vips_buf_all(&buf);
+	}
+	else
+		name = IOBJECT(model)->name;
 
 	alert_yesno(view_get_window(parent), model_check_destroy_yesno, model,
-        _("Are you sure you want to delete %s \"%s\"?"),
-        IOBJECT_GET_CLASS_NAME(model), name);
+		_("Are you sure you want to delete %s \"%s\"?"),
+		IOBJECT_GET_CLASS_NAME(model), name);
 }
 
 /* Useful for icontainer_map_all() ... trigger all heapmodel_clear_edited()

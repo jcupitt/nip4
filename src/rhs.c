@@ -161,7 +161,6 @@ static RhsGraphic rhs_graphic[] = {
 	{ CLASS_OPTION, option_get_type },
 	{ CLASS_MATRIX, matrix_get_type },
 	{ CLASS_ARROW, iarrow_get_type },
-	{ CLASS_REGION, iregion_get_type },
 	{ CLASS_PLOT, plot_get_type },
 	{ CLASS_NUMBER, number_get_type },
 	{ CLASS_REAL, real_get_type },
@@ -169,6 +168,7 @@ static RhsGraphic rhs_graphic[] = {
 	{ CLASS_STRING, string_get_type }
 	 */
 
+	{ CLASS_REGION, iregion_get_type },
 	{ CLASS_IMAGE, iimage_get_type },
 };
 
@@ -201,7 +201,8 @@ rhs_refresh_graphic(Rhs *rhs, PElement *root)
 		if (i != VIPS_NUMBER(rhs_graphic)) {
 			GType type = rhs_graphic[i].type();
 
-			if (!rhs->graphic || !TYPE_EXACT(rhs->graphic, type))
+			if (!rhs->graphic ||
+				!TYPE_EXACT(rhs->graphic, type))
 				classmodel_new_classmodel(type, rhs);
 		}
 		else
@@ -442,7 +443,7 @@ rhs_child_edited(Rhs *rhs)
 		return TRUE;
 	else if (rhs->scol)
 		return icontainer_map(ICONTAINER(rhs->scol),
-		   (icontainer_map_fn) rhs_child_edited_sub, NULL, NULL) != NULL;
+				   (icontainer_map_fn) rhs_child_edited_sub, NULL, NULL) != NULL;
 	else
 		return FALSE;
 }

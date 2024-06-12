@@ -152,11 +152,11 @@ workspacegroupview_background_menu(GtkGestureClick *gesture,
 	graphene_point_t wsgview_point = GRAPHENE_POINT_INIT(x, y);
 	graphene_point_t wview_point;
 	if (gtk_widget_compute_point(GTK_WIDGET(wsgview), GTK_WIDGET(wview->fixed),
-		&wsgview_point, &wview_point)) {
+			&wsgview_point, &wview_point)) {
 		Columnview *title = workspaceview_find_columnview_title(wview,
-				wview_point.x, wview_point.y);
+			wview_point.x, wview_point.y);
 		Columnview *cview = workspaceview_find_columnview(wview,
-				wview_point.x, wview_point.y);
+			wview_point.x, wview_point.y);
 
 		GtkWidget *menu = NULL;
 		if (title) {
@@ -215,17 +215,17 @@ workspacegroupview_class_init(WorkspacegroupviewClass *class)
 	view_class->child_front = workspacegroupview_child_front;
 
 	GType supported_types[] = {
-        GDK_TYPE_FILE_LIST,
-        G_TYPE_FILE,
-        GDK_TYPE_TEXTURE,
-        G_TYPE_STRING,
-    };
+		GDK_TYPE_FILE_LIST,
+		G_TYPE_FILE,
+		GDK_TYPE_TEXTURE,
+		G_TYPE_STRING,
+	};
 
 	workspacegroupview_n_supported_types = VIPS_NUMBER(supported_types);
-    workspacegroupview_supported_types =
-        VIPS_ARRAY(NULL, workspacegroupview_n_supported_types + 1, GType);
-    for (int i = 0; i < workspacegroupview_n_supported_types; i++)
-        workspacegroupview_supported_types[i] = supported_types[i];
+	workspacegroupview_supported_types =
+		VIPS_ARRAY(NULL, workspacegroupview_n_supported_types + 1, GType);
+	for (int i = 0; i < workspacegroupview_n_supported_types; i++)
+		workspacegroupview_supported_types[i] = supported_types[i];
 }
 
 static Workspaceview *
@@ -409,14 +409,14 @@ workspacegroupview_init(Workspacegroupview *wsgview)
 	g_signal_connect(wsgview->notebook, "create_window",
 		G_CALLBACK(workspacegroupview_create_window_cb), wsgview);
 
-    /* We are a drop target for tabs.
-     */
+	/* We are a drop target for tabs.
+	 */
 	GtkEventController *controller = GTK_EVENT_CONTROLLER(
-        gtk_drop_target_new(G_TYPE_INVALID, GDK_ACTION_COPY));
-    gtk_drop_target_set_gtypes(GTK_DROP_TARGET(controller),
-        workspacegroupview_supported_types,
-        workspacegroupview_n_supported_types);
-    gtk_widget_add_controller(wsgview->notebook, controller);
+		gtk_drop_target_new(G_TYPE_INVALID, GDK_ACTION_COPY));
+	gtk_drop_target_set_gtypes(GTK_DROP_TARGET(controller),
+		workspacegroupview_supported_types,
+		workspacegroupview_n_supported_types);
+	gtk_widget_add_controller(wsgview->notebook, controller);
 }
 
 View *

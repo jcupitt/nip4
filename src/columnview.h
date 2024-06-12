@@ -42,10 +42,10 @@
 /* State ... for mouse titlebar interactions.
  */
 typedef enum {
-	COL_WAIT,						/* Rest state */
-	COL_SELECT,						/* Select start, but no drag yet */
-	COL_DRAG,						/* Drag state */
-	COL_EDIT						/* Editing caption */
+	COL_WAIT,	/* Rest state */
+	COL_SELECT, /* Select start, but no drag yet */
+	COL_DRAG,	/* Drag state */
+	COL_EDIT	/* Editing caption */
 } ColumnviewState;
 
 struct _Columnview {
@@ -53,16 +53,16 @@ struct _Columnview {
 
 	/* Display parts.
 	 */
-	GtkWidget *top;					/* Enclosing widget for the whole cview */
-	GtkWidget *title;				/* Columnview titlebar */
-	GtkWidget *expand_button;		/* Expander button */
-	GtkWidget *name;				/* Columnview name label */
-	GtkWidget *caption_edit_stack;  /* Caption mode switcher */
-	GtkWidget *caption;				/* Caption display */
-	GtkWidget *caption_edit;		/* Caption edit */
-	GtkWidget *entry;				/* Text entry at bottom */
-	GtkWidget *revealer;			/* Animate visibility for body */
-	GtkWidget *body;				/* The body of the columnview */
+	GtkWidget *top;				   /* Enclosing widget for the whole cview */
+	GtkWidget *title;			   /* Columnview titlebar */
+	GtkWidget *expand_button;	   /* Expander button */
+	GtkWidget *name;			   /* Columnview name label */
+	GtkWidget *caption_edit_stack; /* Caption mode switcher */
+	GtkWidget *caption;			   /* Caption display */
+	GtkWidget *caption_edit;	   /* Caption edit */
+	GtkWidget *entry;			   /* Text entry at bottom */
+	GtkWidget *revealer;		   /* Animate visibility for body */
+	GtkWidget *body;			   /* The body of the columnview */
 
 	/* Our child view.
 	 */
@@ -78,7 +78,7 @@ struct _Columnview {
 
 	/* Appearance state info.
 	 */
-	ColumnviewState state;			/* Waiting or dragging */
+	ColumnviewState state; /* Waiting or dragging */
 
 	/* Current position. Though it will be drawn somewhere between x/y and
 	 * start_x/start_y, depending on elapsed time.
@@ -102,7 +102,7 @@ struct _Columnview {
 	 */
 	gboolean animating;
 
-	gboolean selected;				/* Last drawn in selected state? */
+	gboolean selected; /* Last drawn in selected state? */
 
 	const char *css_class;
 };

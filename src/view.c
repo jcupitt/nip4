@@ -323,7 +323,7 @@ view_dispose(GObject *object)
 
 	// remove all child views
 	(void) slist_map(view->children, (SListMapFn) view_dispose_sub, view);
-	//printf("view_dispose: n_children = %d\n", g_slist_length(view->children));
+	// printf("view_dispose: n_children = %d\n", g_slist_length(view->children));
 	g_assert(g_slist_length(view->children) == 0);
 	VIPS_FREEF(g_slist_free, view->children);
 
@@ -704,13 +704,13 @@ view_real_child_remove(View *parent, View *child)
 	g_assert(g_slist_find(parent->children, child));
 	parent->children = g_slist_remove(parent->children, child);
 
-    if (viewchild &&
-        viewchild->child_view == child)
-        viewchild->child_view = NULL;
+	if (viewchild &&
+		viewchild->child_view == child)
+		viewchild->child_view = NULL;
 
 	/* This will be the final unref and trigger child dispose.
 	 */
-    g_object_unref(child);
+	g_object_unref(child);
 }
 
 static void
@@ -966,4 +966,3 @@ view_get_columnview(View *child)
 
 	return COLUMNVIEW(view);
 }
-

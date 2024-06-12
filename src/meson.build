@@ -38,6 +38,8 @@ sources = files (
   'icontainer.c',
   'iimage.c',
   'iimageview.c',
+  'iregion.c',
+  'iregiongroup.c',
   'imagedisplay.c',
   'imageinfo.c',
   'imageui.c',

@@ -78,21 +78,21 @@ vec op_name im vec
 	= im_lintra_vec ones im vec,
 		op_name == "add" || op_name == "add'"
 	= im_lintra_vec ones (-1 * im) vec,
-		op_name == "subtract'" 
+		op_name == "subtract'"
 	= im_lintra_vec ones im inv,
-		op_name == "subtract" 
+		op_name == "subtract"
 	= im_lintra_vec vec im zeros,
 		op_name == "multiply" || op_name == "multiply'"
 	= im_lintra_vec vec (1 / im) zeros,
-		op_name == "divide'" 
+		op_name == "divide'"
 	= im_lintra_vec recip im zeros,
-		op_name == "divide" 
+		op_name == "divide"
 	= im_expntra_vec im vec,
-		op_name == "power'" 
+		op_name == "power'"
 	= im_powtra_vec im vec,
-		op_name == "power" 
+		op_name == "power"
 	= im_remainderconst_vec im vec,
-		op_name == "remainder" 
+		op_name == "remainder"
 	= im_andimage_vec im vec,
 		op_name == "bitwise_and" || op_name == "bitwise_and'"
 	= im_orimage_vec im vec,
@@ -104,13 +104,13 @@ vec op_name im vec
 	= im_notequal_vec im vec,
 		op_name == "not_equal" || op_name == "not_equal'"
 	= im_less_vec im vec,
-		op_name == "less" 
+		op_name == "less"
 	= im_moreeq_vec im vec,
-		op_name == "less'" 
+		op_name == "less'"
 	= im_lesseq_vec im vec,
-		op_name == "less_equal" 
+		op_name == "less_equal"
 	= im_more_vec im vec,
-		op_name == "less_equal'" 
+		op_name == "less_equal'"
 	= error ("unimplemented vector operation: " ++ op_name)
 {
 	zeros = replicate (len vec) 0;
@@ -153,7 +153,7 @@ macbeth_names = [
 	"Black (density 1.50)"
 ];
 
-bandsplit x 
+bandsplit x
 	= oo_unary_function bandsplit_op x, is_class x
 	= map (subscript x) [0 .. bands - 1], is_image x
 	= error (_ "bad arguments to " ++ "bandsplit")
@@ -192,7 +192,7 @@ bandor x
 sum x
 	= oo_unary_function sum_op x, is_class x
 	= im_avg x * (get_width x) * (get_height x) * (get_bands x), is_image x
-	= sum_list x, is_list x 
+	= sum_list x, is_list x
 	= error (_ "bad arguments (" ++ print x ++ ") to " ++ "sum")
 {
 	sum_op = Operator "sum" sum Operator_type.COMPOUND false;
@@ -209,7 +209,7 @@ sum x
 
 product x
 	= oo_unary_function product_op x, is_class x
-	= product_list x, is_list x 
+	= product_list x, is_list x
 	// (product image) doesn't make much sense :(
 	= error (_ "bad arguments (" ++ print x ++ ") to " ++ "product")
 {
@@ -227,7 +227,7 @@ product x
 mean x
 	= oo_unary_function mean_op x, is_class x
 	= im_avg x, is_image x
-	= mean_list x, is_list x 
+	= mean_list x, is_list x
 	= error (_ "bad arguments (" ++ print x ++ ") to " ++ "mean")
 {
 	mean_op = Operator "mean" mean Operator_type.COMPOUND false;
@@ -244,7 +244,7 @@ mean x
 	}
 }
 
-meang x 
+meang x
 	= (appl (power e) @ mean @ appl log) x
 {
 	appl fn x
@@ -254,14 +254,14 @@ meang x
 
 skew x
 	= oo_unary_function skew_op x, is_class x
-	= sum ((x - m) ** 3) / ((N - 1) * s ** 3), is_image x 
+	= sum ((x - m) ** 3) / ((N - 1) * s ** 3), is_image x
 	= sum ((Group x' - m) ** 3).value / ((N - 1) * s ** 3), is_list x
 	= error (_ "bad arguments (" ++ print x ++ ") to " ++ "skew")
 {
 	skew_op = Operator "skew" skew Operator_type.COMPOUND false;
 
 	// squash any large matrix down to a flat list ... much simpler
-	x' 
+	x'
 		= x, is_image x;
 		= flatten x;
 
@@ -271,21 +271,21 @@ skew x
 	h = get_height x';
 	b = get_bands x';
 
-	N 
+	N
 		= w * h * b, is_image x'
 		= len x';
 }
 
 kurtosis x
 	= oo_unary_function kurtosis_op x, is_class x
-	= sum ((x - m) ** 4) / ((N - 1) * s ** 4), is_image x 
+	= sum ((x - m) ** 4) / ((N - 1) * s ** 4), is_image x
 	= sum ((Group x' - m) ** 4).value / ((N - 1) * s ** 4), is_list x
 	= error (_ "bad arguments (" ++ print x ++ ") to " ++ "kurtosis")
 {
 	kurtosis_op = Operator "kurtosis" kurtosis Operator_type.COMPOUND false;
 
 	// squash any large matrix down to a flat list ... much simpler
-	x' 
+	x'
 		= x, is_image x;
 		= flatten x;
 
@@ -303,10 +303,10 @@ kurtosis x
 // zero-excluding mean
 meanze x
 	= oo_unary_function meanze_op x, is_class x
-	= meanze_image_hist x, is_image x && 
+	= meanze_image_hist x, is_image x &&
 		(fmt == Image_format.UCHAR || fmt == Image_format.USHORT)
 	= meanze_image x, is_image x
-	= meanze_list x, is_list x 
+	= meanze_list x, is_list x
 	= error (_ "bad arguments (" ++ print x ++ ") to " ++ "meanze")
 {
 	fmt = get_format x;
@@ -359,7 +359,7 @@ meanze x
 	{
 		// histogram, knock out zeros
 		hist = hist_find i;
-		black = image_new 1 1 (get_bands hist) 
+		black = image_new 1 1 (get_bands hist)
 			(get_format hist) (get_coding hist) (get_type hist) 0 0 0;
 		histze = insert 0 0 black hist;
 
@@ -383,10 +383,10 @@ deviation x
 	= deviation_list x, is_real_list x || is_matrix x
 	= error (_ "bad arguments to " ++ "deviation")
 {
-	deviation_op = Operator "deviation" 
+	deviation_op = Operator "deviation"
 		deviation Operator_type.COMPOUND false;
 
-	deviation_list l 
+	deviation_list l
 		= (abs (s2 - (s * s / n)) / (n - 1)) ** 0.5
 	{
 		[n, s, s2] = sum_sum2_list l;
@@ -413,23 +413,23 @@ deviationze x
 	= deviationze_list x, is_real_list x || is_matrix x
 	= error (_ "bad arguments to " ++ "deviationze")
 {
-	deviationze_op = Operator "deviationze" 
+	deviationze_op = Operator "deviationze"
 		deviationze Operator_type.COMPOUND false;
 
-	deviationze_list l 
+	deviationze_list l
 		= (abs (s2 - (s * s / n)) / (n - 1)) ** 0.5
 	{
 		[n, s, s2] = sum_sum2_list l;
 	}
 
-	// return number of non-zero elements, sum, sum of squares for a list of 
+	// return number of non-zero elements, sum, sum of squares for a list of
 	// reals
 	sum_sum2_list x
 		= foldr accumulate [0, 0, 0] x
 	{
 		accumulate x sofar
 			= sofar, is_real x && x == 0
-			= [n + 1, x + s, x * x + s2], is_real x 
+			= [n + 1, x + s, x * x + s2], is_real x
 			= [n + n', s + s', s2 + s2'], is_list x
 			= error "sum_sum2_list: not real or [real]"
 		{
@@ -437,7 +437,7 @@ deviationze x
 			[n', s', s2'] = sum_sum2_list x;
 		}
 	}
-	
+
 	deviationze_image i
 		= ((sum2 - sum * sum / N) / (N - 1)) ** 0.5
 	{
@@ -466,7 +466,7 @@ gravity x
 {
 	gravity_op = Operator "gravity" gravity Operator_type.COMPOUND false;
 
-	// centre of gravity of a histogram... use the histogram to weight an 
+	// centre of gravity of a histogram... use the histogram to weight an
 	// identity, then sum, then find the mean element
 	im_hist_gravity h
 		= m
@@ -481,17 +481,17 @@ gravity x
 		w = get_width h';
 
 		// matching identity
-		i 
+		i
 			= im_identity_ushort 1 w, w <= 2 ** 16 - 1
 			= make_xy w 1 ? 0;
 
 		// weight identity and sum
 		s = mean (i * h') * w;
 
-		// sum of original histogram 
+		// sum of original histogram
 		s' = mean h * w;
 
-		// weighted mean 
+		// weighted mean
 		m = s / s';
 	}
 
@@ -506,10 +506,10 @@ gravity x
 		// weight identity and sum
 		s = sum (map2 multiply i l);
 
-		// sum of original histogram 
+		// sum of original histogram
 		s' = sum l;
 
-		// weighted mean 
+		// weighted mean
 		m = s / s';
 	}
 }
@@ -562,7 +562,7 @@ abs_vec x
 	= mean (map abs_vec_list x), is_matrix x
 	= error (_ "bad arguments to " ++ "abs_vec")
 {
-	abs_vec_op = Operator "abs_vec" 
+	abs_vec_op = Operator "abs_vec"
 		abs_vec Operator_type.COMPOUND false;
 
 	abs_vec_list l = (sum (map square l)) ** 0.5;
@@ -573,7 +573,7 @@ abs_vec x
 
 	abs_vec_cmplx c = ((re c)**2 + (im c)**2) ** 0.5;
 
-	abs_vec_image im 
+	abs_vec_image im
 		= (sum (map square (bandsplit im))) ** 0.5;
 }
 
@@ -583,7 +583,7 @@ transpose x
 	= transpose_list x, is_listof is_list x
 	= error (_ "bad arguments to " ++ "transpose")
 {
-	transpose_op = Operator "transpose" 
+	transpose_op = Operator "transpose"
 		transpose Operator_type.COMPOUND_REWRAP false;
 
 	transpose_list l
@@ -598,15 +598,15 @@ transpose x
 
 rot45 x
 	= oo_unary_function rot45_op x, is_class x
-	= error "rot45 image: not implemented", is_image x 
+	= error "rot45 image: not implemented", is_image x
 	= error (_ "bad arguments to " ++ "rot45")
 {
-	rot45_op = Operator "rot45" 
+	rot45_op = Operator "rot45"
 		rot45_object Operator_type.COMPOUND_REWRAP false;
 
 	rot45_object x
 		= rot45_matrix x, is_odd_square_matrix x
-		= error "rot45 image: not implemented", is_image x 
+		= error "rot45 image: not implemented", is_image x
 		= error (_ "bad arguments to " ++ "rot45");
 
 	// slow, but what the heck
@@ -637,41 +637,41 @@ rotquad = apply_matim_operation "rotquad" im_rotquad;
 fliplr = apply_matim_operation "fliplr" im_fliphor;
 fliptb = apply_matim_operation "flipud" im_flipver;
 
-image_set_type type x 
+image_set_type type x
 	= oo_unary_function image_set_type_op x, is_class x
-	= im_copy_set x (to_real type) 
+	= im_copy_set x (to_real type)
 		(get_header "Xres" x) (get_header "Yres" x)
 		(get_header "Xoffset" x) (get_header "Yoffset" x),
 		is_image x
-	= error (_ "bad arguments to " ++ "image_set_type:" ++ 
+	= error (_ "bad arguments to " ++ "image_set_type:" ++
 		print type ++ " " ++ print x)
 {
-	image_set_type_op = Operator "image_set_type" 
+	image_set_type_op = Operator "image_set_type"
 		(image_set_type type) Operator_type.COMPOUND_REWRAP false;
 }
 
-image_set_origin xoff yoff x 
+image_set_origin xoff yoff x
 	= oo_unary_function image_set_origin_op x, is_class x
-	= im_copy_set x 
-		(get_header "Type" x) 
+	= im_copy_set x
+		(get_header "Type" x)
 		(get_header "Xres" x) (get_header "Yres" x)
 		(to_real xoff) (to_real yoff),
 		is_image x
 	= error (_ "bad arguments to " ++ "image_set_origin")
 {
-	image_set_origin_op = Operator "image_set_origin" 
-		(image_set_origin xoff yoff) 
+	image_set_origin_op = Operator "image_set_origin"
+		(image_set_origin xoff yoff)
 		Operator_type.COMPOUND_REWRAP false;
 }
 
 cache tile_width tile_height max_tiles x
 	= oo_unary_function cache_op x, is_class x
-	= im_tile_cache_random x (to_real tile_width) (to_real tile_height) 
+	= im_tile_cache_random x (to_real tile_width) (to_real tile_height)
 		(to_real max_tiles), is_image x
 	= error (_ "bad arguments to " ++ "cache")
 {
-	cache_op = Operator "cache" 
-		(cache tile_width tile_height max_tiles) 
+	cache_op = Operator "cache"
+		(cache tile_width tile_height max_tiles)
 		Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -680,17 +680,17 @@ tile across down x
 	= im_replicate x (to_real across) (to_real down), is_image x
 	= error (_ "bad arguments to " ++ "tile")
 {
-	tile_op = Operator "tile" 
+	tile_op = Operator "tile"
 		(tile across down) Operator_type.COMPOUND_REWRAP false;
 }
 
 grid tile_height across down x
 	= oo_unary_function grid_op x, is_class x
-	= im_grid x (to_real tile_height) (to_real across) (to_real down), 
+	= im_grid x (to_real tile_height) (to_real across) (to_real down),
 		is_image x
 	= error (_ "bad arguments to " ++ "grid")
 {
-	grid_op = Operator "grid" 
+	grid_op = Operator "grid"
 		(grid tile_height across down) Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -707,7 +707,7 @@ range min value max = min_pair max (max_pair min value);
 max x
 	= oo_unary_function max_op x, is_class x
 	= im_max x, is_image x
-	= max_list x, is_list x 
+	= max_list x, is_list x
 	= x, is_number x
 	= error (_ "bad arguments to " ++ "max")
 {
@@ -723,7 +723,7 @@ max x
 min x
 	= oo_unary_function min_op x, is_class x
 	= im_min x, is_image x
-	= min_list x, is_list x 
+	= min_list x, is_list x
 	= x, is_number x
 	= error (_ "bad arguments to " ++ "min")
 {
@@ -745,7 +745,7 @@ maxpos x
 {
 	maxpos_op = Operator "maxpos" maxpos Operator_type.COMPOUND false;
 
-	maxpos_matrix m 
+	maxpos_matrix m
 		= (-1, -1), m == [[]]
 		= (indexes?row, row)
 	{
@@ -754,7 +754,7 @@ maxpos x
 		row = index (not_equal (-1)) indexes;
 	}
 
-	maxpos_list l 
+	maxpos_list l
 		= -1, l == []
 		= index (equal (max l)) l;
 }
@@ -768,7 +768,7 @@ minpos x
 {
 	minpos_op = Operator "minpos" minpos Operator_type.COMPOUND false;
 
-	minpos_matrix m 
+	minpos_matrix m
 		= (-1, -1), m == [[]]
 		= (indexes?row, row)
 	{
@@ -777,7 +777,7 @@ minpos x
 		row = index (not_equal (-1)) indexes;
 	}
 
-	minpos_list l 
+	minpos_list l
 		= -1, l == []
 		= index (equal (min l)) l;
 }
@@ -788,7 +788,7 @@ stats x
 	= im_stats (to_image x).value, is_matrix x
 	= error (_ "bad arguments to " ++ "stats")
 {
-	stats_op = Operator "stats" 
+	stats_op = Operator "stats"
 		stats Operator_type.COMPOUND false;
 }
 
@@ -814,7 +814,7 @@ sign x
 		= 1, n > 0
 		= -1;
 
-	sign_cmplx c 
+	sign_cmplx c
 		= (0, 0), mod == 0
 		= (re c / mod, im c / mod)
 	{
@@ -824,8 +824,8 @@ sign x
 
 rint x
 	= oo_unary_function rint_op x, is_class x
-	= im_rint x, is_image x 
-	= rint_value x, is_number x 
+	= im_rint x, is_image x
+	= rint_value x, is_number x
 	= error (_ "bad arguments to " ++ "rint")
 {
 	rint_op = Operator "rint" rint Operator_type.ARITHMETIC false;
@@ -837,8 +837,8 @@ rint x
 
 scale x
 	= oo_unary_function scale_op x, is_class x
-	= (unsigned char) x, is_number x 
-	= im_scale x, is_image x 
+	= (unsigned char) x, is_number x
+	= im_scale x, is_image x
 	= scale_list x, is_real_list x || is_matrix x
 	= error (_ "bad arguments to " ++ "scale")
 {
@@ -864,37 +864,37 @@ scale x
 
 scaleps x
 	= oo_unary_function scale_op x, is_class x
-	= im_scaleps x, is_image x 
+	= im_scaleps x, is_image x
 	= error (_ "bad arguments to " ++ "scale")
 {
-	scale_op = Operator "scaleps" 
+	scale_op = Operator "scaleps"
 		scaleps Operator_type.COMPOUND_REWRAP false;
 }
 
 fwfft x
 	= oo_unary_function fwfft_op x, is_class x
-	= im_fwfft x, is_image x 
+	= im_fwfft x, is_image x
 	= error (_ "bad arguments to " ++ "fwfft")
 {
-	fwfft_op = Operator "fwfft" 
+	fwfft_op = Operator "fwfft"
 		fwfft Operator_type.COMPOUND_REWRAP false;
 }
 
 invfft x
 	= oo_unary_function invfft_op x, is_class x
-	= im_invfftr x, is_image x 
+	= im_invfftr x, is_image x
 	= error (_ "bad arguments to " ++ "invfft")
 {
-	invfft_op = Operator "invfft" 
+	invfft_op = Operator "invfft"
 		invfft Operator_type.COMPOUND_REWRAP false;
 }
 
 falsecolour x
 	= oo_unary_function falsecolour_op x, is_class x
-	= image_set_type Image_type.sRGB (im_falsecolour x), is_image x 
+	= image_set_type Image_type.sRGB (im_falsecolour x), is_image x
 	= error (_ "bad arguments to " ++ "falsecolour")
 {
-	falsecolour_op = Operator "falsecolour" 
+	falsecolour_op = Operator "falsecolour"
 		falsecolour Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -929,7 +929,7 @@ rectangular x
 	= rectangular_cmplx x, is_complex x
 	= error (_ "bad arguments to " ++ "rectangular")
 {
-	rectangular_op = Operator "rectangular" 
+	rectangular_op = Operator "rectangular"
 		rectangular Operator_type.COMPOUND false;
 
 	rectangular_cmplx p
@@ -948,12 +948,12 @@ recomb matrix x
 	= oo_unary_function recomb_op x, is_class x
 	= im_recomb x matrix, is_image x
 	= recomb_real_list x, is_real_list x
-	= map recomb_real_list x, is_matrix x 
+	= map recomb_real_list x, is_matrix x
 	= error (_ "bad arguments to " ++ "recomb")
 {
-	// COMPOUND_REWRAP ... signal to the colour class to go to image and 
+	// COMPOUND_REWRAP ... signal to the colour class to go to image and
 	// back
-	recomb_op = Operator "recomb" 
+	recomb_op = Operator "recomb"
 		(recomb matrix) Operator_type.COMPOUND_REWRAP false;
 
 	// process [1,2,3 ..] as an image
@@ -967,7 +967,7 @@ recomb matrix x
 
 extract_area x y w h obj
 	= oo_unary_function extract_area_op obj, is_class obj
-	= im_extract_area obj x' y' w' h', is_image obj
+	= crop obj x' y' w' h', is_image obj
 	= map (extract_range x' w') (extract_range y' h' obj), is_matrix obj
 	= error (_ "bad arguments to " ++ "extract_area")
 {
@@ -981,6 +981,8 @@ extract_area x y w h obj
 
 	extract_range from length list
 		= (take length @ drop from) list;
+
+	crop im x y w h = (vips_call "crop" [im, x, y, w, h] [])?0;
 }
 
 extract_band b obj = subscript obj b;
@@ -1017,7 +1019,7 @@ blend cond in1 in2
 	= error (_ "bad arguments to " ++ "blend" ++ ": " ++
 		join_sep ", " (map print [cond, in1, in2]))
 {
-	blend_op = Operator "blend" 
+	blend_op = Operator "blend"
 		blend_obj Operator_type.COMPOUND_REWRAP false;
 
 	blend_obj cond x
@@ -1035,13 +1037,13 @@ blend cond in1 in2
 		target_format = get_member_list has_format get_format objects;
 		target_type = get_member_list has_type get_type objects;
 
-		to_image x 
-			= to_image_size target_width target_height 
+		to_image x
+			= to_image_size target_width target_height
 				target_bands target_format x;
 
 		[then_image, else_image] = map to_image [then_part, else_part];
 
-		blend_result_image = image_set_type target_type 
+		blend_result_image = image_set_type target_type
 			(im_blend cond then_image else_image);
 	}
 }
@@ -1051,22 +1053,22 @@ blend cond in1 in2
 insert x y small big
 	= oo_binary'_function insert_op small big, is_class big
 	= oo_binary_function insert_op small big, is_class small
-	= im_insert big small (to_real x) (to_real y), 
+	= im_insert big small (to_real x) (to_real y),
 		is_image small && is_image big
 	= error (_ "bad arguments to " ++ "insert")
 {
-	insert_op = Operator "insert" 
+	insert_op = Operator "insert"
 		(insert x y) Operator_type.COMPOUND_REWRAP false;
 }
 
 insert_noexpand x y small big
 	= oo_binary_function insert_noexpand_op small big, is_class small
 	= oo_binary'_function insert_noexpand_op small big, is_class big
-	= im_insert_noexpand big small (to_real x) (to_real y), 
+	= im_insert_noexpand big small (to_real x) (to_real y),
 		is_image small && is_image big
 	= error (_ "bad arguments to " ++ "insert_noexpand")
 {
-	insert_noexpand_op = Operator "insert_noexpand" 
+	insert_noexpand_op = Operator "insert_noexpand"
 		(insert_noexpand x y) Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -1075,7 +1077,7 @@ decode im
 	= decode_im im, is_image im
 	= error (_ "bad arguments to " ++ "decode")
 {
-	decode_op = Operator "decode" 
+	decode_op = Operator "decode"
 		decode Operator_type.COMPOUND_REWRAP false;
 
 	decode_im im
@@ -1094,7 +1096,7 @@ measure_draw across down measure image
     sample_height = patch_height * (measure / 100);
     top_margin = (patch_height - sample_height) / 2;
 
-    cods = [[x * patch_width + left_margin, y * patch_height + top_margin] ::  
+    cods = [[x * patch_width + left_margin, y * patch_height + top_margin] ::
         y <- [0 .. down - 1]; x <- [0 .. across - 1]];
     x = map (extract 0) cods;
     y = map (extract 1) cods;
@@ -1121,22 +1123,22 @@ measure_sample across down measure image
     patch_height = image.height / down;
     sample_height = patch_height * (measure / 100);
     top_margin = (patch_height - sample_height) / 2;
-                
+
     cods = [[x * patch_width + left_margin, y * patch_height + top_margin] ::
         y <- [0 .. down - 1]; x <- [0 .. across - 1]];
 
 	image' = decode image;
-    patches = map (\p extract_area p?0 p?1 sample_width sample_height image') 
+    patches = map (\p extract_area p?0 p?1 sample_width sample_height image')
 		cods;
     measures = Matrix (map (map mean) (map bandsplit patches));
 }
 
-extract_bands b n obj 
+extract_bands b n obj
 	= oo_unary_function extract_bands_op obj, is_class obj
 	= im_extract_bands obj (to_real b) (to_real n), is_image obj
 	= error (_ "bad arguments to " ++ "extract_bands")
 {
-	extract_bands_op = Operator "extract_bands" 
+	extract_bands_op = Operator "extract_bands"
 		(extract_bands b n) Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -1151,38 +1153,38 @@ invert x
 
 transform ipol wrap params image
 	= oo_unary_function transform_op image, is_class image
-	= im_transform image 
+	= im_transform image
 		(to_matrix params) (to_real ipol) (to_real wrap), is_image image
 	= error (_ "bad arguments to " ++ "transform")
 {
-	transform_op = Operator "transform" 
-		(transform ipol wrap params) 
+	transform_op = Operator "transform"
+		(transform ipol wrap params)
 		Operator_type.COMPOUND_REWRAP false;
 }
 
 transform_search max_error max_iterations order ipol wrap sample reference
 	= oo_binary_function transform_search_op sample reference, is_class sample
-	= oo_binary'_function transform_search_op sample reference, 
+	= oo_binary'_function transform_search_op sample reference,
 		is_class reference
 	= im_transform_search sample reference
-		(to_real max_error) (to_real max_iterations) (to_real order) 
-		(to_real ipol) (to_real wrap), 
+		(to_real max_error) (to_real max_iterations) (to_real order)
+		(to_real ipol) (to_real wrap),
 			is_image sample && is_image reference
 	= error (_ "bad arguments to " ++ "transform_search")
 {
-	transform_search_op = Operator "transform_search" 
-		(transform_search max_error max_iterations order ipol wrap) 
+	transform_search_op = Operator "transform_search"
+		(transform_search max_error max_iterations order ipol wrap)
 		Operator_type.COMPOUND false;
 }
 
 rotate interp angle image
 	= oo_binary_function rotate_op angle image, is_class angle
 	= oo_binary'_function rotate_op angle image, is_class image
-	= im_affinei_all image interp.value a (-b) b a 0 0, 
-		is_real angle && is_image image 
+	= im_affinei_all image interp.value a (-b) b a 0 0,
+		is_real angle && is_image image
 	= error (_ "bad arguments to " ++ "rotate")
 {
-	rotate_op = Operator "rotate" 
+	rotate_op = Operator "rotate"
 		(rotate interp) Operator_type.COMPOUND_REWRAP false;
 	a = cos angle;
 	b = sin angle;
@@ -1198,11 +1200,11 @@ matrix_binary fn a b
 join_lr a b
 	= oo_binary_function join_lr_op a b, is_class a
 	= oo_binary'_function join_lr_op a b, is_class b
-	= join_im a b, is_image a && is_image b 
-	= matrix_binary join_im a b, is_matrix a && is_matrix b 
+	= join_im a b, is_image a && is_image b
+	= matrix_binary join_im a b, is_matrix a && is_matrix b
 	= error (_ "bad arguments to " ++ "join_lr")
 {
-	join_lr_op = Operator "join_lr" 
+	join_lr_op = Operator "join_lr"
 		join_lr Operator_type.COMPOUND_REWRAP false;
 
 	join_im a b	= insert (get_width a) 0 b a;
@@ -1211,11 +1213,11 @@ join_lr a b
 join_tb a b
 	= oo_binary_function join_tb_op a b, is_class a
 	= oo_binary'_function join_tb_op a b, is_class b
-	= join_im a b, is_image a && is_image b 
-	= matrix_binary join_im a b, is_matrix a && is_matrix b 
+	= join_im a b, is_image a && is_image b
+	= matrix_binary join_im a b, is_matrix a && is_matrix b
 	= error (_ "bad arguments to " ++ "join_tb")
 {
-	join_tb_op = Operator "join_tb" 
+	join_tb_op = Operator "join_tb"
 		join_tb Operator_type.COMPOUND_REWRAP false;
 
 	join_im a b	= insert 0 (get_height a) b a;
@@ -1223,11 +1225,11 @@ join_tb a b
 
 conj x
 	= oo_unary_function conj_op x, is_class x
-	= (re x, -im x), 
-		is_complex x || 
+	= (re x, -im x),
+		is_complex x ||
 		(is_image x && format == Image_format.COMPLEX) ||
 		(is_image x && format == Image_format.DPCOMPLEX)
-	// assume it's some sort of real 
+	// assume it's some sort of real
 	= x
 {
 	format = get_header "BandFmt" x;
@@ -1239,21 +1241,21 @@ clip2fmt format image
 	= im_clip2fmt image (to_real format), is_image image
 	= error (_ "bad arguments to " ++ "clip2fmt")
 {
-	clip2fmt_op = Operator "clip2fmt" 
+	clip2fmt_op = Operator "clip2fmt"
 		(clip2fmt format) Operator_type.COMPOUND_REWRAP false;
 }
 
 embed type x y w h im
 	= oo_unary_function embed_op im, is_class im
-	= im_embed im (to_real type) 
+	= im_embed im (to_real type)
 		(to_real x) (to_real y) (to_real w) (to_real h), is_image im
 	= error (_ "bad arguments to " ++ "embed")
 {
-	embed_op = Operator "embed" 
+	embed_op = Operator "embed"
 		(embed type x y w h) Operator_type.COMPOUND_REWRAP false;
 }
 
-/* Morph a mask with a [[real]] matrix ... turn m2 into an image, morph it 
+/* Morph a mask with a [[real]] matrix ... turn m2 into an image, morph it
  * with m1, turn it back to a matrix again.
  */
 _morph_2_masks fn m1 m2
@@ -1264,11 +1266,11 @@ _morph_2_masks fn m1 m2
 	m2_width = get_width image;
 	m2_height = get_height image;
 
-	// need to embed m2 in an image large enough for us to be able to 
+	// need to embed m2 in an image large enough for us to be able to
 	// position m1 all around the edges, with a 1 pixel overlap
-	image' = embed 0 
-		(m1.width / 2) (m1.height / 2) 
-		(m2_width + (m1.width - 1)) (m2_height + (m1.height - 1)) 
+	image' = embed 0
+		(m1.width / 2) (m1.height / 2)
+		(m2_width + (m1.width - 1)) (m2_height + (m1.height - 1))
 		image;
 
 	// morph!
@@ -1278,7 +1280,7 @@ _morph_2_masks fn m1 m2
 	m' = im_vips2mask ((double) image'');
 
 	// Turn 0 in output to 128 (don't care).
-	m'' 
+	m''
 		= map (map fn) m'.value
 	{
 		fn a
@@ -1292,9 +1294,9 @@ dilate mask image
 	= im_dilate image (to_matrix mask), is_image image
 	= error (_ "bad arguments to " ++ "dilate")
 {
-	dilate_op = Operator "dilate" 
+	dilate_op = Operator "dilate"
 		dilate_object Operator_type.COMPOUND_REWRAP false;
-	
+
 	dilate_object x
 		= _morph_2_masks dilate mask x, is_matrix x
 		= dilate mask x;
@@ -1305,7 +1307,7 @@ erode mask image
 	= im_erode image (to_matrix mask), is_image image
 	= error (_ "bad arguments to " ++ "erode")
 {
-	erode_op = Operator "erode" 
+	erode_op = Operator "erode"
 		erode_object Operator_type.COMPOUND_REWRAP false;
 
 	erode_object x
@@ -1316,20 +1318,20 @@ erode mask image
 conv mask image
 	= oo_unary_function conv_op image, is_class image
 	= im_conv image (to_matrix mask), is_image image
-	= error (_ "bad arguments to " ++ "conv" ++ ": " ++ 
+	= error (_ "bad arguments to " ++ "conv" ++ ": " ++
 		"conv (" ++ print mask ++ ") (" ++ print image ++ ")")
 {
-	conv_op = Operator "conv" 
+	conv_op = Operator "conv"
 		(conv mask) Operator_type.COMPOUND_REWRAP false;
 }
 
 convf mask image
 	= oo_unary_function convf_op image, is_class image
 	= im_conv_f image (to_matrix mask), is_image image
-	= error (_ "bad arguments to " ++ "convf" ++ ": " ++ 
+	= error (_ "bad arguments to " ++ "convf" ++ ": " ++
 		"convf (" ++ print mask ++ ") (" ++ print image ++ ")")
 {
-	convf_op = Operator "convf" 
+	convf_op = Operator "convf"
 		(convf mask) Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -1338,16 +1340,16 @@ convsep mask image
 	= im_convsep image (to_matrix mask), is_image image
 	= error (_ "bad arguments to " ++ "convsep")
 {
-	convsep_op = Operator "convsep" 
+	convsep_op = Operator "convsep"
 		(convsep mask) Operator_type.COMPOUND_REWRAP false;
 }
 
-aconvsep layers mask image 
+aconvsep layers mask image
 	= oo_unary_function aconvsep_op image, is_class image
 	= im_aconvsep image (to_matrix mask) (to_real layers), is_image image
 	= error (_ "bad arguments to " ++ "aconvsep")
 {
-	aconvsep_op = Operator "aconvsep" 
+	aconvsep_op = Operator "aconvsep"
 		(aconvsep layers mask) Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -1356,7 +1358,7 @@ convsepf mask image
 	= im_convsep_f image (to_matrix mask), is_image image
 	= error (_ "bad arguments to " ++ "convsepf")
 {
-	convsepf_op = Operator "convsepf" 
+	convsepf_op = Operator "convsepf"
 		(convsepf mask) Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -1365,7 +1367,7 @@ rank w h n image
 	= im_rank image (to_real w) (to_real h) (to_real n), is_image image
 	= error (_ "bad arguments to " ++ "rank")
 {
-	rank_op = Operator "rank" 
+	rank_op = Operator "rank"
 		(rank w h n) Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -1391,7 +1393,7 @@ correlate small big
 	= im_spcor big small, is_image small && is_image big
 	= error (_ "bad arguments to " ++ "correlate")
 {
-	correlate_op = Operator "correlate" 
+	correlate_op = Operator "correlate"
 		correlate Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -1402,7 +1404,7 @@ correlate_fast small big
 	= im_fastcor big small, is_image small && is_image big
 	= error (_ "bad arguments to " ++ "correlate_fast")
 {
-	correlate_fast_op = Operator "correlate_fast" 
+	correlate_fast_op = Operator "correlate_fast"
 		correlate_fast Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -1412,7 +1414,7 @@ hist_tag x
 	= image_set_type Image_type.HISTOGRAM x, is_image x
 	= error (_ "bad arguments to " ++ "hist_tag")
 {
-	hist_tag_op = Operator "hist_tag" 
+	hist_tag_op = Operator "hist_tag"
 		(Plot_histogram @ hist_tag) Operator_type.COMPOUND false;
 }
 
@@ -1421,7 +1423,7 @@ hist_find x
 	= im_histgr x (-1), is_image x
 	= error (_ "bad arguments to " ++ "hist_find")
 {
-	hist_find_op = Operator "hist_find" 
+	hist_find_op = Operator "hist_find"
 		(Plot_histogram @ hist_find) Operator_type.COMPOUND false;
 }
 
@@ -1430,7 +1432,7 @@ hist_find_nD bins image
 	= im_histnD image (to_real bins), is_image image
 	= error (_ "bad arguments to " ++ "hist_find_nD")
 {
-	hist_find_nD_op = Operator "hist_find_nD" 
+	hist_find_nD_op = Operator "hist_find_nD"
 		(hist_find_nD bins) Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -1440,8 +1442,8 @@ hist_find_indexed mode index value
 	= indexed index value, is_image index && is_image value
 	= error (_ "bad arguments to " ++ "hist_find_indexed")
 {
-	hist_find_indexed_op = Operator "hist_find_indexed" 
-		(compose (compose Plot_histogram) (hist_find_indexed mode)) 
+	hist_find_indexed_op = Operator "hist_find_indexed"
+		(compose (compose Plot_histogram) (hist_find_indexed mode))
 			Operator_type.COMPOUND false;
 
 	indexed index value
@@ -1453,12 +1455,12 @@ hist_find_indexed mode index value
 	}
 }
 
-hist_entropy x 
+hist_entropy x
 	= oo_unary_function hist_entropy_op x, is_class x
-	= entropy x, is_image x 
+	= entropy x, is_image x
 	= error (_ "bad arguments to " ++ "hist_entropy")
 {
-	hist_entropy_op = Operator "hist_entropy" 
+	hist_entropy_op = Operator "hist_entropy"
 		hist_entropy Operator_type.COMPOUND_REWRAP false;
 
 	entropy x
@@ -1476,72 +1478,72 @@ hist_map hist image
 	= error (_ "bad arguments to " ++ "hist_map")
 {
 	// can't use rewrap, as we want to always wrap as image
-	hist_map_op = Operator "hist_map" 
+	hist_map_op = Operator "hist_map"
 		(compose (compose Image) hist_map) Operator_type.COMPOUND false;
 }
 
-hist_cum hist 
+hist_cum hist
 	= oo_unary_function hist_cum_op hist, is_class hist
 	= im_histcum hist, is_image hist
 	= error (_ "bad arguments to " ++ "hist_cum")
 {
-	hist_cum_op = Operator "hist_cum" 
+	hist_cum_op = Operator "hist_cum"
 		hist_cum Operator_type.COMPOUND_REWRAP false;
 }
 
-hist_diff hist 
+hist_diff hist
 	= oo_unary_function hist_diff_op hist, is_class hist
 	= im_histdiff hist, is_image hist
 	= error (_ "bad arguments to " ++ "hist_diff")
 {
-	hist_diff_op = Operator "hist_diff" 
+	hist_diff_op = Operator "hist_diff"
 		hist_diff Operator_type.COMPOUND_REWRAP false;
 
-	im_histdiff h 
+	im_histdiff h
 		= (conv (Matrix [[-1, 1]]) @ clip2fmt (fmt (get_format h))) h
 	{
 		// up the format so it can represent the whole range of
 		// possible values from this mask
 		fmt x
-			= Image_format.SHORT, 
+			= Image_format.SHORT,
 				x == Image_format.UCHAR || x == Image_format.CHAR
-			= Image_format.INT, 
+			= Image_format.INT,
 				x == Image_format.USHORT || x == Image_format.SHORT ||
-				x == Image_format.UINT 
+				x == Image_format.UINT
 			= x;
 	}
 }
 
-hist_norm hist 
+hist_norm hist
 	= oo_unary_function hist_norm_op hist, is_class hist
 	= im_histnorm hist, is_image hist
 	= error (_ "bad arguments to " ++ "hist_norm")
 {
-	hist_norm_op = Operator "hist_norm" 
+	hist_norm_op = Operator "hist_norm"
 		hist_norm Operator_type.COMPOUND_REWRAP false;
 }
 
-hist_inv hist 
+hist_inv hist
 	= oo_unary_function hist_inv_op hist, is_class hist
 	= inv hist, is_image hist
 	= error (_ "bad arguments to " ++ "hist_inv")
 {
-	hist_inv_op = Operator "hist_inv" 
+	hist_inv_op = Operator "hist_inv"
 		hist_inv Operator_type.COMPOUND_REWRAP false;
 
 	inv im
 		= im_invertlut (to_matrix im''') len
 	{
 		// need a vertical doublemask
-		im' 
-			= rot90 im, get_width im > 1 && get_height im == 1 
+		im'
+			= rot90 im, get_width im > 1 && get_height im == 1
 			= im, get_width im == 1 && get_height im > 1
 			= error (_ "not a hist");
 		len = get_height im';
 
 		// values must be scaled to 0 - 1
 		im'' = im' / (max im');
-		
+
 		// add an index column on the left
 		// again, must be in 0-1
 		y = ((make_xy 1 len)?1) / len;
@@ -1555,7 +1557,7 @@ hist_match in ref
 	= im_histspec in ref, is_image in && is_image ref
 	= error (_ "bad arguments to " ++ "hist_match")
 {
-	hist_match_op = Operator "hist_match" 
+	hist_match_op = Operator "hist_match"
 		hist_match Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -1566,10 +1568,10 @@ hist_equalize_local w h l image
 	= out, is_image image
 	= error (_ "bad arguments to " ++ "hist_equalize_local")
 {
-	hist_equalize_local_op = Operator "hist_equalize_local" 
+	hist_equalize_local_op = Operator "hist_equalize_local"
 		(hist_equalize_local w h l) Operator_type.COMPOUND_REWRAP false;
 
-	[out] = vips_call "hist_local" 
+	[out] = vips_call "hist_local"
 		[image, to_real w, to_real h] [$max_slope => to_real l];
 }
 
@@ -1585,7 +1587,7 @@ hist_thresh percent image
 	// normalised cumulative hist
 	// we sum the channels before we normalise, because we want to treat them
 	// all the same
-	h = (my_hist_norm @ sum @ bandsplit @ hist_cum @ hist_find) 
+	h = (my_hist_norm @ sum @ bandsplit @ hist_cum @ hist_find)
 		image.value;
 
 	// threshold that, then use im_profile to search for the x position in the
@@ -1596,21 +1598,21 @@ hist_thresh percent image
 /* Sometimes useful, despite plotting now being built in, for making
  * diagnostic images.
  */
-hist_plot hist 
+hist_plot hist
 	= oo_unary_function hist_plot_op hist, is_class hist
 	= im_histplot hist, is_image hist
 	= error (_ "bad arguments to " ++ "hist_plot")
 {
-	hist_plot_op = Operator "hist_plot" 
+	hist_plot_op = Operator "hist_plot"
 		(Image @ hist_plot) Operator_type.COMPOUND false;
 }
 
-zerox d x 
+zerox d x
 	= oo_unary_function zerox_op x, is_class x
 	= im_zerox x (to_real d), is_image x
 	= error (_ "bad arguments to " ++ "zerox")
 {
-	zerox_op = Operator "zerox" 
+	zerox_op = Operator "zerox"
 		(zerox d) Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -1619,10 +1621,10 @@ reduce kernel xshr yshr image
 	= reduce_im image, is_image image
 	= error (_ "bad arguments to " ++ "reduce")
 {
-	reduce_op = Operator "reduce" 
+	reduce_op = Operator "reduce"
 		reduce_im Operator_type.COMPOUND_REWRAP false;
 
-	reduce_im im 
+	reduce_im im
 		= out
 	{
 		[out] = vips_call "reduce" [im, xshr, yshr] [$kernel => kernel.value];
@@ -1634,10 +1636,10 @@ similarity interpolate scale angle image
 	= similarity_im image, is_image image
 	= error (_ "bad arguments to " ++ "similarity")
 {
-	similarity_op = Operator "similarity" 
+	similarity_op = Operator "similarity"
 		similarity_im Operator_type.COMPOUND_REWRAP false;
 
-	similarity_im im 
+	similarity_im im
 		= out
 	{
 		[out] = vips_call "similarity" [im] [
@@ -1653,7 +1655,7 @@ resize kernel xfac yfac image
 	= resize_im image, is_image image
 	= error (_ "bad arguments to " ++ "resize")
 {
-	resize_op = Operator "resize" 
+	resize_op = Operator "resize"
 		resize_im Operator_type.COMPOUND_REWRAP false;
 
 	xfac' = to_real xfac;
@@ -1666,24 +1668,24 @@ resize kernel xfac yfac image
 
 	resize_im im
 		// upscale by integer factor, nearest neighbour
-		= im_zoom im xfac' yfac', 
-			is_int xfac' && is_int yfac' && 
+		= im_zoom im xfac' yfac',
+			is_int xfac' && is_int yfac' &&
 			xfac' >= 1 && yfac' >= 1 &&
-			is_nn 
+			is_nn
 
 		// downscale by integer factor, nearest neighbour
-		= im_subsample im rxfac' ryfac', 
-			is_int rxfac' && is_int ryfac' && 
+		= im_subsample im rxfac' ryfac',
+			is_int rxfac' && is_int ryfac' &&
 			rxfac' >= 1 && ryfac' >= 1 &&
-			is_nn 
+			is_nn
 
 		// everything else ... we just pass on to vips_resize()
 		= vips_resize kernel xfac' yfac' im
 	{
-		vips_resize kernel hscale vscale im 
+		vips_resize kernel hscale vscale im
 			= out
 		{
-			[out] = vips_call "resize" [im, hscale] 
+			[out] = vips_call "resize" [im, hscale]
 				[$vscale => vscale, $kernel => kernel.value];
 		}
 	}
@@ -1692,12 +1694,12 @@ resize kernel xfac yfac image
 sharpen radius x1 y2 y3 m1 m2 in
 	= oo_unary_function sharpen_op in, is_class in
 	= im_sharpen in (to_real radius)
-		(to_real x1) (to_real y2) (to_real y3) 
-		(to_real m1) (to_real m2), is_image in 
+		(to_real x1) (to_real y2) (to_real y3)
+		(to_real m1) (to_real m2), is_image in
 	= error (_ "bad arguments to " ++ "sharpen")
 {
-	sharpen_op = Operator "sharpen" 
-		(sharpen radius x1 y2 y3 m1 m2) 
+	sharpen_op = Operator "sharpen"
+		(sharpen radius x1 y2 y3 m1 m2)
 		Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -1705,11 +1707,11 @@ tone_analyse s m h sa ma ha in
 	= oo_unary_function tone_analyse_op in, is_class in
 	= im_tone_analyse in
 		(to_real s) (to_real m) (to_real h)
-		(to_real sa) (to_real ma) (to_real ha), is_image in 
+		(to_real sa) (to_real ma) (to_real ha), is_image in
 	= error (_ "bad arguments to " ++ "tone_analyse")
 {
-	tone_analyse_op = Operator "tone_analyse" 
-		(Plot_histogram @ tone_analyse s m h sa ma ha) 
+	tone_analyse_op = Operator "tone_analyse"
+		(Plot_histogram @ tone_analyse s m h sa ma ha)
 		Operator_type.COMPOUND false;
 }
 
@@ -1719,14 +1721,14 @@ tone_map hist image
 	= im_tone_map image hist, is_image hist && is_image image
 	= error (_ "bad arguments to " ++ "tone_map")
 {
-	tone_map_op = Operator "tone_map" 
+	tone_map_op = Operator "tone_map"
 		tone_map Operator_type.COMPOUND_REWRAP false;
 }
 
-tone_build fmt b w s m h sa ma ha 
-	= (Plot_histogram @ clip2fmt fmt) 
-		(im_tone_build_range mx mx 
-			(to_real b) (to_real w) 
+tone_build fmt b w s m h sa ma ha
+	= (Plot_histogram @ clip2fmt fmt)
+		(im_tone_build_range mx mx
+			(to_real b) (to_real w)
 			(to_real s) (to_real m) (to_real h)
 			(to_real sa) (to_real ma) (to_real ha))
 {
@@ -1736,10 +1738,10 @@ tone_build fmt b w s m h sa ma ha
 icc_export depth profile intent in
 	= oo_unary_function icc_export_op in, is_class in
 	= im_icc_export_depth in
-		(to_real depth) (expand profile) (to_real intent), is_image in 
+		(to_real depth) (expand profile) (to_real intent), is_image in
 	= error (_ "bad arguments to " ++ "icc_export")
 {
-	icc_export_op = Operator "icc_export" 
+	icc_export_op = Operator "icc_export"
 		(icc_export depth profile intent)
 		Operator_type.COMPOUND_REWRAP false;
 }
@@ -1747,20 +1749,20 @@ icc_export depth profile intent in
 icc_import profile intent in
 	= oo_unary_function icc_import_op in, is_class in
 	= im_icc_import in
-		(expand profile) (to_real intent), is_image in 
+		(expand profile) (to_real intent), is_image in
 	= error (_ "bad arguments to " ++ "icc_import")
 {
-	icc_import_op = Operator "icc_import" 
+	icc_import_op = Operator "icc_import"
 		(icc_import profile intent)
 		Operator_type.COMPOUND_REWRAP false;
 }
 
 icc_import_embedded intent in
 	= oo_unary_function icc_import_embedded_op in, is_class in
-	= im_icc_import_embedded in (to_real intent), is_image in 
+	= im_icc_import_embedded in (to_real intent), is_image in
 	= error (_ "bad arguments to " ++ "icc_import_embedded")
 {
-	icc_import_embedded_op = Operator "icc_import_embedded" 
+	icc_import_embedded_op = Operator "icc_import_embedded"
 		(icc_import_embedded intent)
 		Operator_type.COMPOUND_REWRAP false;
 }
@@ -1768,28 +1770,28 @@ icc_import_embedded intent in
 icc_transform in_profile out_profile intent in
 	= oo_unary_function icc_transform_op in, is_class in
 	= im_icc_transform in
-		(expand in_profile) (expand out_profile) 
-		(to_real intent), is_image in 
+		(expand in_profile) (expand out_profile)
+		(to_real intent), is_image in
 	= error (_ "bad arguments to " ++ "icc_transform")
 {
-	icc_transform_op = Operator "icc_transform" 
+	icc_transform_op = Operator "icc_transform"
 		(icc_transform in_profile out_profile intent)
 		Operator_type.COMPOUND_REWRAP false;
 }
 
 icc_ac2rc profile in
 	= oo_unary_function icc_ac2rc_op in, is_class in
-	= im_icc_ac2rc in (expand profile), is_image in 
+	= im_icc_ac2rc in (expand profile), is_image in
 	= error (_ "bad arguments to " ++ "icc_ac2rc")
 {
-	icc_ac2rc_op = Operator "icc_ac2rc" 
+	icc_ac2rc_op = Operator "icc_ac2rc"
 		(icc_ac2rc profile)
 		Operator_type.COMPOUND_REWRAP false;
 }
 
 
 // Given a xywh rect, flip it around so wh are always positive
-rect_normalise x y w h 
+rect_normalise x y w h
 	= [x', y', w', h']
 {
 	x'
@@ -1807,7 +1809,7 @@ draw_flood_blob x y ink image
 	= im_draw_flood_blob image (to_real x) (to_real y) ink, is_image image
 	= error (_ "bad arguments to " ++ "draw_flood_blob")
 {
-	draw_flood_blob_op = Operator "draw_flood_blob" 
+	draw_flood_blob_op = Operator "draw_flood_blob"
 		(draw_flood_blob x y ink) Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -1816,7 +1818,7 @@ draw_flood x y ink image
 	= im_draw_flood image (to_real x) (to_real y) ink, is_image image
 	= error (_ "bad arguments to " ++ "draw_flood")
 {
-	draw_flood_op = Operator "draw_flood" 
+	draw_flood_op = Operator "draw_flood"
 		(draw_flood x y ink) Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -1825,26 +1827,26 @@ draw_flood x y ink image
  */
 draw_rect_width x y w h f t ink image
 	= oo_unary_function draw_rect_width_op image, is_class image
-	= my_draw_rect_width image (to_int x) (to_int y) 
-		(to_int w) (to_int h) (to_int f) (to_int t) ink, 
+	= my_draw_rect_width image (to_int x) (to_int y)
+		(to_int w) (to_int h) (to_int f) (to_int t) ink,
 		is_image image
 	= error (_ "bad arguments to " ++ "draw_rect_width")
 {
-	draw_rect_width_op = Operator "draw_rect_width" 
-		(draw_rect_width x y w h f t ink) 
+	draw_rect_width_op = Operator "draw_rect_width"
+		(draw_rect_width x y w h f t ink)
 		Operator_type.COMPOUND_REWRAP false;
 
 	my_draw_rect_width image x y w h f t ink
 		= insert x' y' (block w' h') image, f == 1
-		= (insert x' y' (block w' t) @ 
-			insert (x' + w' - t) y' (block t h') @ 
-			insert x' (y' + h' - t) (block w' t) @ 
+		= (insert x' y' (block w' t) @
+			insert (x' + w' - t) y' (block t h') @
+			insert x' (y' + h' - t) (block w' t) @
 			insert x' y' (block t h')) image
 	{
 		insert = insert_noexpand;
 		block w h = image_new w h (get_bands image) (get_format image)
 			(get_coding image) (get_type image) ink' 0 0;
-		ink' 
+		ink'
 			= Vector ink, is_list ink
 			= ink;
 		[x', y', w', h'] = rect_normalise x y w h;
@@ -1861,50 +1863,50 @@ draw_rect x y w h f ink image
  */
 draw_rect_paintbox x y w h f ink image
 	= oo_unary_function draw_rect_op image, is_class image
-	= im_draw_rect image (to_real x) (to_real y) 
+	= im_draw_rect image (to_real x) (to_real y)
 		(to_real w) (to_real h) (to_real f) ink, is_image image
 	= error (_ "bad arguments to " ++ "draw_rect_paintbox")
 {
-	draw_rect_op = Operator "draw_rect" 
+	draw_rect_op = Operator "draw_rect"
 		(draw_rect x y w h f ink) Operator_type.COMPOUND_REWRAP false;
 }
 
 draw_circle x y r f ink image
 	= oo_unary_function draw_circle_op image, is_class image
-	= im_draw_circle image (to_real x) (to_real y) 
+	= im_draw_circle image (to_real x) (to_real y)
 		(to_real r) (to_real f) ink, is_image image
 	= error (_ "bad arguments to " ++ "draw_circle")
 {
-	draw_circle_op = Operator "draw_circle" 
+	draw_circle_op = Operator "draw_circle"
 		(draw_circle x y r f ink) Operator_type.COMPOUND_REWRAP false;
 }
 
 draw_line x1 y1 x2 y2 ink image
 	= oo_unary_function draw_line_op image, is_class image
-	= im_draw_line image (to_real x1) (to_real y1) 
+	= im_draw_line image (to_real x1) (to_real y1)
 		(to_real x2) (to_real y2) ink, is_image image
 	= error (_ "bad arguments to " ++ "draw_line")
 {
-	draw_line_op = Operator "draw_line" 
+	draw_line_op = Operator "draw_line"
 		(draw_line x1 y1 x2 y2 ink) Operator_type.COMPOUND_REWRAP false;
 }
 
 print_base base in
 	= oo_unary_function print_base_op in, is_class in
-	= map (print_base base) in, is_list in 
-	= print_base_real, is_real in 
+	= map (print_base base) in, is_list in
+	= print_base_real, is_real in
 	= error (_ "bad arguments to " ++ "print_base")
 {
-	print_base_op 
+	print_base_op
 		= Operator "print_base" (print_base base) Operator_type.COMPOUND false;
 
-	print_base_real 
+	print_base_real
 		= error "print_base: bad base", base < 2 || base > 16
-		= "0", in < 0 || chars == [] 
+		= "0", in < 0 || chars == []
 		= reverse chars
 	{
-		digits = map (\x x % base) 
-			(takewhile (not_equal 0) 
+		digits = map (\x x % base)
+			(takewhile (not_equal 0)
 				(iterate (\x idivide x base) in));
 		chars = map tohd digits;
 
@@ -1921,14 +1923,14 @@ print_base base in
 id x = x;
 
 /* const x y: junk y, return x
- * 
+ *
  * (const 3) is the function that always returns 3.
  * const :: * -> ** -> *
  */
 const x y = x;
 
 /* converse fn a b: swap order of args to fn
- * 
+ *
  * converse fn a b == fn b a
  * converse :: (* -> ** -> ***) -> ** -> * -> ***
  */
@@ -1949,7 +1951,7 @@ until pred fn n
 
 /* Infinite list of primes.
  */
-primes 
+primes
 	= 1 : (sieve [2 ..])
 {
 	sieve l = hd l : sieve (filter (nmultiple (hd l)) (tl l));
@@ -1957,13 +1959,13 @@ primes
 }
 
 /* Map an n-ary function (pass the args as a list) over groups of objects.
- * The objects can be single objects or groups. If more than one 
+ * The objects can be single objects or groups. If more than one
  * object is a group, we iterate for the length of the smallest group.
  * Don't loop over plain lists, since we want (eg.) "mean [1, 2, 3]" to work.
  * Treat [] as no-value --- ie. if any of the inputs are [] we put [] into the
  * output and don't apply the function.
 
-		copy-pasted into _types, keep in sync 
+		copy-pasted into _types, keep in sync
 
  */
 map_nary fn args
@@ -2015,7 +2017,7 @@ map_nary_list fn args
 {
 	// find all the list arguments
 	lists = filter is_list args;
-	
+
 	// what's the length of the shortest list arg?
 	shortest = foldr1 min_pair (map len lists);
 
@@ -2039,7 +2041,7 @@ map_binaryl fn a b = map_nary_list (list_2ary fn) [a, b];
  */
 smooth x image = convsep (matrix_gaussian_blur (to_real x * 2)) image;
 
-/* Chop up an image into a list of lists of smaller images. Pad edges with 
+/* Chop up an image into a list of lists of smaller images. Pad edges with
  * black.
  */
 imagearray_chop tile_width tile_height hoverlap voverlap i
@@ -2072,7 +2074,7 @@ imagearray_chop tile_width tile_height hoverlap voverlap i
 	last_x = hstep * (across - 1);
 	last_y = vstep * (down - 1);
 
-	/* How much do we need to pad by? 
+	/* How much do we need to pad by?
 	 */
 	sx = last_x + tile_width';
 	sy = last_y + tile_height';
@@ -2083,7 +2085,7 @@ imagearray_chop tile_width tile_height hoverlap voverlap i
 
 	/* Chop up a row.
 	 */
-	chop' y 
+	chop' y
 		= map chop'' [0, hstep .. last_x]
 	{
 		chop'' x = extract_area x y tile_width' tile_height' pad;
@@ -2144,7 +2146,7 @@ gser a x
 		del = map product (prefixes xoap.value);
 
 
-		
+
 
 
 
@@ -2152,9 +2154,9 @@ gser a x
 /*
 		del = map (multiply (1 / a)) (map product (prefixes xoap))
 
-		del = 
+		del =
 
-		xap = iterate (multiply 
+		xap = iterate (multiply
  */
 
 		/* Generate all prefixes of a list ... [1,2,3] -> [[1], [1, 2], [1, 2,
@@ -2188,9 +2190,9 @@ buildlut x
 
 /* Linear regression. Return a class with the stuff we need in.
  * from s15.2, p 665 NR in C
- * 
+ *
  * Also calculate R2, see eg.:
- * https://en.wikipedia.org/wiki/Coefficient_of_determination 
+ * https://en.wikipedia.org/wiki/Coefficient_of_determination
  */
 linreg xes yes
     = obj
@@ -2226,7 +2228,7 @@ linreg xes yes
 
 /* Weighted linear regression. Xes, yes and a list of deviations.
  */
-linregw xes yes devs 
+linregw xes yes devs
 	= obj
 {
 	obj = class {
@@ -2236,7 +2238,7 @@ linregw xes yes devs
 		slope = sum [(t * y) / sd :: [t, y, sd] <- zip3 tes yes devs] / st2;
 		intercept = (sy - sx * slope) / ss;
 
-		chi2 = sum [((y - intercept - slope * x) / sd) ** 2 :: 
+		chi2 = sum [((y - intercept - slope * x) / sd) ** 2 ::
 			[x, y, sd] <- zip3 xes yes devs];
 
 		siga = ((1 + sx * sx / (ss * st2)) / ss) ** 0.5;
@@ -2265,8 +2267,8 @@ linregw xes yes devs
  * indexes we merged to make that point, ie. len weight == how significant
  * this point is.
  *
- * eg. 
- *	cluster 12 [152,154,155,42,159] == 
+ * eg.
+ *	cluster 12 [152,154,155,42,159] ==
  *		[[155,42],[[1,2,0,4],[3]]]
  */
 cluster thresh points
@@ -2276,7 +2278,7 @@ cluster thresh points
 		is_list points
 	= error (_ "bad arguments to " ++ "cluster")
 {
-	cluster_op = Operator "cluster" 
+	cluster_op = Operator "cluster"
 		(cluster thresh) Operator_type.COMPOUND false;
 
 	merge x
@@ -2286,7 +2288,7 @@ cluster thresh points
 		[points, weights] = x;
 		m = len points;
 
-		// generate indexes of all possible pairs, avoiding comparing a thing 
+		// generate indexes of all possible pairs, avoiding comparing a thing
 		// to itself, and assuming that dist is reflexive
 		// first index is always less than 2nd index
 		// the +1,+2 makes sure we have an increasing generator, otherwise we
@@ -2296,7 +2298,7 @@ cluster thresh points
 
 		// distance function
 		// arg is eg. [3,1], meaning get distance from point 3 to point 1
-		dist x 
+		dist x
 			= abs (points?i - points?j)
 		{
 			[i, j] = x;
@@ -2357,7 +2359,7 @@ rad2float image
 	= im_rad2float image, is_image image
 	= error (_ "bad arguments to " ++ "rad2float")
 {
-	rad2float_op = Operator "rad2float" 
+	rad2float_op = Operator "rad2float"
 		rad2float Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -2366,16 +2368,16 @@ float2rad image
 	= im_float2rad image, is_image image
 	= error (_ "bad arguments to " ++ "float2rad")
 {
-	float2rad_op = Operator "float2rad" 
+	float2rad_op = Operator "float2rad"
 		float2rad Operator_type.COMPOUND_REWRAP false;
 }
 
 segment x
 	= oo_unary_function segment_op x, is_class x
-	= image', is_image x 
+	= image', is_image x
 	= error (_ "bad arguments to " ++ "segment")
 {
-	segment_op = Operator "segment" 
+	segment_op = Operator "segment"
 		segment Operator_type.COMPOUND_REWRAP false;
 
 	[image, nsegs] = im_segment x;
@@ -2391,34 +2393,34 @@ point a b
 	= [b?y], is_real_list b && x == 0
 	= error (_ "bad arguments to " ++ "point")
 {
-	point_op = Operator "point" 
+	point_op = Operator "point"
 		(\a\b Vector (point a b)) Operator_type.COMPOUND false;
 
-	(x, y) 
+	(x, y)
 		= a, is_complex a;
 		= (a?0, a?1), is_real_list a && is_list_len 2 a
 		= error "bad position format";
 }
 
-/* One image in, one out. 
+/* One image in, one out.
  */
 system_image command x
 	= oo_unary_function system_image_op x, is_class x
 	= system x, is_image x
 	= error (_ "bad arguments to " ++ "system_image")
 {
-	system_image_op = Operator "system_image" 
+	system_image_op = Operator "system_image"
 		(system_image command) Operator_type.COMPOUND_REWRAP false;
 
 	system im
 		= image_out
 	{
-		[image_out, log] = 
+		[image_out, log] =
 			im_system_image (get_image im) "%s.tif" "%s.tif" command;
 	}
 }
 
-/* Two images in, one out. 
+/* Two images in, one out.
  */
 system_image2 command x1 x2
 	= oo_binary_function system_image2_op x1 x2, is_class x1
@@ -2426,22 +2428,22 @@ system_image2 command x1 x2
 	= system x1 x2, is_image x1 && is_image x2
 	= error (_ "bad arguments to " ++ "system_image2")
 {
-	system_image2_op = Operator "system_image2" 
+	system_image2_op = Operator "system_image2"
 		(system_image2 command) Operator_type.COMPOUND_REWRAP false;
 
 	system x1 x2
 		= image_out
 	{
 		[image_out] = vips_call "system" [command] [
-			$in => [x1, x2], 
+			$in => [x1, x2],
 			$out => true,
-			$out_format => "%s.tif", 
+			$out_format => "%s.tif",
 			$in_format => "%s.tif"
 		];
 	}
 }
 
-/* Three images in, one out. 
+/* Three images in, one out.
  */
 system_image3 command x1 x2 x3
 	= oo_binary_function system_image2_op x2 x3, is_class x2
@@ -2449,64 +2451,64 @@ system_image3 command x1 x2 x3
 	= system x1 x2 x3, is_image x1 && is_image x2 && is_image x3
 	= error (_ "bad arguments to " ++ "system_image3")
 {
-	system_image2_op = Operator "system_image2" 
+	system_image2_op = Operator "system_image2"
 		(system_image3 command x1) Operator_type.COMPOUND_REWRAP false;
 
 	system x1 x2 x3
 		= image_out
 	{
 		[image_out] = vips_call "system" [command] [
-			$in => [x1, x2, x3], 
+			$in => [x1, x2, x3],
 			$out => true,
-			$out_format => "%s.tif", 
+			$out_format => "%s.tif",
 			$in_format => "%s.tif"
 		];
 	}
 }
 
-/* Zero images in, one out. 
+/* Zero images in, one out.
  */
-system_image0 command 
+system_image0 command
 	= Image image_out
 {
 	[image_out] = vips_call "system" [command] [
 		$out => true,
-		$out_format => "%s.tif" 
+		$out_format => "%s.tif"
 	];
 }
 
-hough_line w h x 
+hough_line w h x
 	= oo_unary_function hough_line_op x, is_class x
-	= hline (to_real w) (to_real h) x, is_image x 
+	= hline (to_real w) (to_real h) x, is_image x
 	= error (_ "bad arguments to " ++ "hough_line")
 {
-	hough_line_op = Operator "hough_line" 
+	hough_line_op = Operator "hough_line"
 		(hough_line w h) Operator_type.COMPOUND_REWRAP false;
 
 	hline w h x
 		= pspace
 	{
 		[pspace] = vips_call "hough_line" [x] [
-			$width => w, 
+			$width => w,
 			$height => h
 		];
 	}
 }
 
-hough_circle s mn mx x 
+hough_circle s mn mx x
 	= oo_unary_function hough_circle_op x, is_class x
-	= hcircle (to_real s) (to_real mn) (to_real mx) x, is_image x 
+	= hcircle (to_real s) (to_real mn) (to_real mx) x, is_image x
 	= error (_ "bad arguments to " ++ "hough_circle")
 {
-	hough_circle_op = Operator "hough_circle" 
+	hough_circle_op = Operator "hough_circle"
 		(hough_circle s mn mx) Operator_type.COMPOUND_REWRAP false;
 
 	hcircle s mn mx x
 		= pspace
 	{
 		[pspace] = vips_call "hough_circle" [x] [
-			$scale => s, 
-			$min_radius => mn, 
+			$scale => s,
+			$min_radius => mn,
 			$max_radius => mx
 		];
 	}
@@ -2518,7 +2520,7 @@ mapim interp ind in
 	= mapim_fn ind in, is_image ind && is_image in
 	= error (_ "bad arguments to " ++ "mapim")
 {
-	mapim_op = Operator "mapim" 
+	mapim_op = Operator "mapim"
 		(mapim interp) Operator_type.COMPOUND_REWRAP false;
 
 	mapim_fn ind im
@@ -2532,7 +2534,7 @@ perlin cell width height
 	= Image im
 {
 	[im] = vips_call "perlin" [to_real width, to_real height] [
-		$cell_size => to_real cell 
+		$cell_size => to_real cell
 	];
 }
 
@@ -2540,7 +2542,7 @@ worley cell width height
 	= Image im
 {
 	[im] = vips_call "worley" [to_real width, to_real height] [
-		$cell_size => to_real cell 
+		$cell_size => to_real cell
 	];
 }
 
@@ -2553,29 +2555,29 @@ gaussnoise width height mean sigma
 	];
 }
 
-flattenimage bg x 
+flattenimage bg x
 	= oo_unary_function flatten_op x, is_class x
-	= flt (to_vector bg) x, is_image x 
+	= flt (to_vector bg) x, is_image x
 	= error (_ "bad arguments to " ++ "flattenimage")
 {
-	flatten_op = Operator "flatten" 
+	flatten_op = Operator "flatten"
 		(flattenimage bg) Operator_type.COMPOUND_REWRAP false;
 
 	flt bg x
 		= out
 	{
 		[out] = vips_call "flatten" [x] [
-			$background => bg.value 
+			$background => bg.value
 		];
 	}
 }
 
-premultiply x 
+premultiply x
 	= oo_unary_function premultiply_op x, is_class x
-	= prem x, is_image x 
+	= prem x, is_image x
 	= error (_ "bad arguments to " ++ "premultiply")
 {
-	premultiply_op = Operator "premultiply" 
+	premultiply_op = Operator "premultiply"
 		premultiply Operator_type.COMPOUND_REWRAP false;
 
 	prem x
@@ -2586,12 +2588,12 @@ premultiply x
 	}
 }
 
-unpremultiply x 
+unpremultiply x
 	= oo_unary_function unpremultiply_op x, is_class x
-	= unprem x, is_image x 
+	= unprem x, is_image x
 	= error (_ "bad arguments to " ++ "unpremultiply")
 {
-	unpremultiply_op = Operator "unpremultiply" 
+	unpremultiply_op = Operator "unpremultiply"
 		unpremultiply Operator_type.COMPOUND_REWRAP false;
 
 	unprem x
@@ -2602,12 +2604,12 @@ unpremultiply x
 	}
 }
 
-hist_entropy x 
+hist_entropy x
 	= oo_unary_function hist_entropy_op x, is_class x
-	= entropy x, is_image x 
+	= entropy x, is_image x
 	= error (_ "bad arguments to " ++ "hist_entropy")
 {
-	hist_entropy_op = Operator "hist_entropy" 
+	hist_entropy_op = Operator "hist_entropy"
 		hist_entropy Operator_type.COMPOUND_REWRAP false;
 
 	entropy x
@@ -2618,12 +2620,12 @@ hist_entropy x
 	}
 }
 
-canny sigma precision x 
+canny sigma precision x
 	= oo_unary_function canny_op x, is_class x
-	= canny_im (to_real sigma) (to_int precision) x, is_image x 
+	= canny_im (to_real sigma) (to_int precision) x, is_image x
 	= error (_ "bad arguments to " ++ "canny")
 {
-	canny_op = Operator "canny" 
+	canny_op = Operator "canny"
 		(canny sigma precision) Operator_type.COMPOUND_REWRAP false;
 
 	canny_im sigma precision x
@@ -2637,12 +2639,12 @@ canny sigma precision x
 
 }
 
-sobel x 
+sobel x
 	= oo_unary_function sobel_op x, is_class x
-	= sobel_im x, is_image x 
+	= sobel_im x, is_image x
 	= error (_ "bad arguments to " ++ "sobel")
 {
-	sobel_op = Operator "sobel" 
+	sobel_op = Operator "sobel"
 		sobel Operator_type.COMPOUND_REWRAP false;
 
 	sobel_im x

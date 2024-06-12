@@ -50,33 +50,31 @@ static const double workspaceview_animation_duration = 0.5;
 static double
 ease_out_cubic(double t)
 {
-    double p = t - 1;
+	double p = t - 1;
 
-    return p * p * p + 1;
+	return p * p * p + 1;
 }
 
 static void
 workspaceview_stop_animation(Workspaceview *wview)
 {
-    if (wview->tick_handler) {
-        gtk_widget_remove_tick_callback(GTK_WIDGET(wview), wview->tick_handler);
-        wview->tick_handler = 0;
-    }
+	if (wview->tick_handler) {
+		gtk_widget_remove_tick_callback(GTK_WIDGET(wview), wview->tick_handler);
+		wview->tick_handler = 0;
+	}
 }
 
 static gboolean
 workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 	gpointer user_data)
 {
-    Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspaceview *wview = WORKSPACEVIEW(user_data);
 
-    gint64 frame_time = gdk_frame_clock_get_frame_time(frame_clock);
-    double dt = wview->last_frame_time > 0 ?
-        (double) (frame_time - wview->last_frame_time) / G_TIME_SPAN_SECOND :
-        1.0 / G_TIME_SPAN_SECOND;
+	gint64 frame_time = gdk_frame_clock_get_frame_time(frame_clock);
+	double dt = wview->last_frame_time > 0 ? (double) (frame_time - wview->last_frame_time) / G_TIME_SPAN_SECOND : 1.0 / G_TIME_SPAN_SECOND;
 
 #ifdef DEBUG
-    printf("workspaceview_tick: dt = %g\n", dt);
+	printf("workspaceview_tick: dt = %g\n", dt);
 #endif /*DEBUG*/
 
 	gboolean finished = TRUE;
@@ -95,8 +93,7 @@ workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 		cview->elapsed += dt;
 
 		// 0-1 progress in animation
-		double duration = wview->should_animate ?
-			workspaceview_animation_duration : cview->elapsed;
+		double duration = wview->should_animate ? workspaceview_animation_duration : cview->elapsed;
 		double t = VIPS_CLIP(0, ease_out_cubic(cview->elapsed / duration), 1);
 
 		if (cview->shadow ||
@@ -123,19 +120,19 @@ workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 	if (finished)
 		workspaceview_stop_animation(wview);
 
-    wview->last_frame_time = frame_time;
+	wview->last_frame_time = frame_time;
 
-    return G_SOURCE_CONTINUE;
+	return G_SOURCE_CONTINUE;
 }
 
 static void
 workspaceview_start_animation(Workspaceview *wview)
 {
-    if (!wview->tick_handler) {
-        wview->last_frame_time = -1;
-        wview->tick_handler = gtk_widget_add_tick_callback(GTK_WIDGET(wview),
+	if (!wview->tick_handler) {
+		wview->last_frame_time = -1;
+		wview->tick_handler = gtk_widget_add_tick_callback(GTK_WIDGET(wview),
 			workspaceview_tick, wview, NULL);
-    }
+	}
 }
 
 static void
@@ -726,7 +723,7 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 			"edit", TRUE,
 			NULL);
 	else if (g_str_equal(name, "tab-select-all")) {
-		if(!ws->locked)
+		if (!ws->locked)
 			workspace_select_all(ws);
 	}
 	else if (g_str_equal(name, "tab-duplicate"))

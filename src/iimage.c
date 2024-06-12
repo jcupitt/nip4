@@ -189,8 +189,7 @@ iimage_load(Model *model,
 	(void) get_bprop(xnode, "falsecolour", &iimage->falsecolour);
 	(void) get_bprop(xnode, "type", &iimage->type);
 
-	return MODEL_CLASS(iimage_parent_class)->
-		load(model, state, parent, xnode);
+	return MODEL_CLASS(iimage_parent_class)->load(model, state, parent, xnode);
 }
 
 /* Need to implement _update_heap(), as not all model fields are directly

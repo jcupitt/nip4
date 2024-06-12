@@ -42,9 +42,9 @@
 /* State ... for mouse titlebar interactions.
  */
 typedef enum {
-	WVIEW_WAIT,					/* Rest state */
-	WVIEW_SELECT,				/* Select start, but no drag yet */
-	WVIEW_DRAG,					/* Drag state */
+	WVIEW_WAIT,	  /* Rest state */
+	WVIEW_SELECT, /* Select start, but no drag yet */
+	WVIEW_DRAG,	  /* Drag state */
 } WorkspaceviewState;
 
 struct _Workspaceview {
@@ -69,15 +69,15 @@ struct _Workspaceview {
 
 	/* Our state machine for interactions.
 	 */
-	WorkspaceviewState state;	/* Waiting or dragging */
-	Columnview *drag_cview;		/* Column we are dragging (if any) */
-	int obj_x;					/* Object position at start of drag */
+	WorkspaceviewState state; /* Waiting or dragging */
+	Columnview *drag_cview;	  /* Column we are dragging (if any) */
+	int obj_x;				  /* Object position at start of drag */
 	int obj_y;
 
 	/* Geometry.
 	 */
-	VipsRect vp;				/* Viewport pos and size */
-	int width;					/* Size of fixed area */
+	VipsRect vp; /* Viewport pos and size */
+	int width;	 /* Size of fixed area */
 	int height;
 
 	/* Placement hints for new columns.
@@ -97,7 +97,7 @@ struct _Workspaceview {
 	 */
 	guint tick_handler;
 	gint64 last_frame_time;
-    gboolean should_animate;
+	gboolean should_animate;
 };
 
 typedef struct _WorkspaceviewClass {
