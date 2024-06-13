@@ -124,7 +124,8 @@ enum {
 };
 
 enum {
-	SIG_CHANGED, /* x/y/scale has changed */
+	SIG_CHANGED,		/* x/y/scale has changed */
+	SIG_SNAPSHOT,		/* draw overlays */
 	SIG_LAST
 };
 
@@ -149,6 +150,14 @@ static void
 imagedisplay_changed(Imagedisplay *imagedisplay)
 {
 	g_signal_emit(imagedisplay, imagedisplay_signals[SIG_CHANGED], 0);
+}
+
+static void
+imagedisplay_overlay_snapshot(Imagedisplay *imagedisplay,
+	GtkSnapshot *snapshot)
+{
+	g_signal_emit(imagedisplay,
+		imagedisplay_signals[SIG_SNAPSHOT], snapshot, 0);
 }
 
 static void
@@ -599,10 +608,13 @@ imagedisplay_snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
 			&imagedisplay->paint_rect,
 			imagedisplay->debug);
 
+	// draw any overlays
+	imagedisplay_overlay_snapshot(imagedisplay, snapshot);
+
 	gtk_snapshot_pop(snapshot);
 
-	/* I wasn't able to get gtk_snapshot_render_focus() working. Draw
-	 * the focus rect ourselves.
+	/* It's unclear how to do this :( maybe we're supposed to get the base
+	 * widget class to do it? Draw it ourselves for now.
 	 */
 	if (gtk_widget_has_focus(widget)) {
 		GskRoundedRect outline;
@@ -766,6 +778,15 @@ imagedisplay_class_init(ImagedisplayClass *class)
 		NULL, NULL,
 		g_cclosure_marshal_VOID__VOID,
 		G_TYPE_NONE, 0);
+
+	imagedisplay_signals[SIG_SNAPSHOT] = g_signal_new("snapshot",
+		G_TYPE_FROM_CLASS(class),
+		G_SIGNAL_RUN_LAST,
+		0,
+		NULL, NULL,
+		g_cclosure_marshal_VOID__OBJECT,
+		G_TYPE_NONE, 0);
+
 }
 
 Imagedisplay *

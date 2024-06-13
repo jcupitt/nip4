@@ -81,7 +81,7 @@ typedef struct {
 	iRegiongroupview *iregiongroupview;
 	Classmodel *classmodel;
 	iImage *iimage;
-	Imagewindow *win;
+	Imageui *imageui;
 } iRegiongroupviewRefreshState;
 
 static Regionview *
@@ -89,21 +89,32 @@ iregiongroupview_refresh_imageview_test(Regionview *regionview,
 	iRegiongroupviewRefreshState *irs)
 {
 	if (regionview->classmodel == irs->classmodel &&
-		regionview->win == irs->win)
+		regionview->imageui == irs->imageui)
 		return regionview;
 
 	return NULL;
 }
 
+Regionview *
+regionview_new(Classmodel *classmodel, VipsRect *model_area, Imageui *imageui)
+{
+	return NULL;
+}
+
+void
+regionview_set_type(Regionview *regionview, PElement *root)
+{
+}
+
 static void *
-iregiongroupview_refresh_imageview(Imagewindow *win,
+iregiongroupview_refresh_imageview(Imageui *imageui,
 	iRegiongroupviewRefreshState *irs)
 {
 	Regionview *regionview;
 
-	irs->win = win;
+	irs->imageui = imageui;
 
-	/* Do we have a Regionview for this win already?
+	/* Do we have a Regionview for this imageui already?
 	 */
 	if ((regionview = slist_map(irs->notused,
 			 (SListMapFn) iregiongroupview_refresh_imageview_test, irs))) {
@@ -114,13 +125,12 @@ iregiongroupview_refresh_imageview(Imagewindow *win,
 	else {
 		/* Nope ... make a new one.
 		 */
-		iRegionInstance *instance =
-			classmodel_get_instance(irs->classmodel);
+		iRegionInstance *instance = classmodel_get_instance(irs->classmodel);
 		PElement *root = &HEAPMODEL(irs->classmodel)->row->expr->root;
 
 		if (instance) {
-			Regionview *regionview = regionview_new(
-				irs->classmodel, &instance->area, win);
+			Regionview *regionview = regionview_new(irs->classmodel,
+				&instance->area, imageui);
 
 #ifdef DEBUG
 			printf("iregiongroupview_refresh_imageview: "

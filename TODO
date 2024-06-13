@@ -9,7 +9,14 @@
 
 - how should we draw these? look at the snapshot code again
 
-	eg. the debug tile display?
+	eg. the debug tile display? see tilecache_snapshot()
+
+	regionview should connect to "snapshot" on the imagedisplay
+
+	regions should attach to imageui ... an imagedisplay + a scrolled
+	window + a tilesource
+
+	connect to "changed" on imageui to see mouse events etc
 
 ## small
 

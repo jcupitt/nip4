@@ -100,7 +100,7 @@ struct _Regionview {
 
 	/* The window we draw on.
 	 */
-	Imagewindow *win;
+	Imageui *imageui;
 
 	/* The signals we've connected to.
 	 */
@@ -139,6 +139,6 @@ void regionview_attach(Regionview *regionview, int x, int y);
 
 GType regionview_get_type(void);
 Regionview *regionview_new(Classmodel *classmodel,
-	VipsRect *model_area, Imagewindow *win);
+	VipsRect *model_area, Imageui *imageui);
 
 void regionview_set_type(Regionview *regionview, PElement *root);
