@@ -11,12 +11,50 @@
 
 	eg. the debug tile display? see tilecache_snapshot()
 
-	regionview should connect to "snapshot" on the imagedisplay
+	regionview should connect to "snapshot" on the imagedisplay for
+	repainting
 
-	regions should attach to imageui ... an imagedisplay + a scrolled
-	window + a tilesource
+	imageui needs to handle region create / drag / resize etc. so it works
+	with with drag-scroll etc.
 
-	connect to "changed" on imageui to see mouse events etc
+	imageui needs to hold the regionview ref counts --- it has to be in
+	charge of creating and destroying these things
+
+	regionview.c offers as API the imageui.c can use to position, draw,
+	calculate hits etc.
+
+
+
+	regionview_new() takes an imageui as a param, and we use that to link
+	them together
+
+		iregiongroupview_refresh_imageview() calls regionview_new()
+
+		used iimage->views to get a list of imageui for that iimage
+
+
+- remove most of regionview.c, just get something compiling and check it
+  can add and remove views
+
+	imageui needs all the region create/resize/move/etc. code
+
+
+
+
+
+
+
+
+## row drag
+
+- need to be able to drag rows inside columns, with animation, shadows, etc.
+
+  drag between columns as well?
+
+  drag row to background to make a new column?
+
+  maybe drag to move, ctrl-drag to copy (make a reference), like a file
+  mananger?
 
 ## small
 

@@ -157,7 +157,7 @@ imagedisplay_overlay_snapshot(Imagedisplay *imagedisplay,
 	GtkSnapshot *snapshot)
 {
 	g_signal_emit(imagedisplay,
-		imagedisplay_signals[SIG_SNAPSHOT], snapshot, 0);
+		imagedisplay_signals[SIG_SNAPSHOT], 0, snapshot);
 }
 
 static void
@@ -781,7 +781,7 @@ imagedisplay_class_init(ImagedisplayClass *class)
 
 	imagedisplay_signals[SIG_SNAPSHOT] = g_signal_new("snapshot",
 		G_TYPE_FROM_CLASS(class),
-		G_SIGNAL_RUN_LAST,
+		G_SIGNAL_RUN_FIRST,
 		0,
 		NULL, NULL,
 		g_cclosure_marshal_VOID__OBJECT,

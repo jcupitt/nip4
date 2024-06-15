@@ -721,7 +721,7 @@ imagewindow_open_current_file(Imagewindow *win,
 				return;
 			}
 
-			imageui = imageui_new(tilesource);
+			imageui = imageui_new(tilesource, win->iimage);
 			if (!imageui) {
 				imagewindow_error(win);
 				return;
@@ -1537,7 +1537,7 @@ imagewindow_get_settings(Imagewindow *win)
 void
 imagewindow_set_tilesource(Imagewindow *win, Tilesource *tilesource)
 {
-	Imageui *imageui = imageui_new(tilesource);
+	Imageui *imageui = imageui_new(tilesource, win->iimage);
 	if (!imageui) {
 		imagewindow_error(win);
 		return;

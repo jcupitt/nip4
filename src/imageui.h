@@ -55,7 +55,7 @@ void imageui_magout(Imageui *imageui);
 void imageui_oneone(Imageui *imageui);
 gboolean imageui_scale(Imageui *imageui);
 
-Imageui *imageui_new(Tilesource *tilesource);
+Imageui *imageui_new(Tilesource *tilesource, iImage *iimage);
 Imageui *imageui_duplicate(Tilesource *tilesource, Imageui *old_imageui);
 
 void imageui_image_to_gtk(Imageui *imageui,

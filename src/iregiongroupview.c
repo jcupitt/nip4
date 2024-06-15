@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -52,6 +52,14 @@ iregiongroupview_get_classmodel(iRegiongroupview *iregiongroupview)
 	return NULL;
 }
 
+static void *
+iregiongroupview_unref(Regionview *regionview)
+{
+	g_object_unref(regionview);
+
+	return NULL;
+}
+
 static void
 iregiongroupview_dispose(GObject *object)
 {
@@ -69,7 +77,7 @@ iregiongroupview_dispose(GObject *object)
 	/* Destroy all regionviews we manage.
 	 */
 	slist_map(iregiongroupview->classmodel->views,
-		(SListMapFn) view_child_remove, NULL);
+		(SListMapFn) iregiongroupview_unref, NULL);
 
 	G_OBJECT_CLASS(iregiongroupview_parent_class)->dispose(object);
 }
@@ -93,17 +101,6 @@ iregiongroupview_refresh_imageview_test(Regionview *regionview,
 		return regionview;
 
 	return NULL;
-}
-
-Regionview *
-regionview_new(Classmodel *classmodel, VipsRect *model_area, Imageui *imageui)
-{
-	return NULL;
-}
-
-void
-regionview_set_type(Regionview *regionview, PElement *root)
-{
 }
 
 static void *
@@ -168,7 +165,7 @@ iregiongroupview_refresh(vObject *vobject)
 	printf("iregiongroupview_refresh\n");
 	printf("watching model %s %s\n",
 		G_OBJECT_TYPE_NAME(vobject->iobject),
-		NN(IOBJECT(vobject->iobject)->name));
+		IOBJECT(vobject->iobject)->name);
 #endif /*DEBUG*/
 
 	iregiongroupview->classmodel =
@@ -188,7 +185,7 @@ iregiongroupview_refresh(vObject *vobject)
 
 		/* Remove all the regionviews we've not used.
 		 */
-		slist_map(irs.notused, (SListMapFn) view_child_remove, NULL);
+		slist_map(irs.notused, (SListMapFn) iregiongroupview_unref, NULL);
 		VIPS_FREEF(g_slist_free, irs.notused);
 	}
 

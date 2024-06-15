@@ -51,6 +51,13 @@ struct _Imageui {
 
 	Tilesource *tilesource;
 
+	/* The iimage we represent ... we add/remove ourselves from iimage->views
+	 * so that iregiongroupview.c can find us.
+	 *
+	 * notaref
+	 */
+	 iImage *iimage;
+
 	/* Last known mouse position, in gtk coordinates. We keep these in gtk
 	 * cods so we don't need to update them on pan / zoom.
 	 */
@@ -87,6 +94,12 @@ struct _Imageui {
 	 */
 	gboolean eased;
 
+	/* Region manipulation.
+	 */
+	Regionview *regionview;				/* Region rubberband display */
+	VipsRect floating;					/* Rubberband area */
+	Regionview *grabbed;				/* Currently grabbed */
+
 	GtkWidget *scrolled_window;
 	GtkWidget *imagedisplay;
 
@@ -99,6 +112,7 @@ G_DEFINE_TYPE(Imageui, imageui, GTK_TYPE_WIDGET);
 
 enum {
 	PROP_TILESOURCE = 1,
+	PROP_IIMAGE,
 	PROP_BACKGROUND,
 	PROP_ZOOM,
 	PROP_X,
@@ -118,6 +132,21 @@ enum {
 static guint imageui_signals[SIG_LAST] = { 0 };
 
 static void
+imageui_set_iimage(Imageui *imageui, iImage *iimage)
+{
+	if (imageui->iimage) {
+		imageui->iimage->views =
+			g_slist_remove(imageui->iimage->views, imageui);
+		imageui->iimage = NULL;
+	}
+
+	if (iimage) {
+		imageui->iimage = iimage;
+		iimage->views = g_slist_prepend(iimage->views, imageui);
+	}
+}
+
+static void
 imageui_dispose(GObject *object)
 {
 	Imageui *imageui = (Imageui *) object;
@@ -126,6 +155,7 @@ imageui_dispose(GObject *object)
 	printf("imageui_dispose:\n");
 #endif /*DEBUG*/
 
+	imageui_set_iimage(imageui, NULL);
 	VIPS_FREEF(gtk_widget_unparent, imageui->scrolled_window);
 
 	G_OBJECT_CLASS(imageui_parent_class)->dispose(object);
@@ -141,17 +171,6 @@ imageui_changed(Imageui *imageui)
 	g_signal_emit(imageui, imageui_signals[SIG_CHANGED], 0);
 }
 
-static void
-imageui_set_tilesource(Imageui *imageui, Tilesource *tilesource)
-{
-	// not a ref ... the real one is held by imagedisplay
-	imageui->tilesource = tilesource;
-
-	g_object_set(imageui->imagedisplay,
-		"tilesource", tilesource,
-		NULL);
-}
-
 #ifdef DEBUG_VERBOSE
 static const char *
 imageui_property_name(guint prop_id)
@@ -159,6 +178,10 @@ imageui_property_name(guint prop_id)
 	switch (prop_id) {
 	case PROP_TILESOURCE:
 		return "TILESOURCE";
+		break;
+
+	case PROP_IIMAGE:
+		return "IIMAGE";
 		break;
 
 	case PROP_BACKGROUND:
@@ -199,8 +222,12 @@ imageui_set_property(GObject *object,
 
 	switch (prop_id) {
 	case PROP_TILESOURCE:
-		imageui_set_tilesource(imageui,
-			TILESOURCE(g_value_get_object(value)));
+		// not a ref ... the real one is held by imagedisplay
+		imageui->tilesource = TILESOURCE(g_value_get_object(value));
+		break;
+
+	case PROP_IIMAGE:
+		imageui_set_iimage(imageui, IIMAGE(g_value_get_object(value)));
 		break;
 
 	case PROP_BACKGROUND:
@@ -244,6 +271,10 @@ imageui_get_property(GObject *object,
 	switch (prop_id) {
 	case PROP_TILESOURCE:
 		g_value_set_object(value, imageui->tilesource);
+		break;
+
+	case PROP_IIMAGE:
+		g_value_set_object(value, imageui->iimage);
 		break;
 
 	case PROP_BACKGROUND:
@@ -872,6 +903,14 @@ imageui_scroll(GtkEventControllerMotion *self,
 	return TRUE;
 }
 
+// from the imagedisplay snapshot method: draw any visible regions
+static void
+imageui_overlay_snapshot(Imagedisplay *imagedisplay,
+	GtkSnapshot *snapshot, Imageui *imageui)
+{
+	printf("imageui_overlay_snapshot: draw all regionview\n");
+}
+
 static void
 imageui_init(Imageui *imageui)
 {
@@ -887,6 +926,9 @@ imageui_init(Imageui *imageui)
 	g_object_set( gtk_widget_get_settings( GTK_WIDGET( win ) ),
 		"gtk-enable-animations", FALSE, NULL );
 	 */
+
+	g_signal_connect_object(G_OBJECT(imageui->imagedisplay), "snapshot",
+		G_CALLBACK(imageui_overlay_snapshot), imageui, 0);
 
 	// read the gtk animation setting preference
 	imageui->should_animate = widget_should_animate(GTK_WIDGET(imageui));
@@ -942,6 +984,13 @@ imageui_class_init(ImageuiClass *class)
 			TILESOURCE_TYPE,
 			G_PARAM_READWRITE));
 
+	g_object_class_install_property(gobject_class, PROP_IIMAGE,
+		g_param_spec_object("iimage",
+			_("iImage"),
+			_("The model we represent"),
+			IIMAGE_TYPE,
+			G_PARAM_READWRITE));
+
 	g_object_class_install_property(gobject_class, PROP_BACKGROUND,
 		g_param_spec_int("background",
 			_("Background"),
@@ -981,7 +1030,7 @@ imageui_class_init(ImageuiClass *class)
 }
 
 Imageui *
-imageui_new(Tilesource *tilesource)
+imageui_new(Tilesource *tilesource, iImage *iimage)
 {
 	Imageui *imageui;
 
@@ -991,6 +1040,7 @@ imageui_new(Tilesource *tilesource)
 
 	imageui = g_object_new(IMAGEUI_TYPE,
 		"tilesource", tilesource,
+		"iimage", iimage,
 		NULL);
 
 	return imageui;
@@ -999,7 +1049,7 @@ imageui_new(Tilesource *tilesource)
 Imageui *
 imageui_duplicate(Tilesource *tilesource, Imageui *old_imageui)
 {
-	Imageui *new_imageui = imageui_new(tilesource);
+	Imageui *new_imageui = imageui_new(tilesource, old_imageui->iimage);
 
 	/* We want to copy position and zoom, so no bestfit.
 	 */

@@ -102,15 +102,6 @@ struct _Regionview {
 	 */
 	Imageui *imageui;
 
-	/* The signals we've connected to.
-	 */
-	guint expose_sid;
-	guint destroy_sid;
-	guint event_sid;
-	guint changed_sid;
-	guint conv_destroy_sid;
-	guint model_changed_sid;
-
 	/* What's on the screen.
 	 */
 	gboolean unpainting;		/* We are unpainting */
