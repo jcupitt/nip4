@@ -174,9 +174,7 @@ iregion_generate_caption(iObject *iobject)
 static View *
 iregion_view_new(Model *model, View *parent)
 {
-	printf("iregion_view_new: FIXME\n");
-	// return iregionview_new();
-	return NULL;
+	return iregionview_new();
 }
 
 /* Shared with iarrow.c.
