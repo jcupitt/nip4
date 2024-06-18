@@ -196,8 +196,8 @@ iimageview_link(View *view, Model *model, View *parent)
 	iImageview *iimageview = IIMAGEVIEW(view);
 	iImage *iimage = IIMAGE(model);
 
-	g_signal_connect(iimage, "changed",
-		G_CALLBACK(iimageview_iimage_changed), view);
+	g_signal_connect_object(iimage, "changed",
+		G_CALLBACK(iimageview_iimage_changed), view, 0);
 
 	VIEW_CLASS(iimageview_parent_class)->link(view, model, parent);
 }
