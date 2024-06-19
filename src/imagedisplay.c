@@ -399,9 +399,10 @@ imagedisplay_tilecache_area_changed(Tilecache *tilecache,
 }
 
 static void
-imagedisplay_set_tilesource(Imagedisplay *imagedisplay,
-	Tilesource *tilesource)
+imagedisplay_set_tilesource(Imagedisplay *imagedisplay, Tilesource *tilesource)
 {
+	printf("imagedisplay_set_tilesource: %p\n", tilesource);
+
 	VIPS_UNREF(imagedisplay->tilecache);
 	VIPS_UNREF(imagedisplay->tilesource);
 
@@ -427,11 +428,74 @@ imagedisplay_set_tilesource(Imagedisplay *imagedisplay,
 	}
 }
 
+#ifdef DEBUG
+static const char *
+imagedisplay_property_name(guint prop_id)
+{
+	switch (prop_id) {
+	case PROP_TILESOURCE:
+		return "TILESOURCE";
+		break;
+
+	case PROP_HADJUSTMENT:
+		return "HADJUSTMENT";
+		break;
+
+	case PROP_HSCROLL_POLICY:
+		return "HSCROLL_POLICY";
+		break;
+
+	case PROP_VADJUSTMENT:
+		return "VADJUSTMENT";
+		break;
+
+	case PROP_VSCROLL_POLICY:
+		return "VSCROLL_POLICY";
+		break;
+
+	case PROP_BESTFIT:
+		return "BESTFIT";
+		break;
+
+	case PROP_BACKGROUND:
+		return "BACKGROUND";
+		break;
+
+	case PROP_ZOOM:
+		return "ZOOM";
+		break;
+
+	case PROP_X:
+		return "X";
+		break;
+
+	case PROP_Y:
+		return "Y";
+		break;
+
+	case PROP_DEBUG:
+		return "DEBUG";
+		break;
+
+	default:
+		return "<unknown>";
+	}
+}
+#endif /*DEBUG*/
+
 static void
 imagedisplay_set_property(GObject *object,
 	guint prop_id, const GValue *value, GParamSpec *pspec)
 {
 	Imagedisplay *imagedisplay = (Imagedisplay *) object;
+
+#ifdef DEBUG
+	{
+		g_autofree char *str = g_strdup_value_contents(value);
+		printf("imagedisplay_set_property: %s = %s\n",
+			imagedisplay_property_name(prop_id), str);
+	}
+#endif /*DEBUG*/
 
 	switch (prop_id) {
 	case PROP_HADJUSTMENT:
@@ -781,11 +845,12 @@ imagedisplay_class_init(ImagedisplayClass *class)
 
 	imagedisplay_signals[SIG_SNAPSHOT] = g_signal_new("snapshot",
 		G_TYPE_FROM_CLASS(class),
-		G_SIGNAL_RUN_FIRST,
+		G_SIGNAL_RUN_LAST,
 		0,
 		NULL, NULL,
 		g_cclosure_marshal_VOID__OBJECT,
-		G_TYPE_NONE, 0);
+		G_TYPE_NONE, 1,
+		GTK_TYPE_SNAPSHOT);
 
 }
 

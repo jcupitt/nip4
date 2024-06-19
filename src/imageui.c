@@ -222,6 +222,9 @@ imageui_set_property(GObject *object,
 
 	switch (prop_id) {
 	case PROP_TILESOURCE:
+		g_object_set_property(G_OBJECT(imageui->imagedisplay),
+			"tilesource", value);
+
 		// not a ref ... the real one is held by imagedisplay
 		imageui->tilesource = TILESOURCE(g_value_get_object(value));
 		break;

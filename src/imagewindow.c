@@ -28,8 +28,8 @@
 */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -566,16 +566,8 @@ imagewindow_changed(Imagewindow *win)
 static void
 imagewindow_imageui_changed(Imageui *imageui, Imagewindow *win)
 {
-	TilecacheBackground background;
-	g_object_get(imageui, "background", &background, NULL);
-
-	const char *str = vips_enum_string(TILECACHE_BACKGROUND_TYPE, background);
-	if (str) {
-		GVariant *state = g_variant_new_string(str);
-		change_state(GTK_WIDGET(win), "background", state);
-
-		imagewindow_status_changed(win);
-	}
+	// come here for mouse drag, ie. we should update the infobar
+	imagewindow_status_changed(win);
 }
 
 /* Add an imageui to the stack.

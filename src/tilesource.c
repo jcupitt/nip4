@@ -802,7 +802,7 @@ tilesource_set_property(GObject *object,
 #ifdef DEBUG
 	{
 		g_autofree char *str = g_strdup_value_contents(value);
-		printf("tilesource_set_property: %s %s\n",
+		printf("tilesource_set_property: %s = %s\n",
 			tilesource_property_name(prop_id), str);
 	}
 #endif /*DEBUG*/
