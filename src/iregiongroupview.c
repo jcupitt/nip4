@@ -109,6 +109,10 @@ iregiongroupview_refresh_imageview(Imageui *imageui,
 {
 	Regionview *regionview;
 
+#ifdef DEBUG
+	printf("iregiongroupview_refresh_imageview: imageui = %p\n", imageui);
+#endif /*DEBUG*/
+
 	irs->imageui = imageui;
 
 	/* Do we have a Regionview for this imageui already?
@@ -147,6 +151,10 @@ static void *
 iregiongroupview_refresh_iimage(iImage *iimage,
 	iRegiongroupviewRefreshState *irs)
 {
+#ifdef DEBUG
+	printf("iregiongroupview_refresh_iimage: iimage = %p\n", iimage);
+#endif /*DEBUG*/
+
 	irs->iimage = iimage;
 	slist_map(iimage->views,
 		(SListMapFn) iregiongroupview_refresh_imageview, irs);

@@ -38,6 +38,19 @@
 
 	imageui needs all the region create/resize/move/etc. code
 
+	currently see:
+
+		iregiongroupview_refresh
+		watching model iRegiongroup (null)
+		iregiongroupview_refresh_iimage: iimage = 0x55555a014c10
+		iregiongroupview_refresh_imageview: imageui = 0x55555afd8070
+		regionview_init
+		regionview_new: 10x10 size 100x100
+		iregiongroupview_refresh_imageview: creating new regionview
+		iimageview_refresh: FIXME
+
+	so we can start to add drawinhg code (I think)
+
 
 
 

@@ -60,9 +60,7 @@ iregiongroup_update_model(Heapmodel *heapmodel)
 static View *
 iregiongroup_view_new(Model *model, View *parent)
 {
-	printf("iregiongroup_view_new: FIXME\n");
-	// return iregiongroupview_new();
-	return NULL;
+	return iregiongroupview_new();
 }
 
 static void
