@@ -46,6 +46,9 @@
  */
 #define ZOOM_DURATION (0.5)
 
+static PangoContext *imageui_context = NULL;
+static PangoFontMap *imageui_fontmap = NULL;
+
 struct _Imageui {
 	GtkWidget parent_instance;
 
@@ -957,7 +960,7 @@ imageui_overlay_snapshot(Imagedisplay *imagedisplay,
 
 		GskRoundedRect outline;
 
-#define BORDER ((GdkRGBA){ 1, 0, 0, 1 })
+#define BORDER ((GdkRGBA){ 0.9, 1.0, 0.9, 0.6 })
 
 		gsk_rounded_rect_init_from_rect(&outline,
 			&GRAPHENE_RECT_INIT(left, top,
@@ -965,10 +968,18 @@ imageui_overlay_snapshot(Imagedisplay *imagedisplay,
 				regionview->our_area.height * zoom),
 			0);
 
-		gtk_snapshot_append_border(snapshot,
+		gtk_snapshot_append_outset_shadow(snapshot,
 			&outline,
-			(float[4]){ 2, 2, 2, 2 },
-			(GdkRGBA[4]){ BORDER, BORDER, BORDER, BORDER });
+			&BORDER,
+			0, 0,
+			10, 0);
+
+		g_autoptr(PangoLayout) layout = pango_layout_new(imageui_context);
+		pango_layout_set_markup(layout, vips_buf_all(&regionview->caption), -1);
+
+		gtk_snapshot_append_layout(snapshot, layout,
+			&((GdkRGBA){ 0, 0, 0, 1 }));
+
 	}
 }
 
@@ -1088,6 +1099,9 @@ imageui_class_init(ImageuiClass *class)
 		NULL, NULL,
 		g_cclosure_marshal_VOID__VOID,
 		G_TYPE_NONE, 0);
+
+	imageui_fontmap = pango_cairo_font_map_new();
+	imageui_context = pango_font_map_create_context(imageui_fontmap);
 }
 
 Imageui *
