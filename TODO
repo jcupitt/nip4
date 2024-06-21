@@ -1,55 +1,15 @@
 
+
 ## region display
 
-- next
+- need to add regionviews on imageui_new()
 
-	iregionview.[hc]
-	regionview.[hc]
-	arrow stuff
+- not moving regionviews on classmodel change -- we seem to make a new one
+  each time
 
-- how should we draw these? look at the snapshot code again
+- move region drawing into regionview.c
 
-	eg. the debug tile display? see tilecache_snapshot()
-
-	regionview should connect to "snapshot" on the imagedisplay for
-	repainting
-
-	imageui needs to handle region create / drag / resize etc. so it works
-	with with drag-scroll etc.
-
-	imageui needs to hold the regionview ref counts --- it has to be in
-	charge of creating and destroying these things
-
-	regionview.c offers as API the imageui.c can use to position, draw,
-	calculate hits etc.
-
-
-
-	regionview_new() takes an imageui as a param, and we use that to link
-	them together
-
-		iregiongroupview_refresh_imageview() calls regionview_new()
-
-		used iimage->views to get a list of imageui for that iimage
-
-
-- remove most of regionview.c, just get something compiling and check it
-  can add and remove views
-
-	imageui needs all the region create/resize/move/etc. code
-
-	currently see:
-
-		iregiongroupview_refresh
-		watching model iRegiongroup (null)
-		iregiongroupview_refresh_iimage: iimage = 0x55555a014c10
-		iregiongroupview_refresh_imageview: imageui = 0x55555afd8070
-		regionview_init
-		regionview_new: 10x10 size 100x100
-		iregiongroupview_refresh_imageview: creating new regionview
-		iimageview_refresh: FIXME
-
-	so we can start to add drawinhg code (I think)
+- seem to leak tilesource?
 
 
 

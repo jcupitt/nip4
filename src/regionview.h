@@ -129,7 +129,6 @@ typedef struct _RegionviewClass {
 void regionview_attach(Regionview *regionview, int x, int y);
 
 GType regionview_get_type(void);
-Regionview *regionview_new(Classmodel *classmodel,
-	VipsRect *model_area, Imageui *imageui);
+Regionview *regionview_new(Classmodel *classmodel);
 
 void regionview_set_type(Regionview *regionview, PElement *root);

@@ -44,6 +44,9 @@
 
 G_DECLARE_FINAL_TYPE(Imageui, imageui, NIP4, IMAGEUI, GtkWidget)
 
+void imageui_add_regionview(Imageui *imageui, Regionview *regionview);
+void imageui_remove_regionview(Imageui *imageui, Regionview *regionview);
+
 double imageui_get_scale(Imageui *imageui);
 Tilesource *imageui_get_tilesource(Imageui *imageui);
 void imageui_get_mouse_position(Imageui *imageui,

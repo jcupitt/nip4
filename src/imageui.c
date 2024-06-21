@@ -94,6 +94,10 @@ struct _Imageui {
 	 */
 	gboolean eased;
 
+	/* All the regionviews we manage. True references.
+	 */
+	GSList *regionviews;
+
 	/* Region manipulation.
 	 */
 	Regionview *regionview;				/* Region rubberband display */
@@ -146,6 +150,24 @@ imageui_set_iimage(Imageui *imageui, iImage *iimage)
 	}
 }
 
+void
+imageui_add_regionview(Imageui *imageui, Regionview *regionview)
+{
+	g_assert(!g_slist_find(imageui->regionviews, regionview));
+
+	imageui->regionviews = g_slist_prepend(imageui->regionviews, regionview);
+	g_object_ref_sink(regionview);
+}
+
+void
+imageui_remove_regionview(Imageui *imageui, Regionview *regionview)
+{
+	g_assert(g_slist_find(imageui->regionviews, regionview));
+
+	imageui->regionviews = g_slist_remove(imageui->regionviews, regionview);
+	g_object_unref(regionview);
+}
+
 static void
 imageui_dispose(GObject *object)
 {
@@ -154,6 +176,12 @@ imageui_dispose(GObject *object)
 #ifdef DEBUG
 	printf("imageui_dispose:\n");
 #endif /*DEBUG*/
+
+	while (imageui->regionviews) {
+		Regionview *regionview = REGIONVIEW(imageui->regionviews->data);
+
+		imageui_remove_regionview(imageui, regionview);
+	}
 
 	imageui_set_iimage(imageui, NULL);
 	VIPS_FREEF(gtk_widget_unparent, imageui->scrolled_window);
@@ -463,7 +491,8 @@ imageui_tick(GtkWidget *widget, GdkFrameClock *frame_clock, gpointer user_data)
 		// 0/1/etc. discrete zoom
 		imageui->zoom_progress += dt;
 
-		double duration = imageui->should_animate ? ZOOM_DURATION : imageui->zoom_progress;
+		double duration = imageui->should_animate ?
+			ZOOM_DURATION : imageui->zoom_progress;
 
 		// 0-1 progress in zoom animation
 		double t = ease_out_cubic(imageui->zoom_progress / duration);
@@ -911,7 +940,36 @@ static void
 imageui_overlay_snapshot(Imagedisplay *imagedisplay,
 	GtkSnapshot *snapshot, Imageui *imageui)
 {
-	printf("imageui_overlay_snapshot: draw all regionview\n");
+	double zoom = imageui_get_zoom(imageui);
+
+	for (GSList *p = imageui->regionviews; p; p = p->next) {
+		Regionview *regionview = REGIONVIEW(p->data);
+
+		printf("imageui_overlay_snapshot: paint regionview %p\n", regionview);
+		printf("\tleft = %d, top = %d, width = %d, height = %d\n",
+				regionview->our_area.left, regionview->our_area.top,
+				regionview->our_area.width, regionview->our_area.height);
+
+		double left;
+		double top;
+		imagedisplay_image_to_gtk(IMAGEDISPLAY(imageui->imagedisplay),
+			regionview->our_area.left, regionview->our_area.top, &left, &top);
+
+		GskRoundedRect outline;
+
+#define BORDER ((GdkRGBA){ 1, 0, 0, 1 })
+
+		gsk_rounded_rect_init_from_rect(&outline,
+			&GRAPHENE_RECT_INIT(left, top,
+				regionview->our_area.width * zoom,
+				regionview->our_area.height * zoom),
+			0);
+
+		gtk_snapshot_append_border(snapshot,
+			&outline,
+			(float[4]){ 2, 2, 2, 2 },
+			(GdkRGBA[4]){ BORDER, BORDER, BORDER, BORDER });
+	}
 }
 
 static void

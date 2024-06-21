@@ -268,55 +268,17 @@ resize_to_str(RegionviewResize resize)
 }
 #endif /*EVENT*/
 
-static gboolean
-regionview_dash_crawl_cb(Regionview *regionview)
+Regionview *
+regionview_new(Classmodel *classmodel)
 {
-	/* Don't for regions, areas and points ... no lines in 'em.
-	 */
-	if (regionview->type != REGIONVIEW_REGION &&
-		regionview->type != REGIONVIEW_MARK &&
-		regionview->type != REGIONVIEW_AREA) {
-		regionview->dash_offset += 3;
+	Regionview *regionview = g_object_new(REGIONVIEW_TYPE, 0);
 
-		/* Don't repaint before the first expose. last_type etc.
-		 * won't have been inited properly yet.
-		 */
-		if (!regionview->first)
-			regionview_queue_draw(regionview);
-	}
-
-	return TRUE;
-}
-
-static void
-regionview_setup(Regionview *regionview,
-	Classmodel *classmodel, VipsRect *model_area, Imageui *imageui)
-{
 	regionview->classmodel = classmodel;
-	regionview->imageui = imageui;
-	regionview->model_area = model_area;
-	regionview->our_area = *model_area;
+	regionview_update_from_model(regionview);
 
 	if (classmodel)
 		g_signal_connect_object(G_OBJECT(classmodel), "changed",
 			G_CALLBACK(regionview_model_changed_cb), regionview, 0);
-
-	regionview->dash_crawl = g_timeout_add(200,
-		(GSourceFunc) regionview_dash_crawl_cb, regionview);
-}
-
-Regionview *
-regionview_new(Classmodel *classmodel, VipsRect *model_area, Imageui *imageui)
-{
-	Regionview *regionview = g_object_new(REGIONVIEW_TYPE, 0);
-
-	regionview_setup(regionview, classmodel, model_area, imageui);
-
-#ifdef DEBUG_MAKE
-	printf("regionview_new: %dx%d size %dx%d\n",
-		model_area->left, model_area->top,
-		model_area->width, model_area->height);
-#endif /*DEBUG_MAKE*/
 
 	return regionview;
 }

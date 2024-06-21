@@ -124,24 +124,14 @@ iregiongroupview_refresh_imageview(Imageui *imageui,
 		irs->notused = g_slist_remove(irs->notused, regionview);
 	}
 	else {
-		/* Nope ... make a new one.
-		 */
-		iRegionInstance *instance = classmodel_get_instance(irs->classmodel);
-		PElement *root = &HEAPMODEL(irs->classmodel)->row->expr->root;
-
-		if (instance) {
-			Regionview *regionview = regionview_new(irs->classmodel,
-				&instance->area, imageui);
+		Regionview *regionview = regionview_new(irs->classmodel);
 
 #ifdef DEBUG
-			printf("iregiongroupview_refresh_imageview: "
-				   "creating new regionview\n");
+		printf("iregiongroupview_refresh_imageview: "
+			   "creating new regionview\n");
 #endif /*DEBUG*/
 
-			/* Set the display type from the heap class name.
-			 */
-			regionview_set_type(regionview, root);
-		}
+		imageui_add_regionview(imageui, regionview);
 	}
 
 	return NULL;
