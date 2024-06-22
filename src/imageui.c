@@ -46,6 +46,14 @@
  */
 #define ZOOM_DURATION (0.5)
 
+/* Drag state machine.
+ */
+typedef enum {
+	IMAGEUI_WAIT,				/* Waiting for left down */
+	IMAGEUI_SELECT,				/* Manipulated a selected region */
+	IMAGEUI_SCROLL				/* Drag-scrolling the iamge */
+} ImageuiState;
+
 struct _Imageui {
 	GtkWidget parent_instance;
 
@@ -84,6 +92,10 @@ struct _Imageui {
 	double zoom_x;
 	double zoom_y;
 
+	/* Interaction state.
+	 */
+	ImageuiState state;
+
 	/* Mouse panning.
 	 */
 	double drag_start_x;
@@ -100,9 +112,12 @@ struct _Imageui {
 
 	/* Region manipulation.
 	 */
+	RegionviewResize resize;			/* Resize type */
+	Regionview *grabbed;				/* Currently grabbed */
+
+
 	Regionview *regionview;				/* Region rubberband display */
 	VipsRect floating;					/* Rubberband area */
-	Regionview *grabbed;				/* Currently grabbed */
 
 	GtkWidget *scrolled_window;
 	GtkWidget *imagedisplay;
@@ -856,27 +871,68 @@ imageui_key_released(GtkEventControllerKey *self,
 	return handled;
 }
 
+// (x, y) in gtk cods
+static Regionview *
+imageui_find_regionview(Imageui *imageui, int x, int y)
+{
+	for (GSList *p = imageui->regionviews; p; p = p->next) {
+		Regionview *regionview = REGIONVIEW(p->data);
+		RegionviewResize resize = regionview_hit(regionview, x, y);
+
+		if (resize != REGIONVIEW_RESIZE_NONE)
+			return regionview;
+	}
+
+	return NULL;
+}
+
 static void
 imageui_drag_begin(GtkEventControllerMotion *self,
 	gdouble start_x, gdouble start_y, gpointer user_data)
 {
 	Imageui *imageui = IMAGEUI(user_data);
 
-	int window_left;
-	int window_top;
-	int window_width;
-	int window_height;
-
 #ifdef DEBUG_VERBOSE
 	printf("imageui_drag_begin: start_x = %g, start_y = %g\n",
 		start_x, start_y);
 #endif /*DEBUG_VERBOSE*/
 
-	imageui_get_position(imageui,
-		&window_left, &window_top, &window_width, &window_height);
+	switch (imageui->state) {
+	case IMAGEUI_WAIT:
+		Regionview *regionview =
+			imageui_find_regionview(imageui, start_x, start_y);
 
-	imageui->drag_start_x = window_left;
-	imageui->drag_start_y = window_top;
+		if (regionview) {
+			imageui->state = IMAGEUI_SELECT;
+			imageui->resize = regionview_hit(regionview, start_x, start_y);
+			imageui->grabbed = regionview;
+			g_object_ref(regionview);
+			imageui->drag_start_x = regionview->our_area.left;
+			imageui->drag_start_y = regionview->our_area.top;
+		}
+		else {
+			int window_left;
+			int window_top;
+			int window_width;
+			int window_height;
+			imageui_get_position(imageui,
+				&window_left, &window_top, &window_width, &window_height);
+			imageui->drag_start_x = window_left;
+			imageui->drag_start_y = window_top;
+		}
+
+		break;
+
+	case IMAGEUI_SELECT:
+		break;
+
+	case IMAGEUI_SCROLL:
+		break;
+
+	default:
+		break;
+	}
+
 }
 
 static void
@@ -890,8 +946,57 @@ imageui_drag_update(GtkEventControllerMotion *self,
 		offset_x, offset_y);
 #endif /*DEBUG_VERBOSE*/
 
-	imageui_set_position(imageui,
-		imageui->drag_start_x - offset_x, imageui->drag_start_y - offset_y);
+	switch (imageui->state) {
+	case IMAGEUI_WAIT:
+		if (fabs(offset_x) > 5 ||
+			fabs(offset_y) > 5)
+			imageui->state = IMAGEUI_SCROLL;
+		break;
+
+	case IMAGEUI_SELECT:
+		imageui->grabbed->our_area.left = offset_x + imageui->drag_start_x;
+		imageui->grabbed->our_area.top = offset_y + imageui->drag_start_y;
+		regionview_model_update(imageui->grabbed);
+		break;
+
+	case IMAGEUI_SCROLL:
+		imageui_set_position(imageui,
+			imageui->drag_start_x - offset_x, imageui->drag_start_y - offset_y);
+		break;
+
+	default:
+		break;
+	}
+
+}
+
+static void
+imageui_drag_end(GtkEventControllerMotion *self,
+	gdouble offset_x, gdouble offset_y, gpointer user_data)
+{
+	Imageui *imageui = IMAGEUI(user_data);
+
+#ifdef DEBUG_VERBOSE
+	printf("imageui_drag_end: offset_x = %g, offset_y = %g\n",
+		offset_x, offset_y);
+#endif /*DEBUG_VERBOSE*/
+
+	switch (imageui->state) {
+	case IMAGEUI_WAIT:
+		break;
+
+	case IMAGEUI_SELECT:
+		VIPS_UNREF(imageui->grabbed);
+		break;
+
+	case IMAGEUI_SCROLL:
+		break;
+
+	default:
+		break;
+	}
+
+	imageui->state = IMAGEUI_WAIT;
 }
 
 static void
@@ -998,6 +1103,8 @@ imageui_class_init(ImageuiClass *class)
 		imageui_drag_begin);
 	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
 		imageui_drag_update);
+	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
+		imageui_drag_end);
 
 	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
 		imageui_key_pressed);

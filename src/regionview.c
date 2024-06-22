@@ -39,6 +39,12 @@
 
 G_DEFINE_TYPE(Regionview, regionview, VIEW_TYPE)
 
+GdkRGBA regionview_border = { 0.9, 1.0, 0.9, 1 };
+GdkRGBA regionview_shadow = { 0.2, 0.2, 0.2, 0.5 };
+int regionview_line_width = 5;
+int regionview_corner_radius = 4;
+int regionview_label_margin = 5;
+
 static PangoContext *regionview_context = NULL;
 static PangoFontMap *regionview_fontmap = NULL;
 
@@ -80,6 +86,7 @@ regionview_dispose(GObject *object)
 
 	regionview = REGIONVIEW(object);
 
+	VIPS_UNREF(regionview->layout);
 	VIPS_FREEF(g_source_remove, regionview->dash_crawl);
 	vips_buf_destroy(&regionview->caption);
 
@@ -131,11 +138,31 @@ regionview_update_from_model(Regionview *regionview)
 		regionview->our_area.left, regionview->our_area.top,
 		regionview->our_area.width, regionview->our_area.height);
 #endif /*DEBUG*/
+
+    if (regionview->classmodel) {
+        Row *row = HEAPMODEL(regionview->classmodel)->row;
+
+		vips_buf_rewind(&regionview->caption);
+        row_qualified_name_relative(row->ws->sym, row, &regionview->caption);
+    }
+
+	VIPS_UNREF(regionview->layout);
+	regionview->layout = pango_layout_new(regionview_context);
+	g_autoptr(PangoFontDescription) font =
+		pango_font_description_from_string("sans bold 12");
+	pango_layout_set_font_description(regionview->layout, font);
+	pango_layout_set_markup(regionview->layout,
+		vips_buf_all(&regionview->caption), -1);
+
+	PangoRectangle logical_rect;
+	pango_layout_get_pixel_extents(regionview->layout,
+		&regionview->ink_rect, &logical_rect);
+
 }
 
 /* Update the model from our_area.
  */
-static void
+void
 regionview_model_update(Regionview *regionview)
 {
 	Classmodel *classmodel = regionview->classmodel;
@@ -170,7 +197,7 @@ regionview_model_update(Regionview *regionview)
 /* Queue draws for all the pixels a region might touch.
  */
 static void
-regionview_queue_draw( Regionview *regionview )
+regionview_queue_draw(Regionview *regionview)
 {
 	printf("regionview_queue_draw: FIXME\n");
 }
@@ -180,76 +207,108 @@ regionview_draw(Regionview *regionview, Imageui *imageui, GtkSnapshot *snapshot)
 {
 	double zoom = imageui_get_zoom(imageui);
 
+	// main frame
 	double left;
 	double top;
 	imageui_image_to_gtk(imageui,
 		regionview->our_area.left, regionview->our_area.top, &left, &top);
+	regionview->frame.left = left;
+	regionview->frame.top = top;
+	regionview->frame.width = regionview->our_area.width * zoom;
+	regionview->frame.height = regionview->our_area.height * zoom;
 
-	GdkRGBA border = { 0.9, 1.0, 0.9, 1 };
-	GdkRGBA shadow = { 0.2, 0.2, 0.2, 0.5 };
-	int line_width = 5;
-	int corner_radius = 4;
-	int label_margin = 5;
-
-	// label text and size
-	g_autoptr(PangoLayout) layout = pango_layout_new(regionview_context);
-	g_autoptr(PangoFontDescription) font =
-		pango_font_description_from_string("sans bold 12");
-	pango_layout_set_font_description(layout, font);
-	pango_layout_set_markup(layout, "A4", -1);
-	//pango_layout_set_markup(layout, vips_buf_all(&regionview->caption), -1);
-
-	PangoRectangle ink_rect;
-	PangoRectangle logical_rect;
-	pango_layout_get_pixel_extents(layout, &ink_rect, &logical_rect);
-
-	// main frame
 	GskRoundedRect frame;
 	gsk_rounded_rect_init_from_rect(&frame,
-		&GRAPHENE_RECT_INIT(left - line_width, top - line_width,
-			regionview->our_area.width * zoom + line_width * 2,
-			regionview->our_area.height * zoom + line_width * 2),
+		&GRAPHENE_RECT_INIT(
+			regionview->frame.left,
+			regionview->frame.top,
+			regionview->frame.width,
+			regionview->frame.height),
 		0);
 
-	// label background
-	float label_width = ink_rect.width + label_margin * 2;
-	float label_height = ink_rect.height + label_margin * 2;
-	float label_line = label_height / 2;
+	// label
+	regionview->label.left = frame.bounds.origin.x - regionview_line_width;
+	regionview->label.top = frame.bounds.origin.y -
+        2 * regionview_label_margin - regionview->ink_rect.height,
+	regionview->label.width = regionview->ink_rect.width +
+		2 * regionview_label_margin;
+	regionview->label.height = regionview->ink_rect.height +
+		2 * regionview_label_margin;
+
 	GskRoundedRect label;
 	gsk_rounded_rect_init_from_rect(&label,
-		&GRAPHENE_RECT_INIT(left - line_width, top - label_height,
-			label_width, label_height),
-		corner_radius);
+		&GRAPHENE_RECT_INIT(
+			regionview->label.left,
+			regionview->label.top,
+			regionview->label.width,
+			regionview->label.height),
+		regionview_corner_radius);
 
-	gtk_snapshot_append_outset_shadow(snapshot, &frame, &shadow,
-		line_width, line_width,
-		3, corner_radius);
+	gtk_snapshot_append_outset_shadow(snapshot, &frame, &regionview_shadow,
+		regionview_line_width, regionview_line_width,
+		3, regionview_corner_radius);
 
-	gtk_snapshot_append_outset_shadow(snapshot, &label, &shadow,
-		line_width, line_width,
-		3, corner_radius);
+	gtk_snapshot_append_outset_shadow(snapshot, &label, &regionview_shadow,
+		regionview_line_width, regionview_line_width,
+		3, regionview_corner_radius);
 
+	// border append draws *within* the rect, so we must step out
+	gsk_rounded_rect_shrink(&frame,
+		-regionview_line_width, -regionview_line_width,
+		-regionview_line_width, -regionview_line_width);
 	gtk_snapshot_append_border(snapshot,
 		&frame,
-		((float[4]){ line_width, line_width, line_width, line_width }),
-		((GdkRGBA[4]){ border, border, border, border }));
+		((float[4]){ regionview_line_width, regionview_line_width,
+			regionview_line_width, regionview_line_width }),
+		((GdkRGBA[4]){ regionview_border, regionview_border,
+			regionview_border, regionview_border }));
 
+	float label_line = label.bounds.size.height / 2;
 	gtk_snapshot_append_border(snapshot,
 		&label,
 		((float[4]){ label_line, label_line, label_line, label_line }),
-		((GdkRGBA[4]){ border, border, border, border }));
+		((GdkRGBA[4]){ regionview_border, regionview_border,
+			regionview_border, regionview_border }));
 
 	gtk_snapshot_save(snapshot);
 
 	graphene_point_t p = GRAPHENE_POINT_INIT(
-			label.bounds.origin.x + label_margin,
-			label.bounds.origin.y - line_width);
+			label.bounds.origin.x + regionview_label_margin,
+			label.bounds.origin.y - regionview_line_width);
 	gtk_snapshot_translate(snapshot, &p);
 
-	gtk_snapshot_append_layout(snapshot, layout,
+	gtk_snapshot_append_layout(snapshot, regionview->layout,
 		&((GdkRGBA){ 0, 0, 0, 1 }));
 
 	gtk_snapshot_restore(snapshot);
+}
+
+// (x, y) in gtk cods
+RegionviewResize
+regionview_hit(Regionview *regionview, int x, int y)
+{
+	RegionviewResize resize;
+
+	printf("regionview_hit: %d, %d\n", x, y);
+	printf("\tleft = %d, top = %d, width = %d, height = %d\n",
+		regionview->label.left, regionview->label.top,
+		regionview->label.width, regionview->label.height);
+
+	if (vips_rect_includespoint(&regionview->label, x, y))
+		return REGIONVIEW_RESIZE_MOVE;
+
+	/*
+	REGIONVIEW_RESIZE_TOPLEFT,
+	REGIONVIEW_RESIZE_TOP,
+	REGIONVIEW_RESIZE_TOPRIGHT,
+	REGIONVIEW_RESIZE_RIGHT,
+	REGIONVIEW_RESIZE_BOTTOMRIGHT,
+	REGIONVIEW_RESIZE_BOTTOM,
+	REGIONVIEW_RESIZE_BOTTOMLEFT,
+	REGIONVIEW_RESIZE_LEFT,
+	 */
+
+	return REGIONVIEW_RESIZE_NONE;
 }
 
 static void
@@ -269,8 +328,8 @@ regionview_class_init(RegionviewClass *class)
 	 */
 
 	regionview_fontmap = pango_cairo_font_map_new();
-	pango_cairo_font_map_set_resolution(PANGO_CAIRO_FONT_MAP(regionview_fontmap),
-			150);
+	pango_cairo_font_map_set_resolution(
+		PANGO_CAIRO_FONT_MAP(regionview_fontmap), 150);
 	regionview_context = pango_font_map_create_context(regionview_fontmap);
 }
 
@@ -283,20 +342,11 @@ regionview_init(Regionview *regionview)
 	printf("regionview_init\n");
 #endif /*DEBUG_MAKE*/
 
-	regionview->type = REGIONVIEW_MARK;
-	regionview->frozen = TRUE;
-
-	regionview->state = REGIONVIEW_WAIT;
-	regionview->resize = REGIONVIEW_RESIZE_NONE;
-	regionview->dx = -1;
-	regionview->dy = -1;
-	regionview->grabbed = FALSE;
-
 	regionview->classmodel = NULL;
 
 	regionview->model_area = NULL;
 
-	regionview->area = empty_rect;
+	regionview->frame = empty_rect;
 	regionview->label = empty_rect;
 	regionview->ascent = 0;
 	regionview->dash_offset = 0;

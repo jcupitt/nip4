@@ -41,14 +41,6 @@
 
 #define REGIONVIEW_LABEL_MAX (256)
 
-/* States for the region view.
- */
-typedef enum {
-	REGIONVIEW_WAIT,			/* Waiting for left down */
-	REGIONVIEW_MOVE,			/* Dragging on label */
-	REGIONVIEW_RESIZE			/* Dragging on resize handle */
-} RegionviewState;
-
 /* Draw types.
  */
 typedef enum {
@@ -85,13 +77,6 @@ struct _Regionview {
 	RegionviewType type;
 	gboolean frozen;			/* type is frozen ... not rethought on resize */
 
-	/* State for resize/move etc.
-	 */
-	RegionviewState state;
-	RegionviewResize resize;	/* Resize type */
-	int dx, dy;					/* Drag offset */
-	gboolean grabbed;			/* Currently tracking with mouse */
-
 	/* The model we show.
 	 */
 	Classmodel *classmodel;
@@ -104,15 +89,22 @@ struct _Regionview {
 
 	/* What's on the screen.
 	 */
-	gboolean unpainting;		/* We are unpainting */
-	VipsRect area;				/* Area of region ... image coordinates */
-	VipsRect label;				/* Area covered by label ... canvas cods */
+	PangoLayout *layout;		/* What we draw the label with */
+	PangoRectangle ink_rect;	/* Label ink */
+	VipsRect frame;				/* Area of region ... screen coordinates */
+	VipsRect label;				/* Area covered by label ... screen cods */
+
+
+
+
+
 	int ascent;					/* Height of ascenders for text */
 	int dash_offset;
 	guint dash_crawl;			/* Timer for dash crawl animation */
 	RegionviewType last_type;
 	gboolean first;				/* Initial draw (no old pos to remove) */
 	gboolean label_geo;			/* Redo the label geo on refresh, please */
+
 
 	/* Text of label we display
 	 */
@@ -126,6 +118,8 @@ typedef struct _RegionviewClass {
 	 */
 } RegionviewClass;
 
+void regionview_model_update(Regionview *regionview);
+RegionviewResize regionview_hit(Regionview *regionview, int x, int y);
 void regionview_attach(Regionview *regionview, int x, int y);
 void regionview_draw(Regionview *regionview,
 	Imageui *imageui, GtkSnapshot *snapshot);
