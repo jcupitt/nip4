@@ -127,6 +127,8 @@ typedef struct _RegionviewClass {
 } RegionviewClass;
 
 void regionview_attach(Regionview *regionview, int x, int y);
+void regionview_draw(Regionview *regionview,
+	Imageui *imageui, GtkSnapshot *snapshot);
 
 GType regionview_get_type(void);
 Regionview *regionview_new(Classmodel *classmodel);

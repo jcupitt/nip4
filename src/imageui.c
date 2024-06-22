@@ -46,9 +46,6 @@
  */
 #define ZOOM_DURATION (0.5)
 
-static PangoContext *imageui_context = NULL;
-static PangoFontMap *imageui_fontmap = NULL;
-
 struct _Imageui {
 	GtkWidget parent_instance;
 
@@ -460,7 +457,7 @@ imageui_stop_animation(Imageui *imageui)
 	}
 }
 
-static double
+double
 imageui_get_zoom(Imageui *imageui)
 {
 	double zoom;
@@ -943,43 +940,10 @@ static void
 imageui_overlay_snapshot(Imagedisplay *imagedisplay,
 	GtkSnapshot *snapshot, Imageui *imageui)
 {
-	double zoom = imageui_get_zoom(imageui);
-
 	for (GSList *p = imageui->regionviews; p; p = p->next) {
 		Regionview *regionview = REGIONVIEW(p->data);
 
-		printf("imageui_overlay_snapshot: paint regionview %p\n", regionview);
-		printf("\tleft = %d, top = %d, width = %d, height = %d\n",
-				regionview->our_area.left, regionview->our_area.top,
-				regionview->our_area.width, regionview->our_area.height);
-
-		double left;
-		double top;
-		imagedisplay_image_to_gtk(IMAGEDISPLAY(imageui->imagedisplay),
-			regionview->our_area.left, regionview->our_area.top, &left, &top);
-
-		GskRoundedRect outline;
-
-#define BORDER ((GdkRGBA){ 0.9, 1.0, 0.9, 0.6 })
-
-		gsk_rounded_rect_init_from_rect(&outline,
-			&GRAPHENE_RECT_INIT(left, top,
-				regionview->our_area.width * zoom,
-				regionview->our_area.height * zoom),
-			0);
-
-		gtk_snapshot_append_outset_shadow(snapshot,
-			&outline,
-			&BORDER,
-			0, 0,
-			10, 0);
-
-		g_autoptr(PangoLayout) layout = pango_layout_new(imageui_context);
-		pango_layout_set_markup(layout, vips_buf_all(&regionview->caption), -1);
-
-		gtk_snapshot_append_layout(snapshot, layout,
-			&((GdkRGBA){ 0, 0, 0, 1 }));
-
+		regionview_draw(regionview, imageui, snapshot);
 	}
 }
 
@@ -1099,9 +1063,6 @@ imageui_class_init(ImageuiClass *class)
 		NULL, NULL,
 		g_cclosure_marshal_VOID__VOID,
 		G_TYPE_NONE, 0);
-
-	imageui_fontmap = pango_cairo_font_map_new();
-	imageui_context = pango_font_map_create_context(imageui_fontmap);
 }
 
 Imageui *

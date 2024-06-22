@@ -39,6 +39,9 @@
 
 G_DEFINE_TYPE(Regionview, regionview, VIEW_TYPE)
 
+static PangoContext *regionview_context = NULL;
+static PangoFontMap *regionview_fontmap = NULL;
+
 typedef void *(*regionview_rect_fn)(Regionview *, VipsRect *, void *);
 typedef void (*regionview_paint_fn)(Regionview *);
 
@@ -172,6 +175,83 @@ regionview_queue_draw( Regionview *regionview )
 	printf("regionview_queue_draw: FIXME\n");
 }
 
+void
+regionview_draw(Regionview *regionview, Imageui *imageui, GtkSnapshot *snapshot)
+{
+	double zoom = imageui_get_zoom(imageui);
+
+	double left;
+	double top;
+	imageui_image_to_gtk(imageui,
+		regionview->our_area.left, regionview->our_area.top, &left, &top);
+
+	GdkRGBA border = { 0.9, 1.0, 0.9, 1 };
+	GdkRGBA shadow = { 0.2, 0.2, 0.2, 0.5 };
+	int line_width = 5;
+	int corner_radius = 4;
+	int label_margin = 5;
+
+	// label text and size
+	g_autoptr(PangoLayout) layout = pango_layout_new(regionview_context);
+	g_autoptr(PangoFontDescription) font =
+		pango_font_description_from_string("sans bold 12");
+	pango_layout_set_font_description(layout, font);
+	pango_layout_set_markup(layout, "A4", -1);
+	//pango_layout_set_markup(layout, vips_buf_all(&regionview->caption), -1);
+
+	PangoRectangle ink_rect;
+	PangoRectangle logical_rect;
+	pango_layout_get_pixel_extents(layout, &ink_rect, &logical_rect);
+
+	// main frame
+	GskRoundedRect frame;
+	gsk_rounded_rect_init_from_rect(&frame,
+		&GRAPHENE_RECT_INIT(left - line_width, top - line_width,
+			regionview->our_area.width * zoom + line_width * 2,
+			regionview->our_area.height * zoom + line_width * 2),
+		0);
+
+	// label background
+	float label_width = ink_rect.width + label_margin * 2;
+	float label_height = ink_rect.height + label_margin * 2;
+	float label_line = label_height / 2;
+	GskRoundedRect label;
+	gsk_rounded_rect_init_from_rect(&label,
+		&GRAPHENE_RECT_INIT(left - line_width, top - label_height,
+			label_width, label_height),
+		corner_radius);
+
+	gtk_snapshot_append_outset_shadow(snapshot, &frame, &shadow,
+		line_width, line_width,
+		3, corner_radius);
+
+	gtk_snapshot_append_outset_shadow(snapshot, &label, &shadow,
+		line_width, line_width,
+		3, corner_radius);
+
+	gtk_snapshot_append_border(snapshot,
+		&frame,
+		((float[4]){ line_width, line_width, line_width, line_width }),
+		((GdkRGBA[4]){ border, border, border, border }));
+
+	gtk_snapshot_append_border(snapshot,
+		&label,
+		((float[4]){ label_line, label_line, label_line, label_line }),
+		((GdkRGBA[4]){ border, border, border, border }));
+
+	gtk_snapshot_save(snapshot);
+
+	graphene_point_t p = GRAPHENE_POINT_INIT(
+			label.bounds.origin.x + label_margin,
+			label.bounds.origin.y - line_width);
+	gtk_snapshot_translate(snapshot, &p);
+
+	gtk_snapshot_append_layout(snapshot, layout,
+		&((GdkRGBA){ 0, 0, 0, 1 }));
+
+	gtk_snapshot_restore(snapshot);
+}
+
 static void
 regionview_class_init(RegionviewClass *class)
 {
@@ -188,6 +268,10 @@ regionview_class_init(RegionviewClass *class)
 	/* Init methods.
 	 */
 
+	regionview_fontmap = pango_cairo_font_map_new();
+	pango_cairo_font_map_set_resolution(PANGO_CAIRO_FONT_MAP(regionview_fontmap),
+			150);
+	regionview_context = pango_font_map_create_context(regionview_fontmap);
 }
 
 static void
