@@ -121,14 +121,14 @@ iregiongroupview_refresh_imageview(Imageui *imageui,
 			 (SListMapFn) iregiongroupview_refresh_imageview_test, irs))) {
 		/* Yes ... reuse.
 		 */
+		printf("\treusing old regionview\n");
 		irs->notused = g_slist_remove(irs->notused, regionview);
 	}
 	else {
 		Regionview *regionview = regionview_new(irs->classmodel);
 
 #ifdef DEBUG
-		printf("iregiongroupview_refresh_imageview: "
-			   "creating new regionview\n");
+		printf("\tcreating new regionview\n");
 #endif /*DEBUG*/
 
 		imageui_add_regionview(imageui, regionview);
@@ -143,6 +143,7 @@ iregiongroupview_refresh_iimage(iImage *iimage,
 {
 #ifdef DEBUG
 	printf("iregiongroupview_refresh_iimage: iimage = %p\n", iimage);
+	printf("\t%d views for this iimage\n", g_slist_length(iimage->views));
 #endif /*DEBUG*/
 
 	irs->iimage = iimage;
@@ -178,11 +179,14 @@ iregiongroupview_refresh(vObject *vobject)
 		irs.notused = g_slist_copy(irs.classmodel->views);
 		irs.iregiongroupview = iregiongroupview;
 
+		printf("\ttesting %d regions\n", g_slist_length(irs.notused));
+
 		slist_map(irs.classmodel->iimages,
 			(SListMapFn) iregiongroupview_refresh_iimage, &irs);
 
 		/* Remove all the regionviews we've not used.
 		 */
+		printf("\tremoving %d old regions\n", g_slist_length(irs.notused));
 		slist_map(irs.notused, (SListMapFn) iregiongroupview_unref, NULL);
 		VIPS_FREEF(g_slist_free, irs.notused);
 	}

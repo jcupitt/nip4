@@ -119,7 +119,7 @@ static GOptionEntry main_option[] = {
 static void
 set_prefix(const char *prefix)
 {
-	vips_strncpy(prefix_buffer, prefix, FILENAME_MAX);
+	g_strlcpy(prefix_buffer, prefix, FILENAME_MAX);
 	nativeize_path(prefix_buffer);
 	absoluteize_path(prefix_buffer);
 	setenvf("VIPSHOME", "%s", prefix_buffer);

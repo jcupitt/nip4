@@ -2187,7 +2187,7 @@ compile_lcomp_find_pattern(GSList *children, const char *generator)
 
 	if (sscanf(generator, "$$generator%d", &n) != 1)
 		return NULL;
-	vips_snprintf(pattern, 256, "$$pattern%d", n);
+	g_snprintf(pattern, 256, "$$pattern%d", n);
 
 	for (p = children; p; p = p->next) {
 		Symbol *sym = (Symbol *) p->data;
@@ -2271,7 +2271,7 @@ compile_lcomp(Compile *compile)
 		/* Start the next nest in. child is the local we will make for
 		 * this scope.
 		 */
-		vips_snprintf(name, 256, "$$fn%d", count++);
+		g_snprintf(name, 256, "$$fn%d", count++);
 		child = symbol_new_defining(scope, name);
 		child->generated = TRUE;
 		(void) symbol_user_init(child);

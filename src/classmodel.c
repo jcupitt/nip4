@@ -505,7 +505,7 @@ classmodel_class_instance_new(Classmodel *classmodel)
 
 	/* Find and build.
 	 */
-	vips_snprintf(cname_new, 256, "%s_edit", cname);
+	g_snprintf(cname_new, 256, "%s_edit", cname);
 	if (!class_get_member(root, cname_new, NULL, &fn)) {
 		if (!class_get_member(root, cname, NULL, &fn))
 			return FALSE;
@@ -628,7 +628,7 @@ classmodel_save_member(Classmodel *classmodel,
 
 			char buf[256];
 
-			vips_snprintf(buf, 256, "%s%d", m->save_name, i);
+			g_snprintf(buf, 256, "%s%d", m->save_name, i);
 			if (!set_dprop(xthis, buf, value))
 				return FALSE;
 		}
@@ -767,7 +767,7 @@ classmodel_load_member(Classmodel *classmodel,
 
 	case CLASSMODEL_MEMBER_REALVEC_FIXED:
 		for (i = 0; i < m->extent; i++) {
-			vips_snprintf(buf, MAX_STRSIZE, "%s%d", m->save_name, i);
+			g_snprintf(buf, MAX_STRSIZE, "%s%d", m->save_name, i);
 			if (get_dprop(xthis, buf,
 					&((&G_STRUCT_MEMBER(double, classmodel, m->offset))[i])))
 				found = TRUE;

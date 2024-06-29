@@ -389,8 +389,7 @@ column_name_new(Column *col)
 	char buf[256];
 
 	do {
-		vips_snprintf(buf, 256, "%s%d",
-			IOBJECT(col)->name, col->next++);
+		g_snprintf(buf, 256, "%s%d", IOBJECT(col)->name, col->next++);
 	} while (compile_lookup(col->ws->sym->expr->compile, buf));
 
 	return g_strdup(buf);

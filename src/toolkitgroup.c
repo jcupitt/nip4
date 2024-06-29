@@ -89,7 +89,7 @@ toolkitgroup_link(Toolkitgroup *kitg, Symbol *root)
 
 	kitg->root = root;
 
-	vips_snprintf(buf, 256, _("Toolkits for %s"), IOBJECT(root)->name);
+	g_snprintf(buf, 256, _("Toolkits for %s"), IOBJECT(root)->name);
 	iobject_set(IOBJECT(kitg), buf, NULL);
 }
 

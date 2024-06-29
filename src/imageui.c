@@ -957,6 +957,9 @@ imageui_drag_update(GtkEventControllerMotion *self,
 		imageui->grabbed->our_area.left = offset_x + imageui->drag_start_x;
 		imageui->grabbed->our_area.top = offset_y + imageui->drag_start_y;
 		regionview_model_update(imageui->grabbed);
+
+		// immediate redraw for interactivity
+		gtk_widget_queue_draw(GTK_WIDGET(imageui->imagedisplay));
 		break;
 
 	case IMAGEUI_SCROLL:

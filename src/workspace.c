@@ -1014,7 +1014,7 @@ workspace_load_compat(Workspace *ws, int major, int minor)
 		ws->kitg = toolkitgroup_new(ws->sym);
 		iobject_ref_sink(IOBJECT(ws->kitg));
 
-		vips_snprintf(pathname, FILENAME_MAX,
+		g_snprintf(pathname, FILENAME_MAX,
 			"$VIPSHOME/share/" PACKAGE "/compat/%d.%d", best_major, best_minor);
 		path = path_parse(pathname);
 		if (path_map(path, "*.def",

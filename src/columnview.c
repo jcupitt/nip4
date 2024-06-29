@@ -198,13 +198,13 @@ columnview_filename(char *file, const char *caption)
 	int i;
 	char name[FILENAME_MAX];
 
-	vips_strncpy(name, caption, 10);
+	g_strlcpy(name, caption, 10);
 	for (i = 0; i < strlen(name); i++)
 		if (name[i] == ' ')
 			name[i] = '_';
 
 	for (i = 0;; i++) {
-		vips_snprintf(file, FILENAME_MAX, "$SAVEDIR/data/%s-%d.ws", name, i);
+		g_snprintf(file, FILENAME_MAX, "$SAVEDIR/data/%s-%d.ws", name, i);
 		if (!existsf("%s", file))
 			break;
 	}

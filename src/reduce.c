@@ -319,7 +319,7 @@ reduce_get_string(Reduce *rc, PElement *base, char *buf, int n)
 		 */
 		Managedstring *managedstring = PEGETMANAGEDSTRING(base);
 
-		vips_strncpy(buf, managedstring->string, n);
+		g_strlcpy(buf, managedstring->string, n);
 		sz -= strlen(buf);
 	}
 	else {

@@ -143,7 +143,7 @@ path_rewrite_add(const char *old, const char *new, gboolean lock)
 	 *
 	 * If we keep all @old paths in long form we can avoid rewrite loops.
 	 */
-	vips_strncpy(old_buf, old, FILENAME_MAX);
+	g_strlcpy(old_buf, old, FILENAME_MAX);
 	strcat(old_buf, G_DIR_SEPARATOR_S);
 	path_expand(old_buf);
 	old = old_buf;
@@ -152,7 +152,7 @@ path_rewrite_add(const char *old, const char *new, gboolean lock)
 		/* We must keep the new path in short (unexpanded) form,
 		 * obviously.
 		 */
-		vips_strncpy(new_buf, new, FILENAME_MAX);
+		g_strlcpy(new_buf, new, FILENAME_MAX);
 		strcat(new_buf, G_DIR_SEPARATOR_S);
 		new = new_buf;
 	}
@@ -266,7 +266,7 @@ path_expand(char *path)
 	nativeize_path(buf);
 	absoluteize_path(buf);
 	canonicalize_path(buf);
-	vips_strncpy(path, buf, FILENAME_MAX);
+	g_strlcpy(path, buf, FILENAME_MAX);
 }
 
 /* Rewite a path to compact form. @path must be FILENAME_MAX characters.
@@ -305,7 +305,7 @@ path_parse(const char *path)
 
 		/* Copy to our buffer, turn to string.
 		 */
-		vips_strncpy(name, p, VIPS_MIN(len, FILENAME_MAX));
+		g_strlcpy(name, p, VIPS_MIN(len, FILENAME_MAX));
 
 		/* Add to path list.
 		 */
@@ -451,7 +451,7 @@ path_search_match(Search *search, const char *dir_name, const char *name)
 		 */
 		search->previous = g_slist_prepend(search->previous, g_strdup(name));
 
-		vips_snprintf(buf, FILENAME_MAX, "%s/%s", dir_name, name);
+		g_snprintf(buf, FILENAME_MAX, "%s/%s", dir_name, name);
 
 		path_compact(buf);
 
@@ -478,7 +478,7 @@ path_scan_dir(const char *dir_name, Search *search)
 
 	/* Add the pattern offset, if any. It's '.' for no offset.
 	 */
-	vips_snprintf(buf, FILENAME_MAX, "%s/%s", dir_name, search->dirname);
+	g_snprintf(buf, FILENAME_MAX, "%s/%s", dir_name, search->dirname);
 
 	g_autoptr(GDir) dir = (GDir *) callv_string_filename(
 		(callv_string_fn) g_dir_open, buf, NULL, NULL, NULL);
@@ -603,20 +603,20 @@ path_init(void)
 	path_search_default = path_parse(".");
 	path_tmp_default = g_strdup(".");
 #else  /*!DEBUG_LOCAL*/
-	vips_snprintf(buf, FILENAME_MAX,
+	g_snprintf(buf, FILENAME_MAX,
 		"%s/start" G_SEARCHPATH_SEPARATOR_S
 		"$VIPSHOME/share/$PACKAGE/start",
 		get_savedir());
 	path_start_default = path_parse(buf);
 
-	vips_snprintf(buf, FILENAME_MAX,
+	g_snprintf(buf, FILENAME_MAX,
 		"%s/data" G_SEARCHPATH_SEPARATOR_S
 		"$VIPSHOME/share/$PACKAGE/data" G_SEARCHPATH_SEPARATOR_S
 		".",
 		get_savedir());
 	path_search_default = path_parse(buf);
 
-	vips_snprintf(buf, FILENAME_MAX, "%s/tmp", get_savedir());
+	g_snprintf(buf, FILENAME_MAX, "%s/tmp", get_savedir());
 	path_tmp_default = g_strdup(buf);
 #endif /*DEBUG_LOCAL*/
 

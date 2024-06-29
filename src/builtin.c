@@ -347,7 +347,7 @@ apply_image_call(Reduce *rc,
 
 	/* Reattach the mode and load.
 	 */
-	vips_snprintf(buf, FILENAME_MAX, "%s%s", fn, mode);
+	g_snprintf(buf, FILENAME_MAX, "%s%s", fn, mode);
 	if (!(ii = imageinfo_new_input(main_imageinfogroup, NULL, heap, buf))) {
 		VIPS_FREE(fn);
 		reduce_throw(rc);

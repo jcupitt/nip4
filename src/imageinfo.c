@@ -1930,7 +1930,7 @@ imageinfo_from_text(Imageinfo *imageinfo, const char *text)
 	printf("imageinfo_from_text: in: \"\%s\"\n", text);
 #endif /*DEBUG_RGB*/
 
-	vips_strncpy(buf, text, MAX_LINELENGTH);
+	g_strlcpy(buf, text, MAX_LINELENGTH);
 
 	for (i = 0, p = buf; p += strspn(p, WHITESPACE), *p; i++) {
 		double re, im;

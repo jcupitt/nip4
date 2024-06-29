@@ -1991,7 +1991,7 @@ row_parse_name_row(Row *context, const char *path)
 	/* Break the name into "thing.tail", where tail could contain other
 	 * "." qualifiers.
 	 */
-	vips_strncpy(name, path, 256);
+	g_strlcpy(name, path, 256);
 	if (!(tail = break_token(name, ".")))
 		/* Passed empty string.
 		 */
@@ -2030,7 +2030,7 @@ row_parse_name(Symbol *context, const char *path)
 	/* Break the name into "thing.tail", where tail could contain other
 	 * "." qualifiers.
 	 */
-	vips_strncpy(name, path, 256);
+	g_strlcpy(name, path, 256);
 	if (!(tail = break_token(name, "."))) {
 		/* Run out of names ... return this row, if we've found one.
 		 */

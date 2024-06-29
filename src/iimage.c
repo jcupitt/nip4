@@ -327,7 +327,7 @@ iimage_graphic_save(Classmodel *classmodel,
 		/* We don't want $VAR etc. in the filename we pass down to the file
 		 * ops.
 		 */
-		vips_strncpy(buf, filename, FILENAME_MAX);
+		g_strlcpy(buf, filename, FILENAME_MAX);
 		path_expand(buf);
 
 		SaveOptions *options = save_options_new(parent, image, buf);

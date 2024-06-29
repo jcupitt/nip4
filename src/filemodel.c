@@ -185,7 +185,7 @@ filemodel_set_filename(Filemodel *filemodel, const char *filename)
 		 * inside the object so we don't get a dependency on CWD.
 		 */
 		if (filename) {
-			vips_strncpy(buf, filename, FILENAME_MAX);
+			g_strlcpy(buf, filename, FILENAME_MAX);
 			path_compact(buf);
 			filename = buf;
 		}
@@ -320,7 +320,7 @@ filemodel_top_save_xml(Filemodel *filemodel, const char *filename)
 	xmlSetDocCompressMode(xdoc, 1);
 #endif /*!DEBUG_SAVEFILE*/
 
-	vips_snprintf(namespace, 256, "%s/%d.%d.%d",
+	g_snprintf(namespace, 256, "%s/%d.%d.%d",
 		NAMESPACE,
 		filemodel->major, filemodel->minor, filemodel->micro);
 	if (!(xdoc->children = xmlNewDocNode(xdoc,
@@ -629,7 +629,7 @@ filemodel_set_auto_load(Filemodel *filemodel)
 
 		g_assert(p);
 
-		vips_snprintf(buf, FILENAME_MAX, "$SAVEDIR/start/%s", p + 1);
+		g_snprintf(buf, FILENAME_MAX, "$SAVEDIR/start/%s", p + 1);
 		filemodel_set_filename(filemodel, buf);
 	}
 }

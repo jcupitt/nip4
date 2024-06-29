@@ -91,6 +91,7 @@ regionview_dispose(GObject *object)
 	vips_buf_destroy(&regionview->caption);
 
 	if (regionview->classmodel) {
+		g_assert(g_slist_find(regionview->classmodel->views, regionview));
 		regionview->classmodel->views = g_slist_remove(
 			regionview->classmodel->views, regionview);
 		regionview->classmodel = NULL;
@@ -157,7 +158,6 @@ regionview_update_from_model(Regionview *regionview)
 	PangoRectangle logical_rect;
 	pango_layout_get_pixel_extents(regionview->layout,
 		&regionview->ink_rect, &logical_rect);
-
 }
 
 /* Update the model from our_area.
@@ -408,6 +408,10 @@ regionview_new(Classmodel *classmodel)
 	Regionview *regionview = g_object_new(REGIONVIEW_TYPE, 0);
 
 	regionview->classmodel = classmodel;
+
+	g_assert(!g_slist_find(classmodel->views, regionview));
+	classmodel->views = g_slist_prepend(classmodel->views, regionview);
+
 	regionview_update_from_model(regionview);
 
 	if (classmodel)

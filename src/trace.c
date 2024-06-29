@@ -352,7 +352,7 @@ trace_text(TraceFlags flags, const char *fmt, ...)
 		return;
 
 	va_start(ap, fmt);
-	(void) vips_vsnprintf(buf, MAX_STRSIZE, fmt, ap);
+	(void) g_vsnprintf(buf, MAX_STRSIZE, fmt, ap);
 	va_end(ap);
 
 	slist_map2(trace_all,

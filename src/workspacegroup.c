@@ -317,7 +317,7 @@ workspacegroup_rename_row_node(Workspace *ws,
 	if (!get_sprop(xrow, "name", old_name, MAX_STRSIZE))
 		return;
 
-	vips_snprintf(new_name, MAX_STRSIZE, "%s1", col_name);
+	g_snprintf(new_name, MAX_STRSIZE, "%s1", col_name);
 	while (compile_lookup(ws->sym->expr->compile, new_name) ||
 		model_loadstate_taken(state, new_name))
 		increment_name(new_name);
@@ -344,7 +344,7 @@ workspacegroup_rename_column_node(Workspacegroup *wsg,
 	if (!get_sprop(xcol, "name", name, MAX_STRSIZE))
 		return;
 
-	vips_strncpy(new_name, name, 256);
+	g_strlcpy(new_name, name, 256);
 	while (workspace_column_find(ws, new_name) ||
 		model_loadstate_column_taken(state, new_name))
 		workspace_column_name_new(ws, new_name);
@@ -670,7 +670,7 @@ workspacegroup_test_file(const char *name, void *a, void *b, void *c)
 	time_t time;
 	int i;
 
-	vips_strncpy(buf, name, FILENAME_MAX);
+	g_strlcpy(buf, name, FILENAME_MAX);
 	path_expand(buf);
 	for (i = 0; i < WS_RETAIN; i++)
 		if (retain_files[i] &&

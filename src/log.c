@@ -153,7 +153,7 @@ log_textf(Log *log, const char *fmt, ...)
 	char buf[MAX_STRSIZE];
 
 	va_start(ap, fmt);
-	(void) vips_vsnprintf(buf, MAX_STRSIZE, fmt, ap);
+	(void) g_vsnprintf(buf, MAX_STRSIZE, fmt, ap);
 	va_end(ap);
 
 	log_text(log, buf);

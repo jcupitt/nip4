@@ -396,7 +396,7 @@ toolitem_set_name(Toolitem *toolitem, PElement *root)
 			/* Strip underscores (they mark mnemonics). Can't use
 			 * strrcpy() or memccpy(), we have overlapping blocks.
 			 */
-			vips_strncpy(value, toolitem->label, MAX_NAME);
+			g_strlcpy(value, toolitem->label, MAX_NAME);
 			for (p = q = value; *p; p++)
 				if (*p != '_')
 					*q++ = *p;
@@ -412,7 +412,7 @@ toolitem_set_name(Toolitem *toolitem, PElement *root)
 		/* Remove underscores from the object name ... we don't want
 		 * them to be mnemonics.
 		 */
-		vips_strncpy(value,
+		g_strlcpy(value,
 			IOBJECT(toolitem->compile->sym)->name, MAX_NAME);
 		for (i = 0; value[i]; i++)
 			if (value[i] == '_')
@@ -781,7 +781,7 @@ tool_set_help(Tool *tool)
 		/* Limit to MAX_NAME chars or 1st line. Strip trailing
 		 * whitespace.
 		 */
-		vips_strncpy(value, p, MAX_NAME);
+		g_strlcpy(value, p, MAX_NAME);
 		if ((p = strchr(value, '\n')))
 			*p = '\0';
 		*((char *) my_strrspn(value, WHITESPACE)) = '\0';

@@ -335,7 +335,7 @@ model_loadstate_rewrite(ModelLoadState *state, char *old_rhs, char *new_rhs)
 
 	/* Take copy of lexed and rewritten stuff.
 	 */
-	vips_strncpy(new_rhs, vips_buf_all(&lex_text), MAX_STRSIZE);
+	g_strlcpy(new_rhs, vips_buf_all(&lex_text), MAX_STRSIZE);
 }
 
 View *

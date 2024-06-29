@@ -237,7 +237,7 @@ toolkit_by_name(Toolkitgroup *kitg, const char *name)
 	if (!(kit = toolkit_find(kitg, name))) {
 		char file[FILENAME_MAX];
 
-		vips_snprintf(file, FILENAME_MAX,
+		g_snprintf(file, FILENAME_MAX,
 			"$SAVEDIR" G_DIR_SEPARATOR_S "start" G_DIR_SEPARATOR_S
 			"%s.def",
 			name);

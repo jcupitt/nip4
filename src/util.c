@@ -220,7 +220,7 @@ set_prop(xmlNode *xnode, const char *name, const char *fmt, ...)
 	char value[MAX_STRSIZE];
 
 	va_start(ap, fmt);
-	(void) vips_vsnprintf(value, MAX_STRSIZE, fmt, ap);
+	(void) g_vsnprintf(value, MAX_STRSIZE, fmt, ap);
 	va_end(ap);
 
 	if (!xmlSetProp(xnode, (xmlChar *) name, (xmlChar *) value)) {
@@ -262,14 +262,14 @@ set_slprop(xmlNode *xnode, const char *name, GSList *labels)
 		char buf[256];
 		int i;
 
-		(void) vips_snprintf(buf, 256, "%sn", name);
+		(void) g_snprintf(buf, 256, "%sn", name);
 		if (!set_prop(xnode, buf, "%d", g_slist_length(labels)))
 			return FALSE;
 
 		for (i = 0; labels; i++, labels = labels->next) {
 			const char *label = (const char *) labels->data;
 
-			(void) vips_snprintf(buf, 256, "%s%d", name, i);
+			(void) g_snprintf(buf, 256, "%s%d", name, i);
 			if (!set_sprop(xnode, buf, label))
 				return FALSE;
 		}
@@ -299,12 +299,12 @@ set_dlprop(xmlNode *xnode, const char *name, double *values, int n)
 	char buf[256];
 	int i;
 
-	(void) vips_snprintf(buf, 256, "%sn", name);
+	(void) g_snprintf(buf, 256, "%sn", name);
 	if (!set_prop(xnode, buf, "%d", n))
 		return FALSE;
 
 	for (i = 0; i < n; i++) {
-		(void) vips_snprintf(buf, 256, "%s%d", name, i);
+		(void) g_snprintf(buf, 256, "%s%d", name, i);
 		if (!set_dprop(xnode, buf, values[i]))
 			return FALSE;
 	}
@@ -320,7 +320,7 @@ get_sprop(xmlNode *xnode, const char *name, char *buf, int sz)
 	if (!value)
 		return FALSE;
 
-	vips_strncpy(buf, value, sz);
+	g_strlcpy(buf, value, sz);
 	VIPS_FREEF(xmlFree, value);
 
 	return TRUE;
@@ -388,13 +388,13 @@ get_slprop(xmlNode *xnode, const char *name, GSList **out)
 	char buf[256];
 	int n, i;
 
-	(void) vips_snprintf(buf, 256, "%sn", name);
+	(void) g_snprintf(buf, 256, "%sn", name);
 	if (!get_iprop(xnode, buf, &n))
 		return FALSE;
 
 	*out = NULL;
 	for (i = n - 1; i >= 0; i--) {
-		(void) vips_snprintf(buf, 256, "%s%d", name, i);
+		(void) g_snprintf(buf, 256, "%s%d", name, i);
 		if (!get_sprop(xnode, buf, buf, 256))
 			return FALSE;
 
@@ -413,7 +413,7 @@ get_dlprop(xmlNode *xnode, const char *name, double **out)
 	char buf[256];
 	int n, i;
 
-	(void) vips_snprintf(buf, 256, "%sn", name);
+	(void) g_snprintf(buf, 256, "%sn", name);
 	if (!get_iprop(xnode, buf, &n))
 		return FALSE;
 
@@ -421,7 +421,7 @@ get_dlprop(xmlNode *xnode, const char *name, double **out)
 		return FALSE;
 
 	for (i = 0; i < n; i++) {
-		(void) vips_snprintf(buf, 256, "%s%d", name, i);
+		(void) g_snprintf(buf, 256, "%s%d", name, i);
 		if (!get_dprop(xnode, buf, *out + i))
 			return FALSE;
 	}
@@ -811,7 +811,7 @@ vips_buf_appendsc(VipsBuf *buf, gboolean quote, const char *str)
 
 	/* /2 to leave a bit of space.
 	 */
-	vips_strncpy(buffer, str, FILENAME_MAX / 2);
+	g_strlcpy(buffer, str, FILENAME_MAX / 2);
 
 	/* FIXME ... possible buffer overflow :-(
 	 */
@@ -1368,9 +1368,9 @@ nativeize_path(char *buf)
 		swap_chars(filename, '/', '\\');
 
 	if (strcmp(mode, "") != 0)
-		vips_snprintf(buf, VIPS_PATH_MAX, "%s[%s]", filename, mode);
+		g_snprintf(buf, VIPS_PATH_MAX, "%s[%s]", filename, mode);
 	else
-		vips_snprintf(buf, VIPS_PATH_MAX, "%s", filename);
+		g_snprintf(buf, VIPS_PATH_MAX, "%s", filename);
 }
 
 /* Change all occurences of "from" into "to". This will loop if "to" contains
@@ -1385,9 +1385,9 @@ swap_string(char *buffer, const char *from, const char *to)
 		int off = p - buffer;
 		char buf2[FILENAME_MAX];
 
-		vips_strncpy(buf2, buffer, FILENAME_MAX);
+		g_strlcpy(buf2, buffer, FILENAME_MAX);
 		buf2[off] = '\0';
-		vips_snprintf(buffer, FILENAME_MAX,
+		g_snprintf(buffer, FILENAME_MAX,
 			"%s%s%s", buf2, to, buf2 + off + strlen(from));
 	}
 }
@@ -1445,9 +1445,9 @@ absoluteize_path(char *path)
 	if (!is_absolute(path)) {
 		char buf[FILENAME_MAX];
 
-		vips_strncpy(buf, path, FILENAME_MAX);
+		g_strlcpy(buf, path, FILENAME_MAX);
 		g_autofree char *cwd = g_get_current_dir();
-		vips_snprintf(path, FILENAME_MAX, "%s%s%s", cwd, "/", buf);
+		g_snprintf(path, FILENAME_MAX, "%s%s%s", cwd, "/", buf);
 		canonicalize_path(path);
 	}
 }
@@ -1471,7 +1471,7 @@ callv_stringva(callv_string_fn fn,
 {
 	char buf[FILENAME_MAX];
 
-	(void) vips_vsnprintf(buf, FILENAME_MAX, fmt, ap);
+	(void) g_vsnprintf(buf, FILENAME_MAX, fmt, ap);
 
 	return callv_string(fn, buf, a, b, c);
 }
@@ -1510,7 +1510,7 @@ callv_string_filenameva(callv_string_fn fn,
 {
 	char buf[FILENAME_MAX];
 
-	vips_vsnprintf(buf, FILENAME_MAX, fmt, ap);
+	g_vsnprintf(buf, FILENAME_MAX, fmt, ap);
 
 	return callv_string_filename(fn, buf, a, b, c);
 }
@@ -1547,7 +1547,7 @@ calli_stringva(calli_string_fn fn,
 {
 	char buf[FILENAME_MAX];
 
-	(void) vips_vsnprintf(buf, FILENAME_MAX, fmt, ap);
+	(void) g_vsnprintf(buf, FILENAME_MAX, fmt, ap);
 
 	return calli_string(fn, buf, a, b, c);
 }
@@ -1586,7 +1586,7 @@ calli_string_filenameva(calli_string_fn fn,
 {
 	char buf[FILENAME_MAX];
 
-	vips_vsnprintf(buf, FILENAME_MAX, fmt, ap);
+	g_vsnprintf(buf, FILENAME_MAX, fmt, ap);
 
 	return calli_string_filename(fn, buf, a, b, c);
 }
@@ -1624,7 +1624,7 @@ setenvf(const char *name, const char *fmt, ...)
 	char buf[FILENAME_MAX];
 
 	va_start(ap, fmt);
-	(void) vips_vsnprintf(buf, FILENAME_MAX, fmt, ap);
+	(void) g_vsnprintf(buf, FILENAME_MAX, fmt, ap);
 	va_end(ap);
 
 	g_setenv(name, buf, TRUE);
@@ -1829,7 +1829,7 @@ ifile_open_read(const char *name, ...)
 	char buf[FILENAME_MAX];
 
 	va_start(ap, name);
-	(void) vips_vsnprintf(buf, FILENAME_MAX, name, ap);
+	(void) g_vsnprintf(buf, FILENAME_MAX, name, ap);
 	va_end(ap);
 
 	g_autoptr(iOpenFile) of = ifile_build(buf);
@@ -1883,7 +1883,7 @@ ifile_open_write(const char *name, ...)
 	char buf[FILENAME_MAX];
 
 	va_start(ap, name);
-	(void) vips_vsnprintf(buf, FILENAME_MAX, name, ap);
+	(void) g_vsnprintf(buf, FILENAME_MAX, name, ap);
 	va_end(ap);
 
 	g_autoptr(iOpenFile) of = ifile_build("stdin");
@@ -2250,7 +2250,7 @@ temp_name(char *name, const char *type)
 	if (!existsf("%s", dir))
 		dir = G_DIR_SEPARATOR_S;
 
-	vips_snprintf(name, FILENAME_MAX, "%s/untitled-" PACKAGE "-%d-XXXXXXX",
+	g_snprintf(name, FILENAME_MAX, "%s/untitled-" PACKAGE "-%d-XXXXXXX",
 		dir, n++);
 	expand_variables(name, buf);
 
@@ -2263,7 +2263,7 @@ temp_name(char *name, const char *type)
 	close(fd);
 	unlinkf("%s", buf);
 
-	vips_snprintf(name, FILENAME_MAX, "%s.%s", buf, type);
+	g_snprintf(name, FILENAME_MAX, "%s.%s", buf, type);
 
 	return TRUE;
 }
@@ -2334,14 +2334,14 @@ increment_name(char *buf)
 	p = (char *) my_strrspn(buf, NUMERIC);
 	if (*p) {
 		n = atoi(p);
-		vips_snprintf(fmt, 256, "%%0%dd", (int) strlen(p));
+		g_snprintf(fmt, 256, "%%0%dd", (int) strlen(p));
 	}
 	else {
 		strcpy(fmt, "%d");
 		n = 0;
 	}
 
-	vips_snprintf(p, MAX_STRSIZE - (p - buf), fmt, n + 1);
+	g_snprintf(p, MAX_STRSIZE - (p - buf), fmt, n + 1);
 }
 
 /* Increment filename. Eg. "/home/jim/fred_00_tn.tif" becomes
@@ -2355,14 +2355,14 @@ increment_filename(char *filename)
 	char tail[FILENAME_MAX];
 	char *p;
 
-	vips_strncpy(buf, filename, FILENAME_MAX);
+	g_strlcpy(buf, filename, FILENAME_MAX);
 
 	/* Save and replace the suffix around an increment_name.
 	 */
 	char *basename = g_path_get_basename(buf);
 	if (!(p = strrchr(basename, '.')))
 		p = basename + strlen(basename);
-	vips_strncpy(suf, p, FILENAME_MAX);
+	g_strlcpy(suf, p, FILENAME_MAX);
 	*p = '\0';
 
 	/* Also save any chars to the right of the number component (if any) of
@@ -2376,7 +2376,7 @@ increment_filename(char *filename)
 	if (p == basename)
 		p = basename + strlen(basename);
 
-	vips_strncpy(tail, p, FILENAME_MAX);
+	g_strlcpy(tail, p, FILENAME_MAX);
 	*p = '\0';
 
 	increment_name(buf);
@@ -2487,7 +2487,7 @@ recent_add(GSList *recent, const char *filename)
 	int n;
 	GSList *p;
 
-	vips_strncpy(absolute, filename, FILENAME_MAX);
+	g_strlcpy(absolute, filename, FILENAME_MAX);
 	absoluteize_path(absolute);
 
 	for (p = recent; p; p = p->next) {

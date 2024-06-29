@@ -805,8 +805,8 @@ mainwindow_new(App *app)
 		char save_dir[FILENAME_MAX];
 		char buf[256];
 
-		vips_snprintf(buf, 256, _("Welcome to %s-%s!"), PACKAGE, VERSION);
-		vips_strncpy(save_dir, get_savedir(), FILENAME_MAX);
+		g_snprintf(buf, 256, _("Welcome to %s-%s!"), PACKAGE, VERSION);
+		g_strlcpy(save_dir, get_savedir(), FILENAME_MAX);
 		path_expand(save_dir);
 		error_top("%s", buf);
 		error_sub(

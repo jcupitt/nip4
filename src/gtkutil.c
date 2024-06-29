@@ -37,11 +37,11 @@ set_glabel(GtkWidget *label, const char *fmt, ...)
 	char buf[1000];
 
 	va_start(ap, fmt);
-	(void) vips_vsnprintf(buf, 1000, fmt, ap);
+	(void) g_vsnprintf(buf, 1000, fmt, ap);
 	va_end(ap);
 
 	if (!g_utf8_validate(buf, -1, NULL))
-		(void) vips_vsnprintf(buf, 1000, "%s", _("<invalid utf8 string>"));
+		(void) g_snprintf(buf, 1000, "%s", _("<invalid utf8 string>"));
 
 	gtk_label_set_text(GTK_LABEL(label), buf);
 }
@@ -79,7 +79,7 @@ set_gentryv(GtkWidget *edit, const char *fmt, va_list ap)
 	if (!fmt)
 		fmt = "";
 
-	(void) vips_vsnprintf(buf, 1000, fmt, ap);
+	(void) g_vsnprintf(buf, 1000, fmt, ap);
 
 	/* Filter out /n and /t ... they confuse gtkentry terribly
 	 */
@@ -336,7 +336,7 @@ alert_yesno(GtkWindow *parent, Yesno yesno, void *user_data,
 	char buf[1000];
 
 	va_start(ap, format);
-	(void) vips_vsnprintf(buf, sizeof(buf), format, ap);
+	(void) g_vsnprintf(buf, sizeof(buf), format, ap);
 	va_end(ap);
 
 	const char *labels[] = { "Cancel", "OK", NULL };
