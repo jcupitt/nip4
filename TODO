@@ -1,16 +1,127 @@
-
-
 ## region display
+
+- updating:
+
+	regionview is a child of imageui (on imageui->regionview)
+
+	on an update to iregion, we need to find all imageui which are
+	displaying the iimage upon which this region is defined
+
+		1. from iregion -> iimage
+		2. from iimage -> imageui
+		3. from imageui -> regionview
+
+	we also need the set of regionviews from the previous update (so we
+	can remove old and now unused regionviews)
+
+		4. CLASSMODEL(iregion)->views is a slist of all regionview for
+		   this iregion
+
+	in iregiongroupview_refresh():
+
+		iregiongroupview->classmodel is the iregion
+
+		take a copy of CLASSMODEL(iregion)->views as notused
+
+		foreach iimage in CLASSMODEL(iregion)->iimages:
+
+			foreach imageui in iimage->views:
+
+				update old regionview and strike from notused
+
+				or make a new one
+
+		remove any unused regionview
+
+	- we maintain CLASSMODEL(iregion)->views in regionview new and dispose
+
+	- where do we maintain CLASSMODEL(iregion)->iimages
+
+	- where do we maintain iimage->views
+
+
+- need to set regionview->imageui
+
+
+
+
+
+
+
+
+
+	1. CLASS
+
+
+
+- we have
+
+	iregion
+
+		the model for "Region"
+
+	iregionview
+
+		the view for a region thumbnail in a workspace ... just a
+		subclass of iimageview
+
+	regionview
+
+		support funcs for region drawing and manipulation on imageui
+
+	iregiongroup
+
+		a model that groups together all image windows which are
+		displaying a particular region
+
+		the sole child of iregion, made in iregion_parent_add()
+
+		manages ->display, so eg. we only draw regionview for some rows
+
+	iregiongroupview
+
+		the view for iregiongroup
+
+		on refresh, update all regionview, eg on ->display changes etc.
+
+
+
+
 
 - need to add regionviews on imageui_new()
 
 - not moving regionviews on classmodel change -- we seem to make a new one
   each time
 
-- move region drawing into regionview.c
+	see iregiongroupview_refresh()
+
+	regionview needs the imageui it's on so we can remove it on refresh
+
+
+  iregiongroupview_refresh()
+
+	notused = copy of classmodel->views
+
+	loop over classmodel->iimages to get all iimage which iregion has
+          defined this region on
+
+		loop over iimage->views to get all imageui
+
+			if we have an old regionview on this imageui for this
+			classmodel, strike it from notused
+
+			else, make a new regionview
+
+
+
+  right now, imageui->regionviews has all regionviews on that iimage
+
+
+
 
 - seem to leak tilesource?
 
+- repaint imageui on region drag
 
 
 

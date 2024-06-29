@@ -169,9 +169,11 @@ void
 imageui_add_regionview(Imageui *imageui, Regionview *regionview)
 {
 	g_assert(!g_slist_find(imageui->regionviews, regionview));
+	g_assert(!regionview->imageui);
 
 	imageui->regionviews = g_slist_prepend(imageui->regionviews, regionview);
 	g_object_ref_sink(regionview);
+	regionview->imageui = imageui;
 }
 
 void
@@ -180,6 +182,7 @@ imageui_remove_regionview(Imageui *imageui, Regionview *regionview)
 	g_assert(g_slist_find(imageui->regionviews, regionview));
 
 	imageui->regionviews = g_slist_remove(imageui->regionviews, regionview);
+	regionview->imageui = NULL;
 	g_object_unref(regionview);
 }
 
