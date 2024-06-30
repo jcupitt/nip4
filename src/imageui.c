@@ -109,14 +109,15 @@ struct _Imageui {
 	/* Region manipulation.
 	 */
 	Regionview *grabbed;				/* Currently grabbed */
-	int start_x;						/* Position at start of scroll */
+	int window_left;					/* Window position at start of scroll */
+	int window_top;
+	int start_x;						/* Mouse position at start of scroll */
 	int start_y;
 	guint modifiers;					/* Modifiers at start of drag */
 
 	/* In CREATE we drag out a floating regionview.
 	 */
 	Regionview *regionview;				/* Region rubberband display */
-	VipsRect floating;					/* Rubberband area */
 
 	GtkWidget *scrolled_window;
 	GtkWidget *imagedisplay;
@@ -921,8 +922,10 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 			int window_height;
 			imageui_get_position(imageui,
 				&window_left, &window_top, &window_width, &window_height);
-			imageui->start_x = window_left;
-			imageui->start_y = window_top;
+			imageui->window_left = window_left;
+			imageui->window_top = window_top;
+			imageui->start_x = start_x;
+			imageui->start_y = start_y;
 		}
 
 		imageui->modifiers = get_modifiers(GTK_EVENT_CONTROLLER(self));
@@ -967,12 +970,20 @@ imageui_drag_update(GtkEventControllerMotion *self,
 				imageui->regionview = regionview_new(NULL);
 				imageui_add_regionview(imageui, imageui->regionview);
 				imageui->regionview->resize = REGIONVIEW_RESIZE_BOTTOMRIGHT;
+
+				double left;
+				double top;
+				imageui_gtk_to_image(imageui,
+					imageui->start_x + offset_x,
+					imageui->start_y + offset_y,
+					&left, &top);
 				imageui->regionview->our_area = (VipsRect) {
-					offset_x / zoom,
-					offset_y / zoom,
+					left,
+					top,
 					0,
 					0
 				};
+
 				imageui->regionview->start_area = imageui->regionview->our_area;
 			}
 			else
@@ -1008,7 +1019,7 @@ imageui_drag_update(GtkEventControllerMotion *self,
 
 	case IMAGEUI_SCROLL:
 		imageui_set_position(imageui,
-			imageui->start_x - offset_x, imageui->start_y - offset_y);
+			imageui->window_left - offset_x, imageui->window_top - offset_y);
 		break;
 
 	default:
