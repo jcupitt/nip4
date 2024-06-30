@@ -254,6 +254,19 @@ regionview_draw_label(Regionview *regionview, GtkSnapshot *snapshot)
 }
 
 static void
+regionview_draw_init_mark_label(Regionview *regionview)
+{
+	regionview->label.width = regionview->ink_rect.width +
+		2 * regionview_label_margin;
+	regionview->label.height = regionview->ink_rect.height +
+		2 * regionview_label_margin;
+	regionview->label.left = regionview->frame.left -
+		regionview->label.width - 1.5 * regionview_line_width;
+	regionview->label.top = regionview->frame.top -
+		regionview->label.height - 1.5 * regionview_line_width;
+}
+
+static void
 regionview_draw_region(Regionview *regionview, GtkSnapshot *snapshot)
 {
 	Imageui *imageui = regionview->imageui;
@@ -278,14 +291,7 @@ regionview_draw_region(Regionview *regionview, GtkSnapshot *snapshot)
 			regionview->frame.height),
 		0);
 
-	// label position
-	regionview->label.left = frame.bounds.origin.x - regionview_line_width;
-	regionview->label.top = frame.bounds.origin.y -
-        2 * regionview_label_margin - regionview->ink_rect.height,
-	regionview->label.width = regionview->ink_rect.width +
-		2 * regionview_label_margin;
-	regionview->label.height = regionview->ink_rect.height +
-		2 * regionview_label_margin;
+	regionview_draw_init_mark_label(regionview);
 
 	// bottom and right frame shadown
 	float shadow_offset = regionview_line_width / 2.0;
@@ -316,39 +322,63 @@ regionview_draw_region(Regionview *regionview, GtkSnapshot *snapshot)
 
 // position the four marks we draw
 static void
-regionview_draw_init_mark_ticks(Regionview *regionview, VipsRect mark[4])
+regionview_draw_init_mark_ticks(Regionview *regionview, VipsRect mark[4],
+	int x, int y)
 {
 	// north
 	mark[0] = (VipsRect) {
-		regionview->frame.left - 0.5 * regionview_line_width,
-		regionview->frame.top - 3.5 * regionview_line_width,
-		regionview_line_width,
-		2 * regionview_line_width
+		x - 0.5 * regionview_line_width, y - 3.5 * regionview_line_width,
+		regionview_line_width, 2 * regionview_line_width
 	};
 
 	// south
 	mark[1] = (VipsRect) {
-		regionview->frame.left - 0.5 * regionview_line_width,
-		regionview->frame.top + 1.5 * regionview_line_width,
-		regionview_line_width,
-		2 * regionview_line_width
+		x - 0.5 * regionview_line_width, y + 1.5 * regionview_line_width,
+		regionview_line_width, 2 * regionview_line_width
 	};
 
 	// east
 	mark[2] = (VipsRect) {
-		regionview->frame.left + 1.5 * regionview_line_width,
-		regionview->frame.top - 0.5 * regionview_line_width,
-		2 * regionview_line_width,
-		regionview_line_width
+		x + 1.5 * regionview_line_width, y - 0.5 * regionview_line_width,
+		2 * regionview_line_width, regionview_line_width
 	};
 
 	// west
 	mark[3] = (VipsRect) {
-		regionview->frame.left - 3.5 * regionview_line_width,
-		regionview->frame.top - 0.5 * regionview_line_width,
-		2 * regionview_line_width,
-		regionview_line_width
+		x - 3.5 * regionview_line_width, y - 0.5 * regionview_line_width,
+		2 * regionview_line_width, regionview_line_width
 	};
+}
+
+static void
+regionview_draw_crosshair(Regionview *regionview, GtkSnapshot *snapshot,
+	int x, int y)
+{
+	VipsRect mark[4];
+	regionview_draw_init_mark_ticks(regionview, mark, x, y);
+
+	GskRoundedRect rrmark[4];
+	for (int i = 0; i < 4; i++)
+		gsk_rounded_rect_init_from_rect(&rrmark[i],
+			&GRAPHENE_RECT_INIT(mark[i].left, mark[i].top,
+				mark[i].width, mark[i].height),
+			0);
+
+	// mark shadows
+	float mark_width = regionview_line_width / 2.0;
+	for (int i = 0; i < 4; i++)
+		gtk_snapshot_append_outset_shadow(snapshot, &rrmark[i],
+			&regionview_shadow,
+			mark_width, mark_width,
+			1, regionview_corner_radius);
+
+	// draw marks
+	for (int i = 0; i < 4; i++)
+		gtk_snapshot_append_border(snapshot, &rrmark[i],
+			((float[4]){ mark_width, mark_width,
+				mark_width, mark_width }),
+			((GdkRGBA[4]){ regionview_border, regionview_border,
+				regionview_border, regionview_border }));
 }
 
 static void
@@ -367,46 +397,60 @@ regionview_draw_mark(Regionview *regionview, GtkSnapshot *snapshot)
 	regionview->frame.width = 0;
 	regionview->frame.height = 0;
 
-	// label position
-	regionview->label.width = regionview->ink_rect.width +
-		2 * regionview_label_margin;
-	regionview->label.height = regionview->ink_rect.height +
-		2 * regionview_label_margin;
-	regionview->label.left = regionview->frame.left -
-		regionview->label.width - 1.5 * regionview_line_width;
-	regionview->label.top = regionview->frame.top -
-		regionview->label.height - 1.5 * regionview_line_width;
+	regionview_draw_init_mark_label(regionview);
 
-	// the four marks we draw
-	VipsRect mark[4];
-	regionview_draw_init_mark_ticks(regionview, mark);
-
-	GskRoundedRect rrmark[4];
-	for (int i = 0; i < 4; i++)
-		gsk_rounded_rect_init_from_rect(&rrmark[i],
-			&GRAPHENE_RECT_INIT(mark[i].left, mark[i].top,
-				mark[i].width, mark[i].height),
-			0);
-
-	// mark shadows
-	float mark_width = regionview_line_width / 2.0;
-	for (int i = 0; i < 4; i++)
-		gtk_snapshot_append_outset_shadow(snapshot, &rrmark[i],
-			&regionview_shadow,
-			mark_width, mark_width,
-			1, regionview_corner_radius);
+	regionview_draw_crosshair(regionview, snapshot,
+		regionview->frame.left, regionview->frame.top);
 
 	regionview_draw_label_shadow(regionview, snapshot);
 
-	// draw marks
-	for (int i = 0; i < 4; i++)
-		gtk_snapshot_append_border(snapshot, &rrmark[i],
-			((float[4]){ mark_width, mark_width,
-				mark_width, mark_width }),
-			((GdkRGBA[4]){ regionview_border, regionview_border,
-				regionview_border, regionview_border }));
+	regionview_draw_label(regionview, snapshot);
+}
+
+static void
+regionview_draw_arrow(Regionview *regionview, GtkSnapshot *snapshot)
+{
+	Imageui *imageui = regionview->imageui;
+	double zoom = imageui_get_zoom(imageui);
+
+	// two points to mark
+	double left;
+	double top;
+	imageui_image_to_gtk(imageui,
+		regionview->our_area.left, regionview->our_area.top, &left, &top);
+	regionview->frame.left = left;
+	regionview->frame.top = top;
+	regionview->frame.width = regionview->our_area.width * zoom;
+	regionview->frame.height = regionview->our_area.height * zoom;
+
+	regionview_draw_init_mark_label(regionview);
+
+	regionview_draw_crosshair(regionview, snapshot,
+		regionview->frame.left, regionview->frame.top);
+	regionview_draw_crosshair(regionview, snapshot,
+		VIPS_RECT_RIGHT(&regionview->frame),
+		VIPS_RECT_BOTTOM(&regionview->frame));
+
+	regionview_draw_label_shadow(regionview, snapshot);
 
 	regionview_draw_label(regionview, snapshot);
+
+	/* Stroke a connecting line.
+	 */
+	GskPathBuilder *builder;
+	builder = gsk_path_builder_new();
+	gsk_path_builder_move_to(builder,
+		regionview->frame.left, regionview->frame.top);
+	gsk_path_builder_line_to(builder,
+		VIPS_RECT_RIGHT(&regionview->frame),
+		VIPS_RECT_BOTTOM(&regionview->frame));
+	g_autoptr(GskPath) path = gsk_path_builder_free_to_path(builder);
+	GskStroke *stroke = gsk_stroke_new(3);
+	gsk_stroke_set_dash(stroke, (float[1]) {10}, 1);
+
+	gtk_snapshot_append_stroke(snapshot, path, stroke, &regionview_border);
+
+	gsk_stroke_free(stroke);
 }
 
 void
@@ -422,8 +466,11 @@ regionview_draw(Regionview *regionview, GtkSnapshot *snapshot)
 		regionview_draw_mark(regionview, snapshot);
 		break;
 
+	case REGIONVIEW_ARROW:
+		regionview_draw_arrow(regionview, snapshot);
+		break;
+
 		/*
-	REGIONVIEW_ARROW,			// width & height unconstrained
 	REGIONVIEW_HGUIDE,			// width == image width, height == 0
 	REGIONVIEW_VGUIDE,			// width == 0, height == image height
 	REGIONVIEW_LINE,			// floating dashed line for paintbox
