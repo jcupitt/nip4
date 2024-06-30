@@ -205,52 +205,56 @@ regionview_queue_draw(Regionview *regionview)
 static void
 regionview_draw_label_shadow(Regionview *regionview, GtkSnapshot *snapshot)
 {
-	GskRoundedRect label;
-	gsk_rounded_rect_init_from_rect(&label,
-		&GRAPHENE_RECT_INIT(
-			regionview->label.left,
-			regionview->label.top,
-			regionview->label.width,
-			regionview->label.height),
-		regionview_corner_radius);
+	if (regionview->classmodel) {
+		GskRoundedRect label;
+		gsk_rounded_rect_init_from_rect(&label,
+			&GRAPHENE_RECT_INIT(
+				regionview->label.left,
+				regionview->label.top,
+				regionview->label.width,
+				regionview->label.height),
+			regionview_corner_radius);
 
-	// label frame shadow
-	float shadow_offset = regionview_line_width / 2.0;
-	gtk_snapshot_append_outset_shadow(snapshot, &label, &regionview_shadow,
-		shadow_offset, shadow_offset,
-		1, regionview_corner_radius);
+		// label frame shadow
+		float shadow_offset = regionview_line_width / 2.0;
+		gtk_snapshot_append_outset_shadow(snapshot, &label, &regionview_shadow,
+			shadow_offset, shadow_offset,
+			1, regionview_corner_radius);
+	}
 }
 
 static void
 regionview_draw_label(Regionview *regionview, GtkSnapshot *snapshot)
 {
-	GskRoundedRect label;
-	gsk_rounded_rect_init_from_rect(&label,
-		&GRAPHENE_RECT_INIT(
-			regionview->label.left,
-			regionview->label.top,
-			regionview->label.width,
-			regionview->label.height),
-		regionview_corner_radius);
+	if (regionview->classmodel) {
+		GskRoundedRect label;
+		gsk_rounded_rect_init_from_rect(&label,
+			&GRAPHENE_RECT_INIT(
+				regionview->label.left,
+				regionview->label.top,
+				regionview->label.width,
+				regionview->label.height),
+			regionview_corner_radius);
 
-	float label_line = label.bounds.size.height / 2.0;
-	gtk_snapshot_append_border(snapshot,
-		&label,
-		((float[4]){ label_line, label_line, label_line, label_line }),
-		((GdkRGBA[4]){ regionview_border, regionview_border,
-			regionview_border, regionview_border }));
+		float label_line = label.bounds.size.height / 2.0;
+		gtk_snapshot_append_border(snapshot,
+			&label,
+			((float[4]){ label_line, label_line, label_line, label_line }),
+			((GdkRGBA[4]){ regionview_border, regionview_border,
+				regionview_border, regionview_border }));
 
-	gtk_snapshot_save(snapshot);
+		gtk_snapshot_save(snapshot);
 
-	graphene_point_t p = GRAPHENE_POINT_INIT(
-			label.bounds.origin.x + regionview_label_margin,
-			label.bounds.origin.y - regionview_line_width);
-	gtk_snapshot_translate(snapshot, &p);
+		graphene_point_t p = GRAPHENE_POINT_INIT(
+				label.bounds.origin.x + regionview_label_margin,
+				label.bounds.origin.y - regionview_line_width);
+		gtk_snapshot_translate(snapshot, &p);
 
-	gtk_snapshot_append_layout(snapshot, regionview->layout,
-		&((GdkRGBA){ 0, 0, 0, 1 }));
+		gtk_snapshot_append_layout(snapshot, regionview->layout,
+			&((GdkRGBA){ 0, 0, 0, 1 }));
 
-	gtk_snapshot_restore(snapshot);
+		gtk_snapshot_restore(snapshot);
+	}
 }
 
 static void
@@ -550,6 +554,89 @@ regionview_hit(Regionview *regionview, int x, int y)
 	return REGIONVIEW_RESIZE_NONE;
 }
 
+void
+regionview_resize(Regionview *regionview, int width, int height, int x, int y)
+{
+	VipsRect *our_area = &regionview->our_area;
+	VipsRect *start_area = &regionview->start_area;
+
+	switch (regionview->resize) {
+	case REGIONVIEW_RESIZE_MOVE:
+		our_area->left = x + start_area->left;
+		our_area->top = y + start_area->top;
+
+		our_area->left =
+			VIPS_CLIP(0, our_area->left, width - start_area->width);
+		our_area->top =
+			VIPS_CLIP(0, our_area->top, height - start_area->height);
+
+		break;
+
+	case REGIONVIEW_RESIZE_RIGHT:
+		our_area->width = x + VIPS_RECT_RIGHT(start_area) - start_area->left;
+
+		our_area->width =
+			VIPS_CLIP(1, our_area->width, width - start_area->left);
+
+		break;
+
+	case REGIONVIEW_RESIZE_BOTTOM:
+		our_area->height = y + VIPS_RECT_BOTTOM(start_area) - start_area->top;
+
+		our_area->height =
+			VIPS_CLIP(1, our_area->height, height - start_area->top);
+
+		break;
+
+	case REGIONVIEW_RESIZE_BOTTOMRIGHT:
+		our_area->width = x + VIPS_RECT_RIGHT(start_area) - start_area->left;
+		our_area->height = y + VIPS_RECT_BOTTOM(start_area) - start_area->top;
+
+		our_area->width =
+			VIPS_CLIP(1, our_area->width, width - start_area->left);
+		our_area->height =
+			VIPS_CLIP(1, our_area->height, height - start_area->top);
+
+		break;
+
+	case REGIONVIEW_RESIZE_LEFT:
+		our_area->left = x + start_area->left;
+
+		our_area->left =
+			VIPS_CLIP(0, our_area->left, VIPS_RECT_RIGHT(start_area) - 1);
+
+		our_area->width = VIPS_RECT_RIGHT(start_area) - our_area->left;
+
+		break;
+
+	case REGIONVIEW_RESIZE_TOP:
+		our_area->top = y + start_area->top;
+
+		our_area->top =
+			VIPS_CLIP(0, our_area->top, VIPS_RECT_BOTTOM(start_area) - 1);
+
+		our_area->height = VIPS_RECT_BOTTOM(start_area) - our_area->top;
+
+		break;
+
+	case REGIONVIEW_RESIZE_TOPLEFT:
+		our_area->left = x + start_area->left;
+		our_area->top = y + start_area->top;
+
+		our_area->left =
+			VIPS_CLIP(0, our_area->left, VIPS_RECT_RIGHT(start_area) - 1);
+		our_area->top =
+			VIPS_CLIP(0, our_area->top, VIPS_RECT_BOTTOM(start_area) - 1);
+
+		our_area->width = VIPS_RECT_RIGHT(start_area) - our_area->left;
+		our_area->height = VIPS_RECT_BOTTOM(start_area) - our_area->top;
+		break;
+
+	default:
+		break;
+	}
+}
+
 static void
 regionview_class_init(RegionviewClass *class)
 {
@@ -646,16 +733,18 @@ regionview_new(Classmodel *classmodel)
 {
 	Regionview *regionview = g_object_new(REGIONVIEW_TYPE, 0);
 
-	regionview->classmodel = classmodel;
+	if (classmodel) {
+		regionview->classmodel = classmodel;
 
-	g_assert(!g_slist_find(classmodel->views, regionview));
-	classmodel->views = g_slist_prepend(classmodel->views, regionview);
+		g_assert(!g_slist_find(classmodel->views, regionview));
+		classmodel->views = g_slist_prepend(classmodel->views, regionview);
 
-	regionview_update_from_model(regionview);
+		regionview_update_from_model(regionview);
 
-	if (classmodel)
-		g_signal_connect_object(G_OBJECT(classmodel), "changed",
-			G_CALLBACK(regionview_model_changed_cb), regionview, 0);
+		if (classmodel)
+			g_signal_connect_object(G_OBJECT(classmodel), "changed",
+				G_CALLBACK(regionview_model_changed_cb), regionview, 0);
+	}
 
 	return regionview;
 }

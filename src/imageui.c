@@ -51,7 +51,8 @@
 typedef enum {
 	IMAGEUI_WAIT,				/* Waiting for left down */
 	IMAGEUI_SELECT,				/* Manipulating a selected region */
-	IMAGEUI_SCROLL				/* Drag-scrolling the iamge */
+	IMAGEUI_SCROLL,				/* Drag-scrolling the iamge */
+	IMAGEUI_CREATE,				/* Dragging out a new region */
 } ImageuiState;
 
 struct _Imageui {
@@ -107,11 +108,13 @@ struct _Imageui {
 
 	/* Region manipulation.
 	 */
-	RegionviewResize resize;			/* Resize type */
 	Regionview *grabbed;				/* Currently grabbed */
-	VipsRect start;						/* Position at start of drag */
+	int start_x;						/* Position at start of scroll */
+	int start_y;
+	guint modifiers;					/* Modifiers at start of drag */
 
-
+	/* In CREATE we drag out a floating regionview.
+	 */
 	Regionview *regionview;				/* Region rubberband display */
 	VipsRect floating;					/* Rubberband area */
 
@@ -196,6 +199,9 @@ imageui_dispose(GObject *object)
 
 		imageui_remove_regionview(imageui, regionview);
 	}
+
+	if (imageui->regionview)
+		imageui_remove_regionview(imageui, imageui->regionview);
 
 	imageui_set_iimage(imageui, NULL);
 	VIPS_FREEF(gtk_widget_unparent, imageui->scrolled_window);
@@ -903,10 +909,10 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 
 		if (regionview) {
 			imageui->state = IMAGEUI_SELECT;
-			imageui->resize = regionview_hit(regionview, start_x, start_y);
+			regionview->resize = regionview_hit(regionview, start_x, start_y);
 			imageui->grabbed = regionview;
 			g_object_ref(regionview);
-			imageui->start = regionview->our_area;
+			regionview->start_area = regionview->our_area;
 		}
 		else {
 			int window_left;
@@ -915,9 +921,11 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 			int window_height;
 			imageui_get_position(imageui,
 				&window_left, &window_top, &window_width, &window_height);
-			imageui->start.left = window_left;
-			imageui->start.top = window_top;
+			imageui->start_x = window_left;
+			imageui->start_y = window_top;
 		}
+
+		imageui->modifiers = get_modifiers(GTK_EVENT_CONTROLLER(self));
 
 		break;
 
@@ -925,6 +933,9 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 		break;
 
 	case IMAGEUI_SCROLL:
+		break;
+
+	case IMAGEUI_CREATE:
 		break;
 
 	default:
@@ -938,6 +949,7 @@ imageui_drag_update(GtkEventControllerMotion *self,
 	gdouble offset_x, gdouble offset_y, gpointer user_data)
 {
 	Imageui *imageui = IMAGEUI(user_data);
+	double zoom = imageui_get_zoom(imageui);
 
 #ifdef DEBUG_VERBOSE
 	printf("imageui_drag_update: offset_x = %g, offset_y = %g\n",
@@ -947,92 +959,33 @@ imageui_drag_update(GtkEventControllerMotion *self,
 	switch (imageui->state) {
 	case IMAGEUI_WAIT:
 		if (fabs(offset_x) > 5 ||
-			fabs(offset_y) > 5)
-			imageui->state = IMAGEUI_SCROLL;
+			fabs(offset_y) > 5) {
+			if (imageui->modifiers & GDK_CONTROL_MASK) {
+				imageui->state = IMAGEUI_CREATE;
+				if (imageui->regionview)
+					imageui_remove_regionview(imageui, imageui->regionview);
+				imageui->regionview = regionview_new(NULL);
+				imageui_add_regionview(imageui, imageui->regionview);
+				imageui->regionview->resize = REGIONVIEW_RESIZE_BOTTOMRIGHT;
+				imageui->regionview->our_area = (VipsRect) {
+					offset_x / zoom,
+					offset_y / zoom,
+					0,
+					0
+				};
+				imageui->regionview->start_area = imageui->regionview->our_area;
+			}
+			else
+				imageui->state = IMAGEUI_SCROLL;
+		}
 		break;
 
 	case IMAGEUI_SELECT:
-		VipsRect *our_area = &imageui->grabbed->our_area;
-		VipsRect *start = &imageui->start;
-		double zoom = imageui_get_zoom(imageui);
-		double x = offset_x / zoom;
-		double y = offset_y / zoom;
-		int width = imageui->tilesource->display_width;
-		int height = imageui->tilesource->display_height;
-
-		switch (imageui->resize) {
-		case REGIONVIEW_RESIZE_MOVE:
-			our_area->left = x + start->left;
-			our_area->top = y + start->top;
-
-			our_area->left = VIPS_CLIP(0, our_area->left, width - start->width);
-			our_area->top = VIPS_CLIP(0, our_area->top, height - start->height);
-
-			break;
-
-		case REGIONVIEW_RESIZE_RIGHT:
-			our_area->width = x + VIPS_RECT_RIGHT(start) - start->left;
-
-			our_area->width = VIPS_CLIP(1, our_area->width,
-				width - start->left);
-
-			break;
-
-		case REGIONVIEW_RESIZE_BOTTOM:
-			our_area->height = y + VIPS_RECT_BOTTOM(start) - start->top;
-
-			our_area->height = VIPS_CLIP(1, our_area->height,
-				height - start->top);
-
-			break;
-
-		case REGIONVIEW_RESIZE_BOTTOMRIGHT:
-			our_area->width = x + VIPS_RECT_RIGHT(start) - start->left;
-			our_area->height = y + VIPS_RECT_BOTTOM(start) - start->top;
-
-			our_area->width = VIPS_CLIP(1, our_area->width,
-				width - start->left);
-			our_area->height = VIPS_CLIP(1, our_area->height,
-				height - start->top);
-
-			break;
-
-		case REGIONVIEW_RESIZE_LEFT:
-			our_area->left = x + start->left;
-
-			our_area->left = VIPS_CLIP(0, our_area->left,
-					VIPS_RECT_RIGHT(start) - 1);
-
-			our_area->width = VIPS_RECT_RIGHT(start) - our_area->left;
-
-			break;
-
-		case REGIONVIEW_RESIZE_TOP:
-			our_area->top = y + start->top;
-
-			our_area->top = VIPS_CLIP(0, our_area->top,
-					VIPS_RECT_BOTTOM(start) - 1);
-
-			our_area->height = VIPS_RECT_BOTTOM(start) - our_area->top;
-
-			break;
-
-		case REGIONVIEW_RESIZE_TOPLEFT:
-			our_area->left = x + start->left;
-			our_area->top = y + start->top;
-
-			our_area->left = VIPS_CLIP(0, our_area->left,
-					VIPS_RECT_RIGHT(start) - 1);
-			our_area->top = VIPS_CLIP(0, our_area->top,
-					VIPS_RECT_BOTTOM(start) - 1);
-
-			our_area->width = VIPS_RECT_RIGHT(start) - our_area->left;
-			our_area->height = VIPS_RECT_BOTTOM(start) - our_area->top;
-			break;
-
-		default:
-			break;
-		}
+		regionview_resize(imageui->grabbed,
+			imageui->tilesource->display_width,
+			imageui->tilesource->display_height,
+			offset_x / zoom,
+			offset_y / zoom);
 
 		regionview_model_update(imageui->grabbed);
 
@@ -1041,9 +994,21 @@ imageui_drag_update(GtkEventControllerMotion *self,
 
 		break;
 
+	case IMAGEUI_CREATE:
+		regionview_resize(imageui->regionview,
+			imageui->tilesource->display_width,
+			imageui->tilesource->display_height,
+			offset_x / zoom,
+			offset_y / zoom);
+
+		// immediate redraw for interactivity
+		gtk_widget_queue_draw(GTK_WIDGET(imageui->imagedisplay));
+
+		break;
+
 	case IMAGEUI_SCROLL:
 		imageui_set_position(imageui,
-			imageui->start.left - offset_x, imageui->start.top - offset_y);
+			imageui->start_x - offset_x, imageui->start_y - offset_y);
 		break;
 
 	default:
@@ -1069,6 +1034,16 @@ imageui_drag_end(GtkEventControllerMotion *self,
 
 	case IMAGEUI_SELECT:
 		VIPS_UNREF(imageui->grabbed);
+		break;
+
+	case IMAGEUI_CREATE:
+		if (imageui->regionview) {
+			imageui_remove_regionview(imageui, imageui->regionview);
+			imageui->regionview = NULL;
+		}
+
+		gtk_widget_queue_draw(GTK_WIDGET(imageui->imagedisplay));
+
 		break;
 
 	case IMAGEUI_SCROLL:

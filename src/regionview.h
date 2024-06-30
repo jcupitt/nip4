@@ -82,6 +82,7 @@ struct _Regionview {
 	Classmodel *classmodel;
 	VipsRect *model_area;		/* What we read/write to talk to the model */
 	VipsRect our_area;			/* Same, but our copy ... origin top left */
+	VipsRect start_area;		/* Area at the start of resize */
 
 	/* The window we draw on.
 	 */
@@ -93,6 +94,7 @@ struct _Regionview {
 	PangoRectangle ink_rect;	/* Label ink */
 	VipsRect frame;				/* Area of region ... screen coordinates */
 	VipsRect label;				/* Area covered by label ... screen cods */
+	RegionviewResize resize;	/* Resize type */
 
 
 
@@ -120,6 +122,8 @@ typedef struct _RegionviewClass {
 
 void regionview_model_update(Regionview *regionview);
 RegionviewResize regionview_hit(Regionview *regionview, int x, int y);
+void regionview_resize(Regionview *regionview,
+	int width, int height, int x, int y);
 void regionview_attach(Regionview *regionview, int x, int y);
 void regionview_draw(Regionview *regionview, GtkSnapshot *snapshot);
 
