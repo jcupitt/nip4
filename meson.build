@@ -83,8 +83,8 @@ configure_file(
 )
 
 # need vips_thread_execute()
-nip4_deps += dependency('vips', version: '>=8.15')
-nip4_deps += dependency('gtk4')
+nip4_deps += dependency('vips', version: '>=8.16')
+nip4_deps += dependency('gtk4', version: '>=4.14')
 nip4_deps += dependency('gsl')
 nip4_deps += dependency('libxml-2.0')
 

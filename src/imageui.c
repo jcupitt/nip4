@@ -149,6 +149,19 @@ enum {
 
 static guint imageui_signals[SIG_LAST] = { 0 };
 
+
+static void *
+imageui_add_region(Classmodel *classmodel, Imageui *imageui)
+{
+    iRegionInstance *instance;
+
+    if (MODEL(classmodel)->display &&
+        (instance = classmodel_get_instance(classmodel)))
+		imageui_add_regionview(imageui, regionview_new(classmodel));
+
+    return NULL;
+}
+
 static void
 imageui_set_iimage(Imageui *imageui, iImage *iimage)
 {
@@ -161,6 +174,9 @@ imageui_set_iimage(Imageui *imageui, iImage *iimage)
 	if (iimage) {
 		imageui->iimage = iimage;
 		iimage->views = g_slist_prepend(iimage->views, imageui);
+
+		slist_map(iimage->classmodels,
+			(SListMapFn) imageui_add_region, imageui);
 	}
 }
 
@@ -173,6 +189,8 @@ imageui_add_regionview(Imageui *imageui, Regionview *regionview)
 	imageui->regionviews = g_slist_prepend(imageui->regionviews, regionview);
 	g_object_ref_sink(regionview);
 	regionview->imageui = imageui;
+
+	gtk_widget_queue_draw(GTK_WIDGET(imageui->imagedisplay));
 }
 
 void
@@ -183,6 +201,8 @@ imageui_remove_regionview(Imageui *imageui, Regionview *regionview)
 	imageui->regionviews = g_slist_remove(imageui->regionviews, regionview);
 	regionview->imageui = NULL;
 	g_object_unref(regionview);
+
+	gtk_widget_queue_draw(GTK_WIDGET(imageui->imagedisplay));
 }
 
 static void

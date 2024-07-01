@@ -1,13 +1,15 @@
 ## region display
 
-- remove dead zone on ctrl-click
-
 - ctrl-drag when resizing an arrow should make it snap to vertical or
   horizontal?
 
-- need to add regionviews on imageui_new()
+- seem to leak a tilesource?
 
-- seem to leak tilesource?
+	load x.ws, change A3 to load the other image, ^Q, leak 20 imageso
+
+	must be iimageview
+
+- we are gtk4.14+ now, update meson.build
 
 - still racing in imagewindow new
 
