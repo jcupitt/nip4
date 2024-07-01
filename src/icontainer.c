@@ -25,8 +25,8 @@
 /*
 #define DEBUG_VERBOSE
 #define DEBUG
- */
 #define DEBUG_SANITY
+ */
 
 #include "nip4.h"
 

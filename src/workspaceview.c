@@ -521,8 +521,6 @@ workspaceview_layout_set_pos(Columnview *cview, WorkspaceLayout *layout)
 	col->x = layout->out_x;
 	col->y = layout->out_y;
 	iobject_changed(IOBJECT(col));
-	printf("workspaceview_layout_set_pos: %s %d %d\n",
-		IOBJECT(col)->name, col->x, col->y);
 
 	int x, y, w, h;
 	columnview_get_position(cview, &x, &y, &w, &h);
@@ -590,8 +588,6 @@ workspaceview_layout(View *view)
 {
 	Workspaceview *wview = WORKSPACEVIEW(view);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-
-	printf("workspaceview_layout:\n");
 
 	WorkspaceLayout layout;
 

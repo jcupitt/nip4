@@ -401,8 +401,6 @@ imagedisplay_tilecache_area_changed(Tilecache *tilecache,
 static void
 imagedisplay_set_tilesource(Imagedisplay *imagedisplay, Tilesource *tilesource)
 {
-	printf("imagedisplay_set_tilesource: %p\n", tilesource);
-
 	VIPS_UNREF(imagedisplay->tilecache);
 	VIPS_UNREF(imagedisplay->tilesource);
 

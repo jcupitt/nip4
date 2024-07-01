@@ -998,7 +998,6 @@ tilesource_get_property(GObject *object,
 static void
 tilesource_init(Tilesource *tilesource)
 {
-	printf("tilesource_init: ***\n");
 	tilesource->scale = 1.0;
 	tilesource->zoom = 1.0;
 }

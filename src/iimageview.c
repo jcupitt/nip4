@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -186,8 +186,6 @@ static void
 iimageview_iimage_changed(iImage *iimage, void *user_data)
 {
 	iImageview *iimageview = IIMAGEVIEW(user_data);
-
-	printf("iimageview_iimage_changed:\n");
 }
 
 static void
@@ -216,8 +214,8 @@ iimageview_refresh(vObject *vobject)
 	gboolean falsecolour, type;
 
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("iimageview_refresh: FIXME\n");
+#endif /*DEBUG*/
 
 	iimage_tilesource_update(iimage);
 
@@ -235,6 +233,7 @@ iimageview_refresh(vObject *vobject)
 		if (iimage->tilesource)
 			tilesource_background_load(iimage->tilesource);
 	}
+	VIPS_UNREF(current_tilesource);
 
 	// we will need to disable visible for thumbnails that are
 	// off-screen, in a closed column, or in a workspace that's

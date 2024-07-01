@@ -1560,8 +1560,8 @@ static void
 imagewindow_iimage_destroy(iImage *iimage, Imagewindow *win)
 {
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("imagewindow_iimage_destroy:\n");
+#endif /*DEBUG*/
 
 	gtk_window_destroy(GTK_WINDOW(win));
 }

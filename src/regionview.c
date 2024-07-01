@@ -28,12 +28,12 @@
  */
 
 /* Verbose.
- */
 #define DEBUG
+ */
 
 /* Just trace create/destroy.
- */
 #define DEBUG_MAKE
+ */
 
 #include "nip4.h"
 
