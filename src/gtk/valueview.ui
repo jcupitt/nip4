@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Valueview" parent="Graphicview">
+    <property name="hexpand">true</property>
+
+    <child>
+      <object class="GtkGestureClick">
+        <property name="button">1</property>
+        <signal name="pressed" handler="valueview_click"/>
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkLabel" id="label">
+        <property name="xalign">0</property>
+        <style>
+          <class name="caption"/>
+        </style>
+      </object>
+    </child>
+
+  </template>
+</interface>
+
+

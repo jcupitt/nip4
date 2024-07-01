@@ -140,12 +140,12 @@ regionview_update_from_model(Regionview *regionview)
 		regionview->our_area.width, regionview->our_area.height);
 #endif /*DEBUG*/
 
-    if (regionview->classmodel) {
-        Row *row = HEAPMODEL(regionview->classmodel)->row;
+	if (regionview->classmodel) {
+		Row *row = HEAPMODEL(regionview->classmodel)->row;
 
 		vips_buf_rewind(&regionview->caption);
-        row_qualified_name_relative(row->ws->sym, row, &regionview->caption);
-    }
+		row_qualified_name_relative(row->ws->sym, row, &regionview->caption);
+	}
 
 	VIPS_UNREF(regionview->layout);
 	regionview->layout = pango_layout_new(regionview_context);
@@ -246,8 +246,8 @@ regionview_draw_label(Regionview *regionview, GtkSnapshot *snapshot)
 		gtk_snapshot_save(snapshot);
 
 		graphene_point_t p = GRAPHENE_POINT_INIT(
-				label.bounds.origin.x + regionview_label_margin,
-				label.bounds.origin.y - regionview_line_width);
+			label.bounds.origin.x + regionview_label_margin,
+			label.bounds.origin.y - regionview_line_width);
 		gtk_snapshot_translate(snapshot, &p);
 
 		gtk_snapshot_append_layout(snapshot, regionview->layout,
@@ -262,7 +262,7 @@ regionview_draw_init_region_label(Regionview *regionview)
 {
 	regionview->label.left = regionview->frame.left - regionview_line_width;
 	regionview->label.top = regionview->frame.top -
-        2 * regionview_label_margin - regionview->ink_rect.height,
+		2 * regionview_label_margin - regionview->ink_rect.height,
 	regionview->label.width = regionview->ink_rect.width +
 		2 * regionview_label_margin;
 	regionview->label.height = regionview->ink_rect.height +
@@ -342,25 +342,25 @@ regionview_draw_init_mark_ticks(Regionview *regionview, VipsRect mark[4],
 	int x, int y)
 {
 	// north
-	mark[0] = (VipsRect) {
+	mark[0] = (VipsRect){
 		x - 0.5 * regionview_line_width, y - 3.5 * regionview_line_width,
 		regionview_line_width, 2 * regionview_line_width
 	};
 
 	// south
-	mark[1] = (VipsRect) {
+	mark[1] = (VipsRect){
 		x - 0.5 * regionview_line_width, y + 1.5 * regionview_line_width,
 		regionview_line_width, 2 * regionview_line_width
 	};
 
 	// east
-	mark[2] = (VipsRect) {
+	mark[2] = (VipsRect){
 		x + 1.5 * regionview_line_width, y - 0.5 * regionview_line_width,
 		2 * regionview_line_width, regionview_line_width
 	};
 
 	// west
-	mark[3] = (VipsRect) {
+	mark[3] = (VipsRect){
 		x - 3.5 * regionview_line_width, y - 0.5 * regionview_line_width,
 		2 * regionview_line_width, regionview_line_width
 	};
@@ -462,7 +462,7 @@ regionview_draw_arrow(Regionview *regionview, GtkSnapshot *snapshot)
 		VIPS_RECT_BOTTOM(&regionview->frame));
 	g_autoptr(GskPath) path = gsk_path_builder_free_to_path(builder);
 	GskStroke *stroke = gsk_stroke_new(3);
-	gsk_stroke_set_dash(stroke, (float[1]) {10}, 1);
+	gsk_stroke_set_dash(stroke, (float[1]){ 10 }, 1);
 
 	gtk_snapshot_append_stroke(snapshot, path, stroke, &regionview_border);
 

@@ -137,6 +137,7 @@ typedef struct _Filemodel Filemodel;
 typedef struct _HeapBlock HeapBlock;
 typedef struct _Heap Heap;
 typedef struct _Heapmodel Heapmodel;
+typedef struct _iArrow iArrow;
 typedef struct _iContainer iContainer;
 typedef struct _iImage iImage;
 typedef struct _iRegion iRegion;
@@ -175,6 +176,7 @@ typedef struct _Toolkitgroup Toolkitgroup;
 typedef struct _Toolkit Toolkit;
 typedef struct _Tool Tool;
 typedef struct _Trace Trace;
+typedef struct _Valueview Valueview;
 typedef struct _View View;
 typedef struct _Watchgroup Watchgroup;
 typedef struct _Workspacedefs Workspacedefs;
@@ -239,6 +241,7 @@ typedef struct _Workspace Workspace;
 #include "iimage.h"
 #include "iregiongroup.h"
 #include "iregion.h"
+#include "iarrow.h"
 #include "log.h"
 #include "trace.h"
 #include "row.h"
@@ -260,6 +263,7 @@ typedef struct _Workspace Workspace;
 #include "workspaceroot.h"
 #include "workspacegroup.h"
 #include "graphicview.h"
+#include "valueview.h"
 #include "iimageview.h"
 #include "columnview.h"
 #include "prefcolumnview.h"

@@ -44,14 +44,14 @@
 /* Draw types.
  */
 typedef enum {
-	REGIONVIEW_REGION,			/* width & height > 0 */
-	REGIONVIEW_AREA,			/* width & height > 0 and locked */
-	REGIONVIEW_MARK,			/* width & height == 0 */
-	REGIONVIEW_ARROW,			/* width & height unconstrained */
-	REGIONVIEW_HGUIDE,			/* width == image width, height == 0 */
-	REGIONVIEW_VGUIDE,			/* width == 0, height == image height */
-	REGIONVIEW_LINE,			/* floating dashed line for paintbox */
-	REGIONVIEW_BOX				/* floating dashed box for paintbox */
+	REGIONVIEW_REGION, /* width & height > 0 */
+	REGIONVIEW_AREA,   /* width & height > 0 and locked */
+	REGIONVIEW_MARK,   /* width & height == 0 */
+	REGIONVIEW_ARROW,  /* width & height unconstrained */
+	REGIONVIEW_HGUIDE, /* width == image width, height == 0 */
+	REGIONVIEW_VGUIDE, /* width == 0, height == image height */
+	REGIONVIEW_LINE,   /* floating dashed line for paintbox */
+	REGIONVIEW_BOX	   /* floating dashed box for paintbox */
 } RegionviewType;
 
 /* Resize types.
@@ -75,14 +75,14 @@ struct _Regionview {
 	View view;
 
 	RegionviewType type;
-	gboolean frozen;			/* type is frozen ... not rethought on resize */
+	gboolean frozen; /* type is frozen ... not rethought on resize */
 
 	/* The model we show.
 	 */
 	Classmodel *classmodel;
-	VipsRect *model_area;		/* What we read/write to talk to the model */
-	VipsRect our_area;			/* Same, but our copy ... origin top left */
-	VipsRect start_area;		/* Area at the start of resize */
+	VipsRect *model_area; /* What we read/write to talk to the model */
+	VipsRect our_area;	  /* Same, but our copy ... origin top left */
+	VipsRect start_area;  /* Area at the start of resize */
 
 	/* The window we draw on.
 	 */
@@ -90,23 +90,18 @@ struct _Regionview {
 
 	/* What's on the screen.
 	 */
-	PangoLayout *layout;		/* What we draw the label with */
-	PangoRectangle ink_rect;	/* Label ink */
-	VipsRect frame;				/* Area of region ... screen coordinates */
-	VipsRect label;				/* Area covered by label ... screen cods */
-	RegionviewResize resize;	/* Resize type */
+	PangoLayout *layout;	 /* What we draw the label with */
+	PangoRectangle ink_rect; /* Label ink */
+	VipsRect frame;			 /* Area of region ... screen coordinates */
+	VipsRect label;			 /* Area covered by label ... screen cods */
+	RegionviewResize resize; /* Resize type */
 
-
-
-
-
-	int ascent;					/* Height of ascenders for text */
+	int ascent; /* Height of ascenders for text */
 	int dash_offset;
-	guint dash_crawl;			/* Timer for dash crawl animation */
+	guint dash_crawl; /* Timer for dash crawl animation */
 	RegionviewType last_type;
-	gboolean first;				/* Initial draw (no old pos to remove) */
-	gboolean label_geo;			/* Redo the label geo on refresh, please */
-
+	gboolean first;		/* Initial draw (no old pos to remove) */
+	gboolean label_geo; /* Redo the label geo on refresh, please */
 
 	/* Text of label we display
 	 */

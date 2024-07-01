@@ -31,9 +31,9 @@
 #define DEBUG
  */
 
-#include "ip.h"
+#include "nip4.h"
 
-static ClassmodelClass *parent_class = NULL;
+G_DEFINE_TYPE(iArrow, iarrow, CLASSMODEL_TYPE)
 
 static void
 iarrow_finalize(GObject *gobject)
@@ -54,7 +54,7 @@ iarrow_finalize(GObject *gobject)
 	iregion_instance_destroy(&iarrow->instance);
 	vips_buf_destroy(&iarrow->caption_buffer);
 
-	G_OBJECT_CLASS(parent_class)->finalize(gobject);
+	G_OBJECT_CLASS(iarrow_parent_class)->finalize(gobject);
 }
 
 static void *
@@ -77,7 +77,7 @@ iarrow_generate_caption_sub(iImage *iimage, iArrow *iarrow, gboolean *first)
 			&iarrow->caption_buffer);
 	}
 
-	return (NULL);
+	return NULL;
 }
 
 static const char *
@@ -103,7 +103,7 @@ iarrow_generate_caption(iObject *iobject)
 		!(expr = HEAPMODEL(iarrow)->row->expr) ||
 		!heap_is_class(&expr->root, &result) ||
 		!result)
-		return (_("No image"));
+		return _("No image");
 
 	vips_buf_rewind(buf);
 	heapmodel_name(HEAPMODEL(iarrow), buf);
@@ -161,13 +161,13 @@ iarrow_generate_caption(iObject *iobject)
 		}
 	}
 
-	return (vips_buf_all(buf));
+	return vips_buf_all(buf);
 }
 
 static View *
 iarrow_view_new(Model *model, View *parent)
 {
-	return (valueview_new());
+	return valueview_new();
 }
 
 static void *
@@ -175,8 +175,8 @@ iarrow_update_model(Heapmodel *heapmodel)
 {
 	/* Parent first ... this will update our instance vars.
 	 */
-	if (HEAPMODEL_CLASS(parent_class)->update_model(heapmodel))
-		return (heapmodel);
+	if (HEAPMODEL_CLASS(iarrow_parent_class)->update_model(heapmodel))
+		return heapmodel;
 
 	if (heapmodel->row->expr) {
 		iArrow *iarrow = IARROW(heapmodel);
@@ -191,7 +191,7 @@ iarrow_update_model(Heapmodel *heapmodel)
 		iobject_changed(IOBJECT(heapmodel));
 	}
 
-	return (NULL);
+	return NULL;
 }
 
 static void *
@@ -199,7 +199,7 @@ iarrow_get_instance(Classmodel *classmodel)
 {
 	iArrow *iarrow = IARROW(classmodel);
 
-	return (&iarrow->instance);
+	return &iarrow->instance;
 }
 
 static void
@@ -217,8 +217,6 @@ iarrow_class_init(iArrowClass *class)
 	 */
 	(void) iregion_get_type();
 
-	parent_class = g_type_class_peek_parent(class);
-
 	/* Create signals.
 	 */
 
@@ -231,7 +229,6 @@ iarrow_class_init(iArrowClass *class)
 	icontainer_class->parent_add = iregion_parent_add;
 
 	model_class->view_new = iarrow_view_new;
-	model_class->edit = iregion_edit;
 	model_class->save = iregion_save;
 	model_class->load = iregion_load;
 
@@ -254,29 +251,4 @@ iarrow_init(iArrow *iarrow)
 	vips_buf_init_dynamic(&iarrow->caption_buffer, MAX_LINELENGTH);
 
 	iobject_set(IOBJECT(iarrow), CLASS_ARROW, NULL);
-}
-
-GType
-iarrow_get_type(void)
-{
-	static GType type = 0;
-
-	if (!type) {
-		static const GTypeInfo info = {
-			sizeof(iArrowClass),
-			NULL, /* base_init */
-			NULL, /* base_finalize */
-			(GClassInitFunc) iarrow_class_init,
-			NULL, /* class_finalize */
-			NULL, /* class_data */
-			sizeof(iArrow),
-			32, /* n_preallocs */
-			(GInstanceInitFunc) iarrow_init,
-		};
-
-		type = g_type_register_static(TYPE_CLASSMODEL,
-			"iArrow", &info, 0);
-	}
-
-	return (type);
 }

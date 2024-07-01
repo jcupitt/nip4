@@ -1,4 +1,4 @@
-/* a ip region class in a workspace
+/* a basic view of a model ... just show the caption
  */
 
 /*
@@ -27,35 +27,30 @@
 
  */
 
-#define IARROW_TYPE (iarrow_get_type())
-#define IARROW(obj) \
-	(G_TYPE_CHECK_INSTANCE_CAST((obj), IARROW_TYPE, iArrow))
-#define IARROW_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_CAST((klass), IARROW_TYPE, iArrowClass))
-#define IS_IARROW(obj) \
-	(G_TYPE_CHECK_INSTANCE_TYPE((obj), IARROW_TYPE))
-#define IS_IARROW_CLASS(klass) \
-	(G_TYPE_CHECK_CLASS_TYPE((klass), IARROW_TYPE))
-#define IARROW_GET_CLASS(obj) \
-	(G_TYPE_INSTANCE_GET_CLASS((obj), IARROW_TYPE, iArrowClass))
+#define VALUEVIEW_TYPE (valueview_get_type())
+#define VALUEVIEW(obj) \
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), VALUEVIEW_TYPE, Valueview))
+#define VALUEVIEW_CLASS(klass) \
+	(G_TYPE_CHECK_CLASS_CAST((klass), VALUEVIEW_TYPE, ValueviewClass))
+#define IS_VALUEVIEW(obj) \
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj), VALUEVIEW_TYPE))
+#define IS_VALUEVIEW_CLASS(klass) \
+	(G_TYPE_CHECK_CLASS_TYPE((klass), VALUEVIEW_TYPE))
+#define VALUEVIEW_GET_CLASS(obj) \
+	(G_TYPE_INSTANCE_GET_CLASS((obj), VALUEVIEW_TYPE, ValueviewClass))
 
-struct _iArrow {
-	Classmodel parent_class;
+typedef struct _Valueview {
+	Graphicview parent_object;
 
-	/* Class fields.
-	 */
-	iRegionInstance instance;
+	GtkWidget *label;
+} Valueview;
 
-	/* Private ... build iobject caption here.
-	 */
-	VipsBuf caption_buffer;
-};
-
-typedef struct _iArrowClass {
-	ClassmodelClass parent_class;
+typedef struct _ValueviewClass {
+	GraphicviewClass parent_class;
 
 	/* My methods.
 	 */
-} iArrowClass;
+} ValueviewClass;
 
-GType iarrow_get_type(void);
+GType valueview_get_type(void);
+View *valueview_new(void);

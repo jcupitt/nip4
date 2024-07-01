@@ -49,10 +49,10 @@
 /* Drag state machine.
  */
 typedef enum {
-	IMAGEUI_WAIT,				/* Waiting for left down */
-	IMAGEUI_SELECT,				/* Manipulating a selected region */
-	IMAGEUI_SCROLL,				/* Drag-scrolling the iamge */
-	IMAGEUI_CREATE,				/* Dragging out a new region */
+	IMAGEUI_WAIT,	/* Waiting for left down */
+	IMAGEUI_SELECT, /* Manipulating a selected region */
+	IMAGEUI_SCROLL, /* Drag-scrolling the iamge */
+	IMAGEUI_CREATE, /* Dragging out a new region */
 } ImageuiState;
 
 struct _Imageui {
@@ -108,12 +108,12 @@ struct _Imageui {
 
 	/* Region manipulation.
 	 */
-	Regionview *grabbed;				/* Currently grabbed */
-	int window_left;					/* Window position at start of scroll */
+	Regionview *grabbed; /* Currently grabbed */
+	int window_left;	 /* Window position at start of scroll */
 	int window_top;
-	int start_x;						/* Mouse position at start of scroll */
+	int start_x; /* Mouse position at start of scroll */
 	int start_y;
-	guint modifiers;					/* Modifiers at start of drag */
+	guint modifiers; /* Modifiers at start of drag */
 
 	/* We use a floating regionview (no symbol) during eg. region create.
 	 */
@@ -205,7 +205,7 @@ imageui_floating_add(Imageui *imageui, int x, int y)
 	imageui->floating = floating;
 
 	floating->resize = REGIONVIEW_RESIZE_BOTTOMRIGHT;
-	floating->our_area = (VipsRect) { x, y, 0, 0 };
+	floating->our_area = (VipsRect){ x, y, 0, 0 };
 	floating->start_area = floating->our_area;
 }
 
@@ -534,8 +534,7 @@ imageui_tick(GtkWidget *widget, GdkFrameClock *frame_clock, gpointer user_data)
 		// 0/1/etc. discrete zoom
 		imageui->zoom_progress += dt;
 
-		double duration = imageui->should_animate ?
-			ZOOM_DURATION : imageui->zoom_progress;
+		double duration = imageui->should_animate ? ZOOM_DURATION : imageui->zoom_progress;
 
 		// 0-1 progress in zoom animation
 		double t = ease_out_cubic(imageui->zoom_progress / duration);
@@ -966,7 +965,6 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 	default:
 		break;
 	}
-
 }
 
 static void
@@ -1037,13 +1035,12 @@ imageui_drag_update(GtkEventControllerMotion *self,
 	default:
 		break;
 	}
-
 }
 
 static void
 imageui_region_new(Imageui *imageui, RegionviewType type, VipsRect *rect)
 {
-	Row *row = imageui->iimage ?  HEAPMODEL(imageui->iimage)->row : NULL;
+	Row *row = imageui->iimage ? HEAPMODEL(imageui->iimage)->row : NULL;
 
 	if (row) {
 		char txt[MAX_STRSIZE];
@@ -1059,7 +1056,7 @@ imageui_region_new(Imageui *imageui, RegionviewType type, VipsRect *rect)
 			break;
 
 		case REGIONVIEW_REGION:
-			vips_buf_appendf(&buf, "%s ", CLASS_REGION );
+			vips_buf_appendf(&buf, "%s ", CLASS_REGION);
 			row_qualified_name(row, &buf);
 			vips_buf_appendd(&buf, rect->left);
 			vips_buf_appendd(&buf, rect->top);

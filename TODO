@@ -1,6 +1,6 @@
 ## region display
 
-- add imark, iarrow
+- set type from classmodel in regionview_new
 
 - ctrl-drag when resizing an arrow should make it snap to vertical or
   horizontal?
@@ -10,6 +10,7 @@
 - seem to leak tilesource?
 
 - still racing in imagewindow new
+
 
 
 

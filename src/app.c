@@ -253,7 +253,6 @@ app_startup(GApplication *app)
 	(void) g_type_class_ref(TYPE_EXPRESSION);
 	(void) g_type_class_ref(TYPE_FONTNAME);
 	(void) g_type_class_ref(TYPE_GROUP);
-	(void) g_type_class_ref(TYPE_IARROW);
 	(void) g_type_class_ref(TYPE_MATRIX);
 	(void) g_type_class_ref(TYPE_NUMBER);
 	(void) g_type_class_ref(TYPE_OPTION);
@@ -275,6 +274,7 @@ app_startup(GApplication *app)
 	(void) g_type_class_ref(ROW_TYPE);
 	(void) g_type_class_ref(RHS_TYPE);
 	(void) g_type_class_ref(ITEXT_TYPE);
+	(void) g_type_class_ref(IARROW_TYPE);
 
 	/* Some custom CSS.
 	 */

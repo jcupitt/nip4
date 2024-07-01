@@ -124,8 +124,8 @@ enum {
 };
 
 enum {
-	SIG_CHANGED,		/* x/y/scale has changed */
-	SIG_SNAPSHOT,		/* draw overlays */
+	SIG_CHANGED,  /* x/y/scale has changed */
+	SIG_SNAPSHOT, /* draw overlays */
 	SIG_LAST
 };
 
@@ -851,7 +851,6 @@ imagedisplay_class_init(ImagedisplayClass *class)
 		g_cclosure_marshal_VOID__OBJECT,
 		G_TYPE_NONE, 1,
 		GTK_TYPE_SNAPSHOT);
-
 }
 
 Imagedisplay *

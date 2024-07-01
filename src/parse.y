@@ -314,7 +314,7 @@ definition:
 			 */
 			if (!compile_pattern_has_leaf($1))
 				yyerror(_( "left-hand-side pattern contains no identifiers"));
-			vips_snprintf(name, 256, "$$pattern_lhs%d", parse_object_id++);
+			g_snprintf(name, 256, "$$pattern_lhs%d", parse_object_id++);
 			sym = symbol_new_defining(current_compile, name);
 			sym->generated = TRUE;
 			(void) symbol_user_init(sym);
@@ -459,12 +459,12 @@ params:
 		else {
 			char name[256];
 
-			vips_snprintf(name, 256, "$$arg%d", parse_object_id);
+			g_snprintf(name, 256, "$$arg%d", parse_object_id);
 			sym = symbol_new_defining(current_compile, name);
 			sym->generated = TRUE;
 			(void) symbol_parameter_init(sym);
 
-			vips_snprintf(name, 256, "$$patt%d", parse_object_id++);
+			g_snprintf(name, 256, "$$patt%d", parse_object_id++);
 			sym = symbol_new_defining(current_compile, name);
 			sym->generated = TRUE;
 			(void) symbol_user_init(sym);
@@ -615,7 +615,7 @@ lambda:
 		/* Make an anonymous symbol local to the current sym, compile
 		 * the expr inside that.
 		 */
-		vips_snprintf(name, 256, "$$lambda%d", parse_object_id++);
+		g_snprintf(name, 256, "$$lambda%d", parse_object_id++);
 		sym = symbol_new_defining(current_compile, name);
 		sym->generated = TRUE;
 		(void) symbol_user_init(sym);
@@ -676,7 +676,7 @@ list_expression:
         /* Make an anonymous symbol local to the current sym, copy
          * the map expr inside that.
          */
-        vips_snprintf(name, 256, "$$lcomp%d", parse_object_id++);
+        g_snprintf(name, 256, "$$lcomp%d", parse_object_id++);
         sym = symbol_new_defining(current_compile, name);
         (void) symbol_user_init(sym);
         sym->generated = TRUE;
@@ -749,7 +749,7 @@ generator:
         char name[256];
         Symbol *sym;
 
-        vips_snprintf(name, 256, "$$pattern%d", parse_object_id);
+        g_snprintf(name, 256, "$$pattern%d", parse_object_id);
         sym = symbol_new_defining(current_compile, name);
         sym->generated = TRUE;
         sym->placeholder = TRUE;
@@ -757,7 +757,7 @@ generator:
         (void) compile_new_local(sym->expr);
         sym->expr->compile->tree = $1;
 
-        vips_snprintf(name, 256, "$$generator%d", parse_object_id++);
+        g_snprintf(name, 256, "$$generator%d", parse_object_id++);
         sym = symbol_new_defining(current_compile, name);
         sym->generated = TRUE;
         sym->placeholder = TRUE;
@@ -773,7 +773,7 @@ frompred:
         char name[256];
         Symbol *sym;
 
-        vips_snprintf(name, 256, "$$filter%d", parse_object_id++);
+        g_snprintf(name, 256, "$$filter%d", parse_object_id++);
         sym = symbol_new_defining(current_compile, name);
         sym->generated = TRUE;
         sym->placeholder = TRUE;
@@ -1054,7 +1054,7 @@ nip2yyerror(const char *sub, ...)
 	char buf[4096];
 
 	va_start(ap, sub);
-	(void) vips_vsnprintf(buf, 4096, sub, ap);
+	(void) g_vsnprintf(buf, 4096, sub, ap);
 	va_end(ap);
 
 	error_top(_("Parse error."));
@@ -1284,7 +1284,7 @@ input_text(char *out)
 	len = end - start;
 
 	g_assert(len < MAX_STRSIZE - 1);
-	vips_strncpy(out, buf + start, len + 1);
+	g_strlcpy(out, buf + start, len + 1);
 	out[len] = '\0';
 
 #ifdef DEBUG_CHARACTER
