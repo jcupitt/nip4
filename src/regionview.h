@@ -124,5 +124,3 @@ void regionview_draw(Regionview *regionview, GtkSnapshot *snapshot);
 
 GType regionview_get_type(void);
 Regionview *regionview_new(Classmodel *classmodel);
-
-void regionview_set_type(Regionview *regionview, PElement *root);

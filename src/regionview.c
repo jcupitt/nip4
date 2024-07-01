@@ -118,6 +118,41 @@ regionview_get_model(Regionview *regionview)
 	return model_area;
 }
 
+/* Type we display for each of the classes. Order is important!
+ */
+typedef struct {
+	const char *name;
+	RegionviewType type;
+} RegionviewDisplay;
+
+static RegionviewDisplay regionview_display_table[] = {
+	{ CLASS_MARK, REGIONVIEW_MARK },
+	{ CLASS_REGION, REGIONVIEW_REGION },
+	{ CLASS_ARROW, REGIONVIEW_ARROW }
+};
+
+/* Look at the class we are drawing, set the display type.
+ */
+static void
+regionview_set_type(Regionview *regionview, PElement *root)
+{
+	gboolean result;
+	int i;
+
+	if (heap_is_class(root, &result) && result)
+		for (i = 0; i < VIPS_NUMBER(regionview_display_table); i++) {
+			const char *name = regionview_display_table[i].name;
+
+			if (!heap_is_instanceof(name, root, &result))
+				continue;
+			if (result) {
+				regionview->type = regionview_display_table[i].type;
+				vobject_refresh_queue(VOBJECT(regionview));
+				break;
+			}
+		}
+}
+
 /* Update our_area from the model. Translate to our cods too: we always have
  * x/y in 0 to xsize/ysize.
  */
@@ -142,7 +177,9 @@ regionview_update_from_model(Regionview *regionview)
 
 	if (regionview->classmodel) {
 		Row *row = HEAPMODEL(regionview->classmodel)->row;
+        PElement *root = &row->expr->root;
 
+		regionview_set_type(regionview, root);
 		vips_buf_rewind(&regionview->caption);
 		row_qualified_name_relative(row->ws->sym, row, &regionview->caption);
 	}
@@ -777,43 +814,4 @@ regionview_new(Classmodel *classmodel)
 	}
 
 	return regionview;
-}
-
-/* Type we display for each of the classes. Order is important!
- */
-typedef struct {
-	const char *name;
-	RegionviewType type;
-} RegionviewDisplay;
-
-static RegionviewDisplay regionview_display_table[] = {
-	{ CLASS_HGUIDE, REGIONVIEW_HGUIDE },
-	{ CLASS_VGUIDE, REGIONVIEW_VGUIDE },
-	{ CLASS_MARK, REGIONVIEW_MARK },
-	{ CLASS_AREA, REGIONVIEW_AREA },
-	{ CLASS_REGION, REGIONVIEW_REGION },
-	{ CLASS_ARROW, REGIONVIEW_ARROW }
-};
-
-/* Look at the class we are drawing, set the display type.
- */
-void
-regionview_set_type(Regionview *regionview, PElement *root)
-{
-	gboolean result;
-	int i;
-
-	if (heap_is_class(root, &result) && result)
-		for (i = 0; i < VIPS_NUMBER(regionview_display_table); i++) {
-			const char *name = regionview_display_table[i].name;
-
-			if (!heap_is_instanceof(name, root, &result))
-				continue;
-			if (result) {
-				regionview->type =
-					regionview_display_table[i].type;
-				vobject_refresh_queue(VOBJECT(regionview));
-				break;
-			}
-		}
 }

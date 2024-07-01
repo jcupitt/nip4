@@ -113,7 +113,6 @@ struct _Imageui {
 	int window_top;
 	int start_x; /* Mouse position at start of scroll */
 	int start_y;
-	guint modifiers; /* Modifiers at start of drag */
 
 	/* We use a floating regionview (no symbol) during eg. region create.
 	 */
@@ -204,9 +203,10 @@ imageui_floating_add(Imageui *imageui, int x, int y)
 	imageui_add_regionview(imageui, floating);
 	imageui->floating = floating;
 
-	floating->resize = REGIONVIEW_RESIZE_BOTTOMRIGHT;
+	floating->type = REGIONVIEW_MARK;
 	floating->our_area = (VipsRect){ x, y, 0, 0 };
 	floating->start_area = floating->our_area;
+	floating->resize = REGIONVIEW_RESIZE_BOTTOMRIGHT;
 }
 
 static void
@@ -926,6 +926,7 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 
 	switch (imageui->state) {
 	case IMAGEUI_WAIT:
+		guint modifiers = get_modifiers(GTK_EVENT_CONTROLLER(self));
 		Regionview *regionview =
 			imageui_find_regionview(imageui, start_x, start_y);
 
@@ -935,6 +936,15 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 			imageui->grabbed = regionview;
 			g_object_ref(regionview);
 			regionview->start_area = regionview->our_area;
+		}
+		else if (modifiers & GDK_CONTROL_MASK) {
+			imageui->state = IMAGEUI_CREATE;
+
+			// set start position
+			double left;
+			double top;
+			imageui_gtk_to_image(imageui, start_x, start_y, &left, &top);
+			imageui_floating_add(imageui, left, top);
 		}
 		else {
 			int window_left;
@@ -948,8 +958,6 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 			imageui->start_x = start_x;
 			imageui->start_y = start_y;
 		}
-
-		imageui->modifiers = get_modifiers(GTK_EVENT_CONTROLLER(self));
 
 		break;
 
@@ -982,23 +990,8 @@ imageui_drag_update(GtkEventControllerMotion *self,
 	switch (imageui->state) {
 	case IMAGEUI_WAIT:
 		if (fabs(offset_x) > 5 ||
-			fabs(offset_y) > 5) {
-			if (imageui->modifiers & GDK_CONTROL_MASK) {
-				imageui->state = IMAGEUI_CREATE;
-
-				// set start position
-				double left;
-				double top;
-				imageui_gtk_to_image(imageui,
-					imageui->start_x + offset_x,
-					imageui->start_y + offset_y,
-					&left, &top);
-
-				imageui_floating_add(imageui, left, top);
-			}
-			else
-				imageui->state = IMAGEUI_SCROLL;
-		}
+			fabs(offset_y) > 5)
+			imageui->state = IMAGEUI_SCROLL;
 		break;
 
 	case IMAGEUI_SELECT:

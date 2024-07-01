@@ -125,6 +125,11 @@ iregiongroupview_refresh_imageview(Imageui *imageui,
 		irs->notused = g_slist_remove(irs->notused, regionview);
 	}
 	else {
+        /* Nope ... make a new one.
+         */
+        iRegionInstance *instance = classmodel_get_instance(irs->classmodel);
+        PElement *root = &HEAPMODEL(irs->classmodel)->row->expr->root;
+
 		Regionview *regionview = regionview_new(irs->classmodel);
 
 #ifdef DEBUG

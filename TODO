@@ -1,6 +1,6 @@
 ## region display
 
-- set type from classmodel in regionview_new
+- remove dead zone on ctrl-click
 
 - ctrl-drag when resizing an arrow should make it snap to vertical or
   horizontal?
