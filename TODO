@@ -1,11 +1,9 @@
 ## region display
 
-- add ctrl-click and ctrl-click-drag for region, mark, arrow create
+- add imark, iarrow
 
-- crtl-drag when resizing an arrow should make it snap to vertical or
+- ctrl-drag when resizing an arrow should make it snap to vertical or
   horizontal?
-
-- resize constraints need to change with region type
 
 - need to add regionviews on imageui_new()
 

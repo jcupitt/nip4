@@ -258,16 +258,15 @@ regionview_draw_label(Regionview *regionview, GtkSnapshot *snapshot)
 }
 
 static void
-regionview_draw_init_mark_label(Regionview *regionview)
+regionview_draw_init_region_label(Regionview *regionview)
 {
+	regionview->label.left = regionview->frame.left - regionview_line_width;
+	regionview->label.top = regionview->frame.top -
+        2 * regionview_label_margin - regionview->ink_rect.height,
 	regionview->label.width = regionview->ink_rect.width +
 		2 * regionview_label_margin;
 	regionview->label.height = regionview->ink_rect.height +
 		2 * regionview_label_margin;
-	regionview->label.left = regionview->frame.left -
-		regionview->label.width - 1.5 * regionview_line_width;
-	regionview->label.top = regionview->frame.top -
-		regionview->label.height - 1.5 * regionview_line_width;
 }
 
 static void
@@ -295,7 +294,7 @@ regionview_draw_region(Regionview *regionview, GtkSnapshot *snapshot)
 			regionview->frame.height),
 		0);
 
-	regionview_draw_init_mark_label(regionview);
+	regionview_draw_init_region_label(regionview);
 
 	// bottom and right frame shadown
 	float shadow_offset = regionview_line_width / 2.0;
@@ -322,6 +321,19 @@ regionview_draw_region(Regionview *regionview, GtkSnapshot *snapshot)
 			regionview_border, regionview_border }));
 
 	regionview_draw_label(regionview, snapshot);
+}
+
+static void
+regionview_draw_init_mark_label(Regionview *regionview)
+{
+	regionview->label.width = regionview->ink_rect.width +
+		2 * regionview_label_margin;
+	regionview->label.height = regionview->ink_rect.height +
+		2 * regionview_label_margin;
+	regionview->label.left = regionview->frame.left -
+		regionview->label.width - 1.5 * regionview_line_width;
+	regionview->label.top = regionview->frame.top -
+		regionview->label.height - 1.5 * regionview_line_width;
 }
 
 // position the four marks we draw
@@ -554,6 +566,18 @@ regionview_hit(Regionview *regionview, int x, int y)
 	return REGIONVIEW_RESIZE_NONE;
 }
 
+static void
+regionview_pick_type(Regionview *regionview)
+{
+	if (abs(regionview->our_area.width) < 10)
+		regionview->type = REGIONVIEW_MARK;
+	else if (regionview->our_area.width > 0 &&
+		regionview->our_area.height > 0)
+		regionview->type = REGIONVIEW_REGION;
+	else
+		regionview->type = REGIONVIEW_ARROW;
+}
+
 void
 regionview_resize(Regionview *regionview, int width, int height, int x, int y)
 {
@@ -564,72 +588,78 @@ regionview_resize(Regionview *regionview, int width, int height, int x, int y)
 	case REGIONVIEW_RESIZE_MOVE:
 		our_area->left = x + start_area->left;
 		our_area->top = y + start_area->top;
-
-		our_area->left =
-			VIPS_CLIP(0, our_area->left, width - start_area->width);
-		our_area->top =
-			VIPS_CLIP(0, our_area->top, height - start_area->height);
-
 		break;
 
 	case REGIONVIEW_RESIZE_RIGHT:
 		our_area->width = x + VIPS_RECT_RIGHT(start_area) - start_area->left;
-
-		our_area->width =
-			VIPS_CLIP(1, our_area->width, width - start_area->left);
-
 		break;
 
 	case REGIONVIEW_RESIZE_BOTTOM:
 		our_area->height = y + VIPS_RECT_BOTTOM(start_area) - start_area->top;
-
-		our_area->height =
-			VIPS_CLIP(1, our_area->height, height - start_area->top);
-
 		break;
 
 	case REGIONVIEW_RESIZE_BOTTOMRIGHT:
 		our_area->width = x + VIPS_RECT_RIGHT(start_area) - start_area->left;
 		our_area->height = y + VIPS_RECT_BOTTOM(start_area) - start_area->top;
-
-		our_area->width =
-			VIPS_CLIP(1, our_area->width, width - start_area->left);
-		our_area->height =
-			VIPS_CLIP(1, our_area->height, height - start_area->top);
-
 		break;
 
 	case REGIONVIEW_RESIZE_LEFT:
 		our_area->left = x + start_area->left;
-
-		our_area->left =
-			VIPS_CLIP(0, our_area->left, VIPS_RECT_RIGHT(start_area) - 1);
-
-		our_area->width = VIPS_RECT_RIGHT(start_area) - our_area->left;
-
 		break;
 
 	case REGIONVIEW_RESIZE_TOP:
 		our_area->top = y + start_area->top;
-
-		our_area->top =
-			VIPS_CLIP(0, our_area->top, VIPS_RECT_BOTTOM(start_area) - 1);
-
-		our_area->height = VIPS_RECT_BOTTOM(start_area) - our_area->top;
-
 		break;
 
 	case REGIONVIEW_RESIZE_TOPLEFT:
 		our_area->left = x + start_area->left;
 		our_area->top = y + start_area->top;
+		break;
 
-		our_area->left =
-			VIPS_CLIP(0, our_area->left, VIPS_RECT_RIGHT(start_area) - 1);
-		our_area->top =
-			VIPS_CLIP(0, our_area->top, VIPS_RECT_BOTTOM(start_area) - 1);
+	default:
+		break;
+	}
 
-		our_area->width = VIPS_RECT_RIGHT(start_area) - our_area->left;
-		our_area->height = VIPS_RECT_BOTTOM(start_area) - our_area->top;
+	if (!regionview->frozen)
+		regionview_pick_type(regionview);
+
+	switch (regionview->type) {
+	case REGIONVIEW_REGION:
+	case REGIONVIEW_MARK:
+		switch (regionview->resize) {
+		case REGIONVIEW_RESIZE_MOVE:
+			our_area->left =
+				VIPS_CLIP(0, our_area->left, width - start_area->width);
+			our_area->top =
+				VIPS_CLIP(0, our_area->top, height - start_area->height);
+			break;
+
+		case REGIONVIEW_RESIZE_RIGHT:
+		case REGIONVIEW_RESIZE_BOTTOM:
+		case REGIONVIEW_RESIZE_BOTTOMRIGHT:
+			our_area->width =
+				VIPS_CLIP(1, our_area->width, width - start_area->left);
+			our_area->height =
+				VIPS_CLIP(1, our_area->height, height - start_area->top);
+			break;
+
+		case REGIONVIEW_RESIZE_LEFT:
+		case REGIONVIEW_RESIZE_TOP:
+		case REGIONVIEW_RESIZE_TOPLEFT:
+			our_area->left =
+				VIPS_CLIP(0, our_area->left, VIPS_RECT_RIGHT(start_area) - 1);
+			our_area->top =
+				VIPS_CLIP(0, our_area->top, VIPS_RECT_BOTTOM(start_area) - 1);
+			our_area->width = VIPS_RECT_RIGHT(start_area) - our_area->left;
+			our_area->height = VIPS_RECT_BOTTOM(start_area) - our_area->top;
+			break;
+
+		default:
+			break;
+		}
+		break;
+
+	case REGIONVIEW_ARROW:
 		break;
 
 	default:

@@ -115,9 +115,9 @@ struct _Imageui {
 	int start_y;
 	guint modifiers;					/* Modifiers at start of drag */
 
-	/* In CREATE we drag out a floating regionview.
+	/* We use a floating regionview (no symbol) during eg. region create.
 	 */
-	Regionview *regionview;				/* Region rubberband display */
+	Regionview *floating;
 
 	GtkWidget *scrolled_window;
 	GtkWidget *imagedisplay;
@@ -187,6 +187,29 @@ imageui_remove_regionview(Imageui *imageui, Regionview *regionview)
 }
 
 static void
+imageui_floating_remove(Imageui *imageui)
+{
+	if (imageui->floating) {
+		imageui_remove_regionview(imageui, imageui->floating);
+		imageui->floating = NULL;
+	}
+}
+
+static void
+imageui_floating_add(Imageui *imageui, int x, int y)
+{
+	imageui_floating_remove(imageui);
+
+	Regionview *floating = regionview_new(NULL);
+	imageui_add_regionview(imageui, floating);
+	imageui->floating = floating;
+
+	floating->resize = REGIONVIEW_RESIZE_BOTTOMRIGHT;
+	floating->our_area = (VipsRect) { x, y, 0, 0 };
+	floating->start_area = floating->our_area;
+}
+
+static void
 imageui_dispose(GObject *object)
 {
 	Imageui *imageui = (Imageui *) object;
@@ -201,8 +224,7 @@ imageui_dispose(GObject *object)
 		imageui_remove_regionview(imageui, regionview);
 	}
 
-	if (imageui->regionview)
-		imageui_remove_regionview(imageui, imageui->regionview);
+	imageui_floating_remove(imageui);
 
 	imageui_set_iimage(imageui, NULL);
 	VIPS_FREEF(gtk_widget_unparent, imageui->scrolled_window);
@@ -965,26 +987,16 @@ imageui_drag_update(GtkEventControllerMotion *self,
 			fabs(offset_y) > 5) {
 			if (imageui->modifiers & GDK_CONTROL_MASK) {
 				imageui->state = IMAGEUI_CREATE;
-				if (imageui->regionview)
-					imageui_remove_regionview(imageui, imageui->regionview);
-				imageui->regionview = regionview_new(NULL);
-				imageui_add_regionview(imageui, imageui->regionview);
-				imageui->regionview->resize = REGIONVIEW_RESIZE_BOTTOMRIGHT;
 
+				// set start position
 				double left;
 				double top;
 				imageui_gtk_to_image(imageui,
 					imageui->start_x + offset_x,
 					imageui->start_y + offset_y,
 					&left, &top);
-				imageui->regionview->our_area = (VipsRect) {
-					left,
-					top,
-					0,
-					0
-				};
 
-				imageui->regionview->start_area = imageui->regionview->our_area;
+				imageui_floating_add(imageui, left, top);
 			}
 			else
 				imageui->state = IMAGEUI_SCROLL;
@@ -1006,7 +1018,7 @@ imageui_drag_update(GtkEventControllerMotion *self,
 		break;
 
 	case IMAGEUI_CREATE:
-		regionview_resize(imageui->regionview,
+		regionview_resize(imageui->floating,
 			imageui->tilesource->display_width,
 			imageui->tilesource->display_height,
 			offset_x / zoom,
@@ -1029,6 +1041,53 @@ imageui_drag_update(GtkEventControllerMotion *self,
 }
 
 static void
+imageui_region_new(Imageui *imageui, RegionviewType type, VipsRect *rect)
+{
+	Row *row = imageui->iimage ?  HEAPMODEL(imageui->iimage)->row : NULL;
+
+	if (row) {
+		char txt[MAX_STRSIZE];
+		VipsBuf buf = VIPS_BUF_STATIC(txt);
+		Symbol *sym;
+
+		switch (type) {
+		case REGIONVIEW_MARK:
+			vips_buf_appendf(&buf, "%s ", CLASS_MARK);
+			row_qualified_name(row, &buf);
+			vips_buf_appendd(&buf, rect->left);
+			vips_buf_appendd(&buf, rect->top);
+			break;
+
+		case REGIONVIEW_REGION:
+			vips_buf_appendf(&buf, "%s ", CLASS_REGION );
+			row_qualified_name(row, &buf);
+			vips_buf_appendd(&buf, rect->left);
+			vips_buf_appendd(&buf, rect->top);
+			vips_buf_appendd(&buf, rect->width);
+			vips_buf_appendd(&buf, rect->height);
+			break;
+
+		case REGIONVIEW_ARROW:
+			vips_buf_appendf(&buf, "%s ", CLASS_ARROW);
+			row_qualified_name(row, &buf);
+			vips_buf_appendd(&buf, rect->left);
+			vips_buf_appendd(&buf, rect->top);
+			vips_buf_appendd(&buf, rect->width);
+			vips_buf_appendd(&buf, rect->height);
+			break;
+
+		default:
+			g_assert_not_reached();
+		}
+
+		if (!(sym = workspace_add_def_recalc(row->ws, vips_buf_all(&buf))))
+			error_alert(GTK_WIDGET(imageui));
+
+		workspace_deselect_all(row->ws);
+	}
+}
+
+static void
 imageui_drag_end(GtkEventControllerMotion *self,
 	gdouble offset_x, gdouble offset_y, gpointer user_data)
 {
@@ -1048,9 +1107,10 @@ imageui_drag_end(GtkEventControllerMotion *self,
 		break;
 
 	case IMAGEUI_CREATE:
-		if (imageui->regionview) {
-			imageui_remove_regionview(imageui, imageui->regionview);
-			imageui->regionview = NULL;
+		if (imageui->floating) {
+			imageui_region_new(imageui,
+				imageui->floating->type, &imageui->floating->our_area);
+			imageui_floating_remove(imageui);
 		}
 
 		gtk_widget_queue_draw(GTK_WIDGET(imageui->imagedisplay));
