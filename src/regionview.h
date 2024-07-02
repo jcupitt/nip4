@@ -96,13 +96,6 @@ struct _Regionview {
 	VipsRect label;			 /* Area covered by label ... screen cods */
 	RegionviewResize resize; /* Resize type */
 
-	int ascent; /* Height of ascenders for text */
-	int dash_offset;
-	guint dash_crawl; /* Timer for dash crawl animation */
-	RegionviewType last_type;
-	gboolean first;		/* Initial draw (no old pos to remove) */
-	gboolean label_geo; /* Redo the label geo on refresh, please */
-
 	/* Text of label we display
 	 */
 	VipsBuf caption;

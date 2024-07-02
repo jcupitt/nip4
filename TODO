@@ -1,10 +1,9 @@
 ## region display
 
-- set "frozen" to revent regions changing during resize
+- do we work for large zooms on big regions? what happens when lines get
+  over 32k pixels?
 
-- resize of arrow top left is broken?
-
-- larger resize margin
+	breaks at 150,000% on nina
 
 - still racing in imagewindow new
 

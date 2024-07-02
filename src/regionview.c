@@ -87,7 +87,6 @@ regionview_dispose(GObject *object)
 	regionview = REGIONVIEW(object);
 
 	VIPS_UNREF(regionview->layout);
-	VIPS_FREEF(g_source_remove, regionview->dash_crawl);
 	vips_buf_destroy(&regionview->caption);
 
 	if (regionview->classmodel) {
@@ -498,12 +497,18 @@ regionview_draw_arrow(Regionview *regionview, GtkSnapshot *snapshot)
 		VIPS_RECT_RIGHT(&regionview->frame),
 		VIPS_RECT_BOTTOM(&regionview->frame));
 	g_autoptr(GskPath) path = gsk_path_builder_free_to_path(builder);
+
 	GskStroke *stroke = gsk_stroke_new(3);
 	gsk_stroke_set_dash(stroke, (float[1]){ 10 }, 1);
-
 	gtk_snapshot_append_stroke(snapshot, path, stroke, &regionview_border);
-
 	gsk_stroke_free(stroke);
+
+	stroke = gsk_stroke_new(3);
+	gsk_stroke_set_dash(stroke, (float[1]){ 10 }, 1);
+	gsk_stroke_set_dash_offset(stroke, 10);
+	gtk_snapshot_append_stroke(snapshot, path, stroke, &regionview_shadow);
+	gsk_stroke_free(stroke);
+
 }
 
 void
@@ -539,7 +544,7 @@ regionview_draw(Regionview *regionview, GtkSnapshot *snapshot)
 RegionviewResize
 regionview_hit(Regionview *regionview, int x, int y)
 {
-	int margin = 2 * regionview_line_width;
+	int margin = 3 * regionview_line_width;
 
 	RegionviewResize resize;
 
@@ -548,7 +553,7 @@ regionview_hit(Regionview *regionview, int x, int y)
 		regionview->label.left, regionview->label.top,
 		regionview->label.width, regionview->label.height);
 
-	/* Corners first, since they must override edges.
+	/* Grab on corners first, since they must override edges.
 	 */
 	VipsRect corner;
 	switch (regionview->type) {
@@ -590,7 +595,14 @@ regionview_hit(Regionview *regionview, int x, int y)
 		break;
 
 	case REGIONVIEW_MARK:
-		// no resize
+		corner.left = regionview->frame.left;
+		corner.top = regionview->frame.top;
+		corner.width = 0;
+		corner.height = 0;
+		vips_rect_marginadjust(&corner, margin);
+		if (vips_rect_includespoint(&corner, x, y))
+			return REGIONVIEW_RESIZE_TOPLEFT;
+
 		break;
 
 	case REGIONVIEW_ARROW:
@@ -628,7 +640,7 @@ regionview_hit(Regionview *regionview, int x, int y)
 		vips_rect_marginadjust(&inner, -margin);
 
 		if (vips_rect_includespoint(&outer, x, y) &&
-			!vips_rect_includespoint(&regionview->frame, x, y)) {
+			!vips_rect_includespoint(&inner, x, y)) {
 			if (x < regionview->frame.left)
 				return REGIONVIEW_RESIZE_LEFT;
 			if (x > VIPS_RECT_RIGHT(&regionview->frame))
@@ -760,6 +772,18 @@ regionview_resize(Regionview *regionview, guint modifiers,
 				abs(our_area->height / our_area->width) > 10)
 				our_area->width = 0;
 		}
+
+		switch (regionview->resize) {
+		case REGIONVIEW_RESIZE_TOPLEFT:
+			// left/top have changed, so we must modify width and height
+			// to keep the other point still
+			our_area->width = VIPS_RECT_RIGHT(start_area) - our_area->left;
+			our_area->height = VIPS_RECT_BOTTOM(start_area) - our_area->top;
+			break;
+
+		default:
+			break;
+		}
 		break;
 
 	default:
@@ -804,12 +828,7 @@ regionview_init(Regionview *regionview)
 
 	regionview->frame = empty_rect;
 	regionview->label = empty_rect;
-	regionview->ascent = 0;
-	regionview->dash_offset = 0;
-	regionview->dash_crawl = 0;
-	regionview->last_type = (RegionviewType) -1;
-	regionview->first = TRUE;
-	regionview->label_geo = TRUE;
+	regionview->frozen = TRUE;
 
 	vips_buf_init_dynamic(&regionview->caption, REGIONVIEW_LABEL_MAX);
 

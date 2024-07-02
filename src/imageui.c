@@ -227,6 +227,7 @@ imageui_floating_add(Imageui *imageui, int x, int y)
 	floating->our_area = (VipsRect){ x, y, 0, 0 };
 	floating->start_area = floating->our_area;
 	floating->resize = REGIONVIEW_RESIZE_BOTTOMRIGHT;
+	floating->frozen = FALSE;
 }
 
 static void
@@ -953,6 +954,7 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 		if (regionview) {
 			imageui->state = IMAGEUI_SELECT;
 			regionview->resize = regionview_hit(regionview, start_x, start_y);
+			printf("resize = %d\n", regionview->resize);
 			imageui->grabbed = regionview;
 			g_object_ref(regionview);
 			regionview->start_area = regionview->our_area;
