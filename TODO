@@ -1,11 +1,8 @@
 ## region display
 
-- do we work for large zooms on big regions? what happens when lines get
-  over 32k pixels?
+- still racing in imagewindow new, I think
 
-	breaks at 150,000% on nina
-
-- still racing in imagewindow new
+- need a right click menu? delete?
 
 ## row drag
 
@@ -39,22 +36,22 @@
 
 		maybe select A3 - A7 and drag part of a column out?
 
-- need to be able to drag rows inside columns, with animation, shadows, etc.
-
-  drag between columns as well?
-
-  drag row to background to make a new column?
-
   maybe drag to move, ctrl-drag to copy (make a reference), like a file
   mananger?
 
+- experiment with creating a floating column containing the row we are moving
+
+	need to go in workspaceview, just like column drag
+
 ## small
 
-- next/prev in imagewindow often fail
+- next/prev in imagewindow often fails
 
 	to do with background load and region ownership
 
 	a libvips release build hides the error
+
+	might fix region display error too
 
 - need something to make next/prev block while the current image is loading
 
@@ -76,6 +73,8 @@
 	view_dump(): 2 views
 	0x5555596c76f0 Workspaceview count=4
 	0x5555595c1860 Workspaceview count=1
+
+- cool if new tab button could go next to the rightmost tab, like chrome
 
 ## imagewindow
 
