@@ -1,24 +1,44 @@
 ## region display
 
-- shift-drag when resizing an arrow should make it snap to vertical or
-  horizontal?
+- set "frozen" to revent regions changing during resize
 
-	inkscape uses ctrl for snap
+- resize of arrow top left is broken?
 
-	what does the HIG say?
-
-		nothing!
+- larger resize margin
 
 - still racing in imagewindow new
 
-
-
-
-
-
-
-
 ## row drag
+
+- subcolumnview is a grid, with columns for spin. label and rhs
+
+	difficult to grab and move, since three widgets must move together
+
+	maybe use a vbox with sizegroup to keep columns in line?
+
+	perhaps dragging a grid row is ok? we should experiment
+
+	the thing we drag would need to be at the layout level, so
+	workspaceview would need to support floating rows as children
+
+	columns would then draw the shadow as a floating row in the grid that
+	only moved in whole grid units
+
+		drag start on A2:
+
+		 - remove A2
+		 - make a floating row on the workspaceview that looks like A2
+		 - position where A2 was, link floating A2 to mouse
+		 - during drag, floating row foilows mouse, shadow is where
+ 		   the row will drop
+
+	so ... can we make a floating row that looks like a row? a one-row
+	columnview with an invisible header? could we move the row elements
+	to that temporarilly?
+
+		we could allow dragging one column into another! argh
+
+		maybe select A3 - A7 and drag part of a column out?
 
 - need to be able to drag rows inside columns, with animation, shadows, etc.
 

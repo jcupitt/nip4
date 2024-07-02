@@ -959,8 +959,6 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 		}
 		else if (modifiers & GDK_CONTROL_MASK) {
 			imageui->state = IMAGEUI_CREATE;
-
-			// set start position
 			double left;
 			double top;
 			imageui_gtk_to_image(imageui, start_x, start_y, &left, &top);
@@ -1001,6 +999,7 @@ imageui_drag_update(GtkEventControllerMotion *self,
 {
 	Imageui *imageui = IMAGEUI(user_data);
 	double zoom = imageui_get_zoom(imageui);
+	guint modifiers = get_modifiers(GTK_EVENT_CONTROLLER(self));
 
 #ifdef DEBUG_VERBOSE
 	printf("imageui_drag_update: offset_x = %g, offset_y = %g\n",
@@ -1015,7 +1014,7 @@ imageui_drag_update(GtkEventControllerMotion *self,
 		break;
 
 	case IMAGEUI_SELECT:
-		regionview_resize(imageui->grabbed,
+		regionview_resize(imageui->grabbed, modifiers,
 			imageui->tilesource->display_width,
 			imageui->tilesource->display_height,
 			offset_x / zoom,
@@ -1029,7 +1028,7 @@ imageui_drag_update(GtkEventControllerMotion *self,
 		break;
 
 	case IMAGEUI_CREATE:
-		regionview_resize(imageui->floating,
+		regionview_resize(imageui->floating, modifiers,
 			imageui->tilesource->display_width,
 			imageui->tilesource->display_height,
 			offset_x / zoom,

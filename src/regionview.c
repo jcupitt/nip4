@@ -529,6 +529,9 @@ regionview_draw(Regionview *regionview, GtkSnapshot *snapshot)
 	REGIONVIEW_LINE,			// floating dashed line for paintbox
 	REGIONVIEW_BOX				// floating dashed box for paintbox
 		 */
+
+	default:
+		g_assert_not_reached();
 	}
 }
 
@@ -536,6 +539,8 @@ regionview_draw(Regionview *regionview, GtkSnapshot *snapshot)
 RegionviewResize
 regionview_hit(Regionview *regionview, int x, int y)
 {
+	int margin = 2 * regionview_line_width;
+
 	RegionviewResize resize;
 
 	printf("regionview_hit: %d, %d\n", x, y);
@@ -543,20 +548,18 @@ regionview_hit(Regionview *regionview, int x, int y)
 		regionview->label.left, regionview->label.top,
 		regionview->label.width, regionview->label.height);
 
-	/* In the frame? Add a little extra margin.
+	/* Corners first, since they must override edges.
 	 */
-	VipsRect outer = regionview->frame;
-	vips_rect_marginadjust(&outer, 2 * regionview_line_width);
-	if (vips_rect_includespoint(&outer, x, y) &&
-		!vips_rect_includespoint(&regionview->frame, x, y)) {
-		VipsRect corner;
-
+	VipsRect corner;
+	switch (regionview->type) {
+	case REGIONVIEW_REGION:
+	case REGIONVIEW_AREA:
 		// bottom-right first, since that's the most useful for small regions
 		corner.left = VIPS_RECT_RIGHT(&regionview->frame);
 		corner.top = VIPS_RECT_BOTTOM(&regionview->frame);
 		corner.width = 0;
 		corner.height = 0;
-		vips_rect_marginadjust(&corner, 20);
+		vips_rect_marginadjust(&corner, margin);
 		if (vips_rect_includespoint(&corner, x, y))
 			return REGIONVIEW_RESIZE_BOTTOMRIGHT;
 
@@ -564,7 +567,7 @@ regionview_hit(Regionview *regionview, int x, int y)
 		corner.top = regionview->frame.top;
 		corner.width = 0;
 		corner.height = 0;
-		vips_rect_marginadjust(&corner, 20);
+		vips_rect_marginadjust(&corner, margin);
 		if (vips_rect_includespoint(&corner, x, y))
 			return REGIONVIEW_RESIZE_TOPRIGHT;
 
@@ -572,7 +575,7 @@ regionview_hit(Regionview *regionview, int x, int y)
 		corner.top = VIPS_RECT_BOTTOM(&regionview->frame);
 		corner.width = 0;
 		corner.height = 0;
-		vips_rect_marginadjust(&corner, 20);
+		vips_rect_marginadjust(&corner, margin);
 		if (vips_rect_includespoint(&corner, x, y))
 			return REGIONVIEW_RESIZE_BOTTOMLEFT;
 
@@ -580,19 +583,70 @@ regionview_hit(Regionview *regionview, int x, int y)
 		corner.top = regionview->frame.top;
 		corner.width = 0;
 		corner.height = 0;
-		vips_rect_marginadjust(&corner, 20);
+		vips_rect_marginadjust(&corner, margin);
 		if (vips_rect_includespoint(&corner, x, y))
 			return REGIONVIEW_RESIZE_TOPLEFT;
 
-		// edges
-		if (x < regionview->frame.left)
-			return REGIONVIEW_RESIZE_LEFT;
-		if (x > VIPS_RECT_RIGHT(&regionview->frame))
-			return REGIONVIEW_RESIZE_RIGHT;
-		if (y < regionview->frame.top)
-			return REGIONVIEW_RESIZE_TOP;
-		if (y > VIPS_RECT_BOTTOM(&regionview->frame))
-			return REGIONVIEW_RESIZE_BOTTOM;
+		break;
+
+	case REGIONVIEW_MARK:
+		// no resize
+		break;
+
+	case REGIONVIEW_ARROW:
+		// bottom-right first, since that's the most useful for small arrows
+		corner.left = VIPS_RECT_RIGHT(&regionview->frame);
+		corner.top = VIPS_RECT_BOTTOM(&regionview->frame);
+		corner.width = 0;
+		corner.height = 0;
+		vips_rect_marginadjust(&corner, margin);
+		if (vips_rect_includespoint(&corner, x, y))
+			return REGIONVIEW_RESIZE_BOTTOMRIGHT;
+
+		corner.left = regionview->frame.left;
+		corner.top = regionview->frame.top;
+		corner.width = 0;
+		corner.height = 0;
+		vips_rect_marginadjust(&corner, margin);
+		if (vips_rect_includespoint(&corner, x, y))
+			return REGIONVIEW_RESIZE_TOPLEFT;
+
+		break;
+
+	default:
+		g_assert_not_reached();
+	}
+
+	/* Edge resize.
+	 */
+	switch (regionview->type) {
+	case REGIONVIEW_REGION:
+	case REGIONVIEW_AREA:
+		VipsRect inner = regionview->frame;
+		VipsRect outer = inner;
+		vips_rect_marginadjust(&outer, margin);
+		vips_rect_marginadjust(&inner, -margin);
+
+		if (vips_rect_includespoint(&outer, x, y) &&
+			!vips_rect_includespoint(&regionview->frame, x, y)) {
+			if (x < regionview->frame.left)
+				return REGIONVIEW_RESIZE_LEFT;
+			if (x > VIPS_RECT_RIGHT(&regionview->frame))
+				return REGIONVIEW_RESIZE_RIGHT;
+			if (y < regionview->frame.top)
+				return REGIONVIEW_RESIZE_TOP;
+			if (y > VIPS_RECT_BOTTOM(&regionview->frame))
+				return REGIONVIEW_RESIZE_BOTTOM;
+		}
+
+		break;
+
+	case REGIONVIEW_MARK:
+	case REGIONVIEW_ARROW:
+		break;
+
+	default:
+		g_assert_not_reached();
 	}
 
 	/* In the label? This has to be after the frame, or TOPLEFT will not work.
@@ -616,7 +670,8 @@ regionview_pick_type(Regionview *regionview)
 }
 
 void
-regionview_resize(Regionview *regionview, int width, int height, int x, int y)
+regionview_resize(Regionview *regionview, guint modifiers,
+	int width, int height, int x, int y)
 {
 	VipsRect *our_area = &regionview->our_area;
 	VipsRect *start_area = &regionview->start_area;
@@ -697,6 +752,14 @@ regionview_resize(Regionview *regionview, int width, int height, int x, int y)
 		break;
 
 	case REGIONVIEW_ARROW:
+		if (modifiers & GDK_SHIFT_MASK) {
+			if (our_area->height != 0 &&
+				abs(our_area->width / our_area->height) > 10)
+				our_area->height = 0;
+			if (our_area->width != 0 &&
+				abs(our_area->height / our_area->width) > 10)
+				our_area->width = 0;
+		}
 		break;
 
 	default:

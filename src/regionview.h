@@ -117,7 +117,7 @@ typedef struct _RegionviewClass {
 
 void regionview_model_update(Regionview *regionview);
 RegionviewResize regionview_hit(Regionview *regionview, int x, int y);
-void regionview_resize(Regionview *regionview,
+void regionview_resize(Regionview *regionview, guint modifiers,
 	int width, int height, int x, int y);
 void regionview_attach(Regionview *regionview, int x, int y);
 void regionview_draw(Regionview *regionview, GtkSnapshot *snapshot);
