@@ -42,8 +42,6 @@
 struct _Rowview {
 	View view;
 
-	Subcolumnview *sview; /* Enclosing subcolumnview */
-
 	gboolean visible; /* Currently visible */
 	int rnum;		  /* Row of subcolumn we are in */
 

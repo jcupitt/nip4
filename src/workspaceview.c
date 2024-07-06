@@ -285,6 +285,7 @@ workspaceview_dispose(GObject *object)
 	workspaceview_stop_animation(wview);
 	FREESID(wview->watch_changed_sid, main_watchgroup);
 	gtk_widget_dispose_template(GTK_WIDGET(wview), WORKSPACEVIEW_TYPE);
+	VIPS_FREEF(view_child_remove, wview->floating);
 
 	G_OBJECT_CLASS(workspaceview_parent_class)->dispose(object);
 }
@@ -357,10 +358,15 @@ workspaceview_child_add(View *parent, View *child)
 
 	/* Pick start xy pos.
 	 */
-	workspaceview_pick_xy(wview, &column->x, &column->y);
+	workspaceview_pick_xy(wview, &cview->x, &cview->y);
+	if (column) {
+		column->x = cview->x;
+		column->y = cview->y;
+	}
+
 	gtk_fixed_put(GTK_FIXED(wview->fixed), GTK_WIDGET(cview),
-		column->x, column->y);
-	columnview_animate_to(cview, column->x, column->y);
+		cview->x, cview->y);
+	columnview_animate_to(cview, cview->x, cview->y);
 }
 
 static void
@@ -391,12 +397,12 @@ workspaceview_child_front(View *parent, View *child)
 {
 	Workspaceview *wview = WORKSPACEVIEW(parent);
 	Columnview *cview = COLUMNVIEW(child);
-	Column *col = COLUMN(VOBJECT(cview)->iobject);
 
 	g_object_ref(cview);
 
 	gtk_fixed_remove(GTK_FIXED(wview->fixed), GTK_WIDGET(cview));
-	gtk_fixed_put(GTK_FIXED(wview->fixed), GTK_WIDGET(cview), col->x, col->y);
+	gtk_fixed_put(GTK_FIXED(wview->fixed), GTK_WIDGET(cview),
+		cview->x, cview->y);
 
 	g_object_unref(cview);
 }
@@ -765,8 +771,8 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 #ifdef DEBUG
-	printf("workspaceview_drag_begin: %g x %g\n", start_x, start_y);
 #endif /*DEBUG*/
+	printf("workspaceview_drag_begin: %g x %g\n", start_x, start_y);
 
 	switch (wview->state) {
 	case WVIEW_WAIT:
@@ -788,7 +794,47 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 			wview->obj_x = cview->x;
 			wview->obj_y = cview->y;
 		}
-		else if (!cview) {
+		else if (cview) {
+			Rowview *rview = columnview_find_rowview(cview, start_x, start_y);
+
+			if (rview) {
+				Row *row = ROW(VOBJECT(rview)->iobject);
+
+				printf("workspaceview_drag_begin: %s\n",
+					IOBJECT(row->sym)->name);
+
+				VIPS_FREEF(view_child_remove, wview->floating);
+
+				Columnview *floating = columnview_new();
+				wview->floating = floating;
+				view_child_add(VIEW(wview), VIEW(floating));
+
+				cview->x = start_x;
+				cview->y = start_y;
+				wview->drag_cview = floating;
+				wview->state = WVIEW_SELECT;
+				wview->obj_x = cview->x;
+				wview->obj_y = cview->y;
+
+				Subcolumnview *sview = subcolumnview_new();
+				view_child_add(VIEW(floating), VIEW(sview));
+
+				// reparent the rowview to this new column
+				g_object_ref(rview);
+
+				view_child_remove(VIEW(rview));
+				// the row number has to be wrong or reattach is skipped
+				rview->rnum = -1;
+				printf("attching rowview %p to sview %p\n", rview, sview);
+				view_child_add(VIEW(sview), VIEW(rview));
+				g_object_unref(rview);
+
+				// force a refresh to get the row to attach to the new grid
+				printf("refreshing rview\n");
+				vobject_refresh(VOBJECT(rview));
+			}
+		}
+		else {
 			// drag on background
 			wview->drag_cview = NULL;
 			wview->state = WVIEW_SELECT;
@@ -891,6 +937,8 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 			workspace_column_select(ws, col);
 			column_scrollto(col, MODEL_SCROLL_TOP);
 		}
+
+		VIPS_FREEF(view_child_remove, wview->floating);
 
 		break;
 

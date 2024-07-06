@@ -662,11 +662,11 @@ view_real_child_add(View *parent, View *child)
 
 	viewchild = slist_map(parent->managed,
 		(SListMapFn) view_viewchild_child_model_equal, child_model);
+	if (viewchild) {
+		g_assert(viewchild->child_view == NULL);
 
-	g_assert(viewchild);
-	g_assert(viewchild->child_view == NULL);
-
-	viewchild->child_view = child;
+		viewchild->child_view = child;
+	}
 
 	g_assert(!child->parent);
 	child->parent = parent;

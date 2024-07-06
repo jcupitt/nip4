@@ -98,6 +98,10 @@ struct _Workspaceview {
 	guint tick_handler;
 	gint64 last_frame_time;
 	gboolean should_animate;
+
+	/* A temp floating columnview we just make for row drag.
+	 */
+	Columnview *floating;
 };
 
 typedef struct _WorkspaceviewClass {

@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -73,7 +73,7 @@ rowview_dispose(GObject *object)
 static void
 rowview_attach(Rowview *rview, GtkWidget *child, int x)
 {
-	Subcolumnview *sview = rview->sview;
+	Subcolumnview *sview = SUBCOLUMNVIEW(VIEW(rview)->parent);
 
 	g_object_ref(child);
 
@@ -117,7 +117,7 @@ rowview_update_widgets(Rowview *rview)
 	gboolean editable = row->ws->mode != WORKSPACE_MODE_NOEDIT;
 
 #ifdef DEBUG
-	printf("rowview_update_widgets: ");
+	printf("rowview_update_widgets: %p ", rview);
 	row_name_print(row);
 	printf("\n");
 	printf("\teditable == %d\n", editable);
@@ -360,8 +360,6 @@ rowview_link(View *view, Model *model, View *parent)
 
 	VIEW_CLASS(rowview_parent_class)->link(view, model, parent);
 
-	rview->sview = sview;
-
 	printf("rowview_link: FIXME ... drag n drop for rows\n");
 	/* Only drag n drop top level rows.
 	if (row->top_row == row) {
@@ -418,9 +416,10 @@ rowview_edit(Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	Model *graphic = row->child_rhs->graphic;
+	Subcolumnview *sview = SUBCOLUMNVIEW(VIEW(rview)->parent);
 
 	if (graphic)
-		model_edit(GTK_WIDGET(rview->sview), graphic);
+		model_edit(GTK_WIDGET(sview), graphic);
 
 	return TRUE;
 }

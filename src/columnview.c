@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -324,15 +324,15 @@ columnview_get_position(Columnview *cview, int *x, int *y, int *w, int *h)
 
 	if (*w == 0 || *h == 0) {
 		// we're probably not realised yet ... use the saved position
-		*x = col->x;
-		*y = col->y;
+		*x = col ? col->x : 0;
+		*y = col ? col->y : 0;
 		*w = 200;
 		*h = 50;
 	}
 
 #ifdef DEBUG
 	printf("columnview_get_position: %s, x = %d, y = %d, w = %d, h = %d\n",
-		IOBJECT(col)->name, *x, *y, *w, *h);
+		col ? IOBJECT(col)->name : "null", *x, *y, *w, *h);
 #endif /*DEBUG*/
 }
 
@@ -503,13 +503,14 @@ columnview_refresh(vObject *vobject)
 	Columnview *shadow = cview->shadow;
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
 
-	if (!col)
-		return;
+#ifdef DEBUG
+	printf("columnview_refresh: %p\n", cview);
+#endif /*DEBUG*/
 
 	gboolean editable = col->ws->mode != WORKSPACE_MODE_NOEDIT;
 
 #ifdef DEBUG
-	printf("columnview_refresh: %s\n", IOBJECT(col)->name);
+	printf("\tmodel %s\n", IOBJECT(col)->name);
 #endif /*DEBUG*/
 
 	/* If this column has a shadow, workspaceview will have put a layout
@@ -793,6 +794,11 @@ static void
 columnview_init(Columnview *cview)
 {
 	gtk_widget_init_template(GTK_WIDGET(cview));
+
+	// the default state is used for floating cviews for row drag
+	gtk_widget_set_visible(cview->title, FALSE);
+	gtk_revealer_set_reveal_child(GTK_REVEALER(cview->revealer), TRUE);
+	gtk_widget_set_visible(cview->entry, FALSE);
 }
 
 View *
