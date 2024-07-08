@@ -113,7 +113,8 @@ static void
 rowview_update_widgets(Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
-	int pos = ICONTAINER(row)->pos;
+	// use every other row, so we have spaces for any shadow
+	int pos = 2 * ICONTAINER(row)->pos + 1;
 	gboolean editable = row->ws->mode != WORKSPACE_MODE_NOEDIT;
 
 #ifdef DEBUG

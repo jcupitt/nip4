@@ -71,7 +71,9 @@ workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
 
 	gint64 frame_time = gdk_frame_clock_get_frame_time(frame_clock);
-	double dt = wview->last_frame_time > 0 ? (double) (frame_time - wview->last_frame_time) / G_TIME_SPAN_SECOND : 1.0 / G_TIME_SPAN_SECOND;
+	double dt = wview->last_frame_time > 0 ?
+		(double) (frame_time - wview->last_frame_time) / G_TIME_SPAN_SECOND :
+		1.0 / G_TIME_SPAN_SECOND;
 
 #ifdef DEBUG
 	printf("workspaceview_tick: dt = %g\n", dt);
@@ -93,7 +95,8 @@ workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 		cview->elapsed += dt;
 
 		// 0-1 progress in animation
-		double duration = wview->should_animate ? workspaceview_animation_duration : cview->elapsed;
+		double duration = wview->should_animate ?
+			workspaceview_animation_duration : cview->elapsed;
 		double t = VIPS_CLIP(0, ease_out_cubic(cview->elapsed / duration), 1);
 
 		if (cview->shadow ||
@@ -222,7 +225,6 @@ workspaceview_columnview_hit(View *view, void *a, void *b)
 	Workspaceview *wview = WORKSPACEVIEW(b);
 
 	graphene_rect_t bounds;
-
 	if (gtk_widget_compute_bounds(GTK_WIDGET(cview), wview->fixed, &bounds) &&
 		graphene_rect_contains_point(&bounds, point))
 		return cview;
@@ -763,6 +765,43 @@ workspaceview_click(GtkGestureClick *gesture,
 	// we detect single click in drag_update
 }
 
+static Columnview *
+workspaceview_float_rowview(Workspaceview *wview, Rowview *rview)
+{
+	// the sview we are removing from
+	Subcolumnview *old_sview = SUBCOLUMNVIEW(VIEW(rview)->parent);
+
+	// position of the label in workspace cods
+	graphene_rect_t bounds;
+	if (!gtk_widget_compute_bounds(rview->frame, GTK_WIDGET(wview), &bounds))
+		return NULL;
+
+	// therefore object position at start of drag
+	Columnview *floating = columnview_new();
+	floating->x = bounds.origin.x;
+	floating->y = bounds.origin.y;
+
+	Subcolumnview *sview = subcolumnview_new();
+	view_child_add(VIEW(floating), VIEW(sview));
+
+	// put a shadow in the subcolumn where this row was
+	Row *row = ROW(VOBJECT(rview)->iobject);
+	subcolumnview_add_shadow(old_sview,
+		bounds.size.height, 2 * ICONTAINER(row)->pos + 1);
+
+	// reparent the rowview to this new column
+	g_object_ref(rview);
+
+	view_child_remove(VIEW(rview));
+	// the row number has to be wrong or reattach is skipped
+	rview->rnum = -1;
+	view_child_add(VIEW(sview), VIEW(rview));
+
+	g_object_unref(rview);
+
+	return floating;
+}
+
 static void
 workspaceview_drag_begin(GtkEventControllerMotion *self,
 	gdouble start_x, gdouble start_y, gpointer user_data)
@@ -798,40 +837,15 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 			Rowview *rview = columnview_find_rowview(cview, start_x, start_y);
 
 			if (rview) {
-				Row *row = ROW(VOBJECT(rview)->iobject);
+				graphene_rect_t bounds;
+				if (!gtk_widget_compute_bounds(GTK_WIDGET(rview->frame),
+						wview->fixed, &bounds))
+					return;
 
-				printf("workspaceview_drag_begin: %s\n",
-					IOBJECT(row->sym)->name);
-
-				VIPS_FREEF(view_child_remove, wview->floating);
-
-				Columnview *floating = columnview_new();
-				wview->floating = floating;
-				view_child_add(VIEW(wview), VIEW(floating));
-
-				cview->x = start_x;
-				cview->y = start_y;
-				wview->drag_cview = floating;
+				wview->drag_rview = rview;
 				wview->state = WVIEW_SELECT;
-				wview->obj_x = cview->x;
-				wview->obj_y = cview->y;
-
-				Subcolumnview *sview = subcolumnview_new();
-				view_child_add(VIEW(floating), VIEW(sview));
-
-				// reparent the rowview to this new column
-				g_object_ref(rview);
-
-				view_child_remove(VIEW(rview));
-				// the row number has to be wrong or reattach is skipped
-				rview->rnum = -1;
-				printf("attching rowview %p to sview %p\n", rview, sview);
-				view_child_add(VIEW(sview), VIEW(rview));
-				g_object_unref(rview);
-
-				// force a refresh to get the row to attach to the new grid
-				printf("refreshing rview\n");
-				vobject_refresh(VOBJECT(rview));
+				wview->obj_x = bounds.origin.x;
+				wview->obj_y = bounds.origin.y;
 			}
 		}
 		else {
@@ -871,6 +885,20 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 
 			if (wview->drag_cview)
 				columnview_add_shadow(wview->drag_cview);
+			else if (wview->drag_rview) {
+				VIPS_FREEF(view_child_remove, wview->floating);
+
+				Columnview *floating =
+					workspaceview_float_rowview(wview, wview->drag_rview);
+				wview->floating = floating;
+				wview->drag_cview = floating;
+				wview->state = WVIEW_SELECT;
+				view_child_add(VIEW(wview), VIEW(floating));
+
+				// force a refresh to get everything in the right place
+				vobject_refresh(VOBJECT(wview->drag_rview));
+				vobject_refresh(VOBJECT(floating));
+			}
 		}
 
 		break;
@@ -883,17 +911,49 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 			columnview_get_position(wview->drag_cview, &x, &y, &w, &h);
 
 			// don't let x/y go -ve (layout hates it)
-			columnview_animate_to(wview->drag_cview,
-				VIPS_CLIP(0,
-					VIPS_RINT(wview->obj_x + offset_x), wview->width - w),
-				VIPS_CLIP(0,
-					VIPS_RINT(wview->obj_y + offset_y), wview->height - h));
+			int mouse_x = wview->obj_x + offset_x;
+			int mouse_y = wview->obj_y + offset_y;
 
-			// move other columns about (won't touch drag_cview)
-			model_layout(MODEL(ws));
+			columnview_animate_to(wview->drag_cview,
+				VIPS_CLIP(0, VIPS_RINT(mouse_x), wview->width - w),
+				VIPS_CLIP(0, VIPS_RINT(mouse_y), wview->height - h));
 
 			// top, since we want the titlebar to be visible
 			view_scrollto(wview->drag_cview, MODEL_SCROLL_TOP);
+
+			if (wview->drag_rview) {
+				// column we are currently over
+				Columnview *cview = workspaceview_find_columnview(wview,
+					mouse_x, mouse_y);
+
+				if (cview) {
+					// row we are over
+					Rowview *rview = columnview_find_rowview(cview,
+						mouse_x, mouse_y);
+
+					if (rview) {
+						Subcolumnview *sview =
+							SUBCOLUMNVIEW(VIEW(rview)->parent);
+
+						graphene_rect_t bounds;
+						if (!gtk_widget_compute_bounds(GTK_WIDGET(rview->frame),
+								wview->fixed, &bounds))
+							return;
+
+						Row *row = ROW(VOBJECT(rview)->iobject);
+						int pos = 2 * ICONTAINER(row)->pos + 1;
+						if (mouse_y > bounds.origin.y + bounds.size.height / 2)
+							subcolumnview_move_shadow(sview,
+								bounds.size.height, pos + 1);
+						else
+							subcolumnview_move_shadow(sview,
+								bounds.size.height, pos - 1);
+					}
+				}
+			}
+			else
+				// move other columns about (won't touch drag_cview)
+				model_layout(MODEL(ws));
 		}
 		else {
 			// we don't want to drag the window with its own coordinate
@@ -959,6 +1019,7 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 	}
 
 	wview->drag_cview = NULL;
+	wview->drag_rview = NULL;
 }
 
 static void

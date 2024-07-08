@@ -42,14 +42,14 @@
 struct _Rowview {
 	View view;
 
-	gboolean visible; /* Currently visible */
-	int rnum;		  /* Row of subcolumn we are in */
+	gboolean visible;			/* Currently visible */
+	int rnum;					/* Row of subcolumn we are in */
 
-	GtkWidget *top;	  /* Enclosing box for our widgets */
-	GtkWidget *spin;  /* Class display open/close widgets */
-	GtkWidget *frame; /* Row name box */
-	GtkWidget *label; /* Row label */
-	Rhsview *rhsview; /* Our rhs */
+	GtkWidget *top;				/* Enclosing box for our widgets */
+	GtkWidget *spin;			/* Class display open/close widgets */
+	GtkWidget *frame;			/* Row name box */
+	GtkWidget *label;			/* Row label */
+	Rhsview *rhsview;			/* Our rhs */
 
 	/* Last tooltip we set.
 	 */

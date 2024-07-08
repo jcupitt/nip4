@@ -71,6 +71,7 @@ struct _Workspaceview {
 	 */
 	WorkspaceviewState state; /* Waiting or dragging */
 	Columnview *drag_cview;	  /* Column we are dragging (if any) */
+	Rowview *drag_rview;	  /* Row we are dragging (if any) */
 	int obj_x;				  /* Object position at start of drag */
 	int obj_y;
 

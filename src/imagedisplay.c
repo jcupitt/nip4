@@ -878,11 +878,9 @@ imagedisplay_image_to_gtk(Imagedisplay *imagedisplay,
 	double x_image, double y_image, double *x_gtk, double *y_gtk)
 {
 	*x_gtk = x_image * imagedisplay->scale -
-		imagedisplay->x +
-		imagedisplay->paint_rect.left;
+		imagedisplay->x + imagedisplay->paint_rect.left;
 	*y_gtk = y_image * imagedisplay->scale -
-		imagedisplay->y +
-		imagedisplay->paint_rect.top;
+		imagedisplay->y + imagedisplay->paint_rect.top;
 }
 
 void
@@ -890,16 +888,12 @@ imagedisplay_gtk_to_image(Imagedisplay *imagedisplay,
 	double x_gtk, double y_gtk, double *x_image, double *y_image)
 {
 	*x_image = (imagedisplay->x +
-				   x_gtk -
-				   imagedisplay->paint_rect.left) /
+				   x_gtk - imagedisplay->paint_rect.left) /
 		imagedisplay->scale;
 	*y_image = (imagedisplay->y +
-				   y_gtk -
-				   imagedisplay->paint_rect.top) /
+				   y_gtk - imagedisplay->paint_rect.top) /
 		imagedisplay->scale;
 
-	*x_image = VIPS_CLIP(0, *x_image,
-		imagedisplay->image_rect.width - 1);
-	*y_image = VIPS_CLIP(0, *y_image,
-		imagedisplay->image_rect.height - 1);
+	*x_image = VIPS_CLIP(0, *x_image, imagedisplay->image_rect.width - 1);
+	*y_image = VIPS_CLIP(0, *y_image, imagedisplay->image_rect.height - 1);
 }
