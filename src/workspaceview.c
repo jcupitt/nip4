@@ -64,6 +64,47 @@ workspaceview_stop_animation(Workspaceview *wview)
 	}
 }
 
+static void
+workspaceview_remove_previous_row_shadow(Workspaceview *wview)
+{
+	if (wview->previous_row_shadow) {
+		Subcolumnview *sview = wview->previous_row_shadow_column->sview;
+
+		gtk_grid_remove(GTK_GRID(sview->grid), wview->previous_row_shadow);
+		wview->previous_row_shadow = NULL;
+		wview->previous_row_shadow_column = NULL;
+	}
+}
+
+static void
+workspaceview_remove_row_shadow(Workspaceview *wview)
+{
+	if (wview->row_shadow) {
+		Subcolumnview *sview = wview->row_shadow_column->sview;
+
+		gtk_grid_remove(GTK_GRID(sview->grid), wview->row_shadow);
+		wview->row_shadow = NULL;
+		wview->row_shadow_column = NULL;
+	}
+
+	workspaceview_remove_previous_row_shadow(wview);
+}
+
+static void
+workspaceview_set_row_shadow_height(Workspaceview *wview, int shadow_height)
+{
+	if (wview->row_shadow)
+		gtk_widget_set_margin_top(wview->row_shadow, shadow_height);
+	if (wview->previous_row_shadow)
+		gtk_widget_set_margin_top(wview->previous_row_shadow,
+			wview->max_row_shadow_height - shadow_height);
+
+	// animation done? we can remove the previous shadow
+	if (shadow_height == wview->max_row_shadow_height &&
+		wview->previous_row_shadow)
+		workspaceview_remove_previous_row_shadow(wview);
+}
+
 static gboolean
 workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 	gpointer user_data)
@@ -81,6 +122,8 @@ workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 
 	gboolean finished = TRUE;
 
+	/* Column drag animate.
+	 */
 	for (GSList *p = VIEW(wview)->children; p; p = p->next) {
 		Columnview *cview = COLUMNVIEW(p->data);
 		Column *col = COLUMN(VOBJECT(cview)->iobject);
@@ -120,6 +163,24 @@ workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 		gtk_fixed_move(GTK_FIXED(wview->fixed), GTK_WIDGET(cview), x, y);
 	}
 
+	/* Row drag animate.
+	 */
+	if (wview->row_shadow) {
+		wview->row_shadow_elapsed += dt;
+
+		// 0-1 progress in animation
+		double duration = wview->should_animate ?
+			workspaceview_animation_duration : wview->row_shadow_elapsed;
+		double t = VIPS_CLIP(0, ease_out_cubic(wview->row_shadow_elapsed /
+			duration), 1);
+
+		workspaceview_set_row_shadow_height(wview,
+			t * wview->max_row_shadow_height);
+
+		if (t != 1.0)
+			finished = FALSE;
+	}
+
 	if (finished)
 		workspaceview_stop_animation(wview);
 
@@ -135,6 +196,67 @@ workspaceview_start_animation(Workspaceview *wview)
 		wview->last_frame_time = -1;
 		wview->tick_handler = gtk_widget_add_tick_callback(GTK_WIDGET(wview),
 			workspaceview_tick, wview, NULL);
+	}
+}
+
+// make a new full-size row shadow
+static void
+workspaceview_add_row_shadow(Workspaceview *wview, int max_row_shadow_height,
+	Columnview *row_shadow_column, int row_shadow_position)
+{
+	workspaceview_remove_row_shadow(wview);
+
+	if (row_shadow_position != -1) {
+		Subcolumnview *sview = row_shadow_column->sview;
+
+		wview->row_shadow = gtk_frame_new(NULL);
+		wview->row_shadow_column = row_shadow_column;
+		wview->row_shadow_position = row_shadow_position;
+
+		wview->max_row_shadow_height = max_row_shadow_height;
+
+		gtk_widget_set_margin_top(wview->row_shadow,
+			wview->max_row_shadow_height);
+		gtk_grid_attach(GTK_GRID(sview->grid), wview->row_shadow,
+			0, row_shadow_position, 3, 1);
+	}
+}
+
+// animate the row shadow to a new position
+static void
+workspaceview_move_row_shadow(Workspaceview *wview,
+	Columnview *row_shadow_column, int row_shadow_position)
+{
+	if (wview->row_shadow_position != row_shadow_position ||
+		wview->row_shadow_column != row_shadow_column) {
+		// any previous shadow vanishes
+		workspaceview_remove_previous_row_shadow(wview);
+
+		// any current shadow becomes the previous shadow
+		if (wview->row_shadow) {
+			wview->previous_row_shadow = wview->row_shadow;
+			wview->previous_row_shadow_column = wview->row_shadow_column;
+			wview->previous_row_shadow_position = wview->row_shadow_position;
+
+			wview->row_shadow = NULL;
+			wview->row_shadow_column = NULL;
+		}
+
+		// start the shadow growing from the new row
+		if (row_shadow_position != -1) {
+			wview->row_shadow = gtk_frame_new(NULL);
+			gtk_widget_set_margin_top(wview->row_shadow, 0);
+			wview->row_shadow_column = row_shadow_column;
+			wview->row_shadow_position = row_shadow_position;
+
+			Subcolumnview *sview = row_shadow_column->sview;
+			gtk_grid_attach(GTK_GRID(sview->grid), wview->row_shadow,
+				0, row_shadow_position, 3, 1);
+
+			wview->row_shadow_elapsed = 0.0;
+		}
+
+		workspaceview_start_animation(wview);
 	}
 }
 
@@ -285,6 +407,7 @@ workspaceview_dispose(GObject *object)
 	wview = WORKSPACEVIEW(object);
 
 	workspaceview_stop_animation(wview);
+	workspaceview_remove_row_shadow(wview);
 	FREESID(wview->watch_changed_sid, main_watchgroup);
 	gtk_widget_dispose_template(GTK_WIDGET(wview), WORKSPACEVIEW_TYPE);
 	VIPS_FREEF(view_child_remove, wview->floating);
@@ -768,8 +891,11 @@ workspaceview_click(GtkGestureClick *gesture,
 static Columnview *
 workspaceview_float_rowview(Workspaceview *wview, Rowview *rview)
 {
-	// the sview we are removing from
+	// the sview we are removing the rowview from
 	Subcolumnview *old_sview = SUBCOLUMNVIEW(VIEW(rview)->parent);
+
+	// the column we drag from
+	Columnview *old_cview = COLUMNVIEW(VIEW(old_sview)->parent);
 
 	// position of the label in workspace cods
 	graphene_rect_t bounds;
@@ -786,8 +912,8 @@ workspaceview_float_rowview(Workspaceview *wview, Rowview *rview)
 
 	// put a shadow in the subcolumn where this row was
 	Row *row = ROW(VOBJECT(rview)->iobject);
-	subcolumnview_add_shadow(old_sview,
-		bounds.size.height, 2 * ICONTAINER(row)->pos + 1);
+	workspaceview_add_row_shadow(wview, bounds.size.height,
+		old_cview, 2 * ICONTAINER(row)->pos + 1);
 
 	// reparent the rowview to this new column
 	g_object_ref(rview);
@@ -943,11 +1069,11 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 						Row *row = ROW(VOBJECT(rview)->iobject);
 						int pos = 2 * ICONTAINER(row)->pos + 1;
 						if (mouse_y > bounds.origin.y + bounds.size.height / 2)
-							subcolumnview_move_shadow(sview,
-								bounds.size.height, pos + 1);
+							workspaceview_move_row_shadow(wview,
+								cview, pos + 1);
 						else
-							subcolumnview_move_shadow(sview,
-								bounds.size.height, pos - 1);
+							workspaceview_move_row_shadow(wview,
+								cview, pos - 1);
 					}
 				}
 			}

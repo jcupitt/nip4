@@ -4,18 +4,6 @@
 
 ## row drag
 
-- can oscillate
-
-- drag out of subcolumnview does not shrink old shadow
-
-	shadow and previous_shadow need to be properties of workspaceview,
-	not subcolumnview
-
-	maybe animate with workspaceview tick?
-
-	make max_shadow_height something we compute once at the start of drag
-	(it's wrong right now)
-
 - need to do a workspace layout on shadow move? argh!
 
 - drag of inner row drags top level rowview
@@ -28,6 +16,9 @@
 
 - we make a gesture for every spin, could just use the gesture on the
   workspaceview
+
+	would this save much time or memory? try commenting out the gesture
+	stuff in the .ui file and benchmark
 
 - can we speed up load by only making UI elements on demand? eg. itext
   should not make the entry until you click

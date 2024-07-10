@@ -35,169 +35,6 @@
 
 G_DEFINE_TYPE(Subcolumnview, subcolumnview, VIEW_TYPE)
 
-// how long shadows take to animate open and closed
-static const double subcolumnview_animation_duration = 0.5;
-//static const double subcolumnview_animation_duration = 3.0;
-
-void
-subcolumnview_remove_shadow(Subcolumnview *sview)
-{
-	if (sview->shadow) {
-		gtk_grid_remove(GTK_GRID(sview->grid), sview->shadow);
-		sview->shadow = NULL;
-		sview->shadow_row = -1;
-	}
-
-	if (sview->previous_shadow) {
-		gtk_grid_remove(GTK_GRID(sview->grid), sview->previous_shadow);
-		sview->previous_shadow = NULL;
-		sview->previous_shadow_row = -1;
-	}
-}
-
-static void
-subcolumnview_set_shadow_height(Subcolumnview *sview, int shadow_height)
-{
-	if (sview->shadow)
-		gtk_widget_set_margin_top(sview->shadow, shadow_height);
-	if (sview->previous_shadow)
-		gtk_widget_set_margin_top(sview->previous_shadow,
-			sview->max_shadow_height - shadow_height);
-
-	// animation done? we can remove the previous shadow
-	if (shadow_height == sview->max_shadow_height &&
-		sview->previous_shadow) {
-		gtk_grid_remove(GTK_GRID(sview->grid), sview->previous_shadow);
-		sview->previous_shadow = NULL;
-		sview->previous_shadow_row = -1;
-	}
-}
-
-static void
-subcolumnview_stop_animation(Subcolumnview *sview)
-{
-	if (sview->tick_handler) {
-		gtk_widget_remove_tick_callback(GTK_WIDGET(sview), sview->tick_handler);
-		sview->tick_handler = 0;
-	}
-}
-
-/* From clutter-easing.c, based on Robert Penner's infamous easing equations,
- * MIT license.
- */
-static double
-ease_out_cubic(double t)
-{
-	double p = t - 1;
-
-	return p * p * p + 1;
-}
-
-static gboolean
-subcolumnview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
-	gpointer user_data)
-{
-	Subcolumnview *sview = SUBCOLUMNVIEW(user_data);
-
-	gint64 frame_time = gdk_frame_clock_get_frame_time(frame_clock);
-	double dt = sview->last_frame_time > 0 ?
-		(double) (frame_time - sview->last_frame_time) / G_TIME_SPAN_SECOND :
-		1.0 / G_TIME_SPAN_SECOND;
-
-#ifdef DEBUG
-	//printf("subcolumnview_tick: dt = %g\n", dt);
-#endif /*DEBUG*/
-
-	sview->elapsed += dt;
-	sview->last_frame_time = frame_time;
-
-	// 0-1 progress in animation
-	double duration = sview->should_animate ?
-		subcolumnview_animation_duration : sview->elapsed;
-	double t = VIPS_CLIP(0, ease_out_cubic(sview->elapsed / duration), 1);
-
-	subcolumnview_set_shadow_height(sview, t * sview->max_shadow_height);
-
-	if (t == 1.0)
-		subcolumnview_stop_animation(sview);
-
-	return G_SOURCE_CONTINUE;
-}
-
-static void
-subcolumnview_start_animation(Subcolumnview *sview)
-{
-	if (!sview->tick_handler) {
-		sview->last_frame_time = -1;
-		sview->tick_handler = gtk_widget_add_tick_callback(GTK_WIDGET(sview),
-			subcolumnview_tick, sview, NULL);
-	}
-
-	sview->elapsed = 0.0;
-}
-
-// make a new full-size shadow
-void
-subcolumnview_add_shadow(Subcolumnview *sview,
-	int max_shadow_height, int shadow_row)
-{
-	printf("subcolumnview_add_shadow: %p %d\n", sview, shadow_row);
-
-	subcolumnview_remove_shadow(sview);
-
-	if (shadow_row != -1) {
-		sview->shadow = gtk_frame_new(NULL);
-		sview->max_shadow_height = max_shadow_height;
-		sview->shadow_row = shadow_row;
-
-		gtk_widget_set_margin_top(sview->shadow, sview->max_shadow_height);
-		gtk_grid_attach(GTK_GRID(sview->grid), sview->shadow,
-			0, shadow_row, 3, 1);
-	}
-}
-
-// animate the shadow to a new position
-void
-subcolumnview_move_shadow(Subcolumnview *sview,
-	int max_shadow_height, int shadow_row)
-{
-	printf("subcolumnview_move_shadow: %p %d\n", sview, shadow_row);
-
-	if (shadow_row != sview->shadow_row) {
-		// any previous shadow vanishes
-		if (sview->previous_shadow) {
-			gtk_grid_remove(GTK_GRID(sview->grid), sview->previous_shadow);
-			sview->previous_shadow = NULL;
-			sview->previous_shadow_row = -1;
-		}
-
-		// any current shadow becomes the previous shadow
-		if (sview->shadow) {
-			sview->previous_shadow = sview->shadow;
-			sview->shadow = NULL;
-			sview->previous_shadow_row = sview->shadow_row;
-		}
-
-		// start the shadow growing from the new row
-		if (shadow_row != -1) {
-			sview->shadow = gtk_frame_new(NULL);
-			sview->max_shadow_height = max_shadow_height;
-			sview->shadow_row = shadow_row;
-
-			gtk_widget_set_margin_top(sview->shadow, 0);
-			gtk_grid_attach(GTK_GRID(sview->grid), sview->shadow,
-				0, shadow_row, 3, 1);
-		}
-
-		subcolumnview_start_animation(sview);
-
-		if (sview->shadow)
-			printf("\tshadow_row = %d\n", sview->shadow_row);
-		if (sview->previous_shadow)
-			printf("\tprevious_shadow_row = %d\n", sview->previous_shadow_row);
-	}
-}
-
 static void
 subcolumnview_dispose(GObject *object)
 {
@@ -211,9 +48,6 @@ subcolumnview_dispose(GObject *object)
 	g_return_if_fail(IS_SUBCOLUMNVIEW(object));
 
 	sview = SUBCOLUMNVIEW(object);
-
-	subcolumnview_stop_animation(sview);
-	subcolumnview_remove_shadow(sview);
 
 	gtk_widget_dispose_template(GTK_WIDGET(sview), SUBCOLUMNVIEW_TYPE);
 
@@ -372,10 +206,6 @@ static void
 subcolumnview_init(Subcolumnview *sview)
 {
 	gtk_widget_init_template(GTK_WIDGET(sview));
-
-	sview->shadow_row = -1;
-	sview->previous_shadow_row = -1;
-	sview->should_animate = TRUE;
 }
 
 View *

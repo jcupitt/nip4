@@ -51,24 +51,6 @@ struct _Subcolumnview {
 	GtkWidget *grid; /* Central grid area for column */
 	int n_rows;		 /* Number of rows atm */
 	int n_vis;		 /* Number of children currently visible */
-
-	/* The current "shadow" row, -1 if no shadow row. We animate this up to
-	 * max_shadow_height, and the previous shadow row down to 0.
-	 *
-	 * Real rows are at 1, 3, 5 etc., shadows at 0, 2, 4 etc.
-	 */
-	GtkWidget *shadow;
-	GtkWidget *previous_shadow;
-	int shadow_row;
-	int previous_shadow_row;
-	int max_shadow_height;
-
-	/* For layout animation.
-	 */
-	guint tick_handler;
-	gint64 last_frame_time;
-	double elapsed;
-	gboolean should_animate;
 };
 
 typedef struct _SubcolumnviewClass {
@@ -79,11 +61,5 @@ typedef struct _SubcolumnviewClass {
 } SubcolumnviewClass;
 
 GType subcolumnview_get_type(void);
-
-void subcolumnview_remove_shadow(Subcolumnview *sview);
-void subcolumnview_add_shadow(Subcolumnview *sview,
-	int max_shadow_height, int shadow_row);
-void subcolumnview_move_shadow(Subcolumnview *sview,
-	int max_shadow_height, int shadow_row);
 
 View *subcolumnview_new(void);

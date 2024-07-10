@@ -70,10 +70,33 @@ struct _Workspaceview {
 	/* Our state machine for interactions.
 	 */
 	WorkspaceviewState state; /* Waiting or dragging */
+
+	/* Column drag.
+	 */
 	Columnview *drag_cview;	  /* Column we are dragging (if any) */
 	Rowview *drag_rview;	  /* Row we are dragging (if any) */
 	int obj_x;				  /* Object position at start of drag */
 	int obj_y;
+
+	/* Row shadow during row drag.
+	 *
+	 * The column containing the shadow, the column containing the previous
+	 * shadow (can be the same), the max row shadow height during this row
+	 * drag. We have to keep the shadow widgets here too.
+	 *
+	 * Shadow positions are -1 if no shadow row. Real rows are at 1, 3, 5
+	 * etc. (2 * pos + 1), shadows at 0, 2, 4 etc.
+	 */
+	GtkWidget *row_shadow;
+	Columnview *row_shadow_column;
+	int row_shadow_position;
+
+	GtkWidget *previous_row_shadow;
+	Columnview *previous_row_shadow_column;
+	int previous_row_shadow_position;
+
+	int max_row_shadow_height;
+	double row_shadow_elapsed;
 
 	/* Geometry.
 	 */
