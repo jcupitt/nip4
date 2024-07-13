@@ -1,14 +1,22 @@
+- somewhere a rowview has been given a column (not a subcolumn) as a parent!
+
+	happens in a queued _refresh, not in eg.
+
 ## region display
 
 - need a right click menu? delete?
 
 ## row drag
 
-- need to do a workspace layout on shadow move? argh!
+- add drop
 
-- drag of inner row drags top level rowview
+- hover over workspace background should show a column shadow
 
-	does not size correctly right now
+	and remove the row shadow
+
+	back over a column and the column shadow vanishes
+
+- test drag of inner rows
 
 - implement range select then drag
 

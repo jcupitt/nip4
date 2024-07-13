@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -897,6 +897,9 @@ workspaceview_float_rowview(Workspaceview *wview, Rowview *rview)
 	// the column we drag from
 	Columnview *old_cview = COLUMNVIEW(VIEW(old_sview)->parent);
 
+	// note the source of the drag, so we can undo
+	wview->old_sview = old_sview;
+
 	// position of the label in workspace cods
 	graphene_rect_t bounds;
 	if (!gtk_widget_compute_bounds(rview->frame, GTK_WIDGET(wview), &bounds))
@@ -926,6 +929,52 @@ workspaceview_float_rowview(Workspaceview *wview, Rowview *rview)
 	g_object_unref(rview);
 
 	return floating;
+}
+
+static void
+workspaceview_drop_rowview(Workspaceview *wview)
+{
+	printf("workspaceview_drop_rowview:\n");
+
+	if (wview->row_shadow_column) {
+		Rowview *rview = wview->drag_rview;
+		Row *row = ROW(VOBJECT(rview)->iobject);
+		Column *row_col = COLUMN(ICONTAINER(row)->parent->parent);
+
+		Columnview *cview = wview->row_shadow_column;
+		Column *col = COLUMN(VOBJECT(cview)->iobject);
+
+		int new_pos = wview->row_shadow_position / 2 - 1;
+
+		// reparent the rowview back to the original column ... this is where
+		// icontainer_reparent() expects to find it
+		g_object_ref(rview);
+
+		g_assert(IS_SUBCOLUMNVIEW(wview->old_sview));
+		g_assert(IS_ROWVIEW(rview));
+
+		view_child_remove(VIEW(rview));
+		// the row number has to be wrong or reattach is skipped
+		rview->rnum = -1;
+		view_child_add(VIEW(wview->old_sview), VIEW(rview));
+
+		g_object_unref(rview);
+
+		// update the model
+		if (col == row_col)
+			// move within one column
+			icontainer_child_move(ICONTAINER(row), new_pos);
+		else {
+			// different column ... we must reparent the row model
+			printf("\treparenting row\n");
+			icontainer_reparent(ICONTAINER(col), ICONTAINER(row), new_pos);
+		}
+
+		workspaceview_remove_row_shadow(wview);
+	}
+	else {
+		printf("\tdrop on background\n");
+	}
 }
 
 static void
@@ -1077,9 +1126,9 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 					}
 				}
 			}
-			else
-				// move other columns about (won't touch drag_cview)
-				model_layout(MODEL(ws));
+
+			// move other columns about (won't touch drag_cview)
+			model_layout(MODEL(ws));
 		}
 		else {
 			// we don't want to drag the window with its own coordinate
@@ -1116,7 +1165,6 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 	 */
 	switch (wview->state) {
 	case WVIEW_SELECT:
-		wview->state = WVIEW_WAIT;
 		if (wview->drag_cview) {
 			Column *col = COLUMN(VOBJECT(wview->drag_cview)->iobject);
 
@@ -1124,16 +1172,29 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 			column_scrollto(col, MODEL_SCROLL_TOP);
 		}
 
-		VIPS_FREEF(view_child_remove, wview->floating);
+		wview->state = WVIEW_WAIT;
 
 		break;
 
 	case WVIEW_DRAG:
 		wview->state = WVIEW_WAIT;
+
+		if (wview->drag_rview) {
+			workspaceview_drop_rowview(wview);
+			wview->drag_rview = NULL;
+		}
+
+		if (wview->floating) {
+			VIPS_FREEF(view_child_remove, wview->floating);
+			wview->drag_cview = NULL;
+		}
+
 		if (wview->drag_cview)
 			columnview_remove_shadow(wview->drag_cview);
+
 		model_layout(MODEL(ws));
 		workspace_set_modified(ws, TRUE);
+		workspace_deselect_all(ws);
 
 		break;
 

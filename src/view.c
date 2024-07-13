@@ -23,8 +23,8 @@
 
 /*
 #define DEBUG_VIEWCHILD
-#define DEBUG
  */
+#define DEBUG
 #define DEBUG_LEAK
 
 /* Time each refresh
@@ -559,6 +559,7 @@ view_model_child_attach(iContainer *new_parent, iContainer *child, int pos,
 		new_parent, G_OBJECT_TYPE_NAME(new_parent), IOBJECT(new_parent)->name);
 	printf("\tchild = %p %s \"%s\"\n",
 		child, G_OBJECT_TYPE_NAME(child), IOBJECT(child)->name);
+	printf("\tpos = %d\n", pos);
 	printf("\tnew_view = %p %s\n",
 		new_view, G_OBJECT_TYPE_NAME(new_view));
 #endif /*DEBUG*/

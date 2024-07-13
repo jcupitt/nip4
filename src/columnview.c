@@ -612,7 +612,8 @@ columnview_child_remove(View *parent, View *child)
 	printf("columnview_child_remove: cview=%p sview=%p\n", cview, sview);
 #endif /*DEBUG*/
 
-	gtk_box_remove(GTK_BOX(cview->body), GTK_WIDGET(sview));
+	if (cview->body)
+		gtk_box_remove(GTK_BOX(cview->body), GTK_WIDGET(sview));
 	cview->sview = NULL;
 
 	VIEW_CLASS(columnview_parent_class)->child_remove(parent, child);

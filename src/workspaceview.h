@@ -98,6 +98,10 @@ struct _Workspaceview {
 	int max_row_shadow_height;
 	double row_shadow_elapsed;
 
+	/* The source of the row drag for undo.
+	 */
+	Subcolumnview *old_sview;
+
 	/* Geometry.
 	 */
 	VipsRect vp; /* Viewport pos and size */
