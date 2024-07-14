@@ -28,6 +28,7 @@
  */
 
 /*
+#define DEBUG_VERBOSE
  */
 #define DEBUG
 
@@ -116,9 +117,9 @@ workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 		(double) (frame_time - wview->last_frame_time) / G_TIME_SPAN_SECOND :
 		1.0 / G_TIME_SPAN_SECOND;
 
-#ifdef DEBUG
+#ifdef DEBUG_VERBOSE
 	printf("workspaceview_tick: dt = %g\n", dt);
-#endif /*DEBUG*/
+#endif /*DEBUG_VERBOSE*/
 
 	gboolean finished = TRUE;
 
@@ -227,6 +228,8 @@ static void
 workspaceview_move_row_shadow(Workspaceview *wview,
 	Columnview *row_shadow_column, int row_shadow_position)
 {
+	printf("workspaceview_move_row_shadow: %d\n", row_shadow_position);
+
 	if (wview->row_shadow_position != row_shadow_position ||
 		wview->row_shadow_column != row_shadow_column) {
 		// any previous shadow vanishes
@@ -285,9 +288,9 @@ workspaceview_scroll(Workspaceview *wview, int x, int y, int w, int h)
 
 	int nx, ny;
 
-#ifdef DEBUG
+#ifdef DEBUG_VERBOSE
 	printf("workspaceview_scroll: x=%d, y=%d, w=%d, h=%d\n", x, y, w, h);
-#endif /*DEBUG*/
+#endif /*DEBUG_VERBOSE*/
 
 	nx = gtk_adjustment_get_value(wview->hadj);
 	ny = gtk_adjustment_get_value(wview->vadj);
@@ -330,13 +333,13 @@ workspaceview_scroll_update(Workspaceview *wview)
 	 */
 	ws->vp = wview->vp;
 
-#ifdef DEBUG
+#ifdef DEBUG_VERBOSE
 	printf("workspaceview_scroll_update: %s\n", IOBJECT(ws)->name);
 	printf("  wview->vp: l=%d, t=%d, w=%d, h=%d; fixed w=%d; h=%d\n",
 		wview->vp.left, wview->vp.top,
 		wview->vp.width, wview->vp.height,
 		wview->width, wview->height);
-#endif /*DEBUG*/
+#endif /*DEBUG_VERBOSE*/
 }
 
 static void *
@@ -944,7 +947,12 @@ workspaceview_drop_rowview(Workspaceview *wview)
 		Columnview *cview = wview->row_shadow_column;
 		Column *col = COLUMN(VOBJECT(cview)->iobject);
 
-		int new_pos = wview->row_shadow_position / 2 - 1;
+		int new_pos = wview->row_shadow_position / 2;
+		int old_pos = ICONTAINER(row)->pos;
+
+		printf("\trow->pos = %d\n", ICONTAINER(row)->pos);
+		printf("\twview->row_shadow_position = %d\n", wview->row_shadow_position);
+		printf("\tnew_pos = %d\n", new_pos);
 
 		// reparent the rowview back to the original column ... this is where
 		// icontainer_reparent() expects to find it
@@ -961,13 +969,28 @@ workspaceview_drop_rowview(Workspaceview *wview)
 		g_object_unref(rview);
 
 		// update the model
-		if (col == row_col)
+		if (col == row_col) {
 			// move within one column
+
+			/* new_pos is in rnum numbering, ie. the numbering BEFORE we
+			 * removed this row and started dragging it.
+			 *
+			 * The pos argument for icontainer_child_move() is interpreted
+			 * AFTER removing the old child. So to allow for that, we must
+			 * subtract 1 if new_pos < old_pos.
+			 */
+			if (new_pos >= old_pos)
+				new_pos -= 1;
+
+			printf("\tmoving row new_pos = %d\n", new_pos);
+
 			icontainer_child_move(ICONTAINER(row), new_pos);
+		}
 		else {
 			// different column ... we must reparent the row model
 			printf("\treparenting row\n");
-			icontainer_reparent(ICONTAINER(col), ICONTAINER(row), new_pos);
+			icontainer_reparent(ICONTAINER(col->scol),
+				ICONTAINER(row), new_pos);
 		}
 
 		workspaceview_remove_row_shadow(wview);
@@ -984,9 +1007,9 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
-#ifdef DEBUG
-#endif /*DEBUG*/
+#ifdef DEBUG_VERBOSE
 	printf("workspaceview_drag_begin: %g x %g\n", start_x, start_y);
+#endif /*DEBUG_VERBOSE*/
 
 	switch (wview->state) {
 	case WVIEW_WAIT:
@@ -1046,9 +1069,9 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
-#ifdef DEBUG
+#ifdef DEBUG_VERBOSE
 	printf("workspaceview_drag_update: %g x %g\n", offset_x, offset_y);
-#endif /*DEBUG*/
+#endif /*DEBUG_VERBOSE*/
 
 	switch (wview->state) {
 	case WVIEW_WAIT:
@@ -1157,9 +1180,9 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
-#ifdef DEBUG
+#ifdef DEBUG_VERBOSE
 	printf("workspaceview_drag_end: %g x %g\n", offset_x, offset_y);
-#endif /*DEBUG*/
+#endif /*DEBUG_VERBOSE*/
 
 	/* Back to wait.
 	 */

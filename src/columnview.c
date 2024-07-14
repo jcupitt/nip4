@@ -594,7 +594,9 @@ columnview_child_add(View *parent, View *child)
 	Columnview *cview = COLUMNVIEW(parent);
 	Subcolumnview *sview = SUBCOLUMNVIEW(child);
 
+#ifdef DEBUG
 	printf("columnview_child_add: cview=%p sview=%p\n", cview, sview);
+#endif /*DEBUG*/
 
 	cview->sview = sview;
 	gtk_box_prepend(GTK_BOX(cview->body), GTK_WIDGET(sview));

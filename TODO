@@ -1,6 +1,26 @@
-- somewhere a rowview has been given a column (not a subcolumn) as a parent!
+- rows miss when we drag over the original position of the row
 
-	happens in a queued _refresh, not in eg.
+	the original model is still there when the view is not, so we must
+	subtract 1 from pos if pos < original pos
+
+	or maybe if we do icontainer_child_move() and we are moving a child
+	after itself, we should adjust pos?
+
+		ie. pretend we are moving the child, renumbering, then
+		adding it back
+
+	need a permanent shadow of the original position?
+
+	should be on the row rnums (odd numbers)
+
+- subcolumnview should set spacing 0 for the grid
+
+	use margins on the rows instead
+
+- make icontainer_child_move() and icontainer_reparent() work if their views
+  have already been moved
+
+	  or maybe they could move the views rather than create/destroy?
 
 ## region display
 
