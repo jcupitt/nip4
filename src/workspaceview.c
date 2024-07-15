@@ -99,11 +99,6 @@ workspaceview_set_row_shadow_height(Workspaceview *wview, int shadow_height)
 	if (wview->previous_row_shadow)
 		gtk_widget_set_margin_top(wview->previous_row_shadow,
 			wview->max_row_shadow_height - shadow_height);
-
-	// animation done? we can remove the previous shadow
-	if (shadow_height == wview->max_row_shadow_height &&
-		wview->previous_row_shadow)
-		workspaceview_remove_previous_row_shadow(wview);
 }
 
 static gboolean
@@ -176,7 +171,7 @@ workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 			duration), 1);
 
 		workspaceview_set_row_shadow_height(wview,
-			t * wview->max_row_shadow_height);
+			VIPS_RINT(t * wview->max_row_shadow_height));
 
 		if (t != 1.0)
 			finished = FALSE;
@@ -214,12 +209,12 @@ workspaceview_add_row_shadow(Workspaceview *wview, int max_row_shadow_height,
 		wview->row_shadow_column = row_shadow_column;
 		wview->row_shadow_position = row_shadow_position;
 
-		wview->max_row_shadow_height = max_row_shadow_height;
+		wview->max_row_shadow_height = max_row_shadow_height - 2;
 
 		gtk_widget_set_margin_top(wview->row_shadow,
 			wview->max_row_shadow_height);
 		gtk_grid_attach(GTK_GRID(sview->grid), wview->row_shadow,
-			0, row_shadow_position, 3, 1);
+			1, row_shadow_position, 1, 1);
 	}
 }
 
@@ -254,7 +249,7 @@ workspaceview_move_row_shadow(Workspaceview *wview,
 
 			Subcolumnview *sview = row_shadow_column->sview;
 			gtk_grid_attach(GTK_GRID(sview->grid), wview->row_shadow,
-				0, row_shadow_position, 3, 1);
+				1, row_shadow_position, 1, 1);
 
 			wview->row_shadow_elapsed = 0.0;
 		}
@@ -1051,6 +1046,10 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 			wview->drag_cview = NULL;
 			wview->state = WVIEW_SELECT;
 		}
+
+		wview->start_x = start_x;
+		wview->start_y = start_y;
+
 		break;
 
 	case WVIEW_SELECT:
@@ -1108,18 +1107,22 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 			int x, y, w, h;
 			columnview_get_position(wview->drag_cview, &x, &y, &w, &h);
 
-			// don't let x/y go -ve (layout hates it)
-			int mouse_x = wview->obj_x + offset_x;
-			int mouse_y = wview->obj_y + offset_y;
+			int obj_x = wview->obj_x + offset_x;
+			int obj_y = wview->obj_y + offset_y;
 
+			// don't let x/y go -ve (layout hates it)
 			columnview_animate_to(wview->drag_cview,
-				VIPS_CLIP(0, VIPS_RINT(mouse_x), wview->width - w),
-				VIPS_CLIP(0, VIPS_RINT(mouse_y), wview->height - h));
+				VIPS_CLIP(0, VIPS_RINT(obj_x), wview->width - w),
+				VIPS_CLIP(0, VIPS_RINT(obj_y), wview->height - h));
 
 			// top, since we want the titlebar to be visible
 			view_scrollto(wview->drag_cview, MODEL_SCROLL_TOP);
 
 			if (wview->drag_rview) {
+				// use the mouse position to pick the drop point
+				int mouse_x = wview->start_x + offset_x;
+				int mouse_y = wview->start_y + offset_y;
+
 				// column we are currently over
 				Columnview *cview = workspaceview_find_columnview(wview,
 					mouse_x, mouse_y);
@@ -1128,6 +1131,8 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 					// row we are over
 					Rowview *rview = columnview_find_rowview(cview,
 						mouse_x, mouse_y);
+
+					printf("drag: rview = %p\n", rview);
 
 					if (rview) {
 						Subcolumnview *sview =
