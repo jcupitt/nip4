@@ -181,6 +181,12 @@ imageui_set_iimage(Imageui *imageui, iImage *iimage)
 }
 
 void
+imageui_queue_draw(Imageui *imageui)
+{
+	gtk_widget_queue_draw(GTK_WIDGET(imageui->imagedisplay));
+}
+
+void
 imageui_add_regionview(Imageui *imageui, Regionview *regionview)
 {
 	g_assert(!g_slist_find(imageui->regionviews, regionview));
@@ -190,7 +196,7 @@ imageui_add_regionview(Imageui *imageui, Regionview *regionview)
 	g_object_ref_sink(regionview);
 	regionview->imageui = imageui;
 
-	gtk_widget_queue_draw(GTK_WIDGET(imageui->imagedisplay));
+	imageui_queue_draw(imageui);
 }
 
 void
@@ -202,7 +208,7 @@ imageui_remove_regionview(Imageui *imageui, Regionview *regionview)
 	regionview->imageui = NULL;
 	g_object_unref(regionview);
 
-	gtk_widget_queue_draw(GTK_WIDGET(imageui->imagedisplay));
+	imageui_queue_draw(imageui);
 }
 
 static void
@@ -1025,7 +1031,7 @@ imageui_drag_update(GtkEventControllerMotion *self,
 		regionview_model_update(imageui->grabbed);
 
 		// immediate redraw for interactivity
-		gtk_widget_queue_draw(GTK_WIDGET(imageui->imagedisplay));
+		imageui_queue_draw(imageui);
 
 		break;
 
@@ -1037,7 +1043,7 @@ imageui_drag_update(GtkEventControllerMotion *self,
 			offset_y / zoom);
 
 		// immediate redraw for interactivity
-		gtk_widget_queue_draw(GTK_WIDGET(imageui->imagedisplay));
+		imageui_queue_draw(imageui);
 
 		break;
 
@@ -1124,7 +1130,7 @@ imageui_drag_end(GtkEventControllerMotion *self,
 			imageui_floating_remove(imageui);
 		}
 
-		gtk_widget_queue_draw(GTK_WIDGET(imageui->imagedisplay));
+		imageui_queue_draw(imageui);
 
 		break;
 

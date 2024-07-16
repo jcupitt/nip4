@@ -28,8 +28,8 @@
  */
 
 /* Verbose.
-#define DEBUG
  */
+#define DEBUG
 
 /* Just trace create/destroy.
 #define DEBUG_MAKE
@@ -146,7 +146,6 @@ regionview_set_type(Regionview *regionview, PElement *root)
 				continue;
 			if (result) {
 				regionview->type = regionview_display_table[i].type;
-				vobject_refresh_queue(VOBJECT(regionview));
 				break;
 			}
 		}
@@ -228,14 +227,6 @@ regionview_model_update(Regionview *regionview)
 		model_area->left, model_area->top,
 		model_area->width, model_area->height);
 #endif /*DEBUG*/
-}
-
-/* Queue draws for all the pixels a region might touch.
- */
-static void
-regionview_queue_draw(Regionview *regionview)
-{
-	printf("regionview_queue_draw: FIXME\n");
 }
 
 static void
@@ -511,6 +502,7 @@ regionview_draw_arrow(Regionview *regionview, GtkSnapshot *snapshot)
 
 }
 
+// called from imageui for "snapshot" on imagedisplay
 void
 regionview_draw(Regionview *regionview, GtkSnapshot *snapshot)
 {
@@ -552,6 +544,14 @@ regionview_hit(Regionview *regionview, int x, int y)
 	printf("\tleft = %d, top = %d, width = %d, height = %d\n",
 		regionview->label.left, regionview->label.top,
 		regionview->label.width, regionview->label.height);
+
+	/* In the label? We take the bottom chunk off the label so that top-left
+	 * resize works.
+	 */
+	VipsRect smaller = regionview->label;
+	smaller.height -= 2 * regionview_line_width;
+	if (vips_rect_includespoint(&smaller, x, y))
+		return REGIONVIEW_RESIZE_MOVE;
 
 	/* Grab on corners first, since they must override edges.
 	 */
@@ -660,11 +660,6 @@ regionview_hit(Regionview *regionview, int x, int y)
 	default:
 		g_assert_not_reached();
 	}
-
-	/* In the label? This has to be after the frame, or TOPLEFT will not work.
-	 */
-	if (vips_rect_includespoint(&regionview->label, x, y))
-		return REGIONVIEW_RESIZE_MOVE;
 
 	return REGIONVIEW_RESIZE_NONE;
 }
@@ -801,12 +796,6 @@ regionview_class_init(RegionviewClass *class)
 
 	object_class->dispose = regionview_dispose;
 
-	/* Create signals.
-	 */
-
-	/* Init methods.
-	 */
-
 	regionview_fontmap = pango_cairo_font_map_new();
 	pango_cairo_font_map_set_resolution(
 		PANGO_CAIRO_FONT_MAP(regionview_fontmap), 150);
@@ -838,7 +827,12 @@ regionview_init(Regionview *regionview)
 static void
 regionview_model_changed_cb(Classmodel *classmodel, Regionview *regionview)
 {
-	vobject_refresh_queue(VOBJECT(regionview));
+	printf("regionview_model_changed_cb: classmodel has changed\n");
+
+	regionview_update_from_model(regionview);
+
+	// queue a redraw on our imageui to get us repainted
+	imageui_queue_draw(regionview->imageui);
 }
 
 #ifdef EVENT

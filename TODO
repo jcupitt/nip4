@@ -1,30 +1,6 @@
--  we use top-left of row (rview column) to pick the drop point
+## workspace drag
 
-	 we should use centre of row label
-
-	 or perhaps mouse position?
-
-
-- rows miss when we drag over the original position of the row
-
-	the original model is still there when the view is not, so we must
-	subtract 1 from pos if pos < original pos
-
-	or maybe if we do icontainer_child_move() and we are moving a child
-	after itself, we should adjust pos?
-
-		ie. pretend we are moving the child, renumbering, then
-		adding it back
-
-	need a permanent shadow of the original position?
-
-	should be on the row rnums (odd numbers)
-
-- subcolumnview should set spacing 0 for the grid
-
-	use margins on the rows instead
-
-	argh this isn't where the extra spaces come from
+- grab row, drag right (not up/down) a short way, drop, row moves up one
 
 - make icontainer_child_move() and icontainer_reparent() work if their views
   have already been moved
@@ -33,7 +9,13 @@
 
 ## region display
 
-- need a right click menu? delete?
+- too easy to drag the top-left corner
+
+	check for label drag BEFORE we check corners
+
+- set "left" in workspace, drag, left only locks on drop
+
+- need a right click menu? delete? could just rely on the workspace
 
 ## row drag
 

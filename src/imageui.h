@@ -44,6 +44,7 @@
 
 G_DECLARE_FINAL_TYPE(Imageui, imageui, NIP4, IMAGEUI, GtkWidget)
 
+void imageui_queue_draw(Imageui *imageui);
 void imageui_add_regionview(Imageui *imageui, Regionview *regionview);
 void imageui_remove_regionview(Imageui *imageui, Regionview *regionview);
 
