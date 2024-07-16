@@ -294,12 +294,12 @@ column_init(Column *col)
 }
 
 Column *
-column_new(Workspace *ws, const char *name)
+column_new(Workspace *ws, const char *name, int x, int y)
 {
 	Column *col;
 
 #ifdef DEBUG
-	printf("column_new: %s\n", name);
+	printf("column_new: %s %d %d\n", name, x, y);
 #endif /*DEBUG*/
 
 	if (workspace_column_find(ws, name)) {
@@ -312,12 +312,19 @@ column_new(Workspace *ws, const char *name)
 
 	col = COLUMN(g_object_new(COLUMN_TYPE, NULL));
 	iobject_set(IOBJECT(col), name, NULL);
-	icontainer_child_add(ICONTAINER(ws), ICONTAINER(col), -1);
+
+	if (x >= 0) {
+		col->x = x;
+		col->y = y;
+	}
+	else {
+		// default to the right edge
+		col->x = ws->vp.left + 50;
+		col->y = ws->vp.top;
+	}
 
 	subcolumn_new(NULL, col);
-
-	col->x = ws->vp.left + 50;
-	col->y = ws->vp.top;
+	icontainer_child_add(ICONTAINER(ws), ICONTAINER(col), -1);
 
 	return col;
 }

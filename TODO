@@ -9,25 +9,18 @@
 
 ## region display
 
-- too easy to drag the top-left corner
-
-	check for label drag BEFORE we check corners
-
 - set "left" in workspace, drag, left only locks on drop
 
 - need a right click menu? delete? could just rely on the workspace
 
 ## row drag
 
-- add drop
-
-- hover over workspace background should show a column shadow
-
-	and remove the row shadow
-
-	back over a column and the column shadow vanishes
+- if workspaceview_drop_rowview() empties a column (the source column), it
+  should delete it
 
 - test drag of inner rows
+
+	seems OK?
 
 - implement range select then drag
 

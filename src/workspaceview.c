@@ -161,7 +161,8 @@ workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 
 	/* Row drag animate.
 	 */
-	if (wview->row_shadow) {
+	if (wview->row_shadow ||
+		wview->previous_row_shadow) {
 		wview->row_shadow_elapsed += dt;
 
 		// 0-1 progress in animation
@@ -237,6 +238,7 @@ workspaceview_move_row_shadow(Workspaceview *wview,
 			wview->previous_row_shadow_position = wview->row_shadow_position;
 
 			wview->row_shadow = NULL;
+			wview->row_shadow_position = -1;
 			wview->row_shadow_column = NULL;
 		}
 
@@ -250,10 +252,9 @@ workspaceview_move_row_shadow(Workspaceview *wview,
 			Subcolumnview *sview = row_shadow_column->sview;
 			gtk_grid_attach(GTK_GRID(sview->grid), wview->row_shadow,
 				1, row_shadow_position, 1, 1);
-
-			wview->row_shadow_elapsed = 0.0;
 		}
 
+		wview->row_shadow_elapsed = 0.0;
 		workspaceview_start_animation(wview);
 	}
 }
@@ -932,8 +933,6 @@ workspaceview_float_rowview(Workspaceview *wview, Rowview *rview)
 static void
 workspaceview_drop_rowview(Workspaceview *wview)
 {
-	printf("workspaceview_drop_rowview:\n");
-
 	if (wview->row_shadow_column) {
 		Rowview *rview = wview->drag_rview;
 		Row *row = ROW(VOBJECT(rview)->iobject);
@@ -944,10 +943,6 @@ workspaceview_drop_rowview(Workspaceview *wview)
 
 		int new_pos = wview->row_shadow_position / 2;
 		int old_pos = ICONTAINER(row)->pos;
-
-		printf("\trow->pos = %d\n", ICONTAINER(row)->pos);
-		printf("\twview->row_shadow_position = %d\n", wview->row_shadow_position);
-		printf("\tnew_pos = %d\n", new_pos);
 
 		// reparent the rowview back to the original column ... this is where
 		// icontainer_reparent() expects to find it
@@ -977,21 +972,45 @@ workspaceview_drop_rowview(Workspaceview *wview)
 			if (new_pos >= old_pos)
 				new_pos -= 1;
 
-			printf("\tmoving row new_pos = %d\n", new_pos);
-
 			icontainer_child_move(ICONTAINER(row), new_pos);
 		}
-		else {
+		else
 			// different column ... we must reparent the row model
-			printf("\treparenting row\n");
 			icontainer_reparent(ICONTAINER(col->scol),
 				ICONTAINER(row), new_pos);
-		}
 
 		workspaceview_remove_row_shadow(wview);
 	}
 	else {
-		printf("\tdrop on background\n");
+		// drop on background ... make a new column and reparent to that
+		Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+		Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+		Rowview *rview = wview->drag_rview;
+		Row *row = ROW(VOBJECT(rview)->iobject);
+
+		// reparent the rowview back to the original column ... this is where
+		// icontainer_reparent() expects to find it
+		g_object_ref(rview);
+
+		g_assert(IS_SUBCOLUMNVIEW(wview->old_sview));
+		g_assert(IS_ROWVIEW(rview));
+
+		view_child_remove(VIEW(rview));
+		// the row number has to be wrong or reattach is skipped
+		rview->rnum = -1;
+		view_child_add(VIEW(wview->old_sview), VIEW(rview));
+
+		g_object_unref(rview);
+
+		char new_name[MAX_STRSIZE];
+		workspace_column_name_new(ws, new_name);
+		int x = wview->floating ? wview->floating->x : -1;
+		int y = wview->floating ? wview->floating->y : -1;
+		Column *new_col = column_new(ws, new_name, x, y);
+
+		icontainer_reparent(ICONTAINER(new_col->scol), ICONTAINER(row), 0);
+		workspace_queue_layout(ws);
+		filemodel_set_modified(FILEMODEL(wsg), TRUE);
 	}
 }
 
@@ -1153,6 +1172,8 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 								cview, pos - 1);
 					}
 				}
+				else
+					workspaceview_move_row_shadow(wview, NULL, -1);
 			}
 
 			// move other columns about (won't touch drag_cview)

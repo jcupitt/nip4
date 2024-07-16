@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG_VERBOSE
 #define DEBUG
+#define DEBUG_VERBOSE
  */
 
 #include "nip4.h"
@@ -390,7 +390,7 @@ workspace_column_get(Workspace *ws, const char *name)
 
 	/* No - build new column and return a pointer to that.
 	 */
-	return column_new(ws, name);
+	return column_new(ws, name, -1, -1);
 }
 
 /* Make up a new column name. Check for not already in workspace.
@@ -435,7 +435,7 @@ workspace_column_pick(Workspace *ws)
 		return col;
 	}
 
-	col = column_new(ws, "A");
+	col = column_new(ws, "A", -1, -1);
 	workspace_column_select(ws, col);
 	workspace_queue_layout(ws);
 
@@ -448,21 +448,17 @@ Column *
 workspace_column_new(Workspace *ws)
 {
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+	Column *old_col = workspace_get_column(ws);
 
 	char new_name[MAX_STRSIZE];
-	Column *old_col;
 	Column *col;
 
 	workspace_column_name_new(ws, new_name);
-	if (!(col = column_new(ws, new_name)))
+	// position just to right of currently selected column
+	int x = old_col ? old_col->x + 110 : -1;
+	int y = old_col ? old_col->y : -1;
+	if (!(col = column_new(ws, new_name, x, y)))
 		return NULL;
-
-	/* Position just to right of currently selected column.
-	 */
-	if ((old_col = workspace_get_column(ws))) {
-		col->x = old_col->x + 110;
-		col->y = old_col->y;
-	}
 
 	workspace_column_select(ws, col);
 	column_scrollto(col, MODEL_SCROLL_TOP);

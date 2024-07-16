@@ -840,11 +840,9 @@ columnview_find_rowview(Columnview *cview, int x, int y)
 	graphene_point_t fixed_point = GRAPHENE_POINT_INIT(x, y);
 	graphene_point_t sview_point;
 	if (gtk_widget_compute_point(GTK_WIDGET(wview->fixed), cview->sview,
-			&fixed_point, &sview_point)) {
-
+			&fixed_point, &sview_point))
 		return view_map(VIEW(cview->sview),
 			columnview_rowview_hit, &sview_point, cview->sview);
-	}
 
 	return NULL;
 }

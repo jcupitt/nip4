@@ -44,19 +44,19 @@ struct _Column {
 
 	/* Our context.
 	 */
-	Subcolumn *scol; /* Subcolumn we enclose */
-	Workspace *ws;	 /* Enclosing workspace */
+	Subcolumn *scol;			/* Subcolumn we enclose */
+	Workspace *ws;				/* Enclosing workspace */
 
 	/* Appearance state info.
 	 */
-	int x, y;	   /* Position */
-	gboolean open; /* Currently popped down */
+	int x, y;					/* Position */
+	gboolean open;				/* Currently popped down */
 	gboolean selected;
 
 	/* Other state.
 	 */
-	int next;		  /* Index of next symbol we make */
-	Row *last_select; /* Last row clicked ... for x sel */
+	int next;					/* Index of next symbol we make */
+	Row *last_select;			/* Last row clicked ... for x sel */
 
 	/* A pending scrollto.
 	 */
@@ -78,7 +78,7 @@ void *column_select_symbols(Column *col);
 
 GType column_get_type(void);
 
-Column *column_new(Workspace *ws, const char *name);
+Column *column_new(Workspace *ws, const char *name, int x, int y);
 
 Column *column_get_last_new(void);
 void column_clear_last_new(void);
