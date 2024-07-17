@@ -376,23 +376,6 @@ workspace_column_find(Workspace *ws, const char *name)
 	return COLUMN(model);
 }
 
-/* Return the column for a name ... an existing column, or a new one.
- */
-Column *
-workspace_column_get(Workspace *ws, const char *name)
-{
-	Column *col;
-
-	/* Exists?
-	 */
-	if ((col = workspace_column_find(ws, name)))
-		return col;
-
-	/* No - build new column and return a pointer to that.
-	 */
-	return column_new(ws, name, -1, -1);
-}
-
 /* Make up a new column name. Check for not already in workspace.
  */
 void
@@ -418,6 +401,9 @@ void
 workspace_column_select(Workspace *ws, Column *col)
 {
 	icontainer_current(ICONTAINER(ws), ICONTAINER(col));
+
+	// since columns change height on select
+	workspace_queue_layout(ws);
 }
 
 /* Make sure we have a column selected ... pick one of the existing columns; if
@@ -442,27 +428,23 @@ workspace_column_pick(Workspace *ws)
 	return col;
 }
 
-/* Make and select a column. Used for "new column" UI actions.
- */
 Column *
 workspace_column_new(Workspace *ws)
 {
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-	Column *old_col = workspace_get_column(ws);
 
 	char new_name[MAX_STRSIZE];
-	Column *col;
-
 	workspace_column_name_new(ws, new_name);
+
 	// position just to right of currently selected column
-	int x = old_col ? old_col->x + 110 : -1;
-	int y = old_col ? old_col->y : -1;
-	if (!(col = column_new(ws, new_name, x, y)))
+	Column *old_col = workspace_get_column(ws);
+	Column *col;
+	if (!(col = column_new(ws, new_name, old_col->x + 110, old_col->y)))
 		return NULL;
 
 	workspace_column_select(ws, col);
-	column_scrollto(col, MODEL_SCROLL_TOP);
 	workspace_queue_layout(ws);
+	column_scrollto(col, MODEL_SCROLL_TOP);
 	filemodel_set_modified(FILEMODEL(wsg), TRUE);
 
 	return col;

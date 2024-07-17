@@ -433,28 +433,6 @@ workspaceview_realize(GtkWidget *widget)
 	set_symbol_drag_type(widget);
 }
 
-/* Pick an xy position for the next column.
- */
-static void
-workspaceview_pick_xy(Workspaceview *wview, int *x, int *y)
-{
-	/* Only if there's no position set yet.
-	 */
-	if (*x < 0) {
-		*x = wview->next_x + wview->vp.left;
-		*y = wview->next_y + wview->vp.top;
-
-		/* And move on.
-		 */
-		wview->next_x += 30;
-		wview->next_y += 30;
-		if (wview->next_x > 300)
-			wview->next_x = 3;
-		if (wview->next_y > 200)
-			wview->next_y = 3;
-	}
-}
-
 static void
 workspaceview_link(View *view, Model *model, View *parent)
 {
@@ -480,17 +458,10 @@ workspaceview_child_add(View *parent, View *child)
 
 	VIEW_CLASS(workspaceview_parent_class)->child_add(parent, child);
 
-	/* Pick start xy pos.
-	 */
-	workspaceview_pick_xy(wview, &cview->x, &cview->y);
-	if (column) {
-		column->x = cview->x;
-		column->y = cview->y;
-	}
+	printf("workspaceview_child_add: %d %d\n", cview->x, cview->y);
 
 	gtk_fixed_put(GTK_FIXED(wview->fixed), GTK_WIDGET(cview),
 		cview->x, cview->y);
-	columnview_animate_to(cview, cview->x, cview->y);
 }
 
 static void

@@ -148,11 +148,10 @@ void workspace_select_all(Workspace *ws);
 Column *workspace_is_one_empty(Workspace *ws);
 
 Column *workspace_column_find(Workspace *ws, const char *name);
-Column *workspace_column_get(Workspace *ws, const char *name);
 void workspace_column_name_new(Workspace *ws, char *name);
 Column *workspace_column_pick(Workspace *ws);
-void workspace_column_select(Workspace *ws, Column *col);
 Column *workspace_column_new(Workspace *ws);
+void workspace_column_select(Workspace *ws, Column *col);
 
 Symbol *workspace_add_def(Workspace *ws, const char *str);
 Symbol *workspace_add_def_recalc(Workspace *ws, const char *str);

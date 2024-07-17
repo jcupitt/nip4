@@ -585,6 +585,8 @@ columnview_link(View *view, Model *model, View *parent)
 	cview->x = col->x;
 	cview->y = col->y;
 
+	printf("columnview_link: %d %d\n", col->x, col->y);
+
 	VIEW_CLASS(columnview_parent_class)->link(view, model, parent);
 }
 
@@ -701,6 +703,7 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	const char *name = g_action_get_name(G_ACTION(action));
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
 	Workspace *ws = col->ws;
+	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
 
 	printf("columnview_action: %s\n", name);
 
@@ -715,10 +718,8 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		Column *new_col;
 
 		workspace_column_name_new(ws, new_name);
-		new_col = workspace_column_get(ws, new_name);
+		new_col = column_new(ws, new_name, col->x + 100, col->y);
 		iobject_set(IOBJECT(new_col), NULL, IOBJECT(col)->caption);
-		new_col->x = col->x + 100;
-		new_col->y = col->y;
 
 		workspace_deselect_all(ws);
 		column_select_symbols(col);
@@ -726,6 +727,7 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		if (!workspace_selected_duplicate(ws))
 			mainwindow_error(MAINWINDOW(view_get_window(view)));
 
+		filemodel_set_modified(FILEMODEL(wsg), TRUE);
 		workspace_deselect_all(ws);
 		workspace_queue_layout(ws);
 		symbol_recalculate_all();

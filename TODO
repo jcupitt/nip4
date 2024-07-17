@@ -26,6 +26,8 @@
 
 ## small
 
+- need to workspace layout on column select
+
 - we make a gesture for every spin, could just use the gesture on the
   workspaceview
 
