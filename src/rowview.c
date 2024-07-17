@@ -177,7 +177,7 @@ rowview_refresh(vObject *vobject)
 {
 	Rowview *rview = ROWVIEW(vobject);
 	Row *row = ROW(VOBJECT(rview)->iobject);
-	Workspace *ws = row->top_col->ws;
+	Workspace *ws = row->ws;
 
 	rowview_update_widgets(rview);
 	workspace_queue_layout(ws);
@@ -239,7 +239,7 @@ static void
 rowview_recalc_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
-	Workspace *ws = row->top_col->ws;
+	Workspace *ws = row->ws;
 
 	/* Mark dirty from this sym on, and force a recalc even if recalc is
 	 * off.
@@ -273,7 +273,7 @@ static void
 rowview_remove_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
-	Workspace *ws = row->top_col->ws;
+	Workspace *ws = row->ws;
 
 	workspace_deselect_all(ws);
 	row_select(row);
@@ -458,7 +458,7 @@ rowview_up_click(GtkGestureClick *gesture, Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	Rhs *rhs = row->child_rhs;
-	Workspace *ws = row->top_col->ws;
+	Workspace *ws = row->ws;
 
 	rhs_vislevel_less(rhs);
 	workspace_queue_layout(ws);
@@ -470,7 +470,7 @@ rowview_down_click(GtkGestureClick *gesture, Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	Rhs *rhs = row->child_rhs;
-	Workspace *ws = row->top_col->ws;
+	Workspace *ws = row->ws;
 
 	rhs_vislevel_more(rhs);
 	workspace_queue_layout(ws);
@@ -518,7 +518,7 @@ static void
 rowview_duplicate(Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
-	Workspace *ws = row->top_col->ws;
+	Workspace *ws = row->ws;
 
 	/* Only allow clone of top level rows.
 	 */
@@ -545,7 +545,7 @@ rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	View *graphic = rview->rhsview->graphic;
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	Rhs *rhs = row->child_rhs;
-	Workspace *ws = row->top_col->ws;
+	Workspace *ws = row->ws;
 	const char *name = g_action_get_name(G_ACTION(action));
 
 	printf("rowview_action: %s\n", name);

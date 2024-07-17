@@ -622,6 +622,11 @@ row_parent_remove(iContainer *child)
 	row_deselect(row);
 	workspace_queue_layout(row->ws);
 
+	row->scol = NULL;
+	row->top_col = NULL;
+	row->ws = NULL;
+	row->top_row = NULL;
+
 	/* Don't clear error ... we may no longer have the link to expr. See
 	 * row_dispose() for that.
 	 */

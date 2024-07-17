@@ -1,12 +1,3 @@
-## workspace drag
-
-- grab row, drag right (not up/down) a short way, drop, row moves up one
-
-- make icontainer_child_move() and icontainer_reparent() work if their views
-  have already been moved
-
-	  or maybe they could move the views rather than create/destroy?
-
 ## region display
 
 - set "left" in workspace, drag, left only locks on drop
@@ -15,8 +6,7 @@
 
 ## row drag
 
-- if workspaceview_drop_rowview() empties a column (the source column), it
-  should delete it
+- grab row, drag right (not up/down) a short way, drop, row moves up one
 
 - test drag of inner rows
 
@@ -26,7 +16,10 @@
 
 ## small
 
-- need to workspace layout on column select
+- column duplicate selects the new column
+
+	maybe eg. drag row to column should also select the
+	destination column?
 
 - we make a gesture for every spin, could just use the gesture on the
   workspaceview
@@ -39,7 +32,7 @@
 
 	x.ws (1,000 rows) takes a good while to load
 
-- need "are you sure?" for column delete
+- maybe "are you sure?" for column delete
 
 - next/prev in imagewindow often fails
 

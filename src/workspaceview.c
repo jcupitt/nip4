@@ -904,85 +904,79 @@ workspaceview_float_rowview(Workspaceview *wview, Rowview *rview)
 static void
 workspaceview_drop_rowview(Workspaceview *wview)
 {
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+
+	// the row and floating column we are dragging
+	Rowview *rview = wview->drag_rview;
+	Row *row = ROW(VOBJECT(rview)->iobject);
+	Column *row_col = COLUMN(ICONTAINER(row)->parent->parent);
+	int old_pos = ICONTAINER(row)->pos;
+
+	// the column we are dragging to --- if we are dropping on the background,
+	// we need to make a new column for the destination
+	Column *col;
+	int new_pos;
+
 	if (wview->row_shadow_column) {
-		Rowview *rview = wview->drag_rview;
-		Row *row = ROW(VOBJECT(rview)->iobject);
-		Column *row_col = COLUMN(ICONTAINER(row)->parent->parent);
-
+		// drop on an existing column
 		Columnview *cview = wview->row_shadow_column;
-		Column *col = COLUMN(VOBJECT(cview)->iobject);
 
-		int new_pos = wview->row_shadow_position / 2;
-		int old_pos = ICONTAINER(row)->pos;
-
-		// reparent the rowview back to the original column ... this is where
-		// icontainer_reparent() expects to find it
-		g_object_ref(rview);
-
-		g_assert(IS_SUBCOLUMNVIEW(wview->old_sview));
-		g_assert(IS_ROWVIEW(rview));
-
-		view_child_remove(VIEW(rview));
-		// the row number has to be wrong or reattach is skipped
-		rview->rnum = -1;
-		view_child_add(VIEW(wview->old_sview), VIEW(rview));
-
-		g_object_unref(rview);
-
-		// update the model
-		if (col == row_col) {
-			// move within one column
-
-			/* new_pos is in rnum numbering, ie. the numbering BEFORE we
-			 * removed this row and started dragging it.
-			 *
-			 * The pos argument for icontainer_child_move() is interpreted
-			 * AFTER removing the old child. So to allow for that, we must
-			 * subtract 1 if new_pos < old_pos.
-			 */
-			if (new_pos >= old_pos)
-				new_pos -= 1;
-
-			icontainer_child_move(ICONTAINER(row), new_pos);
-		}
-		else
-			// different column ... we must reparent the row model
-			icontainer_reparent(ICONTAINER(col->scol),
-				ICONTAINER(row), new_pos);
-
-		workspaceview_remove_row_shadow(wview);
+		col = COLUMN(VOBJECT(cview)->iobject);
+		new_pos = wview->row_shadow_position / 2;
 	}
 	else {
-		// drop on background ... make a new column and reparent to that
-		Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-		Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+		// drop on background ... make a new column
 		Rowview *rview = wview->drag_rview;
 		Row *row = ROW(VOBJECT(rview)->iobject);
-
-		// reparent the rowview back to the original column ... this is where
-		// icontainer_reparent() expects to find it
-		g_object_ref(rview);
-
-		g_assert(IS_SUBCOLUMNVIEW(wview->old_sview));
-		g_assert(IS_ROWVIEW(rview));
-
-		view_child_remove(VIEW(rview));
-		// the row number has to be wrong or reattach is skipped
-		rview->rnum = -1;
-		view_child_add(VIEW(wview->old_sview), VIEW(rview));
-
-		g_object_unref(rview);
 
 		char new_name[MAX_STRSIZE];
 		workspace_column_name_new(ws, new_name);
 		int x = wview->floating ? wview->floating->x : -1;
 		int y = wview->floating ? wview->floating->y : -1;
-		Column *new_col = column_new(ws, new_name, x, y);
 
-		icontainer_reparent(ICONTAINER(new_col->scol), ICONTAINER(row), 0);
-		workspace_queue_layout(ws);
-		filemodel_set_modified(FILEMODEL(wsg), TRUE);
+		col = column_new(ws, new_name, x, y);
+		new_pos = -1;
 	}
+
+	// reparent the rowview back to the original column ... this is where
+	// icontainer_reparent() expects to find it
+	g_object_ref(rview);
+
+	g_assert(IS_SUBCOLUMNVIEW(wview->old_sview));
+	g_assert(IS_ROWVIEW(rview));
+
+	view_child_remove(VIEW(rview));
+	// the row number has to be wrong or reattach is skipped
+	rview->rnum = -1;
+	view_child_add(VIEW(wview->old_sview), VIEW(rview));
+
+	g_object_unref(rview);
+
+	// update the model
+	if (col == row_col) {
+		// move within one column
+
+		/* new_pos is in rnum numbering, ie. the numbering BEFORE we
+		 * removed this row and started dragging it.
+		 *
+		 * The pos argument for icontainer_child_move() is interpreted
+		 * AFTER removing the old child. So to allow for that, we must
+		 * subtract 1 if new_pos < old_pos.
+		 */
+		if (new_pos >= old_pos)
+			new_pos -= 1;
+
+		icontainer_child_move(ICONTAINER(row), new_pos);
+	}
+	else
+		// different column ... we must reparent the row model
+		icontainer_reparent(ICONTAINER(col->scol),
+			ICONTAINER(row), new_pos);
+
+	workspaceview_remove_row_shadow(wview);
+	workspace_queue_layout(ws);
+	filemodel_set_modified(FILEMODEL(wsg), TRUE);
 }
 
 static void
@@ -1200,21 +1194,29 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 		wview->state = WVIEW_WAIT;
 
 		if (wview->drag_rview) {
+			// we were dragging a row
 			workspaceview_drop_rowview(wview);
-			wview->drag_rview = NULL;
-		}
 
-		if (wview->floating) {
+			Subcolumn *old_scol = SUBCOLUMN(VOBJECT(wview->old_sview)->iobject);
+			Column *old_col = IOBJECT(ICONTAINER(old_scol)->parent);
+			if (icontainer_get_n_children(old_scol) == 0) {
+				printf("workspaceview_drag_end: destroying column %s\n",
+					IOBJECT(old_col)->name);
+				iobject_destroy(IOBJECT(old_col));
+			}
+
+			// remove any floating column from the row drag
 			VIPS_FREEF(view_child_remove, wview->floating);
-			wview->drag_cview = NULL;
+
+			workspace_queue_layout(ws);
+			workspace_set_modified(ws, TRUE);
 		}
-
-		if (wview->drag_cview)
+		else if (wview->drag_cview) {
+			// we were dragging a column
 			columnview_remove_shadow(wview->drag_cview);
-
-		model_layout(MODEL(ws));
-		workspace_set_modified(ws, TRUE);
-		workspace_deselect_all(ws);
+			workspace_queue_layout(ws);
+			workspace_set_modified(ws, TRUE);
+		}
 
 		break;
 
@@ -1227,6 +1229,7 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 
 	wview->drag_cview = NULL;
 	wview->drag_rview = NULL;
+	wview->old_sview = NULL;
 }
 
 static void
