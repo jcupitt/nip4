@@ -304,7 +304,7 @@ rowview_drag(Rowview *rview_from, Rowview *rview_to)
 	Row *row_from = ROW(VOBJECT(rview_from)->iobject);
 	Row *row_to = ROW(VOBJECT(rview_to)->iobject);
 
-	if (row_from->top_col != row_to->top_col) {
+	if (row_get_column(row_from) != row_get_column(row_to)) {
 		error_top(_("Not implemented"));
 		error_sub(_("Drag between columns not yet implemented."));
 		error_alert(GTK_WIDGET(rview_from));

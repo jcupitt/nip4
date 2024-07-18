@@ -1406,8 +1406,3 @@ workspaceview_new(void)
 
 	return VIEW(wview);
 }
-
-GtkWidget *
-workspaceview_build_label(Workspaceview *wview)
-{
-}

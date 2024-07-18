@@ -54,7 +54,6 @@ struct _Row {
 	 */
 	Subcolumn *scol; /* Enclosing subcolumn */
 	Rhs *child_rhs;	 /* Child RHS */
-	Column *top_col; /* Enclosing top level column */
 	Workspace *ws;	 /* Enclosing workspace */
 	Row *top_row;	 /* Enclosing root row */
 
@@ -90,6 +89,7 @@ const char *row_name(Row *row);
 void row_qualified_name_relative(Symbol *context, Row *row, VipsBuf *buf);
 void row_qualified_name(Row *row, VipsBuf *buf);
 void *row_name_print(Row *row);
+Column *row_get_column(Row *row);
 
 void row_error_set(Row *row);
 void row_error_clear(Row *row);

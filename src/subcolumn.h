@@ -55,13 +55,12 @@ struct _Subcolumn {
 
 	/* Our context.
 	 */
-	Column *col;		 /* Enclosing column (or NULL) */
-	Subcolumn *scol;	 /* Enclosing subcolumn (or NULL) */
-	Column *top_col;	 /* Topmost enclosing column */
-	Subcolumn *top_scol; /* Topmost enclosing subcolumn */
+	Column *col;			/* Enclosing column (or NULL) */
+	Subcolumn *scol;		/* Enclosing subcolumn (or NULL) */
+	Subcolumn *root_scol;	/* Root scol for this object (or NULL) */
 
-	int vislevel;	 /* Visibility level */
-	gboolean is_top; /* TRUE if parent is a column */
+	int vislevel;			/* Visibility level */
+	gboolean is_top;		/* TRUE if parent is a column */
 
 	Element base;			/* "this" for our members */
 	gboolean known_private; /* TRUE after top-level clone .. can write! */
@@ -86,6 +85,7 @@ extern const int subcolumn_nvisibility;
 void *subcolumn_map(Subcolumn *scol, row_map_fn fn, void *a, void *b);
 
 GType subcolumn_get_type(void);
+Column *subcolumn_get_column(Subcolumn *scol);
 void *subcolumn_new_view(Subcolumn *scol);
 Subcolumn *subcolumn_new(Rhs *rhs, Column *col);
 

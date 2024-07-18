@@ -13,6 +13,10 @@
 
     <child>
       <object class="GtkFrame" id="frame">
+        <style>
+          <class name="label_frame"/>
+        </style>
+
         <child type="label">
           <object class="GtkLabel" id="label">
             <property name="margin-start">5</property>

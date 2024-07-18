@@ -11,8 +11,8 @@
 }
 
 .widget {
-  background-color: #C5D2C8;
-  color: grey;
+  background-color: #454545;
+  color: white;
 }
 
 .error_top {
@@ -33,7 +33,6 @@
   font-style: italic;
 }
 
-.column_entry > text {
-  background-color: #374532;
+.column_body {
+  background-color: #353535;
 }
-

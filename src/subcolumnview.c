@@ -147,33 +147,21 @@ subcolumnview_refresh(vObject *vobject)
 {
 	Subcolumnview *sview = SUBCOLUMNVIEW(vobject);
 	Subcolumn *scol = SUBCOLUMN(VOBJECT(sview)->iobject);
+	Column *col = subcolumn_get_column(scol);
 	int old_n_vis = sview->n_vis;
-	gboolean editable = scol->top_col->ws->mode != WORKSPACE_MODE_NOEDIT;
+	gboolean editable = col->ws->mode != WORKSPACE_MODE_NOEDIT;
 
 #ifdef DEBUG
 	printf("subcolumnview_refresh\n");
 #endif /*DEBUG*/
 
 	sview->n_rows = icontainer_get_n_children(ICONTAINER(scol));
-
-	printf("subcolumnview_refresh: FIXME ... nested subcolumns?\n");
-	/* Nested subcols: we just change the left indent.
-	if (!scol->is_top && editable) {
-		gtk_alignment_set_padding(GTK_ALIGNMENT(sview->align),
-			0, 0, 0, 0);
-	}
-	else if (!scol->is_top && !editable) {
-		gtk_alignment_set_padding(GTK_ALIGNMENT(sview->align),
-			0, 0, 15, 0);
-	}
-	 */
-
 	sview->n_vis = 0;
 	(void) view_map(VIEW(sview),
 		(view_map_fn) subcolumnview_refresh_sub, sview, NULL);
 
 	if (sview->n_vis != old_n_vis)
-		iobject_changed(IOBJECT(scol->top_col));
+		iobject_changed(IOBJECT(col));
 
 	VOBJECT_CLASS(subcolumnview_parent_class)->refresh(vobject);
 }

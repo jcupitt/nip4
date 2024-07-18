@@ -112,8 +112,7 @@ row_qualified_name_relative(Symbol *context, Row *row, VipsBuf *buf)
 	else {
 		/* Qualify our parents, then do us.
 		 */
-		row_qualified_name_relative(context,
-			row_get_parent(row), buf);
+		row_qualified_name_relative(context, row_get_parent(row), buf);
 		vips_buf_appends(buf, ".");
 		vips_buf_appends(buf, row_name(row));
 	}
@@ -374,6 +373,7 @@ static void
 row_dispose(GObject *gobject)
 {
 	Row *row = ROW(gobject);
+	Column *col = row_get_column(row);
 
 #ifdef DEBUG_NEW
 	/* Can't use row_name_print(), we may not have a parent.
@@ -389,8 +389,9 @@ row_dispose(GObject *gobject)
 	row_hide_dependents(row);
 	if (row->expr)
 		expr_error_clear(row->expr);
-	if (row->top_col && row->top_col->last_select == row)
-		row->top_col->last_select = NULL;
+	if (col &&
+		col->last_select == row)
+		col->last_select = NULL;
 	row_deselect(row);
 
 	/* Break all recomp links.
@@ -558,15 +559,12 @@ row_get_subcolumn(Row *row)
 	return SUBCOLUMN(ICONTAINER(row)->parent);
 }
 
-static Column *
+Column *
 row_get_column(Row *row)
 {
 	Subcolumn *scol = row_get_subcolumn(row);
 
-	if (scol)
-		return scol->top_col;
-	else
-		return NULL;
+	return scol ? subcolumn_get_column(scol) : NULL;
 }
 
 /* Search back up the widget hierarchy for the base row for this
@@ -577,10 +575,7 @@ row_get_root(Row *row)
 {
 	Row *enclosing = row_get_parent(row);
 
-	if (!enclosing)
-		return row;
-	else
-		return row_get_root(enclosing);
+	return !enclosing ? row : row_get_root(enclosing);
 }
 
 Workspace *
@@ -588,10 +583,7 @@ row_get_workspace(Row *row)
 {
 	Column *col = row_get_column(row);
 
-	if (col)
-		return col->ws;
-	else
-		return NULL;
+	return col ? col->ws : NULL;
 }
 
 static void
@@ -606,7 +598,6 @@ row_parent_add(iContainer *child)
 	/* Update our context.
 	 */
 	row->scol = row_get_subcolumn(row);
-	row->top_col = row_get_column(row);
 	row->ws = row_get_workspace(row);
 	row->top_row = row_get_root(row);
 }
@@ -623,7 +614,6 @@ row_parent_remove(iContainer *child)
 	workspace_queue_layout(row->ws);
 
 	row->scol = NULL;
-	row->top_col = NULL;
 	row->ws = NULL;
 	row->top_row = NULL;
 
@@ -644,7 +634,7 @@ static void
 row_scrollto(Model *model, ModelScrollPosition position)
 {
 	Row *row = ROW(model);
-	Column *col = row->top_col;
+	Column *col = row_get_column(row);
 
 	/* If our column is closed, there won't be a view to scrollto, ouch!
 	 * Need to open the column first, then scroll to that column. We can't
@@ -683,7 +673,7 @@ row_load(Model *model,
 	(void) get_bprop(xnode, "popup", &row->popup);
 
 	if (scol->is_top) {
-		Column *col = scol->top_col;
+		Column *col = subcolumn_get_column(scol);
 		Workspace *ws = col->ws;
 
 		Symbol *sym;
@@ -986,7 +976,6 @@ row_init(Row *row)
 
 	row->scol = NULL;
 	row->child_rhs = NULL;
-	row->top_col = NULL;
 	row->ws = NULL;
 	row->top_row = NULL;
 
@@ -1823,7 +1812,7 @@ row_select_ensure(Row *row)
 
 	/* Note for extend select.
 	 */
-	row->top_col->last_select = row;
+	row_get_column(row)->last_select = row;
 
 	return NULL;
 }
@@ -1840,7 +1829,7 @@ row_select(Row *row)
 
 	/* Note for extend select.
 	 */
-	row->top_col->last_select = row;
+	row_get_column(row)->last_select = row;
 
 	return NULL;
 }
@@ -1850,7 +1839,7 @@ row_select(Row *row)
 void *
 row_select_extend(Row *row)
 {
-	Column *col = row->top_col;
+	Column *col = row_get_column(row);
 	Row *last_select = col->last_select;
 
 	/* Range select if there was a previous selection, and it was in the
@@ -1886,11 +1875,11 @@ row_select_toggle(Row *row)
 {
 	if (row->selected) {
 		row_deselect(row);
-		row->top_col->last_select = NULL;
+		row_get_column(row)->last_select = NULL;
 	}
 	else {
 		row_select2(row);
-		row->top_col->last_select = row;
+		row_get_column(row)->last_select = row;
 	}
 
 	return NULL;

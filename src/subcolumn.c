@@ -117,7 +117,6 @@ subcolumn_dispose(GObject *gobject)
 
 	scol->col = NULL;
 	scol->scol = NULL;
-	scol->top_col = NULL;
 
 	heap_unregister_element(reduce_context->heap, &scol->base);
 	scol->base.type = ELEMENT_NOVAL;
@@ -369,7 +368,7 @@ subcolumn_new_heap(Heapmodel *heapmodel, PElement *root)
 	/* New heap for a class display? CLear known_private, we've no idea
 	 * where this heap came from.
 	 */
-	if (scol == scol->top_scol)
+	if (scol == scol->root_scol)
 		scol->known_private = FALSE;
 
 	/* A bunch of locals? Update them all.
@@ -417,58 +416,46 @@ subcolumn_child_remove(iContainer *parent, iContainer *child)
 		scol->super = NULL;
 }
 
-/* If this is a top-level subcolumn, get the enclosing column.
- */
-static Column *
-subcolumn_get_column(Subcolumn *scol)
-{
-	g_assert(scol->is_top);
-
-	return COLUMN(ICONTAINER(scol)->parent);
-}
-
 /* If this is a nested subcolumn, get the enclosing subcolumn.
  */
 static Subcolumn *
 subcolumn_get_subcolumn(Subcolumn *scol)
 {
-	Rhs *rhs;
-	Row *row;
-	Subcolumn *escol;
-
-	g_assert(!scol->is_top);
-
-	rhs = HEAPMODEL(scol)->rhs;
-	row = HEAPMODEL(rhs)->row;
-	escol = row->scol;
-
-	return escol;
-}
-
-/* Return the enclosing column for a Subcolumn.
- */
-static Column *
-subcolumn_get_top_column(Subcolumn *scol)
-{
-	return !scol->is_top ? subcolumn_get_top_column(subcolumn_get_subcolumn(scol)) : subcolumn_get_column(scol);
-}
-
-/* Return the enclosing subcolumn ... but not the is_top one. Ie. the enclosing
- * subcolumn which has the base for this class tree.
- */
-static Subcolumn *
-subcolumn_get_top_subcolumn(Subcolumn *scol)
-{
-	Subcolumn *enclosing;
-
 	if (scol->is_top)
 		return NULL;
+	else {
+		Rhs *rhs = HEAPMODEL(scol)->rhs;
+		Row *row = HEAPMODEL(rhs)->row;
 
-	enclosing = subcolumn_get_subcolumn(scol);
-	if (enclosing->is_top)
-		return scol;
-	else
-		return subcolumn_get_top_subcolumn(enclosing);
+		return row->scol;
+	}
+}
+
+/* Return the enclosing subcolumn, but not the is_top one ... ie. the enclosing
+ * subcolumn which is the base for this class tree.
+ */
+static Subcolumn *
+subcolumn_get_root_subcolumn(Subcolumn *scol)
+{
+	if (scol->is_top)
+		return NULL;
+	else {
+		Subcolumn *enclosing = subcolumn_get_subcolumn(scol);
+
+		return enclosing->is_top ?
+			scol : subcolumn_get_root_subcolumn(enclosing);
+	}
+}
+
+/* Get the workspace-level column we are in.
+ */
+Column *
+subcolumn_get_column(Subcolumn *scol)
+{
+	Subcolumn *root = scol->is_top ?
+		scol : subcolumn_get_subcolumn(subcolumn_get_root_subcolumn(scol));
+
+	return COLUMN(ICONTAINER(root)->parent);
 }
 
 static void
@@ -491,18 +478,9 @@ subcolumn_parent_add(iContainer *child)
 
 	/* Update context pointers.
 	 */
-	if (scol->is_top)
-		scol->col = subcolumn_get_column(scol);
-	else
-		scol->col = NULL;
-
-	if (!scol->is_top)
-		scol->scol = subcolumn_get_subcolumn(scol);
-	else
-		scol->scol = NULL;
-
-	scol->top_col = subcolumn_get_top_column(scol);
-	scol->top_scol = subcolumn_get_top_subcolumn(scol);
+	scol->col = scol->is_top ? subcolumn_get_column(scol) : NULL;
+	scol->scol = !scol->is_top ? subcolumn_get_subcolumn(scol) : NULL;
+	scol->root_scol = subcolumn_get_root_subcolumn(scol);
 
 	/* Top level subcolumns default to display on, others to display off.
 	 */
@@ -600,7 +578,6 @@ subcolumn_init(Subcolumn *scol)
 
 	scol->col = NULL;
 	scol->scol = NULL;
-	scol->top_col = NULL;
 
 	scol->vislevel = subcolumn_nvisibility - 1;
 
@@ -654,15 +631,15 @@ subcolumn_set_vislevel(Subcolumn *scol, int vislevel)
 gboolean
 subcolumn_make_private(Subcolumn *scol)
 {
-	Subcolumn *top_scol = scol->top_scol;
+	Subcolumn *root_scol = scol->root_scol;
 	PElement base;
 
-	if (!top_scol || top_scol->known_private)
+	if (!root_scol || root_scol->known_private)
 		return TRUE;
 
 #ifdef DEBUG
 	{
-		Row *row = HEAPMODEL(top_scol)->row;
+		Row *row = HEAPMODEL(root_scol)->row;
 
 		printf("subcolumn_make_private: cloning ");
 		row_name_print(row);
@@ -672,12 +649,12 @@ subcolumn_make_private(Subcolumn *scol)
 
 	/* Clone from the class args and rebuild our tree.
 	 */
-	PEPOINTE(&base, &top_scol->base);
+	PEPOINTE(&base, &root_scol->base);
 	if (!class_clone_args(reduce_context->heap, &base, &base) ||
-		heapmodel_new_heap(HEAPMODEL(top_scol), &base))
+		heapmodel_new_heap(HEAPMODEL(root_scol), &base))
 		return FALSE;
 
-	top_scol->known_private = TRUE;
+	root_scol->known_private = TRUE;
 
 	return TRUE;
 }

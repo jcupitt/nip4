@@ -164,7 +164,7 @@ expr_get_parent_dynamic(Expr *expr)
 	else {
 		/* Enclosing workspace expr.
 		 */
-		Workspace *ws = expr->row->top_col->ws;
+		Workspace *ws = expr->row->ws;
 
 		return ws->sym->expr;
 	}
