@@ -21,4 +21,4 @@ without a GUI.
 
 [![Screenshot](images/shot1.png)](images/shot1.png)
 
-https://github.com/user-attachments/assets/a7602239-121b-4fac-aec1-2c9521248ff1
+https://github.com/user-attachments/assets/6f7bdee1-183c-4554-9701-e0c30e75d58a
