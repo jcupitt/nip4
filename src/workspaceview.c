@@ -204,16 +204,17 @@ workspaceview_add_row_shadow(Workspaceview *wview, int max_row_shadow_height,
 	workspaceview_remove_row_shadow(wview);
 
 	if (row_shadow_position != -1) {
-		Subcolumnview *sview = row_shadow_column->sview;
+		wview->max_row_shadow_height = max_row_shadow_height;
 
-		wview->row_shadow = gtk_frame_new(NULL);
+		// an empty bopx is a convenient zero width/height widget
+		// for padding
+		wview->row_shadow = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+		gtk_widget_set_margin_top(wview->row_shadow,
+			wview->max_row_shadow_height);
 		wview->row_shadow_column = row_shadow_column;
 		wview->row_shadow_position = row_shadow_position;
 
-		wview->max_row_shadow_height = max_row_shadow_height - 2;
-
-		gtk_widget_set_margin_top(wview->row_shadow,
-			wview->max_row_shadow_height);
+		Subcolumnview *sview = row_shadow_column->sview;
 		gtk_grid_attach(GTK_GRID(sview->grid), wview->row_shadow,
 			1, row_shadow_position, 1, 1);
 	}
@@ -244,7 +245,7 @@ workspaceview_move_row_shadow(Workspaceview *wview,
 
 		// start the shadow growing from the new row
 		if (row_shadow_position != -1) {
-			wview->row_shadow = gtk_frame_new(NULL);
+			wview->row_shadow = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 			gtk_widget_set_margin_top(wview->row_shadow, 0);
 			wview->row_shadow_column = row_shadow_column;
 			wview->row_shadow_position = row_shadow_position;
@@ -858,9 +859,11 @@ workspaceview_click(GtkGestureClick *gesture,
 	// we detect single click in drag_update
 }
 
-static Columnview *
+static void
 workspaceview_float_rowview(Workspaceview *wview, Rowview *rview)
 {
+	VIPS_FREEF(view_child_remove, wview->floating);
+
 	// the sview we are removing the rowview from
 	Subcolumnview *old_sview = SUBCOLUMNVIEW(VIEW(rview)->parent);
 
@@ -876,19 +879,20 @@ workspaceview_float_rowview(Workspaceview *wview, Rowview *rview)
 		return NULL;
 
 	// therefore object position at start of drag
-	Columnview *floating = columnview_new();
-	floating->x = bounds.origin.x;
-	floating->y = bounds.origin.y;
+	wview->floating = columnview_new();
+	wview->floating->x = bounds.origin.x;
+	wview->floating->y = bounds.origin.y;
+	view_child_add(VIEW(wview), VIEW(wview->floating));
 
 	Subcolumnview *sview = subcolumnview_new();
-	view_child_add(VIEW(floating), VIEW(sview));
+	view_child_add(VIEW(wview->floating), VIEW(sview));
 
 	// put a shadow in the subcolumn where this row was
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	workspaceview_add_row_shadow(wview, bounds.size.height,
 		old_cview, 2 * ICONTAINER(row)->pos + 1);
 
-	// reparent the rowview to this new column
+	// reparent the rowview to the floating columnview
 	g_object_ref(rview);
 
 	view_child_remove(VIEW(rview));
@@ -898,7 +902,9 @@ workspaceview_float_rowview(Workspaceview *wview, Rowview *rview)
 
 	g_object_unref(rview);
 
-	return floating;
+	// force a refresh to get everything in the right place
+	vobject_refresh(VOBJECT(wview->drag_rview));
+	vobject_refresh(VOBJECT(wview->floating));
 }
 
 static void
@@ -1067,18 +1073,8 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 			if (wview->drag_cview)
 				columnview_add_shadow(wview->drag_cview);
 			else if (wview->drag_rview) {
-				VIPS_FREEF(view_child_remove, wview->floating);
-
-				Columnview *floating =
-					workspaceview_float_rowview(wview, wview->drag_rview);
-				wview->floating = floating;
-				wview->drag_cview = floating;
-				wview->state = WVIEW_SELECT;
-				view_child_add(VIEW(wview), VIEW(floating));
-
-				// force a refresh to get everything in the right place
-				vobject_refresh(VOBJECT(wview->drag_rview));
-				vobject_refresh(VOBJECT(floating));
+				workspaceview_float_rowview(wview, wview->drag_rview);
+				wview->drag_cview = wview->floating;
 			}
 		}
 

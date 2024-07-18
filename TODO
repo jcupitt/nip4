@@ -1,27 +1,19 @@
 ## rows
 
+- grab row, drag right (not up/down) a short way, drop, row moves up one
+
+	perhaps the way we do the hit for the final drop is inconsistant? is
+	it mouse position, or top-left of  floating column
+
 - dragging a row to the right of a very wide scrolled workspace breaks
 
 - when dragging a row, it appears for a frame way way to the left
 
 	the floating columnview seems to be made in the wrong place
 
-- use a darkish grey (not pale greenish) for inactive labels, same for
-  unselected column title bars, see nip2
-
-	nip2 uses #454545 for row labels, #353535 for ws background
-
-	nip4 has #272727 for ws background
-
-		maybe 353535 for column bg, 454545 for label bg
-
-
-
 - implement rage select then row delete
 
 - implement rage select then row duplicate
-
-- grab row, drag right (not up/down) a short way, drop, row moves up one
 
 - implement range select then drag
 
@@ -34,6 +26,30 @@
 - need a right click menu? delete? could just rely on the workspace
 
 ## small
+
+- try
+
+	99 + "2"
+
+  error msg is
+
+	Error in binary +.
+	left = 99
+	right = 2
+	Called from "I7" (I7)
+
+  should be
+
+	error in binary +
+	left = 99
+	right = "2"
+	Called from "I7" (I7)
+
+- clicking on a row with an error should show the error at the top
+
+- nice if we could remove the dark border from a franme label
+
+	can't get border-top-width etc to work
 
 - column duplicate selects the new column
 
