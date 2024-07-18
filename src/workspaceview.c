@@ -968,9 +968,9 @@ workspaceview_drop_rowview(Workspaceview *wview)
 		 *
 		 * The pos argument for icontainer_child_move() is interpreted
 		 * AFTER removing the old child. So to allow for that, we must
-		 * subtract 1 if new_pos < old_pos.
+		 * subtract 1 if new_pos > old_pos.
 		 */
-		if (new_pos >= old_pos)
+		if (new_pos > old_pos)
 			new_pos -= 1;
 
 		icontainer_child_move(ICONTAINER(row), new_pos);
