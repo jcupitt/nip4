@@ -875,7 +875,7 @@ workspaceview_float_rowview(Workspaceview *wview, Rowview *rview)
 
 	// position of the label in workspace cods
 	graphene_rect_t bounds;
-	if (!gtk_widget_compute_bounds(rview->frame, GTK_WIDGET(wview), &bounds))
+	if (!gtk_widget_compute_bounds(rview->frame, wview->fixed, &bounds))
 		return NULL;
 
 	// therefore object position at start of drag

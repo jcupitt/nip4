@@ -1,19 +1,13 @@
 ## rows
 
-- grab row, drag right (not up/down) a short way, drop, row moves up one
+- drag bottom row up one, wait for animation to end, drop, will SOMETIMES
+  move back to the bottom of the column
 
-	perhaps the way we do the hit for the final drop is inconsistant? is
-	it mouse position, or top-left of  floating column
+	happens on drag between columns too
 
-- dragging a row to the right of a very wide scrolled workspace breaks
+- implement range select then row delete
 
-- when dragging a row, it appears for a frame way way to the left
-
-	the floating columnview seems to be made in the wrong place
-
-- implement rage select then row delete
-
-- implement rage select then row duplicate
+- implement range select then row duplicate
 
 - implement range select then drag
 
@@ -47,7 +41,7 @@
 
 - clicking on a row with an error should show the error at the top
 
-- nice if we could remove the dark border from a franme label
+- nice if we could remove the dark border from a frame label
 
 	can't get border-top-width etc to work
 
