@@ -452,8 +452,8 @@ rowview_duplicate(Rowview *rview)
 		return;
 	}
 
-	workspace_deselect_all(ws);
-	row_select(row);
+	if (!workspace_selected_any(ws))
+		row_select(row);
 	if (!workspace_selected_duplicate(ws))
 		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
 	workspace_deselect_all(ws);
@@ -480,8 +480,8 @@ rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		rhs->graphic)
 		classmodel_graphic_save(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
 	else if (g_str_equal(name, "row-delete")) {
-		workspace_deselect_all(ws);
-		row_select(row);
+		if (!workspace_selected_any(ws))
+			row_select(row);
 		workspace_selected_remove_yesno(ws, GTK_WIDGET(rview));
 	}
 	else if (g_str_equal(name, "row-replace") &&

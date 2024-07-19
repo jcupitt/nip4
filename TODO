@@ -5,13 +5,25 @@
 
 	happens on drag between columns too
 
-- implement range select then row delete
-
-- implement range select then row duplicate
-
 - implement range select then drag
 
-- implement the rest of the row menu
+- implement rowview ungroup
+
+- should be a rowview group menu?
+
+- rowview Edit should be "Open ..." or "Open viewer ..." ?
+
+- rowview / "Replace from file ..." on an image thumbnail fails
+
+	pops an error dialog
+
+		member "_vislevel" not found in class "_Object"
+
+	but the formula for the row is updated correctly
+
+- implement rowview recalculate
+
+- implement rowview reset
 
 ## region display
 
