@@ -407,8 +407,8 @@ workspacegroup_load_columns(Workspacegroup *wsg,
 		(xml_major != ws_major ||
 			xml_minor != ws_minor)) {
 		error_top(_("Version mismatch"));
-		error_sub(_("File \"%s\" needs version %d.%d. Merging "
-					"into this tab may cause compatibility problems."),
+		error_sub(_("file \"%s\" needs version %d.%d, merging "
+					"into this tab may cause compatibility problems"),
 			state->filename, xml_major, xml_minor);
 		mainwindow_error(MAINWINDOW(wsg->win));
 	}
@@ -471,8 +471,8 @@ workspacegroup_load_rows(Workspacegroup *wsg,
 		(xml_major != ws_major ||
 			xml_minor != ws_minor)) {
 		error_top(_("Version mismatch"));
-		error_sub(_("File \"%s\" needs version %d.%d. Merging "
-					"into this tab may cause compatibility problems."),
+		error_sub(_("file \"%s\" needs version %d.%d, merging "
+					"into this tab may cause compatibility problems"),
 			state->filename, xml_major, xml_minor);
 		mainwindow_error(MAINWINDOW(wsg->win));
 	}

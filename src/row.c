@@ -286,7 +286,7 @@ row_error_set(Row *row)
 			/* Elements are name of row, principal error,
 			 * secondary error.
 			 */
-			error_sub(_("Error in row %s: %s\n%s"),
+			error_sub(_("error in row %s: %s\n%s"),
 				vips_buf_all(&buf),
 				row->expr->error_top,
 				row->expr->error_sub);

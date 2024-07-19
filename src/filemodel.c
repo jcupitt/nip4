@@ -91,7 +91,7 @@ filemodel_top_load(Filemodel *filemodel,
 	}
 	else {
 		error_top(_("Not implemented"));
-		error_sub(_("_%s() not implemented for class \"%s\"."),
+		error_sub(_("_%s() not implemented for class \"%s\""),
 			"top_load",
 			G_OBJECT_CLASS_NAME(filemodel_class));
 
@@ -148,7 +148,7 @@ filemodel_top_save(Filemodel *filemodel, const char *filename)
 	}
 	else {
 		error_top(_("Not implemented"));
-		error_sub(_("_%s() not implemented for class \"%s\"."),
+		error_sub(_("_%s() not implemented for class \"%s\""),
 			"top_save",
 			G_OBJECT_CLASS_NAME(filemodel_class));
 
@@ -341,7 +341,7 @@ filemodel_top_save_xml(Filemodel *filemodel, const char *filename)
 			(calli_string_fn) filemodel_xml_save_format_file,
 			filename, xdoc, NULL, NULL)) {
 		error_top(_("Save failed"));
-		error_sub(_("Save of %s \"%s\" to file \"%s\" failed.\n%s"),
+		error_sub(_("save of %s \"%s\" to file \"%s\" failed\n%s"),
 			IOBJECT_GET_CLASS_NAME(filemodel),
 			IOBJECT(filemodel)->name,
 			filename,
@@ -452,7 +452,7 @@ filemodel_load_all_xml(Filemodel *filemodel,
 		!xnode->nsDef ||
 		!is_prefix(NAMESPACE, (char *) xnode->nsDef->href)) {
 		error_top(_("Load failed"));
-		error_sub(_("Can't load XML file \"%s\", it's not a %s save file."),
+		error_sub(_("can't load XML file \"%s\", it's not a %s save file"),
 			state->filename, PACKAGE);
 		return FALSE;
 	}
@@ -460,8 +460,8 @@ filemodel_load_all_xml(Filemodel *filemodel,
 			"%d.%d.%d",
 			&state->major, &state->minor, &state->micro) != 3) {
 		error_top(_("Load failed"));
-		error_sub(_("Can't load XML file \"%s\", "
-					"unable to extract version information from namespace."),
+		error_sub(_("can't load XML file \"%s\", "
+					"unable to extract version information from namespace"),
 			state->filename);
 		return FALSE;
 	}
@@ -560,7 +560,7 @@ filemodel_load_all(Filemodel *filemodel, Model *parent,
 	}
 	else {
 		error_top(_("Not implemented"));
-		error_sub(_("_%s() not implemented for class \"%s\"."), "load", tname);
+		error_sub(_("_%s() not implemented for class \"%s\""), "load", tname);
 		return FALSE;
 	}
 
@@ -597,7 +597,7 @@ filemodel_load_all_openfile(Filemodel *filemodel, Model *parent, iOpenFile *of)
 	}
 	else {
 		error_top(_("Not implemented"));
-		error_sub(_("_%s() not implemented for class \"%s\"."), "load", tname);
+		error_sub(_("_%s() not implemented for class \"%s\""), "load", tname);
 		return FALSE;
 	}
 

@@ -144,7 +144,7 @@ classmodel_graphic_save(Classmodel *classmodel, GtkWidget *parent)
 
 	if (!class->graphic_save) {
 		error_top(_("Not implemented"));
-		error_sub(_("_%s() method not implemented for %s."),
+		error_sub(_("_%s() method not implemented for %s"),
 			"graphic_save", IOBJECT_GET_CLASS_NAME(classmodel));
 		error_alert(parent);
 		return;
@@ -212,7 +212,7 @@ classmodel_graphic_replace(Classmodel *classmodel, GtkWidget *parent)
 
 	if (!class->graphic_replace) {
 		error_top(_("Not implemented"));
-		error_sub(_("_%s() method not implemented for %s."),
+		error_sub(_("_%s() method not implemented for %s"),
 			"graphic_replace",
 			IOBJECT_GET_CLASS_NAME(classmodel));
 		error_alert(parent);
@@ -858,7 +858,7 @@ classmodel_parse_option(const char *key, PElement *value,
 			break;
 	if (i == noptions) {
 		error_top(_("Unknown option"));
-		error_sub(_("Option \"%s\" not known."), key);
+		error_sub(_("option \"%s\" not known"), key);
 
 		return value;
 	}

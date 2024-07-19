@@ -269,9 +269,9 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 
 	if (ws->compat_major) {
 		error_top(_("Compatibility mode"));
-		error_sub(_("This workspace was created by version %d.%d. "
-					"A set of compatibility menus have been loaded "
-					"for this window."),
+		error_sub(_("this workspace was created by version %d.%d -- "
+					"a set of compatibility menus have been loaded "
+					"for this window"),
 			ws->compat_major,
 			ws->compat_minor);
 		mainwindow_error(main);

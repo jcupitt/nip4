@@ -99,13 +99,13 @@ action_boperror(Reduce *rc, Compile *compile, const char *str,
 	if (compile) {
 		/* Expands to eg. 'bad args to "+", called from "fred"'
 		 */
-		vips_buf_appends(&buf3, _("Called from"));
+		vips_buf_appends(&buf3, _("called from"));
 		vips_buf_appends(&buf3, " ");
 		compile_name(compile, &buf3);
 	}
 
 	error_top("%s", top_str);
-	error_sub(_("Error in binary %s.\n"
+	error_sub(_("error in binary %s\n"
 				"left = %s\n"
 				"right = %s\n%s"),
 		op_name,
@@ -139,7 +139,7 @@ action_nomerror(Reduce *rc, Compile *compile, PElement *a, PElement *b)
 	else
 		vips_buf_appends(&buf3, "<thing>");
 	itext_value_ev(rc, &buf2, b);
-	vips_buf_appendf(&buf, _("Member \"%s\" not found in class \"%s\"."),
+	vips_buf_appendf(&buf, _("member \"%s\" not found in class \"%s\""),
 		vips_buf_all(&buf2), vips_buf_all(&buf3));
 	vips_buf_appendf(&buf, "\n");
 
@@ -183,13 +183,13 @@ action_uoperror(Reduce *rc, Compile *compile,
 	if (compile) {
 		/* Expands to eg. 'bad args to "+", called from "fred"'
 		 */
-		vips_buf_appends(&buf2, _("Called from"));
+		vips_buf_appends(&buf2, _("called from"));
 		vips_buf_appends(&buf2, " ");
 		compile_name(compile, &buf2);
 	}
 
 	error_top("%s", top_str);
-	error_sub(_("Error in unary %s.\n"
+	error_sub(_("error in unary %s\n"
 				"argument = %s\n%s"),
 		op_name, vips_buf_all(&buf), vips_buf_all(&buf2));
 

@@ -222,7 +222,7 @@ mainwindow_open_definition(Mainwindow *main, const char *filename)
 	Workspace *ws = mainwindow_get_workspace(main);
 	if (!workspace_add_def_recalc(ws, vips_buf_all(&buf))) {
 		error_top(_("Load failed."));
-		error_sub(_("Unable to execute:\n   %s"), vips_buf_all(&buf));
+		error_sub(_("unable to execute:\n   %s"), vips_buf_all(&buf));
 		return FALSE;
 	}
 
@@ -810,10 +810,10 @@ mainwindow_new(App *app)
 		path_expand(save_dir);
 		error_top("%s", buf);
 		error_sub(
-			_("A new directory has been created to hold startup, "
+			_("a new directory has been created to hold startup, "
 			  "data and temporary files: %s\n"
-			  "If you've used previous versions of %s, you might want "
-			  "to copy files over from your old work area."),
+			  "if you've used previous versions of %s, you might want "
+			  "to copy files over from your old work area"),
 			save_dir, PACKAGE);
 		mainwindow_error(main);
 	}

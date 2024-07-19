@@ -341,11 +341,9 @@ itext_add_element(VipsBuf *buf, PElement *base,
 	else if (PEISMANAGEDSTRING(base)) {
 		Managedstring *managedstring = PEGETMANAGEDSTRING(base);
 
-		if (!top)
-			vips_buf_appends(buf, "\"");
+		vips_buf_appends(buf, "\"");
 		vips_buf_appends(buf, managedstring->string);
-		if (!top)
-			vips_buf_appends(buf, "\"");
+		vips_buf_appends(buf, "\"");
 	}
 	else if (PEISELIST(base)) {
 		vips_buf_appends(buf, "[ ]");
@@ -355,19 +353,11 @@ itext_add_element(VipsBuf *buf, PElement *base,
 		 */
 		return FALSE;
 	else if (result) {
-		/* Only generate quotes for non-top-level string objects.
-		 */
-		if (!top)
-			vips_buf_appends(buf, "\"");
-
-		/* Print string contents.
-		 */
+		vips_buf_appends(buf, "\"");
 		if (heap_map_list(base,
 				(heap_map_list_fn) itext_add_string, buf, NULL))
 			return FALSE;
-
-		if (!top)
-			vips_buf_appends(buf, "\"");
+		vips_buf_appends(buf, "\"");
 	}
 	else if (PEISLIST(base)) {
 		gboolean first = TRUE;

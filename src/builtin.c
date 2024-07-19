@@ -300,7 +300,7 @@ apply_gammq_call(Reduce *rc,
 	Q = gsl_sf_gamma_inc_Q(a, x);
 #else  /*!HAVE_GSL*/
 	error_top(_("Not available"));
-	error_sub(_("No GSL library available for gammq."));
+	error_sub(_("no GSL library available for gammq"));
 	reduce_throw(rc);
 #endif /*HAVE_GSL*/
 
@@ -411,7 +411,7 @@ apply_graph_export_image_call(Reduce *rc,
 
 		itext_value_ev(rc, &buf, &rhs);
 		error_top(_("Bad argument"));
-		error_sub(_("Argument 2 to \"%s\" should "
+		error_sub(_("argument 2 to \"%s\" should "
 					"be instance of \"%s\", you passed:\n  %s"),
 			name, CLASS_PLOT,
 			vips_buf_all(&buf));
@@ -678,7 +678,7 @@ apply_math_call(Reduce *rc,
 	}
 	else if (PEISCOMPLEX(&rhs)) {
 		error_top(_("Not implemented"));
-		error_sub(_("Complex math ops not implemented."));
+		error_sub(_("complex math ops not implemented"));
 		reduce_throw(rc);
 	}
 	else
@@ -939,8 +939,7 @@ apply_dir_call(Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 
 		if (!g_type_name(type)) {
 			error_top(_("No such type"));
-			error_sub(_("GType %u not found."),
-				(unsigned int) type);
+			error_sub(_("GType %u not found"), (unsigned int) type);
 			reduce_throw(rc);
 		}
 
@@ -1355,7 +1354,7 @@ builtin_run(Reduce *rc, Compile *compile,
 
 			itext_value_ev(rc, &buf, &base);
 			error_top(_("Bad argument"));
-			error_sub(_("Argument %d to builtin \"%s\" should "
+			error_sub(_("argument %d to builtin \"%s\" should "
 						"be \"%s\", you passed:\n  %s"),
 				i + 1, name, ts->name,
 				vips_buf_all(&buf));

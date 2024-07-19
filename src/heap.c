@@ -821,13 +821,13 @@ heap_getmem(Heap *heap)
 			VipsBuf buf = VIPS_BUF_STATIC(txt);
 
 			compile_name(heap->compile, &buf);
-			error_sub(_("The compile heap for %s has filled. "
-						"Make it smaller and less complicated."),
+			error_sub(_("the compile heap for %s has filled, "
+						"make it smaller and less complicated"),
 				vips_buf_all(&buf));
 		}
 		else
-			error_sub(_("The main calculation heap has filled. "
-						"Raise the heap size limit in Preferences."));
+			error_sub(_("the main calculation heap has filled, "
+						"raise the heap size limit in Preferences"));
 		heap->filled = TRUE;
 		return NULL;
 	}
@@ -1783,7 +1783,7 @@ heap_copy(Heap *heap, Compile *compile, PElement *out)
 	 */
 	if ((char *) main_c_stack_base - (char *) &heap > 2000000) {
 		error_top(_("Overflow error"));
-		error_sub(_("C stack overflow. Circular definition."));
+		error_sub(_("C stack overflow, circular definition"));
 		return FALSE;
 	}
 
@@ -1798,7 +1798,7 @@ heap_copy(Heap *heap, Compile *compile, PElement *out)
 	 */
 	if ((char *) main_c_stack_base - (char *) &heap > 2000000) {
 		error_top(_("Overflow error"));
-		error_sub(_("C stack overflow. Expression too complex."));
+		error_sub(_("C stack overflow, expression too complex"));
 		return FALSE;
 	}
 
@@ -1936,7 +1936,7 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 
 		error_top(_("Unimplemented argument type"));
 		(void) itext_value(rc, &buf, in);
-		error_sub(_("Cannot convert %s to GValue."), vips_buf_all(&buf));
+		error_sub(_("cannot convert %s to GValue"), vips_buf_all(&buf));
 		return FALSE;
 	}
 
@@ -2031,7 +2031,7 @@ heap_gvalue_to_ip(GValue *in, PElement *out)
 	}
 	else {
 		error_top(_("Unimplemented type"));
-		error_sub(_("Unable to convert %s to a nip type."),
+		error_sub(_("unable to convert %s to a nip type"),
 			G_VALUE_TYPE_NAME(in));
 
 		return FALSE;

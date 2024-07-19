@@ -21,25 +21,8 @@
 
 ## small
 
-- try
-
-	99 + "2"
-
-  error msg is
-
-	Error in binary +.
-	left = 99
-	right = 2
-	Called from "I7" (I7)
-
-  should be
-
-	error in binary +
-	left = 99
-	right = "2"
-	Called from "I7" (I7)
-
-- clicking on a row with an error should show the error at the top
+- put a margin around the top subcolumnview to space it from the columnview
+  edges
 
 - nice if we could remove the dark border from a frame label
 

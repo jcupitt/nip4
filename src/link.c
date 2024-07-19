@@ -577,8 +577,7 @@ link_dirty_total(Link *link, int serial)
 	 */
 	if (recursion_depth++ > 1000) {
 		error_top(_("Circular dependency"));
-		error_sub(_("Circular dependency detected near "
-					"symbol \"%s\"."),
+		error_sub(_("circular dependency detected near symbol \"%s\""),
 			IOBJECT(link->parent)->name);
 		recursion_depth = 0;
 		return link;

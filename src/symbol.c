@@ -498,7 +498,7 @@ symbol_not_defined(Symbol *sym)
 	VipsBuf buf = VIPS_BUF_STATIC(txt);
 
 	error_top(_("Not found"));
-	vips_buf_appendf(&buf, _("Symbol %s is not defined."),
+	vips_buf_appendf(&buf, _("symbol %s is not defined"),
 		symbol_name(sym));
 	if (sym->topparents) {
 		vips_buf_appends(&buf, "\n");
@@ -693,8 +693,8 @@ symbol_rename(Symbol *sym, const char *new_name)
 
 	if ((old_sym = compile_lookup(compile, new_name))) {
 		error_top("%s", _("Name in use"));
-		error_sub(_("Can't rename %s \"%s\" as \"%s\". "
-					"The name is already in use."),
+		error_sub(_("can't rename %s \"%s\" as \"%s\", "
+					"the name is already in use"),
 			decode_SymbolType_user(sym->type),
 			IOBJECT(sym)->name,
 			new_name);

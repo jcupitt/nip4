@@ -297,91 +297,6 @@ rowview_scrollto(View *view, ModelScrollPosition position)
 	workspaceview_scroll(wview, x, y, w, h);
 }
 
-/*
-static void
-rowview_drag(Rowview *rview_from, Rowview *rview_to)
-{
-	Row *row_from = ROW(VOBJECT(rview_from)->iobject);
-	Row *row_to = ROW(VOBJECT(rview_to)->iobject);
-
-	if (row_get_column(row_from) != row_get_column(row_to)) {
-		error_top(_("Not implemented"));
-		error_sub(_("Drag between columns not yet implemented."));
-		error_alert(GTK_WIDGET(rview_from));
-		return;
-	}
-
-	icontainer_child_move(ICONTAINER(row_from),
-		ICONTAINER(row_to)->pos);
-
-	icontainer_map(ICONTAINER(row_from->scol),
-		(icontainer_map_fn) iobject_changed, NULL, NULL);
-
-	workspace_deselect_all(row_from->ws);
-}
-
-static void
-rowview_drag_data_get(GtkWidget *but,
-	GdkDragContext *context, GtkSelectionData *selection_data,
-	guint info, guint time, Rowview *rview)
-{
-	if (info == ROWVIEW_TARGET_STRING) {
-		gtk_selection_data_set(selection_data,
-			selection_data->target,
-			8, (const guchar *) &rview, sizeof(Rowview *));
-	}
-}
-
-static void
-rowview_drag_data_received(GtkWidget *but,
-	GdkDragContext *context, gint x, gint y,
-	GtkSelectionData *data, guint info, guint time, Rowview *rview_to)
-{
-	if (data->length == sizeof(Rowview *) && data->format == 8 &&
-		info == ROWVIEW_TARGET_STRING) {
-		Rowview *rview_from = *((Rowview **) data->data);
-
-		if (IS_ROWVIEW(rview_from)) {
-			rowview_drag(rview_from, rview_to);
-			gtk_drag_finish(context, TRUE, FALSE, time);
-			return;
-		}
-	}
-
-	gtk_drag_finish(context, FALSE, FALSE, time);
-}
- */
-
-static void
-rowview_link(View *view, Model *model, View *parent)
-{
-	Row *row = ROW(model);
-	Rowview *rview = ROWVIEW(view);
-	Subcolumnview *sview = SUBCOLUMNVIEW(parent);
-
-	VIEW_CLASS(rowview_parent_class)->link(view, model, parent);
-
-	printf("rowview_link: FIXME ... drag n drop for rows\n");
-	/* Only drag n drop top level rows.
-	if (row->top_row == row) {
-		gtk_drag_source_set(rview->frame, GDK_BUTTON1_MASK,
-			rowview_target_table, VIPS_NUMBER(rowview_target_table),
-			GDK_ACTION_COPY);
-		gtk_signal_connect(GTK_OBJECT(rview->frame), "drag_data_get",
-			GTK_SIGNAL_FUNC(rowview_drag_data_get), rview);
-
-		gtk_drag_dest_set(rview->frame, GTK_DEST_DEFAULT_ALL,
-			rowview_target_table, VIPS_NUMBER(rowview_target_table),
-			GDK_ACTION_COPY);
-		gtk_signal_connect(GTK_OBJECT(rview->frame),
-			"drag_data_received",
-			GTK_SIGNAL_FUNC(rowview_drag_data_received), rview);
-	}
-
-	rowview_menu_attach(rview, rview->frame);
-	 */
-}
-
 static void
 rowview_child_add(View *parent, View *child)
 {
@@ -434,9 +349,17 @@ rowview_click(GtkGestureClick *gesture,
 	printf("rowview_click:\n");
 
 	if (n_press == 1) {
-		guint state = get_modifiers(GTK_EVENT_CONTROLLER(gesture));
+		if (row->err &&
+			row->sym &&
+			!symbol_recalculate_check(row->sym))
+			// click on a row with an error displays the error
+			mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+		else {
+			// select
+			guint state = get_modifiers(GTK_EVENT_CONTROLLER(gesture));
 
-		row_select_modifier(row, state);
+			row_select_modifier(row, state);
+		}
 	}
 	else
 		rowview_edit(rview);
@@ -524,7 +447,7 @@ rowview_duplicate(Rowview *rview)
 	 */
 	if (row->top_row != row) {
 		error_top("%s", _("Can't duplicate"));
-		error_sub("%s", _("You can only duplicate top level rows."));
+		error_sub("%s", _("you can only duplicate top level rows"));
 		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
 		return;
 	}
@@ -600,7 +523,6 @@ rowview_class_init(RowviewClass *class)
 
 	vobject_class->refresh = rowview_refresh;
 
-	view_class->link = rowview_link;
 	view_class->child_add = rowview_child_add;
 	view_class->child_remove = rowview_child_remove;
 	view_class->reset = rowview_reset;

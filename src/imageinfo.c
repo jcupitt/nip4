@@ -939,8 +939,7 @@ imageinfo_new_input(Imageinfogroup *imageinfogroup, GtkWidget *parent,
 			  (callv_string_fn) imageinfo_open_image_input,
 			  name, &open, NULL, NULL))) {
 		error_top(_("Unable to open image"));
-		error_sub(_("Unable to open file \"%s\" as image."),
-			name);
+		error_sub(_("unable to open file \"%s\" as image"), name);
 		error_vips();
 		return NULL;
 	}
@@ -1043,7 +1042,7 @@ imageinfo_write(Imageinfo *imageinfo, const char *name)
 
 		vips__filename_split8(name, filename, mode);
 		error_top(_("Unable to write to file"));
-		error_sub(_("Error writing image to file \"%s\"."), filename);
+		error_sub(_("error writing image to file \"%s\""), filename);
 		error_vips();
 
 		return FALSE;
@@ -1059,8 +1058,8 @@ imageinfo_make_paintable(Imageinfo *imageinfo)
 	if (vips_image_inplace(imageinfo->im)) {
 		progress_end();
 		error_top(_("Unable to paint on image"));
-		error_sub(_("Unable to get write permission for "
-					"file \"%s\".\nCheck permission settings."),
+		error_sub(_("unable to get write permission for "
+					"file \"%s\"\ncheck permission settings"),
 			imageinfo->im->filename);
 		error_vips();
 		return FALSE;
@@ -1682,7 +1681,7 @@ imageinfo_paint_text(Imageinfo *imageinfo,
 			NULL) ||
 		vips_image_write(t1, im)) {
 		error_top(_("Unable to paint text"));
-		error_sub(_("Unable to paint text \"%s\" in font \"%s\"."),
+		error_sub(_("unable to paint text \"%s\" in font \"%s\""),
 			text, font_name);
 		error_vips();
 

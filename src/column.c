@@ -304,8 +304,7 @@ column_new(Workspace *ws, const char *name, int x, int y)
 
 	if (workspace_column_find(ws, name)) {
 		error_top(_("Name clash"));
-		error_sub(_("Can't create column \"%s\". A column with that "
-					"name already exists."),
+		error_sub(_("can't create column \"%s\", name already exists"),
 			name);
 		return NULL;
 	}
@@ -361,8 +360,7 @@ column_add_n_names(Column *col, const char *name, VipsBuf *buf, int nparam)
 
 	if (nparam > 0 && nparam > len) {
 		error_top(_("Too few items"));
-		error_sub(_("This column only has %d items, "
-					"but %s needs %d items."),
+		error_sub(_("this column only has %d items, but %s needs %d items"),
 			len, name, nparam);
 		return FALSE;
 	}

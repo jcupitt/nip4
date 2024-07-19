@@ -47,7 +47,7 @@ class_is_class(PElement *instance)
 		if (!itext_value(reduce_context, &buf, instance))
 			return FALSE;
 		error_top(_("Bad argument"));
-		error_sub(_("Object %s is not a class."),
+		error_sub(_("object %s is not a class"),
 			vips_buf_all(&buf));
 
 		return FALSE;
@@ -186,7 +186,7 @@ class_get_member(PElement *instance, const char *name,
 	}
 
 	error_top(_("Member not found"));
-	error_sub(_("Member \"%s\" not found in class \"%s\"."),
+	error_sub(_("member \"%s\" not found in class \"%s\""),
 		name, IOBJECT(PEGETCLASSCOMPILE(instance)->sym)->name);
 
 	return FALSE;
@@ -330,7 +330,7 @@ class_member_secret(ClassBuildInfo *pbi,
 		 */
 		if (pos < 0 || pos >= pbi->sym->expr->compile->nsecret) {
 			error_top(_("No such secret"));
-			error_sub(_("Editing local classes which reference "
+			error_sub(_("editing local classes which reference "
 						"non-local objects is a bit broken at the "
 						"moment :-("));
 			return FALSE;
@@ -654,8 +654,8 @@ class_guess_args(PElement arg[], PElement *fn)
 			return -1;
 		if (i >= MAX_SYSTEM) {
 			error_top(_("Too many arguments"));
-			error_sub(_("You can't have more than %d "
-						"arguments to a superclass constructor."),
+			error_sub(_("you can't have more than %d "
+						"arguments to a superclass constructor"),
 				MAX_SYSTEM);
 
 			return -1;
@@ -791,7 +791,7 @@ class_new_super(Heap *heap,
 					&buf, NULL);
 
 				error_top(_("Bad superclass"));
-				error_sub(_("Superclass constructor \"%s\" "
+				error_sub(_("superclass constructor \"%s\" "
 							"refers to non-local symbols %s"),
 					symbol_name(super_compile->sym),
 					vips_buf_all(&buf));
@@ -800,8 +800,8 @@ class_new_super(Heap *heap,
 			}
 			if (len - 1 + fn_len != super_compile->nparam) {
 				error_top(_("Wrong number of arguments"));
-				error_sub(_("Superclass constructor \"%s\" "
-							"expects %d arguments, not %d."),
+				error_sub(_("superclass constructor \"%s\" "
+							"expects %d arguments, not %d"),
 					symbol_name(super_compile->sym),
 					super_compile->nparam,
 					len - 1 + fn_len);
@@ -853,8 +853,8 @@ class_new_super(Heap *heap,
 
 			itext_value(reduce_context, &buf1, &arg0);
 			vips_buf_appendf(&buf2,
-				_("First element in superclass of \"%s\" "
-				  "must be class or constructor."),
+				_("first element in superclass of \"%s\" "
+				  "must be class or constructor"),
 				symbol_name(compile->sym));
 			vips_buf_appendf(&buf2, "\n");
 			vips_buf_appendf(&buf2, _("You passed:"));
@@ -885,8 +885,8 @@ class_new(Heap *heap, Compile *compile, HeapNode **arg, PElement *out)
 	 */
 	if (compile->nparam + compile->nsecret >= MAX_SYSTEM) {
 		error_top(_("Too many arguments"));
-		error_sub(_("Too many arguments to class constructor \"%s\". "
-					"No more than %d arguments are supported."),
+		error_sub(_("too many arguments to class constructor \"%s\". "
+					"No more than %d arguments are supported"),
 			symbol_name(compile->sym), MAX_SYSTEM);
 		return FALSE;
 	}
@@ -976,14 +976,14 @@ class_newv(Heap *heap, const char *name, PElement *out, ...)
 	if (!(sym = compile_lookup(symbol_root->expr->compile, name)) ||
 		!is_value(sym) || !is_class(sym->expr->compile)) {
 		error_top(_("Class not found"));
-		error_sub(_("Class \"%s\" not found."), name);
+		error_sub(_("class \"%s\" not found"), name);
 		return FALSE;
 	}
 	compile = sym->expr->compile;
 	if (compile->nparam >= MAX_SYSTEM) {
 		error_top(_("Too many arguments"));
-		error_sub(_("Too many arguments to class constructor \"%s\". "
-					"No more than %d arguments are supported."),
+		error_sub(_("too many arguments to class constructor \"%s\". "
+					"No more than %d arguments are supported"),
 			symbol_name(compile->sym), MAX_SYSTEM);
 		return FALSE;
 	}
@@ -1009,7 +1009,7 @@ class_typecheck_error(PElement *instance, const char *name, const char *type)
 	VipsBuf buf = VIPS_BUF_STATIC(txt);
 	PElement val;
 
-	vips_buf_appendf(&buf, _("Member \"%s\" of class \"%s\" "
+	vips_buf_appendf(&buf, _("member \"%s\" of class \"%s\" "
 							 "should be of type \"%s\", instead it's:"),
 		name,
 		IOBJECT(PEGETCLASSCOMPILE(instance)->sym)->name,

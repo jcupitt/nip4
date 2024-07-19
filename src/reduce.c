@@ -132,8 +132,7 @@ reduce_error_typecheck(Reduce *rc,
 	VipsBuf buf = VIPS_BUF_STATIC(txt);
 
 	error_top(_("Typecheck error"));
-	vips_buf_appendf(&buf,
-		_("%s expected %s, instead saw:"), name, type);
+	vips_buf_appendf(&buf, _("%s expected %s, instead saw:"), name, type);
 	vips_buf_appends(&buf, "\n  ");
 	itext_value_ev(rc, &buf, e);
 	error_sub("%s", vips_buf_all(&buf));
@@ -145,7 +144,7 @@ static void
 reduce_error_toobig(Reduce *rc, const char *name)
 {
 	error_top(_("Overflow error"));
-	error_sub(_("%s too long."), name);
+	error_sub(_("%s too long"), name);
 	reduce_throw(rc);
 }
 
@@ -529,8 +528,8 @@ reduce_get_line_size(Reduce *rc, PElement *base, int *w, int *h)
 		*w = l;
 	else if (*w != l) {
 		error_top(_("Not rectangular"));
-		error_sub(_("Matrix of real is not rectangular. "
-					"Found row of length %d, should be %d."),
+		error_sub(_("matrix of real is not rectangular. "
+					"Found row of length %d, should be %d"),
 			l, *w);
 		reduce_throw(rc);
 	}
@@ -555,7 +554,7 @@ reduce_get_matrix_size(Reduce *rc,
 
 	if (w == 0 || h == 0) {
 		error_top(_("Zero dimension"));
-		error_sub(_("Matrix has width %d, height %d."), w, h);
+		error_sub(_("matrix has width %d, height %d"), w, h);
 		reduce_throw(rc);
 	}
 
@@ -595,8 +594,8 @@ reduce_get_line(Reduce *rc, PElement *base, GetMatrixInfo *gmi)
 		gmi->w = l;
 	else if (l != gmi->w) {
 		error_top(_("Not rectangular"));
-		error_sub(_("Matrix of real is not rectangular. "
-					"Found row of length %d, should be %d."),
+		error_sub(_("matrix of real is not rectangular. "
+					"Found row of length %d, should be %d"),
 			l, gmi->w);
 		reduce_throw(rc);
 	}
@@ -933,7 +932,7 @@ reduce_list_index(Reduce *rc, PElement *base, int n, PElement *out)
 
 	if (n < 0) {
 		error_top(_("Bad argument"));
-		error_sub(_("List index must be positive, not %d"), n);
+		error_sub(_("list index must be positive, not %d"), n);
 		reduce_throw(rc);
 	}
 
@@ -946,8 +945,8 @@ reduce_list_index(Reduce *rc, PElement *base, int n, PElement *out)
 	for (i = n;;) {
 		if (PEISELIST(&p)) {
 			error_top(_("Bad argument"));
-			error_sub(_("List only has %d elements, "
-						"unable to get element %d."),
+			error_sub(_("list only has %d elements, "
+						"unable to get element %d"),
 				n - i, n);
 			reduce_throw(rc);
 		}
@@ -991,7 +990,7 @@ argserror(Reduce *rc, PElement *a)
 	itext_value_ev(rc, &buf, a);
 
 	error_top(_("No arguments allowed"));
-	error_sub(_("Object \"%s\" should have no arguments."),
+	error_sub(_("object \"%s\" should have no arguments"),
 		vips_buf_all(&buf));
 	reduce_throw(rc);
 }
@@ -1088,7 +1087,7 @@ reduce_spine(Reduce *rc, PElement *out)
 	 */
 	if ((char *) main_c_stack_base - (char *) &rc > 2000000) {
 		error_top(_("Overflow error"));
-		error_sub(_("C stack overflow. Expression too complex."));
+		error_sub(_("C stack overflow, expression too complex"));
 		reduce_throw(rc);
 	}
 
@@ -1105,7 +1104,7 @@ reduce_start:
 	if ((reduce_total_recomputations % 100000) == 0) {
 		if (progress_update_expr(reduce_current_expr)) {
 			error_top(_("Cancelled"));
-			error_sub(_("Evaluation cancelled."));
+			error_sub(_("evaluation cancelled"));
 			reduce_throw(rc);
 		}
 	}
@@ -1198,7 +1197,7 @@ reduce_start:
 			 */
 			if (sym->dirty) {
 				error_top(_("No value"));
-				error_sub(_("Symbol \"%s\" has no value."),
+				error_sub(_("symbol \"%s\" has no value"),
 					symbol_name(sym));
 				reduce_throw(rc);
 			}

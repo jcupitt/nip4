@@ -884,9 +884,9 @@ tool_new_dia(Toolkit *kit, int pos,
 	if ((tool = tool_find(kit, name))) {
 		if (tool->type != TOOL_DIA) {
 			error_top(_("Name clash"));
-			error_sub(_("Can't create dialog with name \"%s\", "
+			error_sub(_("can't create dialog with name \"%s\", "
 						"an object with that name already exists in "
-						"kit \"%s\"."),
+						"kit \"%s\""),
 				name, IOBJECT(kit)->name);
 			return NULL;
 		}

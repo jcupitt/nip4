@@ -104,7 +104,7 @@ vo_gather_required(PElement *item, Vo *vo)
 {
 	if (vo->nargs_supplied >= MAX_VIPS_ARGS) {
 		error_top(_("Too many arguments"));
-		error_sub(_("No more than %d arguments allowed."),
+		error_sub(_("no more than %d arguments allowed"),
 			MAX_VIPS_ARGS);
 		return item;
 	}
@@ -237,8 +237,8 @@ vo_args(Vo *vo, PElement *required, PElement *optional)
 		return FALSE;
 	if (vo->nargs_supplied != vo->nargs_required) {
 		error_top(_("Wrong number of required arguments"));
-		error_sub(_("Operation \"%s\" has %d required arguments, "
-					"you supplied %d."),
+		error_sub(_("operation \"%s\" has %d required arguments, "
+					"you supplied %d"),
 			vo->name,
 			vo->nargs_required,
 			vo->nargs_supplied);

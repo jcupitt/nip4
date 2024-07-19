@@ -542,7 +542,7 @@ path_map_dir(const char *dir, const char *patt, path_map_fn fn, void *a)
 		/* Not found? Maybe - error message anyway.
 		 */
 		error_top(_("Not found"));
-		error_sub(_("File \"%s\" not found."), patt);
+		error_sub(_("file \"%s\" not found"), patt);
 	}
 
 	path_search_free(&search);
@@ -573,7 +573,7 @@ path_find_file(const char *filename)
 		return fname;
 
 	error_top(_("Not found"));
-	error_sub(_("File \"%s\" not found on path"), filename);
+	error_sub(_("file \"%s\" not found on path"), filename);
 
 	return NULL;
 }

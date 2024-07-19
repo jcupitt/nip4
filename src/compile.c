@@ -1406,7 +1406,7 @@ compile_transform_share(HeapNode *hn, Compile *compile)
 			compile_share_number++;
 			if (compile_share_number == MAX_RELOC) {
 				error_top(_("Too many shared nodes in graph"));
-				error_sub(_("Raise MAX_RELOC"));
+				error_sub(_("raise MAX_RELOC"));
 				return hn;
 			}
 		}
@@ -1723,8 +1723,8 @@ compile_check(Compile *compile)
 		strcmp(IOBJECT(sym)->name, MEMBER_CHECK) == 0) {
 		if (compile->nparam != 0) {
 			error_top(_("Too many arguments"));
-			error_sub(_("Member \"%s\" of class "
-						"\"%s\" should have no arguments."),
+			error_sub(_("member \"%s\" of class "
+						"\"%s\" should have no arguments"),
 				MEMBER_CHECK, symbol_name(parent));
 
 			return FALSE;

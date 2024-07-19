@@ -192,7 +192,7 @@ model_loadstate_error_get(ModelLoadState *state)
 
 	utf8 = f2utf8(vips_buf_all(&state->error_log));
 	error_top(_("Load failed"));
-	error_sub(_("Unable to load from file \"%s\". Error log is:\n%s"),
+	error_sub(_("unable to load from file \"%s\", error log is:\n%s"),
 		state->filename, utf8);
 	g_free(utf8);
 }
@@ -465,7 +465,7 @@ model_load(Model *model,
 	}
 	else {
 		error_top(_("Not implemented"));
-		error_sub(_("_%s() not implemented for class \"%s\"."),
+		error_sub(_("_%s() not implemented for class \"%s\""),
 			"load",
 			G_OBJECT_CLASS_NAME(model_class));
 	}
@@ -484,7 +484,7 @@ model_load_text(Model *model, Model *parent, iOpenFile *of)
 	}
 	else {
 		error_top("Not implemented");
-		error_sub(_("_%s() not implemented for class \"%s\"."),
+		error_sub(_("_%s() not implemented for class \"%s\""),
 			"load_text",
 			G_OBJECT_CLASS_NAME(model_class));
 	}
@@ -598,7 +598,7 @@ model_real_load(Model *model,
 	 */
 	if (g_ascii_strcasecmp((char *) xnode->name, tname) != 0) {
 		error_top(_("XML load error"));
-		error_sub(_("Can't load node of type \"%s\" into "
+		error_sub(_("can't load node of type \"%s\" into "
 					"object of type \"%s\""),
 			xnode->name, tname);
 		return FALSE;
