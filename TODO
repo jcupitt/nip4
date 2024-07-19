@@ -1,7 +1,5 @@
 ## rows
 
-- make a region, edit left, enter, segv
-
 - drag bottom row up one, wait for animation to end, drop, will SOMETIMES
   move back to the bottom of the column
 

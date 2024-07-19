@@ -1028,7 +1028,8 @@ symbol_recalculate_leaf_sub(Symbol *sym)
 #endif /*DEBUG_RECALC*/
 
 	error_clear();
-	if (sym->expr->err) {
+	if (sym->expr &&
+		sym->expr->err) {
 		expr_error_get(sym->expr);
 
 #ifdef DEBUG_RECALC
@@ -1052,13 +1053,16 @@ symbol_recalculate_leaf_sub(Symbol *sym)
 	symbol_note_calc_name(sym);
 	if (!symbol_recalculate_sub(sym) ||
 		reduce_context->heap->filled) {
-		expr_error_set(sym->expr);
+		if (sym->expr)
+			expr_error_set(sym->expr);
 		symbol_running = FALSE;
 		progress_end();
 
 #ifdef DEBUG_RECALC
-		printf("\t(error: %s %s)\n",
-			sym->expr->error_top, sym->expr->error_sub);
+		if (sym->expr)
+			printf("\t(error: %s %s)\n",
+				sym->expr->error_top, sym->expr->error_sub);
+			printf("\t(error: in %s)\n", symbol_name_scope(sym));
 #endif /*DEBUG_RECALC*/
 
 		return sym;
