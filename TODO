@@ -21,13 +21,6 @@
 
 ## small
 
-- put a margin around the top subcolumnview to space it from the columnview
-  edges
-
-- nice if we could remove the dark border from a frame label
-
-	can't get border-top-width etc to work
-
 - column duplicate selects the new column
 
 	maybe eg. drag row to column should also select the
