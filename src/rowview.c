@@ -185,22 +185,6 @@ rowview_refresh(vObject *vobject)
 	VOBJECT_CLASS(rowview_parent_class)->refresh(vobject);
 }
 
-/* Ungroup the current item.
- */
-static void
-rowview_ungroup_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
-{
-	Row *row = ROW(VOBJECT(rview)->iobject);
-
-	/*
-	workspace_deselect_all(row->ws);
-	row_select(row);
-	if (!workspace_selected_ungroup(row->ws))
-		error_alert(button);
-	symbol_recalculate_all();
-	 */
-}
-
 /* Save the current item.
  */
 static void
@@ -231,53 +215,6 @@ rowview_replace_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
 		classmodel_graphic_replace(CLASSMODEL(graphic),
 			GTK_WIDGET(iwnd));
 	 */
-}
-
-/* Recalculate the current item.
- */
-static void
-rowview_recalc_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
-{
-	Row *row = ROW(VOBJECT(rview)->iobject);
-	Workspace *ws = row->ws;
-
-	/* Mark dirty from this sym on, and force a recalc even if recalc is
-	 * off.
-	workspace_deselect_all(ws);
-	row_select(row);
-	if (!workspace_selected_recalc(ws))
-		error_alert(button);
-	workspace_deselect_all(ws);
-
-	if (row->sym &&
-		!symbol_recalculate_check(row->sym))
-		error_alert(button);
-	 */
-}
-
-/* Reset the current item.
- */
-static void
-rowview_clear_edited_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
-{
-	Row *row = ROW(VOBJECT(rview)->iobject);
-
-	(void) icontainer_map_all(ICONTAINER(row),
-		(icontainer_map_fn) model_clear_edited, NULL);
-	symbol_recalculate_all();
-}
-
-/* Remove the current item.
- */
-static void
-rowview_remove_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
-{
-	Row *row = ROW(VOBJECT(rview)->iobject);
-	Workspace *ws = row->ws;
-
-	workspace_deselect_all(ws);
-	row_select(row);
-	workspace_selected_remove_yesno(ws, button);
 }
 
 /* Scroll to make tally entry visible.
@@ -461,6 +398,51 @@ rowview_duplicate(Rowview *rview)
 	symbol_recalculate_all();
 }
 
+/* Ungroup the current item.
+ */
+static void
+rowview_ungroup(Rowview *rview)
+{
+	Row *row = ROW(VOBJECT(rview)->iobject);
+
+	if (!workspace_selected_any(row->ws))
+		row_select(row);
+	if (!workspace_selected_ungroup(row->ws))
+		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+	workspace_deselect_all(row->ws);
+
+	symbol_recalculate_all();
+}
+
+static void
+rowview_recalc(Rowview *rview)
+{
+	Row *row = ROW(VOBJECT(rview)->iobject);
+
+	/* Mark dirty from this sym on, and force a recalc even if recalc is
+	 * off.
+	 */
+	if (!workspace_selected_any(row->ws))
+		row_select(row);
+	if (!workspace_selected_recalc(row->ws))
+		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+	workspace_deselect_all(row->ws);
+
+	if (row->sym &&
+		!symbol_recalculate_check(row->sym))
+		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+}
+
+static void
+rowview_reset_menu(Rowview *rview)
+{
+	Row *row = ROW(VOBJECT(rview)->iobject);
+
+	(void) icontainer_map_all(ICONTAINER(row),
+		(icontainer_map_fn) model_clear_edited, NULL);
+	symbol_recalculate_all();
+}
+
 static void
 rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 {
@@ -489,6 +471,12 @@ rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		classmodel_graphic_replace(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
 	else if (g_str_equal(name, "row-duplicate"))
 		rowview_duplicate(rview);
+	else if (g_str_equal(name, "row-ungroup"))
+		rowview_ungroup(rview);
+	else if (g_str_equal(name, "row-recalc"))
+		rowview_recalc(rview);
+	else if (g_str_equal(name, "row-reset"))
+		rowview_reset_menu(rview);
 }
 
 static void

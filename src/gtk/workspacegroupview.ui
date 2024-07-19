@@ -36,6 +36,7 @@
       </item>
       <item>
         <attribute name='label' translatable='yes'>Ungroup</attribute>
+        <attribute name='action'>win.row-ungroup</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>Save as ...</attribute>

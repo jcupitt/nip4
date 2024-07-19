@@ -1,13 +1,13 @@
 ## rows
 
+- make a region, edit left, enter, segv
+
 - drag bottom row up one, wait for animation to end, drop, will SOMETIMES
   move back to the bottom of the column
 
 	happens on drag between columns too
 
 - implement range select then drag
-
-- implement rowview ungroup
 
 - should be a rowview group menu?
 
@@ -20,10 +20,6 @@
 		member "_vislevel" not found in class "_Object"
 
 	but the formula for the row is updated correctly
-
-- implement rowview recalculate
-
-- implement rowview reset
 
 ## region display
 
