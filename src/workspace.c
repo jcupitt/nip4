@@ -590,9 +590,6 @@ workspace_load_file(Workspace *ws, const char *filename)
 	if (!(sym = workspace_add_def(ws, vips_buf_all(&buf))))
 		return NULL;
 
-	printf("workspace_load_file: FIXME\n");
-	// mainw_recent_add(&mainw_recent_image, filename);
-
 	return sym;
 }
 
@@ -1449,7 +1446,7 @@ workspace_selected_group(Workspace *ws)
 	}
 
 	vips_buf_appends(&buf, "Group [");
-	workspace_selected_names(ws, &buf, ",");
+	workspace_selected_names(ws, &buf, ", ");
 	vips_buf_appends(&buf, "]");
 	if (!workspace_add_def_recalc(ws, vips_buf_all(&buf)))
 		return FALSE;

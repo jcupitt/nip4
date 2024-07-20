@@ -225,8 +225,6 @@ static void
 workspaceview_move_row_shadow(Workspaceview *wview,
 	Columnview *row_shadow_column, int row_shadow_position)
 {
-	printf("workspaceview_move_row_shadow: %d\n", row_shadow_position);
-
 	if (wview->row_shadow_position != row_shadow_position ||
 		wview->row_shadow_column != row_shadow_column) {
 		// any previous shadow vanishes
@@ -458,8 +456,6 @@ workspaceview_child_add(View *parent, View *child)
 	Workspaceview *wview = WORKSPACEVIEW(parent);
 
 	VIEW_CLASS(workspaceview_parent_class)->child_add(parent, child);
-
-	printf("workspaceview_child_add: %d %d\n", cview->x, cview->y);
 
 	gtk_fixed_put(GTK_FIXED(wview->fixed), GTK_WIDGET(cview),
 		cview->x, cview->y);
@@ -848,8 +844,6 @@ workspaceview_click(GtkGestureClick *gesture,
 {
 	Columnview *cview = workspaceview_find_columnview(wview, x, y);
 
-	printf("workspaceview_click:\n");
-
 	if (!cview) {
 		Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
@@ -1111,8 +1105,6 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 					// row we are over
 					Rowview *rview = columnview_find_rowview(cview,
 						mouse_x, mouse_y);
-
-					printf("drag: rview = %p\n", rview);
 
 					if (rview) {
 						Subcolumnview *sview =

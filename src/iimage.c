@@ -360,9 +360,6 @@ iimage_replace(iImage *iimage, const char *filename)
 		itext_set_edited(itext, TRUE);
 		workspace_set_modified(row->ws, TRUE);
 		(void) expr_dirty(row->expr, link_serial_new());
-
-		printf("iimage_replace: FIXME\n");
-		// mainw_recent_add(&mainw_recent_image, filename);
 	}
 
 	return TRUE;

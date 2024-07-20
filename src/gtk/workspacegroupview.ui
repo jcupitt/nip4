@@ -27,25 +27,38 @@
   <menu id="workspacegroup-row-menu">
     <section>
       <item>
-        <attribute name='label' translatable='yes'>Edit</attribute>
+        <attribute name='label' translatable='yes'>View ...</attribute>
         <attribute name='action'>win.row-edit</attribute>
       </item>
+    </section>
+
+    <section>
       <item>
         <attribute name='label' translatable='yes'>Duplicate</attribute>
         <attribute name='action'>win.row-duplicate</attribute>
       </item>
       <item>
+        <attribute name='label' translatable='yes'>Group</attribute>
+        <attribute name='action'>win.row-group</attribute>
+      </item>
+      <item>
         <attribute name='label' translatable='yes'>Ungroup</attribute>
         <attribute name='action'>win.row-ungroup</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Replace from file ...</attribute>
+        <attribute name='action'>win.row-replace</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>Save as ...</attribute>
         <attribute name='action'>win.row-saveas</attribute>
       </item>
-      <item>
-        <attribute name='label' translatable='yes'>Replace from file ...</attribute>
-        <attribute name='action'>win.row-replace</attribute>
-      </item>
+    </section>
+
+    <section>
       <item>
         <attribute name='label' translatable='yes'>Recalculate</attribute>
         <attribute name='action'>win.row-recalculate</attribute>

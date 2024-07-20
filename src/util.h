@@ -278,11 +278,6 @@ void util_check_all_destroyed(void);
 
 void *imalloc(VipsImage *im, size_t len);
 
-GSList *recent_add(GSList *recent, const char *filename);
-GSList *recent_load(const char *filename);
-void recent_free(GSList *recent);
-void recent_save(GSList *recent, const char *filename);
-
 const char *get_savedir(void);
 
 void **slist_to_array(GSList *list);

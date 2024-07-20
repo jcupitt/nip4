@@ -1,15 +1,13 @@
 ## rows
 
+- add multi-select to file open?
+
 - drag bottom row up one, wait for animation to end, drop, will SOMETIMES
   move back to the bottom of the column
 
 	happens on drag between columns too
 
 - implement range select then drag
-
-- should be a rowview group menu?
-
-- rowview Edit should be "Open ..." or "Open viewer ..." ?
 
 - rowview / "Replace from file ..." on an image thumbnail fails
 

@@ -283,8 +283,6 @@ rowview_click(GtkGestureClick *gesture,
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
 
-	printf("rowview_click:\n");
-
 	if (n_press == 1) {
 		if (row->err &&
 			row->sym &&
@@ -398,8 +396,20 @@ rowview_duplicate(Rowview *rview)
 	symbol_recalculate_all();
 }
 
-/* Ungroup the current item.
- */
+static void
+rowview_group(Rowview *rview)
+{
+	Row *row = ROW(VOBJECT(rview)->iobject);
+
+	if (!workspace_selected_any(row->ws))
+		row_select(row);
+	if (!workspace_selected_group(row->ws))
+		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+	workspace_deselect_all(row->ws);
+
+	symbol_recalculate_all();
+}
+
 static void
 rowview_ungroup(Rowview *rview)
 {
@@ -471,6 +481,8 @@ rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		classmodel_graphic_replace(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
 	else if (g_str_equal(name, "row-duplicate"))
 		rowview_duplicate(rview);
+	else if (g_str_equal(name, "row-group"))
+		rowview_group(rview);
 	else if (g_str_equal(name, "row-ungroup"))
 		rowview_ungroup(rview);
 	else if (g_str_equal(name, "row-recalc"))

@@ -191,7 +191,7 @@ classmodel_graphic_replace_cb(GObject *source_object,
 	if (file) {
 		g_autofree char *filename = g_file_get_path(file);
 
-		if (!class->graphic_replace(classmodel, parent, filename)) {
+		if (class->graphic_replace(classmodel, parent, filename)) {
 			g_object_ref(G_OBJECT(classmodel));
 
 			symbol_recalculate_all();
