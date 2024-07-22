@@ -1383,6 +1383,11 @@ workspaceview_init(Workspaceview *wview)
 
 	wview->should_animate = TRUE;
 
+	// otherwise we get a lot of annoying scrolling on notebook tab change
+	GtkWidget *child = gtk_scrolled_window_get_child(scrolled_window);
+	if (GTK_IS_VIEWPORT(child))
+		gtk_viewport_set_scroll_to_focus(GTK_VIEWPORT(child), FALSE);
+
 	// a lot of stuff to go in here
 	printf("workspaceview_init: FIXME we must do stuff\n");
 }
