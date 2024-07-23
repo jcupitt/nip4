@@ -314,6 +314,8 @@ workspacegroupview_page_added_cb(GtkNotebook *notebook,
 		// we may have left an empty mainwindow
 		mainwindow_cull();
 	}
+
+	filemodel_set_window_hint(FILEMODEL(wsg), GTK_WINDOW(main));
 }
 
 static GtkNotebook *

@@ -314,8 +314,6 @@ workspaceview_scroll_reset(Workspaceview *wview)
 static void
 workspaceview_scroll_update(Workspaceview *wview)
 {
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-
 	wview->vp.left = gtk_adjustment_get_value(wview->hadj);
 	wview->vp.top = gtk_adjustment_get_value(wview->vadj);
 	wview->vp.width = gtk_adjustment_get_page_size(wview->hadj);
@@ -326,7 +324,9 @@ workspaceview_scroll_update(Workspaceview *wview)
 
 	/* Update vp hint in model too.
 	 */
-	ws->vp = wview->vp;
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+	if (ws)
+		ws->vp = wview->vp;
 
 #ifdef DEBUG_VERBOSE
 	printf("workspaceview_scroll_update: %s\n", IOBJECT(ws)->name);
@@ -510,8 +510,6 @@ workspaceview_refresh(vObject *vobject)
 #endif /*DEBUG*/
 
 	gtk_widget_set_sensitive(GTK_WIDGET(wview), !ws->locked);
-
-	workspace_jump_update(ws, wview->popup_jump);
 
 	if (ws->rpane_open)
 		pane_animate_open(wview->rpane);
@@ -1372,14 +1370,14 @@ workspaceview_init(Workspaceview *wview)
 		GTK_SCROLLED_WINDOW(wview->scrolled_window);
 	wview->hadj = gtk_scrolled_window_get_hadjustment(scrolled_window);
 	wview->vadj = gtk_scrolled_window_get_vadjustment(scrolled_window);
-	g_signal_connect(G_OBJECT(wview->hadj), "value_changed",
-		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview);
-	g_signal_connect(G_OBJECT(wview->hadj), "changed",
-		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview);
-	g_signal_connect(G_OBJECT(wview->vadj), "value_changed",
-		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview);
-	g_signal_connect(G_OBJECT(wview->vadj), "changed",
-		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview);
+	g_signal_connect_object(G_OBJECT(wview->hadj), "value_changed",
+		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview, 0);
+	g_signal_connect_object(G_OBJECT(wview->hadj), "changed",
+		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview, 0);
+	g_signal_connect_object(G_OBJECT(wview->vadj), "value_changed",
+		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview, 0);
+	g_signal_connect_object(G_OBJECT(wview->vadj), "changed",
+		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview, 0);
 
 	wview->should_animate = TRUE;
 

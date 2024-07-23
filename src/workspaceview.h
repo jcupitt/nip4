@@ -65,7 +65,6 @@ struct _Workspaceview {
 	Pane *rpane;
 
 	GtkWidget *popup;
-	GtkWidget *popup_jump;
 
 	/* Our state machine for interactions.
 	 */

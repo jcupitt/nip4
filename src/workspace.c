@@ -1330,6 +1330,7 @@ workspace_selected_remove_yesno(Workspace *ws, GtkWidget *parent)
 		workspace_selected_names(ws, &buf, ", ");
 		alert_yesno(view_get_window(parent),
 			workspace_selected_remove_yesno_cb, ws,
+			_("Are you sure?"),
 			_("Are you sure you want to delete %s?"), vips_buf_all(&buf));
 	}
 }
@@ -1582,69 +1583,6 @@ workspace_local_set_from_file(Workspace *ws, const char *fname)
 	ifile_close(of);
 
 	return TRUE;
-}
-
-static gint
-workspace_jump_name_compare(iContainer *a, iContainer *b)
-{
-	int la = strlen(IOBJECT(a)->name);
-	int lb = strlen(IOBJECT(b)->name);
-
-	/* Smaller names first.
-	 */
-	if (la == lb)
-		return strcmp(IOBJECT(a)->name, IOBJECT(b)->name);
-	else
-		return la - lb;
-}
-
-static void
-workspace_jump_column_cb(GtkWidget *item, Column *column)
-{
-	column_scrollto(column, MODEL_SCROLL_TOP);
-}
-
-static void *
-workspace_jump_build(Column *column, GtkWidget *menu)
-{
-	GtkWidget *item;
-	char txt[256];
-	VipsBuf buf = VIPS_BUF_STATIC(txt);
-
-	vips_buf_appendf(&buf, "%s - %s",
-		IOBJECT(column)->name, IOBJECT(column)->caption);
-	printf("workspace_jump_build: FIXME\n");
-	/*
-	item = gtk_menu_item_new_with_label(vips_buf_all(&buf));
-	g_signal_connect(item, "activate",
-		G_CALLBACK(workspace_jump_column_cb), column);
-	gtk_menu_append(GTK_MENU(menu), item);
-	gtk_widget_show(item);
-	 */
-
-	return NULL;
-}
-
-/* Update a menu with the set of current columns.
- */
-void
-workspace_jump_update(Workspace *ws, GtkWidget *menu)
-{
-	GSList *columns;
-
-	printf("workspace_jump_update: FIXME\n");
-	/*
-	gtk_container_foreach(GTK_CONTAINER(menu),
-		(GtkCallback) gtk_widget_unparent, NULL);
-	 */
-
-	columns = icontainer_get_children(ICONTAINER(ws));
-
-	columns = g_slist_sort(columns,
-		(GCompareFunc) workspace_jump_name_compare);
-	slist_map(columns, (SListMapFn) workspace_jump_build, menu);
-
-	g_slist_free(columns);
 }
 
 /* Merge file into this workspace.

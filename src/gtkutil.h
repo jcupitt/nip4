@@ -87,4 +87,4 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC(cairo_t, cairo_destroy)
 
 typedef void (*Yesno)(GtkWindow *parent, void *user_data);
 void alert_yesno(GtkWindow *parent, Yesno yesno, void *user_data,
-	const char *format, ...);
+	const char *message, const char *format, ...);

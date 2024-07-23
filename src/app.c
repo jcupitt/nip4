@@ -102,12 +102,22 @@ app_activate(GApplication *gapp)
 	gtk_window_present(GTK_WINDOW(main));
 }
 
+static void *
+app_quit_activated_next(void *a, void *b)
+{
+	GApplication *gapp = G_APPLICATION(a);
+
+	g_application_quit(gapp);
+
+	return NULL;
+}
+
 static void
 app_quit_activated(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
-	printf("app_quit_activated: FIXME ... check for modified etc.\n");
-	g_application_quit(G_APPLICATION(user_data));
+	// do save-before-quit, then quit
+	filemodel_close_registered(app_quit_activated_next, user_data);
 }
 
 static void

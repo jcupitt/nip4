@@ -184,8 +184,6 @@ void workspace_set_mode(Workspace *ws, WorkspaceMode mode);
 gboolean workspace_local_set(Workspace *ws, const char *txt);
 gboolean workspace_local_set_from_file(Workspace *ws, const char *fname);
 
-void workspace_jump_update(Workspace *ws, GtkWidget *menu);
-
 gboolean workspace_merge_file(Workspace *ws, const char *filename);
 gboolean workspace_selected_duplicate(Workspace *ws);
 gboolean workspace_selected_save(Workspace *ws, const char *filename);

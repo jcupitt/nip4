@@ -56,6 +56,10 @@ struct _Filemodel {
 	int major;
 	int minor;
 	int micro;
+
+	/* Where this filemodel would like dialogs displayed.
+	 */
+	GtkWindow *window_hint;
 };
 
 typedef struct _FilemodelClass {
@@ -116,3 +120,14 @@ void filemodel_inter_close_registered_cb(iWindow *iwnd, void *client,
  */
 
 void filemodel_set_auto_load(Filemodel *filemodel);
+
+void filemodel_set_window_hint(Filemodel *filemodel, GtkWindow *window);
+GtkWindow *filemodel_get_window_hint(Filemodel *filemodel);
+
+typedef void (*FilemodelSaveasResult)(GtkWidget *parent,
+	Filemodel *filemodel, void *a, void *b);
+void filemodel_save_before_close(Filemodel *filemodel,
+	FilemodelSaveasResult next, void *a, void *b);
+
+void filemodel_close_registered(SListMapFn callback, void *user_data);
+

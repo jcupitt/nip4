@@ -1,10 +1,12 @@
-- call gtk_stack_page_set_needs_attention() for tabs containing errors?
+- close mainwindow should go via filemodel_save_before_close()
+
+- IDESTROY on a wsg should close the mainwindow showing it?
+
+	or maybe save_before_close should close parent? sounds dangerous
 
 - drag tab out, crash
 
 	only on x11? on wayland, drag tab to desktop does not seem to work
-
-- implement "ws has been modified, are you sure?" on quit
 
 - try:
 

@@ -2726,3 +2726,4 @@ draw_line(VipsImage *image, int x1, int y1, int x2, int y2,
 	else
 		g_assert_not_reached();
 }
+

@@ -633,3 +633,191 @@ filemodel_set_auto_load(Filemodel *filemodel)
 		filemodel_set_filename(filemodel, buf);
 	}
 }
+
+void
+filemodel_set_window_hint(Filemodel *filemodel, GtkWindow *window)
+{
+    /* This can be called repeatedly if objects are moved between windows.
+     */
+    filemodel->window_hint = window;
+}
+
+GtkWindow *
+filemodel_get_window_hint(Filemodel *filemodel)
+{
+    if (filemodel->window_hint)
+        return filemodel->window_hint;
+    else
+        return GTK_WINDOW(mainwindow_pick_one());
+}
+
+static void
+filemodel_saveas_sub(GObject *source_object,
+	GAsyncResult *res, void *data)
+{
+	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
+	GtkWidget *parent = g_object_get_data(G_OBJECT(dialog), "nip4-parent");
+	Filemodel *filemodel =
+		g_object_get_data(G_OBJECT(dialog), "nip4-filemodel");
+	FilemodelSaveasResult next =
+		g_object_get_data(G_OBJECT(dialog), "nip4-next");
+	FilemodelSaveasResult error =
+		g_object_get_data(G_OBJECT(dialog), "nip4-error");
+	void *a = g_object_get_data(G_OBJECT(dialog), "nip4-a");
+	void *b = g_object_get_data(G_OBJECT(dialog), "nip4-b");
+
+	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
+	if (file) {
+		g_autofree char *filename = g_file_get_path(file);
+
+        if (!filemodel_top_save(filemodel, filename))
+			error(parent, filemodel, a, b);
+		else {
+            filemodel_set_filename(filemodel, filename);
+            filemodel_set_modified(filemodel, FALSE);
+			next(parent, filemodel, a, b);
+        }
+    }
+}
+
+static void
+filemodel_saveas(GtkWidget *parent, Filemodel *filemodel,
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b)
+{
+	const char *tname = IOBJECT_GET_CLASS_NAME(filemodel);
+	g_autofree *title = g_strdup_printf("Save %s as", tname);
+
+	GtkFileDialog *dialog = gtk_file_dialog_new();
+	gtk_file_dialog_set_title(dialog, title);
+	gtk_file_dialog_set_modal(dialog, TRUE);
+	g_object_set_data(G_OBJECT(dialog), "nip4-parent", parent);
+	g_object_set_data(G_OBJECT(dialog), "nip4-filemodel", filemodel);
+	g_object_set_data(G_OBJECT(dialog), "nip4-next", next);
+	g_object_set_data(G_OBJECT(dialog), "nip4-error", error);
+	g_object_set_data(G_OBJECT(dialog), "nip4-a", a);
+	g_object_set_data(G_OBJECT(dialog), "nip4-b", b);
+
+	if (filemodel->filename) {
+		g_autoptr(GFile) file = g_file_new_for_path(filemodel->filename);
+
+		if (file)
+			gtk_file_dialog_set_initial_file(dialog, file);
+	}
+
+	gtk_file_dialog_save(dialog, GTK_WINDOW(parent), NULL,
+		filemodel_saveas_sub, NULL);
+}
+
+static void
+filemodel_save_before_close_cb(GObject *source_object,
+	GAsyncResult *result, void *data)
+{
+	GtkAlertDialog *alert = GTK_ALERT_DIALOG(source_object);
+	GtkWindow *parent = g_object_get_data(G_OBJECT(alert), "nip4-parent");
+	Filemodel *filemodel = g_object_get_data(G_OBJECT(alert), "nip4-filemodel");
+	FilemodelSaveasResult next =
+		g_object_get_data(G_OBJECT(alert), "nip4-next");
+	FilemodelSaveasResult error =
+		g_object_get_data(G_OBJECT(alert), "nip4-error");
+	void *a = g_object_get_data(G_OBJECT(alert), "nip4-a");
+	void *b = g_object_get_data(G_OBJECT(alert), "nip4-b");
+	int choice = gtk_alert_dialog_choose_finish(alert, result, NULL);
+
+	switch (choice) {
+	case 0:
+		// close without saving ... destroy and move on to the next file
+		IDESTROY(filemodel);
+		next(parent, filemodel, a, b);
+		break;
+
+	case 1:
+		// cancel whole process
+		break;
+
+	case 2:
+		// save then move on
+		filemodel_saveas(parent, filemodel, next, error, a, b);
+		break;
+
+	default:
+		g_assert_not_reached();
+	}
+}
+
+static void
+filemodel_save_before_close_error(GtkWidget *parent,
+	Filemodel *filemodel, void *a, void *b)
+{
+	Mainwindow *main = MAINWINDOW(parent);
+
+	mainwindow_error(main);
+}
+
+void
+filemodel_save_before_close(Filemodel *filemodel,
+	FilemodelSaveasResult next, void *a, void *b)
+{
+	GtkWindow *parent = filemodel_get_window_hint(filemodel);
+	const char *tname = IOBJECT_GET_CLASS_NAME(filemodel);
+
+	g_autofree *message = g_strdup_printf("%s has been modified", tname);
+	g_autofree *detail = NULL;
+	if (filemodel->filename)
+		detail = g_strdup_printf("%s has been modified "
+			"since it was loaded from \"%s\".\n\n"
+			"Do you want to save your changes?", tname, filemodel->filename);
+	else
+		detail = g_strdup_printf("%s has been modified. "
+			"Do you want to save your chages?", tname);
+
+	const char *labels[] = { "Close without saving", "Cancel", "Save", NULL };
+
+	GtkAlertDialog *alert = gtk_alert_dialog_new("%s", message);
+	gtk_alert_dialog_set_detail(alert, detail);
+	gtk_alert_dialog_set_buttons(alert, labels);
+	gtk_alert_dialog_set_modal(alert, TRUE);
+	g_object_set_data(G_OBJECT(alert), "nip4-parent", parent);
+	g_object_set_data(G_OBJECT(alert), "nip4-filemodel", filemodel);
+	g_object_set_data(G_OBJECT(alert), "nip4-next", next);
+	g_object_set_data(G_OBJECT(alert), "nip4-error",
+		filemodel_save_before_close_error);
+	g_object_set_data(G_OBJECT(alert), "nip4-a", a);
+	g_object_set_data(G_OBJECT(alert), "nip4-b", b);
+
+	gtk_alert_dialog_choose(alert, parent, NULL,
+		filemodel_save_before_close_cb, NULL);
+}
+
+static Filemodel *
+filemodel_get_registered(void)
+{
+    for (GSList *p = filemodel_registered; p; p = p->next) {
+        Filemodel *filemodel = FILEMODEL(p->data);
+
+        if (filemodel->modified)
+            return filemodel;
+    }
+
+    return NULL;
+}
+
+static void
+filemodel_close_registered_next(GtkWidget *parent,
+	Filemodel *filemodel, void *a, void *b)
+{
+	SListMapFn callback = (SListMapFn) a;
+
+    if ((filemodel = filemodel_get_registered()))
+		filemodel_save_before_close(filemodel,
+			filemodel_close_registered_next, callback, b);
+	else
+		callback(b, NULL);
+}
+
+void
+filemodel_close_registered(SListMapFn callback, void *user_data)
+{
+	filemodel_close_registered_next(NULL, NULL, callback, user_data);
+}
+

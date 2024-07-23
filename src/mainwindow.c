@@ -919,3 +919,9 @@ mainwindow_is_empty(Mainwindow *main)
 	return workspacegroup_is_empty(main->wsg) &&
 		!gtk_action_bar_get_revealed(GTK_ACTION_BAR(main->error_bar));
 }
+
+GtkWindow *
+mainwindow_pick_one(void)
+{
+	return mainwindow_all ? MAINWINDOW(mainwindow_all->data) : NULL;
+}

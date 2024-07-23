@@ -330,7 +330,7 @@ alert_yesno_cb(GObject *source_object,
  */
 void
 alert_yesno(GtkWindow *parent, Yesno yesno, void *user_data,
-	const char *format, ...)
+	const char *message, const char *format, ...)
 {
 	va_list ap;
 	char buf[1000];
@@ -341,7 +341,8 @@ alert_yesno(GtkWindow *parent, Yesno yesno, void *user_data,
 
 	const char *labels[] = { "Cancel", "OK", NULL };
 
-	GtkAlertDialog *alert = gtk_alert_dialog_new("%s", buf);
+	GtkAlertDialog *alert = gtk_alert_dialog_new("%s", message);
+	gtk_alert_dialog_set_detail(alert, buf);
 	gtk_alert_dialog_set_buttons(alert, labels);
 	gtk_alert_dialog_set_modal(alert, TRUE);
 	g_object_set_data(G_OBJECT(alert), "nip4-parent", parent);

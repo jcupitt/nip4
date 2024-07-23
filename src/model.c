@@ -729,6 +729,7 @@ model_check_destroy(GtkWidget *parent, Model *model)
 		name = IOBJECT(model)->name;
 
 	alert_yesno(view_get_window(parent), model_check_destroy_yesno, model,
+		_("Are you sure?"),
 		_("Are you sure you want to delete %s \"%s\"?"),
 		IOBJECT_GET_CLASS_NAME(model), name);
 }
