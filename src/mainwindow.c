@@ -436,12 +436,21 @@ mainwindow_save_action(GSimpleAction *action,
 }
 
 static void
+mainwindow_close_next(GtkWidget *parent, Filemodel *filemodel, void *a, void *b)
+{
+	Mainwindow *main = MAINWINDOW(a);
+
+	gtk_window_destroy(GTK_WINDOW(main));
+}
+
+static void
 mainwindow_close_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
 	Mainwindow *main = MAINWINDOW(user_data);
 
-	gtk_window_destroy(GTK_WINDOW(main));
+	filemodel_save_before_close(FILEMODEL(main->wsg),
+		mainwindow_close_next, main, NULL);
 }
 
 static void
@@ -713,8 +722,9 @@ mainwindow_wsg_changed(Workspacegroup *wsg, Mainwindow *main)
 static void
 mainwindow_wsg_destroy(Workspacegroup *wsg, Mainwindow *main)
 {
-	printf("mainwindow_wsg_destroy:\n");
 	main->wsg = NULL;
+
+	gtk_window_destroy(GTK_WINDOW(main));
 }
 
 void
