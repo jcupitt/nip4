@@ -678,6 +678,7 @@ columnview_activate(GtkEntry *self, gpointer user_data)
 	Columnview *cview = COLUMNVIEW(user_data);
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
 	Workspace *ws = col->ws;
+	Mainwindow *main = MAINWINDOW(view_get_window(cview));
 
 	GtkEntryBuffer *buffer = gtk_entry_get_buffer(self);
 	const char *text = gtk_entry_buffer_get_text(buffer);
@@ -687,8 +688,10 @@ columnview_activate(GtkEntry *self, gpointer user_data)
 	if (!text || strspn(text, WHITESPACE) == strlen(text))
 		return;
 
-	if (!(sym = workspace_add_def_recalc(ws, text))) {
-		mainwindow_error(MAINWINDOW(view_get_window(VIEW(cview))));
+	if ((sym = workspace_add_def_recalc(ws, text)))
+		mainwindow_error_hide(main);
+	else {
+		mainwindow_error(main);
 		symbol_recalculate_all();
 		return;
 	}

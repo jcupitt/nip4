@@ -143,7 +143,7 @@ mainwindow_verror(Mainwindow *main)
 	mainwindow_error(main);
 }
 
-static void
+void
 mainwindow_error_hide(Mainwindow *main)
 {
 #ifdef DEBUG
