@@ -1,20 +1,3 @@
-- close mainwindow should go via filemodel_save_before_close()
-
-	paths for save before close:
-
-		- drag last tab out
-		- ^Q
-		- ^W, menu close
-		- (x) in titlebar
-
-- IDESTROY on a wsg should close the mainwindow showing it?
-
-	or maybe save_before_close should close parent? sounds dangerous
-
-- drag tab out, crash
-
-	only on x11? on wayland, drag tab to desktop does not seem to work
-
 - try:
 
 	new workspace
@@ -40,6 +23,10 @@
   the remaining view pointing at the wrong model
 
 ## rows
+
+- changing between tabs does not update the titlebar
+
+	what about tab rename?
 
 - add multi-select to file open?
 

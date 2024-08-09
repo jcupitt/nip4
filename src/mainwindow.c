@@ -449,8 +449,7 @@ mainwindow_close_action(GSimpleAction *action,
 {
 	Mainwindow *main = MAINWINDOW(user_data);
 
-	filemodel_save_before_close(FILEMODEL(main->wsg),
-		mainwindow_close_next, main, NULL);
+	gtk_window_close(GTK_WINDOW(main));
 }
 
 static void
@@ -628,6 +627,43 @@ mainwindow_error_close_clicked(GtkButton *button, void *user_data)
 }
 
 static void
+mainwindow_close_request_idle(void *user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	gtk_window_close(main);
+}
+
+static void
+mainwindow_close_request_next(GtkWidget *parent,
+	Filemodel *filemodel, void *a, void *b)
+{
+	Mainwindow *main = MAINWINDOW(a);
+
+	/* We can't go back to close immediately, the alert is still being shown
+	 * and must detach. Close the window back in idle.
+	 */
+	g_idle_add(mainwindow_close_request_idle, main);
+}
+
+static gboolean
+mainwindow_close_request(GtkWindow *self, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(self);
+
+	if (FILEMODEL(main->wsg)->modified) {
+		filemodel_save_before_close(FILEMODEL(main->wsg),
+			mainwindow_close_request_next, main, NULL);
+
+		// block close, then retrigger after save, see
+		// mainwindow_close_request_idle()
+		return TRUE;
+	}
+	else
+		return FALSE;
+}
+
+static void
 mainwindow_class_init(MainwindowClass *class)
 {
 	G_OBJECT_CLASS(class)->dispose = mainwindow_dispose;
@@ -646,6 +682,7 @@ mainwindow_class_init(MainwindowClass *class)
 
 	BIND_CALLBACK(mainwindow_progress_cancel_clicked);
 	BIND_CALLBACK(mainwindow_error_close_clicked);
+	BIND_CALLBACK(mainwindow_close_request);
 }
 
 static void
@@ -843,7 +880,7 @@ mainwindow_cull_sub(Mainwindow *main)
 	if (icontainer_get_n_children(ICONTAINER(main->wsg)) == 0) {
 		printf("mainwindow_cull_sub: killing window\n");
 		filemodel_set_modified(FILEMODEL(main->wsg), FALSE);
-		gtk_window_destroy(GTK_WINDOW(main));
+		gtk_window_close(GTK_WINDOW(main));
 	}
 
 	return NULL;

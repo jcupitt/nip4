@@ -726,8 +726,9 @@ filemodel_save_before_close_cb(GObject *source_object,
 
 	switch (choice) {
 	case 0:
-		// close without saving ... destroy and move on to the next file
-		IDESTROY(filemodel);
+		// close without saving ... tag as unmodified, and move on
+		// "next" is reponsible for doing the gtk_window_close()
+        filemodel_set_modified(filemodel, FALSE);
 		next(parent, filemodel, a, b);
 		break;
 
@@ -803,6 +804,28 @@ filemodel_get_registered(void)
 }
 
 static void
+filemodel_close_registered_next_reply_idle(void *user_data)
+{
+	gtk_window_close(GTK_WINDOW(user_data));
+}
+
+static void
+filemodel_close_registered_next(GtkWidget *parent,
+	Filemodel *filemodel, void *a, void *b);
+
+static void
+filemodel_close_registered_next_reply(GtkWidget *parent,
+	Filemodel *filemodel, void *a, void *b)
+{
+	/* We can't close immediately, the alert is still being shown
+	 * and must detach. Close the window back in idle.
+	 */
+	g_idle_add(filemodel_close_registered_next_reply_idle, parent);
+
+	filemodel_close_registered_next(NULL, NULL, a, b);
+}
+
+static void
 filemodel_close_registered_next(GtkWidget *parent,
 	Filemodel *filemodel, void *a, void *b)
 {
@@ -810,7 +833,7 @@ filemodel_close_registered_next(GtkWidget *parent,
 
     if ((filemodel = filemodel_get_registered()))
 		filemodel_save_before_close(filemodel,
-			filemodel_close_registered_next, callback, b);
+			filemodel_close_registered_next_reply, callback, b);
 	else
 		callback(b, NULL);
 }
