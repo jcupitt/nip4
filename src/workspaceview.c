@@ -303,12 +303,6 @@ workspaceview_scroll(Workspaceview *wview, int x, int y, int w, int h)
 	workspaceview_scroll_to(wview, nx, ny);
 }
 
-void
-workspaceview_scroll_reset(Workspaceview *wview)
-{
-	workspaceview_scroll_to(wview, wview->vp.left, wview->vp.top);
-}
-
 /* Update our geometry from the fixed widget.
  */
 static void

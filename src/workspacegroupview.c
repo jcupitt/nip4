@@ -255,14 +255,14 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 	}
 
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+	Workspacegroup *wsg = ICONTAINER(ws)->parent;
 
 #ifdef DEBUG
 	printf("\tws = %p (%s)\n", ws, IOBJECT(ws)->name);
 	printf("\tmain = %p\n", main);
 #endif /*DEBUG*/
 
-	// try to stop annoying extra scrolls
-	workspaceview_scroll_reset(wview);
+	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 
 	// we must layout in case this tab was previously laid out while hidden
 	workspace_queue_layout(ws);

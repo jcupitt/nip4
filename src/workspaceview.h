@@ -141,7 +141,6 @@ typedef struct _WorkspaceviewClass {
 } WorkspaceviewClass;
 
 void workspaceview_scroll(Workspaceview *wview, int x, int y, int w, int h);
-void workspaceview_scroll_reset(Workspaceview *wview);
 
 Columnview *workspaceview_find_columnview(Workspaceview *wview, int x, int y);
 Columnview *workspaceview_find_columnview_title(Workspaceview *wview, int x, int y);

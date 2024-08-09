@@ -24,10 +24,6 @@
 
 ## rows
 
-- changing between tabs does not update the titlebar
-
-	what about tab rename?
-
 - add multi-select to file open?
 
 	gtk makes it hard to support single and multiple file select in
