@@ -1,28 +1,15 @@
-- try:
-
-	new workspace
-	drag tab across
-	new ws has two tabs ... select the empty one and delete it
-	you see a single empty tab!
-	left-click on the ws background
-	segv
-
-	it's looking up the workspace from the view to do deselect and the
-	pointer to the model from the tab view is null
-
-  however:
-
-	new workspace
-	drag tab across
-	new ws has two tabs ... select the empty one and delete it
-	the ws you just dragged seems to be deleted!
-	select workspace-duplicate on the new window
-	the new window looks fine, and has the correct tab
-
-  deleting a tab after a tab drag seems to remove the wrong view, leaving
-  the remaining view pointing at the wrong model
-
 ## rows
+
+- ^W should close the current tab, not the whole window
+
+
+- new row type ... enter " (double quotes) as first character, then there's no
+  need to terminate the string
+
+  displayed slightly differently? maybe display all cells which are just a
+  static string like this?
+
+  right now we display all strings "like this"
 
 - add multi-select to file open?
 

@@ -25,8 +25,8 @@
 #include "nip4.h"
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 G_DEFINE_TYPE(Workspacegroupview, workspacegroupview, VIEW_TYPE)
 
@@ -234,17 +234,18 @@ notebookpage_get_workspaceview(GtkWidget *page)
 	return WORKSPACEVIEW(page);
 }
 
-// Called for switching the current page, and for page drags between
-// notebooks.
+/* Called for switching the current page, and for page drags between
+ * notebooks.
+ */
 static void
-workspacegroupview_switch_page_cb(GtkNotebook *notebook,
+workspacegroupview_switch_page(GtkNotebook *notebook,
 	GtkWidget *page, guint page_num, gpointer user_data)
 {
 	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(notebook)));
 	Workspaceview *wview = notebookpage_get_workspaceview(page);
 
 #ifdef DEBUG
-	printf("workspacegroupview_switch_page_cb:\n");
+	printf("workspacegroupview_switch_page: page_num = %d\n", page_num);
 #endif /*DEBUG*/
 
 	// we can come here during destruction ... make sure our model is still
@@ -255,16 +256,30 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
 	}
 
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	Workspacegroup *wsg = ICONTAINER(ws)->parent;
+	Workspacegroup *old_wsg = ICONTAINER(ws)->parent;
+
+    Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
+    Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
 
 #ifdef DEBUG
 	printf("\tws = %p (%s)\n", ws, IOBJECT(ws)->name);
 	printf("\tmain = %p\n", main);
 #endif /*DEBUG*/
 
+	if (ICONTAINER(ws)->parent != ICONTAINER(wsg)) {
+		icontainer_reparent(ICONTAINER(wsg), ICONTAINER(ws), -1);
+
+		// we want the from and to wsgs to be modified on tab drag
+        filemodel_set_modified(FILEMODEL(wsg), TRUE );
+		filemodel_set_modified(FILEMODEL(old_wsg), TRUE );
+
+		// we may have left an empty mainwindow
+		mainwindow_cull();
+	}
+
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 
-	// we must layout in case this tab was previously laid out while hidden
+	// we must relayout in case this tab was previously laid out while hidden
 	workspace_queue_layout(ws);
 
 	if (ws->compat_major) {
@@ -282,9 +297,13 @@ workspacegroupview_switch_page_cb(GtkNotebook *notebook,
  * of a different mainwindow.
  */
 static void
-workspacegroupview_page_added_cb(GtkNotebook *notebook,
+workspacegroupview_page_added(GtkNotebook *notebook,
 	GtkWidget *page, guint page_num, gpointer user_data)
 {
+#ifdef DEBUG
+	printf("workspacegroupview_page_added: page_num = %d\n", page_num);
+#endif /*DEBUG*/
+
 	/* Parent model we are adding to.
 	 */
 	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(notebook)));
@@ -297,29 +316,16 @@ workspacegroupview_page_added_cb(GtkNotebook *notebook,
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 #ifdef DEBUG
-	printf("workspacegroupview_page_added_cb:\n");
 	printf("\tmain = %p\n", main);
 	printf("\twsg = %p (%s)\n", wsg, IOBJECT(wsg)->name);
 	printf("\tws = %p (%s)\n", ws, IOBJECT(ws)->name);
 #endif /*DEBUG*/
 
-	if (ICONTAINER(ws)->parent != ICONTAINER(wsg)) {
-		// we want the from and to wsgs to be modified on tab drag
-		workspace_set_modified(ws, TRUE);
-
-		icontainer_reparent(ICONTAINER(wsg), ICONTAINER(ws), 0);
-
-		workspace_set_modified(ws, TRUE);
-
-		// we may have left an empty mainwindow
-		mainwindow_cull();
-	}
-
 	filemodel_set_window_hint(FILEMODEL(wsg), GTK_WINDOW(main));
 }
 
 static GtkNotebook *
-workspacegroupview_create_window_cb(GtkNotebook *notebook,
+workspacegroupview_create_window(GtkNotebook *notebook,
 	GtkWidget *page, gpointer user_data)
 {
 	Workspaceview *wview = WORKSPACEVIEW(page);
@@ -327,7 +333,7 @@ workspacegroupview_create_window_cb(GtkNotebook *notebook,
 	Workspacegroup *old_wsg = WORKSPACEGROUP(ICONTAINER(ws)->parent);
 
 #ifdef DEBUG
-	printf("workspacegroupview_create_window_cb:\n");
+	printf("workspacegroupview_create_window:\n");
 	printf("\tws = %p (%s)\n", ws, IOBJECT(ws)->name);
 	printf("\told_wsg = %p\n", old_wsg);
 #endif /*DEBUG*/
@@ -362,23 +368,21 @@ workspacegroupview_create_window_cb(GtkNotebook *notebook,
 }
 
 static void
-workspacegroupview_page_reordered_cb(GtkNotebook *notebook,
+workspacegroupview_page_reordered(GtkNotebook *notebook,
 	GtkWidget *page, guint page_num, gpointer user_data)
 {
 	Workspaceview *wview = WORKSPACEVIEW(page);
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(VIEW(wview)->parent);
 	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
 
-	int i;
 	gboolean changed;
 
 #ifdef DEBUG
-	printf("workspacegroupview_page_reordered_cb:\n");
+	printf("workspacegroupview_page_reordered: page_num = %d\n", page_num);
 #endif /*DEBUG*/
 
 	changed = FALSE;
-
-	for (i = 0; i < gtk_notebook_get_n_pages(notebook); i++) {
+	for (int i = 0; i < gtk_notebook_get_n_pages(notebook); i++) {
 		GtkWidget *page_n = gtk_notebook_get_nth_page(notebook, i);
 		Workspaceview *wview = WORKSPACEVIEW(page_n);
 		Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
@@ -402,14 +406,14 @@ workspacegroupview_init(Workspacegroupview *wsgview)
 
 	gtk_widget_init_template(GTK_WIDGET(wsgview));
 
-	g_signal_connect(wsgview->notebook, "switch_page",
-		G_CALLBACK(workspacegroupview_switch_page_cb), wsgview);
-	g_signal_connect(wsgview->notebook, "page_added",
-		G_CALLBACK(workspacegroupview_page_added_cb), wsgview);
-	g_signal_connect(wsgview->notebook, "page_reordered",
-		G_CALLBACK(workspacegroupview_page_reordered_cb), wsgview);
-	g_signal_connect(wsgview->notebook, "create_window",
-		G_CALLBACK(workspacegroupview_create_window_cb), wsgview);
+	g_signal_connect(wsgview->notebook, "switch-page",
+		G_CALLBACK(workspacegroupview_switch_page), wsgview);
+	g_signal_connect(wsgview->notebook, "page-added",
+		G_CALLBACK(workspacegroupview_page_added), wsgview);
+	g_signal_connect(wsgview->notebook, "create-window",
+		G_CALLBACK(workspacegroupview_create_window), wsgview);
+	g_signal_connect(wsgview->notebook, "page-reordered",
+		G_CALLBACK(workspacegroupview_page_reordered), wsgview);
 
 	/* We are a drop target for tabs.
 	 */

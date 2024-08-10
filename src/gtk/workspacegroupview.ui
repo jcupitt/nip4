@@ -121,7 +121,7 @@
         <child type="action-end">
           <object class="GtkButton">
             <property name="icon-name">tab-new</property>
-            <property name="tooltip-text">New tab</property>
+            <property name="tooltip-text">New tab ^T</property>
             <signal name="clicked"
               handler="workspacegroupview_new_tab_clicked"/>
           </object>

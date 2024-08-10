@@ -465,6 +465,32 @@ mainwindow_fullscreen(GSimpleAction *action,
 	g_simple_action_set_state(action, state);
 }
 
+static void
+mainwindow_tab_new(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	printf("mainwindow_tab_new:\n");
+
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	if (!workspace_new_blank(main->wsg))
+		mainwindow_error(main);
+}
+
+static void
+mainwindow_tab_close_current(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	printf("mainwindow_close_current:\n");
+
+	Mainwindow *main = MAINWINDOW(user_data);
+	Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
+
+	if (ws &&
+		!ws->locked)
+		model_check_destroy(GTK_WIDGET(main), MODEL(ws));
+}
+
 // call ->action on the linked view
 static void
 mainwindow_view_action(GSimpleAction *action,
@@ -497,6 +523,8 @@ static GActionEntry mainwindow_entries[] = {
 	{ "fullscreen", action_toggle, NULL, "false", mainwindow_fullscreen },
 
 	// workspace tab menu
+	{ "tab-new", mainwindow_tab_new },
+	{ "tab-close-current", mainwindow_tab_close_current },
 	{ "tab-rename", mainwindow_view_action },
 	{ "tab-select-all", mainwindow_view_action },
 	{ "tab-duplicate", mainwindow_view_action },
