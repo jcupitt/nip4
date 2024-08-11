@@ -387,7 +387,7 @@ rowview_duplicate(Rowview *rview)
 		return;
 	}
 
-	if (!workspace_selected_any(ws))
+	if (workspace_selected_num(ws) < 2)
 		row_select(row);
 	if (!workspace_selected_duplicate(ws))
 		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
@@ -401,7 +401,7 @@ rowview_group(Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
 
-	if (!workspace_selected_any(row->ws))
+	if (workspace_selected_num(row->ws) < 2)
 		row_select(row);
 	if (!workspace_selected_group(row->ws))
 		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
@@ -415,7 +415,7 @@ rowview_ungroup(Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
 
-	if (!workspace_selected_any(row->ws))
+	if (workspace_selected_num(row->ws) < 2)
 		row_select(row);
 	if (!workspace_selected_ungroup(row->ws))
 		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
@@ -432,7 +432,7 @@ rowview_recalc(Rowview *rview)
 	/* Mark dirty from this sym on, and force a recalc even if recalc is
 	 * off.
 	 */
-	if (!workspace_selected_any(row->ws))
+	if (workspace_selected_num(row->ws) < 2)
 		row_select(row);
 	if (!workspace_selected_recalc(row->ws))
 		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
@@ -474,7 +474,7 @@ rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		rhs->graphic)
 		classmodel_graphic_save(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
 	else if (g_str_equal(name, "row-delete")) {
-		if (!workspace_selected_any(ws))
+		if (workspace_selected_num(ws) < 2)
 			row_select(row);
 		workspace_selected_remove_yesno(ws, GTK_WIDGET(rview));
 	}
