@@ -468,6 +468,8 @@ rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	if (graphic &&
 		g_str_equal(name, "row-edit"))
 		model_edit(GTK_WIDGET(rview), rhs);
+	else if (g_str_equal(name, "row-duplicate"))
+		rowview_duplicate(rview);
 	else if (g_str_equal(name, "row-saveas") &&
 		rhs->graphic)
 		classmodel_graphic_save(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
@@ -479,8 +481,6 @@ rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	else if (g_str_equal(name, "row-replace") &&
 		rhs->graphic)
 		classmodel_graphic_replace(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
-	else if (g_str_equal(name, "row-duplicate"))
-		rowview_duplicate(rview);
 	else if (g_str_equal(name, "row-group"))
 		rowview_group(rview);
 	else if (g_str_equal(name, "row-ungroup"))

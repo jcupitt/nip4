@@ -1,16 +1,5 @@
 ## rows
 
-- ^W should close the current tab, not the whole window
-
-
-- new row type ... enter " (double quotes) as first character, then there's no
-  need to terminate the string
-
-  displayed slightly differently? maybe display all cells which are just a
-  static string like this?
-
-  right now we display all strings "like this"
-
 - add multi-select to file open?
 
 	gtk makes it hard to support single and multiple file select in
@@ -36,12 +25,30 @@
 
 ## small
 
+- start nip4, ^T, ^T, ^T, ^T, ^Q, leak one view
+
+	how odd!
+
+  new tab button does the same thing
+
+- "1" ++ "2" doesn't work?
+
+- new row type ... enter " (double quotes) as first character, then there's no
+  need to terminate the string
+
+  displayed slightly differently? maybe display all cells which are just a
+  static string like this?
+
+  maybe allow eg. "<span background=\"white\">hello</span>" too?
+
 - column duplicate selects the new column
 
 	maybe eg. drag row to column should also select the
 	destination column?
 
 - maybe "are you sure?" for column delete
+
+	or get rid of "are you sure" for row delete?
 
 - next/prev in imagewindow often fails
 
@@ -77,6 +84,8 @@
 - fix imagewindow copy/paste
 
   add copy/paste to mainwindow as well
+
+- open imageview window for groups? < and > could move up and down the group
 
 ## vips8
 

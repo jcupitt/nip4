@@ -344,7 +344,10 @@ mainwindow_duplicate_action(GSimpleAction *action,
 	Mainwindow *main = MAINWINDOW(user_data);
 
 	Workspacegroup *new_wsg;
-	if ((new_wsg = workspacegroup_duplicate(main->wsg))) {
+
+	if (!(new_wsg = workspacegroup_duplicate(main->wsg)))
+		mainwindow_error(main);
+	else {
 		GtkApplication *app = gtk_window_get_application(GTK_WINDOW(main));
 		Mainwindow *new_main = g_object_new(MAINWINDOW_TYPE,
 			"application", app,
@@ -354,8 +357,6 @@ mainwindow_duplicate_action(GSimpleAction *action,
 		gtk_window_present(GTK_WINDOW(new_main));
 		symbol_recalculate_all();
 	}
-	else
-		mainwindow_error(main);
 }
 
 static void
@@ -512,6 +513,23 @@ mainwindow_view_action(GSimpleAction *action,
 	}
 }
 
+// ^D in the main window ... duplicate selected rows, or last row
+static void
+mainwindow_keyboard_duplicate_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	Workspace *ws;
+	if ((ws = WORKSPACE(ICONTAINER(main->wsg)->current))) {
+		if (!workspace_selected_duplicate(ws))
+			mainwindow_error(main);
+
+		workspace_deselect_all(ws);
+		symbol_recalculate_all();
+	}
+}
+
 static GActionEntry mainwindow_entries[] = {
 	// main window actions
 	{ "open", mainwindow_open_action },
@@ -520,6 +538,7 @@ static GActionEntry mainwindow_entries[] = {
 	{ "save", mainwindow_save_action },
 	{ "saveas", mainwindow_saveas_action },
 	{ "close", mainwindow_close_action },
+	{ "keyboard-duplicate", mainwindow_keyboard_duplicate_action },
 	{ "fullscreen", action_toggle, NULL, "false", mainwindow_fullscreen },
 
 	// workspace tab menu

@@ -250,7 +250,8 @@ workspacegroupview_switch_page(GtkNotebook *notebook,
 
 	// we can come here during destruction ... make sure our model is still
 	// around
-	if (!VOBJECT(wview)->iobject) {
+	if (VOBJECT(wview)->iobject &&
+		IS_WORKSPACE(VOBJECT(wview)->iobject)) {
 		printf("\treturn ... no model for page\n");
 		return;
 	}
@@ -406,14 +407,14 @@ workspacegroupview_init(Workspacegroupview *wsgview)
 
 	gtk_widget_init_template(GTK_WIDGET(wsgview));
 
-	g_signal_connect(wsgview->notebook, "switch-page",
-		G_CALLBACK(workspacegroupview_switch_page), wsgview);
-	g_signal_connect(wsgview->notebook, "page-added",
-		G_CALLBACK(workspacegroupview_page_added), wsgview);
-	g_signal_connect(wsgview->notebook, "create-window",
-		G_CALLBACK(workspacegroupview_create_window), wsgview);
-	g_signal_connect(wsgview->notebook, "page-reordered",
-		G_CALLBACK(workspacegroupview_page_reordered), wsgview);
+	g_signal_connect_object(wsgview->notebook, "switch-page",
+		G_CALLBACK(workspacegroupview_switch_page), wsgview, 0);
+	g_signal_connect_object(wsgview->notebook, "page-added",
+		G_CALLBACK(workspacegroupview_page_added), wsgview, 0);
+	g_signal_connect_object(wsgview->notebook, "create-window",
+		G_CALLBACK(workspacegroupview_create_window), wsgview, 0);
+	g_signal_connect_object(wsgview->notebook, "page-reordered",
+		G_CALLBACK(workspacegroupview_page_reordered), wsgview, 0);
 
 	/* We are a drop target for tabs.
 	 */

@@ -453,7 +453,8 @@ itext_value(Reduce *rc, VipsBuf *buf, PElement *root)
 	if (!reduce_pelement(rc, reduce_spine, root))
 		return FALSE;
 
-	if (!itext_add_element(buf, root, TRUE, FALSE) && !buf->full)
+	if (!itext_add_element(buf, root, TRUE, FALSE) &&
+		!buf->full)
 		/* Tally eval failed, and buffer is not full ... must
 		 * have been an eval error.
 		 */
@@ -469,6 +470,33 @@ itext_value_ev(Reduce *rc, VipsBuf *buf, PElement *root)
 {
 	if (!itext_value(rc, buf, root))
 		reduce_throw(rc);
+}
+
+/* Top level display of row values ... display strings without quotes.
+ */
+static gboolean
+itext_value_toplevel(Reduce *rc, VipsBuf *buf, PElement *root)
+{
+	gboolean result;
+
+	if (!reduce_pelement(rc, reduce_spine, root))
+		return FALSE;
+
+	if (PEISMANAGEDSTRING(root)) {
+		Managedstring *managedstring = PEGETMANAGEDSTRING(root);
+
+		vips_buf_appends(buf, managedstring->string);
+	}
+	else if (heap_is_string(root, result) &&
+		result) {
+		if (heap_map_list(root,
+				(heap_map_list_fn) itext_add_string, buf, NULL))
+			return FALSE;
+	}
+	else if (!itext_value(reduce_context, buf, root))
+		return FALSE;
+
+	return TRUE;
 }
 
 /* Decompile an Expr.
@@ -529,9 +557,7 @@ itext_make_value_string(Expr *expr, VipsBuf *buf)
 		return TRUE;
 	}
 
-	/* Evaluate and print off values.
-	 */
-	if (!itext_value(reduce_context, buf, &expr->root))
+	if (!itext_value_toplevel(reduce_context, buf, &expr->root))
 		return FALSE;
 
 	return TRUE;
@@ -557,8 +583,7 @@ itext_update_model(Heapmodel *heapmodel)
 	vips_buf_set_dynamic(&itext->decompile, LINELENGTH);
 	if (expr) {
 		if (!itext_make_value_string(expr, &itext->value) ||
-			!itext_make_decompiled_string(expr,
-				&itext->decompile))
+			!itext_make_decompiled_string(expr, &itext->decompile))
 			expr_error_set(expr);
 	}
 

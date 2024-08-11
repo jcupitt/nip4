@@ -101,7 +101,8 @@ itextview_refresh(vObject *vobject)
 	else
 		display = vips_buf_all(&itext->value);
 
-	if (itextview->formula && itext->value.base)
+	if (itextview->formula &&
+		itext->value.base)
 		formula_set_value_expr(itextview->formula,
 			display, itext->formula);
 

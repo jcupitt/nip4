@@ -206,7 +206,6 @@ app_startup(GApplication *app)
 		{ "win.open", { "<Primary>o", NULL } },
 		{ "win.copy", { "<Primary>c", NULL } },
 		{ "win.paste", { "<Primary>v", NULL } },
-		{ "win.row-duplicate", { "<Primary>d", NULL } },
 		{ "win.tab-new", { "<Primary>t", NULL } },
 		{ "win.tab-close-current", { "<Primary>w", NULL } },
 		{ "win.replace", { "<Primary>o", NULL } },
@@ -218,6 +217,7 @@ app_startup(GApplication *app)
 		{ "win.next_image", { "<Alt>Right", NULL } },
 		{ "win.fullscreen", { "F11", NULL } },
 		{ "win.properties", { "<Alt>Return", NULL } },
+		{ "win.keyboard-duplicate", { "<Primary>d", NULL } },
 	};
 
 	// all our private application settings
