@@ -49,10 +49,10 @@
 /* Drag state machine.
  */
 typedef enum {
-	IMAGEUI_WAIT,	/* Waiting for left down */
-	IMAGEUI_SELECT, /* Manipulating a selected region */
-	IMAGEUI_SCROLL, /* Drag-scrolling the iamge */
-	IMAGEUI_CREATE, /* Dragging out a new region */
+	IMAGEUI_WAIT,			/* Waiting for left down */
+	IMAGEUI_SELECT,			/* Manipulating a selected region */
+	IMAGEUI_SCROLL,			/* Drag-scrolling the iamge */
+	IMAGEUI_CREATE,			/* Dragging out a new region */
 } ImageuiState;
 
 struct _Imageui {
@@ -1010,9 +1010,9 @@ imageui_drag_update(GtkEventControllerMotion *self,
 	guint modifiers = get_modifiers(GTK_EVENT_CONTROLLER(self));
 
 #ifdef DEBUG_VERBOSE
+#endif /*DEBUG_VERBOSE*/
 	printf("imageui_drag_update: offset_x = %g, offset_y = %g\n",
 		offset_x, offset_y);
-#endif /*DEBUG_VERBOSE*/
 
 	switch (imageui->state) {
 	case IMAGEUI_WAIT:
@@ -1030,9 +1030,6 @@ imageui_drag_update(GtkEventControllerMotion *self,
 
 		regionview_model_update(imageui->grabbed);
 
-		// immediate redraw for interactivity
-		imageui_queue_draw(imageui);
-
 		break;
 
 	case IMAGEUI_CREATE:
@@ -1042,7 +1039,8 @@ imageui_drag_update(GtkEventControllerMotion *self,
 			offset_x / zoom,
 			offset_y / zoom);
 
-		// immediate redraw for interactivity
+		// fine to do an immediate redraw, since we don't rely on calc for
+		// position
 		imageui_queue_draw(imageui);
 
 		break;
@@ -1190,6 +1188,8 @@ static void
 imageui_overlay_snapshot(Imagedisplay *imagedisplay,
 	GtkSnapshot *snapshot, Imageui *imageui)
 {
+	printf("imageui_overlay_snapshot:\n");
+
 	for (GSList *p = imageui->regionviews; p; p = p->next) {
 		Regionview *regionview = REGIONVIEW(p->data);
 

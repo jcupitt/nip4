@@ -487,7 +487,7 @@ itext_value_toplevel(Reduce *rc, VipsBuf *buf, PElement *root)
 
 		vips_buf_appends(buf, managedstring->string);
 	}
-	else if (heap_is_string(root, result) &&
+	else if (heap_is_string(root, &result) &&
 		result) {
 		if (heap_map_list(root,
 				(heap_map_list_fn) itext_add_string, buf, NULL))

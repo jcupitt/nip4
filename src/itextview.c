@@ -103,8 +103,7 @@ itextview_refresh(vObject *vobject)
 
 	if (itextview->formula &&
 		itext->value.base)
-		formula_set_value_expr(itextview->formula,
-			display, itext->formula);
+		formula_set_value_expr(itextview->formula, display, itext->formula);
 
 	VOBJECT_CLASS(itextview_parent_class)->refresh(vobject);
 }

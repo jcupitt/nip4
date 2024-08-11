@@ -28,8 +28,8 @@
  */
 
 /* Verbose.
- */
 #define DEBUG
+ */
 
 /* Just trace create/destroy.
 #define DEBUG_MAKE
@@ -175,11 +175,15 @@ regionview_update_from_model(Regionview *regionview)
 
 	if (regionview->classmodel) {
 		Row *row = HEAPMODEL(regionview->classmodel)->row;
-        PElement *root = &row->expr->root;
 
-		regionview_set_type(regionview, root);
-		vips_buf_rewind(&regionview->caption);
-		row_qualified_name_relative(row->ws->sym, row, &regionview->caption);
+		if (row->expr) {
+			PElement *root = &row->expr->root;
+
+			regionview_set_type(regionview, root);
+			vips_buf_rewind(&regionview->caption);
+			row_qualified_name_relative(row->ws->sym,
+				row, &regionview->caption);
+		}
 	}
 
 	VIPS_UNREF(regionview->layout);
@@ -215,12 +219,13 @@ regionview_model_update(Regionview *regionview)
 		classmodel_update(classmodel);
 
 		if (CALC_RECOMP_REGION)
-			symbol_recalculate_all();
+			/* We do a synchronous recalc here rather than queueing a BG
+			 * recalc so that we work nicely when the regions row or subclass
+			 * modifies the drag.
+			 */
+			//symbol_recalculate_all();
+			symbol_recalculate_all_force(TRUE);
 	}
-
-	/* Refresh immediately .. gives faster feedback during drag.
-	 */
-	vobject_refresh(VOBJECT(regionview));
 
 #ifdef DEBUG
 	printf("regionview_model_update: set model to %dx%d size %dx%d\n",
