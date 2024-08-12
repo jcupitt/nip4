@@ -79,19 +79,6 @@ subcolumnview_link(View *view, Model *model, View *parent)
 }
 
 static void
-subcolumnview_child_add(View *parent, View *child)
-{
-	Subcolumnview *sview = SUBCOLUMNVIEW(parent);
-	Rowview *rview = ROWVIEW(child);
-
-#ifdef DEBUG
-	printf("subcolumnview_child_add:\n");
-#endif /*DEBUG*/
-
-	VIEW_CLASS(subcolumnview_parent_class)->child_add(parent, child);
-}
-
-static void
 subcolumnview_child_remove(View *parent, View *child)
 {
 	Subcolumnview *sview = SUBCOLUMNVIEW(parent);
@@ -149,7 +136,6 @@ subcolumnview_refresh(vObject *vobject)
 	Subcolumn *scol = SUBCOLUMN(VOBJECT(sview)->iobject);
 	Column *col = subcolumn_get_column(scol);
 	int old_n_vis = sview->n_vis;
-	gboolean editable = col->ws->mode != WORKSPACE_MODE_NOEDIT;
 
 #ifdef DEBUG
 	printf("subcolumnview_refresh\n");
@@ -170,7 +156,6 @@ static void
 subcolumnview_class_init(SubcolumnviewClass *class)
 {
 	GObjectClass *object_class = (GObjectClass *) class;
-	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
 
@@ -186,7 +171,6 @@ subcolumnview_class_init(SubcolumnviewClass *class)
 	vobject_class->refresh = subcolumnview_refresh;
 
 	view_class->link = subcolumnview_link;
-	view_class->child_add = subcolumnview_child_add;
 	view_class->child_remove = subcolumnview_child_remove;
 }
 

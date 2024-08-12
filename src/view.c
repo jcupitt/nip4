@@ -131,7 +131,6 @@ static void *
 view_viewchild_destroy(ViewChild *viewchild)
 {
 	View *view = viewchild->view;
-	View *child_view = viewchild->child_view;
 
 #ifdef DEBUG_VIEWCHILD
 	printf("view_viewchild_destroy: %s\n", G_OBJECT_TYPE_NAME(view));
@@ -648,7 +647,7 @@ view_real_link(View *view, Model *model, View *parent_view)
 static void
 view_real_child_add(View *parent, View *child)
 {
-	Model *child_model = VOBJECT(child)->iobject;
+	Model *child_model = MODEL(VOBJECT(child)->iobject);
 
 	ViewChild *viewchild;
 
@@ -687,7 +686,7 @@ view_real_child_add(View *parent, View *child)
 static void
 view_real_child_remove(View *parent, View *child)
 {
-	Model *child_model = VOBJECT(child)->iobject;
+	Model *child_model = MODEL(VOBJECT(child)->iobject);
 
 	ViewChild *viewchild;
 
@@ -880,71 +879,6 @@ view_map_all(View *view, view_map_fn fn, void *a)
 		return result;
 
 	return view_map(view, (view_map_fn) view_map_all, (void *) fn, a);
-}
-
-void
-view_save_as_cb(GtkWidget *menu, GtkWidget *host, View *view)
-{
-	Model *model = MODEL(VOBJECT(view)->iobject);
-
-	if (IS_FILEMODEL(model)) {
-		GtkWindow *window = view_get_window(view);
-
-		printf("view_save_as_cb: FIXME\n");
-		// filemodel_inter_saveas(win, FILEMODEL(model));
-	}
-}
-
-void
-view_save_cb(GtkWidget *menu, GtkWidget *host, View *view)
-{
-	Model *model = MODEL(VOBJECT(view)->iobject);
-
-	if (IS_FILEMODEL(model)) {
-		GtkWindow *window = view_get_window(view);
-
-		printf("view_save_cb: FIXME\n");
-		// filemodel_inter_save(win, FILEMODEL(model));
-	}
-}
-
-void
-view_close_cb(GtkWidget *menu, GtkWidget *host, View *view)
-{
-	Model *model = MODEL(VOBJECT(view)->iobject);
-
-	if (IS_FILEMODEL(model)) {
-		GtkWindow *window = view_get_window(view);
-
-		printf("view_close_cb: FIXME\n");
-		// filemodel_inter_savenclose(win, FILEMODEL(model));
-	}
-}
-
-/* Callback for "activate" on a view.
- */
-void
-view_activate_cb(View *view)
-{
-	view_scannable_register(view);
-	symbol_recalculate_all();
-}
-
-/* Callback for "changed" on a view.
- */
-void
-view_changed_cb(View *view)
-{
-	/* Make sure it's on the scannable list.
-	 */
-	view_scannable_register(view);
-}
-
-void
-view_not_implemented_cb(GtkWidget *menu, GtkWidget *host, View *view)
-{
-	error_top(_("Not implemented"));
-	mainwindow_error(MAINWINDOW(view_get_window(view)));
 }
 
 GtkWindow *

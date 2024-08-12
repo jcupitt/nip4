@@ -1140,14 +1140,14 @@ symbol_recalculate_leaf(void)
 static gint symbol_idle_id = 0;
 
 static gboolean
-symbol_recalculate_idle_cb(void)
+symbol_recalculate_idle(void *user_data)
 {
 	static GTimer *timer = NULL;
 
 	gboolean run_again;
 
 #ifdef DEBUG_RECALC
-	printf("symbol_recalculate_idle_cb:\n");
+	printf("symbol_recalculate_idle:\n");
 #endif /*DEBUG_RECALC*/
 
 	if (symbol_running)
@@ -1177,7 +1177,7 @@ symbol_recalculate_idle_cb(void)
 
 	if (!run_again) {
 #ifdef DEBUG_RECALC
-		printf("symbol_recalculate_idle_cb: bg recalc done\n");
+		printf("symbol_recalculate_idle: bg recalc done\n");
 #endif /*DEBUG_RECALC*/
 
 		symbol_idle_id = 0;
@@ -1222,8 +1222,7 @@ symbol_recalculate_all_force(gboolean now)
 #endif /*DEBUG_RECALC*/
 
 		progress_begin();
-		symbol_idle_id = g_idle_add(
-			(GSourceFunc) symbol_recalculate_idle_cb, NULL);
+		symbol_idle_id = g_idle_add(symbol_recalculate_idle, NULL);
 	}
 }
 

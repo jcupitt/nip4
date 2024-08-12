@@ -262,7 +262,7 @@ workspacegroupview_switch_page(GtkNotebook *notebook,
 	}
 
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	Workspacegroup *old_wsg = ICONTAINER(ws)->parent;
+	Workspacegroup *old_wsg = WORKSPACEGROUP(ICONTAINER(ws)->parent);
 
     Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
     Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
@@ -346,7 +346,7 @@ workspacegroupview_create_window(GtkNotebook *notebook,
 
 	Workspaceroot *wsr = old_wsg->wsr;
 	Mainwindow *old_main = MAINWINDOW(view_get_window(VIEW(wview)));
-	GtkApplication *app = gtk_window_get_application(GTK_WINDOW(old_main));
+	App *app = APP(gtk_window_get_application(GTK_WINDOW(old_main)));
 	Workspacegroup *new_wsg = workspacegroup_new(wsr);
 
 #ifdef DEBUG

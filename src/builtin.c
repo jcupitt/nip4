@@ -466,7 +466,7 @@ apply_header_get_type_call(Reduce *rc,
 	VipsImage *image = imageinfo_get_underlying(ii);
 	GType type = vips_image_get_typeof(image, buf);
 
-	if (!heap_real_new(rc->heap, type, out))
+	if (!heap_real_new(heap, type, out))
 		reduce_throw(rc);
 }
 
@@ -494,7 +494,7 @@ apply_header_int_call(Reduce *rc,
 	if (vips_image_get_int(image, buf, &value))
 		reduce_throw(rc);
 
-	if (!heap_real_new(rc->heap, value, out))
+	if (!heap_real_new(heap, value, out))
 		reduce_throw(rc);
 }
 
@@ -522,7 +522,7 @@ apply_header_double_call(Reduce *rc,
 	if (vips_image_get_double(image, buf, &value))
 		reduce_throw(rc);
 
-	if (!heap_real_new(rc->heap, value, out))
+	if (!heap_real_new(heap, value, out))
 		reduce_throw(rc);
 }
 
@@ -553,7 +553,7 @@ apply_header_string_call(Reduce *rc,
 
 	// a managedstring, since value might go away ... take a copy and control
 	// it with our GC
-	if (!heap_managedstring_new(rc->heap, value, out))
+	if (!heap_managedstring_new(heap, value, out))
 		reduce_throw(rc);
 }
 

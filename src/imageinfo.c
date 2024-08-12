@@ -447,7 +447,6 @@ static void
 imageinfo_finalize(GObject *gobject)
 {
 	Imageinfo *imageinfo = IMAGEINFO(gobject);
-	gboolean isfile = imageinfo->im && vips_image_isfile(imageinfo->im);
 
 #ifdef DEBUG_MAKE
 	printf("imageinfo_finalize:");
@@ -627,25 +626,23 @@ imageinfo_proxy_eval(VipsImage *im, VipsProgress *progress,
 	}
 }
 
-static int
+static void
 imageinfo_proxy_posteval(VipsImage *im, VipsProgress *progress,
 	Imageinfoproxy *proxy)
 {
 	progress_end();
 }
 
-static int
+static void
 imageinfo_proxy_invalidate(VipsImage *im, Imageinfoproxy *proxy)
 {
 	Imageinfo *imageinfo = proxy->imageinfo;
 
 	if (imageinfo)
 		imageinfo_invalidate(imageinfo);
-
-	return 0;
 }
 
-static int
+static void
 imageinfo_proxy_preclose(VipsImage *im, Imageinfoproxy *proxy)
 {
 	Imageinfo *imageinfo = proxy->imageinfo;
@@ -654,8 +651,6 @@ imageinfo_proxy_preclose(VipsImage *im, Imageinfoproxy *proxy)
 	 */
 	if (imageinfo)
 		imageinfo_dispose_eval(imageinfo);
-
-	return 0;
 }
 
 /* Add a proxy to track VipsImage events.
@@ -1692,85 +1687,6 @@ imageinfo_paint_text(Imageinfo *imageinfo,
 	tarea->top = 0;
 	tarea->width = im->Xsize;
 	tarea->height = im->Ysize;
-
-	return TRUE;
-}
-
-/* Draw a nib mask. Radius 0 means a single-pixel mask.
- */
-gboolean
-imageinfo_paint_nib(Imageinfo *imageinfo, int radius)
-{
-	static VipsPel ink[1] = { 255 };
-
-	VipsImage *im = imageinfo_get(FALSE, imageinfo);
-
-	printf("imageinfo_paint_nib: FIXME\n");
-	/*
-	if (radius) {
-		int r2 = radius * 2;
-		VipsImage *t;
-
-		if (!(t = im_open("imageinfo_paint_nib", "p"))) {
-			error_vips();
-			return FALSE;
-		}
-		if (im_black(t, 2 * (r2 + 1), 2 * (r2 + 1), 1) ||
-			im_draw_circle(t, r2, r2, r2, 1, ink) ||
-			im_shrink(t, im, 2, 2)) {
-			im_close(t);
-			error_vips();
-			return FALSE;
-		}
-		im_close(t);
-	}
-	else {
-		if (im_black(im, 1, 1, 1) ||
-			im_draw_circle(im, 0, 0, 0, 1, ink))
-			return FALSE;
-	}
-	 */
-
-	return TRUE;
-}
-
-/* Paint a mask.
- */
-gboolean
-imageinfo_paint_mask(Imageinfo *imageinfo,
-	Imageinfo *ink, Imageinfo *mask, int x, int y)
-{
-	VipsImage *im = imageinfo_get(FALSE, imageinfo);
-	VipsImage *ink_im = imageinfo_get(FALSE, ink);
-	VipsImage *mask_im = imageinfo_get(FALSE, mask);
-	VipsRect dirty, image, clipped;
-
-	dirty.left = x;
-	dirty.top = y;
-	dirty.width = mask_im->Xsize;
-	dirty.height = mask_im->Ysize;
-	image.left = 0;
-	image.top = 0;
-	image.width = im->Xsize;
-	image.height = im->Ysize;
-	vips_rect_intersectrect(&dirty, &image, &clipped);
-
-	if (vips_rect_isempty(&clipped))
-		return TRUE;
-
-	if (!imageinfo_undo_add(imageinfo, &clipped))
-		return FALSE;
-
-	printf("imageinfo_paint_mask: FIXME\n");
-	/*
-	if (im_plotmask(im, 0, 0,
-			(VipsPel *) ink_im->data, (VipsPel *) mask_im->data, &dirty)) {
-		error_vips_all();
-		return FALSE;
-	}
-	 */
-
-	imageinfo_area_painted(imageinfo, &dirty);
 
 	return TRUE;
 }

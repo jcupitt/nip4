@@ -143,11 +143,9 @@ Workspacegroup *
 workspaceroot_open_workspace(Workspaceroot *wsr, App *app, const char *filename)
 {
 	Workspacegroup *wsg;
-	Mainwindow *main;
 
 	if (!(wsg = workspacegroup_new_from_file(wsr, filename, filename)))
 		return NULL;
-	main = mainwindow_new(app);
 	printf("workspaceroot_open_workspace: FIXME ... "
 		   "do we need to link the main to the wsg?\n");
 

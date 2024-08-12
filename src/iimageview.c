@@ -64,154 +64,11 @@ iimageview_realize(GtkWidget *widget)
 	set_symbol_drag_type(widget);
 }
 
-/*
-GtkWidget *
-iimageview_drag_window_new(int width, int height)
-{
-	GtkWidget *window;
-
-	window = gtk_window_new(GTK_WINDOW_POPUP);
-	gtk_widget_set_app_paintable(GTK_WIDGET(window), TRUE);
-	gtk_widget_set_size_request(window, width, height);
-	gtk_widget_realize(window);
-	gdk_window_set_opacity(window->window, 0.5);
-
-	return window;
-}
-
-static void
-iimageview_drag_begin(GtkWidget *widget, GdkDragContext *context)
-{
-	iImageview *iimageview = IIMAGEVIEW(widget);
-	Conversion *conv = iimageview->conv;
-	GtkWidget *window;
-	Imagedisplay *id;
-
-	window = iimageview_drag_window_new(
-		conv->canvas.width, conv->canvas.height);
-	gtk_object_set_data_full(GTK_OBJECT(widget),
-		"nip2-drag-window", window,
-		(GtkDestroyNotify) gtk_widget_destroy);
-	id = imagedisplay_new(conv);
-	gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(id));
-	gtk_widget_show(GTK_WIDGET(id));
-	gtk_drag_set_icon_widget(context, window, -2, -2);
-}
-
-static void
-iimageview_drag_end(GtkWidget *widget, GdkDragContext *context)
-{
-	gtk_object_set_data(GTK_OBJECT(widget),
-		"nip2-drag-window", NULL);
-}
-
-static void
-iimageview_drag_data_get(GtkWidget *widget, GdkDragContext *context,
-	GtkSelectionData *selection_data, guint info, guint time)
-{
-	if (info == TARGET_SYMBOL) {
-		iImageview *iimageview = IIMAGEVIEW(widget);
-		iImage *iimage = IIMAGE(VOBJECT(iimageview)->iobject);
-		Row *row = HEAPMODEL(iimage)->row;
-		char txt[256];
-		VipsBuf buf = VIPS_BUF_STATIC(txt);
-
-		row_qualified_name_relative(main_workspaceroot->sym,
-			row, &buf);
-		gtk_selection_data_set(selection_data,
-			gdk_atom_intern("text/symbol", FALSE), 8,
-			(guchar *) vips_buf_all(&buf),
-			strlen(vips_buf_all(&buf)));
-	}
-}
-
-static void
-iimageview_drag_data_received(GtkWidget *widget, GdkDragContext *context,
-	gint x, gint y, GtkSelectionData *selection_data,
-	guint info, guint time)
-{
-	if (info == TARGET_SYMBOL && selection_data->length > 0 &&
-		selection_data->format == 8) {
-		const char *from_row_path = (const char *) selection_data->data;
-		iImageview *iimageview = IIMAGEVIEW(widget);
-		iImage *iimage = IIMAGE(VOBJECT(iimageview)->iobject);
-		Row *row = HEAPMODEL(iimage)->row;
-		Row *from_row;
-
-		printf(" seen TARGET_SYMBOL \"%s\"\n", from_row_path);
-
-		if ((from_row = row_parse_name(main_workspaceroot->sym,
-				 from_row_path)) &&
-			from_row != row) {
-			iText *itext = ITEXT(HEAPMODEL(iimage)->rhs->itext);
-			char txt[256];
-			VipsBuf buf = VIPS_BUF_STATIC(txt);
-
-			if (row->top_row->sym)
-				row_qualified_name_relative(row->top_row->sym,
-					from_row, &buf);
-
-			if (itext_set_formula(itext, vips_buf_all(&buf))) {
-				itext_set_edited(itext, TRUE);
-				(void) expr_dirty(row->expr,
-					link_serial_new());
-				workspace_set_modified(row->ws, TRUE);
-				symbol_recalculate_all();
-			}
-
-			row_select(row);
-		}
-	}
-}
- */
-
-/* Not the same as model->edit :-( if this is a region, don't pop the region
- * edit box, pop a viewer on the image.
- */
-static void
-iimageview_edit(GtkWidget *parent, iImageview *iimageview)
-{
-	iImage *iimage = IIMAGE(VOBJECT(iimageview)->iobject);
-
-	if (IS_IREGION(iimage) &&
-		iimage->value.ii) {
-		printf("iimageview_edit: FIXME region edit\n");
-		// imageview_new( iimage, parent );
-	}
-	else
-		model_edit(parent, MODEL(iimage));
-}
-
-static void
-iimageview_iimage_changed(iImage *iimage, void *user_data)
-{
-	iImageview *iimageview = IIMAGEVIEW(user_data);
-}
-
-static void
-iimageview_link(View *view, Model *model, View *parent)
-{
-	iImageview *iimageview = IIMAGEVIEW(view);
-	iImage *iimage = IIMAGE(model);
-
-	g_signal_connect_object(iimage, "changed",
-		G_CALLBACK(iimageview_iimage_changed), view, 0);
-
-	VIEW_CLASS(iimageview_parent_class)->link(view, model, parent);
-}
-
 static void
 iimageview_refresh(vObject *vobject)
 {
 	iImageview *iimageview = IIMAGEVIEW(vobject);
 	iImage *iimage = IIMAGE(vobject->iobject);
-	Row *row = HEAPMODEL(iimage)->row;
-	Imageinfo *ii = iimage->value.ii;
-
-	int w, h;
-	gboolean enabled;
-	double scale, offset;
-	gboolean falsecolour, type;
 
 #ifdef DEBUG
 	printf("iimageview_refresh: FIXME\n");
@@ -244,6 +101,7 @@ iimageview_refresh(vObject *vobject)
 	if (iimageview->label)
 		set_glabel(iimageview->label, "%s", IOBJECT(iimage)->caption);
 
+	printf("iimageview_refresh: restore settings\n");
 	/* Set scale/offset for the thumbnail. Use the prefs setting, or if
 	 * there's a setting for this image, override with that.
 	enabled = DISPLAY_CONVERSION;
@@ -268,28 +126,6 @@ iimageview_refresh(vObject *vobject)
 	 */
 
 	VOBJECT_CLASS(iimageview_parent_class)->refresh(vobject);
-}
-
-static Workspaceview *
-iimageview_workspaceview(iImageview *iimageview)
-{
-	View *p;
-
-	for (p = VIEW(iimageview); !IS_WORKSPACEVIEW(p); p = p->parent)
-		;
-
-	return WORKSPACEVIEW(p);
-}
-
-static Rhsview *
-iimageview_rhsview(iImageview *iimageview)
-{
-	View *p;
-
-	for (p = VIEW(iimageview); !IS_RHSVIEW(p); p = p->parent)
-		;
-
-	return RHSVIEW(p);
 }
 
 static Rowview *
@@ -327,7 +163,6 @@ iimageview_class_init(iImageviewClass *class)
 	GObjectClass *object_class = (GObjectClass *) class;
 	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
-	ViewClass *view_class = (ViewClass *) class;
 
 	BIND_RESOURCE("iimageview.ui");
 
@@ -343,6 +178,7 @@ iimageview_class_init(iImageviewClass *class)
 	object_class->dispose = iimageview_dispose;
 
 	widget_class->realize = iimageview_realize;
+
 	printf("iimageview_class_init: FIXME ... implement drag-drop\n");
 	/*
 	widget_class->drag_begin = iimageview_drag_begin;
@@ -352,59 +188,7 @@ iimageview_class_init(iImageviewClass *class)
 	 */
 
 	vobject_class->refresh = iimageview_refresh;
-
-	view_class->link = iimageview_link;
 }
-
-/*
-static void
-iimageview_doubleclick_one_cb(GtkWidget *widget, GdkEvent *event,
-	iImageview *iimageview)
-{
-	Heapmodel *heapmodel = HEAPMODEL(VOBJECT(iimageview)->iobject);
-	Row *row = heapmodel->row;
-
-	row_select_modifier(row, event->button.state);
-}
-
-static void
-iimageview_doubleclick_two_cb(GtkWidget *widget, GdkEvent *event,
-	iImageview *iimageview)
-{
-	iimageview_edit(widget, iimageview);
-}
-
-static gboolean
-iimageview_filedrop(iImageview *iimageview, const char *file)
-{
-	iImage *iimage = IIMAGE(VOBJECT(iimageview)->iobject);
-	gboolean result;
-
-	if ((result = iimage_replace(iimage, file)))
-		symbol_recalculate_all();
-
-	return result;
-}
-
-static void
-iimageview_tooltip_generate(GtkWidget *widget,
-	VipsBuf *buf, iImageview *iimageview)
-{
-	iImage *iimage = IIMAGE(VOBJECT(iimageview)->iobject);
-	Imageinfo *ii = iimage->value.ii;
-	IMAGE *im = imageinfo_get(FALSE, ii);
-
-	vips_buf_rewind(buf);
-	vips_buf_appends(buf, vips_buf_all(&iimage->caption_buffer));
-	if (im) {
-		double size = (double) im->Ysize * VIPS_IMAGE_SIZEOF_LINE(im);
-
-		vips_buf_appends(buf, ", ");
-		vips_buf_append_size(buf, size);
-		vips_buf_appendf(buf, ", %.3gx%.3g p/mm", im->Xres, im->Yres);
-	}
-}
- */
 
 static void
 iimageview_init(iImageview *iimageview)

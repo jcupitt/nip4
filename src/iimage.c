@@ -107,7 +107,7 @@ iimage_info(iObject *iobject, VipsBuf *buf)
 	VipsImage *im;
 
 	if (ii && (im = imageinfo_get(FALSE, ii))) {
-		char *filename;
+		const char *filename;
 
 		if (vips_image_get_typeof(im, ORIGINAL_FILENAME) != 0) {
 			if (!vips_image_get_string(im, ORIGINAL_FILENAME, &filename)) {
@@ -256,7 +256,7 @@ iimage_class_get(Classmodel *classmodel, PElement *root)
 	VIPS_FREE(classmodel->filename);
 	if (ii) {
 		VipsImage *im;
-		char *filename;
+		const char *filename;
 
 		if ((im = imageinfo_get(FALSE, ii)) &&
 			vips_image_get_typeof(im, ORIGINAL_FILENAME) != 0) {
@@ -320,6 +320,7 @@ iimage_graphic_save(Classmodel *classmodel,
 {
 	iImage *iimage = IIMAGE(classmodel);
 	VipsImage *image = imageinfo_get(FALSE, iimage->value.ii);
+	GtkWindow *window = GTK_WINDOW(gtk_widget_get_root(parent));
 
 	if (image) {
 		char buf[FILENAME_MAX];
@@ -330,11 +331,9 @@ iimage_graphic_save(Classmodel *classmodel,
 		g_strlcpy(buf, filename, FILENAME_MAX);
 		path_expand(buf);
 
-		SaveOptions *options = save_options_new(parent, image, buf);
-		if (!options) {
-			error_alert(parent);
-			return;
-		}
+		SaveOptions *options = save_options_new(window, image, buf);
+		if (!options)
+			return FALSE;
 
 		g_signal_connect_object(options, "response",
 			G_CALLBACK(iimage_graphic_save_response),
@@ -342,6 +341,8 @@ iimage_graphic_save(Classmodel *classmodel,
 
 		gtk_window_present(GTK_WINDOW(options));
 	}
+
+	return TRUE;
 }
 
 gboolean

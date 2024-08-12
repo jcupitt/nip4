@@ -51,5 +51,6 @@ void mainwindow_layout(void);
 Workspacegroupview *mainwindow_get_workspacegroupview(Mainwindow *main);
 void mainwindow_about(Mainwindow *main, VipsBuf *buf);
 gboolean mainwindow_is_empty(Mainwindow *main);
+GtkWindow *mainwindow_pick_one(void);
 
 #endif /* __MAINWINDOW_H */

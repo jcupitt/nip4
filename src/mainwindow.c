@@ -125,24 +125,6 @@ mainwindow_error(Mainwindow *main)
 	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->error_bar), TRUE);
 }
 
-static void
-mainwindow_gerror(Mainwindow *main, GError **error)
-{
-	if (error && *error) {
-		error_top("Error");
-		error_sub("%s", (*error)->message);
-		g_error_free(*error);
-		mainwindow_error(main);
-	}
-}
-
-static void
-mainwindow_verror(Mainwindow *main)
-{
-	error_vips();
-	mainwindow_error(main);
-}
-
 void
 mainwindow_error_hide(Mainwindow *main)
 {
@@ -197,8 +179,6 @@ mainwindow_open_workspace(Mainwindow *main, const char *filename)
 static Workspace *
 mainwindow_get_workspace(Mainwindow *main)
 {
-	Workspace *ws;
-
 	if (!main->wsg) {
 		Workspacegroup *wsg =
 			workspacegroup_new_blank(main_workspaceroot, NULL);
@@ -216,7 +196,7 @@ mainwindow_open_definition(Mainwindow *main, const char *filename)
 	VipsBuf buf = VIPS_BUF_STATIC(txt);
 	if (!workspace_load_file_buf(&buf, filename)) {
 		mainwindow_error(main);
-		return;
+		return FALSE;
 	}
 
 	Workspace *ws = mainwindow_get_workspace(main);
@@ -281,10 +261,7 @@ mainwindow_open_action(GSimpleAction *action,
 {
 	Mainwindow *main = MAINWINDOW(user_data);
 
-	GtkFileDialog *dialog;
-	GFile *file;
-
-	dialog = gtk_file_dialog_new();
+	GtkFileDialog *dialog = gtk_file_dialog_new();
 	gtk_file_dialog_set_title(dialog, "Open workspace");
 	gtk_file_dialog_set_modal(dialog, TRUE);
 
@@ -321,10 +298,7 @@ mainwindow_merge_action(GSimpleAction *action,
 {
 	Mainwindow *main = MAINWINDOW(user_data);
 
-	GtkFileDialog *dialog;
-	GFile *file;
-
-	dialog = gtk_file_dialog_new();
+	GtkFileDialog *dialog = gtk_file_dialog_new();
 	gtk_file_dialog_set_title(dialog, "Merge workspace");
 	gtk_file_dialog_set_accept_label(dialog, "Merge");
 	gtk_file_dialog_set_modal(dialog, TRUE);
@@ -384,10 +358,7 @@ mainwindow_saveas_sub(GObject *source_object,
 static void
 mainwindow_saveas(Mainwindow *main)
 {
-	GtkFileDialog *dialog;
-	GFile *file;
-
-	dialog = gtk_file_dialog_new();
+	GtkFileDialog *dialog = gtk_file_dialog_new();
 	gtk_file_dialog_set_title(dialog, "Save workspace as");
 	gtk_file_dialog_set_modal(dialog, TRUE);
 
@@ -437,14 +408,6 @@ mainwindow_save_action(GSimpleAction *action,
 }
 
 static void
-mainwindow_close_next(GtkWidget *parent, Filemodel *filemodel, void *a, void *b)
-{
-	Mainwindow *main = MAINWINDOW(a);
-
-	gtk_window_destroy(GTK_WINDOW(main));
-}
-
-static void
 mainwindow_close_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
@@ -489,7 +452,7 @@ mainwindow_tab_close_current(GSimpleAction *action,
 
 	if (ws &&
 		!ws->locked)
-		model_check_destroy(GTK_WIDGET(main), MODEL(ws));
+		model_check_destroy(GTK_WINDOW(main), MODEL(ws));
 }
 
 // call ->action on the linked view
@@ -614,16 +577,13 @@ mainwindow_progress_end(Progress *progress, Mainwindow *main)
 static void
 mainwindow_init(Mainwindow *main)
 {
-	GtkEventController *controller;
-
 #ifdef DEBUG
 	printf("mainwindow_init:\n");
 #endif /*DEBUG*/
 
-	char *cwd = g_get_current_dir();
+	g_autofree char *cwd = g_get_current_dir();
 	main->save_folder = g_file_new_for_path(cwd);
 	main->load_folder = g_file_new_for_path(cwd);
-	g_free(cwd);
 
 	gtk_widget_init_template(GTK_WIDGET(main));
 
@@ -673,22 +633,24 @@ mainwindow_error_close_clicked(GtkButton *button, void *user_data)
 	mainwindow_error_hide(main);
 }
 
-static void
+static gboolean
 mainwindow_close_request_idle(void *user_data)
 {
 	Mainwindow *main = MAINWINDOW(user_data);
 
-	gtk_window_close(main);
+	gtk_window_close(GTK_WINDOW(main));
+
+	return FALSE;
 }
 
 static void
-mainwindow_close_request_next(GtkWidget *parent,
+mainwindow_close_request_next(GtkWindow *parent,
 	Filemodel *filemodel, void *a, void *b)
 {
 	Mainwindow *main = MAINWINDOW(a);
 
 	/* We can't go back to close immediately, the alert is still being shown
-	 * and must detach. Close the window back in idle.
+	 * and must detach. Close the window when we are back in idle.
 	 */
 	g_idle_add(mainwindow_close_request_idle, main);
 }
@@ -942,12 +904,6 @@ mainwindow_cull(void)
 		(SListMapFn) mainwindow_cull_sub, NULL);
 }
 
-static void
-mainwindow_find_disc(VipsBuf *buf)
-{
-	double sz = find_space(PATH_TMP);
-}
-
 static void *
 mainwindow_count_images(VipsObject *object, int *n)
 {
@@ -1017,5 +973,5 @@ mainwindow_is_empty(Mainwindow *main)
 GtkWindow *
 mainwindow_pick_one(void)
 {
-	return mainwindow_all ? MAINWINDOW(mainwindow_all->data) : NULL;
+	return mainwindow_all ? GTK_WINDOW(mainwindow_all->data) : NULL;
 }

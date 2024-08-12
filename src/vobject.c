@@ -196,7 +196,7 @@ vobject_iobject_destroy(iObject *iobject, vObject *vobject)
 	view_child_remove(VIEW(vobject));
 
 	// it's a weakref going away
-	g_assert(!vobject->iobject || G_OBJECT(vobject->iobject) == iobject);
+	g_assert(!vobject->iobject || vobject->iobject == iobject);
 	vobject->iobject = NULL;
 }
 

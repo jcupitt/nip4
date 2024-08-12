@@ -39,6 +39,7 @@
 
 G_DEFINE_TYPE(Log, log, GTK_TYPE_WINDOW);
 
+	/*
 static void
 log_build(GtkWidget *widget)
 {
@@ -51,7 +52,6 @@ log_build(GtkWidget *widget)
 	GtkWidget *swin;
 	PangoFontDescription *font_desc;
 
-	/*
 	IWINDOW_CLASS(log_parent_class)->build(widget);
 
 	gtk_action_group_add_actions(iwnd->action_group,
@@ -89,8 +89,8 @@ log_build(GtkWidget *widget)
 
 	gtk_container_add(GTK_CONTAINER(swin), log->view);
 	gtk_widget_show(log->view);
-	 */
 }
+	 */
 
 static void
 log_class_init(LogClass *class)

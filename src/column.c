@@ -247,7 +247,6 @@ column_class_init(ColumnClass *class)
 	iObjectClass *iobject_class = (iObjectClass *) class;
 	iContainerClass *icontainer_class = (iContainerClass *) class;
 	ModelClass *model_class = (ModelClass *) class;
-	FilemodelClass *filemodel_class = (FilemodelClass *) class;
 
 	gobject_class->finalize = column_finalize;
 

@@ -125,9 +125,6 @@ iregiongroupview_refresh_imageview(Imageui *imageui,
 	else {
         /* Nope ... make a new one.
          */
-        iRegionInstance *instance = classmodel_get_instance(irs->classmodel);
-        PElement *root = &HEAPMODEL(irs->classmodel)->row->expr->root;
-
 		Regionview *regionview = regionview_new(irs->classmodel);
 
 		imageui_add_regionview(imageui, regionview);

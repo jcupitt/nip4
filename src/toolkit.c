@@ -112,7 +112,6 @@ toolkit_class_init(ToolkitClass *class)
 {
 	iObjectClass *iobject_class = (iObjectClass *) class;
 	ModelClass *model_class = (ModelClass *) class;
-	FilemodelClass *filemodel_class = (FilemodelClass *) class;
 
 	/* Create signals.
 	 */

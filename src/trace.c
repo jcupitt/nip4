@@ -60,13 +60,13 @@ typedef struct _TraceTypeMenu {
 } TraceTypeMenu;
 
 /* Map action names to trace flags for the radio menu.
- */
 static const TraceTypeMenu trace_types[] = {
 	{ "Operator", TRACE_OPERATOR },
 	{ "Builtin", TRACE_BUILTIN },
 	{ "Class", TRACE_CLASS_NEW },
 	{ "VIPS", TRACE_VIPS }
 };
+ */
 
 /*
 static TraceFlags

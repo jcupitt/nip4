@@ -51,31 +51,10 @@ static PangoFontMap *regionview_fontmap = NULL;
 typedef void *(*regionview_rect_fn)(Regionview *, VipsRect *, void *);
 typedef void (*regionview_paint_fn)(Regionview *);
 
-/* Region border width, without shadows.
- */
-static const int regionview_border_width = 2;
-
-/* Space around text in label.
- */
-static const int regionview_label_border = 5;
-
-/* Length of crosshair bars.
- */
-static const int regionview_crosshair_length = 5;
-
-/* The center of the crosshair is also sensitive for arrows.
- */
-static const int regionview_crosshair_centre = 8;
-
-/* How close you need to get to switch the type.
- */
-static const int regionview_morph_threshold = 20;
-
 static void
 regionview_dispose(GObject *object)
 {
 	Regionview *regionview;
-	Imagedisplay *id;
 
 #ifdef DEBUG_MAKE
 	printf("regionview_dispose: %p\n", object);
@@ -428,7 +407,6 @@ static void
 regionview_draw_mark(Regionview *regionview, GtkSnapshot *snapshot)
 {
 	Imageui *imageui = regionview->imageui;
-	double zoom = imageui_get_zoom(imageui);
 
 	// point we mark
 	double left;
@@ -541,8 +519,6 @@ RegionviewResize
 regionview_hit(Regionview *regionview, int x, int y)
 {
 	int margin = 3 * regionview_line_width;
-
-	RegionviewResize resize;
 
 	printf("regionview_hit: %d, %d\n", x, y);
 	printf("\tleft = %d, top = %d, width = %d, height = %d\n",
@@ -794,9 +770,6 @@ static void
 regionview_class_init(RegionviewClass *class)
 {
 	GObjectClass *object_class = (GObjectClass *) class;
-	vObjectClass *vobject_class = (vObjectClass *) class;
-
-	GtkWidget *pane;
 
 	object_class->dispose = regionview_dispose;
 
@@ -914,8 +887,6 @@ regionview_new(Classmodel *classmodel)
 				G_CALLBACK(regionview_model_redraw), regionview, 0);
 		}
 
-		// queue an initial draw ... there's no imageui yet, but this will
-		// take a copy of the start position
 		regionview_model_redraw(classmodel, regionview);
 	}
 

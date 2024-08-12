@@ -706,7 +706,7 @@ model_init(Model *model)
 }
 
 static void
-model_check_destroy_yesno(GtkWidget *parent, void *user_data)
+model_check_destroy_yesno(GtkWindow *parent, void *user_data)
 {
 	Model *model = MODEL(user_data);
 
@@ -715,7 +715,7 @@ model_check_destroy_yesno(GtkWidget *parent, void *user_data)
 }
 
 void
-model_check_destroy(GtkWidget *parent, Model *model)
+model_check_destroy(GtkWindow *parent, Model *model)
 {
 	char txt[30];
 	VipsBuf buf = VIPS_BUF_STATIC(txt);
@@ -728,7 +728,7 @@ model_check_destroy(GtkWidget *parent, Model *model)
 	else
 		name = IOBJECT(model)->name;
 
-	alert_yesno(view_get_window(parent), model_check_destroy_yesno, model,
+	alert_yesno(parent, model_check_destroy_yesno, model,
 		_("Are you sure?"),
 		_("Are you sure you want to delete %s \"%s\"?"),
 		IOBJECT_GET_CLASS_NAME(model), name);

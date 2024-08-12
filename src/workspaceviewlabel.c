@@ -118,7 +118,7 @@ workspaceviewlabel_get_property(GObject *object,
 		break;
 
 	case PROP_EDIT:
-		g_value_set_object(value, wviewlabel->edit);
+		g_value_set_boolean(value, wviewlabel->edit);
 		break;
 
 	default:
@@ -212,7 +212,6 @@ static void
 workspaceviewlabel_class_init(WorkspaceviewlabelClass *class)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
-	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(class);
 
 #ifdef DEBUG
 	printf("workspaceviewlabel_class_init:\n");

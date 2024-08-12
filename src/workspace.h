@@ -173,7 +173,7 @@ gboolean workspace_add_action(Workspace *ws,
 int workspace_number(void);
 
 gboolean workspace_selected_recalc(Workspace *ws);
-void workspace_selected_remove_yesno(Workspace *ws, GtkWidget *parent);
+void workspace_selected_remove_yesno(Workspace *ws, GtkWindow *parent);
 gboolean workspace_selected_ungroup(Workspace *ws);
 gboolean workspace_selected_group(Workspace *ws);
 

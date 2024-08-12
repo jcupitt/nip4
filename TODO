@@ -1,3 +1,10 @@
+- have something to make a row (or column?) into a menu item?
+
+	pressing the menu item loads a scrap of workspace, like copy/paste
+	or duplicate
+
+	pretty ugly and hard to reason about
+
 ## rows
 
 - add multi-select to file open?

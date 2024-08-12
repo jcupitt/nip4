@@ -216,6 +216,6 @@ void model_base_init(void);
 
 View *model_build_display_all(Model *model, View *parent);
 
-void model_check_destroy(GtkWidget *parent, Model *model);
+void model_check_destroy(GtkWindow *parent, Model *model);
 
 void *model_clear_edited(Model *model);

@@ -185,38 +185,6 @@ rowview_refresh(vObject *vobject)
 	VOBJECT_CLASS(rowview_parent_class)->refresh(vobject);
 }
 
-/* Save the current item.
- */
-static void
-rowview_save_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
-{
-	/*
-	GtkWindow *window = view_get_window(VIEW(rview));
-	Row *row = ROW(VOBJECT(rview)->iobject);
-	Model *graphic = row->child_rhs->graphic;
-
-	if (graphic)
-		classmodel_graphic_save(CLASSMODEL(graphic),
-			GTK_WIDGET(iwnd));
-	 */
-}
-
-/* Replace the current item.
- */
-static void
-rowview_replace_cb(GtkWidget *menu, GtkWidget *button, Rowview *rview)
-{
-	/*
-	GtkWindow *window = view_get_window(VIEW(rview));
-	Row *row = ROW(VOBJECT(rview)->iobject);
-	Model *graphic = row->child_rhs->graphic;
-
-	if (graphic)
-		classmodel_graphic_replace(CLASSMODEL(graphic),
-			GTK_WIDGET(iwnd));
-	 */
-}
-
 /* Scroll to make tally entry visible.
  */
 static void
@@ -298,17 +266,6 @@ rowview_click(GtkGestureClick *gesture,
 	}
 	else
 		rowview_edit(rview);
-}
-
-static Workspaceview *
-rowview_workspaceview(Rowview *rview)
-{
-	View *p;
-
-	for (p = VIEW(rview); !IS_WORKSPACEVIEW(p); p = p->parent)
-		;
-
-	return WORKSPACEVIEW(p);
 }
 
 static void
@@ -467,7 +424,7 @@ rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 
 	if (graphic &&
 		g_str_equal(name, "row-edit"))
-		model_edit(GTK_WIDGET(rview), rhs);
+		model_edit(GTK_WIDGET(rview), MODEL(rhs));
 	else if (g_str_equal(name, "row-duplicate"))
 		rowview_duplicate(rview);
 	else if (g_str_equal(name, "row-saveas") &&
@@ -476,7 +433,7 @@ rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	else if (g_str_equal(name, "row-delete")) {
 		if (workspace_selected_num(ws) < 2)
 			row_select(row);
-		workspace_selected_remove_yesno(ws, GTK_WIDGET(rview));
+		workspace_selected_remove_yesno(ws, view_get_window(VIEW(rview)));
 	}
 	else if (g_str_equal(name, "row-replace") &&
 		rhs->graphic)
@@ -495,7 +452,6 @@ static void
 rowview_class_init(RowviewClass *class)
 {
 	GObjectClass *object_class = (GObjectClass *) class;
-	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
 

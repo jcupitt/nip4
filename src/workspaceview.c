@@ -122,7 +122,6 @@ workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 	 */
 	for (GSList *p = VIEW(wview)->children; p; p = p->next) {
 		Columnview *cview = COLUMNVIEW(p->data);
-		Column *col = COLUMN(VOBJECT(cview)->iobject);
 
 		int x;
 		int y;
@@ -385,6 +384,15 @@ workspaceview_find_columnview_title(Workspaceview *wview, int x, int y)
 }
 
 static void
+workspaceview_unfloat(Workspaceview *wview)
+{
+	if (wview->floating) {
+		view_child_remove(VIEW(wview->floating));
+		wview->floating = NULL;
+	}
+}
+
+static void
 workspaceview_dispose(GObject *object)
 {
 	Workspaceview *wview;
@@ -400,9 +408,9 @@ workspaceview_dispose(GObject *object)
 
 	workspaceview_stop_animation(wview);
 	workspaceview_remove_row_shadow(wview);
+	workspaceview_unfloat(wview);
 	FREESID(wview->watch_changed_sid, main_watchgroup);
 	gtk_widget_dispose_template(GTK_WIDGET(wview), WORKSPACEVIEW_TYPE);
-	VIPS_FREEF(view_child_remove, wview->floating);
 
 	G_OBJECT_CLASS(workspaceview_parent_class)->dispose(object);
 }
@@ -429,12 +437,11 @@ workspaceview_realize(GtkWidget *widget)
 static void
 workspaceview_link(View *view, Model *model, View *parent)
 {
-	Workspaceview *wview = WORKSPACEVIEW(view);
-	Workspace *ws = WORKSPACE(model);
-
 	VIEW_CLASS(workspaceview_parent_class)->link(view, model, parent);
 
 	printf("workspaceview_link: FIXME toolkitbrowser, panes, etc.\n");
+	// Workspace *ws = WORKSPACE(model);
+	// Workspaceview *wview = WORKSPACEVIEW(view);
 	// vobject_link(VOBJECT(wview->toolkitbrowser), IOBJECT(ws->kitg));
 	// vobject_link(VOBJECT(wview->workspacedefs), IOBJECT(ws));
 	// toolkitbrowser_set_workspace(wview->toolkitbrowser, ws);
@@ -446,7 +453,6 @@ static void
 workspaceview_child_add(View *parent, View *child)
 {
 	Columnview *cview = COLUMNVIEW(child);
-	Column *column = COLUMN(VOBJECT(cview)->iobject);
 	Workspaceview *wview = WORKSPACEVIEW(parent);
 
 	VIEW_CLASS(workspaceview_parent_class)->child_add(parent, child);
@@ -580,7 +586,6 @@ static void *
 workspaceview_layout_find_similar_x(Columnview *cview,
 	WorkspaceLayout *layout)
 {
-	int x, y, w, h;
 	gboolean snap;
 
 	/* Special case: a colum at zero makes a new column on the far left.
@@ -589,7 +594,6 @@ workspaceview_layout_find_similar_x(Columnview *cview,
 	if (layout->area.left == 0 &&
 		cview->x == 0)
 		snap = TRUE;
-
 	if (layout->area.left > 0 &&
 		ABS(cview->x - layout->area.left) < workspaceview_layout_snap)
 		snap = TRUE;
@@ -685,7 +689,6 @@ static void
 workspaceview_layout(View *view)
 {
 	Workspaceview *wview = WORKSPACEVIEW(view);
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 	WorkspaceLayout layout;
 
@@ -708,7 +711,7 @@ workspaceview_saveas_sub(GObject *source_object,
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-	Mainwindow *main = MAINWINDOW(view_get_window(wview));
+	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(wview)));
 	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
 
 	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
@@ -728,10 +731,9 @@ workspaceview_saveas(Workspaceview *wview)
 {
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-	Mainwindow *main = MAINWINDOW(view_get_window(wview));
+	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(wview)));
 
 	GtkFileDialog *dialog;
-	GFile *file;
 
 	// we can only save the current tab
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
@@ -754,8 +756,7 @@ workspaceview_merge_sub(GObject *source_object,
 {
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-	Mainwindow *main = MAINWINDOW(view_get_window(wview));
+	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(wview)));
 	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
 
 	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
@@ -774,15 +775,12 @@ workspaceview_merge(Workspaceview *wview)
 {
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-	Mainwindow *main = MAINWINDOW(view_get_window(wview));
-
-	GtkFileDialog *dialog;
-	GFile *file;
+	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(wview)));
 
 	// we can only save the current tab
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 
-	dialog = gtk_file_dialog_new();
+	GtkFileDialog *dialog = gtk_file_dialog_new();
 	gtk_file_dialog_set_title(dialog, "Merge into tab");
 	gtk_file_dialog_set_accept_label(dialog, "Merge");
 	gtk_file_dialog_set_modal(dialog, TRUE);
@@ -800,7 +798,6 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 {
 	Workspaceview *wview = WORKSPACEVIEW(view);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
 	const char *name = g_action_get_name(G_ACTION(action));
 
 	printf("workspaceview_action: %s\n", name);
@@ -834,7 +831,7 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	}
 	else if (g_str_equal(name, "tab-delete")) {
 		if (!ws->locked)
-			model_check_destroy(GTK_WIDGET(wview), MODEL(ws));
+			model_check_destroy(view_get_window(VIEW(wview)), MODEL(ws));
 	}
 }
 
@@ -856,7 +853,7 @@ workspaceview_click(GtkGestureClick *gesture,
 static void
 workspaceview_float_rowview(Workspaceview *wview, Rowview *rview)
 {
-	VIPS_FREEF(view_child_remove, wview->floating);
+	workspaceview_unfloat(wview);
 
 	// the sview we are removing the rowview from
 	Subcolumnview *old_sview = SUBCOLUMNVIEW(VIEW(rview)->parent);
@@ -870,15 +867,15 @@ workspaceview_float_rowview(Workspaceview *wview, Rowview *rview)
 	// position of the label in workspace cods
 	graphene_rect_t bounds;
 	if (!gtk_widget_compute_bounds(rview->frame, wview->fixed, &bounds))
-		return NULL;
+		return;
 
 	// therefore object position at start of drag
-	wview->floating = columnview_new();
+	wview->floating = COLUMNVIEW(columnview_new());
 	wview->floating->x = bounds.origin.x;
 	wview->floating->y = bounds.origin.y;
 	view_child_add(VIEW(wview), VIEW(wview->floating));
 
-	Subcolumnview *sview = subcolumnview_new();
+	Subcolumnview *sview = SUBCOLUMNVIEW(subcolumnview_new());
 	view_child_add(VIEW(wview->floating), VIEW(sview));
 
 	// put a shadow in the subcolumn where this row was
@@ -926,10 +923,6 @@ workspaceview_drop_rowview(Workspaceview *wview)
 		new_pos = wview->row_shadow_position / 2;
 	}
 	else {
-		// drop on background ... make a new column
-		Rowview *rview = wview->drag_rview;
-		Row *row = ROW(VOBJECT(rview)->iobject);
-
 		char new_name[MAX_STRSIZE];
 		workspace_column_name_new(ws, new_name);
 		int x = wview->floating ? wview->floating->x : -1;
@@ -984,7 +977,6 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 	gdouble start_x, gdouble start_y, gpointer user_data)
 {
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 #ifdef DEBUG_VERBOSE
 	printf("workspaceview_drag_begin: %g x %g\n", start_x, start_y);
@@ -1003,8 +995,6 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 			start_x, start_y);
 
 		if (title) {
-			Column *col = COLUMN(VOBJECT(title)->iobject);
-
 			wview->drag_cview = title;
 			wview->state = WVIEW_SELECT;
 			wview->obj_x = cview->x;
@@ -1076,8 +1066,6 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 
 	case WVIEW_DRAG:
 		if (wview->drag_cview) {
-			Column *col = COLUMN(VOBJECT(wview->drag_cview)->iobject);
-
 			int x, y, w, h;
 			columnview_get_position(wview->drag_cview, &x, &y, &w, &h);
 
@@ -1090,7 +1078,7 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 				VIPS_CLIP(0, VIPS_RINT(obj_y), wview->height - h));
 
 			// top, since we want the titlebar to be visible
-			view_scrollto(wview->drag_cview, MODEL_SCROLL_TOP);
+			view_scrollto(VIEW(wview->drag_cview), MODEL_SCROLL_TOP);
 
 			if (wview->drag_rview) {
 				// use the mouse position to pick the drop point
@@ -1107,9 +1095,6 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 						mouse_x, mouse_y);
 
 					if (rview) {
-						Subcolumnview *sview =
-							SUBCOLUMNVIEW(VIEW(rview)->parent);
-
 						graphene_rect_t bounds;
 						if (!gtk_widget_compute_bounds(GTK_WIDGET(rview->frame),
 								wview->fixed, &bounds))
@@ -1186,16 +1171,14 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 			workspaceview_drop_rowview(wview);
 
 			Subcolumn *old_scol = SUBCOLUMN(VOBJECT(wview->old_sview)->iobject);
-			Column *old_col = IOBJECT(ICONTAINER(old_scol)->parent);
-			if (icontainer_get_n_children(old_scol) == 0) {
+			Column *old_col = COLUMN(ICONTAINER(old_scol)->parent);
+			if (icontainer_get_n_children(ICONTAINER(old_scol)) == 0) {
 				printf("workspaceview_drag_end: destroying column %s\n",
 					IOBJECT(old_col)->name);
 				iobject_destroy(IOBJECT(old_col));
 			}
 
-			// remove any floating column from the row drag
-			VIPS_FREEF(view_child_remove, wview->floating);
-
+			workspaceview_unfloat(wview);
 			workspace_queue_layout(ws);
 			workspace_set_modified(ws, TRUE);
 		}
@@ -1256,107 +1239,8 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	view_class->action = workspaceview_action;
 }
 
-/* Can't use main_load(), we want to select wses after load.
- */
-static gboolean
-workspaceview_load(Workspace *ws, const char *filename)
-{
-	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-	Workspaceroot *wsr = wsg->wsr;
-
-	Workspacegroup *new_wsg;
-
-	printf("workspaceview_load: FIXME ... need to get app somehow?\n");
-	// or maybe don't make mainw here, but one step up?
-	if ((new_wsg = workspaceroot_open_workspace(wsr, NULL, filename)))
-		return TRUE;
-
-	error_clear();
-
-	/* workspace_load_file() needs to recalc to work, try to avoid that by
-	 * doing .defs first.
-	 */
-	if (vips_iscasepostfix(filename, ".def")) {
-		if (toolkit_new_from_file(main_toolkitgroup, filename))
-			return TRUE;
-
-		error_clear();
-	}
-
-	/* Try as matrix or image. Have to do these via definitions.
-	 */
-	if (workspace_load_file(ws, filename))
-		return TRUE;
-
-	error_clear();
-
-	error_top(_("Unknown file type"));
-	error_sub(_("Unable to load \"%s\"."), filename);
-
-	return FALSE;
-}
-
 static void
-workspaceview_lpane_changed_cb(Pane *pane, Workspaceview *wview)
-{
-	Workspace *ws;
-
-	if ((ws = WORKSPACE(VOBJECT(wview)->iobject)))
-		if (ws->lpane_open != pane_get_open(pane) ||
-			ws->lpane_position != pane_get_position(pane)) {
-			ws->lpane_open = pane_get_open(pane);
-			ws->lpane_position = pane_get_position(pane);
-
-			prefs_set("WORKSPACE_LPANE_OPEN", "%d", ws->lpane_open);
-			prefs_set("WORKSPACE_LPANE_POSITION", "%d", ws->lpane_position);
-
-			iobject_changed(IOBJECT(ws));
-		}
-}
-
-static void
-workspaceview_rpane_changed_cb(Pane *pane, Workspaceview *wview)
-{
-	Workspace *ws;
-
-	if ((ws = WORKSPACE(VOBJECT(wview)->iobject)))
-		if (ws->rpane_open != pane_get_open(pane) ||
-			ws->rpane_position != pane_get_position(pane)) {
-			ws->rpane_open = pane_get_open(pane);
-			ws->rpane_position = pane_get_position(pane);
-
-			prefs_set("WORKSPACE_RPANE_OPEN", "%d", ws->rpane_open);
-			prefs_set("WORKSPACE_RPANE_POSITION", "%d", ws->rpane_position);
-
-			iobject_changed(IOBJECT(ws));
-		}
-}
-
-static gboolean
-workspaceview_filedrop(Workspaceview *wview, const char *filename)
-{
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-
-	gboolean result;
-
-	result = workspaceview_load(ws, filename);
-	if (result)
-		symbol_recalculate_all();
-
-	return result;
-}
-
-static void
-workspaceview_group_action_cb2(GtkWidget *wid, GtkWidget *host,
-	Workspaceview *wview)
-{
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-
-	workspace_selected_group(ws);
-}
-
-static void
-workspaceview_scroll_adjustment_cb(GtkAdjustment *adj, Workspaceview *wview)
+workspaceview_scroll_changed(GtkAdjustment *adj, Workspaceview *wview)
 {
 	workspaceview_scroll_update(wview);
 }
@@ -1373,13 +1257,13 @@ workspaceview_init(Workspaceview *wview)
 	wview->hadj = gtk_scrolled_window_get_hadjustment(scrolled_window);
 	wview->vadj = gtk_scrolled_window_get_vadjustment(scrolled_window);
 	g_signal_connect_object(G_OBJECT(wview->hadj), "value_changed",
-		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview, 0);
+		G_CALLBACK(workspaceview_scroll_changed), wview, 0);
 	g_signal_connect_object(G_OBJECT(wview->hadj), "changed",
-		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview, 0);
+		G_CALLBACK(workspaceview_scroll_changed), wview, 0);
 	g_signal_connect_object(G_OBJECT(wview->vadj), "value_changed",
-		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview, 0);
+		G_CALLBACK(workspaceview_scroll_changed), wview, 0);
 	g_signal_connect_object(G_OBJECT(wview->vadj), "changed",
-		G_CALLBACK(workspaceview_scroll_adjustment_cb), wview, 0);
+		G_CALLBACK(workspaceview_scroll_changed), wview, 0);
 
 	wview->should_animate = TRUE;
 

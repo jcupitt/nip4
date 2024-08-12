@@ -862,8 +862,7 @@ workspacegroup_new_from_openfile(Workspaceroot *wsr, iOpenFile *of)
 		return NULL;
 
 	workspacegroup_set_load_type(wsg, WORKSPACEGROUP_LOAD_NEW);
-	if (!filemodel_load_all_openfile(FILEMODEL(wsg),
-			MODEL(wsr), of)) {
+	if (!filemodel_load_all_openfile(FILEMODEL(wsg), MODEL(wsr), of)) {
 		g_object_unref(G_OBJECT(wsg));
 		return NULL;
 	}
@@ -883,8 +882,7 @@ gboolean
 workspacegroup_merge_workspaces(Workspacegroup *wsg, const char *filename)
 {
 	workspacegroup_set_load_type(wsg, WORKSPACEGROUP_LOAD_NEW);
-	if (!filemodel_load_all(FILEMODEL(wsg), MODEL(wsg->wsr),
-			filename, NULL))
+	if (!filemodel_load_all(FILEMODEL(wsg), MODEL(wsg->wsr), filename, NULL))
 		return FALSE;
 
 	filemodel_set_modified(FILEMODEL(wsg), TRUE);
@@ -897,11 +895,8 @@ workspacegroup_merge_workspaces(Workspacegroup *wsg, const char *filename)
 gboolean
 workspacegroup_merge_columns(Workspacegroup *wsg, const char *filename)
 {
-	Workspace *ws;
-
 	workspacegroup_set_load_type(wsg, WORKSPACEGROUP_LOAD_COLUMNS);
-	if (!filemodel_load_all(FILEMODEL(wsg), MODEL(wsg->wsr),
-			filename, NULL))
+	if (!filemodel_load_all(FILEMODEL(wsg), MODEL(wsg->wsr), filename, NULL))
 		return FALSE;
 
 	filemodel_set_modified(FILEMODEL(wsg), TRUE);
@@ -915,8 +910,7 @@ gboolean
 workspacegroup_merge_rows(Workspacegroup *wsg, const char *filename)
 {
 	workspacegroup_set_load_type(wsg, WORKSPACEGROUP_LOAD_ROWS);
-	if (!filemodel_load_all(FILEMODEL(wsg), MODEL(wsg->wsr),
-			filename, NULL))
+	if (!filemodel_load_all(FILEMODEL(wsg), MODEL(wsg->wsr), filename, NULL))
 		return FALSE;
 
 	filemodel_set_modified(FILEMODEL(wsg), TRUE);

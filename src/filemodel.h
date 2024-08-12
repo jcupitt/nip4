@@ -124,7 +124,7 @@ void filemodel_set_auto_load(Filemodel *filemodel);
 void filemodel_set_window_hint(Filemodel *filemodel, GtkWindow *window);
 GtkWindow *filemodel_get_window_hint(Filemodel *filemodel);
 
-typedef void (*FilemodelSaveasResult)(GtkWidget *parent,
+typedef void (*FilemodelSaveasResult)(GtkWindow *parent,
 	Filemodel *filemodel, void *a, void *b);
 void filemodel_save_before_close(Filemodel *filemodel,
 	FilemodelSaveasResult next, void *a, void *b);

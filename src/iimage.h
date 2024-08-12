@@ -91,3 +91,4 @@ typedef struct _iImageClass {
 
 GType iimage_get_type(void);
 gboolean iimage_replace(iImage *iimage, const char *filename);
+void iimage_tilesource_update(iImage *iimage);

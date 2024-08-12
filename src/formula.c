@@ -124,7 +124,7 @@ formula_refresh(Formula *formula)
 }
 
 static gboolean
-formula_refresh_idle_cb(void)
+formula_refresh_idle_cb(void *user_data)
 {
 	formula_refresh_idle = 0;
 
@@ -146,8 +146,7 @@ formula_refresh_queue(Formula *formula)
 		formula->refresh_queued = TRUE;
 
 		if (!formula_refresh_idle)
-			formula_refresh_idle =
-				g_idle_add((GSourceFunc) formula_refresh_idle_cb, NULL);
+			formula_refresh_idle = g_idle_add(formula_refresh_idle_cb, NULL);
 	}
 }
 

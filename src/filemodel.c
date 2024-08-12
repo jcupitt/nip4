@@ -656,7 +656,7 @@ filemodel_saveas_sub(GObject *source_object,
 	GAsyncResult *res, void *data)
 {
 	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-	GtkWidget *parent = g_object_get_data(G_OBJECT(dialog), "nip4-parent");
+	GtkWindow *parent = g_object_get_data(G_OBJECT(dialog), "nip4-parent");
 	Filemodel *filemodel =
 		g_object_get_data(G_OBJECT(dialog), "nip4-filemodel");
 	FilemodelSaveasResult next =
@@ -681,12 +681,12 @@ filemodel_saveas_sub(GObject *source_object,
 }
 
 static void
-filemodel_saveas(GtkWidget *parent, Filemodel *filemodel,
+filemodel_saveas(GtkWindow *parent, Filemodel *filemodel,
 	FilemodelSaveasResult next,
 	FilemodelSaveasResult error, void *a, void *b)
 {
 	const char *tname = IOBJECT_GET_CLASS_NAME(filemodel);
-	g_autofree *title = g_strdup_printf("Save %s as", tname);
+	g_autofree char *title = g_strdup_printf("Save %s as", tname);
 
 	GtkFileDialog *dialog = gtk_file_dialog_new();
 	gtk_file_dialog_set_title(dialog, title);
@@ -705,7 +705,7 @@ filemodel_saveas(GtkWidget *parent, Filemodel *filemodel,
 			gtk_file_dialog_set_initial_file(dialog, file);
 	}
 
-	gtk_file_dialog_save(dialog, GTK_WINDOW(parent), NULL,
+	gtk_file_dialog_save(dialog, parent, NULL,
 		filemodel_saveas_sub, NULL);
 }
 
@@ -747,7 +747,7 @@ filemodel_save_before_close_cb(GObject *source_object,
 }
 
 static void
-filemodel_save_before_close_error(GtkWidget *parent,
+filemodel_save_before_close_error(GtkWindow *parent,
 	Filemodel *filemodel, void *a, void *b)
 {
 	Mainwindow *main = MAINWINDOW(parent);
@@ -762,8 +762,8 @@ filemodel_save_before_close(Filemodel *filemodel,
 	GtkWindow *parent = filemodel_get_window_hint(filemodel);
 	const char *tname = IOBJECT_GET_CLASS_NAME(filemodel);
 
-	g_autofree *message = g_strdup_printf("%s has been modified", tname);
-	g_autofree *detail = NULL;
+	g_autofree char *message = g_strdup_printf("%s has been modified", tname);
+	g_autofree char *detail = NULL;
 	if (filemodel->filename)
 		detail = g_strdup_printf("%s has been modified "
 			"since it was loaded from \"%s\".\n\n"
@@ -803,18 +803,20 @@ filemodel_get_registered(void)
     return NULL;
 }
 
-static void
+static gboolean
 filemodel_close_registered_next_reply_idle(void *user_data)
 {
 	gtk_window_close(GTK_WINDOW(user_data));
+
+	return FALSE;
 }
 
 static void
-filemodel_close_registered_next(GtkWidget *parent,
+filemodel_close_registered_next(GtkWindow *parent,
 	Filemodel *filemodel, void *a, void *b);
 
 static void
-filemodel_close_registered_next_reply(GtkWidget *parent,
+filemodel_close_registered_next_reply(GtkWindow *parent,
 	Filemodel *filemodel, void *a, void *b)
 {
 	/* We can't close immediately, the alert is still being shown
@@ -826,7 +828,7 @@ filemodel_close_registered_next_reply(GtkWidget *parent,
 }
 
 static void
-filemodel_close_registered_next(GtkWidget *parent,
+filemodel_close_registered_next(GtkWindow *parent,
 	Filemodel *filemodel, void *a, void *b)
 {
 	SListMapFn callback = (SListMapFn) a;

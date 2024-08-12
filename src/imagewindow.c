@@ -284,23 +284,6 @@ imagewindow_files_free(Imagewindow *win)
 	win->current_file = 0;
 }
 
-static void
-imagewindow_files_set_list_gfiles(Imagewindow *win, GSList *files)
-{
-	GSList *p;
-	int i;
-
-	imagewindow_files_free(win);
-
-	win->n_files = g_slist_length(files);
-	win->files = VIPS_ARRAY(NULL, win->n_files + 1, char *);
-	for (i = 0, p = files; i < win->n_files; i++, p = p->next) {
-		GFile *file = (GFile *) p->data;
-
-		win->files[i] = g_file_get_path(file);
-	}
-}
-
 static int
 sort_filenames(const void *a, const void *b)
 {
@@ -755,17 +738,6 @@ imagewindow_dispose(GObject *object)
 }
 
 static void
-imagewindow_cancel_clicked(GtkWidget *button, Imagewindow *win)
-{
-	Tilesource *tilesource;
-	VipsImage *image;
-
-	if ((tilesource = imagewindow_get_tilesource(win)) &&
-		(image = tilesource_get_image(tilesource)))
-		vips_image_set_kill(image, TRUE);
-}
-
-static void
 imagewindow_error_response(GtkWidget *button, int response, Imagewindow *win)
 {
 	imagewindow_error_hide(win);
@@ -1018,14 +990,6 @@ imagewindow_saveas_action(GSimpleAction *action,
 
 	if (win->iimage)
 		classmodel_graphic_save(CLASSMODEL(win->iimage), GTK_WIDGET(win));
-}
-
-static GFile *
-get_parent(GFile *file)
-{
-	GFile *parent = g_file_get_parent(file);
-
-	return parent ? parent : g_file_new_for_path("/");
 }
 
 static void

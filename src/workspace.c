@@ -1322,20 +1322,18 @@ workspace_selected_remove_yesno_cb(GtkWindow *parent, gpointer user_data)
  * bother.
  */
 void
-workspace_selected_remove_yesno(Workspace *ws, GtkWidget *parent)
+workspace_selected_remove_yesno(Workspace *ws, GtkWindow *parent)
 {
-	GtkWindow *window = view_get_window(parent);
-
 	if (workspace_selected_num(ws) == 1) {
 		if (!workspace_selected_remove(ws))
-			mainwindow_error(MAINWINDOW(window));
+			mainwindow_error(MAINWINDOW(parent));
 	}
 	else if (workspace_selected_num(ws) > 1) {
 		char txt[30];
 		VipsBuf buf = VIPS_BUF_STATIC(txt);
 
 		workspace_selected_names(ws, &buf, ", ");
-		alert_yesno(window,
+		alert_yesno(parent,
 			workspace_selected_remove_yesno_cb, ws,
 			_("Are you sure?"),
 			_("Are you sure you want to delete rows %s?"),
@@ -1516,14 +1514,15 @@ workspace_next_error(Workspace *ws)
 
 	/* *must* have one now.
 	 */
-	g_assert(ws->last_error && ws->last_error->err);
+	g_assert(ws->last_error &&
+		ws->last_error->err);
 
 	model_scrollto(MODEL(ws->last_error), MODEL_SCROLL_TOP);
 
 	row_qualified_name(ws->last_error->expr->row, &buf);
 	error_top(_("%s in %s"),
 		ws->last_error->expr->error_top, vips_buf_all(&buf));
-	error_sub(ws->last_error->expr->error_sub);
+	error_sub("%s", ws->last_error->expr->error_sub);
 
 	return TRUE;
 }

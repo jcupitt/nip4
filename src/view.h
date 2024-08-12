@@ -143,15 +143,6 @@ typedef void *(*view_map_fn)(View *, void *, void *);
 void *view_map(View *view, view_map_fn fn, void *a, void *b);
 void *view_map_all(View *view, view_map_fn fn, void *a);
 
-void view_save_as_cb(GtkWidget *menu, GtkWidget *host, View *view);
-void view_save_cb(GtkWidget *menu, GtkWidget *host, View *view);
-void view_close_cb(GtkWidget *menu, GtkWidget *host, View *view);
-
-void view_activate_cb(View *view);
-void view_changed_cb(View *view);
-
-void view_not_implemented_cb(GtkWidget *menu, GtkWidget *host, View *view);
-
 GtkWindow *view_get_window(View *view);
 Columnview *view_get_columnview(View *child);
 

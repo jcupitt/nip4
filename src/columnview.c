@@ -100,7 +100,7 @@ columnview_merge_sub(GObject *source_object,
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
 	Workspace *ws = col->ws;
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-	Mainwindow *main = MAINWINDOW(view_get_window(cview));
+	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(cview)));
 	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
 
 	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
@@ -118,13 +118,9 @@ columnview_merge_sub(GObject *source_object,
 static void
 columnview_merge(Columnview *cview)
 {
-	Column *col = COLUMN(VOBJECT(cview)->iobject);
-	Workspace *ws = col->ws;
-	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-	Mainwindow *main = MAINWINDOW(view_get_window(cview));
+	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(cview)));
 
 	GtkFileDialog *dialog;
-	GFile *file;
 
 	dialog = gtk_file_dialog_new();
 	gtk_file_dialog_set_title(dialog, "Merge into column");
@@ -147,7 +143,7 @@ columnview_saveas_sub(GObject *source_object,
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
 	Workspace *ws = col->ws;
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-	Mainwindow *main = MAINWINDOW(view_get_window(cview));
+	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(cview)));
 	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
 
 	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
@@ -169,10 +165,9 @@ columnview_saveas(Columnview *cview)
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
 	Workspace *ws = col->ws;
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-	Mainwindow *main = MAINWINDOW(view_get_window(cview));
+	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(cview)));
 
 	GtkFileDialog *dialog;
-	GFile *file;
 
 	// we can only save the current tab
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
@@ -187,122 +182,6 @@ columnview_saveas(Columnview *cview)
 
 	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
 		&columnview_saveas_sub, cview);
-}
-
-/* Make a name for a column menu file, based on what we're going to call the
- * menu item.
- */
-static void
-columnview_filename(char *file, const char *caption)
-{
-	int i;
-	char name[FILENAME_MAX];
-
-	g_strlcpy(name, caption, 10);
-	for (i = 0; i < strlen(name); i++)
-		if (name[i] == ' ')
-			name[i] = '_';
-
-	for (i = 0;; i++) {
-		g_snprintf(file, FILENAME_MAX, "$SAVEDIR/data/%s-%d.ws", name, i);
-		if (!existsf("%s", file))
-			break;
-	}
-}
-
-/* Remember the name of the last toolkit the user asked to add to.
- */
-static char *columnview_to_menu_last_toolkit = NULL;
-
-/* Done button hit.
-static void
-columnview_to_menu_done_cb(iWindow *iwnd, void *client,
-	iWindowNotifyFn nfn, void *sys)
-{
-	Column *col = COLUMN(client);
-	Workspace *ws = col->ws;
-	Stringset *ss = STRINGSET(iwnd);
-	StringsetChild *name = stringset_child_get(ss, _("Name"));
-	StringsetChild *toolkit = stringset_child_get(ss, _("Toolkit"));
-	StringsetChild *file = stringset_child_get(ss, _("Filename"));
-
-	char name_text[1024];
-	char toolkit_text[1024];
-	char file_text[1024];
-
-	if (!get_geditable_string(name->entry, name_text, 1024) ||
-		!get_geditable_name(toolkit->entry, toolkit_text, 1024) ||
-		!get_geditable_filename(file->entry, file_text, 1024)) {
-		nfn(sys, IWINDOW_ERROR);
-		return;
-	}
-
-	workspace_deselect_all(ws);
-	column_select_symbols(col);
-
-	if (!workspace_selected_save(ws, file_text)) {
-		nfn(sys, IWINDOW_ERROR);
-		return;
-	}
-
-	workspace_deselect_all(ws);
-
-	if (!tool_new_dia(toolkit_by_name(ws->kitg, toolkit_text),
-			-1, name_text, file_text)) {
-		unlinkf("%s", file_text);
-		nfn(sys, IWINDOW_ERROR);
-		return;
-	}
-
-	VIPS_SETSTR(columnview_to_menu_last_toolkit, toolkit_text);
-
-	nfn(sys, IWINDOW_YES);
-}
- */
-
-/* Make a column into a menu item.
- */
-static void
-columnview_to_menu_cb(GtkWidget *wid, GtkWidget *host, Columnview *cview)
-{
-	/*
-	Column *col = COLUMN(VOBJECT(cview)->iobject);
-	GtkWindow *window = view_get_window(VIEW(cview));
-	GtkWidget *ss = stringset_new();
-	char *name;
-	char *kit_name;
-	char filename[FILENAME_MAX];
-
-	if (!(name = IOBJECT(col)->caption))
-		name = "untitled";
-	columnview_filename(filename, name);
-
-	if (columnview_to_menu_last_toolkit)
-		kit_name = columnview_to_menu_last_toolkit;
-	else
-		kit_name = "untitled";
-
-	stringset_child_new(STRINGSET(ss),
-		_("Name"), name, _("Set menu item text here"));
-	stringset_child_new(STRINGSET(ss),
-		_("Toolkit"), kit_name, _("Add to this toolkit"));
-	stringset_child_new(STRINGSET(ss),
-		_("Filename"), filename, _("Store column in this file"));
-
-	iwindow_set_title(IWINDOW(ss),
-		_("New Menu Item from Column \"%s\""), IOBJECT(col)->name);
-	idialog_set_callbacks(IDIALOG(ss),
-		iwindow_true_cb, NULL, NULL, col);
-	idialog_set_help_tag(IDIALOG(ss), "sec:diaref");
-	idialog_add_ok(IDIALOG(ss), columnview_to_menu_done_cb,
-		_("Menuize"));
-	iwindow_set_parent(IWINDOW(ss), GTK_WIDGET(iwnd));
-	iwindow_build(IWINDOW(ss));
-
-	gtk_widget_show(ss);
-	 */
-
-	printf("columnview_to_menu_cb: FIXME\n");
 }
 
 /* Find the position and size of a columnview.
@@ -394,8 +273,6 @@ void
 columnview_remove_shadow(Columnview *cview)
 {
 	if (cview->shadow) {
-		Workspaceview *wview = columnview_get_wview(cview);
-
 		cview->shadow->master = NULL;
 		view_child_remove(VIEW(cview->shadow));
 		cview->shadow = NULL;
@@ -406,13 +283,11 @@ static void
 columnview_dispose(GObject *object)
 {
 	Columnview *cview;
-	Column *col;
 
 	g_return_if_fail(object != NULL);
 	g_return_if_fail(IS_COLUMNVIEW(object));
 
 	cview = COLUMNVIEW(object);
-	col = COLUMN(VOBJECT(cview)->iobject);
 
 #ifdef DEBUG
 	printf("columnview_dispose: cview=%p\n", cview);
@@ -424,44 +299,6 @@ columnview_dispose(GObject *object)
 	gtk_widget_dispose_template(GTK_WIDGET(cview), COLUMNVIEW_TYPE);
 
 	G_OBJECT_CLASS(columnview_parent_class)->dispose(object);
-}
-
-/* Arrow button on title bar.
- */
-static void
-columnview_updown_cb(GtkWidget *wid, Columnview *cview)
-{
-	Column *col = COLUMN(VOBJECT(cview)->iobject);
-
-	column_set_open(col, !col->open);
-}
-
-/* Delete this column from the popup menu.
- */
-static void
-columnview_destroy_cb(GtkWidget *wid, GtkWidget *host, Columnview *cview)
-{
-	Column *col = COLUMN(VOBJECT(cview)->iobject);
-
-	model_check_destroy(GTK_WIDGET(cview), MODEL(col));
-}
-
-/* Delete this column with a click on the 'x' button.
- */
-static void
-columnview_destroy2_cb(GtkWidget *wid, Columnview *cview)
-{
-	Column *col = COLUMN(VOBJECT(cview)->iobject);
-
-	model_check_destroy(GTK_WIDGET(cview), MODEL(col));
-}
-
-/* Add a caption entry to a columnview if not there.
- */
-static void
-columnview_add_caption(Columnview *cview)
-{
-	printf("columnview_add_caption: FIXME\n");
 }
 
 static const char *
@@ -534,11 +371,8 @@ columnview_refresh(vObject *vobject)
 	set_glabel(cview->name, "%s", IOBJECT(col)->name);
 	if (IOBJECT(col)->caption)
 		set_glabel(cview->caption, "%s", IOBJECT(col)->caption);
-	else {
-		char buf[256];
-
+	else
 		set_glabel(cview->caption, "double-click to set caption");
-	}
 	gtk_stack_set_visible_child(GTK_STACK(cview->caption_edit_stack),
 		cview->state == COL_EDIT ? cview->caption_edit : cview->caption);
 
@@ -683,7 +517,7 @@ columnview_activate(GtkEntry *self, gpointer user_data)
 	Columnview *cview = COLUMNVIEW(user_data);
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
 	Workspace *ws = col->ws;
-	Mainwindow *main = MAINWINDOW(view_get_window(cview));
+	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(cview)));
 
 	GtkEntryBuffer *buffer = gtk_entry_get_buffer(self);
 	const char *text = gtk_entry_buffer_get_text(buffer);
@@ -702,26 +536,6 @@ columnview_activate(GtkEntry *self, gpointer user_data)
 	}
 
 	set_gentry(GTK_WIDGET(self), NULL);
-}
-
-static void
-columnview_delete_column_yesno(GtkWindow *window, void *user_data)
-{
-	Column *col = COLUMN(user_data);
-
-	iobject_destroy(IOBJECT(col));
-}
-
-static void
-columnview_delete_column(Columnview *cview)
-{
-	Column *col = COLUMN(VOBJECT(cview)->iobject);
-
-	alert_yesno(view_get_window(cview),
-		columnview_delete_column_yesno, col,
-		_("Are you sure?"),
-		_("Are you sure you want to delete column %s?"),
-		IOBJECT(col)->name);
 }
 
 static void
@@ -765,7 +579,8 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	else if (g_str_equal(name, "column-saveas"))
 		columnview_saveas(cview);
 	else if (g_str_equal(name, "column-delete"))
-		columnview_delete_column(cview);
+		model_check_destroy(view_get_window(VIEW(cview)),
+			MODEL(VOBJECT(cview)->iobject));
 }
 
 static void
@@ -773,14 +588,14 @@ columnview_close_clicked(GtkButton *button, void *user_data)
 {
 	Columnview *cview = COLUMNVIEW(user_data);
 
-	columnview_delete_column(cview);
+	model_check_destroy(view_get_window(VIEW(cview)),
+		MODEL(VOBJECT(cview)->iobject));
 }
 
 static void
 columnview_class_init(ColumnviewClass *class)
 {
 	GObjectClass *object_class = (GObjectClass *) class;
-	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(class);
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
 
@@ -866,8 +681,8 @@ columnview_find_rowview(Columnview *cview, int x, int y)
 
 	graphene_point_t fixed_point = GRAPHENE_POINT_INIT(x, y);
 	graphene_point_t sview_point;
-	if (gtk_widget_compute_point(GTK_WIDGET(wview->fixed), cview->sview,
-			&fixed_point, &sview_point))
+	if (gtk_widget_compute_point(GTK_WIDGET(wview->fixed),
+			GTK_WIDGET(cview->sview), &fixed_point, &sview_point))
 		return view_map(VIEW(cview->sview),
 			columnview_rowview_hit, &sview_point, cview->sview);
 
