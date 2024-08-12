@@ -147,6 +147,11 @@ workspacegroupview_background_menu(GtkGestureClick *gesture,
 	int page_number = gtk_notebook_get_current_page(notebook);
 	Workspaceview *wview =
 		WORKSPACEVIEW(gtk_notebook_get_nth_page(notebook, page_number));
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+	// disable on locked workspaces
+	if (ws->locked)
+		return;
 
 	// translate (x,y) to workspace coordinates for the current page
 	graphene_point_t wsgview_point = GRAPHENE_POINT_INIT(x, y);

@@ -1318,20 +1318,28 @@ workspace_selected_remove_yesno_cb(GtkWindow *parent, gpointer user_data)
 		mainwindow_error(MAINWINDOW(parent));
 }
 
-/* Ask before removing selected.
+/* Ask before removing selected. If there's only one row selected, don't
+ * bother.
  */
 void
 workspace_selected_remove_yesno(Workspace *ws, GtkWidget *parent)
 {
-	if (workspace_selected_any(ws)) {
+	GtkWindow *window = view_get_window(parent);
+
+	if (workspace_selected_num(ws) == 1) {
+		if (!workspace_selected_remove(ws))
+			mainwindow_error(MAINWINDOW(window));
+	}
+	else if (workspace_selected_num(ws) > 1) {
 		char txt[30];
 		VipsBuf buf = VIPS_BUF_STATIC(txt);
 
 		workspace_selected_names(ws, &buf, ", ");
-		alert_yesno(view_get_window(parent),
+		alert_yesno(window,
 			workspace_selected_remove_yesno_cb, ws,
 			_("Are you sure?"),
-			_("Are you sure you want to delete %s?"), vips_buf_all(&buf));
+			_("Are you sure you want to delete rows %s?"),
+			vips_buf_all(&buf));
 	}
 }
 

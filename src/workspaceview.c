@@ -29,8 +29,8 @@
 
 /*
 #define DEBUG_VERBOSE
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -517,6 +517,14 @@ workspaceview_refresh(vObject *vobject)
 
 	if (wview->label)
 		workspaceviewlabel_refresh(wview->label);
+
+	// columnviews change appearance based on workspace settings like locked,
+	// so they must refresh too
+	icontainer_map(ICONTAINER(ws),
+		(icontainer_map_fn) iobject_changed, NULL, NULL);
+
+	// and of course that can cause a relayout
+	workspace_queue_layout(ws);
 
 	VOBJECT_CLASS(workspaceview_parent_class)->refresh(vobject);
 }

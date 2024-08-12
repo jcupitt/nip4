@@ -468,8 +468,11 @@ static const char *
 columnview_css(Columnview *cview)
 {
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
+	Workspace *ws = col->ws;
 
-	if (cview->master)
+	if (ws->locked)
+		return "widget";
+	else if (cview->master)
 		return "shadow_widget";
 	else if (col->selected)
 		return "selected_widget";
@@ -502,6 +505,7 @@ columnview_refresh(vObject *vobject)
 	Columnview *cview = COLUMNVIEW(vobject);
 	Columnview *shadow = cview->shadow;
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
+	Workspace *ws = col->ws;
 
 #ifdef DEBUG
 	printf("columnview_refresh: %p\n", cview);
@@ -554,7 +558,8 @@ columnview_refresh(vObject *vobject)
 		col->selected &&
 			col->open &&
 			editable &&
-			!cview->master);
+			!cview->master &&
+			!ws->locked);
 
 	/* Set select state.
 	 */
@@ -700,6 +705,26 @@ columnview_activate(GtkEntry *self, gpointer user_data)
 }
 
 static void
+columnview_delete_column_yesno(GtkWindow *window, void *user_data)
+{
+	Column *col = COLUMN(user_data);
+
+	iobject_destroy(IOBJECT(col));
+}
+
+static void
+columnview_delete_column(Columnview *cview)
+{
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
+
+	alert_yesno(view_get_window(cview),
+		columnview_delete_column_yesno, col,
+		_("Are you sure?"),
+		_("Are you sure you want to delete column %s?"),
+		IOBJECT(col)->name);
+}
+
+static void
 columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 {
 	Columnview *cview = COLUMNVIEW(view);
@@ -740,18 +765,15 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	else if (g_str_equal(name, "column-saveas"))
 		columnview_saveas(cview);
 	else if (g_str_equal(name, "column-delete"))
-		iobject_destroy(IOBJECT(col));
+		columnview_delete_column(cview);
 }
 
 static void
 columnview_close_clicked(GtkButton *button, void *user_data)
 {
 	Columnview *cview = COLUMNVIEW(user_data);
-	Column *col = COLUMN(VOBJECT(cview)->iobject);
 
-	printf("columnview_close_clicked:\n");
-
-	iobject_destroy(col);
+	columnview_delete_column(cview);
 }
 
 static void

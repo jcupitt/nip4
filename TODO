@@ -19,9 +19,19 @@
 
 ## small
 
+- labels should not show select state when the ws is locked?
+
+- column duplicate selects the new column
+
+	maybe eg. drag row to column should also select the
+	destination column?
+
 - start nip4, ^T, ^T, ^T, ^T, ^Q, leak one view
 
-	how odd!
+	view_dump(): 1 views
+	0x55555baa6820 Workspaceview count=1
+
+	how odd! and why only one?
 
   new tab button does the same thing
 
@@ -37,15 +47,6 @@
 	as markup
 
 	a special graphical view widget for top-level strings would be better
-
-- column duplicate selects the new column
-
-	maybe eg. drag row to column should also select the
-	destination column?
-
-- maybe "are you sure?" for column delete
-
-	or get rid of "are you sure" for row delete?
 
 - next/prev in imagewindow often fails
 
