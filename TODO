@@ -17,40 +17,6 @@
 	we'd need to make a floating column (not just a columnview) and
 	reparent the rows to it
 
-## region display
-
-- set "left" in workspace, drag, updates too often (should only redraw in idle)
-
-  drag region, see:
-
-	imageui_drag_update: offset_x = 8.33984, offset_y = 7.41406
-	regionview_model_changed_cb: classmodel has changed
-	regionview_model_changed_cb: classmodel has changed
-	imageui_overlay_snapshot:
-	regionview_model_changed_cb: classmodel has changed
-	regionview_model_changed_cb: classmodel has changed
-	regionview_model_changed_cb: classmodel has changed
-	regionview_model_changed_cb: classmodel has changed
-	regionview_model_changed_cb: classmodel has changed
-	regionview_model_changed_cb: classmodel has changed
-	regionview_model_changed_cb: classmodel has changed
-	regionview_model_changed_cb: classmodel has changed
-	regionview_model_changed_cb: classmodel has changed
-	imageui_drag_update: offset_x = 57.3711, offset_y = 35.5977
-
-	- regionview_model_changed_cb() is being called maybe 10 or 11 times for
-	  each frame
-
-	- as a hack, regionview_model_update() is doing a synchromous recalc
-	  during drag (whole app pauses during recalc), but this is not a
-	  great solution
-
-	- much better if "changed" on the model only happens once and after
-	  the whole region has been recomputed, and we use that to trigger
-	  the repaint ... then we can recalc asynchronously
-
-- need a right click menu? delete? could just rely on the workspace
-
 ## small
 
 - start nip4, ^T, ^T, ^T, ^T, ^Q, leak one view

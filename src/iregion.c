@@ -35,6 +35,15 @@
 
 G_DEFINE_TYPE(iRegion, iregion, IIMAGE_TYPE)
 
+/* Our signals.
+ */
+enum {
+	SIG_REDRAW,			/* Ask views to repaint */
+	SIG_LAST
+};
+
+static guint iregion_signals[SIG_LAST] = { 0 };
+
 void
 iregion_instance_destroy(iRegionInstance *instance)
 {
@@ -112,6 +121,12 @@ iregion_finalize(GObject *gobject)
 	iregion_instance_destroy(&iregion->instance);
 
 	G_OBJECT_CLASS(iregion_parent_class)->finalize(gobject);
+}
+
+static void
+iregion_redraw(iRegion *iregion)
+{
+	g_signal_emit(G_OBJECT(iregion), iregion_signals[SIG_REDRAW], 0);
 }
 
 static void *
@@ -303,6 +318,10 @@ iregion_update_model(Heapmodel *heapmodel)
 	 */
 	iobject_changed(IOBJECT(heapmodel));
 
+	/* Ask all regionviews to repaint.
+	 */
+	iregion_redraw(iregion);
+
 	return NULL;
 }
 
@@ -345,8 +364,7 @@ iregion_class_new(Classmodel *classmodel, PElement *fn, PElement *out)
 	if (instance) {
 		heap_appl_init(out, fn);
 		if (!heap_appl_add(heap, out, &rhs) ||
-			!heap_element_new(heap,
-				&instance->image_class, &rhs) ||
+			!heap_element_new(heap, &instance->image_class, &rhs) ||
 			!heap_appl_add(heap, out, &rhs) ||
 			!heap_real_new(heap, instance->area.left, &rhs) ||
 			!heap_appl_add(heap, out, &rhs) ||
@@ -401,6 +419,14 @@ iregion_class_init(iRegionClass *class)
 	classmodel_class->class_get = iregion_class_get;
 	classmodel_class->class_new = iregion_class_new;
 	classmodel_class->get_instance = iregion_get_instance;
+
+	iregion_signals[SIG_REDRAW] = g_signal_new("redraw",
+		G_OBJECT_CLASS_TYPE(gobject_class),
+		G_SIGNAL_RUN_FIRST,
+		G_STRUCT_OFFSET(iRegionClass, redraw),
+		NULL, NULL,
+		g_cclosure_marshal_VOID__VOID,
+		G_TYPE_NONE, 0);
 
 	/* Static init.
 	 */

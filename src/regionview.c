@@ -219,12 +219,7 @@ regionview_model_update(Regionview *regionview)
 		classmodel_update(classmodel);
 
 		if (CALC_RECOMP_REGION)
-			/* We do a synchronous recalc here rather than queueing a BG
-			 * recalc so that we work nicely when the regions row or subclass
-			 * modifies the drag.
-			 */
-			//symbol_recalculate_all();
-			symbol_recalculate_all_force(TRUE);
+			symbol_recalculate_all();
 	}
 
 #ifdef DEBUG
@@ -311,11 +306,11 @@ regionview_draw_region(Regionview *regionview, GtkSnapshot *snapshot)
 	double left;
 	double top;
 	imageui_image_to_gtk(imageui,
-		regionview->our_area.left, regionview->our_area.top, &left, &top);
+		regionview->draw_area.left, regionview->draw_area.top, &left, &top);
 	regionview->frame.left = left;
 	regionview->frame.top = top;
-	regionview->frame.width = regionview->our_area.width * zoom;
-	regionview->frame.height = regionview->our_area.height * zoom;
+	regionview->frame.width = regionview->draw_area.width * zoom;
+	regionview->frame.height = regionview->draw_area.height * zoom;
 
 	GskRoundedRect frame;
 	gsk_rounded_rect_init_from_rect(&frame,
@@ -439,7 +434,7 @@ regionview_draw_mark(Regionview *regionview, GtkSnapshot *snapshot)
 	double left;
 	double top;
 	imageui_image_to_gtk(imageui,
-		regionview->our_area.left, regionview->our_area.top, &left, &top);
+		regionview->draw_area.left, regionview->draw_area.top, &left, &top);
 	regionview->frame.left = left;
 	regionview->frame.top = top;
 	regionview->frame.width = 0;
@@ -465,11 +460,11 @@ regionview_draw_arrow(Regionview *regionview, GtkSnapshot *snapshot)
 	double left;
 	double top;
 	imageui_image_to_gtk(imageui,
-		regionview->our_area.left, regionview->our_area.top, &left, &top);
+		regionview->draw_area.left, regionview->draw_area.top, &left, &top);
 	regionview->frame.left = left;
 	regionview->frame.top = top;
-	regionview->frame.width = regionview->our_area.width * zoom;
-	regionview->frame.height = regionview->our_area.height * zoom;
+	regionview->frame.width = regionview->draw_area.width * zoom;
+	regionview->frame.height = regionview->draw_area.height * zoom;
 
 	regionview_draw_init_mark_label(regionview);
 
@@ -511,7 +506,11 @@ regionview_draw_arrow(Regionview *regionview, GtkSnapshot *snapshot)
 void
 regionview_draw(Regionview *regionview, GtkSnapshot *snapshot)
 {
-	switch (regionview->type) {
+#ifdef DEBUG_MAKE
+	printf("regionview_draw:\n");
+#endif /*DEBUG_MAKE*/
+
+	switch (regionview->draw_type) {
 	case REGIONVIEW_REGION:
 	case REGIONVIEW_AREA:
 		regionview_draw_region(regionview, snapshot);
@@ -830,14 +829,29 @@ regionview_init(Regionview *regionview)
 }
 
 static void
-regionview_model_changed_cb(Classmodel *classmodel, Regionview *regionview)
+regionview_model_changed(Classmodel *classmodel, Regionview *regionview)
 {
-	printf("regionview_model_changed_cb: classmodel has changed\n");
+#ifdef DEBUG
+	printf("regionview_model_changed: classmodel has changed\n");
+#endif /*DEBUG*/
 
 	regionview_update_from_model(regionview);
+}
+
+static void
+regionview_model_redraw(Classmodel *classmodel, Regionview *regionview)
+{
+#ifdef DEBUG
+	printf("regionview_model_redraw:\n");
+#endif /*DEBUG*/
+
+	// save the state so it's not distrubed before the draw acyually occurs
+	regionview->draw_area = regionview->our_area;
+	regionview->draw_type = regionview->type;
 
 	// queue a redraw on our imageui to get us repainted
-	imageui_queue_draw(regionview->imageui);
+	if (regionview->imageui)
+		imageui_queue_draw(regionview->imageui);
 }
 
 #ifdef EVENT
@@ -889,9 +903,20 @@ regionview_new(Classmodel *classmodel)
 
 		regionview_update_from_model(regionview);
 
-		if (classmodel)
+		if (classmodel) {
 			g_signal_connect_object(G_OBJECT(classmodel), "changed",
-				G_CALLBACK(regionview_model_changed_cb), regionview, 0);
+				G_CALLBACK(regionview_model_changed), regionview, 0);
+
+			/* "changed" is emitted all the time, "redraw" only at the end of
+			 * update.
+			 */
+			g_signal_connect_object(G_OBJECT(classmodel), "redraw",
+				G_CALLBACK(regionview_model_redraw), regionview, 0);
+		}
+
+		// queue an initial draw ... there's no imageui yet, but this will
+		// take a copy of the start position
+		regionview_model_redraw(classmodel, regionview);
 	}
 
 	return regionview;

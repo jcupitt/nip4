@@ -1010,9 +1010,9 @@ imageui_drag_update(GtkEventControllerMotion *self,
 	guint modifiers = get_modifiers(GTK_EVENT_CONTROLLER(self));
 
 #ifdef DEBUG_VERBOSE
-#endif /*DEBUG_VERBOSE*/
 	printf("imageui_drag_update: offset_x = %g, offset_y = %g\n",
 		offset_x, offset_y);
+#endif /*DEBUG_VERBOSE*/
 
 	switch (imageui->state) {
 	case IMAGEUI_WAIT:
@@ -1188,8 +1188,6 @@ static void
 imageui_overlay_snapshot(Imagedisplay *imagedisplay,
 	GtkSnapshot *snapshot, Imageui *imageui)
 {
-	printf("imageui_overlay_snapshot:\n");
-
 	for (GSList *p = imageui->regionviews; p; p = p->next) {
 		Regionview *regionview = REGIONVIEW(p->data);
 
