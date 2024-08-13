@@ -12,11 +12,6 @@
 	gtk makes it hard to support single and multiple file select in
 	one action
 
-- drag bottom row up one, wait for animation to end, drop, will SOMETIMES
-  move back to the bottom of the column
-
-	happens on drag between columns too
-
 - implement range select then drag
 
 	awkward to do since select is on the model, not the view
@@ -25,13 +20,6 @@
 	reparent the rows to it
 
 ## small
-
-- labels should not show select state when the ws is locked?
-
-- column duplicate selects the new column
-
-	maybe eg. drag row to column should also select the
-	destination column?
 
 - start nip4, ^T, ^T, ^T, ^T, ^Q, leak one view
 
@@ -55,6 +43,8 @@
 
 	a special graphical view widget for top-level strings would be better
 
+## imagewindow
+
 - next/prev in imagewindow often fails
 
 	to do with background load and region ownership
@@ -71,21 +61,6 @@
 
 - need something to make sure only one image loads at once?
 
-- we have workspacegroup_save_selected() and workspace_selected_save() ???
-
-## tab drag
-
-- dragging tabs about can make workspaceviews leak, but only
-  sometimes (!!?!?!)
-
-	view_dump(): 2 views
-	0x5555596c76f0 Workspaceview count=4
-	0x5555595c1860 Workspaceview count=1
-
-- cool if new tab button could go next to the rightmost tab, like chrome
-
-## imagewindow
-
 - fix imagewindow copy/paste
 
   add copy/paste to mainwindow as well
@@ -94,7 +69,46 @@
 
 ## vips8
 
+- revise imageinfo for vips8
+
+  imageinfo still does:
+
+	- reference counting layer ... in Managed base class
+
+		ie. integration with the nip2 GC
+
+	- filesystem tracking: we stat open files and signal file_changed
+	  if we see a change
+
+	- cache: several open("fred.v")s share a single Imageinfo,
+ 	  provided their mtimes are all the same
+
+	- imageinfo/expr association tracking, see expr_real_new_value()
+
+	- lookup table management
+
+  no longer does:
+
+	- dependency tracking (libvips does this)
+
+	- operation cache
+
+	- temp file management
+
+		must set the env var to point the libvuips temp file system at
+		our folder
+
 - action_proc_add() etc. etc. in action.c needs updating for vips8
+
+	vo_callva() is done, still need to swap eg. "im_add" for "add"
+
+		must test too
+
+	vo_callva() also need to wrap and unwarp VipsImage <-> imageinfo
+
+	vo_callva() can return a list of values for multiple required outputs
+
+		is this a problem?
 
 ## toolkit browser
 

@@ -30,8 +30,8 @@
 #include "nip4.h"
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 /* Maxiumum number of args to constructor.
  */
@@ -384,24 +384,9 @@ vo_get_optional(Vo *vo, PElement *optional, PElement *out)
 	return TRUE;
 }
 
-/* Run a VipsOperation. Like vo_object_new(), but we return the output args
- * rather than the operation.
- */
-void
-vo_call(Reduce *rc, const char *name,
-	PElement *required, PElement *optional, PElement *out)
+static gboolean
+vo_call_execute(Vo *vo, PElement *optional)
 {
-	Vo *vo;
-	PElement pe;
-
-	if (!(vo = vo_new(rc, name)))
-		reduce_throw(rc);
-
-	if (!vo_args(vo, required, optional)) {
-		vo_free(vo);
-		reduce_throw(rc);
-	}
-
 	/* Ask the object to construct. This can update vo->operation with an
 	 * old one from the cache.
 	 */
@@ -409,9 +394,7 @@ vo_call(Reduce *rc, const char *name,
 		error_top(_("VIPS library error"));
 		error_sub("%s", vips_error_buffer());
 		vips_error_clear();
-		vips_object_unref_outputs(vo->object);
-		vo_free(vo);
-		reduce_throw(rc);
+        return FALSE;
 	}
 
 	/* We can't build the output object directly on out, since it might be
@@ -421,21 +404,43 @@ vo_call(Reduce *rc, const char *name,
 
 	/* Empty output list.
 	 */
+	PElement pe;
 	PEPOINTE(&pe, &vo->out);
 	heap_list_init(&pe);
 
 	/* Append required outputs.
 	 */
 	if (vips_argument_map(VIPS_OBJECT(vo->object),
-			(VipsArgumentMapFn) vo_get_required_output, vo, &pe)) {
-		vips_object_unref_outputs(vo->object);
+			(VipsArgumentMapFn) vo_get_required_output, vo, &pe))
+        return FALSE;
+
+    /* And any optional outputs.
+     */
+    if (optional &&
+		!vo_get_optional(vo, optional, &pe))
+        return FALSE;
+
+    return TRUE;
+}
+
+/* Run a VipsOperation. Like vo_object_new(), but we return the output args
+ * rather than the operation.
+ */
+void
+vo_call(Reduce *rc, const char *name,
+	PElement *required, PElement *optional, PElement *out)
+{
+	Vo *vo;
+
+	if (!(vo = vo_new(rc, name)))
+		reduce_throw(rc);
+
+	if (!vo_args(vo, required, optional)) {
 		vo_free(vo);
 		reduce_throw(rc);
 	}
 
-	/* Append optional outputs.
-	 */
-	if (!vo_get_optional(vo, optional, &pe)) {
+	if (vo_call_execute(vo, optional)) {
 		vips_object_unref_outputs(vo->object);
 		vo_free(vo);
 		reduce_throw(rc);
@@ -449,10 +454,119 @@ vo_call(Reduce *rc, const char *name,
 	vo_free(vo);
 }
 
-// call a vips operation, varargs are C types, so imageinfo, double, int, etc.
+// fill required from varargs
+static gboolean
+vo_call_fillva(Vo *vo, va_list ap)
+{
+	VipsOperation *operation = VIPS_OPERATION(vo->object);
+
+    /* Set required input arguments. Can't use vips_argument_map here
+     * :-( because passing va_list by reference is not portable.
+     */
+    VIPS_ARGUMENT_FOR_ALL(operation,
+        pspec, argument_class, argument_instance)
+    {
+        g_assert(argument_instance);
+
+        /* We skip deprecated required args. There will be a new,
+         * renamed arg in the same place.
+         */
+        if ((argument_class->flags & VIPS_ARGUMENT_REQUIRED) &&
+            !(argument_class->flags & VIPS_ARGUMENT_DEPRECATED)) {
+            VIPS_ARGUMENT_COLLECT_SET(pspec, argument_class, ap);
+
+#ifdef DEBUG
+            {
+                g_autofree char *str = g_strdup_value_contents(&value);
+
+                printf("\t%s = %s\n", g_param_spec_get_name(pspec), str);
+            }
+#endif /*DEBUG */
+
+            g_object_set_property(G_OBJECT(operation),
+                g_param_spec_get_name(pspec), &value);
+
+            VIPS_ARGUMENT_COLLECT_GET(pspec, argument_class, ap);
+
+#ifdef DEBUG
+            printf("\tskipping arg %p for %s\n",
+                arg, g_param_spec_get_name(pspec));
+#endif /*DEBUG */
+
+            VIPS_ARGUMENT_COLLECT_END
+        }
+    }
+    VIPS_ARGUMENT_FOR_ALL_END
+
+    return TRUE;
+}
+
+static gboolean
+vo_callva_sub(Reduce *rc, const char *name, PElement *out, va_list ap)
+{
+	Vo *vo;
+
+    if (trace_flags & TRACE_VIPS)
+        trace_push();
+
+    if (!(vo = vo_new(rc, name)))
+        return FALSE;
+
+    if (trace_flags & TRACE_VIPS)
+        vips_buf_appendf(trace_current(), "\"%s\" ", vo->name);
+
+    if (!vo_call_fillva(vo, ap)) {
+		vo_free(vo);
+        return FALSE;
+	}
+
+	if (trace_flags & TRACE_VIPS)
+		vips_buf_appends(trace_current(), " ->\n");
+
+	if (vo_call_execute(vo, NULL)) {
+		vips_object_unref_outputs(vo->object);
+		vo_free(vo);
+		return FALSE;
+	}
+
+	/* Now write the output object to out.
+	 *
+	 * We will often only have written a single output, since we don't support
+	 * optional outputs. If the output list is a single element, extract that.
+	 */
+	PElement pe;
+	PEPOINTE(&pe, &vo->out);
+	if (heap_list_length(&pe) == 1)
+		heap_list_index(&pe, 0, out);
+	else
+		PEPUTPE(out, &pe);
+
+	vips_object_unref_outputs(vo->object);
+	vo_free(vo);
+
+    return TRUE;
+}
+
+/* Call a vips8 function, picking up args from the function call.
+ */
 void
 vo_callva(Reduce *rc, PElement *out, const char *name, ...)
 {
-	printf("vo_callva: %s FIXME\n", name);
-	PEPUTP(out, ELEMENT_ELIST, NULL);
+    va_list ap;
+    gboolean result;
+
+#ifdef DEBUG
+    printf("** vo_callva: starting for %s\n", name);
+#endif /*DEBUG*/
+
+	va_start(ap, name);
+    result = vo_callva_sub(rc, name, out, ap);
+	va_end(ap);
+
+#ifdef DEBUG
+    printf("vo_callva: done\n");
+#endif /*DEBUG*/
+
+    if (!result)
+        reduce_throw(rc);
 }

@@ -41,7 +41,12 @@
 #define APP_PATH "/org/libvips/nip4"
 
 #include <gtk/gtk.h>
+// needed for VIPS_ARGUMENT_COLLECT_SET
+#include <gobject/gvaluecollector.h>
+
 #include <vips/vips.h>
+#include <vips/debug.h>
+
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 

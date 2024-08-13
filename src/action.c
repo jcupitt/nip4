@@ -1125,11 +1125,11 @@ action_proc_add(Reduce *rc, Compile *compile,
 				op, name, a, b);
 	}
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
-		vo_callva(rc, out, "im_add", PEGETII(a), PEGETII(b));
+		vo_callva(rc, out, "add", PEGETIMAGE(a), PEGETIMAGE(b));
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		vo_callva(rc, out, "im_lintra", 1.0, PEGETII(a), PEGETREAL(b));
+		vo_callva(rc, out, "linear", 1.0, PEGETIMAGE(a), PEGETREAL(b));
 	else if (PEISREAL(a) && PEISIMAGE(b))
-		vo_callva(rc, out, "im_lintra", 1.0, PEGETII(b), PEGETREAL(a));
+		vo_callva(rc, out, "linear", 1.0, PEGETIMAGE(b), PEGETREAL(a));
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }

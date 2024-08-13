@@ -76,6 +76,10 @@ most of the jobs above are pushed down into vips8 now ... except for
 - cache: several open( "fred.v" )s share a single Imageinfo, provided their
   mtimes are all the same
 
+- imageinfo/expr association tracking
+
+- lookup table management
+
  */
 
 #include "nip4.h"
