@@ -440,7 +440,7 @@ vo_call(Reduce *rc, const char *name,
 		reduce_throw(rc);
 	}
 
-	if (vo_call_execute(vo, optional)) {
+	if (!vo_call_execute(vo, optional)) {
 		vips_object_unref_outputs(vo->object);
 		vo_free(vo);
 		reduce_throw(rc);

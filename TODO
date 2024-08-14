@@ -1,9 +1,13 @@
-- have something to make a row (or column?) into a menu item?
+- ^W on the last tab should close the WS
 
-	pressing the menu item loads a scrap of workspace, like copy/paste
-	or duplicate
+- ^W can expose a tab that needs layout
 
-	pretty ugly and hard to reason about
+- ^W on a tab with an error segv
+
+	0x00005555555db726 in row_error_clear (row=0x55555b7bf780) at ../src/row.c:308
+	308		ws->errors = g_slist_remove(ws->errors, row);
+
+
 
 ## rows
 
