@@ -108,9 +108,12 @@ workspacegroupview_child_position(View *parent, View *child)
 	VIEW_CLASS(workspacegroupview_parent_class)->child_position(parent, child);
 }
 
+/*
 static void
 workspacegroupview_child_front(View *parent, View *child)
 {
+	printf("workspacegroupview_child_front:\n");
+
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(parent);
 	Workspaceview *wview = WORKSPACEVIEW(child);
 
@@ -124,9 +127,12 @@ workspacegroupview_child_front(View *parent, View *child)
 	if (current_front != GTK_WIDGET(wview)) {
 		page = gtk_notebook_page_num(GTK_NOTEBOOK(wsgview->notebook),
 			GTK_WIDGET(wview));
+
+		printf("\tsetting current_page to %d\n", page);
 		gtk_notebook_set_current_page(GTK_NOTEBOOK(wsgview->notebook), page);
 	}
 }
+ */
 
 static void
 workspacegroupview_new_tab_clicked(GtkButton *button, void *user_data)
@@ -217,7 +223,7 @@ workspacegroupview_class_init(WorkspacegroupviewClass *class)
 	view_class->child_add = workspacegroupview_child_add;
 	view_class->child_remove = workspacegroupview_child_remove;
 	view_class->child_position = workspacegroupview_child_position;
-	view_class->child_front = workspacegroupview_child_front;
+	//view_class->child_front = workspacegroupview_child_front;
 
 	GType supported_types[] = {
 		GDK_TYPE_FILE_LIST,
@@ -239,6 +245,50 @@ notebookpage_get_workspaceview(GtkWidget *page)
 	return WORKSPACEVIEW(page);
 }
 
+#ifdef DEBUG
+/* Dump the notebook state. Handy for debugging, since it often gets
+ * confused.
+ */
+static void
+notebook_dump(GtkNotebook *notebook)
+{
+	printf("notebook_dump: %p\n", notebook);
+
+	int current_page = gtk_notebook_get_current_page(notebook);
+	printf("\tcurrent_page = %d\n", current_page);
+
+	int n_pages = gtk_notebook_get_n_pages(notebook);
+	printf("\tn_pages = %d\n", n_pages);
+
+	for (int i = 0; i < n_pages; i++) {
+		GtkWidget *page = gtk_notebook_get_nth_page(notebook, i);
+		Workspaceview *wview = WORKSPACEVIEW(page);
+		Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+		printf("\tpage %d = %p (%s)\n", i, page, ws ? IOBJECT(ws)->name : "");
+	}
+}
+
+static void
+icontainer_dump(iContainer *parent)
+{
+	printf("icontainer_dump: %p\n", parent);
+
+	int current = parent->current ? parent->current->pos : -1;
+	printf("\tcurrent = %d\n", current);
+
+	int n_children = icontainer_get_n_children(parent);
+	printf("\tn_children = %d\n", n_children);
+
+	for (int i = 0; i < n_children; i++) {
+		iContainer *child = icontainer_get_nth_child(parent, i);
+
+		printf("\tchild %d = %p (%s), pos = %d\n",
+			i, child, IOBJECT(child)->name, child->pos);
+	}
+}
+#endif /*DEBUG*/
+
 /* Called for switching the current page, and for page drags between
  * notebooks.
  */
@@ -248,8 +298,12 @@ workspacegroupview_switch_page(GtkNotebook *notebook,
 {
 	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(notebook)));
 	Workspaceview *wview = notebookpage_get_workspaceview(page);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+	Workspacegroup *old_wsg = WORKSPACEGROUP(ICONTAINER(ws)->parent);
 
 #ifdef DEBUG
+	notebook_dump(notebook);
+	icontainer_dump(ICONTAINER(old_wsg));
 	printf("workspacegroupview_switch_page: page_num = %d\n", page_num);
 #endif /*DEBUG*/
 
@@ -260,9 +314,6 @@ workspacegroupview_switch_page(GtkNotebook *notebook,
 		printf("\treturn ... no model for page\n");
 		return;
 	}
-
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	Workspacegroup *old_wsg = WORKSPACEGROUP(ICONTAINER(ws)->parent);
 
     Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
     Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
@@ -306,15 +357,17 @@ static void
 workspacegroupview_page_added(GtkNotebook *notebook,
 	GtkWidget *page, guint page_num, gpointer user_data)
 {
-#ifdef DEBUG
-	printf("workspacegroupview_page_added: page_num = %d\n", page_num);
-#endif /*DEBUG*/
-
 	/* Parent model we are adding to.
 	 */
 	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(notebook)));
 	Workspacegroupview *wsgview = mainwindow_get_workspacegroupview(main);
 	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
+
+#ifdef DEBUG
+	notebook_dump(notebook);
+	icontainer_dump(ICONTAINER(wsg));
+	printf("workspacegroupview_page_added: page_num = %d\n", page_num);
+#endif /*DEBUG*/
 
 	/* Child model from page.
 	 */
@@ -330,6 +383,30 @@ workspacegroupview_page_added(GtkNotebook *notebook,
 	filemodel_set_window_hint(FILEMODEL(wsg), GTK_WINDOW(main));
 }
 
+static void
+workspacegroupview_page_removed(GtkNotebook *notebook,
+	GtkWidget *page, guint page_num, gpointer user_data)
+{
+
+	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
+	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(wsgview)));
+	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
+	Workspaceview *wview = notebookpage_get_workspaceview(page);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+#ifdef DEBUG
+	notebook_dump(notebook);
+	icontainer_dump(ICONTAINER(wsg));
+	printf("workspacegroupview_page_removed: page_num = %d\n", page_num);
+#endif /*DEBUG*/
+
+#ifdef DEBUG
+	printf("\tmain = %p\n", main);
+	printf("\twsg = %p (%s)\n", wsg, wsg ? IOBJECT(wsg)->name : "");
+	printf("\tws = %p (%s)\n", ws, wsg ? IOBJECT(ws)->name : "");
+#endif /*DEBUG*/
+}
+
 static GtkNotebook *
 workspacegroupview_create_window(GtkNotebook *notebook,
 	GtkWidget *page, gpointer user_data)
@@ -339,6 +416,8 @@ workspacegroupview_create_window(GtkNotebook *notebook,
 	Workspacegroup *old_wsg = WORKSPACEGROUP(ICONTAINER(ws)->parent);
 
 #ifdef DEBUG
+	notebook_dump(notebook);
+	icontainer_dump(ICONTAINER(old_wsg));
 	printf("workspacegroupview_create_window:\n");
 	printf("\tws = %p (%s)\n", ws, IOBJECT(ws)->name);
 	printf("\told_wsg = %p\n", old_wsg);
@@ -384,6 +463,8 @@ workspacegroupview_page_reordered(GtkNotebook *notebook,
 	gboolean changed;
 
 #ifdef DEBUG
+	notebook_dump(notebook);
+	icontainer_dump(ICONTAINER(wsg));
 	printf("workspacegroupview_page_reordered: page_num = %d\n", page_num);
 #endif /*DEBUG*/
 
@@ -416,6 +497,8 @@ workspacegroupview_init(Workspacegroupview *wsgview)
 		G_CALLBACK(workspacegroupview_switch_page), wsgview, 0);
 	g_signal_connect_object(wsgview->notebook, "page-added",
 		G_CALLBACK(workspacegroupview_page_added), wsgview, 0);
+	g_signal_connect_object(wsgview->notebook, "page-removed",
+		G_CALLBACK(workspacegroupview_page_removed), wsgview, 0);
 	g_signal_connect_object(wsgview->notebook, "create-window",
 		G_CALLBACK(workspacegroupview_create_window), wsgview, 0);
 	g_signal_connect_object(wsgview->notebook, "page-reordered",

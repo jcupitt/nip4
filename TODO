@@ -1,8 +1,4 @@
-- run x.ws, ^w, ^w, get an empty workspace !?!!?
-
-	maybe current is not being set again?
-
-- run x.ws, select tab4, ^w ^w ^w works
+- improve the way we look up pages, see page_remove
 
 - test ^W on a tab with an error
 

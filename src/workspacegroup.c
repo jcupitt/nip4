@@ -153,6 +153,16 @@ workspacegroup_dispose(GObject *gobject)
 	G_OBJECT_CLASS(workspacegroup_parent_class)->dispose(gobject);
 }
 
+static void
+workspacegroup_child_remove(iContainer *parent, iContainer *child)
+{
+	// removing a workspace means we must renumber all the pos ... notebook
+	// uses this number to match tabs to workspaces
+	icontainer_pos_renumber(parent);
+
+	ICONTAINER_CLASS(workspacegroup_parent_class)->child_remove(parent, child);
+}
+
 static View *
 workspacegroup_view_new(Model *model, View *parent)
 {
@@ -723,6 +733,7 @@ workspacegroup_class_init(WorkspacegroupClass *class)
 {
 	GObjectClass *gobject_class = (GObjectClass *) class;
 	iObjectClass *iobject_class = (iObjectClass *) class;
+	iContainerClass *icontainer_class = (iContainerClass *) class;
 	ModelClass *model_class = (ModelClass *) class;
 	FilemodelClass *filemodel_class = (FilemodelClass *) class;
 
@@ -734,6 +745,8 @@ workspacegroup_class_init(WorkspacegroupClass *class)
 	gobject_class->dispose = workspacegroup_dispose;
 
 	iobject_class->user_name = _("Workspace");
+
+	icontainer_class->child_remove = workspacegroup_child_remove;
 
 	/* ->load() is done by workspace_top_load().
 	 */
