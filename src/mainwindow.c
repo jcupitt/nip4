@@ -658,8 +658,6 @@ mainwindow_close_request_next(GtkWindow *parent,
 static gboolean
 mainwindow_close_request(GtkWindow *self, gpointer user_data)
 {
-	printf("mainwindow_close_request:\n");
-
 	Mainwindow *main = MAINWINDOW(self);
 
 	if (FILEMODEL(main->wsg)->modified) {
@@ -778,7 +776,6 @@ static void
 mainwindow_wsg_child_remove(iContainer parent, iContainer *child,
 	Mainwindow *main)
 {
-	printf("mainwindow_wsg_child_remove:\n");
 	mainwindow_cull();
 }
 
@@ -893,13 +890,7 @@ mainwindow_new(App *app)
 static void *
 mainwindow_cull_sub(Mainwindow *main)
 {
-	printf("mainwindow_cull_sub: %p %s, n_children = %d\n",
-		main,
-		FILEMODEL(main->wsg)->filename,
-		icontainer_get_n_children(ICONTAINER(main->wsg)));
-
 	if (workspacegroup_is_empty(main->wsg)) {
-		printf("mainwindow_cull_sub: killing window\n");
 		filemodel_set_modified(FILEMODEL(main->wsg), FALSE);
 		gtk_window_close(GTK_WINDOW(main));
 	}
@@ -923,8 +914,6 @@ mainwindow_cull_timeout(gpointer user_data)
 void
 mainwindow_cull(void)
 {
-	printf("mainwindow_cull:\n");
-
 	// do this on a timeout so we can cull from anywhere
 	VIPS_FREEF(g_source_remove, mainwindow_cull_timeout_id);
 	mainwindow_cull_timeout_id = g_timeout_add(100,

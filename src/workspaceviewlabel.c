@@ -30,8 +30,8 @@
 #include "nip4.h"
 
 /*
- */
 #define DEBUG
+ */
 
 struct _Workspaceviewlabel {
 	GtkWidget parent_instance;

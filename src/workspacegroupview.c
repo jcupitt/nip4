@@ -25,8 +25,8 @@
 #include "nip4.h"
 
 /*
- */
 #define DEBUG
+ */
 
 G_DEFINE_TYPE(Workspacegroupview, workspacegroupview, VIEW_TYPE)
 

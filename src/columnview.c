@@ -424,8 +424,6 @@ columnview_link(View *view, Model *model, View *parent)
 	cview->x = col->x;
 	cview->y = col->y;
 
-	printf("columnview_link: %d %d\n", col->x, col->y);
-
 	VIEW_CLASS(columnview_parent_class)->link(view, model, parent);
 }
 
