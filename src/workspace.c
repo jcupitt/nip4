@@ -168,7 +168,7 @@ gboolean
 workspace_is_empty(Workspace *ws)
 {
 	return workspace_map_symbol(ws,
-			   (symbol_map_fn) workspace_is_empty_sub, NULL) == NULL;
+	   (symbol_map_fn) workspace_is_empty_sub, NULL) == NULL;
 }
 
 /* Map a function over all selected rows in a workspace.

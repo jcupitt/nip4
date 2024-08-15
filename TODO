@@ -1,13 +1,10 @@
-- ^W on the last tab should close the WS
+- run x.ws, ^w, ^w, get an empty workspace !?!!?
 
-- ^W can expose a tab that needs layout
+	maybe current is not being set again?
 
-- ^W on a tab with an error segv
+- run x.ws, select tab4, ^w ^w ^w works
 
-	0x00005555555db726 in row_error_clear (row=0x55555b7bf780) at ../src/row.c:308
-	308		ws->errors = g_slist_remove(ws->errors, row);
-
-
+- test ^W on a tab with an error
 
 ## rows
 

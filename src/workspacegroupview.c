@@ -255,8 +255,8 @@ workspacegroupview_switch_page(GtkNotebook *notebook,
 
 	// we can come here during destruction ... make sure our model is still
 	// around
-	if (VOBJECT(wview)->iobject &&
-		IS_WORKSPACE(VOBJECT(wview)->iobject)) {
+	if (!VOBJECT(wview)->iobject ||
+		!IS_WORKSPACE(VOBJECT(wview)->iobject)) {
 		printf("\treturn ... no model for page\n");
 		return;
 	}

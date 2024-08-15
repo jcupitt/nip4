@@ -445,10 +445,10 @@ static void
 mainwindow_tab_close_current(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
-	printf("mainwindow_close_current:\n");
-
 	Mainwindow *main = MAINWINDOW(user_data);
 	Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
+
+	printf("mainwindow_tab_close_current: ws = %p\n", ws);
 
 	if (ws &&
 		!ws->locked)
@@ -658,12 +658,13 @@ mainwindow_close_request_next(GtkWindow *parent,
 static gboolean
 mainwindow_close_request(GtkWindow *self, gpointer user_data)
 {
+	printf("mainwindow_close_request:\n");
+
 	Mainwindow *main = MAINWINDOW(self);
 
 	if (FILEMODEL(main->wsg)->modified) {
 		filemodel_save_before_close(FILEMODEL(main->wsg),
 			mainwindow_close_request_next, main, NULL);
-
 		// block close, then retrigger after save, see
 		// mainwindow_close_request_idle()
 		return TRUE;
@@ -773,6 +774,14 @@ mainwindow_wsg_destroy(Workspacegroup *wsg, Mainwindow *main)
 	gtk_window_destroy(GTK_WINDOW(main));
 }
 
+static void
+mainwindow_wsg_child_remove(iContainer parent, iContainer *child,
+	Mainwindow *main)
+{
+	printf("mainwindow_wsg_child_remove:\n");
+	mainwindow_cull();
+}
+
 void
 mainwindow_set_wsg(Mainwindow *main, Workspacegroup *wsg)
 {
@@ -788,6 +797,8 @@ mainwindow_set_wsg(Mainwindow *main, Workspacegroup *wsg)
 		G_CALLBACK(mainwindow_wsg_changed), main, 0);
 	g_signal_connect_object(main->wsg, "destroy",
 		G_CALLBACK(mainwindow_wsg_destroy), main, 0);
+	g_signal_connect_object(main->wsg, "child_remove",
+		G_CALLBACK(mainwindow_wsg_child_remove), main, 0);
 
 	/* Set start state.
 	 */
@@ -886,7 +897,8 @@ mainwindow_cull_sub(Mainwindow *main)
 		main,
 		FILEMODEL(main->wsg)->filename,
 		icontainer_get_n_children(ICONTAINER(main->wsg)));
-	if (icontainer_get_n_children(ICONTAINER(main->wsg)) == 0) {
+
+	if (workspacegroup_is_empty(main->wsg)) {
 		printf("mainwindow_cull_sub: killing window\n");
 		filemodel_set_modified(FILEMODEL(main->wsg), FALSE);
 		gtk_window_close(GTK_WINDOW(main));
@@ -895,13 +907,28 @@ mainwindow_cull_sub(Mainwindow *main)
 	return NULL;
 }
 
+static guint mainwindow_cull_timeout_id = 0;
+
+static gboolean
+mainwindow_cull_timeout(gpointer user_data)
+{
+	mainwindow_cull_timeout_id = 0;
+
+	slist_map(mainwindow_all,
+		(SListMapFn) mainwindow_cull_sub, NULL);
+
+	return FALSE;
+}
+
 void
 mainwindow_cull(void)
 {
 	printf("mainwindow_cull:\n");
 
-	slist_map(mainwindow_all,
-		(SListMapFn) mainwindow_cull_sub, NULL);
+	// do this on a timeout so we can cull from anywhere
+	VIPS_FREEF(g_source_remove, mainwindow_cull_timeout_id);
+	mainwindow_cull_timeout_id = g_timeout_add(100,
+		(GSourceFunc) mainwindow_cull_timeout, NULL);
 }
 
 static void *
