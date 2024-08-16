@@ -433,8 +433,6 @@ static void
 mainwindow_tab_new(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
-	printf("mainwindow_tab_new:\n");
-
 	Mainwindow *main = MAINWINDOW(user_data);
 
 	if (!workspace_new_blank(main->wsg))
@@ -447,8 +445,6 @@ mainwindow_tab_close_current(GSimpleAction *action,
 {
 	Mainwindow *main = MAINWINDOW(user_data);
 	Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
-
-	printf("mainwindow_tab_close_current: ws = %p\n", ws);
 
 	if (ws &&
 		!ws->locked)

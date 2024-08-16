@@ -239,56 +239,6 @@ workspacegroupview_class_init(WorkspacegroupviewClass *class)
 		workspacegroupview_supported_types[i] = supported_types[i];
 }
 
-static Workspaceview *
-notebookpage_get_workspaceview(GtkWidget *page)
-{
-	return WORKSPACEVIEW(page);
-}
-
-#ifdef DEBUG
-/* Dump the notebook state. Handy for debugging, since it often gets
- * confused.
- */
-static void
-notebook_dump(GtkNotebook *notebook)
-{
-	printf("notebook_dump: %p\n", notebook);
-
-	int current_page = gtk_notebook_get_current_page(notebook);
-	printf("\tcurrent_page = %d\n", current_page);
-
-	int n_pages = gtk_notebook_get_n_pages(notebook);
-	printf("\tn_pages = %d\n", n_pages);
-
-	for (int i = 0; i < n_pages; i++) {
-		GtkWidget *page = gtk_notebook_get_nth_page(notebook, i);
-		Workspaceview *wview = WORKSPACEVIEW(page);
-		Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-
-		printf("\tpage %d = %p (%s)\n", i, page, ws ? IOBJECT(ws)->name : "");
-	}
-}
-
-static void
-icontainer_dump(iContainer *parent)
-{
-	printf("icontainer_dump: %p\n", parent);
-
-	int current = parent->current ? parent->current->pos : -1;
-	printf("\tcurrent = %d\n", current);
-
-	int n_children = icontainer_get_n_children(parent);
-	printf("\tn_children = %d\n", n_children);
-
-	for (int i = 0; i < n_children; i++) {
-		iContainer *child = icontainer_get_nth_child(parent, i);
-
-		printf("\tchild %d = %p (%s), pos = %d\n",
-			i, child, IOBJECT(child)->name, child->pos);
-	}
-}
-#endif /*DEBUG*/
-
 /* Called for switching the current page, and for page drags between
  * notebooks.
  */
@@ -296,29 +246,15 @@ static void
 workspacegroupview_switch_page(GtkNotebook *notebook,
 	GtkWidget *page, guint page_num, gpointer user_data)
 {
-	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(notebook)));
-	Workspaceview *wview = notebookpage_get_workspaceview(page);
+	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
+	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(wsgview)));
+	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
+	Workspaceview *wview = WORKSPACEVIEW(page);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 	Workspacegroup *old_wsg = WORKSPACEGROUP(ICONTAINER(ws)->parent);
 
 #ifdef DEBUG
-	notebook_dump(notebook);
-	icontainer_dump(ICONTAINER(old_wsg));
 	printf("workspacegroupview_switch_page: page_num = %d\n", page_num);
-#endif /*DEBUG*/
-
-	// we can come here during destruction ... make sure our model is still
-	// around
-	if (!VOBJECT(wview)->iobject ||
-		!IS_WORKSPACE(VOBJECT(wview)->iobject)) {
-		printf("\treturn ... no model for page\n");
-		return;
-	}
-
-    Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
-    Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
-
-#ifdef DEBUG
 	printf("\tws = %p (%s)\n", ws, IOBJECT(ws)->name);
 	printf("\tmain = %p\n", main);
 #endif /*DEBUG*/
@@ -357,75 +293,28 @@ static void
 workspacegroupview_page_added(GtkNotebook *notebook,
 	GtkWidget *page, guint page_num, gpointer user_data)
 {
-	/* Parent model we are adding to.
-	 */
-	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(notebook)));
-	Workspacegroupview *wsgview = mainwindow_get_workspacegroupview(main);
-	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
-
-#ifdef DEBUG
-	notebook_dump(notebook);
-	icontainer_dump(ICONTAINER(wsg));
-	printf("workspacegroupview_page_added: page_num = %d\n", page_num);
-#endif /*DEBUG*/
-
-	/* Child model from page.
-	 */
-	Workspaceview *wview = notebookpage_get_workspaceview(page);
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-
-#ifdef DEBUG
-	printf("\tmain = %p\n", main);
-	printf("\twsg = %p (%s)\n", wsg, IOBJECT(wsg)->name);
-	printf("\tws = %p (%s)\n", ws, IOBJECT(ws)->name);
-#endif /*DEBUG*/
-
-	filemodel_set_window_hint(FILEMODEL(wsg), GTK_WINDOW(main));
-}
-
-static void
-workspacegroupview_page_removed(GtkNotebook *notebook,
-	GtkWidget *page, guint page_num, gpointer user_data)
-{
-
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
 	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(wsgview)));
 	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
-	Workspaceview *wview = notebookpage_get_workspaceview(page);
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
-#ifdef DEBUG
-	notebook_dump(notebook);
-	icontainer_dump(ICONTAINER(wsg));
-	printf("workspacegroupview_page_removed: page_num = %d\n", page_num);
-#endif /*DEBUG*/
-
-#ifdef DEBUG
-	printf("\tmain = %p\n", main);
-	printf("\twsg = %p (%s)\n", wsg, wsg ? IOBJECT(wsg)->name : "");
-	printf("\tws = %p (%s)\n", ws, wsg ? IOBJECT(ws)->name : "");
-#endif /*DEBUG*/
+	filemodel_set_window_hint(FILEMODEL(wsg), GTK_WINDOW(main));
 }
 
 static GtkNotebook *
 workspacegroupview_create_window(GtkNotebook *notebook,
 	GtkWidget *page, gpointer user_data)
 {
-	Workspaceview *wview = WORKSPACEVIEW(page);
-	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	Workspacegroup *old_wsg = WORKSPACEGROUP(ICONTAINER(ws)->parent);
+	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
+	Mainwindow *old_main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(wsgview)));
+	Workspacegroup *old_wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
 
 #ifdef DEBUG
-	notebook_dump(notebook);
-	icontainer_dump(ICONTAINER(old_wsg));
 	printf("workspacegroupview_create_window:\n");
-	printf("\tws = %p (%s)\n", ws, IOBJECT(ws)->name);
 	printf("\told_wsg = %p\n", old_wsg);
 #endif /*DEBUG*/
 
-	Workspaceroot *wsr = old_wsg->wsr;
-	Mainwindow *old_main = MAINWINDOW(view_get_window(VIEW(wview)));
 	App *app = APP(gtk_window_get_application(GTK_WINDOW(old_main)));
+	Workspaceroot *wsr = old_wsg->wsr;
 	Workspacegroup *new_wsg = workspacegroup_new(wsr);
 
 #ifdef DEBUG
@@ -456,18 +345,14 @@ static void
 workspacegroupview_page_reordered(GtkNotebook *notebook,
 	GtkWidget *page, guint page_num, gpointer user_data)
 {
-	Workspaceview *wview = WORKSPACEVIEW(page);
-	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(VIEW(wview)->parent);
+	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
 	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
 
-	gboolean changed;
-
 #ifdef DEBUG
-	notebook_dump(notebook);
-	icontainer_dump(ICONTAINER(wsg));
 	printf("workspacegroupview_page_reordered: page_num = %d\n", page_num);
 #endif /*DEBUG*/
 
+	gboolean changed;
 	changed = FALSE;
 	for (int i = 0; i < gtk_notebook_get_n_pages(notebook); i++) {
 		GtkWidget *page_n = gtk_notebook_get_nth_page(notebook, i);
@@ -497,8 +382,6 @@ workspacegroupview_init(Workspacegroupview *wsgview)
 		G_CALLBACK(workspacegroupview_switch_page), wsgview, 0);
 	g_signal_connect_object(wsgview->notebook, "page-added",
 		G_CALLBACK(workspacegroupview_page_added), wsgview, 0);
-	g_signal_connect_object(wsgview->notebook, "page-removed",
-		G_CALLBACK(workspacegroupview_page_removed), wsgview, 0);
 	g_signal_connect_object(wsgview->notebook, "create-window",
 		G_CALLBACK(workspacegroupview_create_window), wsgview, 0);
 	g_signal_connect_object(wsgview->notebook, "page-reordered",

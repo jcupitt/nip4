@@ -399,6 +399,8 @@ subcolumn_child_add(iContainer *parent, iContainer *child, int pos)
 	if (g_str_equal(name, MEMBER_SUPER))
 		scol->super = row;
 
+	icontainer_pos_sort(ICONTAINER(scol));
+
 	ICONTAINER_CLASS(subcolumn_parent_class)->child_add(parent, child, pos);
 }
 
@@ -407,6 +409,8 @@ subcolumn_child_remove(iContainer *parent, iContainer *child)
 {
 	Subcolumn *scol = SUBCOLUMN(parent);
 	Row *row = ROW(child);
+
+	icontainer_pos_sort(ICONTAINER(scol));
 
 	ICONTAINER_CLASS(subcolumn_parent_class)->child_remove(parent, child);
 
