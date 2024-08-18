@@ -242,10 +242,10 @@ iimage_class_get(Classmodel *classmodel, PElement *root)
 	Imageinfo *ii;
 
 #ifdef DEBUG
+#endif /*DEBUG*/
 	printf("iimage_class_get: ");
 	row_name_print(HEAPMODEL(iimage)->row);
 	printf("\n");
-#endif /*DEBUG*/
 
 	if (!class_get_member_image(root, MEMBER_VALUE, &ii))
 		return FALSE;
@@ -259,6 +259,9 @@ iimage_class_get(Classmodel *classmodel, PElement *root)
 		VipsImage *image;
 		const char *filename;
 
+		printf("\timageinfo = %p\n", ii);
+		printf("\timageinfo->image = %p\n", ii->image);
+
 		if ((image = ii->image) &&
 			vips_image_get_typeof(image, ORIGINAL_FILENAME) != 0) {
 			if (vips_image_get_string(image, ORIGINAL_FILENAME, &filename))
@@ -268,6 +271,8 @@ iimage_class_get(Classmodel *classmodel, PElement *root)
 			filename = IOBJECT(ii)->name;
 		else
 			filename = NULL;
+
+		printf("\tfilename = %s\n", filename);
 
 		VIPS_SETSTR(classmodel->filename, filename);
 	}

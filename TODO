@@ -1,16 +1,22 @@
+- ^W should close an imagewindow
+
 ## vips8
 
 - action_proc_add() etc. etc. in action.c needs updating for vips8
 
-	vo_callva() is done, still need to swap eg. "im_add" for "add"
+  "add" done, but (A1.value + A2.value) just seems to be A1.value
 
-		must test too
+	vips_add is being called correctly and returns the correct result
 
-	vo_callva() also need to wrap and unwarp VipsImage <-> imageinfo
+	imageinfo is being made for the new image
 
-	vo_callva() can return a list of values for multiple required outputs
+	imagewindow is being given A1.value
 
-		is this a problem?
+	check we are updating the heap correctly in vo_callva_sub()
+
+- builtin.c also needs updating, eg.:
+
+	builtin.c:	{ "acos", &ip_acos, "im_acostra" },
 
 ## rows
 

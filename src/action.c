@@ -1108,9 +1108,9 @@ action_proc_add(Reduce *rc, Compile *compile,
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
 		vo_callva(rc, out, "add", PEGETIMAGE(a), PEGETIMAGE(b));
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		vo_callva(rc, out, "linear", 1.0, PEGETIMAGE(a), PEGETREAL(b));
+		vo_callva(rc, out, "linear", PEGETIMAGE(a), 1.0, PEGETREAL(b));
 	else if (PEISREAL(a) && PEISIMAGE(b))
-		vo_callva(rc, out, "linear", 1.0, PEGETIMAGE(b), PEGETREAL(a));
+		vo_callva(rc, out, "linear", PEGETIMAGE(b), 1.0, PEGETREAL(a));
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }

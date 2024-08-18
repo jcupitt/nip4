@@ -323,6 +323,15 @@ vo_get_required_output(VipsObject *object, GParamSpec *pspec,
 			return object;
 		g_value_init(&value, type);
 		g_object_get_property(G_OBJECT(object), name, &value);
+
+#ifdef DEBUG
+		{
+			g_autofree char *str = g_strdup_value_contents(&value);
+
+			printf("\t%s = %s\n", name, str);
+		}
+#endif /*DEBUG */
+
 		if (!heap_gvalue_to_ip(&value, &lhs)) {
 			g_value_unset(&value);
 			return object;
@@ -387,6 +396,10 @@ vo_get_optional(Vo *vo, PElement *optional, PElement *out)
 static gboolean
 vo_call_execute(Vo *vo, PElement *optional)
 {
+#ifdef DEBUG
+	printf("executing ...\n");
+#endif /*DEBUG */
+
 	/* Ask the object to construct. This can update vo->operation with an
 	 * old one from the cache.
 	 */
@@ -410,12 +423,18 @@ vo_call_execute(Vo *vo, PElement *optional)
 
 	/* Append required outputs.
 	 */
+#ifdef DEBUG
+	printf("fetching required results ...\n");
+#endif /*DEBUG */
 	if (vips_argument_map(VIPS_OBJECT(vo->object),
 			(VipsArgumentMapFn) vo_get_required_output, vo, &pe))
         return FALSE;
 
     /* And any optional outputs.
      */
+#ifdef DEBUG
+	printf("fetching optional results ...\n");
+#endif /*DEBUG */
     if (optional &&
 		!vo_get_optional(vo, optional, &pe))
         return FALSE;
@@ -523,7 +542,7 @@ vo_callva_sub(Reduce *rc, const char *name, PElement *out, va_list ap)
 	if (trace_flags & TRACE_VIPS)
 		vips_buf_appends(trace_current(), " ->\n");
 
-	if (vo_call_execute(vo, NULL)) {
+	if (!vo_call_execute(vo, NULL)) {
 		vips_object_unref_outputs(vo->object);
 		vo_free(vo);
 		return FALSE;
