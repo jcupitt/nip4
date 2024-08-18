@@ -371,6 +371,7 @@ itext_add_element(VipsBuf *buf, PElement *base,
 	else if (PEISIMAGE(base)) {
 		vips_buf_appendf(buf, "<");
 		vips_buf_appendi(buf, PEGETIMAGE(base));
+		vips_buf_appendf(buf, " %p", PEGETIMAGE(base));
 		vips_buf_appendf(buf, ">");
 	}
 	else if (PEISMANAGED(base)) {

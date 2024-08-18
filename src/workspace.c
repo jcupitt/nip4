@@ -438,8 +438,10 @@ workspace_column_new(Workspace *ws)
 
 	// position just to right of currently selected column
 	Column *old_col = workspace_get_column(ws);
+	int x = old_col ? old_col->x + 110 : 110;
+	int y = old_col ? old_col->y: 0;
 	Column *col;
-	if (!(col = column_new(ws, new_name, old_col->x + 110, old_col->y)))
+	if (!(col = column_new(ws, new_name, x, y)))
 		return NULL;
 
 	workspace_column_select(ws, col);

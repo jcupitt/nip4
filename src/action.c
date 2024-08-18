@@ -1080,37 +1080,33 @@ action_proc_add(Reduce *rc, Compile *compile,
 	if (PEISREAL(a) && PEISREAL(b)) {
 		if (!heap_real_new(heap,
 				PEGETREAL(a) + PEGETREAL(b), out))
-			action_boperror(rc, compile,
-				error_get_sub(), op, name, a, b);
+			action_boperror(rc, compile, error_get_sub(), op, name, a, b);
 	}
 	else if (PEISCOMPLEX(a) && PEISCOMPLEX(b)) {
 		if (!heap_complex_new(heap,
 				PEGETREALPART(a) + PEGETREALPART(b),
 				PEGETIMAGPART(a) + PEGETIMAGPART(b),
 				out))
-			action_boperror(rc, compile, error_get_sub(),
-				op, name, a, b);
+			action_boperror(rc, compile, error_get_sub(), op, name, a, b);
 	}
 	else if (PEISCOMPLEX(a) && PEISREAL(b)) {
 		if (!heap_complex_new(heap,
 				PEGETREALPART(a) + PEGETREAL(b),
 				PEGETIMAGPART(a), out))
-			action_boperror(rc, compile, error_get_sub(),
-				op, name, a, b);
+			action_boperror(rc, compile, error_get_sub(), op, name, a, b);
 	}
 	else if (PEISREAL(a) && PEISCOMPLEX(b)) {
 		if (!heap_complex_new(heap,
 				PEGETREAL(a) + PEGETREALPART(b),
 				PEGETIMAGPART(b), out))
-			action_boperror(rc, compile, error_get_sub(),
-				op, name, a, b);
+			action_boperror(rc, compile, error_get_sub(), op, name, a, b);
 	}
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
 		vo_callva(rc, out, "add", PEGETIMAGE(a), PEGETIMAGE(b));
 	else if (PEISIMAGE(a) && PEISREAL(b))
-		vo_callva(rc, out, "linear", PEGETIMAGE(a), 1.0, PEGETREAL(b));
+		vo_callva(rc, out, "linear1", PEGETIMAGE(a), 1.0, PEGETREAL(b));
 	else if (PEISREAL(a) && PEISIMAGE(b))
-		vo_callva(rc, out, "linear", PEGETIMAGE(b), 1.0, PEGETREAL(a));
+		vo_callva(rc, out, "linear1", PEGETIMAGE(b), 1.0, PEGETREAL(a));
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }

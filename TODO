@@ -1,18 +1,19 @@
 - ^W should close an imagewindow
 
+  ^N should make a new column
+
+  ctrl-bsp for delete selected?
+
 ## vips8
 
 - action_proc_add() etc. etc. in action.c needs updating for vips8
 
-  "add" done, but (A1.value + A2.value) just seems to be A1.value
+  A1 + 20 doesn't work
 
-	vips_add is being called correctly and returns the correct result
+  	linear wants an arraydouble, not a single double, and linear1 isn't
+	an operation
 
-	imageinfo is being made for the new image
-
-	imagewindow is being given A1.value
-
-	check we are updating the heap correctly in vo_callva_sub()
+	maybe make linear1 operation ourselves?
 
 - builtin.c also needs updating, eg.:
 

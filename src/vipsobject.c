@@ -548,17 +548,21 @@ vo_callva_sub(Reduce *rc, const char *name, PElement *out, va_list ap)
 		return FALSE;
 	}
 
-	/* Now write the output object to out.
-	 *
-	 * We will often only have written a single output, since we don't support
-	 * optional outputs. If the output list is a single element, extract that.
+	/* The output object.
 	 */
 	PElement pe;
 	PEPOINTE(&pe, &vo->out);
+
+	/* We will often only have written a single output, since we don't support
+	 * optional outputs. If the output list is a single element, move pe to
+	 * that.
+	 */
 	if (heap_list_length(&pe) == 1)
-		heap_list_index(&pe, 0, out);
-	else
-		PEPUTPE(out, &pe);
+		heap_list_index(&pe, 0, &pe);
+
+	/* And write to out.
+	 */
+	PEPUTPE(out, &pe);
 
 	vips_object_unref_outputs(vo->object);
 	vo_free(vo);
