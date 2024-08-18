@@ -86,18 +86,18 @@ Imageinfogroup *imageinfogroup_new(void);
 /* A fragment of an undo buffer.
  */
 typedef struct _Undofragment {
-	struct _Undobuffer *undo; /* Main undo area */
-	VipsImage *im;			  /* Old area */
-	VipsRect pos;			  /* Where we took it from */
+	struct _Undobuffer *undo;		/* Main undo area */
+	VipsImage *im;					/* Old area */
+	VipsRect pos;					/* Where we took it from */
 } Undofragment;
 
 /* Hold a list of the above, a bounding box for this list and a link back to
  * the main imageinfo.
  */
 typedef struct _Undobuffer {
-	struct _Imageinfo *imageinfo; /* Main paint area */
-	GSList *frags;				  /* List of paint fragments */
-	VipsRect bbox;				  /* Bounding box for frags */
+	struct _Imageinfo *imageinfo;	/* Main paint area */
+	GSList *frags;					/* List of paint fragments */
+	VipsRect bbox;					/* Bounding box for frags */
 } Undobuffer;
 
 /* Attach one of these to any VipsImage we monitor. It has the same lifetime as
@@ -114,17 +114,17 @@ typedef struct _Imageinfoproxy {
 struct _Imageinfo {
 	Managed parent_object;
 
-	VipsImage *im;			 /* Image we manage, LUT if delayed */
-	VipsImage *mapped_im;	 /* Cache image mapped-thru-lut here */
-	VipsImage *identity_lut; /* For base images, keep an id lut if poss */
-	Imageinfo *underlying;	 /* If we're a LUT, the image we are a LUT of */
-	Imageinfoproxy *proxy;	 /* Proxy for VipsImage callbacks */
+	VipsImage *im;					/* Image we manage, LUT if delayed */
+	VipsImage *mapped_im;			/* Cache image mapped-thru-lut here */
+	VipsImage *identity_lut;		/* For base images, keep id lut if poss */
+	Imageinfo *underlying;			/* If we're a LUT, image we are a LUT of */
+	Imageinfoproxy *proxy;			/* Proxy for VipsImage callbacks */
 
-	gboolean dfile;		   /* delete_file on final close */
-	char *delete_filename; /* and the file we delete */
+	gboolean dfile;					/* delete_file on final close */
+	char *delete_filename;			/* and the file we delete */
 
-	gboolean from_file; /* Set if ->name is a user file */
-	time_t mtime;		/* What mtime was when we loaded this file */
+	gboolean from_file;				/* Set if ->name is a user file */
+	time_t mtime;					/* mtime when we loaded this file */
 
 	/* Exprs which are thought to have this image as their value. See
 	 * expr_value_new().
@@ -138,9 +138,9 @@ struct _Imageinfo {
 
 	/* Undo/redo buffers.
 	 */
-	GSList *undo;	   /* List of undo buffers */
-	GSList *redo;	   /* List of redo buffers */
-	Undobuffer *cundo; /* Current buffer */
+	GSList *undo;					/* List of undo buffers */
+	GSList *redo;					/* List of redo buffers */
+	Undobuffer *cundo;				/* Current buffer */
 
 	/* Have we attached progress stuff to this ii?
 	 */

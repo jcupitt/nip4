@@ -31,54 +31,17 @@
 
 jobs:
 
-- reference counting layer ... in Managed base class, plus links to heap
-  garbage collection
+	- integration with GC in Managed base class
 
-- filesystem tracking: we stat open files and signal file_changed if we see a
-  change
+	- filesystem event tracking: we stat open files and signal file_changed
+	  if we see a change
 
-- cache: several open( "fred.v" )s share a single Imageinfo, provided their
-  mtimes are all the same
+	- cache: several open("fred.v")s share a single Imageinfo,
+ 	  provided their mtimes are all the same
 
-- lookup table management ... if an operation can work with pixel lookup
-  tables (found by examining a flag in the VIPS function descriptor), then
-  instead of operating on the image, the operation runs on the LUT associated
-  with that image ... Imageinfo tracks the LUTs representing delayed eval
+	- imageinfo/expr association tracking, see expr_real_new_value()
 
-- dependency tracking ... an imageinfo can require several other imageinfos
-  to be open for it to work properly; we follow these dependencies, and
-  delay destroying an imageinfo until it's not required by any others
-
-- temp file management ... we can make temp images on disc; we unlink() these
-  temps when they're no longer needed
-
-- imageinfo/expr association tracking ... we track when an expr
-  receives an imageinfo as its value; the info is used to get region views
-  to display in the right image ... see expr_real_new_value()
-
-- paint stuff: also undo/redo buffers, each with a "*_changed" signal
-
- */
-
-/*
-
-more stuff:
-
-while we transition to vips8, also use imageinfo to wrap VipsImage
-
-most of the jobs above are pushed down into vips8 now ... except for
-
-- reference counting layer ... in Managed base class
-
-- filesystem tracking: we stat open files and signal file_changed if we see a
-  change
-
-- cache: several open( "fred.v" )s share a single Imageinfo, provided their
-  mtimes are all the same
-
-- imageinfo/expr association tracking
-
-- lookup table management
+	- lookup table management
 
  */
 
@@ -114,18 +77,19 @@ imageinfogroup_child_add(iContainer *parent, iContainer *child, int pos)
 	Imageinfogroup *imageinfogroup = IMAGEINFOGROUP(parent);
 	Imageinfo *imageinfo = IMAGEINFO(child);
 	const char *name = IOBJECT(imageinfo)->name;
-	GSList *hits;
 
 #ifdef DEBUG_MAKE
 	printf("imageinfogroup_child_add: %s\n", name);
 #endif /*DEBUG_MAKE*/
 
+	GSList *hits;
 	hits = (GSList *) g_hash_table_lookup(imageinfogroup->filename_hash, name);
 	hits = g_slist_prepend(hits, imageinfo);
 	g_hash_table_insert(imageinfogroup->filename_hash,
 		(gpointer) name, (gpointer) hits);
 
-	ICONTAINER_CLASS(imageinfogroup_parent_class)->child_add(parent, child, pos);
+	ICONTAINER_CLASS(imageinfogroup_parent_class)->
+		child_add(parent, child, pos);
 }
 
 static void
@@ -134,14 +98,13 @@ imageinfogroup_child_remove(iContainer *parent, iContainer *child)
 	Imageinfogroup *imageinfogroup = IMAGEINFOGROUP(parent);
 	Imageinfo *imageinfo = IMAGEINFO(child);
 	const char *name = IOBJECT(imageinfo)->name;
-	GSList *hits;
 
 #ifdef DEBUG_MAKE
 	printf("imageinfogroup_child_remove: %s\n", name);
 #endif /*DEBUG_MAKE*/
 
-	hits = (GSList *) g_hash_table_lookup(imageinfogroup->filename_hash,
-		name);
+	GSList *hits;
+	hits = (GSList *) g_hash_table_lookup(imageinfogroup->filename_hash, name);
 	g_assert(hits);
 	hits = g_slist_remove(hits, imageinfo);
 
@@ -181,15 +144,14 @@ imageinfogroup_init(Imageinfogroup *imageinfogroup)
 	printf("imageinfogroup_init\n");
 #endif /*DEBUG_MAKE*/
 
-	imageinfogroup->filename_hash =
-		g_hash_table_new(g_str_hash, g_str_equal);
+	imageinfogroup->filename_hash = g_hash_table_new(g_str_hash, g_str_equal);
 }
 
 Imageinfogroup *
 imageinfogroup_new(void)
 {
-	Imageinfogroup *imageinfogroup = IMAGEINFOGROUP(
-		g_object_new(IMAGEINFOGROUP_TYPE, NULL));
+	Imageinfogroup *imageinfogroup =
+		IMAGEINFOGROUP(g_object_new(IMAGEINFOGROUP_TYPE, NULL));
 
 	return imageinfogroup;
 }
@@ -227,11 +189,11 @@ imageinfogroup_lookup(Imageinfogroup *imageinfogroup, const char *filename)
 /* Our signals.
  */
 enum {
-	SIG_AREA_CHANGED, /* Area of image has changed: update screen */
-	SIG_AREA_PAINTED, /* Area of image has been painted */
-	SIG_UNDO_CHANGED, /* Undo/redo state has changed */
-	SIG_FILE_CHANGED, /* Underlying file seems to have changed */
-	SIG_INVALIDATE,	  /* VipsImage* has been invalidated */
+	SIG_AREA_CHANGED,		/* Area of image has changed: update screen */
+	SIG_AREA_PAINTED,		/* Area of image has been painted */
+	SIG_UNDO_CHANGED,		/* Undo/redo state has changed */
+	SIG_FILE_CHANGED,		/* Underlying file seems to have changed */
+	SIG_INVALIDATE,			/* VipsImage* has been invalidated */
 	SIG_LAST
 };
 
@@ -245,9 +207,7 @@ static void
 imageinfo_print(Imageinfo *imageinfo)
 {
 	printf(" \"%s\" mtime = %d (%p)\n",
-		IOBJECT(imageinfo)->name,
-		(int) imageinfo->mtime,
-		imageinfo);
+		IOBJECT(imageinfo)->name, (int) imageinfo->mtime, imageinfo);
 }
 #endif
 
@@ -392,8 +352,7 @@ imageinfo_undofragment_free(Undofragment *frag)
 static void
 imageinfo_undobuffer_free(Undobuffer *undo)
 {
-	slist_map(undo->frags,
-		(SListMapFn) imageinfo_undofragment_free, NULL);
+	slist_map(undo->frags, (SListMapFn) imageinfo_undofragment_free, NULL);
 	VIPS_FREEF(g_slist_free, undo->frags);
 	VIPS_FREE(undo);
 }
@@ -403,11 +362,9 @@ imageinfo_undobuffer_free(Undobuffer *undo)
 static void
 imageinfo_undo_free(Imageinfo *imageinfo)
 {
-	slist_map(imageinfo->redo,
-		(SListMapFn) imageinfo_undobuffer_free, NULL);
+	slist_map(imageinfo->redo, (SListMapFn) imageinfo_undobuffer_free, NULL);
 	VIPS_FREEF(g_slist_free, imageinfo->redo);
-	slist_map(imageinfo->undo,
-		(SListMapFn) imageinfo_undobuffer_free, NULL);
+	slist_map(imageinfo->undo, (SListMapFn) imageinfo_undobuffer_free, NULL);
 	VIPS_FREEF(g_slist_free, imageinfo->undo);
 	VIPS_FREEF(imageinfo_undobuffer_free, imageinfo->cundo);
 }
@@ -701,7 +658,6 @@ imageinfo_new(Imageinfogroup *imageinfogroup,
 	Heap *heap, VipsImage *im, const char *name)
 {
 	Imageinfo *imageinfo = IMAGEINFO(g_object_new(IMAGEINFO_TYPE, NULL));
-	char buf[FILENAME_MAX];
 
 #ifdef DEBUG_OPEN
 	printf("imageinfo_new: %p \"%s\"\n", imageinfo, im->filename);
@@ -709,6 +665,7 @@ imageinfo_new(Imageinfogroup *imageinfogroup,
 
 	managed_link_heap(MANAGED(imageinfo), heap);
 
+	char buf[FILENAME_MAX];
 	if (!name) {
 		if (!temp_name(buf, "v"))
 			/* Will be freed on next GC.
@@ -1226,8 +1183,7 @@ imageinfo_undo_mark(Imageinfo *imageinfo)
 		/* Left over from the last undo save. Copy to undo save list
 		 * and get ready for new undo buffer.
 		 */
-		imageinfo->undo =
-			g_slist_prepend(imageinfo->undo, imageinfo->cundo);
+		imageinfo->undo = g_slist_prepend(imageinfo->undo, imageinfo->cundo);
 		imageinfo->cundo = NULL;
 	}
 
@@ -1283,8 +1239,7 @@ imageinfo_undo_add(Imageinfo *imageinfo, VipsRect *dirty)
 	if (!undo) {
 		/* No current undo buffer ... start a new one for this action.
 		 */
-		if (!(imageinfo->cundo = undo =
-					imageinfo_undobuffer_new(imageinfo)))
+		if (!(imageinfo->cundo = undo = imageinfo_undobuffer_new(imageinfo)))
 			return FALSE;
 
 		return imageinfo_undo_grab(undo, &clipped) != NULL;
@@ -1303,8 +1258,7 @@ imageinfo_undo_add(Imageinfo *imageinfo, VipsRect *dirty)
 		 */
 		over.left = VIPS_RECT_RIGHT(&undo->bbox);
 		over.top = undo->bbox.top;
-		over.width = VIPS_RECT_RIGHT(&clipped) -
-			VIPS_RECT_RIGHT(&undo->bbox);
+		over.width = VIPS_RECT_RIGHT(&clipped) - VIPS_RECT_RIGHT(&undo->bbox);
 		over.height = undo->bbox.height;
 
 		/* Grab new fragment.
@@ -1373,8 +1327,7 @@ imageinfo_undofragment_paste(Undofragment *frag)
 static void
 imageinfo_undobuffer_paste(Undobuffer *undo)
 {
-	slist_map(undo->frags,
-		(SListMapFn) imageinfo_undofragment_paste, NULL);
+	slist_map(undo->frags, (SListMapFn) imageinfo_undofragment_paste, NULL);
 }
 
 /* Undo a paint action.
