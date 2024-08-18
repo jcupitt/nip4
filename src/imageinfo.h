@@ -83,29 +83,12 @@ Imageinfogroup *imageinfogroup_new(void);
 #define IMAGEINFO_GET_CLASS(obj) \
 	(G_TYPE_INSTANCE_GET_CLASS((obj), IMAGEINFO_TYPE, ImageinfoClass))
 
-/* A fragment of an undo buffer.
- */
-typedef struct _Undofragment {
-	struct _Undobuffer *undo;		/* Main undo area */
-	VipsImage *im;					/* Old area */
-	VipsRect pos;					/* Where we took it from */
-} Undofragment;
-
-/* Hold a list of the above, a bounding box for this list and a link back to
- * the main imageinfo.
- */
-typedef struct _Undobuffer {
-	struct _Imageinfo *imageinfo;	/* Main paint area */
-	GSList *frags;					/* List of paint fragments */
-	VipsRect bbox;					/* Bounding box for frags */
-} Undobuffer;
-
 /* Attach one of these to any VipsImage we monitor. It has the same lifetime as
  * the VipsImage and gets zapped by the imageinfo on dispose. This lets us spot
  * VipsImage events after the holding Imageinfo has gone.
  */
 typedef struct _Imageinfoproxy {
-	VipsImage *im;
+	VipsImage *image;
 	Imageinfo *imageinfo;
 } Imageinfoproxy;
 
@@ -114,14 +97,8 @@ typedef struct _Imageinfoproxy {
 struct _Imageinfo {
 	Managed parent_object;
 
-	VipsImage *im;					/* Image we manage, LUT if delayed */
-	VipsImage *mapped_im;			/* Cache image mapped-thru-lut here */
-	VipsImage *identity_lut;		/* For base images, keep id lut if poss */
-	Imageinfo *underlying;			/* If we're a LUT, image we are a LUT of */
+	VipsImage *image;				/* Image we manage */
 	Imageinfoproxy *proxy;			/* Proxy for VipsImage callbacks */
-
-	gboolean dfile;					/* delete_file on final close */
-	char *delete_filename;			/* and the file we delete */
 
 	gboolean from_file;				/* Set if ->name is a user file */
 	time_t mtime;					/* mtime when we loaded this file */
@@ -130,17 +107,6 @@ struct _Imageinfo {
 	 * expr_value_new().
 	 */
 	GSList *exprs;
-
-	/* Set if we've checked with the user that it's OK to paint on this
-	 * imageinfo.
-	 */
-	gboolean ok_to_paint;
-
-	/* Undo/redo buffers.
-	 */
-	GSList *undo;					/* List of undo buffers */
-	GSList *redo;					/* List of redo buffers */
-	Undobuffer *cundo;				/* Current buffer */
 
 	/* Have we attached progress stuff to this ii?
 	 */
@@ -162,20 +128,9 @@ typedef struct _ImageinfoClass {
 	 */
 	void (*area_changed)(Imageinfo *, VipsRect *);
 
-	/* An area of the image has been paintboxed ... invalidate caches and
-	 * trigger area_changed.
-	 */
-	void (*area_painted)(Imageinfo *, VipsRect *);
-
-	/* Our VipsImage* has signaled "invalidate". This can happen indirectly:
-	 * if we paint on an image, im_invalidate() will trigger on that image
-	 * and all derived images.
+	/* Our VipsImage* has signaled "invalidate".
 	 */
 	void (*invalidate)(Imageinfo *);
-
-	/* Update undo/redo button sensitivities.
-	 */
-	void (*undo_changed)(Imageinfo *);
 
 	/* The underlying file has changed ... higher levels should try to
 	 * reload.
@@ -184,12 +139,9 @@ typedef struct _ImageinfoClass {
 } ImageinfoClass;
 
 void *imageinfo_area_changed(Imageinfo *imageinfo, VipsRect *dirty);
-void *imageinfo_area_painted(Imageinfo *imageinfo, VipsRect *dirty);
-
 void *imageinfo_expr_remove(Expr *expr, Imageinfo *imageinfo);
 void imageinfo_expr_add(Imageinfo *imageinfo, Expr *expr);
 GSList *imageinfo_expr_which(Imageinfo *imageinfo);
-VipsImage *imageinfo_get_underlying(Imageinfo *imageinfo);
 
 GType imageinfo_get_type(void);
 Imageinfo *imageinfo_new(Imageinfogroup *imageinfogroup,
@@ -198,50 +150,7 @@ Imageinfo *imageinfo_new_temp(Imageinfogroup *imageinfogroup,
 	Heap *heap, const char *name);
 Imageinfo *imageinfo_new_from_pixbuf(Imageinfogroup *imageinfogroup,
 	Heap *heap, GdkPixbuf *pixbuf);
-void imageinfo_set_underlying(Imageinfo *top_imageinfo, Imageinfo *imageinfo);
 gboolean imageinfo_is_from_file(Imageinfo *imageinfo);
 Imageinfo *imageinfo_new_input(Imageinfogroup *imageinfogroup,
 	GtkWidget *parent, Heap *heap, const char *name);
 
-VipsImage *imageinfo_get(gboolean use_lut, Imageinfo *imageinfo);
-gboolean imageinfo_same_underlying(Imageinfo *imageinfo[], int n);
-
-gboolean imageinfo_write(Imageinfo *imageinfo, const char *filename);
-gboolean imageinfo_check_paintable(Imageinfo *imageinfo, GtkWidget *parent);
-
-void imageinfo_note(Symbol *sym, Imageinfo *imageinfo);
-void imageinfo_forget(Symbol *sym, Imageinfo *imageinfo);
-GSList *imageinfo_which(Imageinfo *im);
-
-void imageinfo_make_sub(Imageinfo *out, int n, Imageinfo **in);
-void imageinfo_mark(Imageinfo *imageinfo);
-
-Imageinfo *imageinfo_sym_image(Symbol *sym);
-
-void imageinfo_undo_mark(Imageinfo *imageinfo);
-gboolean imageinfo_undo(Imageinfo *imageinfo);
-gboolean imageinfo_redo(Imageinfo *imageinfo);
-void imageinfo_undo_clear(Imageinfo *imageinfo);
-
-gboolean imageinfo_paint_line(Imageinfo *imageinfo,
-	Imageinfo *ink, Imageinfo *mask,
-	int x1, int y1, int x2, int y2);
-gboolean imageinfo_paint_flood(Imageinfo *imageinfo, Imageinfo *ink,
-	int x, int y, gboolean blob);
-gboolean imageinfo_paint_smudge(Imageinfo *imageinfo,
-	VipsRect *oper, int x1, int y1, int x2, int y2);
-gboolean imageinfo_paint_dropper(Imageinfo *imageinfo, Imageinfo *ink,
-	int x, int iy);
-gboolean imageinfo_paint_rect(Imageinfo *imageinfo, Imageinfo *ink,
-	VipsRect *area);
-gboolean imageinfo_paint_text(Imageinfo *imageinfo,
-	const char *font_name, const char *text, VipsRect *tarea);
-gboolean imageinfo_paint_nib(Imageinfo *imageinfo, int nib_radius);
-gboolean imageinfo_paint_mask(Imageinfo *imageinfo,
-	Imageinfo *ink, Imageinfo *mask, int x, int y);
-
-void imageinfo_to_text(Imageinfo *imageinfo, VipsBuf *buf);
-gboolean imageinfo_from_text(Imageinfo *imageinfo, const char *text);
-void imageinfo_to_rgb(Imageinfo *imageinfo, double *rgb);
-void imageinfo_from_rgb(Imageinfo *imageinfo, double *rgb);
-void imageinfo_colour_edit(GtkWidget *parent, Imageinfo *imageinfo);

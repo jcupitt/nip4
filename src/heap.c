@@ -1867,10 +1867,9 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 	}
 	else if (PEISIMAGE(in)) {
 		Imageinfo *ii = PEGETII(in);
-		VipsImage *im = imageinfo_get(FALSE, ii);
 
 		g_value_init(out, VIPS_TYPE_IMAGE);
-		g_value_set_object(out, im);
+		g_value_set_object(out, ii->image);
 	}
 	else if (PEISLIST(in)) {
 		gboolean result;
@@ -1902,7 +1901,7 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 			vips_value_set_array_image(out, n);
 			ivec = vips_value_get_array_image(out, NULL);
 			for (i = 0; i < n; i++) {
-				ivec[i] = imageinfo_get(FALSE, iivec[i]);
+				ivec[i] = iivec[i]->image;
 
 				/* g_value_unset() on out will unref every
 				 * array element, so we need to ref.

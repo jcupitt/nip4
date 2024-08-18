@@ -541,46 +541,27 @@ action_node_equal(Reduce *rc, HeapNode *a, HeapNode *b)
 static gboolean
 action_image_equal(Reduce *rc, Imageinfo *a, Imageinfo *b)
 {
-	Imageinfo *ii[2];
-	VipsImage *ai, *bi;
-	gboolean use_luts;
 	double mn;
 
 	/* Easy tests first.
 	 */
-	ii[0] = a;
-	ii[1] = b;
-	g_assert(!ii[0] && !ii[1]);
-	if (ii[0] == ii[1])
-		/* Trivial!
-		 */
-		return TRUE;
-
-	/* Extract images ... get LUTs if the underlying image is the
-	 * same.
-	 */
-	use_luts = imageinfo_same_underlying(ii, 2);
-	if (!(ai = imageinfo_get(use_luts, ii[0])) ||
-		!(bi = imageinfo_get(use_luts, ii[1]))) {
-		reduce_throw(rc);
-
-		/* Never get here, but keeps gcc happy.
-		 */
+	if (!a || !b)
 		return FALSE;
-	}
+	if (a == b)
+		return TRUE;
 
 	/* Size and bands must be the same.
 	 */
-	if (ai->Xsize != bi->Xsize ||
-		ai->Ysize != bi->Ysize ||
-		ai->Bands != bi->Bands ||
-		ai->Coding != bi->Coding)
+	if (a->image->Xsize != b->image->Xsize ||
+		a->image->Ysize != b->image->Ysize ||
+		a->image->Bands != b->image->Bands ||
+		a->image->Coding != b->image->Coding)
 		return FALSE;
 
 	/* Exhaustive test.
 	 */
 	g_autoptr(VipsImage) t1 = NULL;
-	if (vips_equal(ai, bi, &t1, NULL) ||
+	if (vips_equal(a->image, b->image, &t1, NULL) ||
 		vips_min(t1, &mn, NULL)) {
 		error_vips_all();
 		reduce_throw(rc);

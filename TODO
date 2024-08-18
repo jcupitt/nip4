@@ -1,34 +1,5 @@
 ## vips8
 
-- revise imageinfo for vips8
-
-  imageinfo still does:
-
-	- reference counting layer ... in Managed base class
-
-		ie. integration with the nip2 GC
-
-	- filesystem tracking: we stat open files and signal file_changed
-	  if we see a change
-
-	- cache: several open("fred.v")s share a single Imageinfo,
- 	  provided their mtimes are all the same
-
-	- imageinfo/expr association tracking, see expr_real_new_value()
-
-	- lookup table management
-
-  no longer does:
-
-	- dependency tracking (libvips does this)
-
-	- operation cache
-
-	- temp file management
-
-		must set the env var to point the libvuips temp file system at
-		our folder
-
 - action_proc_add() etc. etc. in action.c needs updating for vips8
 
 	vo_callva() is done, still need to swap eg. "im_add" for "add"

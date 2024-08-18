@@ -1361,7 +1361,7 @@ tilesource_new_from_imageinfo(Imageinfo *ii)
 			(callv_string_fn) tilesource_new_from_file, IOBJECT(ii)->name,
 			NULL, NULL, NULL);
 	else
-		return tilesource_new_from_image(imageinfo_get(FALSE, ii));
+		return tilesource_new_from_image(ii->image);
 }
 
 gboolean
@@ -1373,7 +1373,7 @@ tilesource_has_imageinfo(Tilesource *tilesource, Imageinfo *ii)
 		tilesource->filename)
 		return g_str_equal(IOBJECT(ii)->name, tilesource->filename);
 	else
-		return imageinfo_get(FALSE, ii) == tilesource->image;
+		return ii->image == tilesource->image;
 }
 
 /* Detect a TIFF pyramid made of subifds following a roughly /2 shrink.

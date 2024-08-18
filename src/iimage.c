@@ -104,13 +104,14 @@ iimage_info(iObject *iobject, VipsBuf *buf)
 {
 	iImage *iimage = IIMAGE(iobject);
 	Imageinfo *ii = iimage->value.ii;
-	VipsImage *im;
+	VipsImage *image;
 
-	if (ii && (im = imageinfo_get(FALSE, ii))) {
+	if (ii &&
+		(image = ii->image)) {
 		const char *filename;
 
-		if (vips_image_get_typeof(im, ORIGINAL_FILENAME) != 0) {
-			if (!vips_image_get_string(im, ORIGINAL_FILENAME, &filename)) {
+		if (vips_image_get_typeof(image, ORIGINAL_FILENAME) != 0) {
+			if (!vips_image_get_string(image, ORIGINAL_FILENAME, &filename)) {
 				vips_buf_appends(buf, _("Original filename"));
 				vips_buf_appendf(buf, ": %s\n", filename);
 			}
@@ -255,12 +256,12 @@ iimage_class_get(Classmodel *classmodel, PElement *root)
 	 */
 	VIPS_FREE(classmodel->filename);
 	if (ii) {
-		VipsImage *im;
+		VipsImage *image;
 		const char *filename;
 
-		if ((im = imageinfo_get(FALSE, ii)) &&
-			vips_image_get_typeof(im, ORIGINAL_FILENAME) != 0) {
-			if (vips_image_get_string(im, ORIGINAL_FILENAME, &filename))
+		if ((image = ii->image) &&
+			vips_image_get_typeof(image, ORIGINAL_FILENAME) != 0) {
+			if (vips_image_get_string(image, ORIGINAL_FILENAME, &filename))
 				return FALSE;
 		}
 		else if (imageinfo_is_from_file(ii))
@@ -319,7 +320,7 @@ iimage_graphic_save(Classmodel *classmodel,
 	GtkWidget *parent, const char *filename)
 {
 	iImage *iimage = IIMAGE(classmodel);
-	VipsImage *image = imageinfo_get(FALSE, iimage->value.ii);
+	VipsImage *image = iimage->value.ii->image;
 	GtkWindow *window = GTK_WINDOW(gtk_widget_get_root(parent));
 
 	if (image) {

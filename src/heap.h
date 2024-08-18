@@ -306,7 +306,7 @@ typedef struct pelement {
 #define PEGETREAL(P) (PEGETVAL(P)->body.num)
 #define PEGETBOOL(P) ((gboolean) GPOINTER_TO_UINT(PEGETVAL(P)))
 #define PEGETCHAR(P) ((unsigned char) (GPOINTER_TO_UINT(PEGETVAL(P))))
-#define PEGETIMAGE(P) (((Imageinfo *) PEGETVAL(P))->im)
+#define PEGETIMAGE(P) (((Imageinfo *) PEGETVAL(P))->image)
 #define PEGETII(P) ((Imageinfo *) PEGETVAL(P))
 #define PEGETFILE(P) ((Managedfile *) PEGETVAL(P))
 #define PEGETMANAGED(P) ((Managed *) PEGETVAL(P))
