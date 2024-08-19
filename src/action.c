@@ -1103,10 +1103,18 @@ action_proc_add(Reduce *rc, Compile *compile,
 	}
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
 		vo_callva(rc, out, "add", PEGETIMAGE(a), PEGETIMAGE(b));
-	else if (PEISIMAGE(a) && PEISREAL(b))
-		vo_callva(rc, out, "linear1", PEGETIMAGE(a), 1.0, PEGETREAL(b));
-	else if (PEISREAL(a) && PEISIMAGE(b))
-		vo_callva(rc, out, "linear1", PEGETIMAGE(b), 1.0, PEGETREAL(a));
+	else if (PEISIMAGE(a) && PEISREAL(b)) {
+		g_autoptr(VipsArrayDouble) aa = vips_array_double_newv(1, 1.0);
+		g_autoptr(VipsArrayDouble) ab = vips_array_double_newv(1, PEGETREAL(b));
+
+		vo_callva(rc, out, "linear", PEGETIMAGE(a), aa, ab);
+	}
+	else if (PEISREAL(a) && PEISIMAGE(b)) {
+		g_autoptr(VipsArrayDouble) aa = vips_array_double_newv(1, 1.0);
+		g_autoptr(VipsArrayDouble) ab = vips_array_double_newv(1, PEGETREAL(a));
+
+		vo_callva(rc, out, "linear", PEGETIMAGE(b), aa, ab);
+	}
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
 }

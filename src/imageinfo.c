@@ -546,9 +546,9 @@ imageinfo_new(Imageinfogroup *imageinfogroup,
 	Imageinfo *imageinfo = IMAGEINFO(g_object_new(IMAGEINFO_TYPE, NULL));
 
 #ifdef DEBUG_OPEN
-#endif /*DEBUG_OPEN*/
 	printf("imageinfo_new: %p \"%s\"\n", imageinfo, image->filename);
 	printf("\tfor image %p\n", image);
+#endif /*DEBUG_OPEN*/
 
 	managed_link_heap(MANAGED(imageinfo), heap);
 

@@ -30,8 +30,8 @@
 #include "nip4.h"
 
 /*
- */
 #define DEBUG
+ */
 
 /* Maxiumum number of args to constructor.
  */
@@ -487,11 +487,11 @@ vo_call_fillva(Vo *vo, va_list ap)
     {
         g_assert(argument_instance);
 
-        /* We skip deprecated required args. There will be a new,
-         * renamed arg in the same place.
+        /* Required, non-deprecated input args.
          */
         if ((argument_class->flags & VIPS_ARGUMENT_REQUIRED) &&
-            !(argument_class->flags & VIPS_ARGUMENT_DEPRECATED)) {
+            !(argument_class->flags & VIPS_ARGUMENT_DEPRECATED) &&
+            (argument_class->flags & VIPS_ARGUMENT_INPUT)) {
             VIPS_ARGUMENT_COLLECT_SET(pspec, argument_class, ap);
 
 #ifdef DEBUG
@@ -507,10 +507,7 @@ vo_call_fillva(Vo *vo, va_list ap)
 
             VIPS_ARGUMENT_COLLECT_GET(pspec, argument_class, ap);
 
-#ifdef DEBUG
-            printf("\tskipping arg %p for %s\n",
-                arg, g_param_spec_get_name(pspec));
-#endif /*DEBUG */
+			// we'll never come here (we handle the output arg separately)
 
             VIPS_ARGUMENT_COLLECT_END
         }

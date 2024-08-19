@@ -242,10 +242,10 @@ iimage_class_get(Classmodel *classmodel, PElement *root)
 	Imageinfo *ii;
 
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("iimage_class_get: ");
 	row_name_print(HEAPMODEL(iimage)->row);
 	printf("\n");
+#endif /*DEBUG*/
 
 	if (!class_get_member_image(root, MEMBER_VALUE, &ii))
 		return FALSE;
