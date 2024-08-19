@@ -294,6 +294,9 @@ typedef struct pelement {
 #define PEISCOMPILEREF(P) (PEGETTYPE(P) == ELEMENT_COMPILEREF)
 #define PEISUNOP(P) (PEGETTYPE(P) == ELEMENT_UNOP)
 
+// anything that can be interporeted as an int for eg. EOR
+#define PEISINT(P) (PEISBOOL(P) || PEISREAL(P) || PEISCHAR(P))
+
 /* Extract bits of primitive compound types.
  */
 #define PEGETSYMBOL(P) ((Symbol *) PEGETVAL(P))
@@ -324,6 +327,13 @@ typedef struct pelement {
 #define PEGETCLASSCOMPILE(P) (COMPILE(GETLEFT(PEGETVAL(P))))
 #define PEGETCLASSSECRET(P1, P2) PEPOINTLEFT(GETRIGHT(PEGETVAL(P2)), P1)
 #define PEGETCLASSMEMBER(P1, P2) PEPOINTRIGHT(GETRIGHT(PEGETVAL(P2)), P1)
+
+// try to get as an int
+#define PEGETINT(P) ( \
+		PEISBOOL(P) ? (int) PEGETBOOL(P) : \
+		PEISREAL(P) ? (int) PEGETREAL(P) : \
+		PEISCHAR(P) ? (int) PEGETCHAR(P) : \
+		-1)
 
 /* A block on the heap.
  */

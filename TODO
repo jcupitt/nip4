@@ -4,16 +4,38 @@
 
   ctrl-bsp for delete selected?
 
+- eg.
+
+	action_boperror(rc, compile,
+		_("Bad right hand side of '.'."), op, name, a, b);
+
+  should be
+
+		_("bad right hand side of '.'"), op, name, a, b);
+
+- should we support
+
+
+	A1.value + [1, 2, 3]
+
+  ought to be easy and safe
+
+  nip2 does it in the vector class, eg.
+
+	A1 + Vector [10, 20, 30]
+
+- should we wrap all vips8 operators? eg. could make
+
+	vips_add a b = vips_call "add" [a, b] []
+
+  as we do for vips7
+
 ## vips8
 
 - action_proc_add() etc. etc. in action.c needs updating for vips8
 
-  A1 + 20 doesn't work
+	just done action_proc_lesseq()
 
-  	linear wants an arraydouble, not a single double, and linear1 isn't
-	an operation
-
-	maybe make linear1 operation ourselves?
 
 - builtin.c also needs updating, eg.:
 
