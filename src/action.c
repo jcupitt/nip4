@@ -377,7 +377,7 @@ action_proc_dot(Reduce *rc, Compile *compile,
 		}
 		else
 			action_boperror(rc, compile,
-				_("Bad right hand side of '.'."), op, name, a, b);
+				_("bad right hand side of '.'"), op, name, a, b);
 	}
 
 	else if (PEISSYMREF(a)) {
@@ -386,14 +386,14 @@ action_proc_dot(Reduce *rc, Compile *compile,
 
 		if (!is_scope(sym))
 			action_boperror(rc, compile,
-				_("Symbol on left hand side of '.' is not scope"),
+				_("symbol on left hand side of '.' is not scope"),
 				op, name, a, b);
 
 		g_assert(sym->expr);
 
 		if (!(p = action_proc_dot_tag(rc, b, tag, 256)))
 			action_boperror(rc, compile,
-				_("Bad right hand side of '.'."), op, name, a, b);
+				_("bad right hand side of '.'"), op, name, a, b);
 		if (!(child = compile_lookup(sym->expr->compile, p)))
 			action_nomerror(rc, compile, a, b);
 
@@ -419,10 +419,10 @@ action_proc_dot(Reduce *rc, Compile *compile,
 
 		if (!(p = action_proc_dot_tag(rc, b, tag, 256)))
 			action_boperror(rc, compile,
-				_("Bad right hand side of '.'."), op, name, a, b);
+				_("bad right hand side of '.'"), op, name, a, b);
 		if (!(pspec = g_object_class_find_property(gclass, p)))
 			action_boperror(rc, compile,
-				_("Property not found."), op, name, a, b);
+				_("property not found"), op, name, a, b);
 
 		g_value_init(&value, G_PARAM_SPEC_VALUE_TYPE(pspec));
 		g_object_get_property(gobject, p, &value);
@@ -436,7 +436,7 @@ action_proc_dot(Reduce *rc, Compile *compile,
 	}
 	else
 		action_boperror(rc, compile,
-			_("Bad left hand side of '.'."), op, name, a, b);
+			_("bad left hand side of '.'"), op, name, a, b);
 }
 
 /* Less than or equal to.
@@ -831,8 +831,7 @@ action_proc_join(Reduce *rc, Compile *compile,
 		if (reduce_safe_pointer(rc,
 				(reduce_safe_pointer_fn) action_proc_join_sub,
 				a, b, out, NULL))
-			action_boperror(rc, compile, error_get_sub(),
-				op, name, a, b);
+			action_boperror(rc, compile, error_get_sub(), op, name, a, b);
 	}
 	else if (PEISIMAGE(a) && PEISELIST(b)) {
 		PEPUTPE(out, a);
@@ -963,8 +962,7 @@ action_proc_rem(Reduce *rc, Compile *compile,
 		int v2 = PEGETREAL(b);
 
 		if (v2 == 0)
-			action_boperror(rc, compile, _("Division by zero."),
-				op, name, a, b);
+			action_boperror(rc, compile, _("division by zero"), op, name, a, b);
 
 		if (!heap_real_new(heap, v1 % v2, out))
 			action_boperror(rc, compile, error_get_sub(), op, name, a, b);
@@ -1335,7 +1333,7 @@ action_proc_bop_strict(Reduce *rc, Compile *compile,
 
 	case BI_NONE:
 	default:
-		action_boperror(rc, compile, _("Unimplemented."), op, name, a, b);
+		action_boperror(rc, compile, _("unimplemented"), op, name, a, b);
 		break;
 	}
 }

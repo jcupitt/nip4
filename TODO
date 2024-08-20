@@ -4,15 +4,6 @@
 
   ctrl-bsp for delete selected?
 
-- eg.
-
-	action_boperror(rc, compile,
-		_("Bad right hand side of '.'."), op, name, a, b);
-
-  should be
-
-		_("bad right hand side of '.'"), op, name, a, b);
-
 - should we support
 
 	A1.value + [1, 2, 3]
