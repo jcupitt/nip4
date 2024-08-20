@@ -15,7 +15,6 @@
 
 - should we support
 
-
 	A1.value + [1, 2, 3]
 
   ought to be easy and safe
@@ -30,12 +29,13 @@
 
   as we do for vips7
 
+## test
+
+- check the test ws we had for nip2
+
+  there are a whole series of test wses in nip2/test/workspaces
+
 ## vips8
-
-- action_proc_add() etc. etc. in action.c needs updating for vips8
-
-	just done action_proc_lesseq()
-
 
 - builtin.c also needs updating, eg.:
 
