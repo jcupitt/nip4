@@ -27,10 +27,12 @@
 
 */
 
-void vo_object_new(Reduce *rc, const char *name,
-	PElement *required, PElement *optional, PElement *out);
+void vo_object_new(Reduce *rc, PElement *out, const char *name,
+	PElement *required, PElement *optional);
 
-void vo_call(Reduce *rc, const char *name,
-	PElement *required, PElement *optional, PElement *out);
+void vo_call(Reduce *rc, PElement *out, const char *name,
+	PElement *required, PElement *optional);
 
 void vo_callva(Reduce *rc, PElement *out, const char *name, ...);
+
+void vo_call_spine(Reduce *rc, PElement *out, const char *name, HeapNode **arg);

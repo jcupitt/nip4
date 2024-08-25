@@ -220,20 +220,22 @@ apply_complex_call(Reduce *rc,
 	PEPOINTRIGHT(arg[0], &rhs);
 
 	if (PEISIMAGE(&rhs)) {
-		printf("apply_complex_call: FIXME\n");
-		/*
-		if (strcmp(name, "re") == 0)
-			call_spine(rc, "im_c2real", arg, out);
-		else if (strcmp(name, "im") == 0)
-			call_spine(rc, "im_c2imag", arg, out);
-		 */
-		PEPUTP(out, ELEMENT_ELIST, NULL);
+		if (g_str_equal(name, "re"))
+			vo_callva(rc, out, "complexget",
+				PEGETIMAGE(&rhs), VIPS_OPERATION_COMPLEXGET_REAL);
+		else if (g_str_equal(name, "im"))
+			vo_callva(rc, out, "complexget",
+				PEGETIMAGE(&rhs), VIPS_OPERATION_COMPLEXGET_IMAG);
+		else
+			PEPUTP(out, ELEMENT_ELIST, NULL);
 	}
 	else if (PEISCOMPLEX(&rhs)) {
-		if (strcmp(name, "re") == 0)
+		if (g_str_equal(name, "re"))
 			PEPUTP(out, ELEMENT_NODE, GETLEFT(PEGETVAL(&rhs)));
-		else if (strcmp(name, "im") == 0)
+		else if (g_str_equal(name, "im"))
 			PEPUTP(out, ELEMENT_NODE, GETRIGHT(PEGETVAL(&rhs)));
+		else
+			PEPUTP(out, ELEMENT_ELIST, NULL);
 	}
 	else
 		error("internal error #98743698437639487");
@@ -1045,7 +1047,7 @@ apply_vo_new_call(Reduce *rc,
 	PEPOINTRIGHT(arg[1], &required);
 	PEPOINTRIGHT(arg[0], &optional);
 
-	vo_object_new(rc, buf, &required, &optional, out);
+	vo_object_new(rc, out, buf, &required, &optional);
 }
 
 /* Args for "vips_call".
@@ -1072,7 +1074,7 @@ apply_vo_call_call(Reduce *rc,
 	PEPOINTRIGHT(arg[1], &required);
 	PEPOINTRIGHT(arg[0], &optional);
 
-	vo_call(rc, buf, &required, &optional, out);
+	vo_call(rc, out, buf, &required, &optional);
 }
 
 /* All ip's builtin functions.

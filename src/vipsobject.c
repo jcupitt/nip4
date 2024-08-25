@@ -126,8 +126,7 @@ vo_set_property(Vo *vo,
 		G_VALUE_TYPE(value) == VIPS_TYPE_REF_STRING) {
 		const char *str = vips_value_get_ref_string(value, NULL);
 
-		if (vips_object_set_argument_from_string(vo->object,
-				name, str))
+		if (vips_object_set_argument_from_string(vo->object, name, str))
 			return -1;
 	}
 	else
@@ -256,8 +255,8 @@ vo_args(Vo *vo, PElement *required, PElement *optional)
 /* Make a VipsObject.
  */
 void
-vo_object_new(Reduce *rc, const char *name,
-	PElement *required, PElement *optional, PElement *out)
+vo_object_new(Reduce *rc, PElement *out, const char *name,
+	PElement *required, PElement *optional)
 {
 	Vo *vo;
 	Managedgobject *managedgobject;
@@ -273,7 +272,7 @@ vo_object_new(Reduce *rc, const char *name,
 	/* Ask the object to construct.
 	 */
 	if (vips_object_build(vo->object)) {
-		error_top(_("VIPS library error"));
+		error_top(_("libvips error"));
 		error_sub("%s", vips_error_buffer());
 		vips_error_clear();
 		vo_free(vo);
@@ -384,7 +383,7 @@ vo_get_optional_arg(const char *name, PElement *value, Vo *vo, PElement *out)
  * etc.
  */
 static gboolean
-vo_get_optional(Vo *vo, PElement *optional, PElement *out)
+vo_get_optional(Vo *vo, PElement *out, PElement *optional)
 {
 	if (heap_map_dict(optional,
 			(heap_map_dict_fn) vo_get_optional_arg, vo, out))
@@ -446,8 +445,8 @@ vo_call_execute(Vo *vo, PElement *optional)
  * rather than the operation.
  */
 void
-vo_call(Reduce *rc, const char *name,
-	PElement *required, PElement *optional, PElement *out)
+vo_call(Reduce *rc, PElement *out, const char *name,
+	PElement *required, PElement *optional)
 {
 	Vo *vo;
 
@@ -518,33 +517,8 @@ vo_call_fillva(Vo *vo, va_list ap)
 }
 
 static gboolean
-vo_callva_sub(Reduce *rc, const char *name, PElement *out, va_list ap)
+vo_write_result(Vo *vo, PElement *out)
 {
-	Vo *vo;
-
-    if (trace_flags & TRACE_VIPS)
-        trace_push();
-
-    if (!(vo = vo_new(rc, name)))
-        return FALSE;
-
-    if (trace_flags & TRACE_VIPS)
-        vips_buf_appendf(trace_current(), "\"%s\" ", vo->name);
-
-    if (!vo_call_fillva(vo, ap)) {
-		vo_free(vo);
-        return FALSE;
-	}
-
-	if (trace_flags & TRACE_VIPS)
-		vips_buf_appends(trace_current(), " ->\n");
-
-	if (!vo_call_execute(vo, NULL)) {
-		vips_object_unref_outputs(vo->object);
-		vo_free(vo);
-		return FALSE;
-	}
-
 	/* The output object.
 	 */
 	PElement pe;
@@ -561,10 +535,41 @@ vo_callva_sub(Reduce *rc, const char *name, PElement *out, va_list ap)
 	 */
 	PEPUTPE(out, &pe);
 
+	return TRUE;
+}
+
+static gboolean
+vo_callva_sub(Reduce *rc, PElement *out, const char *name, va_list ap)
+{
+	Vo *vo;
+    gboolean result;
+
+    if (!(vo = vo_new(rc, name)))
+        return FALSE;
+
+    if (trace_flags & TRACE_VIPS) {
+        trace_push();
+        vips_buf_appendf(trace_current(), "\"%s\" ", vo->name);
+	}
+
+	result = TRUE;
+	result = result || !vo_call_fillva(vo, ap);
+
+	if (trace_flags & TRACE_VIPS)
+		vips_buf_appends(trace_current(), " ->\n");
+
+	result = result || !vo_call_execute(vo, NULL);
+	result = result || !vo_write_result(vo, out);
+
+    if (trace_flags & TRACE_VIPS) {
+        trace_result(TRACE_VIPS, out);
+        trace_pop();
+    }
+
 	vips_object_unref_outputs(vo->object);
 	vo_free(vo);
 
-    return TRUE;
+    return result;
 }
 
 /* Call a vips8 function, picking up args from the function call.
@@ -580,7 +585,7 @@ vo_callva(Reduce *rc, PElement *out, const char *name, ...)
 #endif /*DEBUG*/
 
 	va_start(ap, name);
-    result = vo_callva_sub(rc, name, out, ap);
+    result = vo_callva_sub(rc, out, name, ap);
 	va_end(ap);
 
 #ifdef DEBUG
@@ -590,3 +595,101 @@ vo_callva(Reduce *rc, PElement *out, const char *name, ...)
     if (!result)
         reduce_throw(rc);
 }
+
+/* Fill an argument vector from our stack frame. Number of args already
+ * checked.
+ */
+static gboolean
+vo_call_fill_spine(Vo *vo, HeapNode **arg)
+{
+	VipsOperation *operation = VIPS_OPERATION(vo->object);
+
+    /* Point all our args to the spine values and fully reduce them.  This
+	 * means there will not be a GC while we gather, and therefore that no
+     * pointers will become invalid during this call.
+     */
+    for (int i = 0; i < vo->nargs_required; i++) {
+        PEPOINTRIGHT(arg[i], &vo->args[i]);
+        if (!heap_reduce_strict(&vo->args[i]))
+            return FALSE;
+    }
+
+	int j;
+	j = 0;
+    VIPS_ARGUMENT_FOR_ALL(operation,
+        pspec, argument_class, argument_instance)
+    {
+        /* Select required, non-deprecated input args.
+         */
+        if ((argument_class->flags & VIPS_ARGUMENT_REQUIRED) &&
+            !(argument_class->flags & VIPS_ARGUMENT_DEPRECATED) &&
+            (argument_class->flags & VIPS_ARGUMENT_INPUT)) {
+			const char *name = g_param_spec_get_name(pspec);
+			GValue gvalue = { 0 };
+
+			if (!heap_ip_to_gvalue(&vo->args[j], &gvalue))
+				return FALSE;
+			if (vo_set_property(vo, name, pspec, &gvalue)) {
+				g_value_unset(&gvalue);
+				return FALSE;
+			}
+			g_value_unset(&gvalue);
+
+			j -= 1;
+		}
+	}
+	VIPS_ARGUMENT_FOR_ALL_END
+
+	// do we need to make output images depend on input images? probably
+	// not with vips8
+
+    return TRUE;
+}
+
+static gboolean
+vo_call_spine_sub(Reduce *rc, PElement *out, const char *name, HeapNode **arg)
+{
+	Vo *vo;
+
+	if (!(vo = vo_new(rc, name)))
+		return FALSE;
+
+#ifdef DEBUG
+    printf("** call_spine: starting for %s\n", name);
+#endif /*DEBUG*/
+
+    if (trace_flags & TRACE_VIPS) {
+        vips_buf_appendf(trace_current(), "\"%s\" ", name);
+        trace_args(arg, vo->nargs_required);
+    }
+
+    gboolean result =
+		!vo_call_fill_spine(vo, arg) ||
+		!vo_call_execute(vo, NULL) ||
+		!vo_write_result(vo, out);
+
+    if (trace_flags & TRACE_VIPS) {
+        trace_result(TRACE_VIPS, out);
+        trace_pop();
+    }
+
+	vips_object_unref_outputs(vo->object);
+	vo_free(vo);
+
+#ifdef DEBUG
+    printf( "call_spine: done\n" );
+#endif /*DEBUG*/
+
+    return result;
+}
+
+/* Call a function with args from the graph. We assume there are enough args
+ * there (our caller must check).
+ */
+void
+vo_call_spine(Reduce *rc, PElement *out, const char *name, HeapNode **arg)
+{
+    if (!vo_call_spine_sub(rc, out, name, arg))
+        reduce_throw(rc);
+}
+

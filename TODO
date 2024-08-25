@@ -1,3 +1,4 @@
+
 - ^W should close an imagewindow
 
   ^N should make a new column
@@ -8,7 +9,9 @@
 
 	A1.value + [1, 2, 3]
 
-  ought to be easy and safe
+  ought to be easy and safe, though it's a lot of copy-paste
+
+	maybe we can common-up some more code to make it easier?
 
   nip2 does it in the vector class, eg.
 
@@ -27,6 +30,14 @@
   there are a whole series of test wses in nip2/test/workspaces
 
 ## vips8
+
+- vipsobject
+
+	vo_new() could allocate the args array dynamically
+
+	use vo_set_required_input() in the body of vo_call_fill_spine()
+
+
 
 - builtin.c also needs updating, eg.:
 
