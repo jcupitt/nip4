@@ -30,8 +30,8 @@
 #include "nip4.h"
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 /* Maxiumum number of args to constructor.
  */
@@ -553,13 +553,13 @@ vo_callva_sub(Reduce *rc, PElement *out, const char *name, va_list ap)
 	}
 
 	result = TRUE;
-	result = result || !vo_call_fillva(vo, ap);
+	result = result && vo_call_fillva(vo, ap);
 
 	if (trace_flags & TRACE_VIPS)
 		vips_buf_appends(trace_current(), " ->\n");
 
-	result = result || !vo_call_execute(vo, NULL);
-	result = result || !vo_write_result(vo, out);
+	result = result && vo_call_execute(vo, NULL);
+	result = result && vo_write_result(vo, out);
 
     if (trace_flags & TRACE_VIPS) {
         trace_result(TRACE_VIPS, out);
@@ -664,9 +664,9 @@ vo_call_spine_sub(Reduce *rc, PElement *out, const char *name, HeapNode **arg)
     }
 
     gboolean result =
-		!vo_call_fill_spine(vo, arg) ||
-		!vo_call_execute(vo, NULL) ||
-		!vo_write_result(vo, out);
+		vo_call_fill_spine(vo, arg) &&
+		vo_call_execute(vo, NULL) &&
+		vo_write_result(vo, out);
 
     if (trace_flags & TRACE_VIPS) {
         trace_result(TRACE_VIPS, out);

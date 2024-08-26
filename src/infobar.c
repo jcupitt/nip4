@@ -77,7 +77,8 @@ infobar_dispose(GObject *object)
 	G_OBJECT_CLASS(infobar_parent_class)->dispose(object);
 }
 
-/* For each format, the label width we need, in characters.
+/* For each format, the label width we need, in characters. Complex types are
+ * just double bands, so the same width for each band.
  */
 static const int infobar_label_width[] = {
 	3,	/* uchar */
@@ -87,9 +88,9 @@ static const int infobar_label_width[] = {
 	8,	/* uint */
 	9,	/* int */
 	10, /* float */
-	18, /* complex */
+	10, /* complex */
 	10, /* double */
-	18, /* double complex */
+	10, /* double complex */
 };
 
 /* Tilesource has a new image. We need a new number of band elements and
@@ -135,8 +136,11 @@ infobar_tilesource_changed(Tilesource *tilesource, Infobar *infobar)
 		break;
 	}
 
+	if (vips_band_format_iscomplex(image->BandFmt))
+		bands *= 2;
+
 	label_width = infobar_label_width[format];
-	max_children = 40 / label_width;
+	max_children = 60 / label_width;
 	n_children = VIPS_MIN(bands, max_children);
 
 	/* Add a new set of labels.
@@ -199,7 +203,7 @@ infobar_update_free(PixelUpdate *update)
 
 // runs back in the main thread again ... update the screen
 static gboolean
-infobar_update_pixel_cb(void *a)
+infobar_update_pixel_idle(void *a)
 {
 	PixelUpdate *update = (PixelUpdate *) a;
 
@@ -220,7 +224,7 @@ infobar_get_pixel(void *a, void *b)
 	update->result = tilesource_get_pixel(update->tilesource,
 		update->image_x, update->image_y, &update->vector, &update->n);
 
-	g_idle_add(infobar_update_pixel_cb, update);
+	g_idle_add(infobar_update_pixel_idle, update);
 }
 
 // fetch the mouse position pixel and update the screen in a bg thread

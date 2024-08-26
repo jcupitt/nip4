@@ -1,3 +1,9 @@
+- imagewindow does not display complex values correctly in the infobar
+
+	vips_getpoint() should return a double-length array for complex,
+  	rather than taking abs
+
+
 
 - ^W should close an imagewindow
 
@@ -36,7 +42,6 @@
 	vo_new() could allocate the args array dynamically
 
 	use vo_set_required_input() in the body of vo_call_fill_spine()
-
 
 
 - builtin.c also needs updating, eg.:
