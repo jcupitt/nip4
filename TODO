@@ -1,9 +1,9 @@
-- imagewindow does not display complex values correctly in the infobar
+- imagewindow infobar should somehow ellipsize band display on size down
 
-	vips_getpoint() should return a double-length array for complex,
-  	rather than taking abs
+	is there a box type that can size down like this? maybe a
+	scrolledwindow with no scrollbars? is there something better?
 
-
+- can we remove vo_call_spine()?
 
 - ^W should close an imagewindow
 
@@ -42,11 +42,6 @@
 	vo_new() could allocate the args array dynamically
 
 	use vo_set_required_input() in the body of vo_call_fill_spine()
-
-
-- builtin.c also needs updating, eg.:
-
-	builtin.c:	{ "acos", &ip_acos, "im_acostra" },
 
 ## rows
 

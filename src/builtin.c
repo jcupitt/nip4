@@ -556,9 +556,10 @@ static BuiltinTypeSpot *math_args[] = {
 /* A math function ... name, number implementation, image implementation.
  */
 typedef struct {
-	const char *name;	   /* ip name */
-	double (*rfn)(double); /* Number implementation */
-	const char *ifn;	   /* VIPS name */
+	const char *name;			/* ip name */
+	double (*rfn)(double);		/* Number implementation */
+	const char *operation;		/* libvips operation name */
+	int type;					/* and operation enum */
 } MathFn;
 
 static double
@@ -618,18 +619,18 @@ ip_floor(double a)
 /* Table of math functions ... number implementations, image implementations.
  */
 static MathFn math_fn[] = {
-	{ "sin", &ip_sin, "im_sintra" },
-	{ "cos", &ip_cos, "im_costra" },
-	{ "tan", &ip_tan, "im_tantra" },
-	{ "asin", &ip_asin, "im_asintra" },
-	{ "acos", &ip_acos, "im_acostra" },
-	{ "atan", &ip_atan, "im_atantra" },
-	{ "log", &log, "im_logtra" },
-	{ "log10", &log10, "im_log10tra" },
-	{ "exp", &exp, "im_exptra" },
-	{ "exp10", &ip_exp10, "im_exp10tra" },
-	{ "ceil", &ip_ceil, "im_ceil" },
-	{ "floor", &ip_floor, "im_floor" }
+	{ "sin", &ip_sin, "math", VIPS_OPERATION_MATH_SIN },
+	{ "cos", &ip_cos, "math", VIPS_OPERATION_MATH_COS },
+	{ "tan", &ip_tan, "math", VIPS_OPERATION_MATH_TAN },
+	{ "asin", &ip_asin, "math", VIPS_OPERATION_MATH_ASIN },
+	{ "acos", &ip_acos, "math", VIPS_OPERATION_MATH_ACOS },
+	{ "atan", &ip_atan, "math", VIPS_OPERATION_MATH_ATAN },
+	{ "log", &log, "math", VIPS_OPERATION_MATH_LOG },
+	{ "log10", &log10, "math", VIPS_OPERATION_MATH_LOG10 },
+	{ "exp", &exp, "math", VIPS_OPERATION_MATH_EXP },
+	{ "exp10", &ip_exp10, "math", VIPS_OPERATION_MATH_EXP10 },
+	{ "ceil", &ip_ceil, "round", VIPS_OPERATION_ROUND_CEIL },
+	{ "floor", &ip_floor, "round", VIPS_OPERATION_ROUND_FLOOR }
 };
 
 /* Do a math function (eg. sin, cos, tan).
@@ -644,7 +645,7 @@ apply_math_call(Reduce *rc,
 	/* Find implementation.
 	 */
 	for (i = 0; i < VIPS_NUMBER(math_fn); i++)
-		if (strcmp(name, math_fn[i].name) == 0)
+		if (g_str_equal(name, math_fn[i].name))
 			break;
 	if (i == VIPS_NUMBER(math_fn))
 		error("internal error #928456936");
@@ -652,13 +653,11 @@ apply_math_call(Reduce *rc,
 	/* Get arg type ... real/complex/image
 	 */
 	PEPOINTRIGHT(arg[0], &rhs);
-	if (PEISIMAGE(&rhs)) {
+	if (PEISIMAGE(&rhs))
 		/* Easy ... pass to VIPS.
-		call_spine(rc, math_fn[i].ifn, arg, out);
 		 */
-		printf("apply_math_call: FIXME\n");
-		PEPUTP(out, ELEMENT_ELIST, NULL);
-	}
+		vo_callva(rc, out,  math_fn[i].operation,
+			PEGETIMAGE(&rhs),  math_fn[i].type);
 	else if (PEISREAL(&rhs)) {
 		double a = PEGETREAL(&rhs);
 		double b = math_fn[i].rfn(a);
