@@ -3,8 +3,6 @@
 	is there a box type that can size down like this? maybe a
 	scrolledwindow with no scrollbars? is there something better?
 
-- tab duplicate does not set current correctly
-
 - ctrl-bsp for delete selected?
 
 - should we support

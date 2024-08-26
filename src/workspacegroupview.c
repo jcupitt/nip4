@@ -108,31 +108,23 @@ workspacegroupview_child_position(View *parent, View *child)
 	VIEW_CLASS(workspacegroupview_parent_class)->child_position(parent, child);
 }
 
-/*
 static void
 workspacegroupview_child_front(View *parent, View *child)
 {
-	printf("workspacegroupview_child_front:\n");
-
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(parent);
 	Workspaceview *wview = WORKSPACEVIEW(child);
 
-	int page;
-	GtkWidget *current_front;
-
-	page = gtk_notebook_get_current_page(GTK_NOTEBOOK(wsgview->notebook));
-	current_front =
+	int page = gtk_notebook_get_current_page(GTK_NOTEBOOK(wsgview->notebook));
+	GtkWidget *current_front =
 		gtk_notebook_get_nth_page(GTK_NOTEBOOK(wsgview->notebook), page);
 
 	if (current_front != GTK_WIDGET(wview)) {
 		page = gtk_notebook_page_num(GTK_NOTEBOOK(wsgview->notebook),
 			GTK_WIDGET(wview));
 
-		printf("\tsetting current_page to %d\n", page);
 		gtk_notebook_set_current_page(GTK_NOTEBOOK(wsgview->notebook), page);
 	}
 }
- */
 
 static void
 workspacegroupview_new_tab_clicked(GtkButton *button, void *user_data)
@@ -223,7 +215,7 @@ workspacegroupview_class_init(WorkspacegroupviewClass *class)
 	view_class->child_add = workspacegroupview_child_add;
 	view_class->child_remove = workspacegroupview_child_remove;
 	view_class->child_position = workspacegroupview_child_position;
-	//view_class->child_front = workspacegroupview_child_front;
+	view_class->child_front = workspacegroupview_child_front;
 
 	GType supported_types[] = {
 		GDK_TYPE_FILE_LIST,
