@@ -3,8 +3,6 @@
 	is there a box type that can size down like this? maybe a
 	scrolledwindow with no scrollbars? is there something better?
 
-- can we remove vo_call_spine()?
-
 - ^W should close an imagewindow
 
   ^N should make a new column
