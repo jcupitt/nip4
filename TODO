@@ -3,9 +3,9 @@
 	is there a box type that can size down like this? maybe a
 	scrolledwindow with no scrollbars? is there something better?
 
-- ^W should close an imagewindow
+- tab duplicate does not set current correctly
 
-  ^N should make a new column
+- ^N should make a new column
 
   ctrl-bsp for delete selected?
 

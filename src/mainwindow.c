@@ -408,7 +408,7 @@ mainwindow_save_action(GSimpleAction *action,
 }
 
 static void
-mainwindow_close_action(GSimpleAction *action,
+mainwindow_quit_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
 	Mainwindow *main = MAINWINDOW(user_data);
@@ -449,6 +449,18 @@ mainwindow_tab_close_current(GSimpleAction *action,
 	if (ws &&
 		!ws->locked)
 		model_check_destroy(GTK_WINDOW(main), MODEL(ws));
+}
+
+static void
+mainwindow_column_new_current(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+	Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
+
+	if (ws &&
+		!ws->locked)
+		workspace_column_new(ws);
 }
 
 // call ->action on the linked view
@@ -496,13 +508,15 @@ static GActionEntry mainwindow_entries[] = {
 	{ "duplicate", mainwindow_duplicate_action },
 	{ "save", mainwindow_save_action },
 	{ "saveas", mainwindow_saveas_action },
-	{ "close", mainwindow_close_action },
+	{ "close", mainwindow_tab_close_current },
+	{ "quit", mainwindow_quit_action },
 	{ "keyboard-duplicate", mainwindow_keyboard_duplicate_action },
 	{ "fullscreen", action_toggle, NULL, "false", mainwindow_fullscreen },
 
 	// workspace tab menu
 	{ "tab-new", mainwindow_tab_new },
 	{ "tab-close-current", mainwindow_tab_close_current },
+	{ "column-new-current", mainwindow_column_new_current },
 	{ "tab-rename", mainwindow_view_action },
 	{ "tab-select-all", mainwindow_view_action },
 	{ "tab-duplicate", mainwindow_view_action },
