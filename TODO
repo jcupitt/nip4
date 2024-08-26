@@ -5,9 +5,7 @@
 
 - tab duplicate does not set current correctly
 
-- ^N should make a new column
-
-  ctrl-bsp for delete selected?
+- ctrl-bsp for delete selected?
 
 - should we support
 
@@ -23,9 +21,17 @@
 
 - should we wrap all vips8 operators? eg. could make
 
-	vips_add a b = vips_call "add" [a, b] []
+	vips_add a b = (vips_call "add" [a, b] [])?0
 
   as we do for vips7
+
+	  not very useful? we'd lose optional args
+
+  maybe:
+
+	vips_add options a b = vips_call "add" [a, b] options
+
+	x = vips_add [$uchar => true] y z
 
 ## test
 
@@ -34,6 +40,19 @@
   there are a whole series of test wses in nip2/test/workspaces
 
 ## vips8
+
+- startup defs contain LOTS of vips7 stuff, eg im_rot90 etc
+
+	we are going to need a .def file with a lot of vips7 compat defs, eg.
+
+		im_rot90 im = (vips_call "rot" [im, "d90"] [])?0
+
+	maybe vips_call should not return single-element lists?
+
+	make a vips7compat.def file, copy into all the old compat menu sets
+
+	rewrite our current menu set for vips8
+
 
 - vipsobject
 
