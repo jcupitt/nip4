@@ -825,8 +825,12 @@ action_proc_join(Reduce *rc, Compile *compile,
 	PEPOINTRIGHT(arg[1], &left);
 	PEPOINTRIGHT(arg[0], &right);
 
-	if (PEISIMAGE(a) && PEISIMAGE(b))
-		vo_callva(rc, out, "bandjoin", PEGETIMAGE(a), PEGETIMAGE(b));
+	if (PEISIMAGE(a) && PEISIMAGE(b)) {
+		g_autoptr(VipsArrayImage) c =
+			vips_array_image_newv(2, PEGETIMAGE(a), PEGETIMAGE(b));
+
+		vo_callva(rc, out, "bandjoin", c);
+	}
 	else if (PEISLIST(a) && PEISLIST(b)) {
 		if (reduce_safe_pointer(rc,
 				(reduce_safe_pointer_fn) action_proc_join_sub,
