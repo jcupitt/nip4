@@ -140,7 +140,8 @@ infobar_tilesource_changed(Tilesource *tilesource, Infobar *infobar)
 		bands *= 2;
 
 	label_width = infobar_label_width[format];
-	max_children = 60 / label_width;
+	// max of 500 chars ... need to cap it somewhere
+	max_children = 500 / label_width;
 	n_children = VIPS_MIN(bands, max_children);
 
 	/* Add a new set of labels.
@@ -152,8 +153,7 @@ infobar_tilesource_changed(Tilesource *tilesource, Infobar *infobar)
 		gtk_label_set_width_chars(GTK_LABEL(label), label_width);
 		gtk_label_set_xalign(GTK_LABEL(label), 1.0);
 		gtk_box_append(GTK_BOX(infobar->values), label);
-		infobar->value_widgets =
-			g_slist_append(infobar->value_widgets, label);
+		infobar->value_widgets = g_slist_append(infobar->value_widgets, label);
 	}
 }
 
