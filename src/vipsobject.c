@@ -441,6 +441,28 @@ vo_call_execute(Vo *vo, PElement *optional)
     return TRUE;
 }
 
+static gboolean
+vo_write_result(Vo *vo, PElement *out)
+{
+	/* The output object.
+	 */
+	PElement pe;
+	PEPOINTE(&pe, &vo->out);
+
+	/* We will often only have written a single output, since we don't support
+	 * optional outputs. If the output list is a single element, move pe to
+	 * that.
+	 */
+	if (heap_list_length(&pe) == 1)
+		heap_list_index(&pe, 0, &pe);
+
+	/* And write to out.
+	 */
+	PEPUTPE(out, &pe);
+
+	return TRUE;
+}
+
 /* Run a VipsOperation. Like vo_object_new(), but we return the output args
  * rather than the operation.
  */
@@ -464,9 +486,7 @@ vo_call(Reduce *rc, PElement *out, const char *name,
 		reduce_throw(rc);
 	}
 
-	/* Now write the output object to out.
-	 */
-	PEPUTE(out, &vo->out);
+	vo_write_result(vo, out);
 
 	vips_object_unref_outputs(vo->object);
 	vo_free(vo);
@@ -514,28 +534,6 @@ vo_call_fillva(Vo *vo, va_list ap)
     VIPS_ARGUMENT_FOR_ALL_END
 
     return TRUE;
-}
-
-static gboolean
-vo_write_result(Vo *vo, PElement *out)
-{
-	/* The output object.
-	 */
-	PElement pe;
-	PEPOINTE(&pe, &vo->out);
-
-	/* We will often only have written a single output, since we don't support
-	 * optional outputs. If the output list is a single element, move pe to
-	 * that.
-	 */
-	if (heap_list_length(&pe) == 1)
-		heap_list_index(&pe, 0, &pe);
-
-	/* And write to out.
-	 */
-	PEPUTPE(out, &pe);
-
-	return TRUE;
 }
 
 static gboolean

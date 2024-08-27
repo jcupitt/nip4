@@ -14,7 +14,7 @@
 
 - should we wrap all vips8 operators? eg. could make
 
-	vips_add a b = (vips_call "add" [a, b] [])?0
+	vips_add a b = vips_call "add" [a, b] []
 
   as we do for vips7
 
