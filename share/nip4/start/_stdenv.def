@@ -982,7 +982,7 @@ extract_area x y w h obj
 	extract_range from length list
 		= (take length @ drop from) list;
 
-	crop im x y w h = (vips_call "crop" [im, x, y, w, h] [])?0;
+	crop im x y w h = vips_call "crop" [im, x, y, w, h] [];
 }
 
 extract_band b obj = subscript obj b;
@@ -1447,12 +1447,9 @@ hist_find_indexed mode index value
 			Operator_type.COMPOUND false;
 
 	indexed index value
-		= out
-	{
-		[out] = vips_call "hist_find_indexed" [value, index] [
+		= vips_call "hist_find_indexed" [value, index] [
 			"combine" => mode
 		];
-	}
 }
 
 hist_entropy x
@@ -1464,11 +1461,7 @@ hist_entropy x
 		hist_entropy Operator_type.COMPOUND_REWRAP false;
 
 	entropy x
-		= out
-	{
-		[out] = vips_call "hist_entropy" [x] [
-		];
-	}
+		= vips_call "hist_entropy" [x] [];
 }
 
 hist_map hist image
@@ -1571,7 +1564,7 @@ hist_equalize_local w h l image
 	hist_equalize_local_op = Operator "hist_equalize_local"
 		(hist_equalize_local w h l) Operator_type.COMPOUND_REWRAP false;
 
-	[out] = vips_call "hist_local"
+	out = vips_call "hist_local"
 		[image, to_real w, to_real h] [$max_slope => to_real l];
 }
 
@@ -1625,10 +1618,7 @@ reduce kernel xshr yshr image
 		reduce_im Operator_type.COMPOUND_REWRAP false;
 
 	reduce_im im
-		= out
-	{
-		[out] = vips_call "reduce" [im, xshr, yshr] [$kernel => kernel.value];
-	}
+		= vips_call "reduce" [im, xshr, yshr] [$kernel => kernel.value];
 }
 
 similarity interpolate scale angle image
@@ -1640,14 +1630,11 @@ similarity interpolate scale angle image
 		similarity_im Operator_type.COMPOUND_REWRAP false;
 
 	similarity_im im
-		= out
-	{
-		[out] = vips_call "similarity" [im] [
+		= vips_call "similarity" [im] [
 			$interpolate => interpolate.value,
 			$scale => scale,
 			$angle => angle
 		];
-	}
 }
 
 resize kernel xfac yfac image
@@ -1683,11 +1670,8 @@ resize kernel xfac yfac image
 		= vips_resize kernel xfac' yfac' im
 	{
 		vips_resize kernel hscale vscale im
-			= out
-		{
-			[out] = vips_call "resize" [im, hscale]
+			= vips_call "resize" [im, hscale]
 				[$vscale => vscale, $kernel => kernel.value];
-		}
 	}
 }
 
@@ -2432,15 +2416,12 @@ system_image2 command x1 x2
 		(system_image2 command) Operator_type.COMPOUND_REWRAP false;
 
 	system x1 x2
-		= image_out
-	{
-		[image_out] = vips_call "system" [command] [
+		= vips_call "system" [command] [
 			$in => [x1, x2],
 			$out => true,
 			$out_format => "%s.tif",
 			$in_format => "%s.tif"
 		];
-	}
 }
 
 /* Three images in, one out.
@@ -2455,15 +2436,12 @@ system_image3 command x1 x2 x3
 		(system_image3 command x1) Operator_type.COMPOUND_REWRAP false;
 
 	system x1 x2 x3
-		= image_out
-	{
-		[image_out] = vips_call "system" [command] [
+		= vips_call "system" [command] [
 			$in => [x1, x2, x3],
 			$out => true,
 			$out_format => "%s.tif",
 			$in_format => "%s.tif"
 		];
-	}
 }
 
 /* Zero images in, one out.
@@ -2471,7 +2449,7 @@ system_image3 command x1 x2 x3
 system_image0 command
 	= Image image_out
 {
-	[image_out] = vips_call "system" [command] [
+	image_out = vips_call "system" [command] [
 		$out => true,
 		$out_format => "%s.tif"
 	];
@@ -2486,13 +2464,10 @@ hough_line w h x
 		(hough_line w h) Operator_type.COMPOUND_REWRAP false;
 
 	hline w h x
-		= pspace
-	{
-		[pspace] = vips_call "hough_line" [x] [
+		= vips_call "hough_line" [x] [
 			$width => w,
 			$height => h
 		];
-	}
 }
 
 hough_circle s mn mx x
@@ -2504,14 +2479,11 @@ hough_circle s mn mx x
 		(hough_circle s mn mx) Operator_type.COMPOUND_REWRAP false;
 
 	hcircle s mn mx x
-		= pspace
-	{
-		[pspace] = vips_call "hough_circle" [x] [
+		= vips_call "hough_circle" [x] [
 			$scale => s,
 			$min_radius => mn,
 			$max_radius => mx
 		];
-	}
 }
 
 mapim interp ind in
@@ -2524,16 +2496,13 @@ mapim interp ind in
 		(mapim interp) Operator_type.COMPOUND_REWRAP false;
 
 	mapim_fn ind im
-		= out
-	{
-		[out] = vips_call "mapim" [im, ind] [$interpolate => interp];
-	}
+		= vips_call "mapim" [im, ind] [$interpolate => interp];
 }
 
 perlin cell width height
 	= Image im
 {
-	[im] = vips_call "perlin" [to_real width, to_real height] [
+	im = vips_call "perlin" [to_real width, to_real height] [
 		$cell_size => to_real cell
 	];
 }
@@ -2541,19 +2510,16 @@ perlin cell width height
 worley cell width height
 	= Image im
 {
-	[im] = vips_call "worley" [to_real width, to_real height] [
+	im = vips_call "worley" [to_real width, to_real height] [
 		$cell_size => to_real cell
 	];
 }
 
 gaussnoise width height mean sigma
-	= im
-{
-	[im] = vips_call "gaussnoise" [to_real width, to_real height] [
+	= vips_call "gaussnoise" [to_real width, to_real height] [
 		$mean => to_real mean,
 		$sigma => to_real sigma
 	];
-}
 
 flattenimage bg x
 	= oo_unary_function flatten_op x, is_class x
@@ -2564,12 +2530,9 @@ flattenimage bg x
 		(flattenimage bg) Operator_type.COMPOUND_REWRAP false;
 
 	flt bg x
-		= out
-	{
-		[out] = vips_call "flatten" [x] [
+		= vips_call "flatten" [x] [
 			$background => bg.value
 		];
-	}
 }
 
 premultiply x
@@ -2580,12 +2543,7 @@ premultiply x
 	premultiply_op = Operator "premultiply"
 		premultiply Operator_type.COMPOUND_REWRAP false;
 
-	prem x
-		= out
-	{
-		[out] = vips_call "premultiply" [x] [
-		];
-	}
+	prem x = vips_call "premultiply" [x] [];
 }
 
 unpremultiply x
@@ -2596,12 +2554,7 @@ unpremultiply x
 	unpremultiply_op = Operator "unpremultiply"
 		unpremultiply Operator_type.COMPOUND_REWRAP false;
 
-	unprem x
-		= out
-	{
-		[out] = vips_call "unpremultiply" [x] [
-		];
-	}
+	unprem x = vips_call "unpremultiply" [x] [];
 }
 
 hist_entropy x
@@ -2612,12 +2565,7 @@ hist_entropy x
 	hist_entropy_op = Operator "hist_entropy"
 		hist_entropy Operator_type.COMPOUND_REWRAP false;
 
-	entropy x
-		= out
-	{
-		[out] = vips_call "hist_entropy" [x] [
-		];
-	}
+	entropy x = vips_call "hist_entropy" [x] [];
 }
 
 canny sigma precision x
@@ -2629,14 +2577,10 @@ canny sigma precision x
 		(canny sigma precision) Operator_type.COMPOUND_REWRAP false;
 
 	canny_im sigma precision x
-		= out
-	{
-		[out] = vips_call "canny" [x] [
+		= vips_call "canny" [x] [
 			$sigma => sigma,
 			$precision => precision
 		];
-	}
-
 }
 
 sobel x
@@ -2647,10 +2591,5 @@ sobel x
 	sobel_op = Operator "sobel"
 		sobel Operator_type.COMPOUND_REWRAP false;
 
-	sobel_im x
-		= out
-	{
-		[out] = vips_call "sobel" [x] [
-		];
-	}
+	sobel_im x = vips_call "sobel" [x] [];
 }

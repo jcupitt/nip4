@@ -13,7 +13,7 @@ Image_new_item = class Menupullright "_New" "make new things" {
 			"128-bit complex - DPCOMPLEX" 		// 9
 		];
 
-		action = class 
+		action = class
 			Image _result {
 			_vislevel = 3;
 
@@ -26,8 +26,8 @@ Image_new_item = class Menupullright "_New" "make new things" {
 			pixel = Expression "Pixel value" 0;
 
 			_result
-				= image_new (to_real nwidth) (to_real nheight) (to_real nbands) 
-					(to_real format_option) Image_coding.NOCODING 
+				= image_new (to_real nwidth) (to_real nheight) (to_real nbands)
+					(to_real format_option) Image_coding.NOCODING
 					type_option.value_thing pixel.expr 0 0;
 		}
 	}
@@ -44,32 +44,32 @@ Image_new_item = class Menupullright "_New" "make new things" {
 					= image_new x.width x.height x.bands
 						x.format x.coding x.type pixel.expr x.xoffset x.yoffset;
 		}
-	} 
+	}
 
-	Image_region_item = class 
+	Image_region_item = class
 		Menupullright "_Region on Image" "make a new region on an image" {
-		Region_item = class 
+		Region_item = class
 			Menuaction "_Region" "make a region on an image" {
 			action image = scope.Region_relative image 0.25 0.25 0.5 0.5;
 		}
-	
-		Mark_item = class 
+
+		Mark_item = class
 			Menuaction "_Point" "make a point on an image" {
 			action image = scope.Mark_relative image 0.5 0.5;
 		}
-	
-		Arrow_item = class 
+
+		Arrow_item = class
 			Menuaction "_Arrow" "make an arrow on an image" {
 			action image = scope.Arrow_relative image 0.25 0.25 0.5 0.5;
 		}
-	
-		HGuide_item = class 
-			Menuaction "_Horizontal Guide" 
+
+		HGuide_item = class
+			Menuaction "_Horizontal Guide"
 				"make a horizontal guide on an image" {
 			action image = scope.HGuide image 0.5;
 		}
-	
-		VGuide_item = class 
+
+		VGuide_item = class
 			Menuaction "_Vertical Guide" "make a vertical guide on an image" {
 			action image = scope.VGuide image 0.5;
 		}
@@ -77,12 +77,12 @@ Image_new_item = class Menupullright "_New" "make new things" {
     	sep1 = Menuseparator;
 
 		Move_item = class
-			Menuaction "From Region" 
+			Menuaction "From Region"
 				"new region on image using existing region as a guide" {
-			action a b 
+			action a b
 				= map_binary process a b
 			{
-				process a b 
+				process a b
 					= x.Region target x.left x.top x.width x.height,
 							is_Region x
 					= x.Arrow target x.left x.top x.width x.height,
@@ -91,9 +91,9 @@ Image_new_item = class Menupullright "_New" "make new things" {
 				{
 					// prefer image then region
 					compare a b
-						= false, 
+						= false,
 							!is_Image a && is_Image b
-						= false, 
+						= false,
 							is_Region a && !is_Region b
 						= true;
 
@@ -104,7 +104,7 @@ Image_new_item = class Menupullright "_New" "make new things" {
 	}
 }
 
-Image_convert_to_image_item = class 
+Image_convert_to_image_item = class
 	Menuaction "Con_vert to Image" "convert anything to an image" {
 	action x = to_image x;
 }
@@ -118,13 +118,13 @@ Image_number_format_item = class
 	}
 
 	U16_item = class
-		Menuaction "1_6 bit unsigned" 
+		Menuaction "1_6 bit unsigned"
 			"convert to unsigned 16 bit [0, 65535]" {
 		action x = map_unary cast_unsigned_short x;
 	}
 
 	U32_item = class
-		Menuaction "_32 bit unsigned" 
+		Menuaction "_32 bit unsigned"
 			"convert to unsigned 32 bit [0, 4294967295]" {
 		action x = map_unary cast_unsigned_int x;
 	}
@@ -137,13 +137,13 @@ Image_number_format_item = class
 	}
 
 	S16_item = class
-		Menuaction "16 b_it signed" 
+		Menuaction "16 b_it signed"
 			"convert to signed 16 bit [-32768, 32767]" {
 		action x = map_unary cast_signed_short x;
 	}
 
 	S32_item = class
-		Menuaction "32 bi_t signed" 
+		Menuaction "32 bi_t signed"
 			"convert to signed 32 bit [-2147483648, 2147483647]" {
 		action x = map_unary cast_signed_int x;
 	}
@@ -151,13 +151,13 @@ Image_number_format_item = class
     sep2 = Menuseparator;
 
 	Float_item = class
-		Menuaction "_Single precision float" 
+		Menuaction "_Single precision float"
 			"convert to IEEE 32 bit float" {
 		action x = map_unary cast_float x;
 	}
 
 	Double_item = class
-		Menuaction "_Double precision float" 
+		Menuaction "_Double precision float"
 			"convert to IEEE 64 bit float" {
 		action x = map_unary cast_double x;
 	}
@@ -165,19 +165,19 @@ Image_number_format_item = class
     sep3 = Menuseparator;
 
 	Scmplxitem = class
-		Menuaction "Single _precision complex" 
+		Menuaction "Single _precision complex"
 			"convert to 2 x IEEE 32 bit float" {
 		action x = map_unary cast_complex x;
 	}
 
 	Dcmplx_item = class
-		Menuaction "Double p_recision complex" 
+		Menuaction "Double p_recision complex"
 			"convert to 2 x IEEE 64 bit float" {
 		action x = map_unary cast_double_complex x;
 	}
 }
 
-Image_header_item = class 
+Image_header_item = class
 	Menupullright "_Header" "do stuff to the image header" {
 
 	Image_get_item = class
@@ -231,57 +231,57 @@ Image_header_item = class
 
 			field = fields.field_option field_name;
 
-			_result 
-				= map_unary (Real @ 
+			_result
+				= map_unary (Real @
 					fields.field_funcs.lookup 0 1 field.value_thing) x;
 		}
 
-		Width_item = class 
+		Width_item = class
 			Menuaction "_Width" "get width" {
 			action x = get_field "width" x;
 		}
 
-		Height_item = class 
+		Height_item = class
 			Menuaction "_Height" "get height" {
 			action x = get_field "height" x;
 		}
 
-		Bands_item = class 
+		Bands_item = class
 			Menuaction "_Bands" "get bands" {
 			action x = get_field "bands" x;
 		}
 
-		Format_item = class 
+		Format_item = class
 			Menuaction "_Format" "get format" {
 			action x = get_field "format" x;
 		}
 
-		Type_item = class 
+		Type_item = class
 			Menuaction "_Type" "get type" {
 			action x = get_field "type" x;
 		}
 
-		Xres_item = class 
+		Xres_item = class
 			Menuaction "_Xres" "get X resolution" {
 			action x = get_field "xres" x;
 		}
 
-		Yres_item = class 
+		Yres_item = class
 			Menuaction "_Yres" "get Y resolution" {
 			action x = get_field "yres" x;
 		}
 
-		Xoffset_item = class 
+		Xoffset_item = class
 			Menuaction "X_offset" "get X offset" {
 			action x = get_field "xoffset" x;
 		}
 
-		Yoffset_item = class 
+		Yoffset_item = class
 			Menuaction "Yo_ffset" "get Y offset" {
 			action x = get_field "yoffset" x;
 		}
 
-		Coding_item = class 
+		Coding_item = class
 			Menuaction "_Coding" "get coding" {
 			action x = get_field "coding" x;
 		}
@@ -312,11 +312,11 @@ Image_header_item = class
 						= parse_str parse x, is_string x
 						= error ("not " ++ name);
 
-					get_int = parse_field "int" 
+					get_int = parse_field "int"
 						cast_signed_int parse_int;
-					get_float = parse_field "float" 
+					get_float = parse_field "float"
 						cast_float parse_float;
-					get_time = parse_field "hh:mm:ss" 
+					get_time = parse_field "hh:mm:ss"
 						cast_signed_int parse_time;
 
 					wrap x
@@ -331,7 +331,7 @@ Image_header_item = class
 
 					process = [
 						id,
-						get_int, 
+						get_int,
 						get_float,
 						get_time
 					]?parse;
@@ -378,11 +378,11 @@ Image_header_item = class
 			nxoff = Expression "Xoffset" (get_prop has_xoffset get_xoffset 0 x);
 			nyoff = Expression "Yoffset" (get_prop has_yoffset get_yoffset 0 x);
 
-			type_option 
-				= Option_enum "Image type" Image_type.type_names 
+			type_option
+				= Option_enum "Image type" Image_type.type_names
 					(Image_type.type_names.get_name type)
 			{
-				type 
+				type
 					= x.type, is_Image x
 					= Image_type.MULTIBAND;
 			}
@@ -392,7 +392,7 @@ Image_header_item = class
 			{
 				process image
 					= Image (im_copy_set image.value type_option.value_thing
-						(to_real nxres) (to_real nyres) 
+						(to_real nxres) (to_real nyres)
 						(to_real nxoff) (to_real nyoff));
 			}
 		}
@@ -413,7 +413,7 @@ Image_cache_item = class
 			= map_unary process x
 		{
 			process image
-				= cache (to_real tile_width) (to_real tile_height) 
+				= cache (to_real tile_width) (to_real tile_height)
 					(to_real max_tiles) image;
 		}
 	}
@@ -421,7 +421,7 @@ Image_cache_item = class
 
 #separator
 
-Image_levels_item = class 
+Image_levels_item = class
 	Menupullright "_Levels" "change image levels" {
 	Scale_item = class
 		Menuaction "_Scale to 0 - 255" "linear transform to fit 0 - 255 range" {
@@ -461,10 +461,10 @@ Image_levels_item = class
 			gamma = Scale "Gamma" 0.001 4 1;
 			image_maximum_hint = "You may need to change image_maximum if " ++
 				"this is not an 8 bit image";
-			im_mx 
+			im_mx
 				= Expression "Image maximum" mx
 			{
-				mx 
+				mx
 						= Image_format.maxval x.format, has_format x
 						= 255;
 			}
@@ -506,24 +506,24 @@ Image_levels_item = class
 	}
 }
 
-Image_transform_item = class 
+Image_transform_item = class
 	Menupullright "_Transform" "transform images" {
-	Rotate_item = class 
+	Rotate_item = class
 		Menupullright "Ro_tate" "rotate image" {
 		Fixed_item = class
 			Menupullright "_Fixed" "clockwise rotation by fixed angles" {
 	        rotate_widget default x = class
 				_result {
 				_vislevel = 3;
-	
+
 				angle = Option "Rotate by" [
-					"Don't rotate", 
+					"Don't rotate",
 					"90 degrees clockwise",
 					"180 degrees",
 					"90 degrees anticlockwise"
 				] default;
-	
-				_result 
+
+				_result
 					= map_unary process x
 				{
 					process = [
@@ -538,17 +538,17 @@ Image_transform_item = class
 					] ? angle;
 				}
 			}
-	
+
 			Rot90_item = class
 				Menuaction "_90 Degrees" "clockwise rotation by 90 degrees" {
 				action x = rotate_widget 1 x;
 			}
-	
+
 			Rot180_item = class
 				Menuaction "_180 Degrees" "clockwise rotation by 180 degrees" {
 				action x = rotate_widget 2 x;
 			}
-	
+
 			Rot270_item = class
 				Menuaction "_270 Degrees" "clockwise rotation by 270 degrees" {
 				action x = rotate_widget 3 x;
@@ -560,21 +560,21 @@ Image_transform_item = class
 			action x = class
 				_result {
 				_vislevel = 3;
-	
+
 				angle = Scale "Angle" (-180) 180 0;
 				interp = Interpolate_picker Interpolate_type.BILINEAR;
-	
+
 				_result
 					= map_unary process x
 				{
-					process image 
+					process image
 						= rotate interp angle image;
 				}
 			}
 		}
-	
+
 		Straighten_item = class
-			Menuaction "_Straighten" 
+			Menuaction "_Straighten"
 				("smallest rotation that makes an arrow either horizontal " ++
 				"or vertical") {
 			action x = class
@@ -591,14 +591,14 @@ Image_transform_item = class
 					{
 						x = arrow.width;
 						y = arrow.height;
-		
+
 						angle = im (polar (x, y));
-		
+
 						angle'
 							= angle - 360, angle > 315
 							= angle - 180, angle > 135
 							= angle;
-		
+
 						angle''
 							= -angle', angle' >= (-45) && angle' < 45
 							= 90 - angle';
@@ -608,20 +608,20 @@ Image_transform_item = class
 		}
 	}
 
-	Flip_item = class 
+	Flip_item = class
 		Menupullright "_Flip" "mirror left/right or up/down" {
 		Left_right_item = class
 			Menuaction "_Left Right" "mirror object left/right" {
 			action x = map_unary fliplr x;
 		}
-	
+
 		Top_bottom_item = class
 			Menuaction "_Top Bottom" "mirror object top/bottom" {
 			action x = map_unary fliptb x;
 		}
 	}
 
-	Resize_item = class 
+	Resize_item = class
 		Menupullright "_Resize" "change image size" {
 		Scale_item = class
 			Menuaction "_Scale" "scale image size by a factor" {
@@ -633,10 +633,10 @@ Image_transform_item = class
 				yfactor = Expression "Vertical scale factor" 1;
 				kernel = Kernel_picker Kernel_type.LINEAR;
 
-				_result 
+				_result
 					= map_unary process x
 				{
-					process image 
+					process image
 						= resize kernel xfactor yfactor image;
 				}
 			}
@@ -644,7 +644,7 @@ Image_transform_item = class
 
 		Size_item = class
 			Menuaction "_Size To" "resize to a fixed size" {
-			action x = class 
+			action x = class
 				_result {
 				_vislevel = 3;
 
@@ -667,19 +667,19 @@ Image_transform_item = class
 					{
 						xfac = to_real size / image.width;
 						yfac = to_real size / image.height;
-						max_factor 
+						max_factor
 							= [xfac, 1], xfac > yfac
 							= [1, yfac];
-						min_factor 
+						min_factor
 							= [xfac, 1], xfac < yfac
 							= [1, yfac];
 						[h, v] = [
-							max_factor, 
-							min_factor, 
-							[xfac, 1], 
+							max_factor,
+							min_factor,
+							[xfac, 1],
 							[1, yfac]]?which;
 
-						fac 
+						fac
 							= h, v == 1
 							= v;
 					}
@@ -689,14 +689,14 @@ Image_transform_item = class
 
 		Size_within_item = class
 			Menuaction "Size _Within" "size to fit within a rectangle" {
-			action x = class 
+			action x = class
 				_result {
 				_vislevel = 3;
 
 				// the rects we size to fit within
 				_rects = [
-					[2048, 1536], [1920, 1200], [1600, 1200], [1400, 1050], 
-					[1280, 1024], [1024, 768], [800, 600], [640, 480] 
+					[2048, 1536], [1920, 1200], [1600, 1200], [1400, 1050],
+					[1280, 1024], [1024, 768], [800, 600], [640, 480]
 				];
 
 				within = Option "Fit within (pixels)" (
@@ -706,7 +706,7 @@ Image_transform_item = class
 				custom_width = Expression "Custom width" 1000;
 				custom_height = Expression "Custom height" 1000;
 			    size = Option "Page size" [
-					"Full page", "Half page", "Quarter page" 
+					"Full page", "Half page", "Quarter page"
 				] 0;
 				kernel = Kernel_picker Kernel_type.LINEAR;
 
@@ -737,16 +737,16 @@ Image_transform_item = class
 			action x = class
 				_result {
 				_vislevel = 3;
-	
-				// try to guess a sensible size for the new image 
+
+				// try to guess a sensible size for the new image
 				_guess_size
 					= x.rect, is_Image x
 					= Rect 0 0 100 100;
-	
+
 				nwidth = Expression "New width (pixels)" _guess_size.width;
 				nheight = Expression "New height (pixels)" _guess_size.height;
 				bgcolour = Expression "Background colour" 0;
-	
+
 				position = Option "Position" [
 					"North-west",
 					"North",
@@ -761,36 +761,36 @@ Image_transform_item = class
 				] 4;
 				left = Expression "Pixels from left" 0;
 				top = Expression "Pixels from top" 0;
-	
-				_result 
+
+				_result
 					= map_unary process x
 				{
-					process image 
+					process image
 						= insert_noexpand xp yp image background
 					{
 						width = image.width;
 						height = image.height;
 						coding = image.coding;
-						bands 
+						bands
 							= 3, coding == Image_coding.LABPACK
 							= image.bands;
-						format 
+						format
 							= Image_format.FLOAT, coding == Image_coding.LABPACK
 							= image.format;
 						type = image.type;
-	
+
 						// placement vectors ... left, centre, right
-						xposv = [0, to_real nwidth / 2 - width / 2, 
+						xposv = [0, to_real nwidth / 2 - width / 2,
 							to_real nwidth - width];
-						yposv = [0, to_real nheight / 2 - height / 2, 
+						yposv = [0, to_real nheight / 2 - height / 2,
 							to_real nheight - height];
-						xp 
+						xp
 							= left, position == 9
 							= xposv?((int) (position % 3));
-						yp 
+						yp
 							= top, position == 9
 							= yposv?((int) (position / 3));
-	
+
 						background = image_new nwidth nheight
 							bands format coding type bgcolour.expr 0 0;
 					}
@@ -821,13 +821,13 @@ Image_transform_item = class
 					is_twocomponent x
 						= is_nonc x || is_c x;
 					is_nonc x
-						= has_bands x && get_bands x == 2 && 
+						= has_bands x && get_bands x == 2 &&
 							has_format x && !is_complex_format (get_format x);
 					is_c x
-						= has_bands x && get_bands x == 1 && 
+						= has_bands x && get_bands x == 1 &&
 							has_format x && is_complex_format (get_format x);
 					is_complex_format f
-						= f == Image_format.COMPLEX || 
+						= f == Image_format.COMPLEX ||
 							f == Image_format.DPCOMPLEX;
 				}
 			}
@@ -836,8 +836,8 @@ Image_transform_item = class
 
 	Image_perspective_item = Perspective_item;
 
-	Image_rubber_item = class 
-		Menupullright "Ru_bber Sheet" 
+	Image_rubber_item = class
+		Menupullright "Ru_bber Sheet"
 			"automatically warp images to superposition" {
 		rubber_interp = Option "Interpolation" ["Nearest", "Bilinear"] 1;
 		rubber_order = Option "Order" ["0", "1", "2", "3"] 1;
@@ -845,11 +845,11 @@ Image_transform_item = class
 
 		// a transform ... a matrix, plus the size of the image the
 		// matrix was made for
-		Transform matrix image_width image_height = class 
+		Transform matrix image_width image_height = class
 			matrix {
 			// scale a transform ... if it worked for a m by n image, make
 			// it work for a (m * xfac) by (y * yfac) image
-			rescale xfac yfac 
+			rescale xfac yfac
 				= Transform (Matrix (map2 (map2 multiply) matrix.value facs))
 					(image_width * xfac) (image_height * yfac)
 			{
@@ -865,26 +865,26 @@ Image_transform_item = class
 		}
 
 		// yuk!!!! fix is_instanceof to not need absolute names
-		is_Transform = is_instanceof 
+		is_Transform = is_instanceof
 			"Image_transform_item.Image_rubber_item.Transform";
 
 		Find_item = class
-			Menuaction "_Find" 
+			Menuaction "_Find"
 				("find a transform which will map sample image onto " ++
 				"reference") {
 			action reference sample = class
 				_trn {
 				_vislevel = 3;
-	
+
 				// controls
 				order = rubber_order;
 				interp = rubber_interp;
 				wrap = rubber_wrap;
 				max_err = Expression "Maximum error" 0.3;
 				max_iter = Expression "Maximum iterations" 10;
-	
+
 				// transform
-				[sample', trn, err] = transform_search 
+				[sample', trn, err] = transform_search
 					max_err max_iter order interp wrap
 					sample reference;
 				transformed_image = Image sample';
@@ -898,11 +898,11 @@ Image_transform_item = class
 			action a b = class
 				_result {
 				_vislevel = 3;
-	
+
 				// controls
 				interp = rubber_interp;
 				wrap = rubber_wrap;
-	
+
 				_result
 					= map_binary trans a b
 				{
@@ -911,7 +911,7 @@ Image_transform_item = class
 					{
 						// get the transform arg first
 						[i, t] = sortc (const is_Transform) [a, b];
-						t' = t.rescale (i.width / t.image_width) 
+						t' = t.rescale (i.width / t.image_width)
 							(i.height / t.image_height);
 					}
 				}
@@ -922,9 +922,9 @@ Image_transform_item = class
     sep1 = Menuseparator;
 
 	Match_item = class
-		Menuaction "_Linear Match" 
+		Menuaction "_Linear Match"
 			"rotate and scale one image to match another" {
-		action x y = class 
+		action x y = class
 			_result {
 			_vislevel = 3;
 
@@ -942,10 +942,10 @@ Image_transform_item = class
 			bp1 = Mark_relative _b 0.5 0.25;
 			ap2 = Mark_relative _a 0.5 0.75;
 			bp2 = Mark_relative _b 0.5 0.75;
-		
+
 			refine = Toggle "Refine selected tie-points" false;
 			lock = Toggle "No resize" false;
-		
+
 			_result
 				= map_binary process x y
 			{
@@ -955,12 +955,12 @@ Image_transform_item = class
 					_prefs = Workspaces.Preferences;
 					window = _prefs.MOSAIC_WINDOW_SIZE;
 					object = _prefs.MOSAIC_OBJECT_SIZE;
-					
+
 					a' = a.value;
 					b' = b.value;
-			
+
 					b'' = clip2fmt a.format b';
-			
+
 					// return p2 ... if lock is set, return a p2 a standard
 					// distance along the vector joining p1 and p2
 					norm p1 p2
@@ -974,11 +974,11 @@ Image_transform_item = class
 						left' = p1.left + re n;
 						top' = p1.top + im n;
 					}
-			
+
 					ap2'' = norm ap1 ap2;
 					bp2'' = norm bp1 bp2;
-			
-					b''' 
+
+					b'''
 						= im_match_linear_search a' b''
 							ap1.left ap1.top bp1.left bp1.top
 							ap2''.left ap2''.top bp2''.left bp2''.top
@@ -996,7 +996,7 @@ Image_transform_item = class
 	Image_perspective_match_item = Perspective_match_item;
 }
 
-Image_band_item = class 
+Image_band_item = class
 	Menupullright "_Band" "manipulate image bands" {
 	// like extract_bands, but return [] for zero band image
 	// makes compose a bit simpler
@@ -1023,7 +1023,7 @@ Image_band_item = class
 
 			first = Expression "Insert at position" 0;
 
-			_result 
+			_result
 				= map_binary process x y
 			{
 				process im1 im2
@@ -1044,7 +1044,7 @@ Image_band_item = class
 			first = Expression "Delete from band" 0;
 			number = Expression "Delete this many bands" 1;
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process im
@@ -1074,18 +1074,18 @@ Image_band_item = class
 
     sep2 = Menuseparator;
 
-	To_dimension_item = class 
+	To_dimension_item = class
 		Menuaction "To D_imension" "convert bands to width or height" {
 		action x = class
 			_result {
 			_vislevel = 3;
 
 			orientation = Option "Orientation" [
-				"Horizontal", 
+				"Horizontal",
 				"Vertical"
 			] 0;
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process im
@@ -1094,18 +1094,18 @@ Image_band_item = class
 		}
 	}
 
-	To_bands_item = class 
+	To_bands_item = class
 		Menuaction "To B_ands" "turn width or height to bands" {
 		action x = class
 			_result {
 			_vislevel = 3;
 
 			orientation = Option "Orientation" [
-				"Horizontal", 
+				"Horizontal",
 				"Vertical"
 			] 0;
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process im
@@ -1123,16 +1123,16 @@ Image_band_item = class
 	}
 }
 
-Image_alpha_item = class 
+Image_alpha_item = class
 	Menupullright "_Alpha" "manipulate image alpha" {
 
 	Add_item = class Menuaction "_Add" "add alpha" {
 		action x = class
-			_result { 
+			_result {
 			_vislevel = 3;
 
 			opacity = Expression "Opacity (255 == solid)" 255;
-			
+
 			_result = x ++ to_real opacity;
 		}
 	}
@@ -1149,7 +1149,7 @@ Image_alpha_item = class
 	}
 
 	Extract_item = class Menuaction "_Extract" "extract alpha" {
-		action x 
+		action x
 			= map_unary exb x
 		{
 			exb x = extract_bands (x.bands - 1) 1 x;
@@ -1157,7 +1157,7 @@ Image_alpha_item = class
 	}
 
 	Drop_item = class Menuaction "_Drop" "drop alpha" {
-		action x 
+		action x
 			= map_unary exb x
 		{
 			exb x = extract_bands 0 (x.bands - 1) x;
@@ -1170,16 +1170,16 @@ Image_alpha_item = class
 		action x = premultiply x;
 	}
 
-	Unpremultiply_item = class 
+	Unpremultiply_item = class
 		Menuaction "_Unpremultiply" "unpremultiply alpha" {
-		action x = unpremultiply x; 
+		action x = unpremultiply x;
 	}
 
     sep2 = Menuseparator;
 
-	Composite2_item = class 
+	Composite2_item = class
 		Menuaction "_Composite two" "composite a pair of images" {
-		action x y = class 
+		action x y = class
 			_result {
 			_vislevel = 3;
 
@@ -1193,11 +1193,11 @@ Image_alpha_item = class
 			}
 			premultiplied = Toggle (_ "Premultiplied") false;
 
-			_result 
+			_result
 				= Image output
 			{
-				[output] = vips_call "composite" 
-					[[y.value, x.value], blend.value] 
+				output = vips_call "composite"
+					[[y.value, x.value], blend.value]
 					[$compositing_space => compositing_space.value_thing,
 					 $premultiplied => premultiplied.value
 					];
@@ -1205,9 +1205,9 @@ Image_alpha_item = class
 		}
 	}
 
-	Composite3_item = class 
+	Composite3_item = class
 		Menuaction "_Composite three" "composite three images" {
-		action x y z = class 
+		action x y z = class
 			_result {
 			_vislevel = 3;
 
@@ -1225,11 +1225,11 @@ Image_alpha_item = class
 			}
 			premultiplied = Toggle (_ "Premultiplied") false;
 
-			_result 
+			_result
 				= Image output
 			{
-				[output] = vips_call "composite" 
-					[[z.value, y.value, x.value], [blend1.value, blend2.value]] 
+				output = vips_call "composite"
+					[[z.value, y.value, x.value], [blend1.value, blend2.value]]
 					[$compositing_space => compositing_space.value_thing,
 					 $premultiplied => premultiplied.value
 					];
@@ -1238,9 +1238,9 @@ Image_alpha_item = class
 	}
 }
 
-Image_crop_item = class 
+Image_crop_item = class
 	Menuaction "_Crop" "extract a rectangular area from an image" {
-	action x 
+	action x
 		= crop x [l, t, w, h]
 	{
 		fields = [
@@ -1250,7 +1250,7 @@ Image_crop_item = class
 			[has_height, get_height, 100]
 		];
 
-		[l, t, w, h] 
+		[l, t, w, h]
 			= map get_default fields
 		{
 			get_default line
@@ -1271,7 +1271,7 @@ Image_crop_item = class
 		w = Expression "Crop width" (max_pair 1 ((int) (geo?2 / 2)));
 		h = Expression "Crop height" (max_pair 1 ((int) (geo?3 / 2)));
 
-		_result 
+		_result
 			= map_nary (list_5ary extract) [x, l.expr, t.expr, w.expr, h.expr]
 		{
 			extract im l t w h
@@ -1294,7 +1294,7 @@ Trim_item = class Menuaction "_Trim" "crop away edges" {
 		thresh = Scale "threshold" 0 100 10;
 		background = Expression "Background" default_background
 		{
-			default_background 
+			default_background
 				= map mean (bandsplit (extract_area 0 0 1 1 x));
 		}
 
@@ -1311,7 +1311,7 @@ Trim_item = class Menuaction "_Trim" "crop away edges" {
 
 Image_insert_item = class
 	Menuaction "_Insert" "insert a small image into a large image" {
-	action a b 
+	action a b
 		= insert_position, is_Group a || is_Group b
 		= insert_area
 	{
@@ -1327,10 +1327,10 @@ Image_insert_item = class
 			_pred x y = x.width * x.height < y.width * y.height;
 			[_a', _b'] = sortc _pred [a, b];
 
-			place 
+			place
 				= Area _b' left top width height
 			{
-				// be careful in case b is smaller than a 
+				// be careful in case b is smaller than a
 				left = max_pair 0 ((_b'.width - _a'.width) / 2);
 				top = max_pair 0 ((_b'.height - _a'.height) / 2);
 				width = min_pair _a'.width _b'.width;
@@ -1338,7 +1338,7 @@ Image_insert_item = class
 			}
 
 			_result
-				= insert_noexpand place.left place.top 
+				= insert_noexpand place.left place.top
 					(clip2fmt _b'.format a'') _b'
 			{
 				a'' = extract_area 0 0 place.width place.height _a';
@@ -1367,8 +1367,8 @@ Image_insert_item = class
 			_result
 				= map_binary insert a b
 			{
-				insert a b 
-					= insert_noexpand left top (clip2fmt b.format a) b, 
+				insert a b
+					= insert_noexpand left top (clip2fmt b.format a) b,
 						position == 9
 					= insert_noexpand xp yp (clip2fmt b.format a) b
 				{
@@ -1384,7 +1384,7 @@ Image_insert_item = class
 
 Image_select_item = Select_item;
 
-Image_draw_item = class 
+Image_draw_item = class
 	Menupullright "_Draw" "draw lines, circles, rectangles, floods" {
 	Line_item = class Menuaction "_Line" "draw line on image" {
 		action x = class
@@ -1398,10 +1398,10 @@ Image_draw_item = class
 
 			i = Expression "Ink" [0];
 
-			_result 
+			_result
 				= map_unary line x
 			{
-				line im 
+				line im
 					= draw_line x1 y1 x2 y2 i.expr im;
 			}
 		}
@@ -1423,10 +1423,10 @@ Image_draw_item = class
 
 			i = Expression "Ink" [0];
 
-			_result 
+			_result
 				= map_unary rect x
 			{
-				rect im 
+				rect im
 					= draw_rect_width rx ry rw rh f t i.expr im;
 			}
 		}
@@ -1445,10 +1445,10 @@ Image_draw_item = class
 
 			i = Expression "Ink" [0];
 
-			_result 
+			_result
 				= map_unary circle x
 			{
-				circle im 
+				circle im
 					= draw_circle cx cy r f i.expr im;
 			}
 		}
@@ -1468,7 +1468,7 @@ Image_draw_item = class
 			] 0;
 
 			// pick a default ink that won't flood, if we can
-			i 
+			i
 				= Expression "Ink" default_ink
 			{
 				default_ink
@@ -1478,10 +1478,10 @@ Image_draw_item = class
 				im = get_image x;
 			}
 
-			_result 
+			_result
 				= map_unary flood x
 			{
-				flood im 
+				flood im
 					= draw_flood sx sy i.expr im, e == 0
 					= draw_flood_blob sx sy i.expr im;
 			}
@@ -1501,13 +1501,13 @@ Image_draw_item = class
 			font = Fontname "Use font" Workspaces.Preferences.PAINTBOX_FONT;
 			pos = Option "Position Text" ["Above", "Below"] 1;
 			vp = Option "Dimension by" [
-				"Inner Vertical Edge", 
-				"Centre of Vertical", 
+				"Inner Vertical Edge",
+				"Centre of Vertical",
 				"Outer Vertical Edge"
 			] 1;
             dpi = Expression "DPI" 100;
             ink = Colour "Lab" [50,0,0];
-      
+
             _result
                 = map_unary process x
             {
@@ -1549,7 +1549,7 @@ Image_draw_item = class
 	}
 }
 
-Image_join_item = class 
+Image_join_item = class
 	Menupullright "_Join" "join two or more images together" {
 	Bandwise_item = class
 		Menuaction "_Bandwise Join" "join two images bandwise" {
@@ -1563,31 +1563,31 @@ Image_join_item = class
 	{
 		w = a.width + b.width + shim;
 		h = max_pair a.height b.height;
-	
+
 		back = image_new w h a.bands a.format a.coding a.type bg 0 0;
-	
-		ya = [0, max_pair 0 ((b.height - a.height)/2), 
-			max_pair 0 (b.height - a.height)]; 
-		yb = [0, max_pair 0 ((a.height - b.height)/2), 
-			max_pair 0 (a.height - b.height)]; 
-	
+
+		ya = [0, max_pair 0 ((b.height - a.height)/2),
+			max_pair 0 (b.height - a.height)];
+		yb = [0, max_pair 0 ((a.height - b.height)/2),
+			max_pair 0 (a.height - b.height)];
+
 		im1 = insert_noexpand 0 ya?align a back;
 		im2 = insert_noexpand (a.width + shim) yb?align b im1;
 	}
-	
+
 	join_tb shim bg align a b
 		= im2
 	{
 		w = max_pair a.width b.width;
 		h = a.height + b.height + shim;
-	
+
 		back = image_new w h a.bands a.format a.coding a.type bg 0 0;
-	
-		xa = [0, max_pair 0 ((b.width - a.width)/2), 
-			max_pair 0 (b.width - a.width)]; 
-		xb = [0, max_pair 0 ((a.width - b.width)/2), 
-			max_pair 0 (a.width - b.width)]; 
-	
+
+		xa = [0, max_pair 0 ((b.width - a.width)/2),
+			max_pair 0 (b.width - a.width)];
+		xb = [0, max_pair 0 ((a.width - b.width)/2),
+			max_pair 0 (a.width - b.width)];
+
 		im1 = insert_noexpand xa?align 0 a back;
 		im2 = insert_noexpand xb?align (a.height + shim) b im1;
 	}
@@ -1597,30 +1597,30 @@ Image_join_item = class
 
 	Left_right_item = class
 		Menuaction "_Left to Right" "join two images left-right" {
-		action a b = class 
+		action a b = class
 			_result {
 			_vislevel = 3;
-	
+
 			shim = Scale "Spacing" 0 100 0;
 			bg_colour = Expression "Background colour" 0;
 			align = Option "Alignment" halign_names 1;
-	
-			_result = map_binary 
+
+			_result = map_binary
 				(join_lr shim.value bg_colour.expr align.value) a b;
 		}
 	}
 
 	Top_bottom_item = class
 		Menuaction "_Top to Bottom" "join two images top-bottom" {
-		action a b = class 
+		action a b = class
 			_result {
 			_vislevel = 3;
-	
+
 			shim = Scale "Spacing" 0 100 0;
 			bg_colour = Expression "Background colour" 0;
 			align = Option "Alignment" valign_names 1;
-	
-			_result = map_binary 
+
+			_result = map_binary
 				(join_tb shim.value bg_colour.expr align.value) a b;
 		}
 	}
@@ -1628,9 +1628,9 @@ Image_join_item = class
     sep2 = Menuseparator;
 
 	Array_item = class
-		Menuaction "_Array" 
+		Menuaction "_Array"
 			"join a list of lists of images into a single image" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
@@ -1644,10 +1644,10 @@ Image_join_item = class
 			// groups and we want to be able to reassemble that
 			// TODO: chop-into-tiles should return an array class which
 			// displays as group but does not have the looping behaviour?
-			_result 
-				= (image_set_origin 0 0 @ 
+			_result
+				= (image_set_origin 0 0 @
 					foldl1 (join_tb vshim.value bg_colour.expr halign.value) @
-					map (foldl1 (join_lr hshim.value 
+					map (foldl1 (join_lr hshim.value
 						bg_colour.expr valign.value))) (to_list (to_list x));
 		}
 	}
@@ -1665,9 +1665,9 @@ Image_join_item = class
 			bg_colour = Expression "Background colour" 0;
 			halign = Option "Horizontal alignment" valign_names 1;
 			valign = Option "Vertical alignment" halign_names 1;
-			snake = Toggle "Reverse the order of every other row" false; 
+			snake = Toggle "Reverse the order of every other row" false;
 
-			_l 
+			_l
 				= split_lines ncol.value x.value, is_Group x
 				= split_lines ncol.value x;
 
@@ -1689,15 +1689,15 @@ Image_join_item = class
 	}
 }
 
-Image_tile_item = class 
+Image_tile_item = class
 	Menupullright "Til_e" "tile an image across and down" {
 	tile_widget default_type x = class
 		_result {
 		_vislevel = 3;
-		
+
 		across = Expression "Tiles across" 2;
 		down = Expression "Tiles down" 2;
-		repeat = Option "Tile type" 
+		repeat = Option "Tile type"
 			["Replicate", "Four-way mirror"] default_type;
 
 		_result
@@ -1725,7 +1725,7 @@ Image_tile_item = class
 
 	Chop_item = class
 		Menuaction "_Chop Into Tiles" "slice an image into tiles" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
@@ -1747,9 +1747,9 @@ Image_tile_item = class
 
 #separator
 
-Pattern_images_item = class 
+Pattern_images_item = class
 	Menupullright "_Patterns" "make a variety of useful patterns" {
-	Grey_item = class 
+	Grey_item = class
 		Menuaction "Grey _Ramp" "make a smooth grey ramp" {
 		action = class
 			_result {
@@ -1758,43 +1758,43 @@ Pattern_images_item = class
 			nwidth = Expression "Image width (pixels)" 64;
 			nheight = Expression "Image height (pixels)" 64;
 			orientation = Option "Orientation" [
-				"Horizontal", 
+				"Horizontal",
 				"Vertical"
 			] 0;
 			foption = Option "Format" ["8 bit", "float"] 0;
 
-			_result 
+			_result
 				= Image im
 			{
-				gen 
+				gen
 					= im_grey, foption == 0
 					= im_fgrey;
 				w = to_real nwidth;
 				h = to_real nheight;
-				im 
+				im
 					= gen w h, orientation == 0
 					= rot90 (gen h w);
 			}
 		}
 	}
 
-	Xy_item = class 
-		Menuaction "_XY Image" 
+	Xy_item = class
+		Menuaction "_XY Image"
 			"make a two band image whose pixel values are their coordinates" {
-		action = class 
+		action = class
 			_result {
 			_vislevel = 3;
 
 			nwidth = Expression "Image width (pixels)" 64;
 			nheight = Expression "Image height (pixels)" 64;
 
-			_result = Image (make_xy nwidth nheight); 
+			_result = Image (make_xy nwidth nheight);
 		}
 	}
 
 	Noise_item = class
 		Menupullright "_Noise" "various noise generators" {
-		Gaussian_item = class 
+		Gaussian_item = class
 			Menuaction "_Gaussian" "make an image of gaussian noise" {
 			action = class
 				_result {
@@ -1805,12 +1805,12 @@ Pattern_images_item = class
 				mean = Scale "Mean" 0 255 128;
 				deviation = Scale "Deviation" 0 128 50;
 
-				_result = Image (gaussnoise nwidth nheight 
+				_result = Image (gaussnoise nwidth nheight
 					mean.value deviation.value);
 			}
 		}
 
-		Fractal_item = class 
+		Fractal_item = class
 			Menuaction "_Fractal" "make a fractal noise image" {
 			action = class
 				_result {
@@ -1819,11 +1819,11 @@ Pattern_images_item = class
 				nsize = Expression "Image size (pixels)" 64;
 				dimension = Scale "Dimension" 2.001 2.999 2.001;
 
-				_result = Image (im_fractsurf (to_real nsize) dimension.value); 
+				_result = Image (im_fractsurf (to_real nsize) dimension.value);
 			}
 		}
 
-		Perlin_item = class 
+		Perlin_item = class
 			Menuaction "_Perlin" "Perlin noise image" {
 			action = class
 				_result {
@@ -1834,7 +1834,7 @@ Pattern_images_item = class
 				cell_size = Expression "Cell size (pixels)" 8;
 				eight = Toggle "Eight bit output" true;
 
-				_result 
+				_result
 					= 128 * im + 128, eight
 					= im
 				{
@@ -1843,7 +1843,7 @@ Pattern_images_item = class
 			}
 		}
 
-		Worley_item = class 
+		Worley_item = class
 			Menuaction "_Worley" "Worley noise image" {
 			action = class
 				_result {
@@ -1853,16 +1853,16 @@ Pattern_images_item = class
 				nheight = Expression "Image height (pixels)" 512;
 				cell_size = Expression "Cell size (pixels)" 256;
 
-				_result 
+				_result
 					= worley cell_size nwidth nheight;
 			}
 		}
 
 	}
 
-	Checkerboard_item = class 
+	Checkerboard_item = class
 		Menuaction "_Checkerboard" "make a checkerboard image" {
-		action = class 
+		action = class
 			_result {
 			_vislevel = 3;
 
@@ -1888,7 +1888,7 @@ Pattern_images_item = class
 		}
 	}
 
-	Grid_item = class 
+	Grid_item = class
 		Menuaction "Gri_d" "make a grid" {
 		action = class
 			_result {
@@ -1917,9 +1917,9 @@ Pattern_images_item = class
 		}
 	}
 
-	Text_item = class 
+	Text_item = class
 		Menuaction "_Text" "make a bitmap of some text" {
-		action = class 
+		action = class
 			_result {
 			_vislevel = 3;
 
@@ -1930,14 +1930,14 @@ Pattern_images_item = class
 			height = Expression "Text height" 0;
 			align = Option "Alignment" [
 				"Left",
-				"Centre", 
-				"Right" 
+				"Centre",
+				"Right"
 			] 0;
 			dpi = Expression "DPI" 300;
 			fit = Toggle "Fit text to box" false;
 			spacing = Expression "Line spacing" 0;
 
-			_result 
+			_result
 				= Image out
 			{
 				base_options = [
@@ -1957,7 +1957,7 @@ Pattern_images_item = class
 					set_option $spacing 0 (to_real spacing)
 				];
 
-				[out] = vips_call "text" [text.value] options;
+				out = vips_call "text" [text.value] options;
 			}
 		}
 	}
@@ -1976,7 +1976,7 @@ Pattern_images_item = class
 	}
 
 	sense_option = Option "Sense" [
-		"Pass", 
+		"Pass",
 		"Reject"
 	] 0;
 
@@ -1984,11 +1984,11 @@ Pattern_images_item = class
 		= (Image @ image_set_type Image_type.FOURIER @ rotquad @ fn)
 			(im_create_fmask size size);
 
-	New_ideal_item = class 
-		Menupullright "_Ideal Fourier Mask" 
+	New_ideal_item = class
+		Menupullright "_Ideal Fourier Mask"
 			"make various ideal Fourier filter masks" {
-		High_low_item = class 
-			Menuaction "_High or Low Pass" 
+		High_low_item = class
+			Menuaction "_High or Low Pass"
 				("make a mask image for a highpass/lowpass " ++
 					"ideal Fourier filter") {
 			action = class
@@ -1999,7 +1999,7 @@ Pattern_images_item = class
 				sense = sense_option;
 				fc = Scale "Frequency cutoff" 0.01 0.99 0.5;
 
-				_result 
+				_result
 					= build param (to_real nsize)
 				{
 					param f = f sense.value fc.value 0 0 0 0;
@@ -2007,7 +2007,7 @@ Pattern_images_item = class
 			}
 		}
 
-		Ring_item = class 
+		Ring_item = class
 			Menuaction "_Ring Pass or Ring Reject"
 				("make a mask image for an ring pass/reject " ++
 				"ideal Fourier filter") {
@@ -2020,7 +2020,7 @@ Pattern_images_item = class
 				fc = Scale "Frequency cutoff" 0.01 0.99 0.5;
 				rw = Scale "Ring width" 0.01 0.99 0.5;
 
-				_result 
+				_result
 					= build param (to_real nsize)
 				{
 					param f = f (sense.value + 6) fc.value rw.value 0 0 0;
@@ -2028,7 +2028,7 @@ Pattern_images_item = class
 			}
 		}
 
-		Band_item = class 
+		Band_item = class
 			Menuaction "_Band Pass or Band Reject"
 				("make a mask image for a band pass/reject " ++
 				"ideal Fourier filter") {
@@ -2042,7 +2042,7 @@ Pattern_images_item = class
 				fcy = Scale "Vertical frequency cutoff" 0.01 0.99 0.5;
 				r = Scale "Radius" 0.01 0.99 0.5;
 
-				_result 
+				_result
 					= build param (to_real nsize)
 				{
 					param f = f (sense.value + 12) fcx.value fcy.value
@@ -2052,11 +2052,11 @@ Pattern_images_item = class
 		}
 	}
 
-	New_gaussian_item = class 
-		Menupullright "_Gaussian Fourier Mask" 
+	New_gaussian_item = class
+		Menupullright "_Gaussian Fourier Mask"
 			"make various Gaussian Fourier filter masks" {
-		High_low_item = class 
-			Menuaction "_High or Low Pass" 
+		High_low_item = class
+			Menuaction "_High or Low Pass"
 				("make a mask image for a highpass/lowpass " ++
 					"Gaussian Fourier filter") {
 			action = class
@@ -2068,7 +2068,7 @@ Pattern_images_item = class
 				fc = Scale "Frequency cutoff" 0.01 0.99 0.5;
 				ac = Scale "Amplitude cutoff" 0.01 0.99 0.5;
 
-				_result 
+				_result
 					= build param (to_real nsize)
 				{
 					param f = f (sense.value + 4) fc.value ac.value 0 0 0;
@@ -2076,7 +2076,7 @@ Pattern_images_item = class
 			}
 		}
 
-		Ring_item = class 
+		Ring_item = class
 			Menuaction "_Ring Pass or Ring Reject"
 				("make a mask image for an ring pass/reject " ++
 				"Gaussian Fourier filter") {
@@ -2090,16 +2090,16 @@ Pattern_images_item = class
 				ac = Scale "Amplitude cutoff" 0.01 0.99 0.5;
 				rw = Scale "Ring width" 0.01 0.99 0.5;
 
-				_result 
+				_result
 					= build param (to_real nsize)
 				{
-					param f = f (sense.value + 10) fc.value rw.value 
+					param f = f (sense.value + 10) fc.value rw.value
 							ac.value 0 0;
 				}
 			}
 		}
 
-		Band_item = class 
+		Band_item = class
 			Menuaction "_Band Pass or Band Reject"
 				("make a mask image for a band pass/reject " ++
 				"Gaussian Fourier filter") {
@@ -2114,7 +2114,7 @@ Pattern_images_item = class
 				r = Scale "Radius" 0.01 0.99 0.5;
 				ac = Scale "Amplitude cutoff" 0.01 0.99 0.5;
 
-				_result 
+				_result
 					= build param (to_real nsize)
 				{
 					param f = f (sense.value + 16) fcx.value fcy.value
@@ -2124,12 +2124,12 @@ Pattern_images_item = class
 		}
 	}
 
-	New_butterworth_item = class 
-		Menupullright "_Butterworth Fourier Mask" 
+	New_butterworth_item = class
+		Menupullright "_Butterworth Fourier Mask"
 			"make various Butterworth Fourier filter masks" {
-		High_low_item = class 
-			Menuaction "_High or Low Pass" 
-				("make a mask image for a highpass/lowpass " ++ 
+		High_low_item = class
+			Menuaction "_High or Low Pass"
+				("make a mask image for a highpass/lowpass " ++
 					"Butterworth Fourier filter") {
 			action = class
 				_result {
@@ -2141,16 +2141,16 @@ Pattern_images_item = class
 				ac = Scale "Amplitude cutoff" 0.01 0.99 0.5;
 				order = Scale "Order" 1 10 2;
 
-				_result 
+				_result
 					= build param (to_real nsize)
 				{
-					param f = f (sense.value + 2) order.value fc.value 
+					param f = f (sense.value + 2) order.value fc.value
 							ac.value 0 0;
 				}
 			}
 		}
 
-		Ring_item = class 
+		Ring_item = class
 			Menuaction "_Ring Pass or Ring Reject"
 				("make a mask image for an ring pass/reject " ++
 				"Butterworth Fourier filter") {
@@ -2165,16 +2165,16 @@ Pattern_images_item = class
 				rw = Scale "Ring width" 0.01 0.99 0.5;
 				order = Scale "Order" 1 10 2;
 
-				_result 
+				_result
 					= build param (to_real nsize)
 				{
-					param f = f (sense.value + 8) order.value fc.value 
+					param f = f (sense.value + 8) order.value fc.value
 						rw.value ac.value 0;
 				}
 			}
 		}
 
-		Band_item = class 
+		Band_item = class
 			Menuaction "_Band Pass or Band Reject"
 				("make a mask image for a band pass/reject " ++
 				"Butterworth Fourier filter") {
@@ -2190,7 +2190,7 @@ Pattern_images_item = class
 				ac = Scale "Amplitude cutoff" 0.01 0.99 0.5;
 				order = Scale "Order" 1 10 2;
 
-				_result 
+				_result
 					= build param (to_real nsize)
 				{
 					param f = f (sense.value + 14) order.value fcx.value
@@ -2201,10 +2201,10 @@ Pattern_images_item = class
 	}
 }
 
-Test_images_item = class 
+Test_images_item = class
 	Menupullright "Test I_mages" "make a variety of test images" {
-	Eye_item = class 
-		Menuaction "_Spatial Response" 
+	Eye_item = class
+		Menuaction "_Spatial Response"
 			"image for testing the eye's spatial response" {
 		action = class
 			_result {
@@ -2214,14 +2214,14 @@ Test_images_item = class
 			nheight = Expression "Image height (pixels)" 64;
 			factor = Scale "Factor" 0.001 1 0.2;
 
-			_result = Image (im_eye (to_real nwidth) (to_real nheight) 
+			_result = Image (im_eye (to_real nwidth) (to_real nheight)
 				factor.value);
 		}
 	}
 
-	Zone_plate = class 
+	Zone_plate = class
 		Menuaction "_Zone Plate" "make a zone plate" {
-		action = class 
+		action = class
 			_result {
 			_vislevel = 3;
 
@@ -2231,8 +2231,8 @@ Test_images_item = class
 		}
 	}
 
-	Frequency_test_chart_item = class 
-		Menuaction "_Frequency Testchart" 
+	Frequency_test_chart_item = class
+		Menuaction "_Frequency Testchart"
 			"make a black/white frequency test pattern" {
 		action = class
 			_result {
@@ -2242,19 +2242,19 @@ Test_images_item = class
 			sheight = Expression "Strip height (pixels)" 10;
 			waves = Expression "Wavelengths" [64, 32, 16, 8, 4, 2];
 
-			_result 
+			_result
 				= imagearray_assemble 0 0 (transpose [strips])
 			{
 				freq_slice wave = Image (sin (grey / wave) > 0);
 				strips = map freq_slice waves.expr;
-				grey = im_fgrey (to_real nwidth) (to_real sheight) * 
+				grey = im_fgrey (to_real nwidth) (to_real sheight) *
 					360 * (to_real nwidth);
 			}
 		}
 	}
 
-	CRT_test_chart_item = class 
-		Menuaction "CRT _Phosphor Chart" 
+	CRT_test_chart_item = class
+		Menuaction "CRT _Phosphor Chart"
 			"make an image for measuring phosphor colours" {
 		action = class
 			_result {
@@ -2263,12 +2263,12 @@ Test_images_item = class
 			brightness = Scale "Brightness" 0 255 200;
 			psize = Expression "Patch size (pixels)" 32;
 
-			_result 
+			_result
 				= Image (imagearray_assemble 0 0 [[green, red], [blue, white]])
 			{
 
 				black = image_new (to_real psize) (to_real psize) 1
-					Image_format.FLOAT Image_coding.NOCODING 
+					Image_format.FLOAT Image_coding.NOCODING
 					Image_type.B_W 0 0 0;
 				notblack = black + brightness;
 
@@ -2280,9 +2280,9 @@ Test_images_item = class
 		}
 	}
 
-	Greyscale_chart_item = class 
+	Greyscale_chart_item = class
 		Menuaction "_Greyscale" "make a greyscale" {
-		action = class 
+		action = class
 			_result {
 			_vislevel = 3;
 
@@ -2291,11 +2291,11 @@ Test_images_item = class
 			npatches = Expression "Number of patches" 16;
 
 			_result
-				= Image (image_set_type Image_type.B_W 
+				= Image (image_set_type Image_type.B_W
 					(clip2fmt Image_format.UCHAR wedge))
 			{
-				wedge 
-					= 255 / (to_real npatches - 1) * 
+				wedge
+					= 255 / (to_real npatches - 1) *
 						(int) (strip?0 / to_real pwidth)
 				{
 					strip = make_xy (to_real pwidth * to_real npatches) pheight;
@@ -2304,9 +2304,9 @@ Test_images_item = class
 		}
 	}
 
-	CMYK_test_chart_item = class 
+	CMYK_test_chart_item = class
 		Menuaction "_CMYK Wedges" "make a set of CMYK wedges" {
-		action = class 
+		action = class
 			_result {
 			_vislevel = 3;
 
@@ -2315,11 +2315,11 @@ Test_images_item = class
 			npatches = Expression "Number of patches" 16;
 
 			_result
-				= Image (image_set_type Image_type.CMYK 
+				= Image (image_set_type Image_type.CMYK
 					(clip2fmt Image_format.UCHAR strips))
 			{
-				wedge 
-					= 255 / (to_real npatches - 1) * 
+				wedge
+					= 255 / (to_real npatches - 1) *
 						(int) (strip?0 / to_real pwidth)
 				{
 					strip = make_xy (to_real pwidth * to_real npatches) pheight;
@@ -2340,36 +2340,36 @@ Test_images_item = class
 	Colour_atlas_item = class
 	Menuaction "_Colour Atlas"
 		"make a grid of patches grouped around a colour" {
-		action = class 
-			_result {   
+		action = class
+			_result {
 			_vislevel = 3;
-       
+
 			start = Colour_picker "Lab" [50,0,0];
 			nstep = Expression "Number of steps" 9;
-			ssize = Expression "Step size" 10; 
+			ssize = Expression "Step size" 10;
 			psize = Expression "Patch size" 32;
 			sepsize = Expression "Separator size" 4;
-	
+
 			_result
 				= colour_transform_to (get_type start) blocks'''
 			{
-				size = (to_real nstep * 2 + 1) * to_real psize - 
+				size = (to_real nstep * 2 + 1) * to_real psize -
 					to_real sepsize;
-				xy = make_xy size size; 
+				xy = make_xy size size;
 
-				xy_grid = (xy % to_real psize) < 
+				xy_grid = (xy % to_real psize) <
 					(to_real psize - to_real sepsize);
 				grid = xy_grid?0 & xy_grid?1;
 
 				blocks = (int) (to_real ssize * ((int) (xy / to_real psize)));
 				lab_start = colour_transform_to Image_type.LAB start;
-				blocks' = blocks - to_real nstep * to_real ssize + 
+				blocks' = blocks - to_real nstep * to_real ssize +
 					Vector (tl lab_start.value);
 				blocks'' = hd lab_start.value ++ Image blocks';
-				blocks''' 
+				blocks'''
 					= image_set_type Image_type.LAB blocks'', Image grid
 					= 0;
-            }    
+            }
         }
     }
 }

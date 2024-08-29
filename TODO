@@ -1,7 +1,15 @@
-- extract region does mono
+- continue adding vips7 compat defs, test with eg.
 
-  vips_matrix always fails
+	nip4 test/workspaces/test_colour.ws
 
+  and many others heh
+
+- syntax error in startup .def stops nip4 loading
+
+- recomb needs fixing
+
+	we're passing a Matrix right now, I guess we need Matrix -> image
+	conversion in heap -> gvalue
 
 
 
@@ -33,46 +41,7 @@
 
 	x = vips_add [$uchar => true] y z
 
-## test
-
-- check the test ws we had for nip2
-
-  there are a whole series of test wses in nip2/test/workspaces
-
 ## vips8
-
-- need to_matrix and to_image
-
-	maybe call them im_vips2mask and im_mask2vips?
-
-		im_vips2mask :: [[real]] -> image
-		im_mask2vips :: image -> [[real]]
-
-	in nip2, im_vips2mask takes a one-band FMT_DOUBLE image and returns
-	a $x by $y Matrix object
-
-	call.c calls matrix_dmask_to_heap() to do DOUBLEMASK -> array
-
-	it makes (Matrix_vips [[real]] scale offset filename display)
-
-	the im_vips2mask vips7 operation makes DOUBLEMASK, also allows 1xn
-	or nx1 colour images which it unpacks to a mono image, ie. there's an
-	implicit bandunfold in there
-
-
-
-- startup defs contain LOTS of vips7 stuff, eg im_rot90 etc
-
-	we are going to need a .def file with a lot of vips7 compat defs, eg.
-
-		im_rot90 im = (vips_call "rot" [im, "d90"] [])?0
-
-	maybe vips_call should not return single-element lists?
-
-	make a vips7compat.def file, copy into all the old compat menu sets
-
-	rewrite our current menu set for vips8
-
 
 - vipsobject
 

@@ -1,4 +1,4 @@
-/* 
+/*
 
    ImageMagick operations edited by Alan Gibson (aka "snibgo"; snibgo at earthling dot net).
 
@@ -45,12 +45,12 @@ Magick = class {
 
 	// first convert on $PATH, or ""
 	// we check for the convert we ship first
-	convert_path 
+	convert_path
 		= vips_convert, vips_convert != ""
 		= search_for "convert"
 	{
 		// the convert we ship with the vips binary on some platforms, or ""
-		vips_convert 
+		vips_convert
 			= search (path_absolute convert)
 		{
 			vipshome = path_parse (expand "$VIPSHOME");
@@ -60,8 +60,8 @@ Magick = class {
 
 	use_gm_pref = Workspaces.Preferences.USE_GRAPHICSMAGICK;
 
-	// Are we in GM or IM mode? 
-	use_gm 
+	// Are we in GM or IM mode?
+	use_gm
 		= true, use_gm_pref && gm_path != ""
 		= false, !use_gm_pref && convert_path != ""
 		= false, convert_path != ""
@@ -77,15 +77,15 @@ Magick = class {
 	version
 		= map parse_int (split (member ".-") version_string)
 	{
-		[output] = vips_call "system" 
+		output = vips_call "system"
 			["'" ++ command_path ++ "' -version"] [$log=>true];
-		version_string 
+		version_string
 			= (split (equal ' ') output)?1, use_gm
 			= (split (equal ' ') output)?2;
 	}
 
 	// make a command-line ... args is a [str] we join with spaces
-	command args 
+	command args
 		= "'" ++ command_path ++ "' " ++ join_sep " " args'
 	{
 		args'
@@ -93,7 +93,7 @@ Magick = class {
 			= args;
 	}
 
-	// capabilities ... different versions support different features, we 
+	// capabilities ... different versions support different features, we
 	// turn features on and off based on these
 
 	// would probably be better to test for caps somehow
@@ -201,15 +201,15 @@ Magick = class {
 
 	Alpha alpha = class
 		Option_string "Alpha" [
-			"On", 
-			"Off", 
-			"Set", 
-			"Opaque", 
-			"Transparent", 
-			"Extract", 
-			"Copy", 
-			"Shape", 
-			"Remove", 
+			"On",
+			"Off",
+			"Set",
+			"Opaque",
+			"Transparent",
+			"Extract",
+			"Copy",
+			"Shape",
+			"Remove",
 			"Background"
 		] alpha {
 
@@ -328,7 +328,7 @@ Magick = class {
 			= "", _rgbka == "" || !has_channel
 			= concat [ "-channel ",
 				_rgbka,
-				channelSy._flag 
+				channelSy._flag
 				];
 	}
 
@@ -380,71 +380,71 @@ Magick = class {
 
 	Compose comp = class
 		Option_string "Compose method" [
-			"Atop", 
-			"Blend", 
-			"Blur", 
-			"Bumpmap", 
-			"ChangeMask", 
-			"Clear", 
-			"ColorBurn", 
-			"ColorDodge", 
-			"Colorize", 
-			"CopyBlack", 
-			"CopyBlue", 
-			"CopyCyan", 
-			"CopyGreen", 
-			"Copy", 
-			"CopyMagenta", 
-			"CopyOpacity", 
-			"CopyRed", 
-			"CopyYellow", 
-			"Darken", 
-			"DarkenIntensity", 
-			"DivideDst", 
-			"DivideSrc", 
-			"Dst", 
-			"Difference", 
-			"Displace", 
-			"Dissolve", 
-			"Distort", 
-			"DstAtop", 
-			"DstIn", 
-			"DstOut", 
-			"DstOver", 
-			"Exclusion", 
-			"HardLight", 
-			"Hue", 
-			"In", 
-			"Lighten", 
-			"LightenIntensity", 
-			"LinearBurn", 
-			"LinearDodge", 
-			"LinearLight", 
-			"Luminize", 
-			"Mathematics", 
-			"MinusDst", 
-			"MinusSrc", 
-			"Modulate", 
-			"ModulusAdd", 
-			"ModulusSubtract", 
-			"Multiply", 
-			"None", 
-			"Out", 
-			"Overlay", 
-			"Over", 
-			"PegtopLight", 
-			"PinLight", 
-			"Plus", 
-			"Replace", 
-			"Saturate", 
-			"Screen", 
-			"SoftLight", 
-			"Src", 
-			"SrcAtop", 
-			"SrcIn", 
-			"SrcOut", 
-			"SrcOver", 
-			"VividLight", 
+			"Atop",
+			"Blend",
+			"Blur",
+			"Bumpmap",
+			"ChangeMask",
+			"Clear",
+			"ColorBurn",
+			"ColorDodge",
+			"Colorize",
+			"CopyBlack",
+			"CopyBlue",
+			"CopyCyan",
+			"CopyGreen",
+			"Copy",
+			"CopyMagenta",
+			"CopyOpacity",
+			"CopyRed",
+			"CopyYellow",
+			"Darken",
+			"DarkenIntensity",
+			"DivideDst",
+			"DivideSrc",
+			"Dst",
+			"Difference",
+			"Displace",
+			"Dissolve",
+			"Distort",
+			"DstAtop",
+			"DstIn",
+			"DstOut",
+			"DstOver",
+			"Exclusion",
+			"HardLight",
+			"Hue",
+			"In",
+			"Lighten",
+			"LightenIntensity",
+			"LinearBurn",
+			"LinearDodge",
+			"LinearLight",
+			"Luminize",
+			"Mathematics",
+			"MinusDst",
+			"MinusSrc",
+			"Modulate",
+			"ModulusAdd",
+			"ModulusSubtract",
+			"Multiply",
+			"None",
+			"Out",
+			"Overlay",
+			"Over",
+			"PegtopLight",
+			"PinLight",
+			"Plus",
+			"Replace",
+			"Saturate",
+			"Screen",
+			"SoftLight",
+			"Src",
+			"SrcAtop",
+			"SrcIn",
+			"SrcOut",
+			"SrcOver",
+			"VividLight",
 			"Xor"
 		] comp {
 
@@ -670,7 +670,7 @@ Magick = class {
 			"RMS"
 		] intensity {
 
-		_flag 
+		_flag
 			= "-intensity " ++ intensity, has_intensity
 			= "";
 
@@ -750,13 +750,13 @@ Magick = class {
 
 	ModColSp msp = class
 		Option_string "modulate colorspace" [
-			"HCL", 
-			"HCLp", 
-			"HSB", 
-			"HSI", 
-			"HSL", 
-			"HSV", 
-			"HWB", 
+			"HCL",
+			"HCLp",
+			"HSB",
+			"HSI",
+			"HSL",
+			"HSV",
+			"HWB",
 			"LCH"
 		] msp {
 
@@ -880,7 +880,7 @@ Magick = class {
 
 	ResizeType resizet = class
 		Option_string "Resize type" [
-			"resize", 
+			"resize",
 			"scale",
 			"sample",
 			"adaptive-resize"
@@ -905,13 +905,13 @@ Magick = class {
 
 	StatType statt = class
 		Option_string "Statistic type" [
-			"Gradient", 
-			"Maximum", 
-			"Mean", 
-			"Median", 
-			"Minimum", 
-			"Mode", 
-			"Nonpeak", 
+			"Gradient",
+			"Maximum",
+			"Mean",
+			"Median",
+			"Minimum",
+			"Mode",
+			"Nonpeak",
 			"StandardDeviation"
 		] statt {
 
@@ -923,15 +923,15 @@ Magick = class {
 
 	VirtualPixel vp = class
 		Option_string "Virtual pixel" [
-			"Background", 
-			"Black", 
-			"CheckerTile", 
-			"Dither", 
-			"Edge", 
-			"Gray", 
-			"HorizontalTile", 
-			"HorizontalTileEdge", 
-			"Mirror", 
+			"Background",
+			"Black",
+			"CheckerTile",
+			"Dither",
+			"Edge",
+			"Gray",
+			"HorizontalTile",
+			"HorizontalTileEdge",
+			"Mirror",
 			"None",
 			"Random",
 			"Tile",
@@ -964,12 +964,12 @@ Magick = class {
 		hoffset = Expression "Horizontal offset" 0;
 		voffset = Expression "Vertical offset" 0;
 
-		_flag 
-			= concat [print x.expr, "x", print y.expr, 
+		_flag
+			= concat [print x.expr, "x", print y.expr,
 				format hoffset, format voffset]
 		{
 			// print an offset ... we want '+' in front of +ve strings
-			format offset 
+			format offset
 				= concat ["+", print offset.expr], offset.expr >= 0
 				= print offset.expr;
 		}
@@ -983,12 +983,12 @@ Magick = class {
 		hoffset = Expression "Horizontal offset" 0;
 		voffset = Expression "Vertical offset" 0;
 
-		_flag 
-			= concat [print shearX.expr, "x", print shearY.expr, 
+		_flag
+			= concat [print shearX.expr, "x", print shearY.expr,
 				format hoffset, format voffset]
 		{
 			// print an offset ... we want '+' in front of +ve strings
-			format offset 
+			format offset
 				= concat ["+", print offset.expr], offset.expr >= 0
 				= print offset.expr;
 		}
@@ -1003,7 +1003,7 @@ Magick = class {
 		_flag = concat [format hoffset, format voffset]
 		{
 			// print an offset ... we want '+' in front of +ve strings
-			format offset 
+			format offset
 				= concat ["+", print offset.expr], offset.expr >= 0
 				= print offset.expr;
 		}
@@ -1017,12 +1017,12 @@ Magick = class {
 		hoffset = Expression "Horizontal offset" 0;
 		voffset = Expression "Vertical offset" 0;
 
-		_flag 
-			= concat [print x.expr, "x", print y.expr, 
+		_flag
+			= concat [print x.expr, "x", print y.expr,
 				format hoffset, format voffset]
 		{
 			// print an offset ... we want '+' in front of +ve strings
-			format offset 
+			format offset
 				= concat ["+", print offset.expr], offset.expr >= 0
 				= print offset.expr;
 		}
@@ -1036,12 +1036,12 @@ Magick = class {
 		outbev = Expression "Outer bevel thickness" 0;
 		inbev = Expression "Inner bevel thickness" 0;
 
-		_flag 
-			= concat [print x.expr, "x", print y.expr, 
+		_flag
+			= concat [print x.expr, "x", print y.expr,
 				format outbev, format inbev]
 		{
 			// print an offset ... we want '+' in front of +ve strings
-			format offset 
+			format offset
 				= concat ["+", print offset.expr], offset.expr >= 0
 				= print offset.expr;
 		}
@@ -1091,8 +1091,8 @@ Magick = class {
 		weight = Scale "Weight" 1 800 400;
 		size = Scale "Point size" 1 100 12;
 		stretch = Option_string "Stretch" [
-			"Any", "Condensed", "Expanded", "ExtraCondensed", "ExtraExpanded", 
-			"Normal", "SemiCondensed", "SemiExpanded", "UltraCondensed", 
+			"Any", "Condensed", "Expanded", "ExtraCondensed", "ExtraExpanded",
+			"Normal", "SemiCondensed", "SemiExpanded", "UltraCondensed",
 			"UltraExpanded"
 		] "Normal";
 

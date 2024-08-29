@@ -5,7 +5,7 @@ Filter_conv_item = class
 	filter_blur = Matrix_con 9 0 [[1, 1, 1], [1, 1, 1], [1, 1, 1]];
 	filter_sharp = Matrix_con 8 0 [[-1, -1, -1], [-1, 16, -1], [-1, -1, -1]];
 	filter_emboss = Matrix_con 1 128 [[-1, 0], [0, 1]];
-	filter_laplacian = Matrix_con 1 128 
+	filter_laplacian = Matrix_con 1 128
 		[[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]];
 	filter_sobel = Matrix_con 1 128 [[1, 2, 1], [0, 0, 0], [-1, -2, -1]];
 	filter_lindet = Matrix_con 1 0 [[1, 1, 1], [-2, -2, -2], [1, 1, 1]];
@@ -25,7 +25,7 @@ Filter_conv_item = class
 		action x = class
 			_result {
 			_vislevel = 3;
-	
+
 			size = Option "Radius" [
 				"3 pixels",
 				"5 pixels",
@@ -34,13 +34,13 @@ Filter_conv_item = class
 				"11 pixels",
 				"51 pixels"
 			] 0;
-	
+
 			st = Scale "Smoothness threshold" 0 5 2;
 			bm = Scale "Brighten by at most" 1 50 10;
 			dm = Scale "Darken by at most" 1 50 20;
 			fs = Scale "Sharpen flat areas by" 0 5 0.5;
 			js = Scale "Sharpen jaggy areas by" 0 5 1;
-	
+
 			_result
 				= map_unary process x
 			{
@@ -72,11 +72,11 @@ Filter_conv_item = class
 
 /* 3x3 line detect of image
 diagonals should be scaled down by root(2) I guess
-Kirk 
+Kirk
 */
 	Linedet_item = class
 		Menuaction "Li_ne Detect" "3x3 line detect" {
-		action x 
+		action x
 			= map_unary lindet x
 		{
 			lindet im
@@ -90,14 +90,14 @@ Kirk
 
 	Canny_item = class
 		Menuaction "Canny" "Canny edge detector" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
 			sigma = Scale "Sigma" 0.1 10 2;
 			prec = Option "Precision" ["Int", "Float", "Approximate"] 1;
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process in
@@ -109,9 +109,9 @@ Kirk
 	sep1 = Menuseparator;
 
 	Custom_blur_item = class
-		Menuaction "Custom B_lur / Sharpen" 
+		Menuaction "Custom B_lur / Sharpen"
 			"blur or sharpen with tuneable parameters" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
@@ -125,7 +125,7 @@ Kirk
 			] 0;
 			prec = Option "Precision" ["Int", "Float", "Approximate"] 0;
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process in
@@ -144,32 +144,32 @@ Kirk
 	}
 
 	Custom_conv_item = class
-		Menuaction "Custom C_onvolution" 
+		Menuaction "Custom C_onvolution"
 			"convolution filter with tuneable parameters" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
 			matrix = Matrix_con 1 0 [[0, 0, 0], [0, 1, 0], [0, 0, 0]];
-			separable 
-				= Toggle "Seperable convolution" false, 
+			separable
+				= Toggle "Seperable convolution" false,
 					matrix.width == 1 || matrix.height == 1
 				= false;
 			type = Option "Convolution type" ["Int", "Float"] 0;
 			rotate = Option "Rotate" [
-				"Don't rotate", 
-				"4 x 45 degrees", 
-				"8 x 45 degrees", 
+				"Don't rotate",
+				"4 x 45 degrees",
+				"8 x 45 degrees",
 				"2 x 90 degrees"
 			] 0;
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process in
 					= in.Image in'
 				{
-					conv_fn 
+					conv_fn
 						= im_lindetect, !separable && type == 0 && rotate == 1
 						= im_compass, !separable && type == 0 && rotate == 2
 						= im_gradient, !separable && type == 0 && rotate == 3
@@ -194,11 +194,11 @@ Filter_rank_item = class
 
 	Image_rank_item = class
 		Menuaction "_Image Rank" "pixelwise rank a list or group of images" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
-			select 
+			select
 				= Expression "Rank" ((int) (guess_size / 2))
 			{
 				guess_size
@@ -215,16 +215,16 @@ Filter_rank_item = class
 
 	Custom_rank_item = class
 		Menuaction "Custom _Rank" "rank filter with tuneable parameters" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
 			window_width = Expression "Window width" 3;
 			window_height = Expression "Window height" 3;
-			select = Expression "Rank" 
+			select = Expression "Rank"
 				((int) ((to_real window_width * to_real window_height) / 2));
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process in
@@ -274,9 +274,9 @@ Filter_morphology_item = class
 	}
 
 	Custom_morph_item = class
-		Menuaction "Custom _Morphology" 
+		Menuaction "Custom _Morphology"
 			"convolution morphological operator" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
@@ -284,7 +284,7 @@ Filter_morphology_item = class
 			type = Option "Operation" ["Erode", "Dilate"] 1;
 			apply = Expression "Number of times to apply mask" 1;
 
-			_result 
+			_result
 				= map_unary morph x
 			{
 				morph image
@@ -314,7 +314,7 @@ Filter_morphology_item = class
 
 	Clean_item = class
 		Menuaction "C_lean" "remove 8-connected isolated points" {
-		action x 
+		action x
 			= map_unary clean x
 		{
 			clean x = x ^ erode mask1 x;
@@ -323,7 +323,7 @@ Filter_morphology_item = class
 
 	Thin_item = class
 		Menuaction "_Thin" "thin once" {
-		action x 
+		action x
 			= map_unary thinall x
 		{
 			masks = take 8 (iterate rot45 thin);
@@ -339,11 +339,11 @@ Filter_fourier_item = class
 	preview_size = 64;
 
 	sense_option = Option "Sense" [
-		"Pass", 
+		"Pass",
 		"Reject"
 	] 0;
 
-	// make a visualisation image 
+	// make a visualisation image
 	make_vis fn = (Image @ image_set_type Image_type.FOURIER @ rotquad @ fn)
 		(im_create_fmask preview_size preview_size);
 
@@ -351,10 +351,10 @@ Filter_fourier_item = class
 	process fn in
 		= (Image @ fn) (im_flt_image_freq in.value);
 
-	New_ideal_item = class 
+	New_ideal_item = class
 		Menupullright "_Ideal" "various ideal Fourier filters" {
-		High_low_item = class 
-			Menuaction "_High or Low Pass" 
+		High_low_item = class
+			Menuaction "_High or Low Pass"
 				"highpass/lowpass ideal Fourier filter" {
 			action x = class
 				_result {
@@ -372,7 +372,7 @@ Filter_fourier_item = class
 			}
 		}
 
-		Ring_item = class 
+		Ring_item = class
 			Menuaction "_Ring Pass or Ring Reject"
 				"ring pass/reject ideal Fourier filter" {
 			action x = class
@@ -384,7 +384,7 @@ Filter_fourier_item = class
 				rw = Scale "Ring width" 0.01 0.99 0.5;
 
 				// call a freq func with our parameters
-				_params f = f (sense.value + 6) fc.value 
+				_params f = f (sense.value + 6) fc.value
 					rw.value 0 0 0;
 
 				visualize_mask = make_vis _params;
@@ -393,7 +393,7 @@ Filter_fourier_item = class
 			}
 		}
 
-		Band_item = class 
+		Band_item = class
 			Menuaction "_Band Pass or Band Reject"
 				"band pass/reject ideal Fourier filter" {
 			action x = class
@@ -416,10 +416,10 @@ Filter_fourier_item = class
 		}
 	}
 
-	New_gaussian_item = class 
+	New_gaussian_item = class
 		Menupullright "_Gaussian" "various Gaussian Fourier filters" {
-		High_low_item = class 
-			Menuaction "_High or Low Pass" 
+		High_low_item = class
+			Menuaction "_High or Low Pass"
 				"highpass/lowpass Gaussian Fourier filter" {
 			action x = class
 				_result {
@@ -430,7 +430,7 @@ Filter_fourier_item = class
 				ac = Scale "Amplitude cutoff" 0.01 0.99 0.5;
 
 				// call a freq func with our parameters
-				_params f = f (sense.value + 4) fc.value 
+				_params f = f (sense.value + 4) fc.value
 					ac.value 0 0 0;
 
 				visualize_mask = make_vis _params;
@@ -439,7 +439,7 @@ Filter_fourier_item = class
 			}
 		}
 
-		Ring_item = class 
+		Ring_item = class
 			Menuaction "_Ring Pass or Ring Reject"
 				"ring pass/reject Gaussian Fourier filter" {
 			action x = class
@@ -452,7 +452,7 @@ Filter_fourier_item = class
 				rw = Scale "Ring width" 0.01 0.99 0.5;
 
 				// call a freq func with our parameters
-				_params f = f (sense.value + 10) fc.value 
+				_params f = f (sense.value + 10) fc.value
 					rw.value ac.value 0 0;
 
 				visualize_mask = make_vis _params;
@@ -461,7 +461,7 @@ Filter_fourier_item = class
 			}
 		}
 
-		Band_item = class 
+		Band_item = class
 			Menuaction "_Band Pass or Band Reject"
 				"band pass/reject Gaussian Fourier filter" {
 			action x = class
@@ -475,7 +475,7 @@ Filter_fourier_item = class
 				ac = Scale "Amplitude cutoff" 0.01 0.99 0.5;
 
 				// call a freq func with our parameters
-				_params f = f (sense.value + 16) fcx.value fcy.value 
+				_params f = f (sense.value + 16) fcx.value fcy.value
 					r.value ac.value 0;
 
 				visualize_mask = make_vis _params;
@@ -485,11 +485,11 @@ Filter_fourier_item = class
 		}
 	}
 
-	New_butterworth_item = class 
-		Menupullright "_Butterworth" 
+	New_butterworth_item = class
+		Menupullright "_Butterworth"
 			"various Butterworth Fourier filters" {
-		High_low_item = class 
-			Menuaction "_High or Low Pass" 
+		High_low_item = class
+			Menuaction "_High or Low Pass"
 				"highpass/lowpass Butterworth Fourier filter" {
 			action x = class
 				_result {
@@ -510,7 +510,7 @@ Filter_fourier_item = class
 			}
 		}
 
-		Ring_item = class 
+		Ring_item = class
 			Menuaction "_Ring Pass or Ring Reject"
 				"ring pass/reject Butterworth Fourier filter" {
 			action x = class
@@ -524,7 +524,7 @@ Filter_fourier_item = class
 				o = Scale "Order" 1 10 2;
 
 				// call a freq func with our parameters
-				_params f = f (sense.value + 8) o.value fc.value rw.value 
+				_params f = f (sense.value + 8) o.value fc.value rw.value
 					ac.value 0;
 
 				visualize_mask = make_vis _params;
@@ -533,7 +533,7 @@ Filter_fourier_item = class
 			}
 		}
 
-		Band_item = class 
+		Band_item = class
 			Menuaction "_Band Pass or Band Reject"
 				"band pass/reject Butterworth Fourier filter" {
 			action x = class
@@ -566,11 +566,11 @@ Filter_enhance_item = class
 		action x = class
 			_result {
 			_vislevel = 3;
-	
+
 			o = Scale "Offset" (-255) 255 0;
 			clip = Toggle "Clip colour range" false;
-	
-			_result 
+
+			_result
 				= map_unary process x
 			{
 				process im
@@ -578,7 +578,7 @@ Filter_enhance_item = class
 				{
 					mono = colour_transform_to Image_type.B_W im;
 					mono' = mono + o;
-					mono'' 
+					mono''
 						= (unsigned char) mono', clip
 						= (unsigned char) (mono' & 0xff);
 				}
@@ -587,23 +587,23 @@ Filter_enhance_item = class
 	}
 
 	Statistical_diff_item = class
-		Menuaction "_Statistical Difference" 
+		Menuaction "_Statistical Difference"
 			"statistical difference of an image" {
 		action x = class
 			_result {
 			_vislevel = 3;
-	
+
 			wsize = Expression "Window size" 11;
 			tmean = Expression "Target mean" 128;
 			mean_weight = Scale "Mean weight" 0 1 0.8;
 			tdev = Expression "Target deviation" 50;
 			dev_weight = Scale "Deviation weight" 0 1 0.8;
 			border = Toggle "Output image matches input image in size" true;
-	
-			_result 
+
+			_result
 				= map_unary process x
 			{
-				process in 
+				process in
 					= Image in''
 				{
 					in' = colour_transform_to Image_type.B_W in.value;
@@ -628,21 +628,21 @@ Filter_enhance_item = class
 
 		Local_item = class
 			Menuaction "_Local" "equalise contrast within a roving window" {
-			action x = class 
+			action x = class
 				_result {
 				_vislevel = 3;
-	
+
 				window_width = Expression "Window width" 20;
 				window_height = Expression "Window height" 20;
 				max_slope = Scale "Maxium slope" 0 10 0;
-	
-				_result 
+
+				_result
 					= map_unary process x
 				{
-					process in 
-						= hist_equalize_local 
-							window_width 
-							window_height 
+					process in
+						= hist_equalize_local
+							window_width
+							window_height
 							max_slope in;
 				}
 			}
@@ -654,24 +654,24 @@ Filter_correlate_item = class
 	Menupullright "Spatial _Correlation" "calculate correlation surfaces" {
 	Correlate_item = class
 		Menuaction "_Correlate" "calculate correlation coefficient" {
-		action a b 
+		action a b
 			= map_binary corr a b
 		{
 			corr a b
-				= correlate a b, 
+				= correlate a b,
 					a.width <= b.width && a.height <= b.height
 				= correlate b a;
 		}
 	}
 
 	Correlate_fast_item = class
-		Menuaction "_Simple Difference" 
+		Menuaction "_Simple Difference"
 			"calculate sum of squares of differences" {
-		action a b 
+		action a b
 			= map_binary corr a b
 		{
 			corr a b
-				= correlate_fast a b, 
+				= correlate_fast a b,
 					a.width <= b.width && a.height <= b.height
 				= correlate_fast b a;
 		}
@@ -689,11 +689,11 @@ Filter_hough_item = class
 			pspace_width = Expression "Parameter space width" 64;
 			pspace_height = Expression "Parameter space height" 64;
 
-			_result 
-				= map_unary line a 
+			_result
+				= map_unary line a
 			{
-				line a 
-					= hough_line 
+				line a
+					= hough_line
 						(to_real pspace_width) (to_real pspace_height) a;
 			}
 		}
@@ -709,10 +709,10 @@ Filter_hough_item = class
 			min_radius = Expression "Minimum radius" 10;
 			max_radius = Expression "Maximum radius" 30;
 
-			_result 
-				= map_unary circle a 
+			_result
+				= map_unary circle a
 			{
-				circle a 
+				circle a
 					= hough_circle (to_real scale) (to_real min_radius)
 						(to_real max_radius) a;
 			}
@@ -738,10 +738,10 @@ Filter_coordinate_item = class
 
 			interp = Interpolate_picker Interpolate_type.BILINEAR;
 
-			_result 
-				= map_unary to_polar a 
+			_result
+				= map_unary to_polar a
 			{
-				to_polar im 
+				to_polar im
 					= mapim interp.value map' im
 				{
 					// xy image, origin in the centre, scaled to fit image to
@@ -767,10 +767,10 @@ Filter_coordinate_item = class
 
 			interp = Interpolate_picker Interpolate_type.BILINEAR;
 
-			_result 
-				= map_unary to_rect a 
+			_result
+				= map_unary to_rect a
 			{
-				to_rect im 
+				to_rect im
 					= mapim interp.value map'' im
 				{
 					// xy image, vertical scaled to 360 degrees
@@ -825,10 +825,10 @@ Filter_tilt_item = class
 			_result
 				= map_unary tilt_tb x
 			{
-				tilt_tb image 
+				tilt_tb image
 					= image * scale
 				{
-					ramp = rot90 
+					ramp = rot90
 						(im_fgrey image.height image.width);
 					scale = (ramp - 0.5) * tilt + 1;
 				}
@@ -873,7 +873,7 @@ Filter_tilt_item = class
 			_result
 				= map_unary tilt_tb x
 			{
-				tilt_tb image 
+				tilt_tb image
 					= image * scale
 				{
 					ramp = rot90 (im_fgrey image.height image.width) - 0.5 -
@@ -899,7 +899,7 @@ Filter_tilt_item = class
 			_result
 				= map_unary tilt_tb x
 			{
-				tilt_tb image 
+				tilt_tb image
 					= image * scale
 				{
 					hramp = im_fgrey image.width image.height - 0.5 -
@@ -940,25 +940,25 @@ Filter_blend_item = class
 
 			i = Toggle "Invert mask" false;
 
-			_result 
+			_result
 				= map_trinary process a b c
 			{
-				process a b c 
+				process a b c
 					= blend condition in1 in2, !i
 					= blend (invert condition) in1 in2
 				{
 					compare a b
 						// prefer image as the condition
-						= false, 
+						= false,
 							!has_image a && has_image b
 						// prefer mono images as the condition
-						= false, 
-							has_bands a && has_bands b && 
+						= false,
+							has_bands a && has_bands b &&
 							get_bands a > 1 && get_bands b == 1
 						// prefer uchar as the condition
 						= false,
-							has_format a && has_format b && 
-							get_format a > Image_format.UCHAR && 
+							has_format a && has_format b &&
+							get_format a > Image_format.UCHAR &&
 								get_format b == Image_format.UCHAR
 						= true;
 					[condition, in1, in2] = sortc compare [a, b, c];
@@ -968,7 +968,7 @@ Filter_blend_item = class
 	}
 
 	Line_blend_item = class
-		Menuaction "_Along Line" 
+		Menuaction "_Along Line"
 			"blend between image a and image b along a line" {
 		action a b = class
 			_result {
@@ -984,7 +984,7 @@ Filter_blend_item = class
 			_result
 				= map_binary process a b
             {
-                process a b 
+                process a b
 					= blend (Image condition) b a
                 {
 					output_width = max_pair a.width b.width;
@@ -992,88 +992,88 @@ Filter_blend_item = class
 					range
 						= output_width, orientation == 0
 						= output_height;
-					blend_position' 
+					blend_position'
 						= floor (range * blend_position.value);
-					blend_width' 
+					blend_width'
 						= 1, blend_width.value == 0
 						= floor (range * blend_width.value);
                    	start = blend_position' - blend_width' / 2;
 
-					background = (make_xy output_width output_height) >= 
+					background = (make_xy output_width output_height) >=
 						blend_position';
-                   	ramp 
+                   	ramp
 						= im_grey blend_width' output_height, orientation == 0
                         = rot90 (im_grey blend_width' output_width);
-					condition 
-						= insert_noexpand start 0 ramp background?0, 
+					condition
+						= insert_noexpand start 0 ramp background?0,
 							orientation == 0
 						= insert_noexpand 0 start ramp background?1;
                	}
 			}
 		}
-	} 
+	}
 
 	Blend_alpha_item = class
 		Menuaction "Blend _Alpha" "blend images with optional alpha channels" {
 		// usage: layerit foreground background
-		// input images must be either 1 or 3 bands, optionally + 1 band 
+		// input images must be either 1 or 3 bands, optionally + 1 band
 		// which is used as the alpha channel
 		// rich lott
-	
+
 		scale_mask im opacity
 			= (unsigned char) (to_real opacity / 255 * im);
-	
+
 		// to mono
 		intensity = colour_transform_to Image_type.B_W;
-	
+
 		// All the blend functions
 		// I am grateful to this page
 		// http://www.pegtop.net/delphi/blendmodes/
 		// for most of the formulae.
-	
+
 		blend_normal mask opacity fg bg
 			= blend (scale_mask mask opacity) fg bg;
-	
+
 		blend_iflighter mask opacity fg bg
 			= blend (if fg' > bg' then mask' else 0) fg bg
-		{ 
+		{
 			fg' = intensity fg;
 			bg' = intensity bg;
 			mask' = scale_mask mask opacity ;
 		}
-	
+
 		blend_ifdarker mask opacity fg bg
 			= blend (if fg' < bg' then mask' else 0) fg bg
-		{ 
+		{
 			fg' = intensity fg ;
-			bg' = intensity bg ;	
+			bg' = intensity bg ;
 			mask' = scale_mask mask opacity ;
 		}
-	
+
 		blend_multiply mask opacity fg bg
 			= blend (scale_mask mask opacity) fg' bg
 		{
 			fg' = fg / 255 * bg;
 		}
-	
+
 		blend_add mask opacity fg bg
-			= blend mask fg' bg		
+			= blend mask fg' bg
 		{
 			fg' = opacity / 255 * fg + bg;
 		}
-	
+
 		blend_subtract mask opacity fg bg
-			= blend mask fg' bg 
+			= blend mask fg' bg
 		{
 			fg' = bg - opacity / 255 * fg;
 		}
-	
+
 		blend_screen mask opacity fg bg
-			= blend mask fg' bg 
+			= blend mask fg' bg
 		{
 			fg' = 255 - (255 - bg) * (255 - (opacity / 255 * fg)) / 255;
 		}
-	
+
 		blend_burn mask opacity fg bg
 			= blend mask fg'' bg
 		{
@@ -1081,73 +1081,73 @@ Filter_blend_item = class
 			fg' = (255 - opacity) + opacity * fg / 255;
 			fg'' = 255 - 255 * (255 - bg) / fg';
 		}
-	
+
 		blend_softlight mask opacity fg bg
 			= blend mask' fg' bg
 		{
 			mask' = scale_mask mask opacity;
 			fg' = (2 * bg * fg + bg * bg * (1 - 2 * fg / 255)) / 255;
 		}
-	
+
 		blend_hardlight mask opacity fg bg
-			= blend mask' fg' bg		
+			= blend mask' fg' bg
 		{
 			mask' = scale_mask mask opacity;
 			fg'
 				= 2 / 255 * fg * bg, bg < 129
 				= 255 - 2 * (255 - bg) * (255 - fg) / 255;
 		}
-	
+
 		blend_lighten mask opacity fg bg
-			= blend mask' fg' bg 		
+			= blend mask' fg' bg
 		{
 			mask' = scale_mask mask opacity;
 			fg' = if bg < fg then fg else bg;
 		}
-	
+
 		blend_darken mask opacity fg bg
-			= blend mask' fg' bg		
+			= blend mask' fg' bg
 		{
 			mask' = scale_mask mask opacity;
 			fg' = if bg > fg then fg else bg;
 		}
-	
+
 		blend_dodge mask opacity fg bg
-			= blend mask fg'' bg 
+			= blend mask fg'' bg
 		{
 			// one added to avoid divide by zero
-			fg' = 1 + 255 - (opacity / 255 * fg); 
+			fg' = 1 + 255 - (opacity / 255 * fg);
 			fg'' = bg * 255 / fg';
 		}
-	
+
 		blend_reflect mask opacity fg bg
-			= blend mask' fg' bg 
+			= blend mask' fg' bg
 		{
 			mask' = scale_mask mask opacity;
 			fg' = bg * bg / (255 - fg);
 		}
-	
+
 		blend_freeze mask opacity fg bg
 			= blend mask' fg' bg
 		{
 			mask' = scale_mask mask opacity;
 			fg' = 255 - (255 - bg) * (255 - bg) / (1 + fg);
 		}
-	
+
 		blend_or mask opacity fg bg
 			= bg | (unsigned char) fg'
 		{
 			mask' = scale_mask mask opacity;
 			fg' = fg * mask' / 255;
 		}
-	
+
 		blend_and mask opacity fg bg
 			= bg & (unsigned char) fg'
 		{
 			mask' = scale_mask mask opacity;
 			fg' = fg * mask' / 255;
 		}
-	
+
 		// blend types
 		NORMAL = 0;
 		IFLIGHTER = 1;
@@ -1208,66 +1208,66 @@ Filter_blend_item = class
 			[OR, blend_or],
 			[AND, blend_and]
 		];
-	
+
 		// make sure im has an alpha channel (set opaque if it hasn't)
 		put_alpha im
-			= im, im.bands == 4 || im.bands == 2 
+			= im, im.bands == 4 || im.bands == 2
 			= im ++ 255;
-	
-		// make sure im has no alpha channel 
+
+		// make sure im has no alpha channel
 		lose_alpha im
-			= extract_bands 0 3 im, im.bands == 4 
-			= im?0, im.bands == 2 
+			= extract_bands 0 3 im, im.bands == 4
+			= im?0, im.bands == 2
 			= im;
-	
+
 		// does im have al alpha channel?
 		has_alpha im = im.bands == 2 || im.bands == 4;
-	
+
 		// get the alpha (set opaque if no alpha)
 		get_alpha img
-			= img'?3, img.bands == 4 
+			= img'?3, img.bands == 4
 			= img'?1
 		{
 			img' = put_alpha img;
 		}
-	
+
 		// add an alpha ... cast the alpha image to match the main image
 		append_alpha im alpha
 			= im ++ clip2fmt im.format alpha;
-	
+
 		// makes fg the same size as bg, displaced with u, v pixel offset
 		moveit fg bg u v
 			= insert_noexpand u v fg bg'
 		{
-			bg' = image_new bg.width bg.height 
+			bg' = image_new bg.width bg.height
 				fg.bands fg.format fg.coding fg.type 0 0 0;
 		}
-	
-		action bg fg = class 
+
+		action bg fg = class
 			_value {
 			_vislevel = 3;
-	
+
 			method = Option_enum "Blend mode" names "Normal";
 			opacity = Scale "Opacity" 0 255 255;
-			hmove = Scale "Horizontal move by" (-bg.width) (bg.width) 0; 
-			vmove = Scale "Vertical move by" (-bg.height) (bg.height) 0; 		
-	
+			hmove = Scale "Horizontal move by" (-bg.width) (bg.width) 0;
+			vmove = Scale "Vertical move by" (-bg.height) (bg.height) 0;
+
 			_value
 				= append_alpha blended merged_alpha, has_alpha bg
-				= blended 
+				= blended
 			{
 				// displace and resize fg (need to displace alpha too)
 				fg' = moveit (put_alpha fg) bg hmove vmove;
-	
+
 				// transform to sRGB
 				fg'' = colour_transform_to Image_type.sRGB (lose_alpha fg');
 				bg' = colour_transform_to Image_type.sRGB (lose_alpha bg);
-	
+
 				// alphas merged
 				merged_alpha = get_alpha bg | get_alpha fg';
-	
+
 				// blend together
-				blended = (actions.lookup 0 1 method.value_thing) 
+				blended = (actions.lookup 0 1 method.value_thing)
 					(get_alpha fg') opacity.value fg'' bg';
 			}
 		}
@@ -1275,9 +1275,9 @@ Filter_blend_item = class
 }
 
 Filter_overlay_header_item = class
-	Menuaction "_Overlay" 
+	Menuaction "_Overlay"
 		"make a colour overlay of two monochrome images" {
-	action  a b = class 
+	action  a b = class
 		_result {
 		_vislevel = 3;
 
@@ -1294,12 +1294,12 @@ Filter_overlay_header_item = class
 			= map_binary overlay a b
 		{
 			overlay a b
-				= image_set_type Image_type.sRGB 
-					[(a' ++ b' ++ 0), 
-						(a' ++ 0 ++ b'), 
-						(b' ++ a' ++ 0), 
-						(b' ++ 0 ++ a'), 
-						(0 ++ a' ++ b'), 
+				= image_set_type Image_type.sRGB
+					[(a' ++ b' ++ 0),
+						(a' ++ 0 ++ b'),
+						(b' ++ a' ++ 0),
+						(b' ++ 0 ++ a'),
+						(0 ++ a' ++ b'),
 						(0 ++ b' ++ a')]?colour
 			{
 				a' = colour_transform_to Image_type.B_W a;
@@ -1309,7 +1309,7 @@ Filter_overlay_header_item = class
 	}
 }
 
-Filter_colourize_item = class 
+Filter_colourize_item = class
 	Menuaction "_Colourize" "use a colour image or patch to tint a mono image" {
 	action a b = class
 		_result {
@@ -1324,7 +1324,7 @@ Filter_colourize_item = class
 				= colour_transform_to (get_type colour) colourized'
 			{
 				// get the mono thing first
-				[mono, colour] = 
+				[mono, colour] =
 					sortc (const (is_colour_type @ get_type)) [a, b];
 
 				colour' = tint * colour_transform_to Image_type.LAB colour;
@@ -1336,11 +1336,11 @@ Filter_colourize_item = class
 	}
 }
 
-Filter_browse_multiband_item = class 
+Filter_browse_multiband_item = class
 	Menupullright "Bro_wse" "browse though an image, bitwise or bandwise" {
 	Bandwise_item = class
 		Menuaction "B_andwise" "browse through the bands of a multiband image" {
-		action image = class  
+		action image = class
         	_result {
 			_vislevel = 3;
 
@@ -1355,7 +1355,7 @@ Filter_browse_multiband_item = class
 			_ "Green over Blue"
 		] 0;
 
-        	_result 
+        	_result
 				= output
 			{
 				down = (int) band.value;
@@ -1370,12 +1370,12 @@ Filter_browse_multiband_item = class
 				b = fade (1 - remainder) image?down;
 
 				output = [
-					a + b, 
-					a ++ b ++ 0, 
-					a ++ 0 ++ b, 
+					a + b,
+					a ++ b ++ 0,
+					a ++ 0 ++ b,
 					b ++ a ++ 0,
-					b ++ 0 ++ a, 
-					0 ++ a ++ b, 
+					b ++ 0 ++ a,
+					0 ++ a ++ b,
 					0 ++ b ++ a
 				] ? display;
 			}
@@ -1384,23 +1384,23 @@ Filter_browse_multiband_item = class
 
 	Bitwise_item = class
 		Menuaction "Bi_twise" "browse through the bits of an image" {
-		action x = class  
+		action x = class
         	_result {
 			_vislevel = 3;
 
-        	bit 
+        	bit
 				= Islider "Bit" 0 (nbits - 1) (nbits - 1)
 			{
-				nbits 
+				nbits
 					= x.bits, is_Image x
 					= 8;
-				Islider c f t v = class 
+				Islider c f t v = class
 					scope.Scale c f t ((int) v) {
 					Scale = Islider;
 				}
 			}
 
-        	_result 
+        	_result
 				= map_unary process x
 			{
 				process im = (im & (0x1 << bit.value)) != 0;
@@ -1413,7 +1413,7 @@ Filter_browse_multiband_item = class
 
 Filter_negative_item = class
 	Menuaction "Photographic _Negative" "swap black and white" {
-	action x 
+	action x
 		= map_unary invert x
 	{
 		invert in
@@ -1430,7 +1430,7 @@ Filter_solarize_item = class
 	action x = class
 		_result {
 		_vislevel = 3;
-		
+
 		kink = Scale "Kink" 0 1 0.5;
 
 		_result
@@ -1443,15 +1443,15 @@ Filter_solarize_item = class
 				mx = Image_format.maxval image.format;
 
 				// make a LUT ... just 8 and 16 bit
-				tab 
+				tab
 					= im_identity_ushort image.bands mx,
-						image.format == 
+						image.format ==
 							Image_format.USHORT
 					= im_identity image.bands;
 				tab' = Image tab;
 
 				// make basic ^ shape
-				tab'' 
+				tab''
 					= tab' * (1 / kink), tab' < mx * kink
 					= (mx - tab') / (1 - kink);
 				tab''' = clip2fmt image.format tab'';
@@ -1469,7 +1469,7 @@ Filter_diffuse_glow_item = class
 	action x = class
 		_result {
 		_vislevel = 3;
-		
+
 		r = Scale "Radius" 0 50 5;
 		highlights = Scale "Highlights" 0 100 95;
 		glow = Scale "Glow" 0 1 0.5;
@@ -1481,7 +1481,7 @@ Filter_diffuse_glow_item = class
 			process image
 				= image'
 			{
-				mono = (unsigned char) (colour_transform_to 
+				mono = (unsigned char) (colour_transform_to
 					Image_type.B_W image);
 				thresh = hist_thresh (highlights.value / 100) mono;
 				mask = mono > thresh;
@@ -1522,7 +1522,7 @@ Filter_drop_shadow_item = class
 
                 // position and size of shadow image in input cods
                 // before and after fuzzing
-                shadow_rect = Rect sx.value sy.value 
+                shadow_rect = Rect sx.value sy.value
 					image.width image.height;
                 fuzzy_shadow_rect = shadow_rect.margin_adjust matrix_radius;
 
@@ -1530,15 +1530,15 @@ Filter_drop_shadow_item = class
                 final_rect = image.rect.union fuzzy_shadow_rect;
 
                 // hard part of shadow in output cods
-                shadow_rect' = Rect 
+                shadow_rect' = Rect
                     (shadow_rect.left - final_rect.left)
                     (shadow_rect.top - final_rect.top)
                     shadow_rect.width shadow_rect.height;
 
                 // make the shadow mask ... true for parts which cast
                 // a shadow
-                mask 
-                    = (foldr1 bitwise_and @ bandsplit) (image.value != 0), 
+                mask
+                    = (foldr1 bitwise_and @ bandsplit) (image.value != 0),
                 		transparent
                     = image_new image.width image.height 1 Image_format.UCHAR
                         Image_coding.NOCODING Image_type.B_W 255 0 0;
@@ -1547,7 +1547,7 @@ Filter_drop_shadow_item = class
 				mask'' = convsep blur_matrix mask';
 
                 // use mask to fade between bg and shadow colour
-                mk_background colour = image_new 
+                mk_background colour = image_new
                 	final_rect.width final_rect.height
                     image.bands image.format image.coding image.type
                     colour 0 0;
@@ -1556,7 +1556,7 @@ Filter_drop_shadow_item = class
                 shadow_image = mk_background sd_colour.expr;
                 bg = blend mask'' shadow_image bg_image;
 
-                // make a full size mask 
+                // make a full size mask
                 fg_mask = embed 0
                     (image.rect.left - final_rect.left)
                     (image.rect.top - final_rect.top)
@@ -1580,9 +1580,9 @@ Filter_drop_shadow_item = class
     }
 }
 
-Filter_paint_text_item = class 
+Filter_paint_text_item = class
 	Menuaction "_Paint Text" "paint text into an image" {
-	action x 
+	action x
 		= paint_position, is_Group x
 		= paint_area
 	{
@@ -1592,31 +1592,31 @@ Filter_paint_text_item = class
 				[x, "x", check_Image]
 			];
 			_vislevel = 3;
-		
+
 			text = String "Text to paint" "<i>Hello</i> world!";
 			font = Fontname "Use font" Workspaces.Preferences.PAINTBOX_FONT;
 			align = Option "Alignment" ["Left", "Centre", "Right"] 0;
 			dpi = Expression "DPI" 300;
 			colour = Expression "Text colour" 255;
-			place = Region x (x.width / 4) (x.height / 4) 
+			place = Region x (x.width / 4) (x.height / 4)
 				(x.width / 2) (x.height / 2);
-	
+
 			_result
 				= insert_noexpand place.left place.top (blend txt' fg place) x
 			{
-				fg = image_new place.width place.height x.bands x.format 
+				fg = image_new place.width place.height x.bands x.format
 					x.coding x.type colour.expr 0 0;
-				txt = Image (im_text text.value font.value 
+				txt = Image (im_text text.value font.value
 					place.width align.value (to_real dpi));
 	            bg = im_black place.width place.height 1;
 				txt' = insert_noexpand 0 0 txt bg;
 			}
 		}
-	
+
 		paint_position = class
 			_result {
 			_vislevel = 3;
-	
+
 			text = Pattern_images_item.Text_item.action;
 			colour = Expression "Text colour" 255;
 			position = Option "Position" [
@@ -1633,7 +1633,7 @@ Filter_paint_text_item = class
 			] 4;
 			left = Expression "Pixels from left" 0;
 			top = Expression "Pixels from top" 0;
-	
+
 			_result
 				= map_unary paint x
 			{
@@ -1642,7 +1642,7 @@ Filter_paint_text_item = class
 				{
 					xr = image.width - text.width;
 					yr = image.height - text.height;
-					x 
+					x
 						= left.expr, position == 9
 						= [0, xr / 2, xr]?(position % 3);
 					y
@@ -1652,10 +1652,10 @@ Filter_paint_text_item = class
 					y' = range 0 y (image.height - 1);
 					w' = range 1 text.width (image.width - x');
 					h' = range 1 text.height (image.height - y');
-	
+
 					place = extract_area x' y' w' h' image;
 					text' = insert_noexpand 0 0 text (im_black w' h' 1);
-					fg = image_new w' h' image.bands image.format 
+					fg = image_new w' h' image.bands image.format
 						image.coding image.type colour.expr 0 0;
 					place' = blend text' fg place;
 				}
@@ -1664,9 +1664,9 @@ Filter_paint_text_item = class
 	}
 }
 
-Autotrace_item = class 
+Autotrace_item = class
 	Menuaction "_Trace" "convert a bitmap to an SVG file" {
-	action x = class 
+	action x = class
 		_result {
 		_vislevel = 3;
 
@@ -1675,11 +1675,11 @@ Autotrace_item = class
 		center = Toggle "Trace centreline" false;
 		scale = Scale "SVG scale" 0.1 10 1;
 
-		command 
-			= "autotrace %s " ++ join_sep " " 
+		command
+			= "autotrace %s " ++ join_sep " "
 				[ofmt, ofile, desp, lint, cent]
 		{
-			prog = search_for_error "autotrace"; 
+			prog = search_for_error "autotrace";
 			ofmt = "-output-format svg";
 			ofile = "-output-file %s";
 			desp = "-despeckle-level " ++ print despeckle.value;
@@ -1687,13 +1687,13 @@ Autotrace_item = class
 			cent = if center then "-centerline " else "";
 		}
 
-		_result 
+		_result
 			= Image output
 		{
-			[output] = vips_call "system" 
-				[command] 
+			output = vips_call "system"
+				[command]
 				[$in => [x.value],
-				 $in_format => "%s.ppm", 
+				 $in_format => "%s.ppm",
 				 $out => true,
 				 $out_format => "%s.svg[scale=" ++ print scale.value ++ "]"
 				];

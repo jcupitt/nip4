@@ -9,8 +9,24 @@ im_header_int = vips_header_int;
 im_header_double = vips_header_double;
 im_header_string = vips_header_string;
 
+// vips7 wrappers
 im_dE00_fromLab x = vips_call "dE00" [x] [];
 im_black x y b = vips_call "black" [x, y] [$bands => b];
+im_rot90 x = vips_call "rot" [x, "d90"] [];
+im_rot180 x = vips_call "rot" [x, "d180"] [];
+im_rot270 x = vips_call "rot" [x, "d270"] [];
+im_fgrey x y = vips_call "grey" [x, y] [];
+im_clip2fmt x y = vips_call "cast" [x, y] [];
+im_copy_set im t xr yr xo yo = vips_call "copy" [im] [
+	$interpretation => t,
+	$xres => xr,
+	$yres => yr,
+	$xoffset => xo,
+	$yoffset => yo
+];
+im_embed im t x y w h = vips_call "embed" [im, x, y, w, h] [$extend => t];
+im_avg x = vips_call "avg" [x] [];
+im_recomb x y = vips_call "recomb" [x, y] [];
 
 // add a lot more!
 
