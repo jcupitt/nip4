@@ -302,7 +302,7 @@ row_error_set(Row *row)
 void
 row_error_clear(Row *row)
 {
-	if (row->err) {
+	if (row->err && row->ws) {
 		Workspace *ws = row->ws;
 
 		ws->errors = g_slist_remove(ws->errors, row);

@@ -92,6 +92,7 @@ install_data([
     'nip4/start/Tasks.def',
     'nip4/start/_types.def',
     'nip4/start/Widgets.def',
+    'nip4/start/_vips7compat.def',
   ],
   install_dir: get_option('datadir'),
   preserve_path: true,

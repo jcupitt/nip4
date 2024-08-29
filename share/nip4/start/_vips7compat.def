@@ -1,0 +1,18 @@
+/* vips7 compat functions
+ *
+ * These are supposed to make old code which assumes vips7 work with vips8.
+ */
+
+// old vips7 builtin names
+im_header_get_typeof = vips_header_typeof;
+im_header_int = vips_header_int;
+im_header_double = vips_header_double;
+im_header_string = vips_header_string;
+
+im_dE00_fromLab x = vips_call "dE00" [x] [];
+im_black x y b = vips_call "black" [x, y] [$bands => b];
+
+// add a lot more!
+
+
+

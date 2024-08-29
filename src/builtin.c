@@ -133,6 +133,135 @@ static BuiltinTypeSpot list_spot = { "[*]", reduce_is_list };
 static BuiltinTypeSpot math_spot = { "image|real|complex", ismatharg };
 static BuiltinTypeSpot any_spot = { "any", isany };
 
+// turn an image into a 2D matrix ... result must be g_free()d
+static int
+vips2matrix(VipsImage *in, double **values, int *width, int *height)
+{
+	if (in->Bands == 1) {
+        *width = in->Xsize;
+        *height = in->Ysize;
+    }
+    else if (in->Xsize == 1) {
+        *width = in->Bands;
+        *height = in->Ysize;
+    }
+    else if (in->Ysize == 1) {
+        *width = in->Xsize;
+        *height = in->Bands;
+    }
+	else {
+		error_top(_("Out of range"));
+        error_sub(_("one band, nx1, or 1xn images only"));
+        return -1;
+	}
+
+	// big enough for a 16-bit LUT
+	if (*width > 65536 ||
+		*height > 65536 ||
+		*width * *height > 65536) {
+		error_top(_("Out of range"));
+        error_sub(_("image too large"));
+        return -1;
+	}
+
+	VipsImage *t;
+	if (vips_cast(in, &t, VIPS_FORMAT_DOUBLE, NULL))
+		return -1;
+
+	void *mem;
+	size_t size;
+	if (!(mem = vips_image_write_to_memory(t, &size))) {
+		VIPS_UNREF(t);
+		return -1;
+	}
+	*values = (double *) mem;
+
+	return 0;
+}
+
+// FIXME ... move to matrix.c when we add that
+
+static int
+matrix_guess_display(const char *filename)
+{
+    /* Choose display type based on filename suffix ... rec
+     * displays as 1, mor displays as 2, .con displays as 3, all others
+     * display as 0. Keep in sync with MatrixDisplayType.
+     */
+    static const char *suffixes[] = {
+		".mat",
+		".mor",
+		".con",
+    };
+
+    if (!filename)
+        return 0;
+
+    for (int i = 0; i < VIPS_NUMBER(suffixes); i++)
+        if (vips_iscasepostfix(filename, suffixes[i]))
+            return i + 1;
+
+    return 0;
+}
+
+static gboolean
+matrix_new(Heap *heap,
+	VipsImage *image, double *values, int width, int height, PElement *out)
+{
+	Symbol *sym;
+	if (!(sym = compile_lookup(symbol_root->expr->compile, CLASS_MATRIX)) ||
+		!sym->expr ||
+		!sym->expr->compile ||
+        !heap_copy(heap, sym->expr->compile, out))
+        return FALSE;
+
+    PElement rhs;
+	double scale = vips_image_get_scale(image);
+	double offset = vips_image_get_offset(image);
+	// suffix makes guess_display default to numeric
+	const char *filename = image->filename ? image->filename : "untitled.mat";
+    if (!heap_appl_add(heap, out, &rhs) ||
+        !heap_matrix_new(heap, width, height, values, &rhs) ||
+        !heap_appl_add(heap, out, &rhs) ||
+        !heap_real_new(heap, scale, &rhs) ||
+        !heap_appl_add(heap, out, &rhs) ||
+        !heap_real_new(heap, offset, &rhs) ||
+        !heap_appl_add(heap, out, &rhs) ||
+        !heap_managedstring_new(heap, filename, &rhs) ||
+        !heap_appl_add(heap, out, &rhs) ||
+        !heap_real_new(heap, matrix_guess_display(filename), &rhs))
+        return FALSE;
+
+    return TRUE;
+}
+
+/* Args for "vips_matrix".
+ */
+static BuiltinTypeSpot *vips2matrix_args[] = {
+	&vimage_spot
+};
+
+static void
+apply_vips2matrix_call(Reduce *rc,
+	const char *name, HeapNode **arg, PElement *out)
+{
+	PElement rhs;
+
+	PEPOINTRIGHT(arg[0], &rhs);
+	Imageinfo *ii = reduce_get_image(rc, &rhs);
+	double *values;
+	int width;
+	int height;
+	if (vips2matrix(ii->image, &values, &width, &height))
+		reduce_throw(rc);
+
+	if (!matrix_new(rc->heap, ii->image, values, width, height, out)) {
+		VIPS_FREE(values);
+		reduce_throw(rc);
+	}
+	VIPS_FREE(values);
+}
+
 /* Args for "_".
  */
 static BuiltinTypeSpot *underscore_args[] = {
@@ -1217,20 +1346,22 @@ static BuiltinInfo builtin_table[] = {
 		FALSE, VIPS_NUMBER(graph_export_image_args),
 		&graph_export_image_args[0], apply_graph_export_image_call },
 
-	/* vips7 compat
-	 */
-	{ "im_header_get_typeof", N_("get header field type"),
+	{ "vips_header_typeof", N_("get header field type"),
 		FALSE, VIPS_NUMBER(header_get_typeof_args),
 		&header_get_typeof_args[0], apply_header_get_type_call },
-	{ "im_header_int", N_("get int valued field"),
+	{ "vips_header_int", N_("get int valued field"),
 		FALSE, VIPS_NUMBER(header_get_typeof_args),
 		&header_get_typeof_args[0], apply_header_int_call },
-	{ "im_header_double", N_("get double valued field"),
+	{ "vips_header_double", N_("get double valued field"),
 		FALSE, VIPS_NUMBER(header_get_typeof_args),
 		&header_get_typeof_args[0], apply_header_double_call },
-	{ "im_header_string", N_("get string valued field"),
+	{ "vips_header_string", N_("get string valued field"),
 		FALSE, VIPS_NUMBER(header_get_typeof_args),
 		&header_get_typeof_args[0], apply_header_string_call },
+
+	{ "vips_matrix", N_("new matrix from an image"),
+		FALSE, VIPS_NUMBER(vips2matrix_args),
+		&vips2matrix_args[0], apply_vips2matrix_call },
 
 };
 
