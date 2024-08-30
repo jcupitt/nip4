@@ -117,7 +117,6 @@ pe_is_class(Reduce *rc, PElement *base)
 static BuiltinTypeSpot bool_spot = { "bool", pe_is_bool };
 static BuiltinTypeSpot realvec_spot = { "[real]", reduce_is_realvec };
 static BuiltinTypeSpot matrix_spot = { "[[real]]", reduce_is_matrix };
-static BuiltinTypeSpot instance_spot = { "class instance", pe_is_class };
 static gboolean pe_is_gobject( Reduce *rc, PElement *base )
 		{ return( PEISMANAGEDGOBJECT( base ) ); }
 static BuiltinTypeSpot gobject_spot = { "GObject", pe_is_gobject };
@@ -131,11 +130,12 @@ static BuiltinTypeSpot flist_spot = { "non-empty list", pe_is_flist };
 static BuiltinTypeSpot string_spot = { "[char]", reduce_is_finitestring };
 static BuiltinTypeSpot list_spot = { "[*]", reduce_is_list };
 static BuiltinTypeSpot math_spot = { "image|real|complex", ismatharg };
+static BuiltinTypeSpot instance_spot = { "class", pe_is_class };
 static BuiltinTypeSpot any_spot = { "any", isany };
 
 // turn an image into a 2D matrix ... result must be g_free()d
 static int
-vips2matrix(VipsImage *in, double **values, int *width, int *height)
+image2matrix(VipsImage *in, double **values, int *width, int *height)
 {
 	if (in->Bands == 1) {
         *width = in->Xsize;
@@ -174,6 +174,8 @@ vips2matrix(VipsImage *in, double **values, int *width, int *height)
 		VIPS_UNREF(t);
 		return -1;
 	}
+	VIPS_UNREF(t);
+
 	*values = (double *) mem;
 
 	return 0;
@@ -237,22 +239,23 @@ matrix_new(Heap *heap,
 
 /* Args for "vips_matrix".
  */
-static BuiltinTypeSpot *vips2matrix_args[] = {
+static BuiltinTypeSpot *image2matrix_args[] = {
 	&vimage_spot
 };
 
 static void
-apply_vips2matrix_call(Reduce *rc,
+apply_image2matrix_call(Reduce *rc,
 	const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 
 	PEPOINTRIGHT(arg[0], &rhs);
 	Imageinfo *ii = reduce_get_image(rc, &rhs);
+
 	double *values;
 	int width;
 	int height;
-	if (vips2matrix(ii->image, &values, &width, &height))
+	if (image2matrix(ii->image, &values, &width, &height))
 		reduce_throw(rc);
 
 	if (!matrix_new(rc->heap, ii->image, values, width, height, out)) {
@@ -260,6 +263,82 @@ apply_vips2matrix_call(Reduce *rc,
 		reduce_throw(rc);
 	}
 	VIPS_FREE(values);
+}
+
+/* Make an image from a nip class instance.
+ */
+static VipsImage *
+matrix2image(PElement *root)
+{
+	int width, height;
+	if (!class_get_member_matrix_size(root, MEMBER_VALUE, &width, &height))
+		return NULL;
+	VipsImage *matrix;
+	if (!(matrix = vips_image_new_matrix(width, height)))
+		return NULL;
+
+	char buf[MAX_STRSIZE];
+	if (!class_get_member_string(root, MEMBER_FILENAME, buf, MAX_STRSIZE) &&
+		!temp_name(buf, "mat")) {
+		VIPS_UNREF(matrix);
+		return NULL;
+	}
+	VIPS_SETSTR(matrix->filename, buf);
+
+	if (!class_get_member_matrix(root, MEMBER_VALUE,
+		(double *) matrix->data, width * height, &width, &height)) {
+		VIPS_UNREF(matrix);
+		return FALSE;
+	}
+
+	double scale, offset;
+	if (!class_get_member_real(root, MEMBER_SCALE, &scale))
+		scale = 1.0;
+	if (!class_get_member_real(root, MEMBER_OFFSET, &offset))
+		offset = 0.0;
+	vips_image_set_double(matrix, "scale", scale);
+	vips_image_set_double(matrix, "offset", offset);
+
+	return matrix;
+}
+
+/* Args for "vips_image_matrix".
+ */
+static BuiltinTypeSpot *matrix2image_args[] = {
+	&instance_spot
+};
+
+static void
+apply_matrix2image_call(Reduce *rc,
+	const char *name, HeapNode **arg, PElement *out)
+{
+	PElement rhs;
+
+	PEPOINTRIGHT(arg[0], &rhs);
+	if (!reduce_is_instanceof(rc, CLASS_MATRIX, &rhs)) {
+        char txt[100];
+        VipsBuf buf = VIPS_BUF_STATIC( txt );
+
+        itext_value_ev(rc, &buf, &rhs);
+        error_top(_( "Bad argument" ) );
+        error_sub(_( "argument to \"%s\" should "
+            "be instance of \"%s\", you passed:\n  %s" ),
+            name, CLASS_MATRIX, vips_buf_all(&buf));
+        reduce_throw(rc);
+    }
+
+	VipsImage *matrix;
+	if (!(matrix = matrix2image(&rhs)))
+        reduce_throw(rc);
+
+	Imageinfo *ii;
+	if (!(ii = imageinfo_new(main_imageinfogroup,
+		rc->heap, matrix, matrix->filename))) {
+		VIPS_UNREF(matrix);
+		reduce_throw(rc);
+	}
+
+	PEPUTP(out, ELEMENT_MANAGED, ii);
 }
 
 /* Args for "_".
@@ -1339,6 +1418,14 @@ static BuiltinInfo builtin_table[] = {
 	{ "vips_image", N_("load vips image"),
 		FALSE, VIPS_NUMBER(image_args),
 		&image_args[0], apply_image_call },
+	{ "vips_image_from_matrix", N_("new image from a matrix"),
+		FALSE, VIPS_NUMBER(matrix2image_args),
+		&matrix2image_args[0], apply_matrix2image_call },
+
+	{ "vips_matrix_from_image", N_("new matrix from an image"),
+		FALSE, VIPS_NUMBER(image2matrix_args),
+		&image2matrix_args[0], apply_image2matrix_call },
+
 	{ "read", N_("load text file"),
 		FALSE, VIPS_NUMBER(read_args),
 		&read_args[0], apply_read_call },
@@ -1358,10 +1445,6 @@ static BuiltinInfo builtin_table[] = {
 	{ "vips_header_string", N_("get string valued field"),
 		FALSE, VIPS_NUMBER(header_get_typeof_args),
 		&header_get_typeof_args[0], apply_header_string_call },
-
-	{ "vips_matrix", N_("new matrix from an image"),
-		FALSE, VIPS_NUMBER(vips2matrix_args),
-		&vips2matrix_args[0], apply_vips2matrix_call },
 
 };
 

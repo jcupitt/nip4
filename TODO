@@ -1,3 +1,7 @@
+- row reset doesn't work
+
+  and editing a row doesn't always "take"
+
 - continue adding vips7 compat defs, test with eg.
 
 	nip4 test/workspaces/test_colour.ws
@@ -10,6 +14,19 @@
 
 	we're passing a Matrix right now, I guess we need Matrix -> image
 	conversion in heap -> gvalue
+
+	use vips_image_from_matrix code
+
+
+- maybe add `vips_image_from_matrix` as a builtin?
+
+	vips_image_from_file
+	vips_image_from_matrix
+
+	vips_matrix_from_image
+
+
+
 
 
 
