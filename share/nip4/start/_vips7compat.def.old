@@ -9,9 +9,7 @@ im_header_int = vips_header_int;
 im_header_double = vips_header_double;
 im_header_string = vips_header_string;
 im_mask2vips = vips_image_from_matrix;
-
-// this causes terrible problems! no idea why
-// im_vips2mask = vips_matrix_from_image;
+im_vips2mask = vips_matrix_from_image;
 
 // vips7 wrappers
 im_black x y b = vips_call "black" [x, y] [$bands => b];
@@ -22,10 +20,9 @@ im_rot180 x = vips_call "rot" [x, "d180"] [];
 im_rot270 x = vips_call "rot" [x, "d270"] [];
 
 im_clip2fmt x y = vips_call "cast" [x, y] [];
-im_clip x = vips_call "cast" [x, "uchar"] [];
 im_clip2us x = vips_call "cast" [x, "ushort"] [];
-im_clip2s x = vips_call "cast" [x, "short"] [];
 im_clip2f x = vips_call "cast" [x, "float"] [];
+im_clip x = vips_call "cast" [x, "uchar"] [];
 im_copy_set im t xr yr xo yo = vips_call "copy" [im] [
 	$interpretation => t,
 	$xres => xr,
@@ -52,19 +49,12 @@ im_LabQ2LabS x = vips_call "LabQ2LabS" [x] [];
 im_LabQ2Lab x = vips_call "LabQ2Lab" [x] [];
 im_LabS2LabQ x = vips_call "LabS2LabQ" [x] [];
 im_LCh2UCS x = vips_call "LCh2CMC" [x] [];
-im_LCh2Lab x = vips_call "LCh2Lab" [x] [];
 im_scRGB2XYZ x = vips_call "scRGB2XYZ" [x] [];
 im_sRGB2scRGB x = vips_call "sRGB2scRGB" [x] [];
-im_scRGB2sRGB x = vips_call "scRGB2sRGB" [x] [];
-im_scRGB2XYZ x = vips_call "scRGB2XYZ" [x] [];
 im_XYZ2Lab x = vips_call "XYZ2Lab" [x] [];
-im_XYZ2Yxy x = vips_call "XYZ2Yxy" [x] [];
-im_Yxy2XYZ x = vips_call "Yxy2XYZ" [x] [];
 
 im_XYZ2UCS = im_LCh2UCS @ im_Lab2LCh @ im_XYZ2Lab;
 im_sRGB2XYZ = im_scRGB2XYZ @ im_sRGB2scRGB;
-im_XYZ2sRGB = im_scRGB2sRGB @ im_XYZ2scRGB;
-im_Lab2UCS = im_LCh2UCS @ im_Lab2LCh;
 
 im_icc_import x profile intent = vips_call "icc_import" [x] [
 	$intent => intent,

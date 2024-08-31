@@ -1924,6 +1924,33 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 			return FALSE;
 		}
 	}
+	else if (PEISCLASS(in)) {
+		if (reduce_is_instanceof(rc, CLASS_MATRIX, in)) {
+			VipsImage *matrix;
+			if (!(matrix = matrix2image(in)))
+				return FALSE;
+
+			g_value_init(out, VIPS_TYPE_IMAGE);
+			g_value_set_object(out, matrix);
+		}
+		else if (reduce_is_instanceof(rc, CLASS_IMAGE, in)) {
+			Imageinfo *ii;
+			if (!class_get_member_image(in, MEMBER_VALUE, &ii))
+				return FALSE;
+
+			g_value_init(out, VIPS_TYPE_IMAGE);
+			g_value_set_object(out, ii->image);
+		}
+		else {
+			char txt[100];
+			VipsBuf buf = VIPS_BUF_STATIC(txt);
+
+			itext_value_ev(rc, &buf, in);
+			error_top(_("Unimplemented class type"));
+			error_sub(_("cannot convert %s to GValue"), vips_buf_all(&buf));
+			return FALSE;
+		}
+	}
 	else if (PEISMANAGED(in) &&
 		IS_MANAGEDGOBJECT(PEGETVAL(in))) {
 		g_value_init(out, G_TYPE_OBJECT);

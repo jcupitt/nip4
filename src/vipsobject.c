@@ -30,8 +30,8 @@
 #include "nip4.h"
 
 /*
- */
 #define DEBUG
+ */
 
 /* Maxiumum number of args to constructor.
  */
@@ -80,8 +80,11 @@ vo_new(Reduce *rc, const char *name)
 	const VipsObjectClass *class;
 	Vo *vo;
 
-	if (!(class = vips_class_find("VipsObject", name)))
+	if (!(class = vips_class_find("VipsObject", name))) {
+		error_top(_("No such operation"));
+		error_sub(_("operation \"%s\" not found"), name);
 		return NULL;
+	}
 
 	if (!(vo = INEW(NULL, Vo)))
 		return NULL;
@@ -146,21 +149,23 @@ vo_set_required_input(VipsObject *object, GParamSpec *pspec,
 	if ((argument_class->flags & VIPS_ARGUMENT_REQUIRED) &&
 		(argument_class->flags & VIPS_ARGUMENT_CONSTRUCT) &&
 		(argument_class->flags & VIPS_ARGUMENT_INPUT) &&
-		!argument_instance->assigned &&
-		vo->nargs_required < vo->nargs_supplied) {
-		const char *name = g_param_spec_get_name(pspec);
+		!argument_instance->assigned) {
 		int i = vo->nargs_required;
+		const char *name = g_param_spec_get_name(pspec);
 
-		GValue gvalue = { 0 };
+		if (i < vo->nargs_supplied) {
+			GValue gvalue = { 0 };
 
-		if (!heap_ip_to_gvalue(&vo->args[i], &gvalue))
-			return object;
-		if (vo_set_property(vo, name, pspec, &gvalue)) {
+			if (!heap_ip_to_gvalue(&vo->args[i], &gvalue))
+				return object;
+			if (vo_set_property(vo, name, pspec, &gvalue)) {
+				g_value_unset(&gvalue);
+				return object;
+			}
 			g_value_unset(&gvalue);
-			return object;
 		}
-		g_value_unset(&gvalue);
 
+		// found an unassigned required input arg
 		vo->nargs_required += 1;
 	}
 
