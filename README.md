@@ -7,9 +7,9 @@ This is a reworking of [nip2](https://github.com/libvips/nip2) for the gtk4
 UI toolkit.
 
 nip2 is a spreadsheet-like interface to the [libvips image processing
-library](https://libvips.github.io/libvips). You create a set of formula 
-connecting your objects together, and on a change nip2 will recalculate. 
-This makes it convenient for developing image processing systems since you 
+library](https://libvips.github.io/libvips). You create a set of formula
+connecting your objects together, and on a change nip2 will recalculate.
+This makes it convenient for developing image processing systems since you
 can watch pixels change as you adjust your equations.
 
 Because nip2 uses libvips as the image processing engine, it can handle very
@@ -20,5 +20,7 @@ can run any image processing system you develop from the command-line and
 without a GUI.
 
 [![Screenshot](images/shot1.png)](images/shot1.png)
+
+[![Screenshot](images/shot1.png)](images/shot2.png)
 
 https://github.com/user-attachments/assets/6f7bdee1-183c-4554-9701-e0c30e75d58a
