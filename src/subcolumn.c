@@ -254,7 +254,6 @@ subcolumn_class_new_heap(Subcolumn *scol, PElement *root)
 	if (row->sym &&
 		is_system(row->sym))
 		return TRUE;
-
 	/* If we are the top of a class instance display, get a new serial.
 	 * As we recurse down refreshing our contents, this should stop
 	 * circular structures looping the browser.

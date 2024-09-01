@@ -1110,9 +1110,11 @@ symbol_recalculate_leaf(void)
 	if ((sym = symbol_leaf_next())) {
 		/* Should be dirty with no dirty children. Unless it's a
 		 * function, in which case dirty kids are OK.
+		 *
+		 * Can contain an error, in which case this recomp will just take it
+		 * ffo the dirty list.
 		 */
 		g_assert(sym->dirty);
-		g_assert(!sym->expr->err);
 		g_assert(is_top(sym));
 		g_assert(symbol_ndirty(sym) == 0 || is_value(sym));
 
