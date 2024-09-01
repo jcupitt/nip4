@@ -1,14 +1,34 @@
+- see app_open() ... can we simplify this now that mainwindow_new() takes a
+  wsg?
+
 - row reset doesn't work
 
   and editing a row doesn't always "take"
+
 
 - continue adding vips7 compat defs, test with eg.
 
 	nip4 test/workspaces/test_colour.ws
 
+	currently ... adding
+
+		im_vips2mask = vips_matrix_from_image;
+
+	cases a range of hiorrible crashes, no idea why, see comment in
+	_vips7compat.def
+
   and many others heh
 
 - syntax error in startup .def stops nip4 loading
+
+- test_colour.ws is loading images from examples/, not from the test image
+  dir
+
+- seeing
+
+	(nip4:149810): VIPS-WARNING **: 10:04:38.092: profile incompatible with image
+
+  during test_colour.ws load ... seem to have a CMYK profile on a 3 band image?
 
 
 

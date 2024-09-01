@@ -98,7 +98,7 @@ app_activate(GApplication *gapp)
 
 	printf("app_activate:\n");
 
-	main = mainwindow_new(APP(gapp));
+	main = mainwindow_new(APP(gapp), NULL);
 	gtk_window_present(GTK_WINDOW(main));
 }
 
@@ -304,7 +304,7 @@ app_startup(GApplication *app)
 static void
 app_open(GApplication *app, GFile **files, int n_files, const char *hint)
 {
-	Mainwindow *main = mainwindow_new(APP(app));
+	Mainwindow *main = mainwindow_new(APP(app), NULL);
 
 	gtk_window_present(GTK_WINDOW(main));
 

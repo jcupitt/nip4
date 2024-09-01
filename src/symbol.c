@@ -483,6 +483,7 @@ symbol_made(Symbol *sym)
 static void *
 symbol_not_defined_sub(Link *link, VipsBuf *buf)
 {
+	vips_buf_appends(buf, "\n\t");
 	symbol_name_error(link->parent, buf);
 
 	return NULL;
@@ -494,20 +495,16 @@ symbol_not_defined_sub(Link *link, VipsBuf *buf)
 void
 symbol_not_defined(Symbol *sym)
 {
-	char txt[256];
+	char txt[1024];
 	VipsBuf buf = VIPS_BUF_STATIC(txt);
 
 	error_top(_("Not found"));
-	vips_buf_appendf(&buf, _("symbol %s is not defined"),
-		symbol_name(sym));
+	vips_buf_appendf(&buf, _("symbol %s is not defined"), symbol_name(sym));
 	if (sym->topparents) {
 		vips_buf_appends(&buf, "\n");
-		vips_buf_appendf(&buf, _("%s is referred to by"),
-			symbol_name(sym));
-		vips_buf_appends(&buf, ": ");
+		vips_buf_appendf(&buf, _("%s is referred to by"), symbol_name(sym));
 		slist_map2(sym->topparents,
 			(SListMap2Fn) symbol_not_defined_sub, &buf, NULL);
-		vips_buf_appends(&buf, "\n");
 	}
 	error_sub("%s", vips_buf_all(&buf));
 }

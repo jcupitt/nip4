@@ -259,9 +259,6 @@ iimage_class_get(Classmodel *classmodel, PElement *root)
 		VipsImage *image;
 		const char *filename;
 
-		printf("\timageinfo = %p\n", ii);
-		printf("\timageinfo->image = %p\n", ii->image);
-
 		if ((image = ii->image) &&
 			vips_image_get_typeof(image, ORIGINAL_FILENAME) != 0) {
 			if (vips_image_get_string(image, ORIGINAL_FILENAME, &filename))
@@ -271,8 +268,6 @@ iimage_class_get(Classmodel *classmodel, PElement *root)
 			filename = IOBJECT(ii)->name;
 		else
 			filename = NULL;
-
-		printf("\tfilename = %s\n", filename);
 
 		VIPS_SETSTR(classmodel->filename, filename);
 	}

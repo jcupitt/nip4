@@ -43,7 +43,7 @@ void mainwindow_error(Mainwindow *main);
 void mainwindow_error_hide(Mainwindow *main);
 
 void mainwindow_open(Mainwindow *main, GFile *file);
-Mainwindow *mainwindow_new(App *app);
+Mainwindow *mainwindow_new(App *app, Workspacegroup *wsg);
 void mainwindow_set_wsg(Mainwindow *main, Workspacegroup *wsg);
 void mainwindow_set_gfile(Mainwindow *main, GFile *gfile);
 void mainwindow_cull(void);

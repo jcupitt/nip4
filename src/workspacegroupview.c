@@ -25,8 +25,8 @@
 #include "nip4.h"
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 G_DEFINE_TYPE(Workspacegroupview, workspacegroupview, VIEW_TYPE)
 
@@ -321,8 +321,7 @@ workspacegroupview_create_window(GtkNotebook *notebook,
 	 * page_added is the common path.
 	 */
 
-	Mainwindow *new_main = mainwindow_new(app);
-	mainwindow_set_wsg(new_main, new_wsg);
+	Mainwindow *new_main = mainwindow_new(app, new_wsg);
 	gtk_window_present(GTK_WINDOW(new_main));
 
 #ifdef DEBUG

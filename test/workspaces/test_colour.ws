@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <root xmlns="http://www.vips.ecs.soton.ac.uk/nip/9.0.0">
-  <Workspace window_x="0" window_y="0" window_width="1280" window_height="771" filename="$HOME/GIT/nip2/test/workspaces/test_colour.ws" view="WORKSPACE_MODE_REGULAR" scale="1" offset="0" lpane_position="400" lpane_open="false" rpane_position="100" rpane_open="false" local_defs="// private definitions for this workspace&#10;" name="test_colour" caption="Default empty workspace">
+  <Workspace window_x="0" window_y="0" window_width="1280" window_height="771" filename="$HOME/GIT/nip4/test/workspaces/test_colour.ws" view="WORKSPACE_MODE_REGULAR" scale="1" offset="0" lpane_position="400" lpane_open="false" rpane_position="100" rpane_open="false" local_defs="// private definitions for this workspace&#10;" name="test_colour" caption="Default empty workspace">
     <Column x="0" y="0" open="true" selected="false" sform="false" next="10" name="A" caption="Colour / New">
       <Subcolumn vislevel="3">
         <Row popup="false" name="A1">
@@ -487,7 +487,7 @@
               </Row>
               <Row name="profile">
                 <Rhs vislevel="1" flags="1">
-                  <Pathname caption="Output profile" value="$VIPSHOME/share/nip2/data/sRGB.icm"/>
+                  <Pathname caption="Output profile" value="$VIPSHOME/share/nip4/data/sRGB.icm"/>
                   <Subcolumn vislevel="0"/>
                   <iText/>
                 </Rhs>
@@ -535,7 +535,7 @@
               </Row>
               <Row name="out_profile">
                 <Rhs vislevel="1" flags="1">
-                  <Pathname caption="Output profile" value="$VIPSHOME/share/nip2/data/sRGB.icm"/>
+                  <Pathname caption="Output profile" value="$VIPSHOME/share/nip4/data/sRGB.icm"/>
                   <Subcolumn vislevel="0"/>
                   <iText/>
                 </Rhs>
@@ -973,7 +973,7 @@
           <Rhs vislevel="2" flags="5">
             <iImage window_x="0" window_y="30" window_width="565" window_height="750" image_left="266" image_top="328" image_mag="1" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="Image_file &quot;$VIPSHOME/share/nip2/data/examples/print_test_image.v&quot;"/>
+            <iText formula="Image_file &quot;$VIPSHOME/share/nip4/data/examples/print_test_image.v&quot;"/>
           </Rhs>
         </Row>
         <Row popup="false" name="L2">
@@ -1038,7 +1038,7 @@
           <Rhs vislevel="2" flags="5">
             <iImage window_x="0" window_y="30" window_width="512" window_height="729" image_left="229" image_top="309" image_mag="1" show_status="true" show_paintbox="false" show_convert="true" show_rulers="true" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="Image_file &quot;$VIPSHOME/share/nip2/data/examples/businesscard/slanted_oval_vase2.jpg&quot;"/>
+            <iText formula="Image_file &quot;$VIPSHOME/share/nip4/data/examples/businesscard/slanted_oval_vase2.jpg&quot;"/>
           </Rhs>
         </Row>
         <Row popup="false" name="FC16">

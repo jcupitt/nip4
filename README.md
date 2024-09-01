@@ -1,7 +1,7 @@
 # nip4 --- a user interface for libvips
 
-**Work in progress** I'm hoping this will be working by mid 2024, but for
-now it doesn't do much.
+**Work in progress** See screenshots and videos below for the current state.
+I'm hoping this will be mostly working in early 2025.
 
 This is a reworking of [nip2](https://github.com/libvips/nip2) for the gtk4
 UI toolkit.
@@ -21,6 +21,6 @@ without a GUI.
 
 [![Screenshot](images/shot1.png)](images/shot1.png)
 
-[![Screenshot](images/shot1.png)](images/shot2.png)
+[![Screenshot](images/shot2.png)](images/shot2.png)
 
 https://github.com/user-attachments/assets/6f7bdee1-183c-4554-9701-e0c30e75d58a

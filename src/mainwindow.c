@@ -22,8 +22,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -155,6 +155,10 @@ mainwindow_dispose(GObject *object)
 static gboolean
 mainwindow_open_workspace(Mainwindow *main, const char *filename)
 {
+#ifdef DEBUG
+	printf("mainwindow_open_workspace: %s\n", filename);
+#endif /*DEBUG*/
+
 	GtkApplication *app = gtk_window_get_application(GTK_WINDOW(main));
 
 	Workspacegroup *wsg;
@@ -168,7 +172,6 @@ mainwindow_open_workspace(Mainwindow *main, const char *filename)
 		NULL);
 
 	mainwindow_set_wsg(new_main, wsg);
-	mainwindow_set_gfile(new_main, NULL);
 	gtk_window_present(GTK_WINDOW(new_main));
 
 	symbol_recalculate_all();
@@ -179,7 +182,12 @@ mainwindow_open_workspace(Mainwindow *main, const char *filename)
 static Workspace *
 mainwindow_get_workspace(Mainwindow *main)
 {
+#ifdef DEBUG
+	printf("mainwindow_get_workspace:\n");
+#endif /*DEBUG*/
+
 	if (!main->wsg) {
+		printf("no wsg\n");
 		Workspacegroup *wsg =
 			workspacegroup_new_blank(main_workspaceroot, NULL);
 		mainwindow_set_wsg(main, wsg);
@@ -859,18 +867,18 @@ mainwindow_init_settings(Mainwindow *main)
 }
 
 Mainwindow *
-mainwindow_new(App *app)
+mainwindow_new(App *app, Workspacegroup *wsg)
 {
+#ifdef DEBUG
+	printf("mainwindow_new:\n");
+#endif /*DEBUG*/
+
 	Mainwindow *main = g_object_new(MAINWINDOW_TYPE,
 		"application", app,
 		NULL);
 
-	/* Make a start workspace and workspacegroup to load
-	 * stuff into.
-	 */
-	Workspacegroup *wsg = workspacegroup_new_blank(main_workspaceroot, NULL);
-	mainwindow_set_wsg(main, wsg);
-	mainwindow_set_gfile(main, NULL);
+	mainwindow_set_wsg(main, wsg ?
+		wsg : workspacegroup_new_blank(main_workspaceroot, NULL));
 
 	// we can't do this in _init() since we need app to be set
 	mainwindow_init_settings(main);

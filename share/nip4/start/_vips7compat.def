@@ -57,6 +57,7 @@ im_scRGB2XYZ x = vips_call "scRGB2XYZ" [x] [];
 im_sRGB2scRGB x = vips_call "sRGB2scRGB" [x] [];
 im_scRGB2sRGB x = vips_call "scRGB2sRGB" [x] [];
 im_scRGB2XYZ x = vips_call "scRGB2XYZ" [x] [];
+im_UCS2LCh x = vips_call "CMC2LCh" [x] [];
 im_XYZ2Lab x = vips_call "XYZ2Lab" [x] [];
 im_XYZ2Yxy x = vips_call "XYZ2Yxy" [x] [];
 im_Yxy2XYZ x = vips_call "Yxy2XYZ" [x] [];
@@ -65,6 +66,7 @@ im_XYZ2UCS = im_LCh2UCS @ im_Lab2LCh @ im_XYZ2Lab;
 im_sRGB2XYZ = im_scRGB2XYZ @ im_sRGB2scRGB;
 im_XYZ2sRGB = im_scRGB2sRGB @ im_XYZ2scRGB;
 im_Lab2UCS = im_LCh2UCS @ im_Lab2LCh;
+im_UCS2Lab = im_LCh2Lab @ im_UCS2LCh;
 
 im_icc_import x profile intent = vips_call "icc_import" [x] [
 	$intent => intent,
