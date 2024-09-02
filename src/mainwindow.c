@@ -167,11 +167,7 @@ mainwindow_open_workspace(Mainwindow *main, const char *filename)
 		return FALSE;
 	}
 
-	Mainwindow *new_main = g_object_new(MAINWINDOW_TYPE,
-		"application", app,
-		NULL);
-
-	mainwindow_set_wsg(new_main, wsg);
+	Mainwindow *new_main = mainwindow_new(APP(app), wsg);
 	gtk_window_present(GTK_WINDOW(new_main));
 
 	symbol_recalculate_all();
@@ -215,8 +211,6 @@ mainwindow_open_definition(Mainwindow *main, const char *filename)
 	}
 
 	symbol_recalculate_all();
-
-	gtk_window_present(GTK_WINDOW(main));
 
 	return TRUE;
 }
@@ -270,10 +264,10 @@ mainwindow_open_action(GSimpleAction *action,
 	Mainwindow *main = MAINWINDOW(user_data);
 
 	GtkFileDialog *dialog = gtk_file_dialog_new();
-	gtk_file_dialog_set_title(dialog, "Open workspace");
+	gtk_file_dialog_set_title(dialog, "Open");
 	gtk_file_dialog_set_modal(dialog, TRUE);
 
-	// if we have a loaded file, use that folder, else
+	// if we have a loaded file, use that folder
 	GFile *load_folder = mainwindow_get_load_folder(main);
 	if (load_folder)
 		gtk_file_dialog_set_initial_folder(dialog, load_folder);

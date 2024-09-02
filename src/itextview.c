@@ -96,7 +96,10 @@ itextview_refresh(vObject *vobject)
 	/* We display the formula if this is a class ... we assume the members
 	 * and/or the graphic will represent the value.
 	 */
-	if (row->is_class)
+	if (row->expr &&
+		row->expr->err)
+		display = row->expr->error_sub;
+	else if (row->is_class)
 		display = itext->formula;
 	else
 		display = vips_buf_all(&itext->value);

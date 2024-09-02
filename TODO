@@ -1,9 +1,3 @@
-- see app_open() ... can we simplify this now that mainwindow_new() takes a
-  wsg?
-
-- click "Open" button in mainwindow, file dialog is titled "Open workspace",
-  though you can use it to open anything
-
 - update a formula, all views reset
 
 	lose zoom, pan, scale, offset, etc.
@@ -12,17 +6,11 @@
 
   and editing a row doesn't always "take"
 
-- if a row has an error, display the error instead of the value?
-
-	so (error "fail") should display "fail" as the value
-
-
-
 - continue adding vips7 compat defs, test with eg.
 
 	nip4 test/workspaces/test_colour.ws
 
-  next ... need option menu to get the rest working
+  next ... need option menu to get the rest working!
 
 
 
