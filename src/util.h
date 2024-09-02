@@ -119,7 +119,6 @@ void *slist_map2_rev(GSList *list,
 void *slist_map3_rev(GSList *list,
 	SListMap3Fn fn, void *a, void *b, void *c);
 void *map_equal(void *a, void *b);
-void *map_unref(void *item, void *a);
 gboolean slist_equal(GSList *l1, GSList *l2);
 void *slist_fold(GSList *list, void *start, SListFoldFn fn, void *a);
 void *slist_fold2(GSList *list,

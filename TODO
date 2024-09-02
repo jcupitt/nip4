@@ -5,17 +5,13 @@
 
   and editing a row doesn't always "take"
 
+- if a row has an error, display the error instead of the value?
+
+	so (error "fail") should display "fail" as the value
 
 - continue adding vips7 compat defs, test with eg.
 
 	nip4 test/workspaces/test_colour.ws
-
-	currently ... adding
-
-		im_vips2mask = vips_matrix_from_image;
-
-	cases a range of hiorrible crashes, no idea why, see comment in
-	_vips7compat.def
 
   and many others heh
 

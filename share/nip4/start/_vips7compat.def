@@ -11,7 +11,7 @@ im_header_string = vips_header_string;
 im_mask2vips = vips_image_from_matrix;
 
 // this causes terrible problems! no idea why
-// im_vips2mask = vips_matrix_from_image;
+im_vips2mask = vips_matrix_from_image;
 
 // vips7 wrappers
 im_black x y b = vips_call "black" [x, y] [$bands => b];

@@ -168,25 +168,25 @@ matrix_new(Heap *heap,
 	if (!(sym = compile_lookup(symbol_root->expr->compile, CLASS_MATRIX)) ||
 		!sym->expr ||
 		!sym->expr->compile ||
-        !heap_copy(heap, sym->expr->compile, out))
-        return FALSE;
+		!heap_copy(heap, sym->expr->compile, out))
+		return FALSE;
 
-    PElement rhs;
+	PElement rhs;
 	double scale = vips_image_get_scale(image);
 	double offset = vips_image_get_offset(image);
 	// suffix makes guess_display default to numeric
 	const char *filename = image->filename ? image->filename : "untitled.mat";
-    if (!heap_appl_add(heap, out, &rhs) ||
-        !heap_matrix_new(heap, width, height, values, &rhs) ||
-        !heap_appl_add(heap, out, &rhs) ||
-        !heap_real_new(heap, scale, &rhs) ||
-        !heap_appl_add(heap, out, &rhs) ||
-        !heap_real_new(heap, offset, &rhs) ||
-        !heap_appl_add(heap, out, &rhs) ||
-        !heap_managedstring_new(heap, filename, &rhs) ||
-        !heap_appl_add(heap, out, &rhs) ||
-        !heap_real_new(heap, matrix_guess_display(filename), &rhs))
-        return FALSE;
+	if (!heap_appl_add(heap, out, &rhs) ||
+		!heap_matrix_new(heap, width, height, values, &rhs) ||
+		!heap_appl_add(heap, out, &rhs) ||
+		!heap_real_new(heap, scale, &rhs) ||
+		!heap_appl_add(heap, out, &rhs) ||
+		!heap_real_new(heap, offset, &rhs) ||
+		!heap_appl_add(heap, out, &rhs) ||
+		!heap_managedstring_new(heap, filename, &rhs) ||
+		!heap_appl_add(heap, out, &rhs) ||
+		!heap_real_new(heap, matrix_guess_display(filename), &rhs))
+		return FALSE;
 
 	printf("\tsuccess\n");
 

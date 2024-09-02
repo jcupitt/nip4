@@ -353,7 +353,7 @@ subcolumn_class_new_heap(Subcolumn *scol, PElement *root)
 
 	/* Remove all the rows we've not used.
 	 */
-	slist_map(cri.notused, map_unref, NULL);
+	slist_map(cri.notused, (SListMapFn) iobject_destroy, NULL);
 	VIPS_FREEF(g_slist_free, cri.notused);
 
 	return TRUE;
