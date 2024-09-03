@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Toggleview" parent="Graphicview">
+    <property name="hexpand">true</property>
+
+    <child>
+      <object class="GtkCheckButton" id="toggle">
+        <property name="hexpand">true</property>
+        <signal name="toggled" handler="toggleview_toggled"/>
+      </object>
+    </child>
+
+  </template>
+</interface>

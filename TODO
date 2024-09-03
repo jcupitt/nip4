@@ -10,7 +10,7 @@
 
 	nip4 test/workspaces/test_colour.ws
 
-  need at least matrix, tooggle, pathname widgets
+  need at least matrix, pathname widgets
 
 	checklist:
 		- widget init in app.c

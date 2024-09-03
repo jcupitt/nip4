@@ -269,7 +269,6 @@ app_startup(GApplication *app)
 	(void) g_type_class_ref(TYPE_PLOT);
 	(void) g_type_class_ref(TYPE_REAL);
 	(void) g_type_class_ref(TYPE_STRING);
-	(void) g_type_class_ref(TYPE_TOGGLE);
 	(void) g_type_class_ref(TYPE_VECTOR);
 	 */
 
@@ -285,6 +284,7 @@ app_startup(GApplication *app)
 	(void) g_type_class_ref(IARROW_TYPE);
 	(void) g_type_class_ref(OPTION_TYPE);
 	(void) g_type_class_ref(SLIDER_TYPE);
+	(void) g_type_class_ref(TOGGLE_TYPE);
 
 	/* Some custom CSS.
 	 */

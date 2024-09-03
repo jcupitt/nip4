@@ -150,7 +150,7 @@ sliderview_text_changed(Tslider *tslider, Sliderview *sliderview)
 #endif /*DEBUG*/
 
 	// text must be scanned on next recomp
-    view_scannable_register(VIEW(sliderview));
+	view_scannable_register(VIEW(sliderview));
 }
 
 static void

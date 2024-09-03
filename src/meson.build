@@ -69,6 +69,8 @@ sources = files (
   'optionview.c',
   'slider.c',
   'sliderview.c',
+  'toggle.c',
+  'toggleview.c',
   'path.c',
   'predicate.c',
   'prefcolumnview.c',
