@@ -10,6 +10,12 @@
 
 	nip4 test/workspaces/test_colour.ws
 
+  need at least matrix, tooggle, pathname widgets
+
+	checklist:
+		- widget init in app.c
+		- add to rhs_graphic[]
+
 
 
 - syntax error in startup .def stops nip4 loading

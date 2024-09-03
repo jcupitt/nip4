@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Sliderview" parent="Graphicview">
+    <property name="hexpand">true</property>
+
+    <child>
+      <object class="GtkBox" id="top">
+        <property name="orientation">horizontal</property>
+        <property name="spacing">12</property>
+
+        <child>
+          <object class="GtkLabel" id="label">
+          </object>
+        </child>
+
+        <child>
+          <object class="Tslider" id="tslider">
+            <property name="hexpand">true</property>
+	    <signal name="changed" handler="sliderview_changed"/>
+	    <signal name="text_changed" handler="sliderview_text_changed"/>
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+  </template>
+</interface>

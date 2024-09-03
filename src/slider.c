@@ -1,4 +1,4 @@
-/* an input option ... put/get methods
+/* an input slider ... put/get methods
  */
 
 /*
@@ -33,67 +33,56 @@
 
 #include "nip4.h"
 
-G_DEFINE_TYPE(Option, option, CLASSMODEL_TYPE)
-
-static void
-option_finalize(GObject *gobject)
-{
-	Option *option;
-
-	g_return_if_fail(gobject != NULL);
-	g_return_if_fail(IS_OPTION(gobject));
-
-	option = OPTION(gobject);
-
-	/* My instance finalize stuff.
-	 */
-	g_slist_free_full(g_steal_pointer(&option->labels), g_free);
-
-	G_OBJECT_CLASS(option_parent_class)->finalize(gobject);
-}
+G_DEFINE_TYPE(Slider, slider, CLASSMODEL_TYPE)
 
 static View *
-option_view_new(Model *model, View *parent)
+slider_view_new(Model *model, View *parent)
 {
-	return optionview_new();
+	return (sliderview_new());
 }
 
-/* Members of option we automate.
+/* Members of slider we automate.
  */
-static ClassmodelMember option_members[] = {
+static ClassmodelMember slider_members[] = {
 	{ CLASSMODEL_MEMBER_STRING, NULL, 0,
 		MEMBER_CAPTION, "caption", N_("Caption"),
 		G_STRUCT_OFFSET(iObject, caption) },
-	{ CLASSMODEL_MEMBER_STRING_LIST, NULL, 0,
-		MEMBER_LABELS, "labels", N_("Labels"),
-		G_STRUCT_OFFSET(Option, labels) },
-	{ CLASSMODEL_MEMBER_INT, NULL, 0,
+	{ CLASSMODEL_MEMBER_DOUBLE, NULL, 0,
+		MEMBER_FROM, "from", N_("From"),
+		G_STRUCT_OFFSET(Slider, from) },
+	{ CLASSMODEL_MEMBER_DOUBLE, NULL, 0,
+		MEMBER_TO, "to", N_("To"),
+		G_STRUCT_OFFSET(Slider, to) },
+	{ CLASSMODEL_MEMBER_DOUBLE, NULL, 0,
 		MEMBER_VALUE, "value", N_("Value"),
-		G_STRUCT_OFFSET(Option, value) }
+		G_STRUCT_OFFSET(Slider, value) }
 };
 
 static void
-option_class_init(OptionClass *class)
+slider_class_init(SliderClass *class)
 {
-	GObjectClass *gobject_class = (GObjectClass *) class;
 	ModelClass *model_class = (ModelClass *) class;
 	ClassmodelClass *classmodel_class = (ClassmodelClass *) class;
 
-	gobject_class->finalize = option_finalize;
+	model_class->view_new = slider_view_new;
 
-	model_class->view_new = option_view_new;
-
-	classmodel_class->members = option_members;
-	classmodel_class->n_members = VIPS_NUMBER(option_members);
+	classmodel_class->members = slider_members;
+	classmodel_class->n_members = VIPS_NUMBER(slider_members);
 
 	model_register_loadable(MODEL_CLASS(class));
 }
 
 static void
-option_init(Option *option)
+slider_init(Slider *slider)
 {
-	option->labels = NULL;
-	option->value = 0;
+	/* Overridden later. Just something sensible.
+	 */
+	slider->from = 0;
+	slider->to = 255;
+	slider->value = 128;
 
-	iobject_set(IOBJECT(option), CLASS_OPTION, NULL);
+	/* Need to set caption to something too, since it's an automated
+	 * member.
+	 */
+	iobject_set(IOBJECT(slider), CLASS_SLIDER, "");
 }

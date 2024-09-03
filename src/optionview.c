@@ -68,7 +68,7 @@ lstring_equal(GSList *a, GSList *b)
 
 /* slist -> null-terminated array
  */
-static const char * const*
+static const char *const *
 lstring_to_array(GSList *a)
 {
 	int n = g_slist_length(a);
@@ -80,9 +80,8 @@ lstring_to_array(GSList *a)
 		array[i] = (char *) p->data;
 	array[n] = NULL;
 
-	return (const char * const*) array;
+	return (const char *const *) array;
 }
-
 
 static void
 optionview_dispose(GObject *object)
@@ -147,7 +146,7 @@ optionview_refresh(vObject *vobject)
 		g_slist_free_full(g_steal_pointer(&optionview->labels), g_free);
 		optionview->labels = lstring_copy(option->labels);
 
-		g_autofree const char * const *label_array =
+		g_autofree const char *const *label_array =
 			lstring_to_array(optionview->labels);
 		g_autoptr(GtkStringList) slist = gtk_string_list_new(label_array);
 
