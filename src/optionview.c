@@ -66,6 +66,24 @@ lstring_equal(GSList *a, GSList *b)
 	return TRUE;
 }
 
+/* slist -> null-terminated array
+ */
+static const char * const*
+lstring_to_array(GSList *a)
+{
+	int n = g_slist_length(a);
+
+	char **array = VIPS_ARRAY(NULL, n + 1, char *);
+	GSList *p;
+	int i;
+	for (p = a, i = 0; p; p = p->next, i++)
+		array[i] = (char *) p->data;
+	array[n] = NULL;
+
+	return (const char * const*) array;
+}
+
+
 static void
 optionview_dispose(GObject *object)
 {
@@ -76,8 +94,7 @@ optionview_dispose(GObject *object)
 
 	optionview = OPTIONVIEW(object);
 
-	/* My instance destroy stuff.
-	 */
+	VIPS_FREEF(gtk_widget_unparent, optionview->top);
 	g_slist_free_full(g_steal_pointer(&optionview->labels), g_free);
 
 	G_OBJECT_CLASS(optionview_parent_class)->dispose(object);
@@ -90,26 +107,22 @@ optionview_link(View *view, Model *model, View *parent)
 
 	VIEW_CLASS(optionview_parent_class)->link(view, model, parent);
 
-	if (GRAPHICVIEW(view)->sview) {
-		Subcolumnview *sview = GRAPHICVIEW(view)->sview;
-
-		gtk_size_group_add_widget(GTK_SIZE_GROUP(sview->group),
+	if (GRAPHICVIEW(view)->sview)
+		gtk_size_group_add_widget(GRAPHICVIEW(view)->sview->group,
 			optionview->label);
-	}
 }
 
-/* Change to a optionview widget ... update the model.
- */
 static void
-optionview_options_changed(GtkWidget *wid, Optionview *optionview)
+optionview_notify_selected(GObject *self, GParamSpec *pspec, void *user_data)
 {
+	Optionview *optionview = OPTIONVIEW(user_data);
 	Option *option = OPTION(VOBJECT(optionview)->iobject);
 	Classmodel *classmodel = CLASSMODEL(option);
-	const int nvalue =
-		gtk_combo_box_get_active(GTK_COMBO_BOX(optionview->options));
+	const int new_value =
+		gtk_drop_down_get_selected(GTK_DROP_DOWN(optionview->options));
 
-	if (option->value != nvalue) {
-		option->value = nvalue;
+	if (option->value != new_value) {
+		option->value = new_value;
 
 		classmodel_update(classmodel);
 		symbol_recalculate_all();
@@ -131,30 +144,25 @@ optionview_refresh(vObject *vobject)
 	/* Only rebuild the menu if there's been a change.
 	 */
 	if (!lstring_equal(optionview->labels, option->labels)) {
-		/* If the menu is currently up, we can get strange things
-		 * happening if we destroy it.
-		 */
-		if (optionview->options) {
-			gtk_combo_box_popdown(GTK_COMBO_BOX(optionview->options));
-			gtk_box_remove(GTK_BOX(optionview->box), optionview->options);
-		}
-
-		optionview->options = gtk_combo_box_text_new();
-		for (GSList *p = option->labels; p; p = p->next)
-			gtk_combo_box_text_append_text(
-				GTK_COMBO_BOX_TEXT(optionview->options),
-				(const char *) p->data);
-		gtk_box_prepend(GTK_BOX(optionview->box), optionview->options);
-
-		g_signal_connect(optionview->options, "changed",
-			G_CALLBACK(optionview_options_changed), optionview);
-
 		g_slist_free_full(g_steal_pointer(&optionview->labels), g_free);
 		optionview->labels = lstring_copy(option->labels);
+
+		g_autofree const char * const *label_array =
+			lstring_to_array(optionview->labels);
+		g_autoptr(GtkStringList) slist = gtk_string_list_new(label_array);
+
+		g_signal_handlers_block_by_func(optionview->options,
+			optionview_notify_selected, optionview);
+		gtk_drop_down_set_model(GTK_DROP_DOWN(optionview->options),
+			G_LIST_MODEL(slist));
+		g_signal_handlers_unblock_by_func(optionview->options,
+			optionview_notify_selected, optionview);
 	}
 
-	if (optionview->options)
-		gtk_combo_box_set_active(GTK_COMBO_BOX(optionview->options),
+	const int set_value =
+		gtk_drop_down_get_selected(GTK_DROP_DOWN(optionview->options));
+	if (set_value != option->value)
+		gtk_drop_down_set_selected(GTK_DROP_DOWN(optionview->options),
 			option->value);
 
 	set_glabel(optionview->label, _("%s:"), IOBJECT(option)->caption);
@@ -169,13 +177,17 @@ optionview_class_init(OptionviewClass *class)
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
 
+	BIND_RESOURCE("optionview.ui");
+
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
+		GTK_TYPE_BIN_LAYOUT);
+
+	BIND_VARIABLE(Optionview, top);
+	BIND_VARIABLE(Optionview, label);
+	BIND_VARIABLE(Optionview, options);
+
 	object_class->dispose = optionview_dispose;
 
-	/* Create signals.
-	 */
-
-	/* Init methods.
-	 */
 	vobject_class->refresh = optionview_refresh;
 
 	view_class->link = optionview_link;
@@ -184,14 +196,10 @@ optionview_class_init(OptionviewClass *class)
 static void
 optionview_init(Optionview *optionview)
 {
-	optionview->box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
-	gtk_box_prepend(GTK_BOX(optionview), optionview->box);
+	gtk_widget_init_template(GTK_WIDGET(optionview));
 
-	optionview->label = gtk_label_new("");
-	gtk_box_prepend(GTK_BOX(optionview->box), optionview->label);
-
-	optionview->options = NULL;
-	optionview->labels = NULL;
+	g_signal_connect(optionview->options, "notify::selected",
+		G_CALLBACK(optionview_notify_selected), optionview);
 }
 
 View *

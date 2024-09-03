@@ -10,10 +10,6 @@
 
 	nip4 test/workspaces/test_colour.ws
 
-  next ... need option menu to get the rest working!
-
-	combo_box is deprecated, switch to gtk_drop_down_new
-
 
 
 - syntax error in startup .def stops nip4 loading

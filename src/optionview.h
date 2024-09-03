@@ -42,7 +42,7 @@
 typedef struct _Optionview {
 	Graphicview parent_object;
 
-	GtkWidget *box;
+	GtkWidget *top;
 	GtkWidget *label;
 	GtkWidget *options;
 

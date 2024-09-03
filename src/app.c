@@ -265,7 +265,6 @@ app_startup(GApplication *app)
 	(void) g_type_class_ref(TYPE_GROUP);
 	(void) g_type_class_ref(TYPE_MATRIX);
 	(void) g_type_class_ref(TYPE_NUMBER);
-	(void) g_type_class_ref(TYPE_OPTION);
 	(void) g_type_class_ref(TYPE_PATHNAME);
 	(void) g_type_class_ref(TYPE_PLOT);
 	(void) g_type_class_ref(TYPE_REAL);
@@ -285,6 +284,7 @@ app_startup(GApplication *app)
 	(void) g_type_class_ref(RHS_TYPE);
 	(void) g_type_class_ref(ITEXT_TYPE);
 	(void) g_type_class_ref(IARROW_TYPE);
+	(void) g_type_class_ref(OPTION_TYPE);
 
 	/* Some custom CSS.
 	 */

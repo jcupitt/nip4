@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Optionview" parent="Graphicview">
+    <property name="hexpand">true</property>
+
+    <child>
+      <object class="GtkBox" id="top">
+        <property name="orientation">horizontal</property>
+        <property name="spacing">12</property>
+
+        <child>
+          <object class="GtkLabel" id="label">
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkDropDown" id="options">
+            <property name="hexpand">true</property>
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+  </template>
+</interface>
