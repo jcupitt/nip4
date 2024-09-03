@@ -65,6 +65,8 @@ sources = files (
   'matrix.c',
   'model.c',
   'pane.c',
+  'option.c',
+  'optionview.c',
   'path.c',
   'predicate.c',
   'prefcolumnview.c',

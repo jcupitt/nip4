@@ -39,12 +39,12 @@ static void
 graphicview_link(View *view, Model *model, View *parent)
 {
 	Graphicview *graphicview = GRAPHICVIEW(view);
-	View *v;
 
 	VIEW_CLASS(graphicview_parent_class)->link(view, model, parent);
 
 	/* Find the enclosing subcolumnview.
 	 */
+	View *v;
 	for (v = parent; v && !IS_SUBCOLUMNVIEW(v); v = v->parent)
 		;
 	if (v)
