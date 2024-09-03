@@ -97,11 +97,11 @@ typedef struct _Imageinfoproxy {
 struct _Imageinfo {
 	Managed parent_object;
 
-	VipsImage *image;				/* Image we manage */
-	Imageinfoproxy *proxy;			/* Proxy for VipsImage callbacks */
+	VipsImage *image;	   /* Image we manage */
+	Imageinfoproxy *proxy; /* Proxy for VipsImage callbacks */
 
-	gboolean from_file;				/* Set if ->name is a user file */
-	time_t mtime;					/* mtime when we loaded this file */
+	gboolean from_file; /* Set if ->name is a user file */
+	time_t mtime;		/* mtime when we loaded this file */
 
 	/* Exprs which are thought to have this image as their value. See
 	 * expr_value_new().
@@ -153,4 +153,3 @@ Imageinfo *imageinfo_new_from_pixbuf(Imageinfogroup *imageinfogroup,
 gboolean imageinfo_is_from_file(Imageinfo *imageinfo);
 Imageinfo *imageinfo_new_input(Imageinfogroup *imageinfogroup,
 	GtkWidget *parent, Heap *heap, const char *name);
-

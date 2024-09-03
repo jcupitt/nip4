@@ -179,7 +179,7 @@ subcolumnview_init(Subcolumnview *sview)
 {
 	gtk_widget_init_template(GTK_WIDGET(sview));
 
-    sview->group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+	sview->group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 }
 
 View *

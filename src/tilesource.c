@@ -1890,8 +1890,8 @@ tilesource_get_pixel(Tilesource *tilesource, int image_x, int image_y,
 	 * reasonably quick, even for things like svg and pdf.
 	 */
 	if (vips_getpoint(tilesource->display, vector, n, image_x, image_y,
-		"unpack_complex", TRUE,
-		NULL))
+			"unpack_complex", TRUE,
+			NULL))
 		return FALSE;
 
 	return TRUE;

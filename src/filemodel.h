@@ -130,4 +130,3 @@ void filemodel_save_before_close(Filemodel *filemodel,
 	FilemodelSaveasResult next, void *a, void *b);
 
 void filemodel_close_registered(SListMapFn callback, void *user_data);
-

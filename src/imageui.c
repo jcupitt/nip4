@@ -49,10 +49,10 @@
 /* Drag state machine.
  */
 typedef enum {
-	IMAGEUI_WAIT,			/* Waiting for left down */
-	IMAGEUI_SELECT,			/* Manipulating a selected region */
-	IMAGEUI_SCROLL,			/* Drag-scrolling the iamge */
-	IMAGEUI_CREATE,			/* Dragging out a new region */
+	IMAGEUI_WAIT,	/* Waiting for left down */
+	IMAGEUI_SELECT, /* Manipulating a selected region */
+	IMAGEUI_SCROLL, /* Drag-scrolling the iamge */
+	IMAGEUI_CREATE, /* Dragging out a new region */
 } ImageuiState;
 
 struct _Imageui {
@@ -149,17 +149,16 @@ enum {
 
 static guint imageui_signals[SIG_LAST] = { 0 };
 
-
 static void *
 imageui_add_region(Classmodel *classmodel, Imageui *imageui)
 {
-    iRegionInstance *instance;
+	iRegionInstance *instance;
 
-    if (MODEL(classmodel)->display &&
-        (instance = classmodel_get_instance(classmodel)))
+	if (MODEL(classmodel)->display &&
+		(instance = classmodel_get_instance(classmodel)))
 		imageui_add_regionview(imageui, regionview_new(classmodel));
 
-    return NULL;
+	return NULL;
 }
 
 static void

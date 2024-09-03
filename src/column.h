@@ -44,19 +44,19 @@ struct _Column {
 
 	/* Our context.
 	 */
-	Subcolumn *scol;			/* Subcolumn we enclose */
-	Workspace *ws;				/* Enclosing workspace */
+	Subcolumn *scol; /* Subcolumn we enclose */
+	Workspace *ws;	 /* Enclosing workspace */
 
 	/* Appearance state info.
 	 */
-	int x, y;					/* Position */
-	gboolean open;				/* Currently popped down */
+	int x, y;	   /* Position */
+	gboolean open; /* Currently popped down */
 	gboolean selected;
 
 	/* Other state.
 	 */
-	int next;					/* Index of next symbol we make */
-	Row *last_select;			/* Last row clicked ... for x sel */
+	int next;		  /* Index of next symbol we make */
+	Row *last_select; /* Last row clicked ... for x sel */
 
 	/* A pending scrollto.
 	 */

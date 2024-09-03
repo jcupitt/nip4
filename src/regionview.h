@@ -80,9 +80,9 @@ struct _Regionview {
 	/* The model we show.
 	 */
 	Classmodel *classmodel;
-	VipsRect *model_area;	/* What we read/write to talk to the model */
-	VipsRect our_area;		/* Same, but our copy ... origin top left */
-	VipsRect start_area;	/* Area at the start of resize */
+	VipsRect *model_area; /* What we read/write to talk to the model */
+	VipsRect our_area;	  /* Same, but our copy ... origin top left */
+	VipsRect start_area;  /* Area at the start of resize */
 
 	/* When the "redraw" signal comes in, we save a copy of the state so that
 	 * when the queued draw evetually occurs, it draws the model as it was

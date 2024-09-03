@@ -55,12 +55,12 @@ struct _Subcolumn {
 
 	/* Our context.
 	 */
-	Column *col;			/* Enclosing column (or NULL) */
-	Subcolumn *scol;		/* Enclosing subcolumn (or NULL) */
-	Subcolumn *root_scol;	/* Root scol for this object (or NULL) */
+	Column *col;		  /* Enclosing column (or NULL) */
+	Subcolumn *scol;	  /* Enclosing subcolumn (or NULL) */
+	Subcolumn *root_scol; /* Root scol for this object (or NULL) */
 
-	int vislevel;			/* Visibility level */
-	gboolean is_top;		/* TRUE if parent is a column */
+	int vislevel;	 /* Visibility level */
+	gboolean is_top; /* TRUE if parent is a column */
 
 	Element base;			/* "this" for our members */
 	gboolean known_private; /* TRUE after top-level clone .. can write! */

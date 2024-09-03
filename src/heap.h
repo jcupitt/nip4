@@ -330,10 +330,9 @@ typedef struct pelement {
 
 // try to get as an int
 #define PEGETINT(P) ( \
-		PEISBOOL(P) ? (int) PEGETBOOL(P) : \
-		PEISREAL(P) ? (int) PEGETREAL(P) : \
-		PEISCHAR(P) ? (int) PEGETCHAR(P) : \
-		-1)
+	PEISBOOL(P) ? (int) PEGETBOOL(P) : PEISREAL(P) ? (int) PEGETREAL(P) \
+		: PEISCHAR(P)							   ? (int) PEGETCHAR(P) \
+												   : -1)
 
 /* A block on the heap.
  */

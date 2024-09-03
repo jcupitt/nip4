@@ -37,7 +37,7 @@ jobs:
 	  if we see a change
 
 	- cache: several open("fred.v")s share a single Imageinfo,
- 	  provided their mtimes are all the same
+	  provided their mtimes are all the same
 
 	- imageinfo/expr association tracking, see expr_real_new_value()
 
@@ -86,8 +86,7 @@ imageinfogroup_child_add(iContainer *parent, iContainer *child, int pos)
 	g_hash_table_insert(imageinfogroup->filename_hash,
 		(gpointer) name, (gpointer) hits);
 
-	ICONTAINER_CLASS(imageinfogroup_parent_class)->
-		child_add(parent, child, pos);
+	ICONTAINER_CLASS(imageinfogroup_parent_class)->child_add(parent, child, pos);
 }
 
 static void
@@ -188,9 +187,9 @@ imageinfogroup_lookup(Imageinfogroup *imageinfogroup, const char *filename)
 /* Our signals.
  */
 enum {
-	SIG_AREA_CHANGED,		/* Area of image has changed: update screen */
-	SIG_INVALIDATE,			/* VipsImage* has been invalidated */
-	SIG_FILE_CHANGED,		/* Underlying file seems to have changed */
+	SIG_AREA_CHANGED, /* Area of image has changed: update screen */
+	SIG_INVALIDATE,	  /* VipsImage* has been invalidated */
+	SIG_FILE_CHANGED, /* Underlying file seems to have changed */
 	SIG_LAST
 };
 
@@ -779,4 +778,3 @@ imageinfo_new_input(Imageinfogroup *imageinfogroup, GtkWidget *parent,
 
 	return imageinfo;
 }
-

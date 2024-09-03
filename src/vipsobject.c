@@ -411,7 +411,7 @@ vo_call_execute(Vo *vo, PElement *optional)
 		error_top(_("VIPS library error"));
 		error_sub("%s", vips_error_buffer());
 		vips_error_clear();
-        return FALSE;
+		return FALSE;
 	}
 
 	/* We can't build the output object directly on out, since it might be
@@ -432,18 +432,18 @@ vo_call_execute(Vo *vo, PElement *optional)
 #endif /*DEBUG */
 	if (vips_argument_map(VIPS_OBJECT(vo->object),
 			(VipsArgumentMapFn) vo_get_required_output, vo, &pe))
-        return FALSE;
+		return FALSE;
 
-    /* And any optional outputs.
-     */
+		/* And any optional outputs.
+		 */
 #ifdef DEBUG
 	printf("fetching optional results ...\n");
 #endif /*DEBUG */
-    if (optional &&
+	if (optional &&
 		!vo_get_optional(vo, optional, &pe))
-        return FALSE;
+		return FALSE;
 
-    return TRUE;
+	return TRUE;
 }
 
 static gboolean
@@ -503,56 +503,56 @@ vo_call_fillva(Vo *vo, va_list ap)
 {
 	VipsOperation *operation = VIPS_OPERATION(vo->object);
 
-    /* Set required input arguments. Can't use vips_argument_map here
-     * :-( because passing va_list by reference is not portable.
-     */
-    VIPS_ARGUMENT_FOR_ALL(operation,
-        pspec, argument_class, argument_instance)
-    {
-        g_assert(argument_instance);
+	/* Set required input arguments. Can't use vips_argument_map here
+	 * :-( because passing va_list by reference is not portable.
+	 */
+	VIPS_ARGUMENT_FOR_ALL(operation,
+		pspec, argument_class, argument_instance)
+	{
+		g_assert(argument_instance);
 
-        /* Required, non-deprecated input args.
-         */
-        if ((argument_class->flags & VIPS_ARGUMENT_REQUIRED) &&
-            !(argument_class->flags & VIPS_ARGUMENT_DEPRECATED) &&
-            (argument_class->flags & VIPS_ARGUMENT_INPUT)) {
-            VIPS_ARGUMENT_COLLECT_SET(pspec, argument_class, ap);
+		/* Required, non-deprecated input args.
+		 */
+		if ((argument_class->flags & VIPS_ARGUMENT_REQUIRED) &&
+			!(argument_class->flags & VIPS_ARGUMENT_DEPRECATED) &&
+			(argument_class->flags & VIPS_ARGUMENT_INPUT)) {
+			VIPS_ARGUMENT_COLLECT_SET(pspec, argument_class, ap);
 
 #ifdef DEBUG
-            {
-                g_autofree char *str = g_strdup_value_contents(&value);
+			{
+				g_autofree char *str = g_strdup_value_contents(&value);
 
-                printf("\t%s = %s\n", g_param_spec_get_name(pspec), str);
-            }
+				printf("\t%s = %s\n", g_param_spec_get_name(pspec), str);
+			}
 #endif /*DEBUG */
 
-            g_object_set_property(G_OBJECT(operation),
-                g_param_spec_get_name(pspec), &value);
+			g_object_set_property(G_OBJECT(operation),
+				g_param_spec_get_name(pspec), &value);
 
-            VIPS_ARGUMENT_COLLECT_GET(pspec, argument_class, ap);
+			VIPS_ARGUMENT_COLLECT_GET(pspec, argument_class, ap);
 
 			// we'll never come here (we handle the output arg separately)
 
-            VIPS_ARGUMENT_COLLECT_END
-        }
-    }
-    VIPS_ARGUMENT_FOR_ALL_END
+			VIPS_ARGUMENT_COLLECT_END
+		}
+	}
+	VIPS_ARGUMENT_FOR_ALL_END
 
-    return TRUE;
+	return TRUE;
 }
 
 static gboolean
 vo_callva_sub(Reduce *rc, PElement *out, const char *name, va_list ap)
 {
 	Vo *vo;
-    gboolean result;
+	gboolean result;
 
-    if (!(vo = vo_new(rc, name)))
-        return FALSE;
+	if (!(vo = vo_new(rc, name)))
+		return FALSE;
 
-    if (trace_flags & TRACE_VIPS) {
-        trace_push();
-        vips_buf_appendf(trace_current(), "\"%s\" ", vo->name);
+	if (trace_flags & TRACE_VIPS) {
+		trace_push();
+		vips_buf_appendf(trace_current(), "\"%s\" ", vo->name);
 	}
 
 	result = TRUE;
@@ -564,15 +564,15 @@ vo_callva_sub(Reduce *rc, PElement *out, const char *name, va_list ap)
 	result = result && vo_call_execute(vo, NULL);
 	result = result && vo_write_result(vo, out);
 
-    if (trace_flags & TRACE_VIPS) {
-        trace_result(TRACE_VIPS, out);
-        trace_pop();
-    }
+	if (trace_flags & TRACE_VIPS) {
+		trace_result(TRACE_VIPS, out);
+		trace_pop();
+	}
 
 	vips_object_unref_outputs(vo->object);
 	vo_free(vo);
 
-    return result;
+	return result;
 }
 
 /* Call a vips8 function, picking up args from the function call.
@@ -580,21 +580,21 @@ vo_callva_sub(Reduce *rc, PElement *out, const char *name, va_list ap)
 void
 vo_callva(Reduce *rc, PElement *out, const char *name, ...)
 {
-    va_list ap;
-    gboolean result;
+	va_list ap;
+	gboolean result;
 
 #ifdef DEBUG
-    printf("** vo_callva: starting for %s\n", name);
+	printf("** vo_callva: starting for %s\n", name);
 #endif /*DEBUG*/
 
 	va_start(ap, name);
-    result = vo_callva_sub(rc, out, name, ap);
+	result = vo_callva_sub(rc, out, name, ap);
 	va_end(ap);
 
 #ifdef DEBUG
-    printf("vo_callva: done\n");
+	printf("vo_callva: done\n");
 #endif /*DEBUG*/
 
-    if (!result)
-        reduce_throw(rc);
+	if (!result)
+		reduce_throw(rc);
 }

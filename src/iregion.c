@@ -38,7 +38,7 @@ G_DEFINE_TYPE(iRegion, iregion, IIMAGE_TYPE)
 /* Our signals.
  */
 enum {
-	SIG_REDRAW,			/* Ask views to repaint */
+	SIG_REDRAW, /* Ask views to repaint */
 	SIG_LAST
 };
 

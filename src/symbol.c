@@ -1059,7 +1059,7 @@ symbol_recalculate_leaf_sub(Symbol *sym)
 		if (sym->expr)
 			printf("\t(error: %s %s)\n",
 				sym->expr->error_top, sym->expr->error_sub);
-			printf("\t(error: in %s)\n", symbol_name_scope(sym));
+		printf("\t(error: in %s)\n", symbol_name_scope(sym));
 #endif /*DEBUG_RECALC*/
 
 		return sym;

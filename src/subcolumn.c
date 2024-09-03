@@ -445,8 +445,7 @@ subcolumn_get_root_subcolumn(Subcolumn *scol)
 	else {
 		Subcolumn *enclosing = subcolumn_get_subcolumn(scol);
 
-		return enclosing->is_top ?
-			scol : subcolumn_get_root_subcolumn(enclosing);
+		return enclosing->is_top ? scol : subcolumn_get_root_subcolumn(enclosing);
 	}
 }
 
@@ -455,8 +454,7 @@ subcolumn_get_root_subcolumn(Subcolumn *scol)
 Column *
 subcolumn_get_column(Subcolumn *scol)
 {
-	Subcolumn *root = scol->is_top ?
-		scol : subcolumn_get_subcolumn(subcolumn_get_root_subcolumn(scol));
+	Subcolumn *root = scol->is_top ? scol : subcolumn_get_subcolumn(subcolumn_get_root_subcolumn(scol));
 
 	return COLUMN(ICONTAINER(root)->parent);
 }

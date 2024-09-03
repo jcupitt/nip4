@@ -72,11 +72,11 @@ struct _Workspaceview {
 
 	/* Object drag.
 	 */
-	Columnview *drag_cview;		/* Column we are dragging (if any) */
-	Rowview *drag_rview;		/* Row we are dragging (if any) */
-	int obj_x;					/* Object position at start of drag */
+	Columnview *drag_cview; /* Column we are dragging (if any) */
+	Rowview *drag_rview;	/* Row we are dragging (if any) */
+	int obj_x;				/* Object position at start of drag */
 	int obj_y;
-	int start_x;				/* Mouse at start of drag */
+	int start_x; /* Mouse at start of drag */
 	int start_y;
 
 	/* Row shadow during row drag.

@@ -255,8 +255,8 @@ workspacegroupview_switch_page(GtkNotebook *notebook,
 		icontainer_reparent(ICONTAINER(wsg), ICONTAINER(ws), -1);
 
 		// we want the from and to wsgs to be modified on tab drag
-        filemodel_set_modified(FILEMODEL(wsg), TRUE );
-		filemodel_set_modified(FILEMODEL(old_wsg), TRUE );
+		filemodel_set_modified(FILEMODEL(wsg), TRUE);
+		filemodel_set_modified(FILEMODEL(old_wsg), TRUE);
 
 		// we may have left an empty mainwindow
 		mainwindow_cull();

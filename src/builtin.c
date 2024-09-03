@@ -138,24 +138,24 @@ static BuiltinTypeSpot any_spot = { "any", isany };
 static int
 matrix_guess_display(const char *filename)
 {
-    /* Choose display type based on filename suffix ... rec
-     * displays as 1, mor displays as 2, .con displays as 3, all others
-     * display as 0. Keep in sync with MatrixDisplayType.
-     */
-    static const char *suffixes[] = {
+	/* Choose display type based on filename suffix ... rec
+	 * displays as 1, mor displays as 2, .con displays as 3, all others
+	 * display as 0. Keep in sync with MatrixDisplayType.
+	 */
+	static const char *suffixes[] = {
 		".mat",
 		".mor",
 		".con",
-    };
+	};
 
-    if (!filename)
-        return 0;
+	if (!filename)
+		return 0;
 
-    for (int i = 0; i < VIPS_NUMBER(suffixes); i++)
-        if (vips_iscasepostfix(filename, suffixes[i]))
-            return i + 1;
+	for (int i = 0; i < VIPS_NUMBER(suffixes); i++)
+		if (vips_iscasepostfix(filename, suffixes[i]))
+			return i + 1;
 
-    return 0;
+	return 0;
 }
 
 static gboolean
@@ -190,7 +190,7 @@ matrix_new(Heap *heap,
 
 	printf("\tsuccess\n");
 
-    return TRUE;
+	return TRUE;
 }
 
 /* Args for "vips_matrix".
@@ -235,24 +235,24 @@ apply_matrix2image_call(Reduce *rc,
 
 	PEPOINTRIGHT(arg[0], &rhs);
 	if (!reduce_is_instanceof(rc, CLASS_MATRIX, &rhs)) {
-        char txt[100];
-        VipsBuf buf = VIPS_BUF_STATIC(txt);
+		char txt[100];
+		VipsBuf buf = VIPS_BUF_STATIC(txt);
 
-        itext_value_ev(rc, &buf, &rhs);
-        error_top(_( "Bad argument" ) );
-        error_sub(_( "argument to \"%s\" should "
-            "be instance of \"%s\", you passed:\n  %s" ),
-            name, CLASS_MATRIX, vips_buf_all(&buf));
-        reduce_throw(rc);
-    }
+		itext_value_ev(rc, &buf, &rhs);
+		error_top(_("Bad argument"));
+		error_sub(_("argument to \"%s\" should "
+					"be instance of \"%s\", you passed:\n  %s"),
+			name, CLASS_MATRIX, vips_buf_all(&buf));
+		reduce_throw(rc);
+	}
 
 	VipsImage *matrix;
 	if (!(matrix = matrix2image(&rhs)))
-        reduce_throw(rc);
+		reduce_throw(rc);
 
 	Imageinfo *ii;
 	if (!(ii = imageinfo_new(main_imageinfogroup,
-		rc->heap, matrix, matrix->filename))) {
+			  rc->heap, matrix, matrix->filename))) {
 		VIPS_UNREF(matrix);
 		reduce_throw(rc);
 	}
@@ -683,10 +683,10 @@ static BuiltinTypeSpot *math_args[] = {
 /* A math function ... name, number implementation, image implementation.
  */
 typedef struct {
-	const char *name;			/* ip name */
-	double (*rfn)(double);		/* Number implementation */
-	const char *operation;		/* libvips operation name */
-	int type;					/* and operation enum */
+	const char *name;	   /* ip name */
+	double (*rfn)(double); /* Number implementation */
+	const char *operation; /* libvips operation name */
+	int type;			   /* and operation enum */
 } MathFn;
 
 static double
@@ -783,8 +783,8 @@ apply_math_call(Reduce *rc,
 	if (PEISIMAGE(&rhs))
 		/* Easy ... pass to VIPS.
 		 */
-		vo_callva(rc, out,  math_fn[i].operation,
-			PEGETIMAGE(&rhs),  math_fn[i].type);
+		vo_callva(rc, out, math_fn[i].operation,
+			PEGETIMAGE(&rhs), math_fn[i].type);
 	else if (PEISREAL(&rhs)) {
 		double a = PEGETREAL(&rhs);
 		double b = math_fn[i].rfn(a);

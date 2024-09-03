@@ -29,7 +29,7 @@ matrix2image(PElement *root)
 	VIPS_SETSTR(matrix->filename, buf);
 
 	if (!class_get_member_matrix(root, MEMBER_VALUE,
-		(double *) matrix->data, width * height, &width, &height)) {
+			(double *) matrix->data, width * height, &width, &height)) {
 		VIPS_UNREF(matrix);
 		return FALSE;
 	}
@@ -52,21 +52,21 @@ image2matrix(VipsImage *in, double **values, int *width, int *height)
 	printf("image2matrix: in = %p\n", in);
 
 	if (in->Bands == 1) {
-        *width = in->Xsize;
-        *height = in->Ysize;
-    }
-    else if (in->Xsize == 1) {
-        *width = in->Bands;
-        *height = in->Ysize;
-    }
-    else if (in->Ysize == 1) {
-        *width = in->Xsize;
-        *height = in->Bands;
-    }
+		*width = in->Xsize;
+		*height = in->Ysize;
+	}
+	else if (in->Xsize == 1) {
+		*width = in->Bands;
+		*height = in->Ysize;
+	}
+	else if (in->Ysize == 1) {
+		*width = in->Xsize;
+		*height = in->Bands;
+	}
 	else {
 		error_top(_("Out of range"));
-        error_sub(_("one band, nx1, or 1xn images only"));
-        return -1;
+		error_sub(_("one band, nx1, or 1xn images only"));
+		return -1;
 	}
 
 	// big enough for a 16-bit LUT
@@ -74,8 +74,8 @@ image2matrix(VipsImage *in, double **values, int *width, int *height)
 		*height > 65536 ||
 		*width * *height > 65536) {
 		error_top(_("Out of range"));
-        error_sub(_("image too large"));
-        return -1;
+		error_sub(_("image too large"));
+		return -1;
 	}
 
 	VipsImage *t;
@@ -94,4 +94,3 @@ image2matrix(VipsImage *in, double **values, int *width, int *height)
 
 	return 0;
 }
-

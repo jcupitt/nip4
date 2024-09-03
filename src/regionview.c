@@ -477,7 +477,6 @@ regionview_draw_arrow(Regionview *regionview, GtkSnapshot *snapshot)
 	gsk_stroke_set_dash_offset(stroke, 10);
 	gtk_snapshot_append_stroke(snapshot, path, stroke, &regionview_shadow);
 	gsk_stroke_free(stroke);
-
 }
 
 // called from imageui for "snapshot" on imagedisplay

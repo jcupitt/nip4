@@ -242,7 +242,7 @@ action_proc_eor(Reduce *rc, Compile *compile,
 	}
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
 		vo_callva(rc, out, "boolean",
-				PEGETIMAGE(a), PEGETIMAGE(b), VIPS_OPERATION_BOOLEAN_EOR);
+			PEGETIMAGE(a), PEGETIMAGE(b), VIPS_OPERATION_BOOLEAN_EOR);
 	else if (PEISIMAGE(a) && PEISINT(b)) {
 		g_autoptr(VipsArrayDouble) c = vips_array_double_newv(1, PEGETINT(b));
 
@@ -1602,8 +1602,7 @@ action_proc_uop(Reduce *rc, Compile *compile,
 		}
 		else if (PEISIMAGE(a))
 			vo_callva(rc, out, "cast", PEGETIMAGE(a),
-				op == UN_CCOMPLEX ?
-					VIPS_FORMAT_COMPLEX : VIPS_FORMAT_DPCOMPLEX);
+				op == UN_CCOMPLEX ? VIPS_FORMAT_COMPLEX : VIPS_FORMAT_DPCOMPLEX);
 		else
 			action_uoperror(rc, compile, NULL, op, name, a);
 
@@ -1645,8 +1644,8 @@ action_proc_construct(Reduce *rc,
 	}
 
 	if (reduce_safe_pointer(rc,
-		(reduce_safe_pointer_fn) action_proc_construct_sub,
-		compile, arg, out, NULL))
+			(reduce_safe_pointer_fn) action_proc_construct_sub,
+			compile, arg, out, NULL))
 		reduce_throw(rc);
 
 	/* Is it a class with a typecheck member? Return that instead.

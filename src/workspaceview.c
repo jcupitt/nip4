@@ -108,9 +108,7 @@ workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
 
 	gint64 frame_time = gdk_frame_clock_get_frame_time(frame_clock);
-	double dt = wview->last_frame_time > 0 ?
-		(double) (frame_time - wview->last_frame_time) / G_TIME_SPAN_SECOND :
-		1.0 / G_TIME_SPAN_SECOND;
+	double dt = wview->last_frame_time > 0 ? (double) (frame_time - wview->last_frame_time) / G_TIME_SPAN_SECOND : 1.0 / G_TIME_SPAN_SECOND;
 
 #ifdef DEBUG_VERBOSE
 	printf("workspaceview_tick: dt = %g\n", dt);
@@ -133,8 +131,7 @@ workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 		cview->elapsed += dt;
 
 		// 0-1 progress in animation
-		double duration = wview->should_animate ?
-			workspaceview_animation_duration : cview->elapsed;
+		double duration = wview->should_animate ? workspaceview_animation_duration : cview->elapsed;
 		double t = VIPS_CLIP(0, ease_out_cubic(cview->elapsed / duration), 1);
 
 		if (cview->shadow ||
@@ -165,10 +162,8 @@ workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 		wview->row_shadow_elapsed += dt;
 
 		// 0-1 progress in animation
-		double duration = wview->should_animate ?
-			workspaceview_animation_duration : wview->row_shadow_elapsed;
-		double t = VIPS_CLIP(0, ease_out_cubic(wview->row_shadow_elapsed /
-			duration), 1);
+		double duration = wview->should_animate ? workspaceview_animation_duration : wview->row_shadow_elapsed;
+		double t = VIPS_CLIP(0, ease_out_cubic(wview->row_shadow_elapsed / duration), 1);
 
 		workspaceview_set_row_shadow_height(wview,
 			VIPS_RINT(t * wview->max_row_shadow_height));

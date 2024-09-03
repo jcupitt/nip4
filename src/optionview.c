@@ -3,27 +3,27 @@
 
 /*
 
-    Copyright (C) 1991-2003 The National Gallery
+	Copyright (C) 1991-2003 The National Gallery
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+	You should have received a copy of the GNU General Public License along
+	with this program; if not, write to the Free Software Foundation, Inc.,
+	51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
  */
 
 /*
 
-    These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
+	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
 
  */
 
@@ -43,7 +43,7 @@ lstring_copy(GSList *lstring)
 	GSList *new;
 
 	new = NULL;
-	for(GSList *p = lstring; p; p = p->next)
+	for (GSList *p = lstring; p; p = p->next)
 		new = g_slist_prepend(new, g_strdup((const char *) p->data));
 
 	new = g_slist_reverse(new);
@@ -56,7 +56,7 @@ lstring_copy(GSList *lstring)
 static gboolean
 lstring_equal(GSList *a, GSList *b)
 {
-	for(; a && b; a = a->next, b = b->next)
+	for (; a && b; a = a->next, b = b->next)
 		if (!g_str_equal((const char *) a->data, (const char *) b->data))
 			return FALSE;
 
@@ -140,7 +140,7 @@ optionview_refresh(vObject *vobject)
 		}
 
 		optionview->options = gtk_combo_box_text_new();
-		for(GSList *p = option->labels; p; p = p->next)
+		for (GSList *p = option->labels; p; p = p->next)
 			gtk_combo_box_text_append_text(
 				GTK_COMBO_BOX_TEXT(optionview->options),
 				(const char *) p->data);

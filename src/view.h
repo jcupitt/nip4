@@ -38,9 +38,9 @@
  * model changes.
  */
 typedef struct _ViewChild {
-	View *view;						/* Us */
-	Model *child_model;				/* The child model we are watching */
-	View *child_view;				/* NULL, or the child view */
+	View *view;			/* Us */
+	Model *child_model; /* The child model we are watching */
+	View *child_view;	/* NULL, or the child view */
 
 	guint child_model_changed_sid; /* Listen to changed with this */
 } ViewChild;

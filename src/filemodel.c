@@ -637,18 +637,18 @@ filemodel_set_auto_load(Filemodel *filemodel)
 void
 filemodel_set_window_hint(Filemodel *filemodel, GtkWindow *window)
 {
-    /* This can be called repeatedly if objects are moved between windows.
-     */
-    filemodel->window_hint = window;
+	/* This can be called repeatedly if objects are moved between windows.
+	 */
+	filemodel->window_hint = window;
 }
 
 GtkWindow *
 filemodel_get_window_hint(Filemodel *filemodel)
 {
-    if (filemodel->window_hint)
-        return filemodel->window_hint;
-    else
-        return GTK_WINDOW(mainwindow_pick_one());
+	if (filemodel->window_hint)
+		return filemodel->window_hint;
+	else
+		return GTK_WINDOW(mainwindow_pick_one());
 }
 
 static void
@@ -670,14 +670,14 @@ filemodel_saveas_sub(GObject *source_object,
 	if (file) {
 		g_autofree char *filename = g_file_get_path(file);
 
-        if (!filemodel_top_save(filemodel, filename))
+		if (!filemodel_top_save(filemodel, filename))
 			error(parent, filemodel, a, b);
 		else {
-            filemodel_set_filename(filemodel, filename);
-            filemodel_set_modified(filemodel, FALSE);
+			filemodel_set_filename(filemodel, filename);
+			filemodel_set_modified(filemodel, FALSE);
 			next(parent, filemodel, a, b);
-        }
-    }
+		}
+	}
 }
 
 static void
@@ -728,7 +728,7 @@ filemodel_save_before_close_cb(GObject *source_object,
 	case 0:
 		// close without saving ... tag as unmodified, and move on
 		// "next" is reponsible for doing the gtk_window_close()
-        filemodel_set_modified(filemodel, FALSE);
+		filemodel_set_modified(filemodel, FALSE);
 		next(parent, filemodel, a, b);
 		break;
 
@@ -766,11 +766,13 @@ filemodel_save_before_close(Filemodel *filemodel,
 	g_autofree char *detail = NULL;
 	if (filemodel->filename)
 		detail = g_strdup_printf("%s has been modified "
-			"since it was loaded from \"%s\".\n\n"
-			"Do you want to save your changes?", tname, filemodel->filename);
+								 "since it was loaded from \"%s\".\n\n"
+								 "Do you want to save your changes?",
+			tname, filemodel->filename);
 	else
 		detail = g_strdup_printf("%s has been modified. "
-			"Do you want to save your chages?", tname);
+								 "Do you want to save your chages?",
+			tname);
 
 	const char *labels[] = { "Close without saving", "Cancel", "Save", NULL };
 
@@ -793,14 +795,14 @@ filemodel_save_before_close(Filemodel *filemodel,
 static Filemodel *
 filemodel_get_registered(void)
 {
-    for (GSList *p = filemodel_registered; p; p = p->next) {
-        Filemodel *filemodel = FILEMODEL(p->data);
+	for (GSList *p = filemodel_registered; p; p = p->next) {
+		Filemodel *filemodel = FILEMODEL(p->data);
 
-        if (filemodel->modified)
-            return filemodel;
-    }
+		if (filemodel->modified)
+			return filemodel;
+	}
 
-    return NULL;
+	return NULL;
 }
 
 static gboolean
@@ -833,7 +835,7 @@ filemodel_close_registered_next(GtkWindow *parent,
 {
 	SListMapFn callback = (SListMapFn) a;
 
-    if ((filemodel = filemodel_get_registered()))
+	if ((filemodel = filemodel_get_registered()))
 		filemodel_save_before_close(filemodel,
 			filemodel_close_registered_next_reply, callback, b);
 	else
@@ -845,4 +847,3 @@ filemodel_close_registered(SListMapFn callback, void *user_data)
 {
 	filemodel_close_registered_next(NULL, NULL, callback, user_data);
 }
-

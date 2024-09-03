@@ -123,8 +123,8 @@ iregiongroupview_refresh_imageview(Imageui *imageui,
 		 */
 		irs->notused = g_slist_remove(irs->notused, regionview);
 	else {
-        /* Nope ... make a new one.
-         */
+		/* Nope ... make a new one.
+		 */
 		Regionview *regionview = regionview_new(irs->classmodel);
 
 		imageui_add_regionview(imageui, regionview);

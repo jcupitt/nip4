@@ -39,58 +39,58 @@
 
 G_DEFINE_TYPE(Log, log, GTK_TYPE_WINDOW);
 
-	/*
+/*
 static void
 log_build(GtkWidget *widget)
 {
-	Log *log = LOG(widget);
-	LogClass *log_class = LOG_GET_CLASS(log);
+Log *log = LOG(widget);
+LogClass *log_class = LOG_GET_CLASS(log);
 
-	GError *error;
-	GtkWidget *mbar;
+GError *error;
+GtkWidget *mbar;
 
-	GtkWidget *swin;
-	PangoFontDescription *font_desc;
+GtkWidget *swin;
+PangoFontDescription *font_desc;
 
-	IWINDOW_CLASS(log_parent_class)->build(widget);
+IWINDOW_CLASS(log_parent_class)->build(widget);
 
-	gtk_action_group_add_actions(iwnd->action_group,
-		log_class->actions, log_class->n_actions,
-		GTK_WINDOW(log));
-	gtk_action_group_add_toggle_actions(iwnd->action_group,
-		log_class->toggle_actions, log_class->n_toggle_actions,
-		GTK_WINDOW(log));
+gtk_action_group_add_actions(iwnd->action_group,
+	log_class->actions, log_class->n_actions,
+	GTK_WINDOW(log));
+gtk_action_group_add_toggle_actions(iwnd->action_group,
+	log_class->toggle_actions, log_class->n_toggle_actions,
+	GTK_WINDOW(log));
 
-	if (!gtk_ui_manager_add_ui_from_string(iwnd->ui_manager,
-			log_class->ui_description, -1, &error)) {
-		g_message("building menus failed: %s", error->message);
-		g_error_free(error);
-		exit(EXIT_FAILURE);
-	}
-
-	mbar = gtk_ui_manager_get_widget(iwnd->ui_manager,
-		log_class->menu_bar_name);
-	gtk_box_pack_start(GTK_BOX(iwnd->work), mbar, FALSE, FALSE, 0);
-	gtk_widget_show(mbar);
-
-	swin = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(swin),
-		GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_box_pack_start(GTK_BOX(iwnd->work), swin, TRUE, TRUE, 0);
-	gtk_widget_show(swin);
-
-	log->view = gtk_text_view_new();
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(log->view), FALSE);
-	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(log->view),
-		FALSE);
-	font_desc = pango_font_description_from_string("Monospace");
-	gtk_widget_modify_font(log->view, font_desc);
-	pango_font_description_free(font_desc);
-
-	gtk_container_add(GTK_CONTAINER(swin), log->view);
-	gtk_widget_show(log->view);
+if (!gtk_ui_manager_add_ui_from_string(iwnd->ui_manager,
+		log_class->ui_description, -1, &error)) {
+	g_message("building menus failed: %s", error->message);
+	g_error_free(error);
+	exit(EXIT_FAILURE);
 }
-	 */
+
+mbar = gtk_ui_manager_get_widget(iwnd->ui_manager,
+	log_class->menu_bar_name);
+gtk_box_pack_start(GTK_BOX(iwnd->work), mbar, FALSE, FALSE, 0);
+gtk_widget_show(mbar);
+
+swin = gtk_scrolled_window_new(NULL, NULL);
+gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(swin),
+	GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+gtk_box_pack_start(GTK_BOX(iwnd->work), swin, TRUE, TRUE, 0);
+gtk_widget_show(swin);
+
+log->view = gtk_text_view_new();
+gtk_text_view_set_editable(GTK_TEXT_VIEW(log->view), FALSE);
+gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(log->view),
+	FALSE);
+font_desc = pango_font_description_from_string("Monospace");
+gtk_widget_modify_font(log->view, font_desc);
+pango_font_description_free(font_desc);
+
+gtk_container_add(GTK_CONTAINER(swin), log->view);
+gtk_widget_show(log->view);
+}
+ */
 
 static void
 log_class_init(LogClass *class)

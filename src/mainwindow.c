@@ -871,8 +871,7 @@ mainwindow_new(App *app, Workspacegroup *wsg)
 		"application", app,
 		NULL);
 
-	mainwindow_set_wsg(main, wsg ?
-		wsg : workspacegroup_new_blank(main_workspaceroot, NULL));
+	mainwindow_set_wsg(main, wsg ? wsg : workspacegroup_new_blank(main_workspaceroot, NULL));
 
 	// we can't do this in _init() since we need app to be set
 	mainwindow_init_settings(main);
