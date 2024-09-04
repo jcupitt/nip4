@@ -153,7 +153,6 @@ static RhsGraphic rhs_graphic[] = {
 	{ CLASS_EXPRESSION, expression_get_type },
 	{ CLASS_GROUP, group_get_type },
 	{ CLASS_LIST, group_get_type },
-	{ CLASS_PATHNAME, pathname_get_type },
 	{ CLASS_FONTNAME, fontname_get_type },
 	{ CLASS_COLOUR, colour_get_type },
 	{ CLASS_MATRIX, matrix_get_type },
@@ -164,6 +163,7 @@ static RhsGraphic rhs_graphic[] = {
 	{ CLASS_STRING, string_get_type }
 	 */
 
+	{ CLASS_PATHNAME, pathname_get_type },
 	{ CLASS_TOGGLE, toggle_get_type },
 	{ CLASS_SLIDER, slider_get_type },
 	{ CLASS_OPTION, option_get_type },

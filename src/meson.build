@@ -67,6 +67,8 @@ sources = files (
   'pane.c',
   'option.c',
   'optionview.c',
+  'pathname.c',
+  'pathnameview.c',
   'slider.c',
   'sliderview.c',
   'toggle.c',

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Pathnameview" parent="Graphicview">
+    <property name="hexpand">true</property>
+
+    <child>
+      <object class="GtkBox" id="top">
+        <property name="orientation">horizontal</property>
+        <property name="spacing">12</property>
+
+        <child>
+          <object class="GtkLabel" id="label">
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkButton" id="button">
+            <property name="hexpand">true</property>
+            <property name="label">no-file</property>
+	    <signal name="clicked" handler="pathnameview_clicked"/>
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+  </template>
+</interface>

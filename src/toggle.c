@@ -71,4 +71,3 @@ toggle_init(Toggle *toggle)
 {
 	iobject_set(IOBJECT(toggle), CLASS_TOGGLE, NULL);
 }
-

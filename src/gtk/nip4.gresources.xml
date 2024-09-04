@@ -26,6 +26,7 @@
     <file preprocess="xml-stripblanks">optionview.ui</file>
     <file preprocess="xml-stripblanks">sliderview.ui</file>
     <file preprocess="xml-stripblanks">toggleview.ui</file>
+    <file preprocess="xml-stripblanks">pathnameview.ui</file>
 
     <file>nip4.css</file>
     <file>properties.css</file>

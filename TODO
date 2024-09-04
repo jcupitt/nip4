@@ -6,11 +6,13 @@
 
   and editing a row doesn't always "take"
 
+- widget labels need to align left
+
 - continue adding vips7 compat defs, test with eg.
 
 	nip4 test/workspaces/test_colour.ws
 
-  need at least matrix, pathname widgets
+  need matrix widget
 
 	checklist:
 		- widget init in app.c
