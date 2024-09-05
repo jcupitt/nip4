@@ -281,26 +281,7 @@ workspace_selected_names_sub(Row *row, NamesInfo *names)
 {
 	if (!names->first)
 		vips_buf_appends(names->buf, names->separator);
-
-	/* Hack: if this is a matrix with selected cells, use an extract to
-	 * get those cells out. We should really have a row method for this I
-	 * guess :-(
-	 */
-	if (row->child_rhs && row->child_rhs->graphic &&
-		IS_MATRIX(row->child_rhs->graphic) &&
-		MATRIX(row->child_rhs->graphic)->selected) {
-		Matrix *matrix = MATRIX(row->child_rhs->graphic);
-
-		vips_buf_appends(names->buf, "(");
-		row_qualified_name(row, names->buf);
-		vips_buf_appendf(names->buf, ".extract %d %d %d %d)",
-			matrix->range.left,
-			matrix->range.top,
-			matrix->range.width,
-			matrix->range.height);
-	}
-	else
-		row_qualified_name(row, names->buf);
+	row_qualified_name(row, names->buf);
 
 	names->first = FALSE;
 

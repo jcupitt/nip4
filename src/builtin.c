@@ -133,31 +133,6 @@ static BuiltinTypeSpot math_spot = { "image|real|complex", ismatharg };
 static BuiltinTypeSpot instance_spot = { "class", pe_is_class };
 static BuiltinTypeSpot any_spot = { "any", isany };
 
-// FIXME ... move to matrix.c when we add that
-
-static int
-matrix_guess_display(const char *filename)
-{
-	/* Choose display type based on filename suffix ... rec
-	 * displays as 1, mor displays as 2, .con displays as 3, all others
-	 * display as 0. Keep in sync with MatrixDisplayType.
-	 */
-	static const char *suffixes[] = {
-		".mat",
-		".mor",
-		".con",
-	};
-
-	if (!filename)
-		return 0;
-
-	for (int i = 0; i < VIPS_NUMBER(suffixes); i++)
-		if (vips_iscasepostfix(filename, suffixes[i]))
-			return i + 1;
-
-	return 0;
-}
-
 static gboolean
 matrix_new(Heap *heap,
 	VipsImage *image, double *values, int width, int height, PElement *out)

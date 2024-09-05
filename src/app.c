@@ -263,7 +263,6 @@ app_startup(GApplication *app)
 	(void) g_type_class_ref(TYPE_EXPRESSION);
 	(void) g_type_class_ref(TYPE_FONTNAME);
 	(void) g_type_class_ref(TYPE_GROUP);
-	(void) g_type_class_ref(TYPE_MATRIX);
 	(void) g_type_class_ref(TYPE_NUMBER);
 	(void) g_type_class_ref(TYPE_PLOT);
 	(void) g_type_class_ref(TYPE_REAL);
@@ -285,6 +284,7 @@ app_startup(GApplication *app)
 	(void) g_type_class_ref(SLIDER_TYPE);
 	(void) g_type_class_ref(TOGGLE_TYPE);
 	(void) g_type_class_ref(PATHNAME_TYPE);
+	(void) g_type_class_ref(MATRIX_TYPE);
 
 	/* Some custom CSS.
 	 */

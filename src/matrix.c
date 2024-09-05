@@ -1,11 +1,191 @@
-// shim
+/* an input matrix
+ */
+
+/*
+
+	Copyright (C) 1991-2003 The National Gallery
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License along
+	with this program; if not, write to the Free Software Foundation, Inc.,
+	51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+ */
+
+/*
+
+	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
+
+ */
+
+/*
+#define DEBUG
+ */
 
 #include "nip4.h"
 
+G_DEFINE_TYPE(Matrix, matrix, CLASSMODEL_TYPE)
+
+static void
+matrix_finalize(GObject *gobject)
+{
+	Matrix *matrix;
+
+	g_return_if_fail(gobject != NULL);
+	g_return_if_fail(IS_MATRIX(gobject));
+
+	matrix = MATRIX(gobject);
+
+#ifdef DEBUG
+	printf("matrix_finalize\n");
+#endif /*DEBUG*/
+
+	/* My instance finalize stuff.
+	 */
+	VIPS_FREE(matrix->value.coeff);
+
+	G_OBJECT_CLASS(matrix_parent_class)->finalize(gobject);
+}
+
+/* Rearrange our model for a new width/height.
+ */
 gboolean
 matrix_value_resize(MatrixValue *value, int width, int height)
 {
+	double *coeff;
+	int x, y, i;
+
+	if (width == value->width && height == value->height)
+		return TRUE;
+
+	if (!(coeff = IARRAY(NULL, width * height, double)))
+		return FALSE;
+
+	/* Set what we can with values from the old matrix.
+	 */
+	for (i = 0, y = 0; y < height; y++)
+		for (x = 0; x < width; x++, i++)
+			if (y < value->height && x < value->width)
+				coeff[i] = value->coeff[x + y * value->width];
+			else
+				coeff[i] = 0.0;
+
+	/* Install new values.
+	 */
+	VIPS_FREE(value->coeff);
+	value->coeff = coeff;
+	value->width = width;
+	value->height = height;
+
 	return TRUE;
+}
+
+static View *
+matrix_view_new(Model *model, View *parent)
+{
+	return NULL; // matrixview_new();
+}
+
+/* Members of matrix we automate.
+ */
+static ClassmodelMember matrix_members[] = {
+	{ CLASSMODEL_MEMBER_MATRIX, NULL, 0,
+		MEMBER_VALUE, NULL, N_("Value"),
+		G_STRUCT_OFFSET(Matrix, value) },
+	{ CLASSMODEL_MEMBER_DOUBLE, NULL, 0,
+		MEMBER_SCALE, "scale", N_("Scale"),
+		G_STRUCT_OFFSET(Matrix, scale) },
+	{ CLASSMODEL_MEMBER_DOUBLE, NULL, 0,
+		MEMBER_OFFSET, "offset", N_("Offset"),
+		G_STRUCT_OFFSET(Matrix, offset) },
+	{ CLASSMODEL_MEMBER_STRING, NULL, 0,
+		MEMBER_FILENAME, "filename", N_("Filename"),
+		G_STRUCT_OFFSET(Classmodel, filename) },
+	{ CLASSMODEL_MEMBER_ENUM, NULL, MATRIX_DISPLAY_LAST - 1,
+		MEMBER_DISPLAY, "display", N_("Display"),
+		G_STRUCT_OFFSET(Matrix, display) }
+};
+
+static void
+matrix_class_init(MatrixClass *class)
+{
+	GObjectClass *gobject_class = (GObjectClass *) class;
+	iObjectClass *iobject_class = (iObjectClass *) class;
+	ModelClass *model_class = (ModelClass *) class;
+	ClassmodelClass *classmodel_class = (ClassmodelClass *) class;
+
+	/* Create signals.
+	 */
+
+	/* Init methods.
+	 */
+	gobject_class->finalize = matrix_finalize;
+
+	iobject_class->user_name = _("Matrix");
+
+	model_class->view_new = matrix_view_new;
+
+	/* FIXME ... need this?
+	classmodel_class->graphic_save = matrix_graphic_save;
+	classmodel_class->graphic_replace = matrix_graphic_replace;
+
+	classmodel_class->filetype = filesel_type_matrix;
+	classmodel_class->filetype_pref = "MATRIX_FILE_TYPE";
+	 */
+
+	classmodel_class->members = matrix_members;
+	classmodel_class->n_members = VIPS_NUMBER(matrix_members);
+
+	model_register_loadable(MODEL_CLASS(class));
+}
+
+static void
+matrix_init(Matrix *matrix)
+{
+#ifdef DEBUG
+	printf("matrix_init\n");
+#endif /*DEBUG*/
+
+	matrix->value.coeff = NULL;
+	matrix->value.width = 0;
+	matrix->value.height = 0;
+	matrix->display = MATRIX_DISPLAY_TEXT;
+	matrix->scale = 1.0;
+	matrix->offset = 0.0;
+
+	iobject_set(IOBJECT(matrix), CLASS_MATRIX, NULL);
+}
+
+int
+matrix_guess_display(const char *filename)
+{
+	/* Choose display type based on filename suffix ... rec
+	 * displays as 1, mor displays as 2, .con displays as 3, all others
+	 * display as 0. Keep in sync with MatrixDisplayType.
+	 */
+	static const char *suffixes[] = {
+		".mat",
+		".mor",
+		".con",
+	};
+
+	if (!filename)
+		return 0;
+
+	for (int i = 0; i < VIPS_NUMBER(suffixes); i++)
+		if (vips_iscasepostfix(filename, suffixes[i]))
+			return i + 1;
+
+	return 0;
 }
 
 /* Make an image from a nip class instance.
