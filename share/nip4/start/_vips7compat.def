@@ -36,6 +36,7 @@ im_copy_set im t xr yr xo yo = vips_call "copy" [im] [
 
 im_recomb x y = vips_call "recomb" [x, y] [];
 im_embed im t x y w h = vips_call "embed" [im, x, y, w, h] [$extend => t];
+im_insert main sub x y = vips_call "insert" [main, sub, x, y] [$expand => true];
 
 im_avg x = vips_call "avg" [x] [];
 im_min x = vips_call "min" [x] [];
@@ -79,7 +80,7 @@ im_icc_import x profile intent = vips_call "icc_import" [x] [
 	$intent => intent,
 	$input_profile => profile
 ];
-im_icc_export_depth x depth profile intent = vips_call "icc_import" [x] [
+im_icc_export_depth x depth profile intent = vips_call "icc_export" [x] [
 	$depth => depth,
 	$intent => intent,
 	$output_profile => profile
@@ -93,6 +94,12 @@ im_icc_transform x input_profile output_profile intent
 im_histnD x bins = vips_call "hist_find_ndim" [x] [
 	$bins => bins
 ];
+
+im_insertset main sub out x y =
+	foldr add_another main (zip2 x y)
+{
+	add_another [x, y] im = insert x y sub im;
+}
 
 // add a lot more!
 
