@@ -275,6 +275,7 @@ typedef struct _Workspace Workspace;
 #include "valueview.h"
 #include "iimageview.h"
 #include "columnview.h"
+#include "matrixview.h"
 #include "prefcolumnview.h"
 #include "prefworkspaceview.h"
 #include "workspacegroupview.h"

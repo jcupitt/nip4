@@ -63,6 +63,7 @@ sources = files (
   'managedgobject.c',
   'managedstring.c',
   'matrix.c',
+  'matrixview.c',
   'model.c',
   'pane.c',
   'option.c',

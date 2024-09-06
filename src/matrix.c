@@ -92,7 +92,7 @@ matrix_value_resize(MatrixValue *value, int width, int height)
 static View *
 matrix_view_new(Model *model, View *parent)
 {
-	return NULL; // matrixview_new();
+	return matrixview_new();
 }
 
 /* Members of matrix we automate.
@@ -123,11 +123,6 @@ matrix_class_init(MatrixClass *class)
 	ModelClass *model_class = (ModelClass *) class;
 	ClassmodelClass *classmodel_class = (ClassmodelClass *) class;
 
-	/* Create signals.
-	 */
-
-	/* Init methods.
-	 */
 	gobject_class->finalize = matrix_finalize;
 
 	iobject_class->user_name = _("Matrix");

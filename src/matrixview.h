@@ -42,25 +42,19 @@
 typedef struct _Matrixview {
 	Graphicview parent_object;
 
-	GtkWidget *box; /* Top level hbox we lay out in */
-
-	/* If we're displaying a matrix with a gtktreeview.
-	 */
-	GtkListStore *store;
-	GtkWidget *sheet;
+	// widgets
+	GtkWidget *top;
 	GtkWidget *swin;
-
-	/* Displaying a table of widgets: sliders or toggles.
-	 */
-	GtkWidget *table;		   /* Matrix table */
-	GSList *items;			   /* Widgets for elems */
-	MatrixDisplayType display; /* What's in items at the mo */
-	int width;				   /* Size of mat panel we have */
-	int height;
-
-	GtkWidget *cbox; /* Convolution only: scale & offset */
+	GtkWidget *grid;
+	GtkWidget *scaleoffset;
 	GtkWidget *scale;
 	GtkWidget *offset;
+
+	// currently displaying
+	MatrixDisplayType display;
+	GSList *items;
+	int width;
+	int height;
 } Matrixview;
 
 typedef struct _MatrixviewClass {

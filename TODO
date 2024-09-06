@@ -1,3 +1,9 @@
+- add a scrolledwindow, disable scrolling for less than maybe 5 x 10
+
+- improve the look of the toggle mode, add colours? perhaps a greyish bg for
+  "1"
+
+
 - update a formula, all views reset
 
 	lose zoom, pan, scale, offset, etc.
@@ -11,13 +17,6 @@
 - continue adding vips7 compat defs, test with eg.
 
 	nip4 test/workspaces/test_colour.ws
-
-  need matrix widget
-
-	checklist:
-		- widget init in app.c
-		- add to rhs_graphic[]
-
 
 
 - syntax error in startup .def stops nip4 loading
