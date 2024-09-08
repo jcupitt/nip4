@@ -60,7 +60,7 @@ matrixview_toggle_clicked(GtkWidget *widget, Matrixview *matrixview)
 	int pos = g_slist_index(matrixview->items, widget);
 
 	if (pos >= 0 && pos < width * height) {
-		switch((int) matrix->value.coeff[pos]) {
+		switch ((int) matrix->value.coeff[pos]) {
 		case 0:
 			matrix->value.coeff[pos] = 128.0;
 			break;
@@ -135,18 +135,18 @@ matrixview_grid_build(Matrixview *matrixview)
 				tslider->from = -2.0;
 				tslider->to = 2.0;
 				tslider->digits = 3;
-    			g_signal_connect(tslider, "changed",
-    				G_CALLBACK(matrixview_changed), matrixview);
-    			g_signal_connect(tslider, "text_changed",
-    				G_CALLBACK(matrixview_text_changed), matrixview);
+				g_signal_connect(tslider, "changed",
+					G_CALLBACK(matrixview_changed), matrixview);
+				g_signal_connect(tslider, "text_changed",
+					G_CALLBACK(matrixview_text_changed), matrixview);
 
 				item = GTK_WIDGET(tslider);
 				break;
 
 			case MATRIX_DISPLAY_TOGGLE:
 				item = gtk_button_new_with_label("0");
-    			g_signal_connect(item, "clicked",
-    				G_CALLBACK(matrixview_toggle_clicked), matrixview);
+				g_signal_connect(item, "clicked",
+					G_CALLBACK(matrixview_toggle_clicked), matrixview);
 				break;
 
 			default:
@@ -187,8 +187,7 @@ matrixview_grid_build(Matrixview *matrixview)
 	default:
 		g_assert_not_reached();
 	}
-	GtkPolicyType policy = width > max_width || height > max_height ?
-		GTK_POLICY_ALWAYS : GTK_POLICY_NEVER;
+	GtkPolicyType policy = width > max_width || height > max_height ? GTK_POLICY_ALWAYS : GTK_POLICY_NEVER;
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(matrixview->swin),
 		policy, policy);
 }
@@ -304,11 +303,11 @@ matrixview_scan_text(Matrixview *matrixview, GtkWidget *txt,
 static void *
 matrixview_scan(View *view)
 {
-   	Matrixview *matrixview = MATRIXVIEW(view);
-   	Matrix *matrix = MATRIX(VOBJECT(matrixview)->iobject);
+	Matrixview *matrixview = MATRIXVIEW(view);
+	Matrix *matrix = MATRIX(VOBJECT(matrixview)->iobject);
 	int width = matrix->value.width;
 	int height = matrix->value.height;
-   	Expr *expr = HEAPMODEL(matrix)->row->expr;
+	Expr *expr = HEAPMODEL(matrix)->row->expr;
 
 #ifdef DEBUG
 	printf("matrixview_scan: ");
@@ -324,7 +323,7 @@ matrixview_scan(View *view)
 	if (matrix->display == MATRIX_DISPLAY_TEXT_SCALE_OFFSET)
 		if (!matrixview_scan_text(matrixview,
 				matrixview->scale, &matrix->scale, &changed) ||
-			!matrixview_scan_text( matrixview,
+			!matrixview_scan_text(matrixview,
 				matrixview->offset, &matrix->offset, &changed)) {
 			expr_error_set(expr);
 			return view;
@@ -336,11 +335,10 @@ matrixview_scan(View *view)
 		for (x = 0; x < width; x++, p = p->next) {
 			int i = x + y * width;
 			GtkWidget *item = GTK_WIDGET(p->data);
-			GtkWidget *entry = matrix->display == MATRIX_DISPLAY_SLIDER ?
-				TSLIDER(item)->entry : item;
+			GtkWidget *entry = matrix->display == MATRIX_DISPLAY_SLIDER ? TSLIDER(item)->entry : item;
 
 			if (!matrixview_scan_text(matrixview,
-				entry, &matrix->value.coeff[i], &changed)) {
+					entry, &matrix->value.coeff[i], &changed)) {
 				error_top(_("Bad value"));
 				error_sub(_("cell (%d, %d):\n%s"), x, y, error_get_sub());
 				expr_error_set(expr);

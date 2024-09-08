@@ -26,13 +26,14 @@ im_clip x = vips_call "cast" [x, "uchar"] [];
 im_clip2us x = vips_call "cast" [x, "ushort"] [];
 im_clip2s x = vips_call "cast" [x, "short"] [];
 im_clip2f x = vips_call "cast" [x, "float"] [];
-im_copy_set im t xr yr xo yo = vips_call "copy" [im] [
-	$interpretation => t,
-	$xres => xr,
-	$yres => yr,
-	$xoffset => xo,
-	$yoffset => yo
-];
+im_copy_set im t xr yr xo yo
+	= vips_call "copy" [im] [
+		$interpretation => t,
+		$xres => xr,
+		$yres => yr,
+		$xoffset => xo,
+		$yoffset => yo
+	];
 
 im_recomb x y = vips_call "recomb" [x, y] [];
 im_embed im t x y w h = vips_call "embed" [im, x, y, w, h] [$extend => t];
@@ -50,9 +51,10 @@ im_dE00_fromLab x y = vips_call "dE00" [x, y] [];
 im_Lab2LabQ x = vips_call "Lab2LabQ" [x] [];
 im_Lab2LCh x = vips_call "Lab2LCh" [x] [];
 im_Lab2XYZ x = vips_call "Lab2XYZ" [x] [];
-im_Lab2XYZ_temp x x0 y0 z0 = vips_call "Lab2XYZ" [x] [
-	$temp => [x0, y0, z0]
-];
+im_Lab2XYZ_temp x x0 y0 z0
+	= vips_call "Lab2XYZ" [x] [
+		$temp => [x0, y0, z0]
+	];
 im_LabQ2LabS x = vips_call "LabQ2LabS" [x] [];
 im_LabQ2Lab x = vips_call "LabQ2Lab" [x] [];
 im_LabS2LabQ x = vips_call "LabS2LabQ" [x] [];
@@ -64,9 +66,10 @@ im_scRGB2sRGB x = vips_call "scRGB2sRGB" [x] [];
 im_scRGB2XYZ x = vips_call "scRGB2XYZ" [x] [];
 im_UCS2LCh x = vips_call "CMC2LCh" [x] [];
 im_XYZ2Lab x = vips_call "XYZ2Lab" [x] [];
-im_XYZ2Lab_temp x x0 y0 z0 = vips_call "XYZ2Lab" [x] [
-	$temp => [x0, y0, z0]
-];
+im_XYZ2Lab_temp x x0 y0 z0
+	= vips_call "XYZ2Lab" [x] [
+		$temp => [x0, y0, z0]
+	];
 im_XYZ2Yxy x = vips_call "XYZ2Yxy" [x] [];
 im_Yxy2XYZ x = vips_call "Yxy2XYZ" [x] [];
 
@@ -76,27 +79,29 @@ im_XYZ2sRGB = im_scRGB2sRGB @ im_XYZ2scRGB;
 im_Lab2UCS = im_LCh2UCS @ im_Lab2LCh;
 im_UCS2Lab = im_LCh2Lab @ im_UCS2LCh;
 
-im_icc_import x profile intent = vips_call "icc_import" [x] [
-	$intent => intent,
-	$input_profile => profile
-];
-im_icc_export_depth x depth profile intent = vips_call "icc_export" [x] [
-	$depth => depth,
-	$intent => intent,
-	$output_profile => profile
-];
+im_icc_import x profile intent
+	= vips_call "icc_import" [x] [
+		$intent => intent,
+		$input_profile => profile
+	];
+im_icc_export_depth x depth profile intent
+	= vips_call "icc_export" [x] [
+		$depth => depth,
+		$intent => intent,
+		$output_profile => profile
+	];
 im_icc_transform x input_profile output_profile intent
 	= vips_call "icc_transform" [x, output_profile] [
-	$intent => intent,
-	$input_profile => output_profile
-];
+		$intent => intent,
+		$input_profile => output_profile
+	];
 
 im_histnD x bins = vips_call "hist_find_ndim" [x] [
 	$bins => bins
 ];
 
-im_insertset main sub out x y =
-	foldr add_another main (zip2 x y)
+im_insertset main sub x y
+	= foldr add_another main (zip2 x y)
 {
 	add_another [x, y] im = insert x y sub im;
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Expressionview" parent="Graphicview">
+    <property name="hexpand">true</property>
+
+    <child>
+      <object class="GtkBox" id="top">
+        <property name="hexpand">true</property>
+
+        <child>
+          <object class="Formula" id="formula">
+            <property name="hexpand">true</property>
+            <signal name="changed" handler="expressionview_changed"/>
+            <signal name="activate" handler="expressionview_activate"/>
+
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+  </template>
+</interface>

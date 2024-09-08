@@ -5,9 +5,11 @@
 
       <object class="GtkBox" id="hbox">
 	<property name="tooltip-text">Click to edit</property>
+        <property name="spacing">12</property>
 
         <child>
           <object class="GtkLabel" id="left_label">
+            <property name="xalign">0</property>
             <property name="valign">center</property>
           </object>
         </child>

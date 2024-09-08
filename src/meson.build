@@ -67,6 +67,8 @@ sources = files (
   'model.c',
   'pane.c',
   'option.c',
+  'expression.c',
+  'expressionview.c',
   'optionview.c',
   'pathname.c',
   'pathnameview.c',

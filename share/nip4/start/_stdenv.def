@@ -1207,7 +1207,7 @@ join_lr a b
 	join_lr_op = Operator "join_lr"
 		join_lr Operator_type.COMPOUND_REWRAP false;
 
-	join_im a b	= insert (get_width a) 0 b a;
+	join_im a b = insert (get_width a) 0 b a;
 }
 
 join_tb a b

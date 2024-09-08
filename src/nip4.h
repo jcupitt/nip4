@@ -137,6 +137,8 @@ typedef struct _Column Column;
 typedef struct _Columnview Columnview;
 typedef struct _Compile Compile;
 typedef struct _Element Element;
+typedef struct _Expression Expression;
+typedef struct _Expressionview Expressionview;
 typedef struct _Expr Expr;
 typedef struct _Filemodel Filemodel;
 typedef struct _HeapBlock HeapBlock;
@@ -145,12 +147,11 @@ typedef struct _Heapmodel Heapmodel;
 typedef struct _iArrow iArrow;
 typedef struct _iContainer iContainer;
 typedef struct _iImage iImage;
-typedef struct _iRegion iRegion;
-typedef struct _iRegiongroup iRegiongroup;
-typedef struct _iRegiongroupview iRegiongroupview;
-typedef struct _Regionview Regionview;
 typedef struct _Imageinfogroup Imageinfogroup;
 typedef struct _Imageinfo Imageinfo;
+typedef struct _iRegiongroup iRegiongroup;
+typedef struct _iRegiongroupview iRegiongroupview;
+typedef struct _iRegion iRegion;
 typedef struct _iText iText;
 typedef struct _LinkExpr LinkExpr;
 typedef struct _Link Link;
@@ -167,6 +168,7 @@ typedef struct _Pane Pane;
 typedef struct _ParseConst ParseConst;
 typedef struct _ParseNode ParseNode;
 typedef struct _Reduce Reduce;
+typedef struct _Regionview Regionview;
 typedef struct _Rhs Rhs;
 typedef struct _Rhsview Rhsview;
 typedef struct _Row Row;
@@ -244,6 +246,7 @@ typedef struct _Workspace Workspace;
 #include "expr.h"
 #include "itext.h"
 #include "option.h"
+#include "expression.h"
 #include "pathname.h"
 #include "slider.h"
 #include "toggle.h"
@@ -286,6 +289,7 @@ typedef struct _Workspace Workspace;
 #include "workspaceviewlabel.h"
 #include "itextview.h"
 #include "optionview.h"
+#include "expressionview.h"
 #include "pathnameview.h"
 #include "sliderview.h"
 #include "toggleview.h"

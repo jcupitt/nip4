@@ -4,6 +4,9 @@
   </object>
 
   <template class="Tslider" parent="GtkWidget">
+    <!-- no point going smaller than this -->
+    <property name="width-request">150</property>
+
     <child>
       <object class="GtkBox" id="box">
         <property name="orientation">horizontal</property>

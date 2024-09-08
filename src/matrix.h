@@ -59,7 +59,7 @@ typedef struct _Matrix {
 
 	/* Other class fields.
 	 */
-	MatrixDisplayType display;			/* Display as */
+	MatrixDisplayType display; /* Display as */
 	double scale;
 	double offset;
 } Matrix;
@@ -83,4 +83,3 @@ void matrix_deselect(Matrix *matrix);
 int matrix_guess_display(const char *filename);
 int image2matrix(VipsImage *in, double **values, int *width, int *height);
 VipsImage *matrix2image(PElement *root);
-

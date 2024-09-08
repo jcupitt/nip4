@@ -10,6 +10,7 @@
 
         <child>
           <object class="GtkLabel" id="label">
+            <property name="xalign">0</property>
           </object>
         </child>
 

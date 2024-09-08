@@ -424,7 +424,7 @@ get_width x
 	= x.width, has_member "width" x
 	= get_header "Xsize" x, is_image x
 	= oo_unary_function get_width_op x, is_class x
-	= error (_ "bad arguments to " ++ "get_width")
+	= error (_"bad arguments to " ++ "get_width\nyou passed: " ++ print x)
 {
 	get_width_op = Operator "get_width" get_width
 		Operator_type.COMPOUND false;

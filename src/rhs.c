@@ -150,7 +150,6 @@ static RhsGraphic rhs_graphic[] = {
 	/* FIXME ... all these still to go in
 	 *
 	{ CLASS_CLOCK, clock_get_type },
-	{ CLASS_EXPRESSION, expression_get_type },
 	{ CLASS_GROUP, group_get_type },
 	{ CLASS_LIST, group_get_type },
 	{ CLASS_FONTNAME, fontname_get_type },
@@ -162,6 +161,7 @@ static RhsGraphic rhs_graphic[] = {
 	{ CLASS_STRING, string_get_type }
 	 */
 
+	{ CLASS_EXPRESSION, expression_get_type },
 	{ CLASS_MATRIX, matrix_get_type },
 	{ CLASS_PATHNAME, pathname_get_type },
 	{ CLASS_TOGGLE, toggle_get_type },

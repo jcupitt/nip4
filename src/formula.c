@@ -266,6 +266,10 @@ static gboolean
 formula_key_pressed(GtkEventControllerKey *self,
 	guint keyval, guint keycode, GdkModifierType state, Formula *formula)
 {
+#ifdef DEBUG
+	printf("formula_key_pressed:\n");
+#endif /*DEBUG*/
+
 	gboolean handled;
 
 	handled = FALSE;
@@ -295,6 +299,10 @@ static void
 formula_pressed(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Formula *formula)
 {
+#ifdef DEBUG
+	printf("formula_pressed:\n");
+#endif /*DEBUG*/
+
 	if (formula->sensitive &&
 		!formula->edit) {
 		formula_set_edit(formula, TRUE);
@@ -307,6 +315,10 @@ formula_pressed(GtkGestureClick *gesture,
 static void
 formula_activate(GtkEntry *self, Formula *formula)
 {
+#ifdef DEBUG
+	printf("formula_activate:\n");
+#endif /*DEBUG*/
+
 	g_signal_emit(G_OBJECT(formula), formula_signals[ACTIVATE], 0);
 }
 
@@ -314,7 +326,7 @@ static void
 formula_real_changed(Formula *formula)
 {
 #ifdef DEBUG
-	printf("formula_real_changed\n");
+	printf("formula_real_changed:\n");
 #endif /*DEBUG*/
 
 	formula->changed = TRUE;
