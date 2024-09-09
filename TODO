@@ -1,8 +1,35 @@
-- test_colour.ws L3 isn't working?
+- need some way to show "blocked on .."
 
-
+	use colours for other states too? eg. child/parent/dirty
 
 - add Colour widget
+
+- this fails:
+
+	im_insertset main sub x y
+		= foldr add_another main (zip2 x y)
+	{
+		add_another [x, y] im = insert x y sub im;
+	}
+
+  you have to do:
+
+		add_another pos im
+			= insert x y sub im
+		{
+			x = pos?0;
+			y = pos?1;
+		}
+
+  strange!
+
+- in a workspace do:
+
+	x = [1, 2, 3]
+
+  now ZF expressions which use x will stop working, eg.:
+
+	[x * 2 :: x <- [1..]]
 
 - add a scrolledwindow, disable scrolling for less than maybe 5 x 10
 

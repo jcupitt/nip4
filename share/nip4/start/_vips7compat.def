@@ -103,7 +103,12 @@ im_histnD x bins = vips_call "hist_find_ndim" [x] [
 im_insertset main sub x y
 	= foldr add_another main (zip2 x y)
 {
-	add_another [x, y] im = insert x y sub im;
+	add_another pos im
+		= insert x y sub im
+	{
+		x = pos?0;
+		y = pos?1;
+	}
 }
 
 // add a lot more!

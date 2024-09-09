@@ -1,19 +1,17 @@
 <?xml version="1.0"?>
 <root xmlns="http://www.vips.ecs.soton.ac.uk/nip/9.0.0">
-  <Workspace window_x="0" window_y="0" window_width="1280" window_height="771" filename="$HOME/GIT/nip4/test/workspaces/test_colour.ws" view="WORKSPACE_MODE_REGULAR" scale="1" offset="0" lpane_position="400" lpane_open="false" rpane_position="100" rpane_open="false" local_defs="// private definitions for this workspace&#10;" name="test_colour" caption="Default empty workspace">
-    <Column x="0" y="0" open="true" selected="false" sform="false" next="10" name="A" caption="Colour / New">
+  <Workspace window_x="0" window_y="0" window_width="1280" window_height="771" view="WORKSPACE_MODE_REGULAR" scale="1" offset="0" locked="false" lpane_position="400" lpane_open="false" rpane_position="100" rpane_open="false" local_defs="// private definitions for this workspace&#10;" name="test_colour" filename="$HOME/GIT/nip4/test/workspaces/test_colour.ws" major="9" minor="0">
+    <Column x="5" y="5" open="true" selected="false" sform="false" next="10" name="A" caption="Colour / New">
       <Subcolumn vislevel="3">
         <Row popup="false" name="A1">
-          <Rhs vislevel="3" flags="7">
-            <Colour/>
-            <Subcolumn vislevel="1"/>
+          <Rhs vislevel="3" flags="6">
+            <Subcolumn vislevel="2"/>
             <iText formula="Colour_new_item.Widget_colour_item.action"/>
           </Rhs>
         </Row>
         <Row popup="false" name="A2">
-          <Rhs vislevel="3" flags="7">
-            <Colour/>
-            <Subcolumn vislevel="1"/>
+          <Rhs vislevel="3" flags="6">
+            <Subcolumn vislevel="2"/>
             <iText formula="Colour_new_item.LAB_colour.action"/>
           </Rhs>
         </Row>
@@ -28,15 +26,14 @@
           </Rhs>
         </Row>
         <Row popup="false" name="A9">
-          <Rhs vislevel="2" flags="5">
-            <Colour/>
-            <Subcolumn vislevel="0"/>
+          <Rhs vislevel="2" flags="6">
+            <Subcolumn vislevel="1"/>
             <iText formula="Colour_to_colour_item.action A8"/>
           </Rhs>
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="386" y="366" open="true" selected="false" sform="false" next="22" name="B" caption="Colour / Colourspace">
+    <Column x="476" y="291" open="true" selected="false" sform="false" next="22" name="B" caption="Colour / Colourspace">
       <Subcolumn vislevel="3">
         <Row popup="false" name="B1">
           <Rhs vislevel="0" flags="4">
@@ -131,7 +128,7 @@
               </Row>
               <Row name="to">
                 <Rhs vislevel="1" flags="1">
-                  <Option caption="Convert to" labelsn="11" labels0="Mono" labels1="sRGB" labels2="RGB16" labels3="GREY16" labels4="Lab" labels5="LabQ" labels6="LabS" labels7="LCh" labels8="XYZ" labels9="Yxy" labels10="UCS" value="9"/>
+                  <Option caption="Convert to" labelsn="12" labels0="Mono" labels1="sRGB" labels2="scRGB" labels3="RGB16" labels4="GREY16" labels5="Lab" labels6="LabQ" labels7="LabS" labels8="LCh" labels9="XYZ" labels10="Yxy" labels11="UCS" value="9"/>
                   <Subcolumn vislevel="0"/>
                   <iText/>
                 </Rhs>
@@ -183,7 +180,7 @@
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="1042" y="0" open="true" selected="false" sform="false" next="15" name="C" caption="Colour / Tag As">
+    <Column x="1178" y="5" open="true" selected="false" sform="false" next="15" name="C" caption="Colour / Tag As">
       <Subcolumn vislevel="3">
         <Row popup="false" name="C1">
           <Rhs vislevel="1" flags="1">
@@ -276,7 +273,7 @@
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="1526" y="0" open="true" selected="false" sform="false" next="7" name="D" caption="Colour / Colour Temperature / Move Whitepoint">
+    <Column x="1605" y="5" open="true" selected="false" sform="false" next="7" name="D" caption="Colour / Colour Temperature / Move Whitepoint">
       <Subcolumn vislevel="3">
         <Row popup="false" name="D1">
           <Rhs vislevel="1" flags="1">
@@ -347,7 +344,7 @@
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="2003" y="0" open="true" selected="false" sform="false" next="13" name="E" caption="Colour / Colour Temperature">
+    <Column x="2071" y="5" open="true" selected="false" sform="false" next="13" name="E" caption="Colour / Colour Temperature">
       <Subcolumn vislevel="3">
         <Row popup="false" name="E1">
           <Rhs vislevel="1" flags="1">
@@ -419,7 +416,7 @@
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="2486" y="0" open="true" selected="true" sform="false" next="9" name="F" caption="Colour / ICC">
+    <Column x="2504" y="5" open="true" selected="true" sform="false" next="9" name="F" caption="Colour / ICC">
       <Subcolumn vislevel="3">
         <Row popup="false" name="F1">
           <Rhs vislevel="1" flags="1">
@@ -570,7 +567,7 @@
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="2960" y="0" open="true" selected="false" sform="false" next="12" name="G" caption="Colour / Difference">
+    <Column x="2975" y="5" open="true" selected="false" sform="false" next="12" name="G" caption="Colour / Difference">
       <Subcolumn vislevel="3">
         <Row popup="false" name="G1">
           <Rhs vislevel="1" flags="1">
@@ -636,7 +633,7 @@
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="3445" y="0" open="true" selected="false" sform="false" next="28" name="I" caption="Colour / Adjust">
+    <Column x="3408" y="5" open="true" selected="false" sform="false" next="28" name="I" caption="Colour / Adjust">
       <Subcolumn vislevel="3">
         <Row popup="false" name="I1">
           <Rhs vislevel="1" flags="1">
@@ -663,7 +660,7 @@
               </Row>
               <Row name="matrix">
                 <Rhs vislevel="1" flags="1">
-                  <Matrix valuen="9" value0="1.1000000000000001" value1="0" value2="0" value3="0" value4="0.90000000000000002" value5="0" value6="0" value7="0" value8="1" width="3" height="3" scale="1" offset="0" filename="" display="1"/>
+                  <Matrix valuen="9" value0="1.1000000000000001" value1="0" value2="0" value3="0" value4="0.89999999999999991" value5="0" value6="0" value7="0" value8="1" width="3" height="3" scale="1" offset="0" filename="" display="1"/>
                   <Subcolumn vislevel="0"/>
                   <iText/>
                 </Rhs>
@@ -690,7 +687,7 @@
               </Row>
               <Row name="gr">
                 <Rhs vislevel="1" flags="1">
-                  <Slider caption="" from="-20" to="20" value="4"/>
+                  <Slider caption="" from="-20" to="20" value="4.0000000000000036"/>
                   <Subcolumn vislevel="0"/>
                   <iText/>
                 </Rhs>
@@ -757,15 +754,13 @@
           </Rhs>
         </Row>
         <Row popup="false" name="I8">
-          <Rhs vislevel="1" flags="1">
-            <Colour/>
+          <Rhs vislevel="1" flags="4">
             <Subcolumn vislevel="0"/>
             <iText formula="Colour_to_colour_item.action I6"/>
           </Rhs>
         </Row>
         <Row popup="false" name="I9">
-          <Rhs vislevel="1" flags="1">
-            <Colour/>
+          <Rhs vislevel="1" flags="4">
             <Subcolumn vislevel="0"/>
             <iText formula="I8 * Vector [1.1, 0.9, 1]"/>
           </Rhs>
@@ -780,8 +775,7 @@
           </Rhs>
         </Row>
         <Row popup="false" name="I11">
-          <Rhs vislevel="1" flags="1">
-            <Colour/>
+          <Rhs vislevel="1" flags="4">
             <Subcolumn vislevel="0"/>
             <iText formula="Colour_to_colour_item.action I10"/>
           </Rhs>
@@ -797,16 +791,14 @@
           </Rhs>
         </Row>
         <Row popup="false" name="I14">
-          <Rhs vislevel="3" flags="7">
-            <Colour/>
-            <Subcolumn vislevel="1"/>
+          <Rhs vislevel="3" flags="6">
+            <Subcolumn vislevel="2"/>
             <iText formula="Colour_convert_item.Lab_item.action I8"/>
           </Rhs>
         </Row>
         <Row popup="false" name="I15">
-          <Rhs vislevel="2" flags="5">
-            <Colour/>
-            <Subcolumn vislevel="0"/>
+          <Rhs vislevel="2" flags="6">
+            <Subcolumn vislevel="1"/>
             <iText formula="I14 + Vector [0, 4, -4]"/>
           </Rhs>
         </Row>
@@ -820,16 +812,14 @@
           </Rhs>
         </Row>
         <Row popup="false" name="I17">
-          <Rhs vislevel="1" flags="1">
-            <Colour/>
+          <Rhs vislevel="1" flags="4">
             <Subcolumn vislevel="0"/>
             <iText formula="Colour_to_colour_item.action I16"/>
           </Rhs>
         </Row>
         <Row popup="false" name="I18">
-          <Rhs vislevel="3" flags="7">
-            <Colour/>
-            <Subcolumn vislevel="1"/>
+          <Rhs vislevel="3" flags="6">
+            <Subcolumn vislevel="2"/>
             <iText formula="Colour_convert_item.Lab_item.action I17"/>
           </Rhs>
         </Row>
@@ -853,30 +843,26 @@
           </Rhs>
         </Row>
         <Row popup="false" name="I22">
-          <Rhs vislevel="2" flags="5">
-            <Colour/>
-            <Subcolumn vislevel="0"/>
+          <Rhs vislevel="2" flags="6">
+            <Subcolumn vislevel="1"/>
             <iText formula="Colour_to_colour_item.action I21"/>
           </Rhs>
         </Row>
         <Row popup="false" name="I23">
-          <Rhs vislevel="3" flags="7">
-            <Colour/>
-            <Subcolumn vislevel="1"/>
+          <Rhs vislevel="3" flags="6">
+            <Subcolumn vislevel="2"/>
             <iText formula="Colour_convert_item.LCh_item.action I14"/>
           </Rhs>
         </Row>
         <Row popup="false" name="I24">
-          <Rhs vislevel="2" flags="5">
-            <Colour/>
-            <Subcolumn vislevel="0"/>
+          <Rhs vislevel="2" flags="6">
+            <Subcolumn vislevel="1"/>
             <iText formula="I23 + Vector [0, 0, 90]"/>
           </Rhs>
         </Row>
         <Row popup="false" name="I25">
-          <Rhs vislevel="3" flags="7">
-            <Colour/>
-            <Subcolumn vislevel="1"/>
+          <Rhs vislevel="3" flags="6">
+            <Subcolumn vislevel="2"/>
             <iText formula="Colour_convert_item.sRGB_item.action I24"/>
           </Rhs>
         </Row>
@@ -892,7 +878,7 @@
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="4049" y="0" open="true" selected="false" sform="false" next="7" name="J" caption="Colour / Similar Colour">
+    <Column x="4061" y="5" open="true" selected="false" sform="false" next="7" name="J" caption="Colour / Similar Colour">
       <Subcolumn vislevel="3">
         <Row popup="false" name="J1">
           <Rhs vislevel="1" flags="1">
@@ -911,8 +897,7 @@
           </Rhs>
         </Row>
         <Row popup="false" name="J4">
-          <Rhs vislevel="1" flags="1">
-            <Colour/>
+          <Rhs vislevel="1" flags="4">
             <Subcolumn vislevel="0"/>
             <iText formula="Colour_to_colour_item.action J3"/>
           </Rhs>
@@ -934,9 +919,8 @@
                 </Rhs>
               </Row>
               <Row name="target_colour">
-                <Rhs vislevel="3" flags="7">
-                  <Colour/>
-                  <Subcolumn vislevel="1"/>
+                <Rhs vislevel="3" flags="6">
+                  <Subcolumn vislevel="2"/>
                   <iText formula="J4"/>
                 </Rhs>
               </Row>
@@ -967,7 +951,7 @@
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="4519" y="0" open="true" selected="false" sform="false" next="12" name="L" caption="Colour / Colour Chart">
+    <Column x="4571" y="5" open="true" selected="false" sform="false" next="12" name="L" caption="Colour / Colour Chart">
       <Subcolumn vislevel="3">
         <Row popup="false" name="L1">
           <Rhs vislevel="2" flags="5">
@@ -986,9 +970,9 @@
           </Rhs>
         </Row>
         <Row popup="false" name="L3">
-          <Rhs vislevel="0" flags="4">
+          <Rhs vislevel="3" flags="7">
             <Matrix/>
-            <Subcolumn vislevel="0"/>
+            <Subcolumn vislevel="1"/>
             <iText formula="Colour_chart_to_matrix_item.action L2"/>
           </Rhs>
         </Row>
@@ -1032,7 +1016,7 @@
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="386" y="0" open="true" selected="false" sform="false" next="19" name="FC" caption="Colour / Colourspace">
+    <Column x="476" y="5" open="true" selected="false" sform="false" next="19" name="FC" caption="Colour / Colourspace">
       <Subcolumn vislevel="3">
         <Row popup="false" name="FC1">
           <Rhs vislevel="2" flags="5">
@@ -1042,8 +1026,7 @@
           </Rhs>
         </Row>
         <Row popup="false" name="FC16">
-          <Rhs vislevel="1" flags="1">
-            <Colour/>
+          <Rhs vislevel="1" flags="4">
             <Subcolumn vislevel="0"/>
             <iText formula="Colour_to_colour_item.action FC1"/>
           </Rhs>
@@ -1054,8 +1037,7 @@
           </Rhs>
         </Row>
         <Row popup="false" name="FC18">
-          <Rhs vislevel="1" flags="1">
-            <Colour/>
+          <Rhs vislevel="1" flags="4">
             <Subcolumn vislevel="0"/>
             <iText formula="Colour_to_colour_item.action FC17"/>
           </Rhs>
@@ -1064,6 +1046,3 @@
     </Column>
   </Workspace>
 </root>
-
-
-
