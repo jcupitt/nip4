@@ -137,8 +137,6 @@ static gboolean
 matrix_new(Heap *heap,
 	VipsImage *image, double *values, int width, int height, PElement *out)
 {
-	printf("matrix_new: %d x %d matrix\n", width, height);
-
 	Symbol *sym;
 	if (!(sym = compile_lookup(symbol_root->expr->compile, CLASS_MATRIX)) ||
 		!sym->expr ||
@@ -162,8 +160,6 @@ matrix_new(Heap *heap,
 		!heap_appl_add(heap, out, &rhs) ||
 		!heap_real_new(heap, matrix_guess_display(filename), &rhs))
 		return FALSE;
-
-	printf("\tsuccess\n");
 
 	return TRUE;
 }

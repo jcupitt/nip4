@@ -224,8 +224,6 @@ matrix2image(PElement *root)
 int
 image2matrix(VipsImage *in, double **values, int *width, int *height)
 {
-	printf("image2matrix: in = %p\n", in);
-
 	if (in->Bands == 1) {
 		*width = in->Xsize;
 		*height = in->Ysize;

@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -187,7 +187,8 @@ matrixview_grid_build(Matrixview *matrixview)
 	default:
 		g_assert_not_reached();
 	}
-	GtkPolicyType policy = width > max_width || height > max_height ? GTK_POLICY_ALWAYS : GTK_POLICY_NEVER;
+	GtkPolicyType policy = width > max_width || height > max_height ?
+		GTK_POLICY_ALWAYS : GTK_POLICY_NEVER;
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(matrixview->swin),
 		policy, policy);
 }

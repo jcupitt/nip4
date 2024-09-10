@@ -2,7 +2,11 @@
 
 	use colours for other states too? eg. child/parent/dirty
 
-- add Colour widget
+	make a tooltip in rowview refresh?
+
+- can't select-click or range-select-click on rows with errors, how odd
+
+	what about other row states?
 
 - this fails:
 
@@ -31,39 +35,19 @@
 
 	[x * 2 :: x <- [1..]]
 
-- add a scrolledwindow, disable scrolling for less than maybe 5 x 10
+- use miranda syntax? it has `|` instead of `::`
 
 - improve the look of the toggle mode, add colours? perhaps a greyish bg for "1"
-
-- widget labels need to left-align
 
 - update a formula, all views reset
 
 	lose zoom, pan, scale, offset, etc.
 
-- row reset doesn't work
+- row reset doesn't always work
 
   and editing a row doesn't always "take"
 
-- widget labels need to align left
-
-- continue adding vips7 compat defs, test with eg.
-
-	nip4 test/workspaces/test_colour.ws
-
-
 - syntax error in startup .def stops nip4 loading
-
-- test_colour.ws is loading images from examples/, not from the test image
-  dir
-
-- seeing
-
-	(nip4:149810): VIPS-WARNING **: 10:04:38.092: profile incompatible with image
-
-  during test_colour.ws load ... seem to have a CMYK profile on a 3 band image?
-
-
 
 - ctrl-bsp for delete selected?
 
@@ -92,6 +76,19 @@
 	vips_add options a b = vips_call "add" [a, b] options
 
 	x = vips_add [$uchar => true] y z
+
+## widgets TODO
+
+- test_colour.ws is loading images from examples/, not from the test image
+  dir
+
+- continue adding vips7 compat defs:
+
+	test_colour.ws done
+
+	nip4 test/workspaces/test_conv.ws
+
+- add Colour widget next?
 
 ## vips8
 
