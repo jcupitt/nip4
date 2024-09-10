@@ -242,7 +242,7 @@ image2matrix(VipsImage *in, double **values, int *width, int *height)
 		return -1;
 	}
 
-	// big enough for a 16-bit LUT
+	// limit to 16-bit LUT size
 	if (*width > 65536 ||
 		*height > 65536 ||
 		*width * *height > 65536) {

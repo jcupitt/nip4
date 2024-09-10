@@ -1932,6 +1932,8 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 
 			g_value_init(out, VIPS_TYPE_IMAGE);
 			g_value_set_object(out, matrix);
+
+			VIPS_UNREF(matrix);
 		}
 		else if (reduce_is_instanceof(rc, CLASS_IMAGE, in)) {
 			Imageinfo *ii;
