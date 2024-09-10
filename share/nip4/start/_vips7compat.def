@@ -38,6 +38,7 @@ im_copy_set im t xr yr xo yo
 im_recomb x y = vips_call "recomb" [x, y] [];
 im_embed im t x y w h = vips_call "embed" [im, x, y, w, h] [$extend => t];
 im_insert main sub x y = vips_call "insert" [main, sub, x, y] [$expand => true];
+im_extract_area in x y w h = vips_call "crop" [in, x, y, w, h] [];
 
 im_avg x = vips_call "avg" [x] [];
 im_min x = vips_call "min" [x] [];
