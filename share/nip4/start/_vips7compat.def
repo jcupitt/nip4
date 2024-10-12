@@ -128,5 +128,44 @@ im_gauss_imask sigma min_amp
 	];
 }
 
+im_gauss_dmask_sep sigma min_amp
+	= to_matrix mask
+{
+	mask = vips_call "gaussmat" [sigma, min_amp] [
+		$precision => "float",
+		$separable => true
+	];
+}
+
+im_gauss_imask_sep sigma min_amp
+	= to_matrix mask
+{
+	mask = vips_call "gaussmat" [sigma, min_amp] [
+		$precision => "integer",
+		$separable => true
+	];
+}
+
+im_conv in matrix
+	= vips_call "conv" [in, matrix] [
+		$precision => "integer"
+	];
+
+im_conv_f in matrix
+	= vips_call "conv" [in, matrix] [
+		$precision => "float"
+	];
+
+im_convsep in matrix
+	= vips_call "convsep" [in, matrix] [
+		$precision => "integer"
+	];
+
+im_convsep_f in matrix
+	= vips_call "convsep" [in, matrix] [
+		$precision => "float"
+	];
+
+
 // add a lot more!
 
