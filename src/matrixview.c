@@ -147,6 +147,10 @@ matrixview_grid_build(Matrixview *matrixview)
 				item = gtk_button_new_with_label("0");
 				g_signal_connect(item, "clicked",
 					G_CALLBACK(matrixview_toggle_clicked), matrixview);
+
+				if (x == width / 2 &&
+					y == height / 2)
+					gtk_widget_add_css_class(item, "centre_widget");
 				break;
 
 			default:

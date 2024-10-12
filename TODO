@@ -1,12 +1,10 @@
-- need some way to show "blocked on .."
 
-	use colours for other states too? eg. child/parent/dirty
+- on new image in iimageview
 
-	make a tooltip in rowview refresh?
+    - don't clear the tile pyramid completely, certainly not if dimensiopns
+      are unchanged
 
-- can't select-click or range-select-click on rows with errors, how odd
-
-	what about other row states?
+	- don't lose zoom, pan, scale, offset, etc.
 
 - this fails:
 
@@ -34,14 +32,6 @@
   now ZF expressions which use x will stop working, eg.:
 
 	[x * 2 :: x <- [1..]]
-
-- use miranda syntax? it has `|` instead of `::`
-
-- improve the look of the toggle mode, add colours? perhaps a greyish bg for "1"
-
-- update a formula, all views reset
-
-	lose zoom, pan, scale, offset, etc.
 
 - row reset doesn't always work
 

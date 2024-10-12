@@ -110,6 +110,18 @@ rowview_css(Rowview *rview)
 }
 
 static void
+rowview_tooltip(Rowview *rview)
+{
+	Row *row = ROW(VOBJECT(rview)->iobject);
+
+	char txt[1024];
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
+	iobject_info(IOBJECT(row), &buf);
+	vips_buf_removec(&buf, '\n');
+	gtk_widget_set_tooltip_text(rview->frame, vips_buf_all(&buf));
+}
+
+static void
 rowview_update_widgets(Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
@@ -160,6 +172,8 @@ rowview_update_widgets(Rowview *rview)
 
 	if (rview->rhsview)
 		gtk_widget_set_visible(GTK_WIDGET(rview->rhsview), rview->visible);
+
+	rowview_tooltip(rview);
 }
 
 static void
@@ -257,12 +271,11 @@ rowview_click(GtkGestureClick *gesture,
 			!symbol_recalculate_check(row->sym))
 			// click on a row with an error displays the error
 			mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
-		else {
-			// select
-			guint state = get_modifiers(GTK_EVENT_CONTROLLER(gesture));
 
-			row_select_modifier(row, state);
-		}
+		// select handling ... do this for rows with errors too
+		guint state = get_modifiers(GTK_EVENT_CONTROLLER(gesture));
+
+		row_select_modifier(row, state);
 	}
 	else
 		rowview_edit(rview);
@@ -315,15 +328,6 @@ rowview_focus_cb(GtkWidget *widget, GtkDirectionType dir, Rowview *rview)
 	view_scrollto(VIEW(rview), MODEL_SCROLL_TOP);
 
 	return FALSE;
-}
-
-static void
-rowview_tooltip_generate(GtkWidget *widget, VipsBuf *buf, Rowview *rview)
-{
-	Row *row = ROW(VOBJECT(rview)->iobject);
-
-	iobject_info(IOBJECT(row), buf);
-	vips_buf_removec(buf, '\n');
 }
  */
 
