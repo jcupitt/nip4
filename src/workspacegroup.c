@@ -298,8 +298,7 @@ workspacegroup_load_new(Workspacegroup *wsg,
 			!(ws = workspace_new(wsg, name)))
 			return FALSE;
 
-		if (workspacegroup_xml_needs_compat(state, xws,
-				&major, &minor) &&
+		if (workspacegroup_xml_needs_compat(state, xws, &major, &minor) &&
 			!workspace_load_compat(ws, major, minor))
 			return FALSE;
 

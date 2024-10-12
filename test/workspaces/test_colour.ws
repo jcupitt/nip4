@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <root xmlns="http://www.vips.ecs.soton.ac.uk/nip/9.0.0">
   <Workspace window_x="0" window_y="0" window_width="1280" window_height="771" view="WORKSPACE_MODE_REGULAR" scale="1" offset="0" locked="false" lpane_position="400" lpane_open="false" rpane_position="100" rpane_open="false" local_defs="// private definitions for this workspace&#10;" name="test_colour" filename="$HOME/GIT/nip4/test/workspaces/test_colour.ws" major="9" minor="0">
-    <Column x="5" y="5" open="true" selected="false" sform="false" next="10" name="A" caption="Colour / New">
+    <Column x="5" y="5" open="true" selected="true" sform="false" next="11" name="A" caption="Colour / New">
       <Subcolumn vislevel="3">
         <Row popup="false" name="A1">
           <Rhs vislevel="3" flags="6">
@@ -416,7 +416,7 @@
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="2504" y="5" open="true" selected="true" sform="false" next="9" name="F" caption="Colour / ICC">
+    <Column x="2504" y="5" open="true" selected="false" sform="false" next="9" name="F" caption="Colour / ICC">
       <Subcolumn vislevel="3">
         <Row popup="false" name="F1">
           <Rhs vislevel="1" flags="1">
@@ -970,9 +970,9 @@
           </Rhs>
         </Row>
         <Row popup="false" name="L3">
-          <Rhs vislevel="3" flags="7">
+          <Rhs vislevel="0" flags="4">
             <Matrix/>
-            <Subcolumn vislevel="1"/>
+            <Subcolumn vislevel="0"/>
             <iText formula="Colour_chart_to_matrix_item.action L2"/>
           </Rhs>
         </Row>

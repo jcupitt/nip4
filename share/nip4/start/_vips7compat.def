@@ -112,5 +112,21 @@ im_insertset main sub x y
 	}
 }
 
+im_gauss_dmask sigma min_amp
+	= to_matrix mask
+{
+	mask = vips_call "gaussmat" [sigma, min_amp] [
+		$precision => "float"
+	];
+}
+
+im_gauss_imask sigma min_amp
+	= to_matrix mask
+{
+	mask = vips_call "gaussmat" [sigma, min_amp] [
+		$precision => "integer"
+	];
+}
+
 // add a lot more!
 

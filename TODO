@@ -1,10 +1,12 @@
+- dirty rows should display "blocked on A1" instead of an old value?
 
 - on new image in iimageview
 
     - don't clear the tile pyramid completely, certainly not if dimensiopns
       are unchanged
 
-	- don't lose zoom, pan, scale, offset, etc.
+    - don't lose zoom, pan, scale, offset, etc.
+
 
 - this fails:
 
@@ -68,9 +70,6 @@
 	x = vips_add [$uchar => true] y z
 
 ## widgets TODO
-
-- test_colour.ws is loading images from examples/, not from the test image
-  dir
 
 - continue adding vips7 compat defs:
 

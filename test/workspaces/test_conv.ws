@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<root xmlns="http://www.vips.ecs.soton.ac.uk/nip/8.7.1">
-  <Workspace window_x="0" window_y="28" window_width="1920" window_height="1172" view="WORKSPACE_MODE_REGULAR" scale="1" offset="0" locked="false" lpane_position="100" lpane_open="false" rpane_position="400" rpane_open="false" local_defs="// private definitions for this workspace&#10;" name="test_conv" caption="Default empty workspace" filename="$HOME/GIT/nip2/test/workspaces/test_conv.ws" major="8" minor="7">
+<root xmlns="http://www.vips.ecs.soton.ac.uk/nip/9.0.0">
+  <Workspace window_x="0" window_y="28" window_width="1920" window_height="1172" view="WORKSPACE_MODE_REGULAR" scale="1" offset="0" locked="false" lpane_position="100" lpane_open="false" rpane_position="400" rpane_open="false" local_defs="// private definitions for this workspace&#10;" name="test_conv" caption="Default empty workspace" filename="$HOME/GIT/nip4/test/workspaces/test_conv.ws" major="9" minor="0">
     <Column x="0" y="279" open="true" selected="false" sform="false" next="5" name="A" caption="medium test matrix">
       <Subcolumn vislevel="3">
         <Row popup="false" name="A1">
@@ -66,7 +66,7 @@
           <Rhs vislevel="1" flags="1">
             <iImage window_x="449" window_y="50" window_width="547" window_height="727" image_left="141" image_top="107" image_mag="8" show_status="true" show_paintbox="false" show_convert="false" show_rulers="false" scale="1" offset="0" falsecolour="false" type="true"/>
             <Subcolumn vislevel="0"/>
-            <iText formula="Image_file &quot;$VIPSHOME/share/nip2/data/examples/businesscard/slanted_oval_vase2.jpg&quot;"/>
+            <iText formula="Image_file &quot;$VIPSHOME/share/nip4/data/examples/businesscard/slanted_oval_vase2.jpg&quot;"/>
           </Rhs>
         </Row>
       </Subcolumn>
