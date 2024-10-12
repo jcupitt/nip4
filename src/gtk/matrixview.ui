@@ -57,6 +57,7 @@
 
                 <child>
                   <object class="GtkEntry" id="scale">
+                    <property name="width-chars">5</property>
                     <property name="max-width-chars">5</property>
                     <property name="input-purpose">digits</property>
                   </object>
@@ -81,6 +82,7 @@
 
                 <child>
                   <object class="GtkEntry" id="offset">
+                    <property name="width-chars">5</property>
                     <property name="max-width-chars">5</property>
                     <property name="input-purpose">digits</property>
                   </object>

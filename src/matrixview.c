@@ -128,6 +128,7 @@ matrixview_grid_build(Matrixview *matrixview)
 			case MATRIX_DISPLAY_TEXT_SCALE_OFFSET:
 			case MATRIX_DISPLAY_TEXT:
 				item = gtk_entry_new();
+				gtk_editable_set_width_chars(GTK_EDITABLE(item), 5);
 				break;
 
 			case MATRIX_DISPLAY_SLIDER:
@@ -355,7 +356,7 @@ matrixview_scan(View *view)
 	if (changed)
 		classmodel_update(CLASSMODEL(matrix));
 
-	VIEW_CLASS(matrixview_parent_class)->scan(view);
+	return VIEW_CLASS(matrixview_parent_class)->scan(view);
 }
 
 static void
