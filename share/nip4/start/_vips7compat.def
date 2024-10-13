@@ -50,6 +50,7 @@ im_matinv x = im_vips2mask (vips_call "matrixinvert" [x] []);
 im_dE00_fromLab x y = vips_call "dE00" [x, y] [];
 
 im_Lab2LabQ x = vips_call "Lab2LabQ" [x] [];
+im_Lab2LabS x = vips_call "Lab2LabS" [x] [];
 im_Lab2LCh x = vips_call "Lab2LCh" [x] [];
 im_Lab2XYZ x = vips_call "Lab2XYZ" [x] [];
 im_Lab2XYZ_temp x x0 y0 z0
@@ -59,6 +60,7 @@ im_Lab2XYZ_temp x x0 y0 z0
 im_LabQ2LabS x = vips_call "LabQ2LabS" [x] [];
 im_LabQ2Lab x = vips_call "LabQ2Lab" [x] [];
 im_LabS2LabQ x = vips_call "LabS2LabQ" [x] [];
+im_LabS2Lab x = vips_call "LabS2Lab" [x] [];
 im_LCh2UCS x = vips_call "LCh2CMC" [x] [];
 im_LCh2Lab x = vips_call "LCh2Lab" [x] [];
 im_scRGB2XYZ x = vips_call "scRGB2XYZ" [x] [];
@@ -114,34 +116,34 @@ im_insertset main sub x y
 
 // use im_vips2mask, not to_matrix, since to_matrix does not preserve .scale
 im_gauss_dmask sigma min_amp
-	= im_vips2mask mask
+	= im_vips2mask matrix
 {
-	mask = vips_call "gaussmat" [sigma, min_amp] [
+	matrix = vips_call "gaussmat" [sigma, min_amp] [
 		$precision => "float"
 	];
 }
 
 im_gauss_imask sigma min_amp
-	= im_vips2mask mask
+	= im_vips2mask matrix
 {
-	mask = vips_call "gaussmat" [sigma, min_amp] [
+	matrix = vips_call "gaussmat" [sigma, min_amp] [
 		$precision => "integer"
 	];
 }
 
 im_gauss_dmask_sep sigma min_amp
-	= im_vips2mask mask
+	= im_vips2mask matrix
 {
-	mask = vips_call "gaussmat" [sigma, min_amp] [
+	matrix = vips_call "gaussmat" [sigma, min_amp] [
 		$precision => "float",
 		$separable => true
 	];
 }
 
 im_gauss_imask_sep sigma min_amp
-	= im_vips2mask mask
+	= im_vips2mask matrix
 {
-	mask = vips_call "gaussmat" [sigma, min_amp] [
+	matrix = vips_call "gaussmat" [sigma, min_amp] [
 		$precision => "integer",
 		$separable => true
 	];
@@ -167,6 +169,96 @@ im_convsep_f in matrix
 		$precision => "float"
 	];
 
+im_rotate_dmask45 matrix
+	= im_vips2mask matrix'
+{
+	matrix' = vips_call "rot45" [matrix] [
+	];
+}
+
+im_sharpen in mask_size x1 y2 y3 m1 m2
+	= vips_call "sharpen" [in] [
+		$sigma => mask_size / 4,
+		$x1 => x1,
+		$y2 => y2,
+		$y3 => y3,
+		$m1 => m1,
+		$m2 => m2
+	];
+
+im_rank in xsize ysize n
+	= vips_call "rank" [in, xsize, ysize, n] [
+	];
+
+im_rank_image in index
+	= vips_call "bandrank" [in] [
+		$index => index
+	];
+
+im_dilate in mask
+	= vips_call "morph" [in, mask, "dilate"] [
+	];
+
+im_erode in mask
+	= vips_call "morph" [in, mask, "erode"] [
+	];
+
+im_flt_image_freq in type p1 p2 p3 p4 p5
+	= vips_call "freqmult" [in, mask] []
+{
+	xsize = get_header "width" in;
+	ysize = get_header "height" in;
+
+	mask
+		= vips_call "mask_ideal" [width, height, p1] [
+		  ], type == 0
+		= vips_call "mask_ideal" [width, height, p1] [
+			$reject => true
+		  ], type == 1
+		= vips_call "mask_butterworth" [width, height, p1, p2, p3] [
+		  ], type == 2
+		= vips_call "mask_butterworth" [width, height, p1, p2, p3] [
+			$reject => true
+		  ], type == 3
+		= vips_call "mask_gaussian" [width, height, p1, p2] [
+		  ], type == 4
+		= vips_call "mask_gaussian" [width, height, p1, p2] [
+			$reject => true
+		  ], type == 5
+		= vips_call "mask_ideal_ring" [width, height, p1, p2] [
+		  ], type == 6
+		= vips_call "mask_ideal_ring" [width, height, p1, p2] [
+			$reject => true
+		  ], type == 7
+		= vips_call "mask_butterworth_ring" [width, height, p1, p2, p3, p4] [
+		  ], type == 8
+		= vips_call "mask_butterworth_ring" [width, height, p1, p2, p3, p4] [
+			$reject => true
+		  ], type == 9
+		= vips_call "mask_gaussian_ring" [width, height, p1, p2, p3] [
+		  ], type == 10
+		= vips_call "mask_gaussian_ring" [width, height, p1, p2, p3] [
+			$reject => true
+		  ], type == 11
+		= vips_call "mask_ideal_band" [width, height, p1, p2, p3] [
+		  ], type == 12
+		= vips_call "mask_ideal_band" [width, height, p1, p2, p3] [
+			$reject => true
+		  ], type == 13
+		= vips_call "mask_butterworth_band" [width, height, p1, p2, p3, p4] [
+		  ], type == 14
+		= vips_call "mask_butterworth_band" [width, height, p1, p2, p3, p4] [
+			$reject => true
+		  ], type == 15
+		= vips_call "mask_gaussian_band" [width, height, p1, p2, p3] [
+		  ], type == 16
+		= vips_call "mask_gaussian_band" [width, height, p1, p2, p3] [
+			$reject => true
+		  ], type == 17
+		= vips_call "mask_fractal" [width, height, p1] [
+		  ], type == 18
+		= error "bad mask type";
+}
 
 // add a lot more!
 
