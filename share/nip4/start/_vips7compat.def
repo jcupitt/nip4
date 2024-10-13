@@ -206,59 +206,151 @@ im_erode in mask
 im_flt_image_freq in type p1 p2 p3 p4 p5
 	= vips_call "freqmult" [in, mask] []
 {
-	xsize = get_header "width" in;
-	ysize = get_header "height" in;
-
-	mask
-		= vips_call "mask_ideal" [width, height, p1] [
-		  ], type == 0
-		= vips_call "mask_ideal" [width, height, p1] [
-			$reject => true
-		  ], type == 1
-		= vips_call "mask_butterworth" [width, height, p1, p2, p3] [
-		  ], type == 2
-		= vips_call "mask_butterworth" [width, height, p1, p2, p3] [
-			$reject => true
-		  ], type == 3
-		= vips_call "mask_gaussian" [width, height, p1, p2] [
-		  ], type == 4
-		= vips_call "mask_gaussian" [width, height, p1, p2] [
-			$reject => true
-		  ], type == 5
-		= vips_call "mask_ideal_ring" [width, height, p1, p2] [
-		  ], type == 6
-		= vips_call "mask_ideal_ring" [width, height, p1, p2] [
-			$reject => true
-		  ], type == 7
-		= vips_call "mask_butterworth_ring" [width, height, p1, p2, p3, p4] [
-		  ], type == 8
-		= vips_call "mask_butterworth_ring" [width, height, p1, p2, p3, p4] [
-			$reject => true
-		  ], type == 9
-		= vips_call "mask_gaussian_ring" [width, height, p1, p2, p3] [
-		  ], type == 10
-		= vips_call "mask_gaussian_ring" [width, height, p1, p2, p3] [
-			$reject => true
-		  ], type == 11
-		= vips_call "mask_ideal_band" [width, height, p1, p2, p3] [
-		  ], type == 12
-		= vips_call "mask_ideal_band" [width, height, p1, p2, p3] [
-			$reject => true
-		  ], type == 13
-		= vips_call "mask_butterworth_band" [width, height, p1, p2, p3, p4] [
-		  ], type == 14
-		= vips_call "mask_butterworth_band" [width, height, p1, p2, p3, p4] [
-			$reject => true
-		  ], type == 15
-		= vips_call "mask_gaussian_band" [width, height, p1, p2, p3] [
-		  ], type == 16
-		= vips_call "mask_gaussian_band" [width, height, p1, p2, p3] [
-			$reject => true
-		  ], type == 17
-		= vips_call "mask_fractal" [width, height, p1] [
-		  ], type == 18
-		= error "bad mask type";
+	width = get_header "width" in;
+	height = get_header "height" in;
+	mask = im_create_fmask width height type p1 p2 p3 p4 p5;
 }
+
+im_create_fmask width height type p1 p2 p3 p4 p5
+	= vips_call "mask_ideal" [width, height, p1] [
+	  ], type == 0
+	= vips_call "mask_ideal" [width, height, p1] [
+		$reject => true
+	  ], type == 1
+	= vips_call "mask_butterworth" [width, height, p1, p2, p3] [
+	  ], type == 2
+	= vips_call "mask_butterworth" [width, height, p1, p2, p3] [
+		$reject => true
+	  ], type == 3
+	= vips_call "mask_gaussian" [width, height, p1, p2] [
+	  ], type == 4
+	= vips_call "mask_gaussian" [width, height, p1, p2] [
+		$reject => true
+	  ], type == 5
+	= vips_call "mask_ideal_ring" [width, height, p1, p2] [
+	  ], type == 6
+	= vips_call "mask_ideal_ring" [width, height, p1, p2] [
+		$reject => true
+	  ], type == 7
+	= vips_call "mask_butterworth_ring" [width, height, p1, p2, p3, p4] [
+	  ], type == 8
+	= vips_call "mask_butterworth_ring" [width, height, p1, p2, p3, p4] [
+		$reject => true
+	  ], type == 9
+	= vips_call "mask_gaussian_ring" [width, height, p1, p2, p3] [
+	  ], type == 10
+	= vips_call "mask_gaussian_ring" [width, height, p1, p2, p3] [
+		$reject => true
+	  ], type == 11
+	= vips_call "mask_ideal_band" [width, height, p1, p2, p3] [
+	  ], type == 12
+	= vips_call "mask_ideal_band" [width, height, p1, p2, p3] [
+		$reject => true
+	  ], type == 13
+	= vips_call "mask_butterworth_band" [width, height, p1, p2, p3, p4, p5] [
+	  ], type == 14
+	= vips_call "mask_butterworth_band" [width, height, p1, p2, p3, p4, p5] [
+		$reject => true
+	  ], type == 15
+	= vips_call "mask_gaussian_band" [width, height, p1, p2, p3, p4] [
+	  ], type == 16
+	= vips_call "mask_gaussian_band" [width, height, p1, p2, p3, p4] [
+		$reject => true
+	  ], type == 17
+	= vips_call "mask_fractal" [width, height, p1] [
+	  ], type == 18
+	= error "bad mask type";
+
+im_rotquad in
+	= vips_call "wrap" [in] [
+		$x => width / 2,
+		$y => height / 2
+	  ]
+{
+	width = get_header "width" in;
+	height = get_header "height" in;
+}
+
+im_falsecolour in
+	= vips_call "falsecolour" [in] [
+	];
+
+im_stdif in a m0 b s0 xw yw
+	= vips_call "stdif" [in, xw, yw] [
+		$s0 => s0,
+		$b => b,
+		$m0 => m0,
+		$a => a
+	];
+
+im_histgr in band_number
+	= vips_call "hist_find" [in] [
+		$band => band_number
+	];
+
+im_histcum in band_number
+	= vips_call "hist_cum" [in] [
+	];
+
+im_histnorm in
+	= vips_call "hist_norm" [in] [
+	];
+
+im_spcor in1 in2
+	= vips_call "spcor" [in1, in2] [
+	];
+
+im_fastcor in1 in2
+	= vips_call "fastcor" [in1, in2] [
+	];
+
+im_insert_noexpand in sub x y
+	= vips_call "insert" [in, sub, x, y] [
+	];
+
+im_identity nbands
+	= vips_call "identity" [] [
+		$bands => nbands
+	];
+
+im_profile in direction
+	= im_clip2us columns, direction == 0
+	= im_clip2us rows
+{
+	[columns, rows] = vips_call "profile" [in] [
+	];
+}
+
+im_blend cond in1 in2
+	= vips_call "ifthenelse" [cond, in1, in2] [
+		$blend => true
+	];
+
+im_text text font width alignment dpi
+	= vips_call "text" [text] [
+		$font => font,
+		$width => width,
+		$align => alignment,
+		$dpi => dpi
+	];
+
+im_grey xsize ysize
+	= vips_call "grey" [xsize, ysize] [
+		$uchar => true
+	];
+
+im_extract_bands input band nbands
+	= vips_call "extract_band" [input, band] [
+		$n => nbands
+	];
+
+im_maplut in lut
+	= vips_call "maplut" [in, lut] [
+	];
+
+im_make_xy xsize ysize
+	= vips_call "xyz" [xsize, ysize] [
+	];
 
 // add a lot more!
 

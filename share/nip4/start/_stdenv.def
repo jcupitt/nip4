@@ -1510,7 +1510,7 @@ hist_diff hist
 hist_norm hist
 	= oo_unary_function hist_norm_op hist, is_class hist
 	= im_histnorm hist, is_image hist
-	= error (_ "bad arguments to " ++ "hist_norm")
+	= error (_ "bad arguments to " ++ "hist_norm " ++ print hist)
 {
 	hist_norm_op = Operator "hist_norm"
 		hist_norm Operator_type.COMPOUND_REWRAP false;
