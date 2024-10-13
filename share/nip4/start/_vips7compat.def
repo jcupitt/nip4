@@ -112,8 +112,9 @@ im_insertset main sub x y
 	}
 }
 
+// use im_vips2mask, not to_matrix, since to_matrix does not preserve .scale
 im_gauss_dmask sigma min_amp
-	= to_matrix mask
+	= im_vips2mask mask
 {
 	mask = vips_call "gaussmat" [sigma, min_amp] [
 		$precision => "float"
@@ -121,7 +122,7 @@ im_gauss_dmask sigma min_amp
 }
 
 im_gauss_imask sigma min_amp
-	= to_matrix mask
+	= im_vips2mask mask
 {
 	mask = vips_call "gaussmat" [sigma, min_amp] [
 		$precision => "integer"
@@ -129,7 +130,7 @@ im_gauss_imask sigma min_amp
 }
 
 im_gauss_dmask_sep sigma min_amp
-	= to_matrix mask
+	= im_vips2mask mask
 {
 	mask = vips_call "gaussmat" [sigma, min_amp] [
 		$precision => "float",
@@ -138,7 +139,7 @@ im_gauss_dmask_sep sigma min_amp
 }
 
 im_gauss_imask_sep sigma min_amp
-	= to_matrix mask
+	= im_vips2mask mask
 {
 	mask = vips_call "gaussmat" [sigma, min_amp] [
 		$precision => "integer",

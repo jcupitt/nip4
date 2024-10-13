@@ -73,9 +73,14 @@
 
 - continue adding vips7 compat defs:
 
-	test_colour.ws done
+	done
+		test_colour.ws
+		test_conv.ws
+		test_fail.ws
 
-	nip4 test/workspaces/test_conv.ws
+	nip4 test/workspaces/test_filter.ws
+
+		im_roatte_dmask45 next
 
 - add Colour widget next?
 

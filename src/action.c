@@ -1152,9 +1152,9 @@ action_proc_sub(Reduce *rc, Compile *compile,
 	}
 	else if (PEISREAL(a) && PEISIMAGE(b)) {
 		g_autoptr(VipsArrayDouble) aa = vips_array_double_newv(1, -1.0);
-		g_autoptr(VipsArrayDouble) ab = vips_array_double_newv(1, PEGETREAL(b));
+		g_autoptr(VipsArrayDouble) ab = vips_array_double_newv(1, PEGETREAL(a));
 
-		vo_callva(rc, out, "linear", PEGETIMAGE(a), aa, ab);
+		vo_callva(rc, out, "linear", PEGETIMAGE(b), aa, ab);
 	}
 	else
 		action_boperror(rc, compile, NULL, op, name, a, b);
