@@ -136,6 +136,10 @@ typedef struct _Tilesource {
 	VipsImage *image;
 	VipsRegion *image_region;
 
+	/* If set, there's no background display.
+	 */
+	gboolean synchronous;
+
 	/* What sort of image we have, and how we are displaying it.
 	 */
 	TilesourceType type;
@@ -283,5 +287,7 @@ gboolean tilesource_get_pixel(Tilesource *tilesource,
 	int image_x, int image_y, double **vector, int *n);
 Tilesource *tilesource_duplicate(Tilesource *tilesource);
 void tilesource_changed(Tilesource *tilesource);
+
+void tilesource_set_synchronous(Tilesource *source, gboolean synchronous);
 
 #endif /*__TILESOURCE_H*/

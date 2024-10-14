@@ -109,8 +109,7 @@ expression_load(Model *model,
 	if (get_sprop(xnode, "caption", caption, MAX_STRSIZE))
 		iobject_set(IOBJECT(model), NULL, caption);
 
-	return MODEL_CLASS(expression_parent_class)->
-		load(model, state, parent, xnode);
+	return MODEL_CLASS(expression_parent_class)->load(model, state, parent, xnode);
 }
 
 /* Update Expression from heap.

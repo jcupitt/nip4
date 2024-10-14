@@ -266,7 +266,6 @@ tilesource_display_image(Tilesource *tilesource, VipsImage **mask_out)
 {
 	VipsImage *x;
 	VipsImage *mask;
-	TilesourceUpdate *update;
 
 	g_assert(mask_out);
 
@@ -400,27 +399,37 @@ tilesource_display_image(Tilesource *tilesource, VipsImage **mask_out)
 		image = x;
 	}
 
-	/* Need something to track the z at which we made this sink_screen.
-	 */
-	update = VIPS_NEW(image, TilesourceUpdate);
-	update->tilesource = tilesource;
-	update->z = tilesource->current_z;
+	if (tilesource->synchronous) {
+		if (vips_copy(image, &x, NULL))
+			return NULL;
+		VIPS_UNREF(image);
+		image = x;
 
-	x = vips_image_new();
-	mask = vips_image_new();
-	if (vips_sink_screen(image, x, mask,
-			TILE_SIZE, TILE_SIZE, MAX_TILES, 0,
-			tilesource_render_notify, update)) {
-		VIPS_UNREF(x);
-		VIPS_UNREF(mask);
-		return NULL;
+		*mask_out = NULL;
 	}
-	VIPS_UNREF(image);
-	image = x;
+	else {
+		/* Need something to track the z at which we made this sink_screen.
+		 */
+		TilesourceUpdate *update = VIPS_NEW(image, TilesourceUpdate);
+		update->tilesource = tilesource;
+		update->z = tilesource->current_z;
 
-	update->image = image;
+		x = vips_image_new();
+		mask = vips_image_new();
+		if (vips_sink_screen(image, x, mask,
+				TILE_SIZE, TILE_SIZE, MAX_TILES, 0,
+				tilesource_render_notify, update)) {
+			VIPS_UNREF(x);
+			VIPS_UNREF(mask);
+			return NULL;
+		}
+		VIPS_UNREF(image);
+		image = x;
 
-	*mask_out = mask;
+		update->image = image;
+
+		*mask_out = mask;
+	}
 
 	return g_steal_pointer(&image);
 }
@@ -1895,4 +1904,18 @@ tilesource_get_pixel(Tilesource *tilesource, int image_x, int image_y,
 		return FALSE;
 
 	return TRUE;
+}
+
+void
+tilesource_set_synchronous(Tilesource *tilesource, gboolean synchronous)
+{
+	if (tilesource->synchronous != synchronous) {
+#ifdef DEBUG
+		printf("tilesource_set_synchronous: %d", synchronous);
+		iobject_print(IOBJECT(tilesource));
+#endif /*DEBUG*/
+
+		tilesource->synchronous = synchronous;
+		tilesource_update_rgb(tilesource);
+	}
 }

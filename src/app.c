@@ -259,7 +259,6 @@ app_startup(GApplication *app)
 	printf("app_startup: FIXME ... register more types\n");
 	/*
 	(void) g_type_class_ref(TYPE_CLOCK);
-	(void) g_type_class_ref(TYPE_COLOUR);
 	(void) g_type_class_ref(TYPE_FONTNAME);
 	(void) g_type_class_ref(TYPE_GROUP);
 	(void) g_type_class_ref(TYPE_NUMBER);
@@ -285,6 +284,7 @@ app_startup(GApplication *app)
 	(void) g_type_class_ref(PATHNAME_TYPE);
 	(void) g_type_class_ref(MATRIX_TYPE);
 	(void) g_type_class_ref(EXPRESSION_TYPE);
+	(void) g_type_class_ref(COLOUR_TYPE);
 
 	/* Some custom CSS.
 	 */

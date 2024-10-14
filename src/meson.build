@@ -37,6 +37,7 @@ sources = files (
   'heapmodel.c',
   'icontainer.c',
   'iimage.c',
+  'colour.c',
   'iimageview.c',
   'iarrow.c',
   'iregion.c',

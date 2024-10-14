@@ -778,3 +778,178 @@ imageinfo_new_input(Imageinfogroup *imageinfogroup, GtkWidget *parent,
 
 	return imageinfo;
 }
+
+/* Get the image as display RGB in rgb[0-2].
+ */
+void
+imageinfo_get_rgb(Imageinfo *imageinfo, double rgb[3])
+{
+#ifdef DEBUG_RGB
+	{
+		char txt[256];
+		VipsBuf buf = VIPS_BUF_STATIC(txt);
+
+		printf("imageinfo_get_rgb: in: ");
+		imageinfo_to_text(imageinfo, &buf);
+		printf("%s\n", vips_buf_all(&buf));
+	}
+#endif /*DEBUG_RGB*/
+
+	/* Use a tilesource to convert the imageinfo to RGB.
+	 */
+	Tilesource *source = tilesource_new_from_imageinfo(imageinfo);
+	tilesource_set_synchronous(source, TRUE);
+	iobject_ref_sink(IOBJECT(source));
+
+	VipsRect area = { 0, 0, 1, 1 };
+	if (vips_region_prepare(source->image_region, &area)) {
+		VIPS_UNREF(source);
+		return;
+	}
+	VipsPel *p = (VipsPel *)
+		VIPS_REGION_ADDR(source->image_region, area.left, area.top);
+
+	if (imageinfo->image->Bands < 3)
+		for (int i = 0; i < 3; i++)
+			rgb[i] = p[0] / 255.0;
+	else
+		for (int i = 0; i < 3; i++)
+			rgb[i] = p[i] / 255.0;
+
+#ifdef DEBUG_RGB
+	printf("imageinfo_get_rgb: out: r = %g, g = %g, b = %g\n",
+		rgb[0], rgb[1], rgb[2]);
+#endif /*DEBUG_RGB*/
+
+	VIPS_UNREF(source);
+}
+
+/* Try to overwrite an imageinfo with a display RGB colour.
+ */
+void
+imageinfo_set_rgb(Imageinfo *imageinfo, double rgb[3])
+{
+	Imageinfogroup *imageinfogroup =
+		IMAGEINFOGROUP(ICONTAINER(imageinfo)->parent);
+	VipsImage *image = imageinfo->image;
+	Heap *heap = reduce_context->heap;
+
+#ifdef DEBUG_RGB
+	printf("imageinfo_set_rgb: in: r = %g, g = %g, b = %g\n",
+		rgb[0], rgb[1], rgb[2]);
+#endif /*DEBUG_RGB*/
+
+	/* Make 1 pixel images for conversion.
+	 */
+	Imageinfo *in, *out;
+	if (!(in = imageinfo_new_temp(imageinfogroup, heap, NULL)) ||
+		!(out = imageinfo_new_temp(imageinfogroup, heap, NULL)))
+		return;
+
+	/* Fill in with rgb.
+	 */
+	vips_image_init_fields(in->image, 1, 1, 3,
+		VIPS_FORMAT_UCHAR, VIPS_CODING_NONE,
+		VIPS_INTERPRETATION_sRGB, 1.0, 1.0);
+	if (vips_image_write_prepare(in->image))
+		return;
+	VipsPel *data = VIPS_IMAGE_ADDR(in->image, 0, 0);
+	for (int i = 0; i < 3; i++)
+		data[i] = VIPS_RINT(rgb[i] * 255.0);
+
+	/* To imageinfo->type. Make sure we get a float ... except for LABQ
+	 * and RAD.
+	 */
+    VipsImage **t = (VipsImage **)
+		vips_object_local_array(VIPS_OBJECT(in->image), 2);
+	if (image->Coding == VIPS_CODING_LABQ) {
+		if (vips_colourspace(in->image, &t[0],
+				VIPS_INTERPRETATION_LABQ, NULL) ||
+			vips_image_write(t[0], out->image))
+			return;
+	}
+	else if (image->Coding == VIPS_CODING_RAD) {
+		if (vips_colourspace(in->image, &t[0], VIPS_INTERPRETATION_XYZ, NULL) ||
+			vips_float2rad(t[0], &t[1], NULL) ||
+			vips_image_write(t[1], out->image))
+			return;
+	}
+	else if (image->Coding == VIPS_CODING_NONE) {
+		if (vips_colourspace(in->image, &t[0], image->Type, NULL) ||
+			vips_cast_float(t[0], &t[1], NULL) ||
+			vips_image_write(t[1], out->image))
+			return;
+	}
+
+#define SET(TYPE, i) \
+		((TYPE *) image->data)[i] = ((float *) out->image->data)[i];
+
+	/* Now ... overwrite imageinfo.
+	 */
+	if (image->Coding == VIPS_CODING_LABQ ||
+		image->Coding == VIPS_CODING_RAD) {
+		for (int i = 0; i < image->Bands; i++)
+			((VipsPel *) image->data)[i] = ((VipsPel *) out->image->data)[i];
+	}
+	else {
+		for (int i = 0; i < image->Bands; i++)
+			switch (image->BandFmt) {
+			case VIPS_FORMAT_UCHAR:
+				SET(unsigned char, i);
+				break;
+
+			case VIPS_FORMAT_CHAR:
+				SET(signed char, i);
+				break;
+
+			case VIPS_FORMAT_USHORT:
+				SET(unsigned short, i);
+				break;
+
+			case VIPS_FORMAT_SHORT:
+				SET(signed short, i);
+				break;
+
+			case VIPS_FORMAT_UINT:
+				SET(unsigned int, i);
+				break;
+
+			case VIPS_FORMAT_INT:
+				SET(signed int, i);
+				break;
+
+			case VIPS_FORMAT_FLOAT:
+				SET(float, i);
+				break;
+
+			case VIPS_FORMAT_DOUBLE:
+				SET(double, i);
+				break;
+
+			case VIPS_FORMAT_COMPLEX:
+				SET(float, i * 2);
+				SET(float, i * 2 + 1);
+				break;
+
+			case VIPS_FORMAT_DPCOMPLEX:
+				SET(double, i * 2);
+				SET(double, i * 2 + 1);
+				break;
+
+			default:
+				g_assert(FALSE);
+			}
+	}
+	vips_image_invalidate_all(image);
+
+#ifdef DEBUG_RGB
+	{
+		char txt[256];
+		VipsBuf buf = VIPS_BUF_STATIC(txt);
+
+		printf("imageinfo_set_rgb: out: ");
+		imageinfo_to_text(imageinfo, &buf);
+		printf("%s\n", vips_buf_all(&buf));
+	}
+#endif /*DEBUG_RGB*/
+}

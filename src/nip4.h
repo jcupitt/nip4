@@ -135,6 +135,7 @@ typedef struct _BuiltinInfo BuiltinInfo;
 typedef struct _Classmodel Classmodel;
 typedef struct _Column Column;
 typedef struct _Columnview Columnview;
+typedef struct _Colour Colour;
 typedef struct _Compile Compile;
 typedef struct _Element Element;
 typedef struct _Expression Expression;
@@ -251,6 +252,7 @@ typedef struct _Workspace Workspace;
 #include "slider.h"
 #include "toggle.h"
 #include "iimage.h"
+#include "colour.h"
 #include "iregiongroup.h"
 #include "iregion.h"
 #include "iarrow.h"
