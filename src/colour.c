@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -67,6 +67,10 @@ static void
 colour_finalize(GObject *gobject)
 {
 	Colour *colour = COLOUR(gobject);
+
+#ifdef DEBUG
+	printf("colour_finalize:\n");
+#endif /*DEBUG*/
 
 	VIPS_FREE(colour->colour_space);
 	vips_buf_destroy(&colour->caption);
@@ -113,6 +117,10 @@ colour_get_vips_interpretation(Colour *colour)
 static void
 colour_refresh(Colour *colour)
 {
+#ifdef DEBUG
+	printf("colour_refresh:\n");
+#endif /*DEBUG*/
+
 	vips_buf_rewind(&colour->caption);
 	vips_buf_appendf(&colour->caption, CLASS_COLOUR " %s [%g, %g, %g]",
 		colour->colour_space,
@@ -123,10 +131,13 @@ void
 colour_set_colour(Colour *colour,
 	const char *colour_space, double value[3])
 {
-	int i;
+#ifdef DEBUG
+	printf("colour_set_colour:\n");
+#endif /*DEBUG*/
 
 	/* No change?
 	 */
+	int i;
 	for (i = 0; i < 3; i++)
 		if (!DEQ(value[i], colour->value[i]))
 			break;
@@ -150,6 +161,10 @@ Imageinfo *
 colour_ii_new(Colour *colour)
 {
 	Imageinfo *ii;
+
+#ifdef DEBUG
+	printf("colour_ii_new:\n");
+#endif /*DEBUG*/
 
 	if (!(ii = imageinfo_new_temp(main_imageinfogroup,
 			  reduce_context->heap, NULL)))
@@ -175,6 +190,10 @@ colour_get_rgb(Colour *colour, double rgb[3])
 {
 	Imageinfo *imageinfo;
 
+#ifdef DEBUG
+	printf("colour_get_rgb:\n");
+#endif /*DEBUG*/
+
 	for (int i = 0; i < 3; i++)
 		rgb[i] = 0.0;
 	if ((imageinfo = colour_ii_new(colour)))
@@ -185,6 +204,10 @@ void
 colour_set_rgb(Colour *colour, double rgb[3])
 {
 	Imageinfo *imageinfo;
+
+#ifdef DEBUG
+	printf("colour_set_rgb:\n");
+#endif /*DEBUG*/
 
 	if ((imageinfo = colour_ii_new(colour))) {
 		double old_rgb[3];
@@ -286,6 +309,10 @@ colour_update_model(Heapmodel *heapmodel)
 {
 	Colour *colour = COLOUR(heapmodel);
 
+#ifdef DEBUG
+	printf("colour_update_model:\n");
+#endif /*DEBUG*/
+
 	if (HEAPMODEL_CLASS(colour_parent_class)->update_model(heapmodel))
 		return heapmodel;
 
@@ -336,6 +363,10 @@ colour_class_init(ColourClass *class)
 static void
 colour_init(Colour *colour)
 {
+#ifdef DEBUG
+	printf("colour_init:\n");
+#endif /*DEBUG*/
+
 	colour->value[0] = 0.0;
 	colour->value[1] = 0.0;
 	colour->value[2] = 0.0;
