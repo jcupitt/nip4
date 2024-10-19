@@ -27,19 +27,23 @@
 
 */
 
-#define TYPE_COLOURVIEW (colourview_get_type())
-#define COLOURVIEW(obj) (GTK_CHECK_CAST((obj), TYPE_COLOURVIEW, Colourview))
+#define COLOURVIEW_TYPE (colourview_get_type())
+#define COLOURVIEW(obj) \
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), COLOURVIEW_TYPE, Colourview))
 #define COLOURVIEW_CLASS(klass) \
-	(GTK_CHECK_CLASS_CAST((klass), TYPE_COLOURVIEW, ColourviewClass))
-#define IS_COLOURVIEW(obj) (GTK_CHECK_TYPE((obj), TYPE_COLOURVIEW))
+	(G_TYPE_CHECK_CLASS_CAST((klass), COLOURVIEW_TYPE, ColourviewClass))
+#define IS_COLOURVIEW(obj) \
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj), COLOURVIEW_TYPE))
 #define IS_COLOURVIEW_CLASS(klass) \
-	(GTK_CHECK_CLASS_TYPE((klass), TYPE_COLOURVIEW))
+	(G_TYPE_CHECK_CLASS_TYPE((klass), COLOURVIEW_TYPE))
+#define COLOURVIEW_GET_CLASS(obj) \
+	(G_TYPE_INSTANCE_GET_CLASS((obj), COLOURVIEW_TYPE, ColourviewClass))
 
 typedef struct _Colourview {
 	Graphicview parent_object;
 
 	Colourdisplay *colourdisplay;
-	Conversion *conv;
+	Tilesource *tilesource;
 	GtkWidget *label;
 } Colourview;
 
@@ -50,5 +54,5 @@ typedef struct _ColourviewClass {
 	 */
 } ColourviewClass;
 
-GtkType colourview_get_type(void);
+GType colourview_get_type(void);
 View *colourview_new(void);

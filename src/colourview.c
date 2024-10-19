@@ -31,9 +31,9 @@
 #define DEBUG
  */
 
-#include "ip.h"
+#include "nip4.h"
 
-static GraphicviewClass *parent_class = NULL;
+G_DEFINE_TYPE(Colourview, colourview, GRAPHICVIEW_TYPE)
 
 static void
 colourview_link(View *view, Model *model, View *parent)
@@ -41,7 +41,7 @@ colourview_link(View *view, Model *model, View *parent)
 	Colourview *colourview = COLOURVIEW(view);
 	Rowview *rview = ROWVIEW(parent->parent);
 
-	VIEW_CLASS(parent_class)->link(view, model, parent);
+	VIEW_CLASS(colourview_parent_class)->link(view, model, parent);
 
 	rowview_menu_attach(rview, GTK_WIDGET(colourview->colourdisplay));
 }
@@ -59,7 +59,7 @@ colourview_refresh(vObject *vobject)
 	conversion_set_image(colourview->conv, colour_ii_new(colour));
 	set_gcaption(colourview->label, "%s", vips_buf_all(&colour->caption));
 
-	VOBJECT_CLASS(parent_class)->refresh(vobject);
+	VOBJECT_CLASS(colourview_parent_class)->refresh(vobject);
 }
 
 static void
@@ -67,8 +67,6 @@ colourview_class_init(ColourviewClass *class)
 {
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
-
-	parent_class = g_type_class_peek_parent(class);
 
 	/* Create signals.
 	 */
@@ -84,27 +82,10 @@ static void
 colourview_area_changed_cb(Imagedisplay *id, Rect *area,
 	Colourview *colourview)
 {
-	double rgb[4];
+	double rgb[3];
 
 	imageinfo_to_rgb(id->conv->ii, rgb);
 	colour_set_rgb(COLOUR(VOBJECT(colourview)->iobject), rgb);
-}
-
-static void
-colourview_doubleclick_one_cb(GtkWidget *widget, GdkEvent *event,
-	Colourview *colourview)
-{
-	Heapmodel *heapmodel = HEAPMODEL(VOBJECT(colourview)->iobject);
-	Row *row = heapmodel->row;
-
-	row_select_modifier(row, event->button.state);
-}
-
-static void
-colourview_doubleclick_two_cb(GtkWidget *widget, GdkEvent *event,
-	Colourview *colourview)
-{
-	model_edit(widget, MODEL(VOBJECT(colourview)->iobject));
 }
 
 static void
@@ -150,33 +131,10 @@ colourview_init(Colourview *colourview)
 	gtk_widget_show(eb);
 }
 
-GtkType
-colourview_get_type(void)
-{
-	static GtkType colourview_type = 0;
-
-	if (!colourview_type) {
-		static const GtkTypeInfo info = {
-			"Colourview",
-			sizeof(Colourview),
-			sizeof(ColourviewClass),
-			(GtkClassInitFunc) colourview_class_init,
-			(GtkObjectInitFunc) colourview_init,
-			/* reserved_1 */ NULL,
-			/* reserved_2 */ NULL,
-			(GtkClassInitFunc) NULL,
-		};
-
-		colourview_type = gtk_type_unique(TYPE_GRAPHICVIEW, &info);
-	}
-
-	return (colourview_type);
-}
-
 View *
 colourview_new(void)
 {
-	Colourview *colourview = gtk_type_new(TYPE_COLOURVIEW);
+	Colourview *colourview = g_object_new(COLOURVIEW_TYPE, NULL);
 
-	return (VIEW(colourview));
+	return VIEW(colourview);
 }
