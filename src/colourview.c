@@ -36,14 +36,61 @@
 G_DEFINE_TYPE(Colourview, colourview, GRAPHICVIEW_TYPE)
 
 static void
-colourview_link(View *view, Model *model, View *parent)
+colourview_dispose(GObject *object)
 {
-	Colourview *colourview = COLOURVIEW(view);
-	Rowview *rview = ROWVIEW(parent->parent);
+	Colourview *colourview;
 
-	VIEW_CLASS(colourview_parent_class)->link(view, model, parent);
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(IS_COLOURVIEW(object));
 
-	rowview_menu_attach(rview, GTK_WIDGET(colourview->colourdisplay));
+	colourview = COLOURVIEW(object);
+
+#ifdef DEBUG
+	printf("colourview_dispose:\n");
+#endif /*DEBUG*/
+
+	gtk_widget_dispose_template(GTK_WIDGET(colourview), COLOURVIEW_TYPE);
+
+	G_OBJECT_CLASS(colourview_parent_class)->dispose(object);
+}
+
+static void
+colourview_realize(GtkWidget *widget)
+{
+	GTK_WIDGET_CLASS(colourview_parent_class)->realize(widget);
+
+	/* Mark us as a symbol drag-to widget.
+	 */
+	set_symbol_drag_type(widget);
+}
+
+static Rowview *
+colourview_rowview(Colourview *colourview)
+{
+	View *p;
+
+	for (p = VIEW(colourview); !IS_ROWVIEW(p); p = p->parent)
+		;
+
+	return ROWVIEW(p);
+}
+
+static void
+colourview_click(GtkGestureClick *gesture,
+	guint n_press, double x, double y, Colourview *colourview)
+{
+	if (n_press == 1) {
+		Rowview *rowview = colourview_rowview(colourview);
+		Row *row = ROW(VOBJECT(rowview)->iobject);
+		guint state = get_modifiers(GTK_EVENT_CONTROLLER(gesture));
+
+		row_select_modifier(row, state);
+	}
+	else {
+		Colour *colour = COLOUR(VOBJECT(colourview)->iobject);
+
+		model_edit(GTK_WIDGET(colourview), MODEL(colour));
+	}
 }
 
 static void
@@ -56,8 +103,12 @@ colourview_refresh(vObject *vobject)
 	printf("colourview_refresh\n");
 #endif /*DEBUG*/
 
-	conversion_set_image(colourview->conv, colour_ii_new(colour));
-	set_gcaption(colourview->label, "%s", vips_buf_all(&colour->caption));
+	g_object_set(colourview->imagedisplay,
+		"bestfit", TRUE,
+		"tilesource", tilesource_new_from_imageinfo(colour_ii_new(colour)),
+		NULL);
+
+	set_glabel(colourview->label, "%s", vips_buf_all(&colour->caption));
 
 	VOBJECT_CLASS(colourview_parent_class)->refresh(vobject);
 }
@@ -65,70 +116,53 @@ colourview_refresh(vObject *vobject)
 static void
 colourview_class_init(ColourviewClass *class)
 {
+	GObjectClass *object_class = (GObjectClass *) class;
+	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
-	ViewClass *view_class = (ViewClass *) class;
 
-	/* Create signals.
-	 */
+	BIND_RESOURCE("colourview.ui");
 
-	/* Init methods.
-	 */
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
+		GTK_TYPE_BIN_LAYOUT);
+
+	BIND_VARIABLE(Colourview, top);
+	BIND_VARIABLE(Colourview, imagedisplay);
+	BIND_VARIABLE(Colourview, label);
+
+	BIND_CALLBACK(colourview_click);
+
+	object_class->dispose = colourview_dispose;
+
+	widget_class->realize = colourview_realize;
+
 	vobject_class->refresh = colourview_refresh;
-
-	view_class->link = colourview_link;
 }
 
 static void
-colourview_area_changed_cb(Imagedisplay *id, Rect *area,
-	Colourview *colourview)
+colourview_changed(Imagedisplay *imagedisplay, Colourview *colourview)
 {
-	double rgb[3];
+	Colour *colour = COLOUR(VOBJECT(colourview)->iobject);
 
-	imageinfo_to_rgb(id->conv->ii, rgb);
-	colour_set_rgb(COLOUR(VOBJECT(colourview)->iobject), rgb);
+	double rgb[3];
+	Tilesource *tilesource;
+
+	printf("colourview_changed:\n");
+
+	//imageinfo_get_rgb(id->tilesource->ii, rgb);
+	//colour_set_rgb(colour, rgb);
 }
 
 static void
 colourview_init(Colourview *colourview)
 {
-	GtkWidget *eb;
-	GtkWidget *vbox;
-
 #ifdef DEBUG
 	printf("colourview_init\n");
 #endif /*DEBUG*/
 
-	eb = gtk_event_box_new();
-	gtk_widget_add_events(GTK_WIDGET(eb),
-		GDK_POINTER_MOTION_HINT_MASK);
-	gtk_box_pack_start(GTK_BOX(colourview), eb, FALSE, FALSE, 0);
-	vbox = gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(eb), vbox);
-	gtk_widget_show(vbox);
+	gtk_widget_init_template(GTK_WIDGET(colourview));
 
-	colourview->colourdisplay = colourdisplay_new(NULL);
-	colourview->conv = IMAGEDISPLAY(colourview->colourdisplay)->conv;
-	gtk_widget_set_size_request(GTK_WIDGET(colourview->colourdisplay),
-		DISPLAY_THUMBNAIL, DISPLAY_THUMBNAIL);
-	gtk_box_pack_start(GTK_BOX(vbox),
-		GTK_WIDGET(colourview->colourdisplay), FALSE, FALSE, 0);
-	g_signal_connect(colourview->colourdisplay, "area_changed",
-		G_CALLBACK(colourview_area_changed_cb), colourview);
-	gtk_widget_show(GTK_WIDGET(colourview->colourdisplay));
-
-	colourview->label = gtk_label_new("");
-	gtk_misc_set_alignment(GTK_MISC(colourview->label), 0, 0.5);
-	gtk_misc_set_padding(GTK_MISC(colourview->label), 2, 0);
-	gtk_box_pack_start(GTK_BOX(vbox),
-		GTK_WIDGET(colourview->label), FALSE, FALSE, 0);
-	gtk_widget_show(GTK_WIDGET(colourview->label));
-
-	doubleclick_add(GTK_WIDGET(colourview), FALSE,
-		DOUBLECLICK_FUNC(colourview_doubleclick_one_cb), colourview,
-		DOUBLECLICK_FUNC(colourview_doubleclick_two_cb), colourview);
-
-	gtk_widget_set_name(eb, "caption_widget");
-	gtk_widget_show(eb);
+	g_signal_connect(colourview->imagedisplay, "changed",
+		G_CALLBACK(colourview_changed), colourview);
 }
 
 View *

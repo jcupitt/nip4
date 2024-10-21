@@ -42,8 +42,8 @@
 typedef struct _Colourview {
 	Graphicview parent_object;
 
-	Colourdisplay *colourdisplay;
-	Tilesource *tilesource;
+	GtkWidget *top;
+	Imagedisplay *imagedisplay;
 	GtkWidget *label;
 } Colourview;
 

@@ -175,10 +175,10 @@ colour_ii_new(Colour *colour)
 	vips_image_init_fields(ii->image, 1, 1, 3,
 		VIPS_FORMAT_FLOAT, VIPS_CODING_NONE,
 		colour_get_vips_interpretation(colour), 1.0, 1.0);
-	if (vips_image_write_prepare(ii->image))
+	if (vips_image_write_prepare(ii->image) ||
+		vips_image_write_line(ii->image, 0, (VipsPel *) colour->value) ||
+		vips_image_wio_input(ii->image))
 		return NULL;
-	for (int i = 0; i < 3; i++)
-		((float *) ii->image->data)[i] = colour->value[i];
 
 	return ii;
 }
@@ -300,8 +300,7 @@ colour_edit(GtkWidget *parent, Model *model)
 static View *
 colour_view_new(Model *model, View *parent)
 {
-	// return colourview_new();
-	return NULL;
+	return colourview_new();
 }
 
 static void *

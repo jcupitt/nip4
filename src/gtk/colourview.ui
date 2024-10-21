@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Colourview" parent="Graphicview">
+    <property name="hexpand">true</property>
+    <child>
+      <object class="GtkBox" id="top">
+        <property name="orientation">vertical</property>
+
+        <child>
+          <object class="GtkGestureClick">
+	    <property name="button">1</property>
+	    <signal name="pressed" handler="colourview_click"/>
+          </object>
+        </child>
+
+        <child>
+          <object class="Imagedisplay" id="imagedisplay">
+            <property name="content-height">64</property>
+            <property name="can-focus">false</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkLabel" id="label">
+            <property name="xalign">0</property>
+            <style>
+              <class name="caption"/>
+            </style>
+          </object>
+        </child>
+
+      </object>
+    </child>
+  </template>
+</interface>
+
+
+

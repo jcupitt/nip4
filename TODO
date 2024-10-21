@@ -1,3 +1,8 @@
+- next: Colourdisplay
+
+
+- colourview_click(), iimageview_click() etc, could be in graphicview?
+
 - add Colour widget? might fix test_filter.ws
 
 
