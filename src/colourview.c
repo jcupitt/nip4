@@ -145,20 +145,6 @@ colourview_class_init(ColourviewClass *class)
 }
 
 static void
-colourview_changed(Imagedisplay *imagedisplay, Colourview *colourview)
-{
-	Colour *colour = COLOUR(VOBJECT(colourview)->iobject);
-
-	double rgb[3];
-	Tilesource *tilesource;
-
-	printf("colourview_changed:\n");
-
-	//imageinfo_get_rgb(id->tilesource->ii, rgb);
-	//colour_set_rgb(colour, rgb);
-}
-
-static void
 colourview_init(Colourview *colourview)
 {
 #ifdef DEBUG
@@ -166,9 +152,6 @@ colourview_init(Colourview *colourview)
 #endif /*DEBUG*/
 
 	gtk_widget_init_template(GTK_WIDGET(colourview));
-
-	g_signal_connect(colourview->imagedisplay, "changed",
-		G_CALLBACK(colourview_changed), colourview);
 }
 
 View *

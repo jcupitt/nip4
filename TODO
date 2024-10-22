@@ -1,11 +1,4 @@
-- next: Colourdisplay
-
-
 - colourview_click(), iimageview_click() etc, could be in graphicview?
-
-- add Colour widget? might fix test_filter.ws
-
-
 
 - dirty rows should display "blocked on A1" instead of an old value?
 
