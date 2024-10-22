@@ -234,72 +234,42 @@ colour_set_rgb(Colour *colour, double rgb[3])
 	}
 }
 
-/* Done button hit.
 static void
-colour_done_cb(iWindow *iwnd, void *client, iWindowNotifyFn nfn, void *sys)
+colour_edit_choose_rgba(GObject *source_object,
+	GAsyncResult *res, gpointer data)
 {
-	ColourEdit *eds = (ColourEdit *) client;
-	Colour *colour = eds->colour;
-	double rgb[4];
+	GtkColorDialog *dialog = GTK_COLOR_DIALOG(source_object);
+	Colour *colour = COLOUR(data);
 
-	gtk_color_selection_get_color(
-		GTK_COLOR_SELECTION(eds->colour_widget), rgb);
+	g_autoptr(GdkRGBA) selected_colour =
+		gtk_color_dialog_choose_rgba_finish(dialog, res, NULL);
 
+	double rgb[3];
+	rgb[0] = selected_colour->red;
+	rgb[1] = selected_colour->green;
+	rgb[2] = selected_colour->blue;
 	colour_set_rgb(colour, rgb);
-
-	nfn(sys, IWINDOW_YES);
 }
- */
 
-/* Build the insides of colour edit.
-static void
-colour_buildedit(iDialog *idlg, GtkWidget *work, ColourEdit *eds)
-{
-	Colour *colour = eds->colour;
-	double rgb[4];
-
-	eds->colour_widget = gtk_color_selection_new();
-	gtk_color_selection_set_has_opacity_control(
-		GTK_COLOR_SELECTION(eds->colour_widget), FALSE);
-	colour_get_rgb(colour, rgb);
-	gtk_color_selection_set_color(
-		GTK_COLOR_SELECTION(eds->colour_widget), rgb);
-	gtk_box_pack_start(GTK_BOX(work),
-		eds->colour_widget, TRUE, TRUE, 2);
-
-	gtk_widget_show_all(work);
-}
- */
-
-/*
 static void
 colour_edit(GtkWidget *parent, Model *model)
 {
 	Colour *colour = COLOUR(model);
-	ColourEdit *eds = INEW(NULL, ColourEdit);
-	GtkWidget *idlg;
 
-	eds->colour = colour;
+	GtkColorDialog *dialog = gtk_color_dialog_new();
 
-	idlg = idialog_new();
-	iwindow_set_title(IWINDOW(idlg), _("Edit %s %s"),
-		IOBJECT_GET_CLASS_NAME(model),
-		IOBJECT(HEAPMODEL(model)->row)->name);
-	idialog_set_build(IDIALOG(idlg),
-		(iWindowBuildFn) colour_buildedit, eds, NULL, NULL);
-	idialog_set_callbacks(IDIALOG(idlg),
-		iwindow_true_cb, NULL, idialog_free_client, eds);
-	idialog_add_ok(IDIALOG(idlg),
-		colour_done_cb, _("Set %s"),
-		IOBJECT_GET_CLASS_NAME(model));
-	iwindow_set_parent(IWINDOW(idlg), parent);
-	idialog_set_iobject(IDIALOG(idlg), IOBJECT(model));
-	idialog_set_pinup(IDIALOG(idlg), TRUE);
-	iwindow_build(IWINDOW(idlg));
+	double rgb[3];
+	colour_get_rgb(colour, rgb);
+	GdkRGBA initial_color = {
+		.red = rgb[0],
+		.green = rgb[1],
+		.blue = rgb[2],
+		.alpha = 1.0
+	};
 
-	gtk_widget_show(GTK_WIDGET(idlg));
+	gtk_color_dialog_choose_rgba(dialog, GTK_WINDOW(parent),
+		&initial_color, NULL, colour_edit_choose_rgba, colour);
 }
- */
 
 static View *
 colour_view_new(Model *model, View *parent)
@@ -351,7 +321,7 @@ colour_class_init(ColourClass *class)
 	gobject_class->finalize = colour_finalize;
 
 	model_class->view_new = colour_view_new;
-	// model_class->edit = colour_edit;
+	model_class->edit = colour_edit;
 
 	heapmodel_class->update_model = colour_update_model;
 

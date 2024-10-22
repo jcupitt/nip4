@@ -799,13 +799,10 @@ imageinfo_get_rgb(Imageinfo *imageinfo, double rgb[3])
 	 */
 	Tilesource *source = tilesource_new_from_imageinfo(imageinfo);
 	tilesource_set_synchronous(source, TRUE);
-	iobject_ref_sink(IOBJECT(source));
 
 	VipsRect area = { 0, 0, 1, 1 };
-	if (vips_region_prepare(source->image_region, &area)) {
-		VIPS_UNREF(source);
+	if (vips_region_prepare(source->image_region, &area))
 		return;
-	}
 	VipsPel *p = (VipsPel *)
 		VIPS_REGION_ADDR(source->image_region, area.left, area.top);
 
@@ -820,8 +817,6 @@ imageinfo_get_rgb(Imageinfo *imageinfo, double rgb[3])
 	printf("imageinfo_get_rgb: out: r = %g, g = %g, b = %g\n",
 		rgb[0], rgb[1], rgb[2]);
 #endif /*DEBUG_RGB*/
-
-	VIPS_UNREF(source);
 }
 
 /* Try to overwrite an imageinfo with a display RGB colour.
