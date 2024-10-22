@@ -1355,9 +1355,6 @@ tilesource_new_from_image(VipsImage *image)
 
 	tilesource_default_mode(tilesource);
 
-	/* FIXME ... should we support progress feedback? Probably not.
-	 */
-
 	return g_steal_pointer(&tilesource);
 }
 

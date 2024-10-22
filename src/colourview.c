@@ -103,10 +103,16 @@ colourview_refresh(vObject *vobject)
 	printf("colourview_refresh\n");
 #endif /*DEBUG*/
 
+	Imageinfo *imageinfo = colour_ii_new(colour);
+	Tilesource *tilesource = tilesource_new_from_imageinfo(imageinfo);
 	g_object_set(colourview->imagedisplay,
-		"bestfit", TRUE,
-		"tilesource", tilesource_new_from_imageinfo(colour_ii_new(colour)),
+		"tilesource", tilesource,
+		// zoom zoom zoom!
+		"zoom", 1024.0,
+		"bestfit", FALSE,
 		NULL);
+	if (tilesource)
+		tilesource_background_load(tilesource);
 
 	set_glabel(colourview->label, "%s", vips_buf_all(&colour->caption));
 

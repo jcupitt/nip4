@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -141,18 +141,17 @@ colour_set_colour(Colour *colour,
 	for (i = 0; i < 3; i++)
 		if (!DEQ(value[i], colour->value[i]))
 			break;
-	if (i == 3 &&
-		colour_space &&
-		g_ascii_strcasecmp(colour_space, colour->colour_space) == 0)
-		return;
+	if (i < 3 ||
+		!colour_space ||
+		g_ascii_strcasecmp(colour_space, colour->colour_space) != 0) {
+		for (i = 0; i < 3; i++)
+			colour->value[i] = value[i];
+		VIPS_SETSTR(colour->colour_space, colour_space);
 
-	for (i = 0; i < 3; i++)
-		colour->value[i] = value[i];
-	VIPS_SETSTR(colour->colour_space, colour_space);
-
-	colour_refresh(colour);
-	classmodel_update(CLASSMODEL(colour));
-	symbol_recalculate_all();
+		colour_refresh(colour);
+		classmodel_update(CLASSMODEL(colour));
+		symbol_recalculate_all();
+	}
 }
 
 /* Code up a colour as an ii. Refcount zero! Will go on next GC.
@@ -164,19 +163,25 @@ colour_ii_new(Colour *colour)
 
 #ifdef DEBUG
 	printf("colour_ii_new:\n");
+	printf("\tv0 = %g, v1 = %g, v2 = %g\n",
+		colour->value[0], colour->value[1], colour->value[2]);
 #endif /*DEBUG*/
 
-	if (!(ii = imageinfo_new_temp(main_imageinfogroup,
-			  reduce_context->heap, NULL)))
-		return NULL;
+	// vips colour funcs like float (not double)
+	float valuef[3];
+	for (int i = 0; i < 3; i++)
+		valuef[i] = colour->value[i];
 
 	/* Make a 3 band 32-bit FLOAT memory image.
 	 */
+	if (!(ii = imageinfo_new_temp(main_imageinfogroup,
+			  reduce_context->heap, NULL)))
+		return NULL;
 	vips_image_init_fields(ii->image, 1, 1, 3,
 		VIPS_FORMAT_FLOAT, VIPS_CODING_NONE,
 		colour_get_vips_interpretation(colour), 1.0, 1.0);
 	if (vips_image_write_prepare(ii->image) ||
-		vips_image_write_line(ii->image, 0, (VipsPel *) colour->value) ||
+		vips_image_write_line(ii->image, 0, (VipsPel *) valuef) ||
 		vips_image_wio_input(ii->image))
 		return NULL;
 
@@ -223,9 +228,8 @@ colour_set_rgb(Colour *colour, double rgb[3])
 			fabs(rgb[1] - old_rgb[1]) > (0.5 / 255) ||
 			fabs(rgb[2] - old_rgb[2]) > (0.5 / 255)) {
 			imageinfo_set_rgb(imageinfo, rgb);
-			for (int i = 0; i < 3; i++)
-				value[i] = ((float *) imageinfo->image->data)[i];
-			colour_set_colour(colour, colour->colour_space, value);
+			colour_set_colour(colour, colour->colour_space,
+				(double *) imageinfo->image->data);
 		}
 	}
 }
