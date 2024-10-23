@@ -288,7 +288,7 @@ im_histgr in band_number
 		$band => band_number
 	];
 
-im_histcum in band_number
+im_histcum in
 	= vips_call "hist_cum" [in] [
 	];
 

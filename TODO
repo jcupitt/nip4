@@ -1,4 +1,5 @@
-- cvolour edit swatches have different corner rounding ... how is this done?
+
+- colour edit swatches have different corner rounding ... how is this done?
   can we do this for rowview?
 
 	widget sets gtk_widget_add_css_class "left", "right" etc., then
@@ -13,7 +14,6 @@
 
 	"colorswatch" is the css_class of the swatch widget
 
-
 - colourview_click(), iimageview_click() etc, could be in graphicview?
 
 - dirty rows should display "blocked on A1" instead of an old value?
@@ -24,7 +24,6 @@
       are unchanged
 
     - don't lose zoom, pan, scale, offset, etc.
-
 
 - this fails:
 

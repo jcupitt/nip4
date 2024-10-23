@@ -159,7 +159,8 @@ path_rewrite_add(const char *old, const char *new, gboolean lock)
 
 	/* If old is a prefix of new we will get endless expansion.
 	 */
-	if (new &&is_prefix(old, new))
+	if (new &&
+		is_prefix(old, new))
 		return;
 
 	if ((rewrite = path_rewrite_lookup(old))) {

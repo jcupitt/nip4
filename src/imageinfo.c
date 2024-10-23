@@ -45,8 +45,8 @@ jobs:
 
 #include "nip4.h"
 
-#define DEBUG_RGB
 /*
+#define DEBUG_RGB
 #define DEBUG_CHECK
 #define DEBUG_OPEN
 #define DEBUG_MAKE

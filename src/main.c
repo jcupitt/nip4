@@ -412,6 +412,39 @@ main(int argc, char **argv)
 	 */
 	builtin_init();
 
+	/* We have to init some of our other classes to get them registered
+	 * with the XML loader.
+	 */
+	printf("app_startup: FIXME ... register more types\n");
+	/*
+	(void) g_type_class_ref(TYPE_CLOCK);
+	(void) g_type_class_ref(TYPE_FONTNAME);
+	(void) g_type_class_ref(TYPE_GROUP);
+	(void) g_type_class_ref(TYPE_NUMBER);
+	(void) g_type_class_ref(TYPE_PLOT);
+	(void) g_type_class_ref(TYPE_REAL);
+	(void) g_type_class_ref(TYPE_STRING);
+	(void) g_type_class_ref(TYPE_VECTOR);
+	 */
+
+	(void) g_type_class_ref(IMAGEDISPLAY_TYPE);
+	(void) g_type_class_ref(IIMAGE_TYPE);
+	(void) g_type_class_ref(IREGION_TYPE);
+	(void) g_type_class_ref(WORKSPACE_TYPE);
+	(void) g_type_class_ref(COLUMN_TYPE);
+	(void) g_type_class_ref(SUBCOLUMN_TYPE);
+	(void) g_type_class_ref(ROW_TYPE);
+	(void) g_type_class_ref(RHS_TYPE);
+	(void) g_type_class_ref(ITEXT_TYPE);
+	(void) g_type_class_ref(IARROW_TYPE);
+	(void) g_type_class_ref(OPTION_TYPE);
+	(void) g_type_class_ref(SLIDER_TYPE);
+	(void) g_type_class_ref(TOGGLE_TYPE);
+	(void) g_type_class_ref(PATHNAME_TYPE);
+	(void) g_type_class_ref(MATRIX_TYPE);
+	(void) g_type_class_ref(EXPRESSION_TYPE);
+	(void) g_type_class_ref(COLOUR_TYPE);
+
 	/* Load up all defs and wses.
 	 */
 #ifdef DEBUG
@@ -423,6 +456,24 @@ main(int argc, char **argv)
 	printf("ws init\n");
 #endif /*DEBUG*/
 	(void) path_map(PATH_START, "*.ws", (path_map_fn) main_load_wsg, NULL);
+
+	/* Double-check: we often forget to move the prefs ws to the latest
+     * version.
+     */
+    Symbol *wsr_sym = main_workspaceroot->sym;
+	Compile *compile = wsr_sym->expr->compile;
+	iContainer *container =
+		icontainer_child_lookup(ICONTAINER(compile), "Preferences");
+
+	if (container) {
+        Workspace *ws = SYMBOL(container)->ws;
+
+        if( ws->compat_major ||
+            ws->compat_minor )
+            printf("Preferences loaded in compat mode!\n");
+	}
+	else
+        printf("No prefs workspace!\n");
 
 	/* Recalc to build all classes and gets prefs working.
 	 *

@@ -542,8 +542,6 @@ workspacegroup_top_load(Filemodel *filemodel,
 	 */
 	if ((xnode = get_node(xroot, "Workspace")) &&
 		get_sprop(xnode, "filename", name, FILENAME_MAX)) {
-		char *new_dir;
-
 		/* The old filename could be non-native, so we must rewrite
 		 * to native form first so g_path_get_dirname() can work.
 		 */
@@ -551,9 +549,8 @@ workspacegroup_top_load(Filemodel *filemodel,
 
 		state->old_dir = g_path_get_dirname(name);
 
-		new_dir = g_path_get_dirname(state->filename_user);
+		g_autofree char *new_dir = g_path_get_dirname(state->filename_user);
 		path_rewrite_add(state->old_dir, new_dir, FALSE);
-		g_free(new_dir);
 	}
 
 	switch (wsg->load_type) {
