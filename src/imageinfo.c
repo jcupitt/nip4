@@ -594,6 +594,27 @@ imageinfo_new_temp(Imageinfogroup *imageinfogroup,
 	return imageinfo;
 }
 
+/* Make a memory image. No refs: closed on next GC. If you
+ * want it to stick around, ref it!
+ */
+Imageinfo *
+imageinfo_new_memory(Imageinfogroup *imageinfogroup,
+	Heap *heap, const char *name)
+{
+	VipsImage *image;
+	Imageinfo *imageinfo;
+
+	if (!(image = vips_image_new_memory()))
+		return NULL;
+
+	if (!(imageinfo = imageinfo_new(imageinfogroup, heap, image, name))) {
+		VIPS_UNREF(image);
+		return NULL;
+	}
+
+	return imageinfo;
+}
+
 /* Need this context during imageinfo_open_image_input().
  */
 typedef struct _ImageinfoOpen {
@@ -808,10 +829,10 @@ imageinfo_get_rgb(Imageinfo *imageinfo, double rgb[3])
 
 	if (imageinfo->image->Bands < 3)
 		for (int i = 0; i < 3; i++)
-			rgb[i] = p[0] / 255.0;
+			rgb[i] = p[0];
 	else
 		for (int i = 0; i < 3; i++)
-			rgb[i] = p[i] / 255.0;
+			rgb[i] = p[i];
 
 #ifdef DEBUG_RGB
 	printf("imageinfo_get_rgb: out: r = %g, g = %g, b = %g\n",
@@ -837,20 +858,20 @@ imageinfo_set_rgb(Imageinfo *imageinfo, double rgb[3])
 	/* Make 1 pixel images for conversion.
 	 */
 	Imageinfo *in, *out;
-	if (!(in = imageinfo_new_temp(imageinfogroup, heap, NULL)) ||
-		!(out = imageinfo_new_temp(imageinfogroup, heap, NULL)))
+	if (!(in = imageinfo_new_memory(imageinfogroup, heap, NULL)) ||
+		!(out = imageinfo_new_memory(imageinfogroup, heap, NULL)))
 		return;
 
 	/* Fill in with rgb.
 	 */
+	VipsPel value8[3];
+	for (int i = 0; i < 3; i++)
+		value8[i] = VIPS_RINT(rgb[i]);
 	vips_image_init_fields(in->image, 1, 1, 3,
 		VIPS_FORMAT_UCHAR, VIPS_CODING_NONE,
 		VIPS_INTERPRETATION_sRGB, 1.0, 1.0);
-	if (vips_image_write_prepare(in->image))
+	if (vips_image_write_line(in->image, 0, value8))
 		return;
-	VipsPel *data = VIPS_IMAGE_ADDR(in->image, 0, 0);
-	for (int i = 0; i < 3; i++)
-		data[i] = VIPS_RINT(rgb[i] * 255.0);
 
 	/* To imageinfo->type. Make sure we get a float ... except for LABQ
 	 * and RAD.

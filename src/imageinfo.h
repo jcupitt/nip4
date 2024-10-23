@@ -148,6 +148,8 @@ Imageinfo *imageinfo_new(Imageinfogroup *imageinfogroup,
 	Heap *heap, VipsImage *im, const char *name);
 Imageinfo *imageinfo_new_temp(Imageinfogroup *imageinfogroup,
 	Heap *heap, const char *name);
+Imageinfo *imageinfo_new_memory(Imageinfogroup *imageinfogroup,
+	Heap *heap, const char *name);
 Imageinfo *imageinfo_new_from_pixbuf(Imageinfogroup *imageinfogroup,
 	Heap *heap, GdkPixbuf *pixbuf);
 gboolean imageinfo_is_from_file(Imageinfo *imageinfo);

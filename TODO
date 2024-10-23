@@ -1,3 +1,19 @@
+- cvolour edit swatches have different corner rounding ... how is this done?
+  can we do this for rowview?
+
+	widget sets gtk_widget_add_css_class "left", "right" etc., then
+	theme CSS sets eg.
+
+		colorswatch.top > overlay {
+			border-top-left-radius: 5px;
+			border-top-right-radius: 5px;
+		}
+
+	"overlay" is the "css-name" of the image widget in the colorswatch
+
+	"colorswatch" is the css_class of the swatch widget
+
+
 - colourview_click(), iimageview_click() etc, could be in graphicview?
 
 - dirty rows should display "blocked on A1" instead of an old value?

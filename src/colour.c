@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -78,15 +78,6 @@ colour_finalize(GObject *gobject)
 	G_OBJECT_CLASS(colour_parent_class)->finalize(gobject);
 }
 
-/* Widgets for colour edit.
-typedef struct _ColourEdit {
-	iDialog *idlg;
-
-	Colour *colour;
-	GtkWidget *colour_widget;
-} ColourEdit;
- */
-
 /* Find the VIPS type for a colour space string.
  */
 static int
@@ -133,6 +124,8 @@ colour_set_colour(Colour *colour,
 {
 #ifdef DEBUG
 	printf("colour_set_colour:\n");
+	printf("\tspace = %s\n", colour_space);
+	printf("\tv0 = %g, v1 = %g, v2 = %g\n", value[0], value[1], value[2]);
 #endif /*DEBUG*/
 
 	/* No change?
@@ -167,22 +160,20 @@ colour_ii_new(Colour *colour)
 		colour->value[0], colour->value[1], colour->value[2]);
 #endif /*DEBUG*/
 
-	// vips colour funcs like float (not double)
-	float valuef[3];
-	for (int i = 0; i < 3; i++)
-		valuef[i] = colour->value[i];
-
-	/* Make a 3 band 32-bit FLOAT memory image.
+	/* Make a 3 band 32-bit FLOAT memory image. libvips colour funcs like
+	 * float (not double).
 	 */
-	if (!(ii = imageinfo_new_temp(main_imageinfogroup,
+	if (!(ii = imageinfo_new_memory(main_imageinfogroup,
 			  reduce_context->heap, NULL)))
 		return NULL;
 	vips_image_init_fields(ii->image, 1, 1, 3,
 		VIPS_FORMAT_FLOAT, VIPS_CODING_NONE,
 		colour_get_vips_interpretation(colour), 1.0, 1.0);
-	if (vips_image_write_prepare(ii->image) ||
-		vips_image_write_line(ii->image, 0, (VipsPel *) valuef) ||
-		vips_image_wio_input(ii->image))
+
+	float valuef[3];
+	for (int i = 0; i < 3; i++)
+		valuef[i] = colour->value[i];
+	if (vips_image_write_line(ii->image, 0, (VipsPel *) valuef))
 		return NULL;
 
 	return ii;
@@ -212,24 +203,25 @@ colour_set_rgb(Colour *colour, double rgb[3])
 
 #ifdef DEBUG
 	printf("colour_set_rgb:\n");
+	printf("\tr = %g, g = %g, b = %g\n", rgb[0], rgb[1], rgb[2]);
 #endif /*DEBUG*/
 
-	if ((imageinfo = colour_ii_new(colour))) {
-		double old_rgb[3];
-		double value[3];
+	double current_rgb[3];
 
-		/* Setting as RGB can't express small differences since we're
-		 * going via 8 bit RGB. So only accept the new value if it's
-		 * sufficiently different from
-		 * what we have now.
-		 */
-		colour_get_rgb(colour, old_rgb);
-		if (fabs(rgb[0] - old_rgb[0]) > (0.5 / 255) ||
-			fabs(rgb[1] - old_rgb[1]) > (0.5 / 255) ||
-			fabs(rgb[2] - old_rgb[2]) > (0.5 / 255)) {
+	/* Setting as RGB can't express small differences since we're
+	 * going via 8 bit RGB. So only accept the new value if it's
+	 * sufficiently different from what we have now.
+	 */
+	colour_get_rgb(colour, current_rgb);
+	if (fabs(rgb[0] - current_rgb[0]) > 0.5 ||
+		fabs(rgb[1] - current_rgb[1]) > 0.5 ||
+		fabs(rgb[2] - current_rgb[2]) > 0.5) {
+		if ((imageinfo = colour_ii_new(colour))) {
 			imageinfo_set_rgb(imageinfo, rgb);
-			colour_set_colour(colour, colour->colour_space,
-				(double *) imageinfo->image->data);
+			double new_rgb[3];
+			for (int i = 0; i < 3; i++)
+				new_rgb[i] = ((float *) imageinfo->image->data)[i];
+			colour_set_colour(colour, colour->colour_space, new_rgb);
 		}
 	}
 }
@@ -243,12 +235,14 @@ colour_edit_choose_rgba(GObject *source_object,
 
 	g_autoptr(GdkRGBA) selected_colour =
 		gtk_color_dialog_choose_rgba_finish(dialog, res, NULL);
+	if (selected_colour) {
+		double rgb[3];
 
-	double rgb[3];
-	rgb[0] = selected_colour->red;
-	rgb[1] = selected_colour->green;
-	rgb[2] = selected_colour->blue;
-	colour_set_rgb(colour, rgb);
+		rgb[0] = selected_colour->red * 255.0;
+		rgb[1] = selected_colour->green * 255.0;
+		rgb[2] = selected_colour->blue * 255.0;
+		colour_set_rgb(colour, rgb);
+	}
 }
 
 static void
@@ -257,17 +251,18 @@ colour_edit(GtkWidget *parent, Model *model)
 	Colour *colour = COLOUR(model);
 
 	GtkColorDialog *dialog = gtk_color_dialog_new();
+	gtk_color_dialog_set_with_alpha(GTK_COLOR_DIALOG(dialog), FALSE);
 
 	double rgb[3];
 	colour_get_rgb(colour, rgb);
 	GdkRGBA initial_color = {
-		.red = rgb[0],
-		.green = rgb[1],
-		.blue = rgb[2],
+		.red = VIPS_RINT(rgb[0] / 255.0),
+		.green = VIPS_RINT(rgb[1] / 255.0),
+		.blue = VIPS_RINT(rgb[2] / 255.0),
 		.alpha = 1.0
 	};
 
-	gtk_color_dialog_choose_rgba(dialog, GTK_WINDOW(parent),
+	gtk_color_dialog_choose_rgba(dialog, view_get_window(VIEW(parent)),
 		&initial_color, NULL, colour_edit_choose_rgba, colour);
 }
 
