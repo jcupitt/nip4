@@ -94,10 +94,11 @@
 		test_colour.ws
 		test_conv.ws
 		test_fail.ws
+		test_filter.ws
+		test_fourier.ws
+		test_histogram.ws
 
-	nip4 test/workspaces/test_filter.ws
-
-- add Colour widget next?
+	nip4 test/workspaces/test_image.ws
 
 ## vips8
 

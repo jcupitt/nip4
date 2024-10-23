@@ -296,6 +296,16 @@ im_histnorm in
 	= vips_call "hist_norm" [in] [
 	];
 
+im_histeq = im_histnorm @ im_histcum;
+
+im_histspec in ref
+	= vips_call "hist_match" [a, b] [
+	]
+{
+	a = im_histeq in;
+	b = im_histeq ref;
+}
+
 im_spcor in1 in2
 	= vips_call "spcor" [in1, in2] [
 	];
@@ -311,6 +321,13 @@ im_insert_noexpand in sub x y
 im_identity nbands
 	= vips_call "identity" [] [
 		$bands => nbands
+	];
+
+im_identity_ushort nbands size
+	= vips_call "identity" [] [
+		$bands => nbands,
+		$ushort => true,
+		$size => size
 	];
 
 im_profile in direction
@@ -350,6 +367,66 @@ im_maplut in lut
 
 im_make_xy xsize ysize
 	= vips_call "xyz" [xsize, ysize] [
+	];
+
+im_fwfft in
+	= vips_call "fwfft" [in] [
+	];
+
+im_invfftr in
+	= vips_call "invfft" [in] [
+		$real => true
+	];
+
+im_c2amph in
+	= vips_call "complex" [in, "polar"] [
+	];
+
+im_c2rect in
+	= vips_call "complex" [in, "rect"] [
+	];
+
+im_buildlut mask
+	= vips_call "buildlut" [mask] [
+	];
+
+im_tone_build_range in_max out_max Lb Lw Ps Pm Ph S M H
+	= vips_call "tonelut" [] [
+		$in_max => in_max,
+		$out_max => out_max,
+		$Lb => Lb,
+		$Lw => Lw,
+		$Ps => Ps,
+		$Pm => Pm,
+		$Ph => Ph,
+		$S => S,
+		$M => M,
+		$H => H
+	];
+
+im_zerox in flag = error "im_zerox is not supported";
+
+im_flipver in
+	= vips_call "flip" [in, "vertical"] [
+	];
+
+im_fliphor in
+	= vips_call "flip" [in, "horizontal"] [
+	];
+
+im_gbandjoin in
+	= vips_call "bandjoin" [in] [
+	];
+
+im_affinei_all in interpolate a b c d dx dy
+	= vips_call "affine" [in, [a, b, c, d]] [
+		$interpolate => interpolate,
+		$idx => dx,
+		$idy => dy
+	];
+
+im_project in
+	= vips_call "project" [in] [
 	];
 
 // add a lot more!
