@@ -129,8 +129,13 @@ vo_set_property(Vo *vo,
 		G_VALUE_TYPE(value) == VIPS_TYPE_REF_STRING) {
 		const char *str = vips_value_get_ref_string(value, NULL);
 
-		if (vips_object_set_argument_from_string(vo->object, name, str))
+		if (vips_object_set_argument_from_string(vo->object, name, str)) {
+			error_top(_("Bad argument"));
+			error_sub(_("bad argument to parameter \"%s\" of operation \"%s\""),
+				name, vo->name);
+			error_vips();
 			return -1;
+		}
 	}
 	else
 		g_object_set_property(G_OBJECT(vo->object), name, value);

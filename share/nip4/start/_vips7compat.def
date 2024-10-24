@@ -59,6 +59,7 @@ im_avg x = vips_call "avg" [x] [];
 im_deviate x = vips_call "deviate" [x] [];
 im_min x = vips_call "min" [x] [];
 im_max x = vips_call "max" [x] [];
+im_stats x = im_vips2mask (vips_call "stats" [x] []);
 im_lintra_vec a in b = vips_call "linear" [in, a, b] [];
 // nip2 matinv only works on Matrix objects, and returns a matrix object
 im_matinv x = im_vips2mask (vips_call "matrixinvert" [x] []);
@@ -66,7 +67,7 @@ im_abs x = vips_call "abs" [x] [];
 im_sign x = vips_call "sign" [x] [];
 im_rint x = vips_call "round" [x, "rint"] [];
 
-im_notequal_vec in vec = vips_call "relational_const" [in, "notequal", vec] [];
+im_notequal_vec in vec = vips_call "relational_const" [in, "noteq", vec] [];
 
 im_maxpos in =
 	(x, y)
@@ -85,6 +86,7 @@ im_minpos in =
 		$y => true
 	];
 }
+
 
 im_dE00_fromLab x y = vips_call "dE00" [x, y] [];
 
@@ -460,6 +462,10 @@ im_tone_build_range in_max out_max Lb Lw Ps Pm Ph S M H
 
 // this was never ported to vips8 and is a bit useless
 im_zerox in flag = error "im_zerox: not implemented";
+
+im_cntlines in dir
+	= vips_call "countlines" [in, dir] [
+	];
 
 im_flipver in
 	= vips_call "flip" [in, "vertical"] [

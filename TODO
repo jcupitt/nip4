@@ -1,9 +1,7 @@
-- test_math.ws
+- error bar should be in workspace (ie. below the tab bar), not in mainwindow
 
-	Math_stats_item.Zdeviation_item.action RB1
-
-  fails with image is not a class
-
+  if we moved it down, you'd be able to click on the error indictor on a tab
+  and the tab label wouldn't move up and down as the message changed
 
 - colour edit swatches have different corner rounding ... how is this done?
   can we do this for rowview?
