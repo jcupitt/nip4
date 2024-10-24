@@ -396,13 +396,7 @@ apply_gammq_call(Reduce *rc,
 		reduce_throw(rc);
 	}
 
-#ifdef HAVE_GSL
 	Q = gsl_sf_gamma_inc_Q(a, x);
-#else  /*!HAVE_GSL*/
-	error_top(_("Not available"));
-	error_sub(_("no GSL library available for gammq"));
-	reduce_throw(rc);
-#endif /*HAVE_GSL*/
 
 	if (!heap_real_new(rc->heap, Q, out))
 		reduce_throw(rc);
@@ -1297,7 +1291,7 @@ static BuiltinInfo builtin_table[] = {
 		TRUE, VIPS_NUMBER(math_args),
 		&math_args[0], apply_math_call },
 
-	/* Optional GSL funcs.
+	/* GSL funcs.
 	 */
 	{ "gammq", N_("gamma function"),
 		TRUE, VIPS_NUMBER(gammq_args),
@@ -1338,7 +1332,6 @@ static BuiltinInfo builtin_table[] = {
 
 };
 
-#ifdef HAVE_GSL
 static void
 builtin_gsl_error(const char *reason, const char *file,
 	int line, int gsl_errno)
@@ -1349,7 +1342,6 @@ builtin_gsl_error(const char *reason, const char *file,
 
 	reduce_throw(reduce_context);
 }
-#endif /*HAVE_GSL*/
 
 void
 builtin_init(void)
@@ -1377,11 +1369,7 @@ builtin_init(void)
 	filemodel_set_modified(FILEMODEL(kit), FALSE);
 	kit->pseudo = TRUE;
 
-	/* Start up GSL, if we have it.
-	 */
-#ifdef HAVE_GSL
 	gsl_set_error_handler(builtin_gsl_error);
-#endif /*HAVE_GSL*/
 }
 
 /* Make a usage error.

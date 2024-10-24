@@ -2,7 +2,7 @@ project( 'nip4', 'c',
   # ie. a major after nip2 8.9 for workspace save file versioning
   version: '9.0.0',
   license: 'GPL',
-  meson_version: '>=0.56',
+  meson_version: '>=0.64',
   default_options: [
     'c_std=c11',
     # turn off asserts etc. in release mode
