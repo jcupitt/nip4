@@ -1,3 +1,18 @@
+- try:
+
+	vips_call "max" [A1] [$x => true, $y => true]
+
+  just displays "255" ... we don't get the x and y pos
+
+
+
+
+- test_math.ws
+
+	Math_stats_item.Zdeviation_item.action RB1
+
+  fails with image is not a class
+
 
 - colour edit swatches have different corner rounding ... how is this done?
   can we do this for rowview?

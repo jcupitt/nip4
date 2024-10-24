@@ -56,11 +56,35 @@ im_insert main sub x y = vips_call "insert" [main, sub, x, y] [$expand => true];
 im_extract_area in x y w h = vips_call "crop" [in, x, y, w, h] [];
 
 im_avg x = vips_call "avg" [x] [];
+im_deviate x = vips_call "deviate" [x] [];
 im_min x = vips_call "min" [x] [];
 im_max x = vips_call "max" [x] [];
 im_lintra_vec a in b = vips_call "linear" [in, a, b] [];
 // nip2 matinv only works on Matrix objects, and returns a matrix object
 im_matinv x = im_vips2mask (vips_call "matrixinvert" [x] []);
+im_abs x = vips_call "abs" [x] [];
+im_sign x = vips_call "sign" [x] [];
+im_rint x = vips_call "round" [x, "rint"] [];
+
+im_notequal_vec in vec = vips_call "relational_const" [in, "notequal", vec] [];
+
+im_maxpos in =
+	(x, y)
+{
+	[value, x, y] = vips_call "max" [in] [
+		$x => true,
+		$y => true
+	];
+}
+
+im_minpos in =
+	(x, y)
+{
+	[value, x, y] = vips_call "min" [in] [
+		$x => true,
+		$y => true
+	];
+}
 
 im_dE00_fromLab x y = vips_call "dE00" [x, y] [];
 
