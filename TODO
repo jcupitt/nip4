@@ -102,6 +102,9 @@
 		test_fourier.ws
 		test_histogram.ws
 		test_image.ws
+		test_math.ws
+		test_matrix.ws
+		test_stats.ws
 
 	nip4 test/workspaces/test_image.ws
 
