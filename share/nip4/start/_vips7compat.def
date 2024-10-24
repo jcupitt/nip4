@@ -217,6 +217,22 @@ im_rotate_dmask45 matrix
 	];
 }
 
+im_log_dmask sigma min_amp
+	= im_vips2mask matrix
+{
+	matrix = vips_call "logmat" [sigma, min_amp] [
+		$precision => "float"
+	];
+}
+
+im_log_imask sigma min_amp
+	= im_vips2mask matrix
+{
+	matrix = vips_call "logmat" [sigma, min_amp] [
+		$precision => "integer"
+	];
+}
+
 im_sharpen in mask_size x1 y2 y3 m1 m2
 	= vips_call "sharpen" [in] [
 		$sigma => mask_size / 4,
