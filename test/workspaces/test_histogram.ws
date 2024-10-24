@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <root xmlns="http://www.vips.ecs.soton.ac.uk/nip/9.0.0">
   <Workspace window_x="6" window_y="56" window_width="1022" window_height="605" view="WORKSPACE_MODE_REGULAR" scale="1" offset="0" locked="false" lpane_position="400" lpane_open="false" rpane_position="100" rpane_open="false" local_defs="// private definitions for this workspace&#10;" name="test_histogram" filename="$HOME/GIT/nip4/test/workspaces/test_histogram.ws" major="9" minor="0">
-    <Column x="0" y="0" open="true" selected="false" sform="false" next="17" name="B" caption="Colour / Colourspace">
+    <Column x="5" y="5" open="true" selected="false" sform="false" next="17" name="B" caption="Colour / Colourspace">
       <Subcolumn vislevel="3">
         <Row popup="false" name="B1">
           <Rhs vislevel="1" flags="1">
@@ -12,7 +12,7 @@
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="476" y="0" open="true" selected="true" sform="false" next="35" name="Z" caption="Histogram / Make, find, apply">
+    <Column x="432" y="5" open="true" selected="true" sform="false" next="35" name="Z" caption="Histogram / Make, find, apply">
       <Subcolumn vislevel="3">
         <Row popup="false" name="Z1">
           <Rhs vislevel="0" flags="4">
@@ -25,7 +25,7 @@
           <Rhs vislevel="3" flags="7">
             <Subcolumn vislevel="1"/>
             <iText formula="Hist_new_item.Hist_item.action"/>
-            <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
+            <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
           </Rhs>
         </Row>
         <Row popup="false" name="Z19">
@@ -39,25 +39,24 @@
           <Rhs vislevel="1" flags="1">
             <Subcolumn vislevel="0"/>
             <iText formula="Hist_new_item.Hist_new_from_matrix.action Z19"/>
-            <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
+            <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
           </Rhs>
         </Row>
         <Row popup="false" name="Z22">
           <Rhs vislevel="1" flags="1">
-            <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
             <Subcolumn vislevel="0"/>
             <iText formula="Hist_new_item.Hist_from_image_item.action Z21"/>
+            <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
           </Rhs>
         </Row>
         <Row popup="false" name="Z23">
           <Rhs vislevel="3" flags="7">
-            <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
             <Subcolumn vislevel="1">
               <Row name="super">
                 <Rhs vislevel="0" flags="4">
-                  <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
                   <Subcolumn vislevel="0"/>
                   <iText/>
+                  <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
                 </Rhs>
               </Row>
               <Row name="d">
@@ -125,13 +124,14 @@
               </Row>
             </Subcolumn>
             <iText formula="Hist_new_item.Tone_item.action"/>
+            <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
           </Rhs>
         </Row>
         <Row popup="false" name="Z3">
           <Rhs vislevel="1" flags="1">
             <Subcolumn vislevel="0"/>
             <iText formula="Hist_find_item.Oned_item.action Z1"/>
-            <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
+            <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
           </Rhs>
         </Row>
         <Row popup="false" name="Z4">
@@ -173,7 +173,7 @@
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="993" y="0" open="true" selected="false" sform="false" next="29" name="A" caption="Histogram / Maths">
+    <Column x="952" y="5" open="true" selected="false" sform="false" next="29" name="A" caption="Histogram / Maths">
       <Subcolumn vislevel="3">
         <Row popup="false" name="A1">
           <Rhs vislevel="0" flags="4">
@@ -186,14 +186,14 @@
           <Rhs vislevel="2" flags="5">
             <Subcolumn vislevel="0"/>
             <iText formula="Hist_cum_item.action Z3"/>
-            <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
+            <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
           </Rhs>
         </Row>
         <Row popup="false" name="A14">
           <Rhs vislevel="2" flags="5">
-            <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
             <Subcolumn vislevel="0"/>
             <iText formula="Hist_diff_item.action A13"/>
+            <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
           </Rhs>
         </Row>
         <Row popup="false" name="A15">
@@ -205,26 +205,25 @@
           <Rhs vislevel="2" flags="5">
             <Subcolumn vislevel="0"/>
             <iText formula="Hist_norm_item.action A13"/>
-            <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
+            <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
           </Rhs>
         </Row>
         <Row popup="false" name="A17">
           <Rhs vislevel="2" flags="5">
             <Subcolumn vislevel="0"/>
             <iText formula="Hist_match_item.action A13 Z3"/>
-            <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
+            <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
           </Rhs>
         </Row>
         <Row popup="false" name="A27">
           <Rhs vislevel="1" flags="1">
-            <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
             <Subcolumn vislevel="0"/>
             <iText formula="Hist_diff_item.action A14"/>
+            <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
           </Rhs>
         </Row>
         <Row popup="false" name="A28">
           <Rhs vislevel="3" flags="7">
-            <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
             <Subcolumn vislevel="1">
               <Row name="x">
                 <Rhs vislevel="0" flags="4">
@@ -233,9 +232,9 @@
               </Row>
               <Row name="super">
                 <Rhs vislevel="0" flags="4">
-                  <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
                   <Subcolumn vislevel="0"/>
                   <iText/>
+                  <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
                 </Rhs>
               </Row>
               <Row name="type">
@@ -273,20 +272,21 @@
                   <iText/>
                 </Rhs>
               </Row>
+              <Row name="layers">
+                <Rhs vislevel="1" flags="1">
+                  <Slider/>
+                  <Subcolumn vislevel="0"/>
+                  <iText/>
+                </Rhs>
+              </Row>
             </Subcolumn>
             <iText formula="Filter_conv_item.Custom_blur_item.action A27"/>
-          </Rhs>
-        </Row>
-        <Row popup="false" name="A26">
-          <Rhs vislevel="3" flags="7">
-            <Subcolumn vislevel="1"/>
-            <iText formula="Hist_zerox_item.action A28"/>
-            <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
+            <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
           </Rhs>
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="1529" y="0" open="true" selected="false" sform="false" next="15" name="C" caption="Histogram / Profile and Projection">
+    <Column x="1386" y="5" open="true" selected="false" sform="false" next="15" name="C" caption="Histogram / Profile and Projection">
       <Subcolumn vislevel="3">
         <Row popup="false" name="C1">
           <Rhs vislevel="0" flags="4">
@@ -314,7 +314,7 @@
                 <Rhs vislevel="0" flags="4">
                   <Subcolumn vislevel="0"/>
                   <iText/>
-                  <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
+                  <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
                 </Rhs>
               </Row>
               <Row name="edge">
@@ -326,7 +326,7 @@
               </Row>
             </Subcolumn>
             <iText formula="Hist_profile_item.action C7"/>
-            <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
+            <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
           </Rhs>
         </Row>
         <Row popup="false" name="C9">
@@ -337,7 +337,7 @@
         </Row>
       </Subcolumn>
     </Column>
-    <Column x="2136" y="0" open="true" selected="false" sform="false" next="10" name="D" caption="Histogram / Extract, Plot">
+    <Column x="1884" y="5" open="true" selected="false" sform="false" next="10" name="D" caption="Histogram / Extract, Plot">
       <Subcolumn vislevel="3">
         <Row popup="false" name="D1">
           <Rhs vislevel="0" flags="4">
@@ -359,7 +359,7 @@
           <Rhs vislevel="1" flags="1">
             <Subcolumn vislevel="0"/>
             <iText formula="Hist_graph_item.action D5"/>
-            <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
+            <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
           </Rhs>
         </Row>
         <Row popup="false" name="D7">
@@ -414,7 +414,6 @@
         </Row>
         <Row popup="false" name="D9">
           <Rhs vislevel="3" flags="7">
-            <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
             <Subcolumn vislevel="1">
               <Row name="x">
                 <Rhs vislevel="0" flags="4">
@@ -423,9 +422,9 @@
               </Row>
               <Row name="super">
                 <Rhs vislevel="0" flags="4">
-                  <Plot plot_left="0" plot_top="0" plot_mag="100" show_status="false"/>
                   <Subcolumn vislevel="0"/>
                   <iText/>
+                  <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
                 </Rhs>
               </Row>
               <Row name="format">
@@ -477,14 +476,40 @@
                   <iText/>
                 </Rhs>
               </Row>
+              <Row name="caption">
+                <Rhs vislevel="1" flags="1">
+                  <Expression caption="Chart caption"/>
+                  <Subcolumn vislevel="0"/>
+                  <iText/>
+                </Rhs>
+              </Row>
+              <Row name="xcaption">
+                <Rhs vislevel="1" flags="1">
+                  <Expression caption="X axis caption"/>
+                  <Subcolumn vislevel="0"/>
+                  <iText/>
+                </Rhs>
+              </Row>
+              <Row name="ycaption">
+                <Rhs vislevel="1" flags="1">
+                  <Expression caption="Y axis caption"/>
+                  <Subcolumn vislevel="0"/>
+                  <iText/>
+                </Rhs>
+              </Row>
+              <Row name="series_captions">
+                <Rhs vislevel="1" flags="1">
+                  <Expression caption="Series captions"/>
+                  <Subcolumn vislevel="0"/>
+                  <iText/>
+                </Rhs>
+              </Row>
             </Subcolumn>
             <iText formula="Hist_plot_item.action Z19"/>
+            <iImage image_left="0" image_top="0" image_mag="0" show_status="false" show_paintbox="false" show_convert="false" show_rulers="false" scale="0" offset="0" falsecolour="false" type="true"/>
           </Rhs>
         </Row>
       </Subcolumn>
     </Column>
   </Workspace>
 </root>
-
-
-

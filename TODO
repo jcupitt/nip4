@@ -97,6 +97,7 @@
 		test_filter.ws
 		test_fourier.ws
 		test_histogram.ws
+		test_image.ws
 
 	nip4 test/workspaces/test_image.ws
 

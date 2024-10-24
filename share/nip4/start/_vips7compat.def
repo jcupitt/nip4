@@ -9,8 +9,6 @@ im_header_int = vips_header_int;
 im_header_double = vips_header_double;
 im_header_string = vips_header_string;
 im_mask2vips = vips_image_from_matrix;
-
-// this causes terrible problems! no idea why
 im_vips2mask = vips_matrix_from_image;
 
 // vips7 wrappers
@@ -26,6 +24,11 @@ im_clip x = vips_call "cast" [x, "uchar"] [];
 im_clip2us x = vips_call "cast" [x, "ushort"] [];
 im_clip2s x = vips_call "cast" [x, "short"] [];
 im_clip2f x = vips_call "cast" [x, "float"] [];
+
+im_scale x = vips_call "scale" [x] [];
+
+im_replicate in across down = vips_call "replicate" [in, across, down] [];
+
 im_copy_set im t xr yr xo yo
 	= vips_call "copy" [im] [
 		$interpretation => t,
@@ -33,6 +36,18 @@ im_copy_set im t xr yr xo yo
 		$yres => yr,
 		$xoffset => xo,
 		$yoffset => yo
+	];
+
+// not really possible with the vips8 API
+im_copy_set_meta in field value
+	= error "im_copy_set_meta: not implemented";
+
+im_tile_cache_random in tile_width tile_height max_tiles
+	= vips_call "tilecache" [in] [
+		$tile_width => tile_width,
+		$tile_height => tile_height,
+		$max_tiles => max_tiles,
+		$access => "random"
 	];
 
 im_recomb x y = vips_call "recomb" [x, y] [];
@@ -211,6 +226,10 @@ im_flt_image_freq in type p1 p2 p3 p4 p5
 	mask = im_create_fmask width height type p1 p2 p3 p4 p5;
 }
 
+im_fractsurf size dimension
+	= vips_call "mask_fractal" [size, size, dimension] [
+	  ];
+
 im_create_fmask width height type p1 p2 p3 p4 p5
 	= vips_call "mask_ideal" [width, height, p1] [
 	  ], type == 0
@@ -356,6 +375,17 @@ im_grey xsize ysize
 		$uchar => true
 	];
 
+im_eye xsize ysize factor
+	= vips_call "eye" [xsize, ysize] [
+		$factor => factor,
+		$uchar => true
+	];
+
+im_zone size
+	= vips_call "zone" [size, size] [
+		$uchar => true
+	];
+
 im_extract_bands input band nbands
 	= vips_call "extract_band" [input, band] [
 		$n => nbands
@@ -404,7 +434,8 @@ im_tone_build_range in_max out_max Lb Lw Ps Pm Ph S M H
 		$H => H
 	];
 
-im_zerox in flag = error "im_zerox is not supported";
+// this was never ported to vips8 and is a bit useless
+im_zerox in flag = error "im_zerox: not implemented";
 
 im_flipver in
 	= vips_call "flip" [in, "vertical"] [
@@ -427,6 +458,24 @@ im_affinei_all in interpolate a b c d dx dy
 
 im_project in
 	= vips_call "project" [in] [
+	];
+
+im_match_linear ref sec xref1 yref1 xsec1 ysec1 xref2 yref2 xsec2 ysec2
+	= vips_call "match" [ref, sec,
+		xref1, yref1, xsec1, ysec1,
+		xref2, yref2, xsec2, ysec2] [
+	];
+
+im_match_linear_search ref sec
+	xref1 yref1 xsec1 ysec1
+	xref2 yref2 xsec2 ysec2
+	hwindowsize hsearchsize
+	= vips_call "match" [ref, sec,
+		xref1, yref1, xsec1, ysec1,
+		xref2, yref2, xsec2, ysec2] [
+		$hwindow => hwindowsize,
+		$harea => hsearchsize,
+		$search => true
 	];
 
 // add a lot more!
