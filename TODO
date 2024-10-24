@@ -1,3 +1,5 @@
+- test_tasks.ws lists 34 images leaking
+
 - error bar should be in workspace (ie. below the tab bar), not in mainwindow
 
   if we moved it down, you'd be able to click on the error indictor on a tab
@@ -105,8 +107,7 @@
 		test_math.ws
 		test_matrix.ws
 		test_stats.ws
-
-	nip4 test/workspaces/test_image.ws
+		test_tasks.ws
 
 ## vips8
 

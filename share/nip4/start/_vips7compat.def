@@ -524,5 +524,57 @@ im_match_linear_search ref sec
 		$search => true
 	];
 
+im_lrmerge ref sec dx dy mwidth
+	= vips_call "merge" [ref, sec, "horizontal", dx, dy] [
+		$mblend => mwidth
+	];
+
+im_tbmerge ref sec dx dy mwidth
+	= vips_call "merge" [ref, sec, "vertical", dx, dy] [
+		$mblend => mwidth
+	];
+
+im_lrmosaic ref sec bandno xr yr xs ys
+	halfcorrelation halfarea balancetype mwidth
+	= vips_call "mosaic" [ref, sec, "horizontal", xr, yr, xs, ys] [
+		$hwindow => halfcorrelation,
+		$harea => halfarea,
+		$mblend => mwidth
+	];
+
+im_tbmosaic ref sec bandno xr yr xs ys
+	halfcorrelation halfarea balancetype mwidth
+	= vips_call "mosaic" [ref, sec, "vertical", xr, yr, xs, ys] [
+		$hwindow => halfcorrelation,
+		$harea => halfarea,
+		$mblend => mwidth
+	];
+
+im_lrmosaic1 ref sec bandno
+	xr1 yr1 xs1 ys1
+	xr2 yr2 xs2 ys2
+	halfcorrelation halfarea balancetype mwidth
+	= vips_call "mosaic1" [ref, sec, "horizontal",
+		xr1, yr1, xs1, ys1,
+		xr2, yr2, xs2, ys2
+	] [
+		$hwindow => halfcorrelation,
+		$harea => halfarea,
+		$mblend => mwidth
+	];
+
+im_tbmosaic1 ref sec bandno
+	xr1 yr1 xs1 ys1
+	xr2 yr2 xs2 ys2
+	halfcorrelation halfarea balancetype mwidth
+	= vips_call "mosaic1" [ref, sec, "vertical",
+		xr1, yr1, xs1, ys1,
+		xr2, yr2, xs2, ys2
+	] [
+		$hwindow => halfcorrelation,
+		$harea => halfarea,
+		$mblend => mwidth
+	];
+
 // add a lot more!
 
