@@ -1,12 +1,3 @@
-- try:
-
-	vips_call "max" [A1] [$x => true, $y => true]
-
-  just displays "255" ... we don't get the x and y pos
-
-
-
-
 - test_math.ws
 
 	Math_stats_item.Zdeviation_item.action RB1

@@ -434,13 +434,13 @@ vo_call_execute(Vo *vo, PElement *optional)
 			(VipsArgumentMapFn) vo_get_required_output, vo, &pe))
 		return FALSE;
 
-		/* And any optional outputs.
-		 */
+	/* And any optional outputs.
+	 */
 #ifdef DEBUG
 	printf("fetching optional results ...\n");
 #endif /*DEBUG */
 	if (optional &&
-		!vo_get_optional(vo, optional, &pe))
+		!vo_get_optional(vo, &pe, optional))
 		return FALSE;
 
 	return TRUE;
