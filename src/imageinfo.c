@@ -818,7 +818,7 @@ imageinfo_get_rgb(Imageinfo *imageinfo, double rgb[3])
 
 	/* Use a tilesource to convert the imageinfo to RGB.
 	 */
-	Tilesource *tilesource = tilesource_new_from_imageinfo(imageinfo);
+	g_autoptr(Tilesource) tilesource = tilesource_new_from_imageinfo(imageinfo);
 	tilesource_set_synchronous(tilesource, TRUE);
 
 	VipsRect area = { 0, 0, 1, 1 };
@@ -833,8 +833,6 @@ imageinfo_get_rgb(Imageinfo *imageinfo, double rgb[3])
 	else
 		for (int i = 0; i < 3; i++)
 			rgb[i] = p[i];
-
-	VIPS_UNREF(tilesource);
 
 #ifdef DEBUG_RGB
 	printf("imageinfo_get_rgb: out: r = %g, g = %g, b = %g\n",
@@ -878,7 +876,7 @@ imageinfo_set_rgb(Imageinfo *imageinfo, double rgb[3])
 	/* To imageinfo->type. Make sure we get a float ... except for LABQ
 	 * and RAD.
 	 */
-    VipsImage **t = (VipsImage **)
+	VipsImage **t = (VipsImage **)
 		vips_object_local_array(VIPS_OBJECT(image), 2);
 	if (image->Coding == VIPS_CODING_LABQ) {
 		if (vips_colourspace(in->image, &t[0],
@@ -900,7 +898,7 @@ imageinfo_set_rgb(Imageinfo *imageinfo, double rgb[3])
 	}
 
 #define SET(TYPE, i) \
-		((TYPE *) image->data)[i] = ((float *) out->image->data)[i];
+	((TYPE *) image->data)[i] = ((float *) out->image->data)[i];
 
 	/* Now ... overwrite imageinfo.
 	 */
@@ -975,70 +973,70 @@ imageinfo_set_rgb(Imageinfo *imageinfo, double rgb[3])
 /* Print a pixel. Output has to be parseable by imageinfo_from_text().
  */
 void
-imageinfo_to_text( Imageinfo *imageinfo, VipsBuf *buf )
+imageinfo_to_text(Imageinfo *imageinfo, VipsBuf *buf)
 {
-    VipsImage *image = imageinfo->image;
-    VipsPel *p = (VipsPel *) image->data;
+	VipsImage *image = imageinfo->image;
+	VipsPel *p = (VipsPel *) image->data;
 
-#define PRINT_INT( T, I ) vips_buf_appendf( buf, "%d", ((T *)p)[I] );
-#define PRINT_FLOAT( T, I ) vips_buf_appendg( buf, ((T *)p)[I] );
+#define PRINT_INT(T, I) vips_buf_appendf(buf, "%d", ((T *) p)[I]);
+#define PRINT_FLOAT(T, I) vips_buf_appendg(buf, ((T *) p)[I]);
 
-    for( int i = 0; i < image->Bands; i++ ) {
-        if( i )
-            vips_buf_appends( buf, ", " );
+	for (int i = 0; i < image->Bands; i++) {
+		if (i)
+			vips_buf_appends(buf, ", ");
 
-        switch( image->BandFmt ) {
-        case VIPS_FORMAT_UCHAR:
-            PRINT_INT( unsigned char, i );
-            break;
+		switch (image->BandFmt) {
+		case VIPS_FORMAT_UCHAR:
+			PRINT_INT(unsigned char, i);
+			break;
 
-        case VIPS_FORMAT_CHAR:
-            PRINT_INT( char, i );
-            break;
+		case VIPS_FORMAT_CHAR:
+			PRINT_INT(char, i);
+			break;
 
-        case VIPS_FORMAT_USHORT:
-            PRINT_INT( unsigned short, i );
-            break;
+		case VIPS_FORMAT_USHORT:
+			PRINT_INT(unsigned short, i);
+			break;
 
-        case VIPS_FORMAT_SHORT:
-            PRINT_INT( short, i );
-            break;
+		case VIPS_FORMAT_SHORT:
+			PRINT_INT(short, i);
+			break;
 
-        case VIPS_FORMAT_UINT:
-            PRINT_INT( unsigned int, i );
-            break;
+		case VIPS_FORMAT_UINT:
+			PRINT_INT(unsigned int, i);
+			break;
 
-        case VIPS_FORMAT_INT:
-            PRINT_INT( int, i );
-            break;
+		case VIPS_FORMAT_INT:
+			PRINT_INT(int, i);
+			break;
 
-        case VIPS_FORMAT_FLOAT:
-            PRINT_FLOAT( float, i );
-            break;
+		case VIPS_FORMAT_FLOAT:
+			PRINT_FLOAT(float, i);
+			break;
 
-        case VIPS_FORMAT_COMPLEX:
-            vips_buf_appends( buf, "(" );
-            PRINT_FLOAT( float, (i << 1) );
-            vips_buf_appends( buf, ", " );
-            PRINT_FLOAT( float, (i << 1) + 1 );
-            vips_buf_appends( buf, ")" );
-            break;
+		case VIPS_FORMAT_COMPLEX:
+			vips_buf_appends(buf, "(");
+			PRINT_FLOAT(float, (i << 1));
+			vips_buf_appends(buf, ", ");
+			PRINT_FLOAT(float, (i << 1) + 1);
+			vips_buf_appends(buf, ")");
+			break;
 
-        case VIPS_FORMAT_DOUBLE:
-            PRINT_FLOAT( double, i );
-            break;
+		case VIPS_FORMAT_DOUBLE:
+			PRINT_FLOAT(double, i);
+			break;
 
-        case VIPS_FORMAT_DPCOMPLEX:
-            vips_buf_appends( buf, "(" );
-            PRINT_FLOAT( double, i << 1 );
-            vips_buf_appends( buf, ", " );
-            PRINT_FLOAT( double, (i << 1) + 1 );
-            vips_buf_appends( buf, ")" );
-            break;
+		case VIPS_FORMAT_DPCOMPLEX:
+			vips_buf_appends(buf, "(");
+			PRINT_FLOAT(double, i << 1);
+			vips_buf_appends(buf, ", ");
+			PRINT_FLOAT(double, (i << 1) + 1);
+			vips_buf_appends(buf, ")");
+			break;
 
-        default:
-            vips_buf_appends( buf, "???" );
-            break;
-        }
-    }
+		default:
+			vips_buf_appends(buf, "???");
+			break;
+		}
+	}
 }

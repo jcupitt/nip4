@@ -458,22 +458,22 @@ main(int argc, char **argv)
 	(void) path_map(PATH_START, "*.ws", (path_map_fn) main_load_wsg, NULL);
 
 	/* Double-check: we often forget to move the prefs ws to the latest
-     * version.
-     */
-    Symbol *wsr_sym = main_workspaceroot->sym;
+	 * version.
+	 */
+	Symbol *wsr_sym = main_workspaceroot->sym;
 	Compile *compile = wsr_sym->expr->compile;
 	iContainer *container =
 		icontainer_child_lookup(ICONTAINER(compile), "Preferences");
 
 	if (container) {
-        Workspace *ws = SYMBOL(container)->ws;
+		Workspace *ws = SYMBOL(container)->ws;
 
-        if( ws->compat_major ||
-            ws->compat_minor )
-            printf("Preferences loaded in compat mode!\n");
+		if (ws->compat_major ||
+			ws->compat_minor)
+			printf("Preferences loaded in compat mode!\n");
 	}
 	else
-        printf("No prefs workspace!\n");
+		printf("No prefs workspace!\n");
 
 	/* Recalc to build all classes and gets prefs working.
 	 *
