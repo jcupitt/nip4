@@ -51,6 +51,35 @@ graphicview_link(View *view, Model *model, View *parent)
 		graphicview->sview = SUBCOLUMNVIEW(v);
 }
 
+static Rowview *
+graphicview_rowview(Graphicview *graphicview)
+{
+	View *p;
+
+	for (p = VIEW(graphicview); !IS_ROWVIEW(p); p = p->parent)
+		;
+
+	return ROWVIEW(p);
+}
+
+void
+graphicview_click(GtkGestureClick *gesture,
+	guint n_press, double x, double y, Graphicview *graphicview)
+{
+	if (n_press == 1) {
+		Rowview *rowview = graphicview_rowview(graphicview);
+		Row *row = ROW(VOBJECT(rowview)->iobject);
+		guint state = get_modifiers(GTK_EVENT_CONTROLLER(gesture));
+
+		row_select_modifier(row, state);
+	}
+	else {
+		Model *model = MODEL(VOBJECT(graphicview)->iobject);
+
+		model_edit(GTK_WIDGET(graphicview), model);
+	}
+}
+
 static void
 graphicview_class_init(GraphicviewClass *class)
 {

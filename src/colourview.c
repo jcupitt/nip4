@@ -64,35 +64,6 @@ colourview_realize(GtkWidget *widget)
 	set_symbol_drag_type(widget);
 }
 
-static Rowview *
-colourview_rowview(Colourview *colourview)
-{
-	View *p;
-
-	for (p = VIEW(colourview); !IS_ROWVIEW(p); p = p->parent)
-		;
-
-	return ROWVIEW(p);
-}
-
-static void
-colourview_click(GtkGestureClick *gesture,
-	guint n_press, double x, double y, Colourview *colourview)
-{
-	if (n_press == 1) {
-		Rowview *rowview = colourview_rowview(colourview);
-		Row *row = ROW(VOBJECT(rowview)->iobject);
-		guint state = get_modifiers(GTK_EVENT_CONTROLLER(gesture));
-
-		row_select_modifier(row, state);
-	}
-	else {
-		Colour *colour = COLOUR(VOBJECT(colourview)->iobject);
-
-		model_edit(GTK_WIDGET(colourview), MODEL(colour));
-	}
-}
-
 static void
 colourview_refresh(vObject *vobject)
 {
@@ -137,7 +108,7 @@ colourview_class_init(ColourviewClass *class)
 	BIND_VARIABLE(Colourview, imagedisplay);
 	BIND_VARIABLE(Colourview, label);
 
-	BIND_CALLBACK(colourview_click);
+	BIND_CALLBACK(graphicview_click);
 
 	object_class->dispose = colourview_dispose;
 

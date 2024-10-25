@@ -71,30 +71,6 @@ valueview_refresh(vObject *vobject)
 	VOBJECT_CLASS(valueview_parent_class)->refresh(vobject);
 }
 
-static Rowview *
-valueview_rowview(Valueview *valueview)
-{
-	View *p;
-
-	for (p = VIEW(valueview); !IS_ROWVIEW(p); p = p->parent)
-		;
-
-	return ROWVIEW(p);
-}
-
-static void
-valueview_click(GtkGestureClick *gesture,
-	guint n_press, double x, double y, Valueview *valueview)
-{
-	if (n_press == 1) {
-		Rowview *rowview = valueview_rowview(valueview);
-		Row *row = ROW(VOBJECT(rowview)->iobject);
-		guint state = get_modifiers(GTK_EVENT_CONTROLLER(gesture));
-
-		row_select_modifier(row, state);
-	}
-}
-
 static void
 valueview_class_init(ValueviewClass *class)
 {
@@ -108,7 +84,7 @@ valueview_class_init(ValueviewClass *class)
 
 	BIND_VARIABLE(Valueview, label);
 
-	BIND_CALLBACK(valueview_click);
+	BIND_CALLBACK(graphicview_click);
 
 	/* Create signals.
 	 */
