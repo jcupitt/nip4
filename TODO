@@ -27,10 +27,6 @@
 
 	"colorswatch" is the css_class of the swatch widget
 
-- dirty rows should display "blocked on A1" instead of an old value?
-
-	they'd flicker horribly during an update
-
 - on new image in iimageview
 
     - don't clear the tile pyramid completely, certainly not if dimensiopns
@@ -101,20 +97,18 @@
 
 ## widgets TODO
 
-- continue adding vips7 compat defs:
+- still to do:
 
-	done
-		test_colour.ws
-		test_conv.ws
-		test_fail.ws
-		test_filter.ws
-		test_fourier.ws
-		test_histogram.ws
-		test_image.ws
-		test_math.ws
-		test_matrix.ws
-		test_stats.ws
-		test_tasks.ws
+    (void) g_type_class_ref(TYPE_CLOCK);
+    (void) g_type_class_ref(TYPE_FONTNAME);
+    (void) g_type_class_ref(TYPE_GROUP);
+    (void) g_type_class_ref(TYPE_NUMBER);
+    (void) g_type_class_ref(TYPE_PLOT);
+    (void) g_type_class_ref(TYPE_REAL);
+    (void) g_type_class_ref(TYPE_STRING);
+    (void) g_type_class_ref(TYPE_VECTOR);
+
+  maybe skip clock
 
 ## vips8
 

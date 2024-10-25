@@ -459,9 +459,7 @@ vo_write_result(Vo *vo, PElement *out)
 	PElement pe;
 	PEPOINTE(&pe, &vo->out);
 
-	/* We will often only have written a single output, since we don't support
-	 * optional outputs. If the output list is a single element, move pe to
-	 * that.
+	/* If the output list is a single element, move pe to that.
 	 */
 	if (heap_list_length(&pe) == 1)
 		heap_list_index(&pe, 0, &pe);
