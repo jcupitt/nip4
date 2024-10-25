@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Fontnameview" parent="Graphicview">
+    <property name="hexpand">true</property>
+
+    <child>
+      <object class="GtkBox" id="top">
+        <property name="orientation">horizontal</property>
+        <property name="spacing">12</property>
+
+        <child>
+          <object class="GtkLabel" id="label">
+            <property name="xalign">0</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkFontDialogButton" id="button">
+            <accessibility>
+              <property name="label">Font</property>
+            </accessibility>
+            <property name="dialog">
+              <object class="GtkFontDialog">
+              </object>
+            </property>
+            <property name="use-font">true</property>
+            <property name="level">features</property>
+	    <signal name="notify::font-desc"
+              handler="fontnameview_desc_notify"/>
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+  </template>
+</interface>

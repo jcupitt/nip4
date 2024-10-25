@@ -7,6 +7,26 @@
 
 - check each test workspace visually against nip2
 
+  done
+
+	test_conv.ws
+	test_colour.ws
+
+
+- tilesource needs to implement FOURIER interpretation
+
+- falsecolour doesn't work
+
+	Filter_enhance_item.Falsecolour_item.action Q2
+
+- scale / offset settings from nip2 workspaces are not being applied to
+  thumbnails on load
+
+- bitwise browse doesn't work
+
+	Filter_browse_multiband_item.Bitwise_item.action V1
+
+
 - error bar should be in workspace (ie. below the tab bar), not in mainwindow
 
   if we moved it down, you'd be able to click on the error indictor on a tab

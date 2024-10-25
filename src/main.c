@@ -418,7 +418,6 @@ main(int argc, char **argv)
 	printf("app_startup: FIXME ... register more types\n");
 	/*
 	(void) g_type_class_ref(TYPE_CLOCK);
-	(void) g_type_class_ref(TYPE_FONTNAME);
 	(void) g_type_class_ref(TYPE_GROUP);
 	(void) g_type_class_ref(TYPE_NUMBER);
 	(void) g_type_class_ref(TYPE_PLOT);
@@ -444,6 +443,7 @@ main(int argc, char **argv)
 	(void) g_type_class_ref(MATRIX_TYPE);
 	(void) g_type_class_ref(EXPRESSION_TYPE);
 	(void) g_type_class_ref(COLOUR_TYPE);
+	(void) g_type_class_ref(FONTNAME_TYPE);
 
 	/* Load up all defs and wses.
 	 */

@@ -74,6 +74,8 @@ sources = files (
   'optionview.c',
   'pathname.c',
   'pathnameview.c',
+  'fontname.c',
+  'fontnameview.c',
   'slider.c',
   'sliderview.c',
   'toggle.c',
