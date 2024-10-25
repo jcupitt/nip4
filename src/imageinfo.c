@@ -818,14 +818,14 @@ imageinfo_get_rgb(Imageinfo *imageinfo, double rgb[3])
 
 	/* Use a tilesource to convert the imageinfo to RGB.
 	 */
-	Tilesource *source = tilesource_new_from_imageinfo(imageinfo);
-	tilesource_set_synchronous(source, TRUE);
+	Tilesource *tilesource = tilesource_new_from_imageinfo(imageinfo);
+	tilesource_set_synchronous(tilesource, TRUE);
 
 	VipsRect area = { 0, 0, 1, 1 };
-	if (vips_region_prepare(source->image_region, &area))
+	if (vips_region_prepare(tilesource->image_region, &area))
 		return;
 	VipsPel *p = (VipsPel *)
-		VIPS_REGION_ADDR(source->image_region, area.left, area.top);
+		VIPS_REGION_ADDR(tilesource->image_region, area.left, area.top);
 
 	if (imageinfo->image->Bands < 3)
 		for (int i = 0; i < 3; i++)
@@ -833,6 +833,8 @@ imageinfo_get_rgb(Imageinfo *imageinfo, double rgb[3])
 	else
 		for (int i = 0; i < 3; i++)
 			rgb[i] = p[i];
+
+	VIPS_UNREF(tilesource);
 
 #ifdef DEBUG_RGB
 	printf("imageinfo_get_rgb: out: r = %g, g = %g, b = %g\n",
@@ -877,7 +879,7 @@ imageinfo_set_rgb(Imageinfo *imageinfo, double rgb[3])
 	 * and RAD.
 	 */
     VipsImage **t = (VipsImage **)
-		vips_object_local_array(VIPS_OBJECT(in->image), 2);
+		vips_object_local_array(VIPS_OBJECT(image), 2);
 	if (image->Coding == VIPS_CODING_LABQ) {
 		if (vips_colourspace(in->image, &t[0],
 				VIPS_INTERPRETATION_LABQ, NULL) ||

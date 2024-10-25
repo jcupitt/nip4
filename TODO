@@ -1,4 +1,3 @@
-- test_tasks.ws lists 34 images leaking
 
 - error bar should be in workspace (ie. below the tab bar), not in mainwindow
 
