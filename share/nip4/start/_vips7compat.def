@@ -144,6 +144,8 @@ im_histnD x bins = vips_call "hist_find_ndim" [x] [
 	$bins => bins
 ];
 
+im_histplot in = vips_call "hist_plot" [in] [];
+
 im_insertset main sub x y
 	= foldr add_another main (zip2 x y)
 {

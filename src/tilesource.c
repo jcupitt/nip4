@@ -385,6 +385,22 @@ tilesource_display_image(Tilesource *tilesource, VipsImage **mask_out)
 		g_object_ref(image);
 	}
 
+	/* This has to be before the sink_screen since we need to find the image
+	 * maximum .... this sounds bad, but FFTs are image at a time anyway, so
+	 * the pipeline should be short.
+	 */
+	if (image->Type == VIPS_INTERPRETATION_FOURIER) {
+		if (vips_abs(image, &x, NULL))
+			return NULL;
+		VIPS_UNREF(image);
+		image = x;
+
+		if (vips_scale(image, &x, "log", TRUE, NULL))
+			return NULL;
+		VIPS_UNREF(image);
+		image = x;
+	}
+
 	if (tilesource->current_z > 0) {
 		/* We may have already zoomed out a bit because we've loaded
 		 * some layer other than the base one. Calculate the
@@ -537,10 +553,8 @@ tilesource_rgb_image(Tilesource *tilesource, VipsImage *in)
 		(tilesource->scale != 1.0 ||
 			tilesource->offset != 0.0 ||
 			tilesource->falsecolour ||
-			tilesource->log ||
-			image->Type == VIPS_INTERPRETATION_FOURIER)) {
-		if (tilesource->log ||
-			image->Type == VIPS_INTERPRETATION_FOURIER) {
+			tilesource->log)) {
+		if (tilesource->log) {
 			if (!(x = tilesource_image_log(image)))
 				return NULL;
 			VIPS_UNREF(image);
@@ -595,7 +609,7 @@ tilesource_rgb_image(Tilesource *tilesource, VipsImage *in)
 		image = x;
 	}
 
-	/* The number of bands could still be wrong for unsupported spaces like
+	/* The number of bands could still be wrong for spaces like
 	 * MATRIX or FOURIER.
 	 */
 	if (image->Bands > 3) {
