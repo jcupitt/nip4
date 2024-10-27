@@ -373,16 +373,24 @@ tilesource_display_image(Tilesource *tilesource, VipsImage **mask_out)
 		g_autoptr(VipsObject) context = VIPS_OBJECT(vips_image_new());
 		VipsImage **t = (VipsImage **) vips_object_local_array(context, 7);
 
+		printf("PLOTTING HISTOGRAM!!!\n");
+
 		// so it's unreffed when we unref context
 		t[0] = image;
 
 		if (vips_image_decode(t[0], &t[1]) ||
-			vips_hist_norm(t[1], &t[3], NULL) ||
-			vips_hist_plot(t[3], &t[4], NULL))
+			vips_hist_norm(t[1], &t[2], NULL) ||
+			vips_hist_plot(t[2], &t[3], NULL))
 			return NULL;
 
-		image = t[4];
+		image = t[3];
 		g_object_ref(image);
+
+		// we've changed the size of the image we need to display
+		tilesource->width = image->Xsize;
+		tilesource->height = image->Ysize;
+		tilesource->display_width = tilesource->width;
+		tilesource->display_height = tilesource->height;
 	}
 
 	/* This has to be before the sink_screen since we need to find the image

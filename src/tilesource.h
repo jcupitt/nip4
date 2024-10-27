@@ -154,6 +154,9 @@ typedef struct _Tilesource {
 	gboolean page_pyramid;
 
 	/* Basic image geometry. The tilecache pyramid is based on this.
+	 *
+	 * This is after things like hist_plot, so width and height may not match
+	 * image->XSize etc.
 	 */
 	int width;
 	int height;
