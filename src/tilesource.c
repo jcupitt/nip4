@@ -373,8 +373,6 @@ tilesource_display_image(Tilesource *tilesource, VipsImage **mask_out)
 		g_autoptr(VipsObject) context = VIPS_OBJECT(vips_image_new());
 		VipsImage **t = (VipsImage **) vips_object_local_array(context, 7);
 
-		printf("PLOTTING HISTOGRAM!!!\n");
-
 		// so it's unreffed when we unref context
 		t[0] = image;
 

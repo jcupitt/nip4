@@ -13,11 +13,14 @@
 	test_colour.ws
 
 
-- hist_plot doesn't seem to work
-
 - falsecolour doesn't work
 
 	Filter_enhance_item.Falsecolour_item.action Q2
+
+  only fails if you don't tick "clip colour range"
+
+
+
 
 - scale / offset settings from nip2 workspaces are not being applied to
   thumbnails on load

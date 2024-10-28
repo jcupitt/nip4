@@ -244,13 +244,15 @@ action_proc_eor(Reduce *rc, Compile *compile,
 		vo_callva(rc, out, "boolean",
 			PEGETIMAGE(a), PEGETIMAGE(b), VIPS_OPERATION_BOOLEAN_EOR);
 	else if (PEISIMAGE(a) && PEISINT(b)) {
-		g_autoptr(VipsArrayDouble) c = vips_array_double_newv(1, PEGETINT(b));
+		g_autoptr(VipsArrayDouble) c =
+			vips_array_double_newv(1, (double) PEGETINT(b));
 
 		vo_callva(rc, out, "boolean_const",
 			PEGETIMAGE(a), VIPS_OPERATION_BOOLEAN_EOR, c);
 	}
 	else if (PEISINT(a) && PEISIMAGE(b)) {
-		g_autoptr(VipsArrayDouble) c = vips_array_double_newv(1, PEGETINT(a));
+		g_autoptr(VipsArrayDouble) c =
+			vips_array_double_newv(1, (double) PEGETINT(a));
 
 		vo_callva(rc, out, "boolean_const",
 			PEGETIMAGE(b), VIPS_OPERATION_BOOLEAN_EOR, c);
@@ -280,13 +282,15 @@ action_proc_bor(Reduce *rc, Compile *compile,
 		vo_callva(rc, out, "boolean",
 			PEGETIMAGE(a), PEGETIMAGE(b), VIPS_OPERATION_BOOLEAN_OR);
 	else if (PEISIMAGE(a) && PEISINT(b)) {
-		g_autoptr(VipsArrayDouble) c = vips_array_double_newv(1, PEGETINT(b));
+		g_autoptr(VipsArrayDouble) c =
+			vips_array_double_newv(1, (double) PEGETINT(b));
 
 		vo_callva(rc, out, "boolean_const",
 			PEGETIMAGE(a), VIPS_OPERATION_BOOLEAN_OR, c);
 	}
 	else if (PEISINT(a) && PEISIMAGE(b)) {
-		g_autoptr(VipsArrayDouble) c = vips_array_double_newv(1, PEGETINT(a));
+		g_autoptr(VipsArrayDouble) c =
+			vips_array_double_newv(1, (double) PEGETINT(a));
 
 		vo_callva(rc, out, "boolean_const",
 			PEGETIMAGE(b), VIPS_OPERATION_BOOLEAN_OR, c);
@@ -317,13 +321,15 @@ action_proc_band(Reduce *rc, Compile *compile,
 		vo_callva(rc, out, "boolean",
 			PEGETIMAGE(a), PEGETIMAGE(b), VIPS_OPERATION_BOOLEAN_AND);
 	else if (PEISIMAGE(a) && PEISINT(b)) {
-		g_autoptr(VipsArrayDouble) c = vips_array_double_newv(1, PEGETINT(b));
+		g_autoptr(VipsArrayDouble) c =
+			vips_array_double_newv(1, (double) PEGETINT(b));
 
 		vo_callva(rc, out, "boolean_const",
 			PEGETIMAGE(a), VIPS_OPERATION_BOOLEAN_AND, c);
 	}
 	else if (PEISINT(a) && PEISIMAGE(b)) {
-		g_autoptr(VipsArrayDouble) c = vips_array_double_newv(1, PEGETINT(a));
+		g_autoptr(VipsArrayDouble) c =
+			vips_array_double_newv(1, (double) PEGETINT(a));
 
 		vo_callva(rc, out, "boolean_const",
 			PEGETIMAGE(b), VIPS_OPERATION_BOOLEAN_AND, c);
