@@ -17,3 +17,4 @@
 #define PATH_SEARCH path_search_default
 #define PATH_START path_start_default
 #define PATH_TMP path_tmp_default
+#define DISPLAY_CONVERSION (TRUE)

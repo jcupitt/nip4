@@ -69,7 +69,8 @@ struct _iImage {
 
 	/* Bar settings we remember.
 	 */
-	double scale, offset;
+	double scale;
+	double offset;
 	gboolean falsecolour;
 	gboolean type;
 

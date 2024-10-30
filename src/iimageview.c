@@ -69,6 +69,7 @@ iimageview_refresh(vObject *vobject)
 {
 	iImageview *iimageview = IIMAGEVIEW(vobject);
 	iImage *iimage = IIMAGE(vobject->iobject);
+    Row *row = HEAPMODEL(iimage)->row;
 
 #ifdef DEBUG
 	printf("iimageview_refresh: FIXME\n");
@@ -92,6 +93,22 @@ iimageview_refresh(vObject *vobject)
 	}
 	VIPS_UNREF(current_tilesource);
 
+	// on the first refresh, init tilesource from the saved settings
+	if (iimage->tilesource &&
+		iimageview->first) {
+		iimageview->first = FALSE;
+
+		if (iimage->scale != 1.0 ||
+			iimage->offset != 0.0 ||
+            iimage->falsecolour)
+			g_object_set(iimage->tilesource,
+				"active", TRUE,
+				"scale", iimage->scale,
+				"offset", iimage->offset,
+				"falsecolour", iimage->falsecolour,
+				NULL);
+	}
+
 	// we will need to disable visible for thumbnails that are
 	// off-screen, in a closed column, or in a workspace that's
 	// not at the front of the stack or performance will be
@@ -100,30 +117,6 @@ iimageview_refresh(vObject *vobject)
 
 	if (iimageview->label)
 		set_glabel(iimageview->label, "%s", IOBJECT(iimage)->caption);
-
-	printf("iimageview_refresh: restore settings\n");
-	/* Set scale/offset for the thumbnail. Use the prefs setting, or if
-	 * there's a setting for this image, override with that.
-	enabled = DISPLAY_CONVERSION;
-	scale = row->ws->scale;
-	offset = row->ws->offset;
-	falsecolour = FALSE;
-	type = TRUE;
-	 */
-
-	/* If the image_width has been set, a viewer must have popped down and
-	 * set it, so the recorded settings must be valid.
-	if (MODEL(iimage)->window_width != -1) {
-		enabled = iimage->show_convert;
-		scale = iimage->scale;
-		offset = iimage->offset;
-		falsecolour = iimage->falsecolour;
-		type = iimage->type;
-	}
-
-	conversion_set_params(iimageview->conv,
-		enabled, scale, offset, falsecolour, type);
-	 */
 
 	VOBJECT_CLASS(iimageview_parent_class)->refresh(vobject);
 }
@@ -165,6 +158,7 @@ static void
 iimageview_init(iImageview *iimageview)
 {
 	gtk_widget_init_template(GTK_WIDGET(iimageview));
+	iimageview->first = TRUE;
 }
 
 View *

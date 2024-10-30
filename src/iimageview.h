@@ -46,6 +46,9 @@ typedef struct _iImageview {
 	Imagedisplay *imagedisplay;
 	GtkWidget *label;
 
+	// this is the first _refresh()
+	gboolean first;
+
 } iImageview;
 
 typedef struct _iImageviewClass {
