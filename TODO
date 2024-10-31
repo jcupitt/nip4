@@ -12,6 +12,21 @@
 	test_conv.ws
 	test_colour.ws
 	test_filter.ws
+	test_fourier.ws
+	test_histogram.ws
+
+
+- try:
+
+	Image_number_format_item.S8_item.action BB1
+
+  makes a uchar, not a char?
+
+	Pattern_images_item.Noise_item.Fractal_item.action
+
+  not correct
+
+
 
 
 - error bar should be in workspace (ie. below the tab bar), not in mainwindow
