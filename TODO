@@ -14,14 +14,11 @@
 	test_filter.ws
 	test_fourier.ws
 	test_histogram.ws
+	test_image.ws
+	test_math.ws
 
 
-- try
-
-	Pattern_images_item.Noise_item.Fractal_item.action
-
-  not correct
-
+- thumbnails need to *always* shrink-to-fit, not just on first refresh
 
 
 - error bar should be in workspace (ie. below the tab bar), not in mainwindow

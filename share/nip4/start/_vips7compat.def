@@ -271,7 +271,7 @@ im_flt_image_freq in type p1 p2 p3 p4 p5
 }
 
 im_fractsurf size dimension
-	= vips_call "mask_fractal" [size, size, dimension] [
+	= vips_call "fractsurf" [size, size, dimension] [
 	  ];
 
 im_create_fmask width height type p1 p2 p3 p4 p5
