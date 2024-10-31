@@ -16,16 +16,11 @@
 	test_histogram.ws
 
 
-- try:
-
-	Image_number_format_item.S8_item.action BB1
-
-  makes a uchar, not a char?
+- try
 
 	Pattern_images_item.Noise_item.Fractal_item.action
 
   not correct
-
 
 
 
@@ -131,6 +126,16 @@
     (void) g_type_class_ref(TYPE_VECTOR);
 
   maybe skip clock
+
+## plotting
+
+- perhaps
+
+	https://github.com/kristapsdz/kplot
+
+  BSD-licenced C lib, we should perhaps copy to a subdir in src/
+
+  goffice has no gtk4 port
 
 ## vips8
 
