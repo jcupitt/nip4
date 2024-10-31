@@ -170,7 +170,7 @@ matrixview_grid_build(Matrixview *matrixview)
 	int max_height;
 	switch (matrix->display) {
 	case MATRIX_DISPLAY_TEXT:
-		max_width = 10;
+		max_width = 11;
 		max_height = 10;
 		break;
 
@@ -192,9 +192,12 @@ matrixview_grid_build(Matrixview *matrixview)
 	default:
 		g_assert_not_reached();
 	}
-	GtkPolicyType policy = width > max_width || height > max_height ? GTK_POLICY_ALWAYS : GTK_POLICY_NEVER;
+	GtkPolicyType hpolicy = width > max_width ?
+		GTK_POLICY_ALWAYS : GTK_POLICY_NEVER;
+	GtkPolicyType vpolicy = height > max_height ?
+		GTK_POLICY_ALWAYS : GTK_POLICY_NEVER;
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(matrixview->swin),
-		policy, policy);
+		hpolicy, vpolicy);
 }
 
 static void
