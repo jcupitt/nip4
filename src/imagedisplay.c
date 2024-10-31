@@ -307,8 +307,6 @@ imagedisplay_layout(Imagedisplay *imagedisplay)
 	if (!imagedisplay->tilecache)
 		return;
 
-	/* Do this the first time we have the image.
-	 */
 	if (imagedisplay->bestfit) {
 		double hscale = (double) imagedisplay->widget_rect.width /
 			imagedisplay->image_rect.width;
@@ -324,8 +322,6 @@ imagedisplay_layout(Imagedisplay *imagedisplay)
 		printf("imagedisplay_layout: bestfit sets scale = %g\n",
 			imagedisplay->scale);
 #endif /*DEBUG*/
-
-		imagedisplay->bestfit = FALSE;
 	}
 
 	imagedisplay->paint_rect.width = VIPS_MIN(
@@ -553,6 +549,7 @@ imagedisplay_set_property(GObject *object,
 		break;
 
 	case PROP_ZOOM:
+		g_object_set(imagedisplay, "bestfit", FALSE, NULL);
 		imagedisplay_set_transform(imagedisplay,
 			g_value_get_double(value),
 			imagedisplay->x,
@@ -562,6 +559,7 @@ imagedisplay_set_property(GObject *object,
 		break;
 
 	case PROP_X:
+		g_object_set(imagedisplay, "bestfit", FALSE, NULL);
 		imagedisplay_set_transform(imagedisplay,
 			imagedisplay->scale,
 			g_value_get_double(value),
@@ -570,6 +568,7 @@ imagedisplay_set_property(GObject *object,
 		break;
 
 	case PROP_Y:
+		g_object_set(imagedisplay, "bestfit", FALSE, NULL);
 		imagedisplay_set_transform(imagedisplay,
 			imagedisplay->scale,
 			imagedisplay->x,

@@ -519,11 +519,6 @@ regionview_hit(Regionview *regionview, int x, int y)
 {
 	int margin = 3 * regionview_line_width;
 
-	printf("regionview_hit: %d, %d\n", x, y);
-	printf("\tleft = %d, top = %d, width = %d, height = %d\n",
-		regionview->label.left, regionview->label.top,
-		regionview->label.width, regionview->label.height);
-
 	/* In the label? We take the bottom chunk off the label so that top-left
 	 * resize works.
 	 */
