@@ -170,6 +170,7 @@ matrixview_grid_build(Matrixview *matrixview)
 	int max_height;
 	switch (matrix->display) {
 	case MATRIX_DISPLAY_TEXT:
+		// 11 lets vips_stats() output display without horizontal scrolling
 		max_width = 11;
 		max_height = 10;
 		break;
