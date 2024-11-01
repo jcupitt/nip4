@@ -6,20 +6,11 @@
 	need to run the driver script from meson
 
 
-- colour edit swatches have different corner rounding ... how is this done?
-  can we do this for rowview?
+- drag rowview in large column to top or bottom, borders do not change
 
-	widget sets gtk_widget_add_css_class "left", "right" etc., then
-	theme CSS sets eg.
+	need to re-sort a subcolumn after drag?
 
-		colorswatch.top > overlay {
-			border-top-left-radius: 5px;
-			border-top-right-radius: 5px;
-		}
 
-	"overlay" is the "css-name" of the image widget in the colorswatch
-
-	"colorswatch" is the css_class of the swatch widget
 
 
 - on new image in iimageview

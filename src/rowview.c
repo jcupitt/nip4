@@ -130,9 +130,7 @@ rowview_update_widgets(Rowview *rview)
 	gboolean editable = row->ws->mode != WORKSPACE_MODE_NOEDIT;
 
 #ifdef DEBUG
-	printf("rowview_update_widgets: %p ", rview);
-	row_name_print(row);
-	printf("\n");
+	printf("rowview_update_widgets: %s, rview = %p\n", row_name(row), rview);
 	printf("\teditable == %d\n", editable);
 #endif /*DEBUG*/
 
@@ -140,9 +138,9 @@ rowview_update_widgets(Rowview *rview)
 	 */
 	if (rview->rnum != pos) {
 #ifdef DEBUG
+#endif /*DEBUG*/
 		printf("rowview_update_widgets: move from row %d to row %d\n",
 			rview->rnum, pos);
-#endif /*DEBUG*/
 
 		rview->rnum = pos;
 

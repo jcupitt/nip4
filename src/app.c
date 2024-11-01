@@ -184,7 +184,7 @@ add_css(const char *filename)
 
 	gtk_css_provider_load_from_resource(provider, filename);
 	gtk_style_context_add_provider_for_display(gdk_display_get_default(),
-		GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+		GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 }
 
 static GActionEntry app_entries[] = {

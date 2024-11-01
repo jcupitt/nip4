@@ -41,3 +41,17 @@
   background-color: #353535;
 }
 
+#rowview-frame {
+  border-radius: 0px;
+}
+
+#rowview-frame.top {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+#rowview-frame.bottom {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+

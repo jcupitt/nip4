@@ -105,8 +105,14 @@ subcolumnview_child_remove(View *parent, View *child)
 	VIEW_CLASS(subcolumnview_parent_class)->child_remove(parent, child);
 }
 
+typedef struct _SubcolumnviewRefresh {
+	Rowview *first;
+	Rowview *last;
+} SubcolumnviewRefresh;
+
 static void *
-subcolumnview_refresh_sub(Rowview *rview, Subcolumnview *sview)
+subcolumnview_refresh_sub(Rowview *rview,
+	Subcolumnview *sview, SubcolumnviewRefresh *refresh)
 {
 	Subcolumn *scol = SUBCOLUMN(VOBJECT(sview)->iobject);
 	Row *row = ROW(VOBJECT(rview)->iobject);
@@ -117,8 +123,17 @@ subcolumnview_refresh_sub(Rowview *rview, Subcolumnview *sview)
 	if (!row->sym)
 		return NULL;
 
+	printf("subcolumnview_refresh_sub: %s\n", row_name(row));
+
 	for (i = 0; i <= scol->vislevel; i++)
 		if (subcolumn_visibility[i].pred(row)) {
+			if (!refresh->first)
+				refresh->first = rview;
+			refresh->last = rview;
+
+			gtk_widget_remove_css_class(rview->frame, "top");
+			gtk_widget_remove_css_class(rview->frame, "bottom");
+
 			rowview_set_visible(rview, TRUE);
 			sview->n_vis++;
 			break;
@@ -138,16 +153,24 @@ subcolumnview_refresh(vObject *vobject)
 	int old_n_vis = sview->n_vis;
 
 #ifdef DEBUG
-	printf("subcolumnview_refresh\n");
 #endif /*DEBUG*/
+	printf("subcolumnview_refresh: scol = %p\n", scol);
 
 	sview->n_rows = icontainer_get_n_children(ICONTAINER(scol));
 	sview->n_vis = 0;
+	SubcolumnviewRefresh refresh = { 0 };
 	(void) view_map(VIEW(sview),
-		(view_map_fn) subcolumnview_refresh_sub, sview, NULL);
+		(view_map_fn) subcolumnview_refresh_sub, sview, &refresh);
+
+	if (refresh.first)
+		gtk_widget_add_css_class(refresh.first->frame, "top");
+	if (refresh.last)
+		gtk_widget_add_css_class(refresh.last->frame, "bottom");
 
 	if (sview->n_vis != old_n_vis)
 		iobject_changed(IOBJECT(col));
+
+	printf("subcolumnview_refresh: done\n");
 
 	VOBJECT_CLASS(subcolumnview_parent_class)->refresh(vobject);
 }

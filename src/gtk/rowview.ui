@@ -13,9 +13,7 @@
 
     <child>
       <object class="GtkFrame" id="frame">
-        <style>
-          <class name="label_frame"/>
-        </style>
+        <property name="name">rowview-frame</property>
 
         <child type="label">
           <object class="GtkLabel" id="label">
