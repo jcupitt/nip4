@@ -270,7 +270,7 @@ rowview_click(GtkGestureClick *gesture,
 			row->sym &&
 			!symbol_recalculate_check(row->sym))
 			// click on a row with an error displays the error
-			mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+			workspace_set_show_error(row->ws, TRUE);
 
 		// select handling ... do this for rows with errors too
 		guint state = get_modifiers(GTK_EVENT_CONTROLLER(gesture));
@@ -344,14 +344,14 @@ rowview_duplicate(Rowview *rview)
 	if (row->top_row != row) {
 		error_top("%s", _("Can't duplicate"));
 		error_sub("%s", _("you can only duplicate top level rows"));
-		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+		workspace_set_show_error(row->ws, TRUE);
 		return;
 	}
 
 	if (workspace_selected_num(ws) < 2)
 		row_select(row);
 	if (!workspace_selected_duplicate(ws))
-		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+		workspace_set_show_error(row->ws, TRUE);
 	workspace_deselect_all(ws);
 
 	symbol_recalculate_all();
@@ -365,7 +365,7 @@ rowview_group(Rowview *rview)
 	if (workspace_selected_num(row->ws) < 2)
 		row_select(row);
 	if (!workspace_selected_group(row->ws))
-		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+		workspace_set_show_error(row->ws, TRUE);
 	workspace_deselect_all(row->ws);
 
 	symbol_recalculate_all();
@@ -379,7 +379,7 @@ rowview_ungroup(Rowview *rview)
 	if (workspace_selected_num(row->ws) < 2)
 		row_select(row);
 	if (!workspace_selected_ungroup(row->ws))
-		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+		workspace_set_show_error(row->ws, TRUE);
 	workspace_deselect_all(row->ws);
 
 	symbol_recalculate_all();
@@ -396,12 +396,12 @@ rowview_recalc(Rowview *rview)
 	if (workspace_selected_num(row->ws) < 2)
 		row_select(row);
 	if (!workspace_selected_recalc(row->ws))
-		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+		workspace_set_show_error(row->ws, TRUE);
 	workspace_deselect_all(row->ws);
 
 	if (row->sym &&
 		!symbol_recalculate_check(row->sym))
-		mainwindow_error(MAINWINDOW(view_get_window(VIEW(rview))));
+		workspace_set_show_error(row->ws, TRUE);
 }
 
 static void

@@ -205,7 +205,7 @@ workspaceviewlabel_error_pressed(GtkGestureClick *gesture,
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 	(void) workspace_next_error(ws);
-	mainwindow_error(MAINWINDOW(view_get_window(VIEW(wview))));
+	workspace_set_show_error(ws, TRUE);
 }
 
 static void

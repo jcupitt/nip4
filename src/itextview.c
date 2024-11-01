@@ -211,11 +211,8 @@ itextview_activate(Formula *formula, iTextview *itextview)
 	symbol_recalculate_all();
 
 	if (row->sym &&
-		!symbol_recalculate_check(row->sym)) {
-		Mainwindow *main = MAINWINDOW(view_get_window(VIEW(itextview)));
-
-		mainwindow_error(main);
-	}
+		!symbol_recalculate_check(row->sym))
+		workspace_set_show_error(row->ws, TRUE);
 }
 
 static void

@@ -5,10 +5,6 @@
 
 	need to run the driver script from meson
 
-- error bar should be in workspace (ie. below the tab bar), not in mainwindow
-
-  if we moved it down, you'd be able to click on the error indictor on a tab
-  and the tab label wouldn't move up and down as the message changed
 
 - colour edit swatches have different corner rounding ... how is this done?
   can we do this for rowview?
@@ -25,12 +21,13 @@
 
 	"colorswatch" is the css_class of the swatch widget
 
+
 - on new image in iimageview
 
-    - don't clear the tile pyramid completely, certainly not if dimensiopns
+    - don't clear the tile pyramid completely, certainly not if dimensions
       are unchanged
 
-    - don't lose zoom, pan, scale, offset, etc.
+    - don't lose zoom, pan, scale, offset, etc., see "keep view settings"?
 
 - this fails:
 
@@ -98,7 +95,6 @@
 - still to do:
 
     (void) g_type_class_ref(TYPE_CLOCK);
-    (void) g_type_class_ref(TYPE_FONTNAME);
     (void) g_type_class_ref(TYPE_GROUP);
     (void) g_type_class_ref(TYPE_NUMBER);
     (void) g_type_class_ref(TYPE_PLOT);

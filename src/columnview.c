@@ -110,7 +110,7 @@ columnview_merge_sub(GObject *source_object,
 		g_autofree char *filename = g_file_get_path(file);
 
 		if (!workspacegroup_merge_rows(wsg, filename))
-			mainwindow_error(main);
+			workspace_set_show_error(ws, TRUE);
 		symbol_recalculate_all();
 	}
 }
@@ -155,7 +155,7 @@ columnview_saveas_sub(GObject *source_object,
 		workspace_deselect_all(ws);
 		column_select_symbols(col);
 		if (!workspacegroup_save_selected(wsg, filename))
-			mainwindow_error(main);
+			workspace_set_show_error(ws, TRUE);
 	}
 }
 
@@ -515,7 +515,6 @@ columnview_activate(GtkEntry *self, gpointer user_data)
 	Columnview *cview = COLUMNVIEW(user_data);
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
 	Workspace *ws = col->ws;
-	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(cview)));
 
 	GtkEntryBuffer *buffer = gtk_entry_get_buffer(self);
 	const char *text = gtk_entry_buffer_get_text(buffer);
@@ -525,13 +524,13 @@ columnview_activate(GtkEntry *self, gpointer user_data)
 	if (!text || strspn(text, WHITESPACE) == strlen(text))
 		return;
 
-	if ((sym = workspace_add_def_recalc(ws, text)))
-		mainwindow_error_hide(main);
-	else {
-		mainwindow_error(main);
+	if (!(sym = workspace_add_def_recalc(ws, text))) {
+		workspace_set_show_error(ws, TRUE);
 		symbol_recalculate_all();
 		return;
 	}
+
+	workspace_set_show_error(ws, FALSE);
 
 	set_gentry(GTK_WIDGET(self), NULL);
 }
@@ -565,7 +564,7 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		column_select_symbols(col);
 		workspace_column_select(ws, new_col);
 		if (!workspace_selected_duplicate(ws))
-			mainwindow_error(MAINWINDOW(view_get_window(view)));
+			workspace_set_show_error(ws, TRUE);
 
 		filemodel_set_modified(FILEMODEL(wsg), TRUE);
 		workspace_deselect_all(ws);

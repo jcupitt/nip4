@@ -419,7 +419,7 @@ workspacegroup_load_columns(Workspacegroup *wsg,
 		error_sub(_("file \"%s\" needs version %d.%d, merging "
 					"into this tab may cause compatibility problems"),
 			state->filename, xml_major, xml_minor);
-		mainwindow_error(MAINWINDOW(wsg->win));
+		workspace_set_show_error(ws, TRUE);
 	}
 
 	/* Search all the columns we will load for their names and add rename
@@ -483,7 +483,7 @@ workspacegroup_load_rows(Workspacegroup *wsg,
 		error_sub(_("file \"%s\" needs version %d.%d, merging "
 					"into this tab may cause compatibility problems"),
 			state->filename, xml_major, xml_minor);
-		mainwindow_error(MAINWINDOW(wsg->win));
+		workspace_set_show_error(ws, TRUE);
 	}
 
 	FOR_ALL_XML(xroot, xws, "Workspace"){

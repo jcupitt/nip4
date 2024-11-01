@@ -2,25 +2,88 @@
 <interface>
 
   <template class="Workspaceview" parent="View">
+
     <child>
-      <object class="GtkScrolledWindow" id="scrolled_window">
+      <object class="GtkBox" id="top">
+        <property name="orientation">vertical</property>
+        <property name="hexpand">true</property>
+        <property name="vexpand">true</property>
+        <property name="spacing">15</property>
+
         <child>
-          <object class="GtkFixed" id="fixed">
+          <object class="GtkActionBar" id="error_bar">
+            <property name="revealed">false</property>
 
-            <!-- columns are added as children of this fixed -->
+            <child type="center">
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="hexpand">true</property>
+                <property name="spacing">15</property>
 
-            <child>
-              <object class="GtkGestureClick">
-                <property name="button">1</property>
-                <signal name="pressed" handler="workspaceview_click"/>
+                <child>
+                  <object class="GtkLabel" id="error_top">
+                    <property name="ellipsize">middle</property>
+                    <property name="selectable">true</property>
+                    <property name="can-focus">false</property>
+                    <style>
+                      <class name="error_top"/>
+                    </style>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel" id="error_sub">
+                    <property name="ellipsize">middle</property>
+                    <property name="selectable">true</property>
+                    <property name="can-focus">false</property>
+                    <style>
+                      <class name="error_sub"/>
+                    </style>
+                  </object>
+                </child>
+
               </object>
             </child>
 
+            <child type="end">
+              <object class="GtkButton">
+                <property name="label">OK</property>
+                <property name="valign">center</property>
+                <signal name="clicked"
+                    handler="workspaceview_error_close_clicked"/>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkScrolledWindow" id="scrolled_window">
+            <property name="hexpand">true</property>
+            <property name="vexpand">true</property>
+
             <child>
-              <object class="GtkGestureDrag">
-                <signal name="drag-begin" handler="workspaceview_drag_begin"/>
-                <signal name="drag-update" handler="workspaceview_drag_update"/>
-                <signal name="drag-end" handler="workspaceview_drag_end"/>
+              <object class="GtkFixed" id="fixed">
+
+                <!-- columns are added as children of this fixed -->
+
+                <child>
+                  <object class="GtkGestureClick">
+                    <property name="button">1</property>
+                    <signal name="pressed" handler="workspaceview_click"/>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkGestureDrag">
+                    <signal name="drag-begin"
+			handler="workspaceview_drag_begin"/>
+                    <signal name="drag-update"
+			handler="workspaceview_drag_update"/>
+                    <signal name="drag-end"
+			handler="workspaceview_drag_end"/>
+                  </object>
+                </child>
+
               </object>
             </child>
 
@@ -28,9 +91,7 @@
         </child>
 
       </object>
-
     </child>
 
   </template>
-
 </interface>

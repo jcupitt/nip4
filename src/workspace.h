@@ -86,6 +86,12 @@ struct _Workspace {
 	 */
 	Row *last_error;
 
+	/* Set if the view should display error_top and error_sub.
+	 */
+	gboolean show_error;
+	char *error_top;
+	char *error_sub;
+
 	VipsRect area;		 /* Rect enclosing the set of columns */
 	VipsRect vp;		 /* Viewport hint ... set by views */
 	gboolean lpane_open; /* Pane model */
@@ -118,6 +124,8 @@ typedef struct _WorkspaceClass {
 	/* Methods.
 	 */
 } WorkspaceClass;
+
+void workspace_set_show_error(Workspace *ws, gboolean show_error);
 
 void workspace_queue_layout(Workspace *ws);
 

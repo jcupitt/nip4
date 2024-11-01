@@ -519,6 +519,14 @@ workspaceview_refresh(vObject *vobject)
 	if (wview->label)
 		workspaceviewlabel_refresh(wview->label);
 
+	// show or hide the error bar
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(wview->error_bar),
+		ws->show_error);
+	if (ws->show_error) {
+		set_glabel(wview->error_top, ws->error_top);
+		set_glabel(wview->error_sub, ws->error_sub);
+	}
+
 	// columnviews change appearance based on workspace settings like locked,
 	// so they must refresh too
 	icontainer_map(ICONTAINER(ws),
@@ -717,7 +725,7 @@ workspaceview_saveas_sub(GObject *source_object,
 
 		icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 		if (!workspacegroup_save_current(wsg, filename))
-			mainwindow_error(main);
+			workspace_set_show_error(ws, TRUE);
 	}
 }
 
@@ -761,7 +769,7 @@ workspaceview_merge_sub(GObject *source_object,
 		g_autofree char *filename = g_file_get_path(file);
 
 		if (!workspace_merge_file(ws, filename))
-			mainwindow_error(main);
+			workspace_set_show_error(ws, TRUE);
 	}
 }
 
@@ -799,11 +807,8 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 
 	if (g_str_equal(name, "column-new"))
 		workspace_column_new(ws);
-	else if (g_str_equal(name, "next-error")) {
-		// could use return status to style error bar?
-		(void) workspace_next_error(ws);
-		mainwindow_error(MAINWINDOW(view_get_window(VIEW(wview))));
-	}
+	else if (g_str_equal(name, "next-error"))
+		workspace_set_show_error(ws, workspace_next_error(ws));
 	else if (g_str_equal(name, "tab-rename"))
 		g_object_set(wview->label,
 			"edit", TRUE,
@@ -1199,6 +1204,14 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 }
 
 static void
+workspaceview_error_close_clicked(GtkButton *button, void *user_data)
+{
+	Workspaceview *wview = WORKSPACEVIEW(user_data);
+
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(wview->error_bar), FALSE);
+}
+
+static void
 workspaceview_class_init(WorkspaceviewClass *class)
 {
 	GObjectClass *object_class = (GObjectClass *) class;
@@ -1211,6 +1224,10 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
 		GTK_TYPE_BIN_LAYOUT);
 
+	BIND_VARIABLE(Workspaceview, top);
+	BIND_VARIABLE(Workspaceview, error_bar);
+	BIND_VARIABLE(Workspaceview, error_top);
+	BIND_VARIABLE(Workspaceview, error_sub);
 	BIND_VARIABLE(Workspaceview, scrolled_window);
 	BIND_VARIABLE(Workspaceview, fixed);
 
@@ -1218,6 +1235,7 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_CALLBACK(workspaceview_drag_begin);
 	BIND_CALLBACK(workspaceview_drag_update);
 	BIND_CALLBACK(workspaceview_drag_end);
+	BIND_CALLBACK(workspaceview_error_close_clicked);
 
 	object_class->dispose = workspaceview_dispose;
 

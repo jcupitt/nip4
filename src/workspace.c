@@ -42,6 +42,20 @@ static GSList *workspace_needs_layout = NULL;
 
 static gint workspace_layout_timeout = 0;
 
+/* Ask views to display or hide their error message.
+ */
+void
+workspace_set_show_error(Workspace *ws, gboolean show_error)
+{
+	ws->show_error = show_error;
+	if (show_error) {
+		VIPS_SETSTR(ws->error_top, error_get_top());
+		VIPS_SETSTR(ws->error_sub, error_get_sub());
+	}
+
+	iobject_changed(IOBJECT(ws));
+}
+
 static void
 workspace_set_needs_layout(Workspace *ws, gboolean needs_layout)
 {
@@ -1298,7 +1312,7 @@ workspace_selected_remove_yesno_cb(GtkWindow *parent, gpointer user_data)
 	Workspace *ws = WORKSPACE(user_data);
 
 	if (!workspace_selected_remove(ws))
-		mainwindow_error(MAINWINDOW(parent));
+		workspace_set_show_error(ws, TRUE);
 }
 
 /* Ask before removing selected. If there's only one row selected, don't
@@ -1309,7 +1323,7 @@ workspace_selected_remove_yesno(Workspace *ws, GtkWindow *parent)
 {
 	if (workspace_selected_num(ws) == 1) {
 		if (!workspace_selected_remove(ws))
-			mainwindow_error(MAINWINDOW(parent));
+			workspace_set_show_error(ws, TRUE);
 	}
 	else if (workspace_selected_num(ws) > 1) {
 		char txt[30];

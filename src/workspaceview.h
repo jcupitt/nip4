@@ -51,6 +51,10 @@ struct _Workspaceview {
 	View view;
 
 	Workspaceviewlabel *label;	/* For the notebook tab */
+	GtkWidget *top;
+	GtkWidget *error_bar;
+	GtkWidget *error_top;
+	GtkWidget *error_sub;
 	GtkWidget *fixed;			/* GtkFixed for tally */
 	GtkWidget *scrolled_window; /* ScrolledWindow holding fixed */
 	GtkAdjustment *hadj;
@@ -140,10 +144,14 @@ typedef struct _WorkspaceviewClass {
 	 */
 } WorkspaceviewClass;
 
+void workspaceview_error(Workspaceview *wview);
+void workspaceview_error_hide(Workspaceview *wview);
+
 void workspaceview_scroll(Workspaceview *wview, int x, int y, int w, int h);
 
 Columnview *workspaceview_find_columnview(Workspaceview *wview, int x, int y);
-Columnview *workspaceview_find_columnview_title(Workspaceview *wview, int x, int y);
+Columnview *workspaceview_find_columnview_title(Workspaceview *wview,
+	int x, int y);
 
 GType workspaceview_get_type(void);
 View *workspaceview_new(void);

@@ -69,7 +69,6 @@ iimageview_refresh(vObject *vobject)
 {
 	iImageview *iimageview = IIMAGEVIEW(vobject);
 	iImage *iimage = IIMAGE(vobject->iobject);
-    Row *row = HEAPMODEL(iimage)->row;
 
 #ifdef DEBUG
 	printf("iimageview_refresh: FIXME\n");

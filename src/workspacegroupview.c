@@ -239,7 +239,6 @@ workspacegroupview_switch_page(GtkNotebook *notebook,
 	GtkWidget *page, guint page_num, gpointer user_data)
 {
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
-	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(wsgview)));
 	Workspacegroup *wsg = WORKSPACEGROUP(VOBJECT(wsgview)->iobject);
 	Workspaceview *wview = WORKSPACEVIEW(page);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
@@ -274,7 +273,7 @@ workspacegroupview_switch_page(GtkNotebook *notebook,
 					"for this window"),
 			ws->compat_major,
 			ws->compat_minor);
-		mainwindow_error(main);
+		workspace_set_show_error(ws, TRUE);
 	}
 }
 

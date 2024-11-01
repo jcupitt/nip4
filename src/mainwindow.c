@@ -46,9 +46,6 @@ struct _Mainwindow {
 	GtkWidget *gears;
 	GtkWidget *progress_bar;
 	GtkWidget *progress;
-	GtkWidget *error_bar;
-	GtkWidget *error_top;
-	GtkWidget *error_sub;
 	GtkWidget *wsgview;
 
 	/* Batch refresh with this, it's slow.
@@ -117,22 +114,27 @@ mainwindow_set_load_folder(Mainwindow *main, GFile *file)
 	main->load_folder = get_parent(file);
 }
 
-void
-mainwindow_error(Mainwindow *main)
+static Workspace *
+mainwindow_get_workspace(Mainwindow *main)
 {
-	set_glabel(main->error_top, error_get_top());
-	set_glabel(main->error_sub, error_get_sub());
-	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->error_bar), TRUE);
+#ifdef DEBUG
+	printf("mainwindow_get_workspace:\n");
+#endif /*DEBUG*/
+
+	if (!main->wsg) {
+		printf("no wsg\n");
+		Workspacegroup *wsg =
+			workspacegroup_new_blank(main_workspaceroot, NULL);
+		mainwindow_set_wsg(main, wsg);
+	}
+
+	return WORKSPACE(ICONTAINER(main->wsg)->current);
 }
 
 void
-mainwindow_error_hide(Mainwindow *main)
+mainwindow_error(Mainwindow *main)
 {
-#ifdef DEBUG
-	printf("mainwindow_error_hide:\n");
-#endif /*DEBUG*/
-
-	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->error_bar), FALSE);
+	workspace_set_show_error(mainwindow_get_workspace(main), TRUE);
 }
 
 static void
@@ -173,23 +175,6 @@ mainwindow_open_workspace(Mainwindow *main, const char *filename)
 	symbol_recalculate_all();
 
 	return TRUE;
-}
-
-static Workspace *
-mainwindow_get_workspace(Mainwindow *main)
-{
-#ifdef DEBUG
-	printf("mainwindow_get_workspace:\n");
-#endif /*DEBUG*/
-
-	if (!main->wsg) {
-		printf("no wsg\n");
-		Workspacegroup *wsg =
-			workspacegroup_new_blank(main_workspaceroot, NULL);
-		mainwindow_set_wsg(main, wsg);
-	}
-
-	return WORKSPACE(ICONTAINER(main->wsg)->current);
 }
 
 static gboolean
@@ -496,7 +481,7 @@ mainwindow_keyboard_duplicate_action(GSimpleAction *action,
 	Workspace *ws;
 	if ((ws = WORKSPACE(ICONTAINER(main->wsg)->current))) {
 		if (!workspace_selected_duplicate(ws))
-			mainwindow_error(main);
+			workspace_set_show_error(ws, TRUE);
 
 		workspace_deselect_all(ws);
 		symbol_recalculate_all();
@@ -637,14 +622,6 @@ mainwindow_progress_cancel_clicked(GtkButton *button, void *user_data)
 	main->cancel = TRUE;
 }
 
-static void
-mainwindow_error_close_clicked(GtkButton *button, void *user_data)
-{
-	Mainwindow *main = MAINWINDOW(user_data);
-
-	mainwindow_error_hide(main);
-}
-
 static gboolean
 mainwindow_close_request_idle(void *user_data)
 {
@@ -695,13 +672,9 @@ mainwindow_class_init(MainwindowClass *class)
 	BIND_VARIABLE(Mainwindow, gears);
 	BIND_VARIABLE(Mainwindow, progress_bar);
 	BIND_VARIABLE(Mainwindow, progress);
-	BIND_VARIABLE(Mainwindow, error_bar);
-	BIND_VARIABLE(Mainwindow, error_top);
-	BIND_VARIABLE(Mainwindow, error_sub);
 	BIND_VARIABLE(Mainwindow, wsgview);
 
 	BIND_CALLBACK(mainwindow_progress_cancel_clicked);
-	BIND_CALLBACK(mainwindow_error_close_clicked);
 	BIND_CALLBACK(mainwindow_close_request);
 }
 
@@ -992,9 +965,10 @@ mainwindow_about(Mainwindow *main, VipsBuf *buf)
 gboolean
 mainwindow_is_empty(Mainwindow *main)
 {
+	Workspace *ws = mainwindow_get_workspace(main);
+
 	// if the error bar is open, the user needs to be able to see it
-	return workspacegroup_is_empty(main->wsg) &&
-		!gtk_action_bar_get_revealed(GTK_ACTION_BAR(main->error_bar));
+	return workspacegroup_is_empty(main->wsg) && !ws->show_error;
 }
 
 GtkWindow *
