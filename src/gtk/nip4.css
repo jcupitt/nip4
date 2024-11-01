@@ -46,12 +46,12 @@
 }
 
 #rowview-frame.top {
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 }
 
 #rowview-frame.bottom {
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 

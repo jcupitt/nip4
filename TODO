@@ -1,16 +1,15 @@
+- drag a row a little to the right, let go, gets stlyed as to (rnum is still
+  -1)
+
+- drag top ot bottom
+
+
 - check the driver script that runs all test workspaces .. do we need to
   implement batch mode?
 
 	need --test and --prefix
 
 	need to run the driver script from meson
-
-
-- drag rowview in large column to top or bottom, borders do not change
-
-	need to re-sort a subcolumn after drag?
-
-
 
 
 - on new image in iimageview

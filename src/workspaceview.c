@@ -961,9 +961,6 @@ workspaceview_drop_rowview(Workspaceview *wview)
 			new_pos -= 1;
 
 		icontainer_child_move(ICONTAINER(row), new_pos);
-
-		printf("signal change on scol = %p\n", col->scol);
-		iobject_changed(IOBJECT(col->scol));
 	}
 	else
 		// different column ... we must reparent the row model

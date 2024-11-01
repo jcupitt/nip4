@@ -105,14 +105,8 @@ subcolumnview_child_remove(View *parent, View *child)
 	VIEW_CLASS(subcolumnview_parent_class)->child_remove(parent, child);
 }
 
-typedef struct _SubcolumnviewRefresh {
-	Rowview *first;
-	Rowview *last;
-} SubcolumnviewRefresh;
-
 static void *
-subcolumnview_refresh_sub(Rowview *rview,
-	Subcolumnview *sview, SubcolumnviewRefresh *refresh)
+subcolumnview_refresh_sub(Rowview *rview, Subcolumnview *sview)
 {
 	Subcolumn *scol = SUBCOLUMN(VOBJECT(sview)->iobject);
 	Row *row = ROW(VOBJECT(rview)->iobject);
@@ -123,23 +117,43 @@ subcolumnview_refresh_sub(Rowview *rview,
 	if (!row->sym)
 		return NULL;
 
-	printf("subcolumnview_refresh_sub: %s\n", row_name(row));
-
 	for (i = 0; i <= scol->vislevel; i++)
 		if (subcolumn_visibility[i].pred(row)) {
-			if (!refresh->first)
-				refresh->first = rview;
-			refresh->last = rview;
-
-			gtk_widget_remove_css_class(rview->frame, "top");
-			gtk_widget_remove_css_class(rview->frame, "bottom");
-
 			rowview_set_visible(rview, TRUE);
 			sview->n_vis++;
 			break;
 		}
 	if (i > scol->vislevel)
 		rowview_set_visible(rview, FALSE);
+
+	return NULL;
+}
+
+typedef struct _SubcolumnviewEnds {
+	Rowview *first;
+	Rowview *last;
+} SubcolumnviewEnds;
+
+static void *
+subcolumnview_refresh_find_ends(Rowview *rview,
+	Subcolumnview *sview, SubcolumnviewEnds *ends)
+{
+	Row *row = ROW(VOBJECT(rview)->iobject);
+
+	printf("subcolumnview_refresh_sub: %s rnum = %d\n",
+		row_name(row), rview->rnum);
+
+	if (rview->visible) {
+		gtk_widget_remove_css_class(rview->frame, "top");
+		gtk_widget_remove_css_class(rview->frame, "bottom");
+
+		if (!ends->first ||
+			rview->rnum < ends->first->rnum)
+			ends->first = rview;
+		if (!ends->last ||
+			rview->rnum > ends->last->rnum)
+			ends->last = rview;
+	}
 
 	return NULL;
 }
@@ -158,17 +172,19 @@ subcolumnview_refresh(vObject *vobject)
 
 	sview->n_rows = icontainer_get_n_children(ICONTAINER(scol));
 	sview->n_vis = 0;
-	SubcolumnviewRefresh refresh = { 0 };
 	(void) view_map(VIEW(sview),
-		(view_map_fn) subcolumnview_refresh_sub, sview, &refresh);
-
-	if (refresh.first)
-		gtk_widget_add_css_class(refresh.first->frame, "top");
-	if (refresh.last)
-		gtk_widget_add_css_class(refresh.last->frame, "bottom");
+		(view_map_fn) subcolumnview_refresh_sub, sview, NULL);
 
 	if (sview->n_vis != old_n_vis)
 		iobject_changed(IOBJECT(col));
+
+	SubcolumnviewEnds ends = { 0 };
+	(void) view_map(VIEW(sview),
+		(view_map_fn) subcolumnview_refresh_find_ends, sview, &ends);
+	if (ends.first)
+		gtk_widget_add_css_class(ends.first->frame, "top");
+	if (ends.last)
+		gtk_widget_add_css_class(ends.last->frame, "bottom");
 
 	printf("subcolumnview_refresh: done\n");
 
