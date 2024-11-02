@@ -1608,8 +1608,7 @@ action_proc_uop(Reduce *rc, Compile *compile,
 		}
 		else if (PEISIMAGE(a))
 			vo_callva(rc, out, "cast", PEGETIMAGE(a),
-				op == UN_CCOMPLEX ?
-					VIPS_FORMAT_COMPLEX : VIPS_FORMAT_DPCOMPLEX);
+				op == UN_CCOMPLEX ? VIPS_FORMAT_COMPLEX : VIPS_FORMAT_DPCOMPLEX);
 		else
 			action_uoperror(rc, compile, NULL, op, name, a);
 

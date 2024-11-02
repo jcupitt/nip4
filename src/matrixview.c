@@ -140,7 +140,7 @@ matrixview_grid_build(Matrixview *matrixview)
 					G_CALLBACK(matrixview_changed), matrixview);
 				g_signal_connect(tslider, "text_changed",
 					G_CALLBACK(matrixview_text_changed), matrixview);
-				block_scroll(tslider);
+				block_scroll(GTK_WIDGET(tslider));
 
 				item = GTK_WIDGET(tslider);
 				break;
@@ -194,10 +194,8 @@ matrixview_grid_build(Matrixview *matrixview)
 	default:
 		g_assert_not_reached();
 	}
-	GtkPolicyType hpolicy = width > max_width ?
-		GTK_POLICY_ALWAYS : GTK_POLICY_NEVER;
-	GtkPolicyType vpolicy = height > max_height ?
-		GTK_POLICY_ALWAYS : GTK_POLICY_NEVER;
+	GtkPolicyType hpolicy = width > max_width ? GTK_POLICY_ALWAYS : GTK_POLICY_NEVER;
+	GtkPolicyType vpolicy = height > max_height ? GTK_POLICY_ALWAYS : GTK_POLICY_NEVER;
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(matrixview->swin),
 		hpolicy, vpolicy);
 }

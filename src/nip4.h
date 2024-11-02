@@ -163,6 +163,7 @@ typedef struct _Managedgvalue Managedgvalue;
 typedef struct _Managed Managed;
 typedef struct _Managedstring Managedstring;
 typedef struct _Matrix Matrix;
+typedef struct _Number Number;
 typedef struct _Model Model;
 typedef struct _Panechild Panechild;
 typedef struct _Pane Pane;
@@ -251,6 +252,7 @@ typedef struct _Workspace Workspace;
 #include "pathname.h"
 #include "fontname.h"
 #include "slider.h"
+#include "number.h"
 #include "toggle.h"
 #include "iimage.h"
 #include "colour.h"
@@ -292,6 +294,7 @@ typedef struct _Workspace Workspace;
 #include "iregiongroupview.h"
 #include "workspaceviewlabel.h"
 #include "itextview.h"
+#include "editview.h"
 #include "optionview.h"
 #include "expressionview.h"
 #include "pathnameview.h"
@@ -299,6 +302,7 @@ typedef struct _Workspace Workspace;
 #include "sliderview.h"
 #include "toggleview.h"
 #include "toolkitview.h"
+#include "numberview.h"
 #include "toolkitgroupview.h"
 #include "subcolumnview.h"
 #include "rowview.h"

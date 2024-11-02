@@ -50,7 +50,7 @@ typedef enum {
 struct _Workspaceview {
 	View view;
 
-	Workspaceviewlabel *label;	/* For the notebook tab */
+	Workspaceviewlabel *label; /* For the notebook tab */
 	GtkWidget *top;
 	GtkWidget *error_bar;
 	GtkWidget *error_top;

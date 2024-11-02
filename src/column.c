@@ -46,9 +46,9 @@ column_set_offset(int left_offset)
 {
 #ifdef DEBUG
 #endif /*DEBUG*/
-    printf("column_set_offset: load offset %d\n", left_offset);
+	printf("column_set_offset: load offset %d\n", left_offset);
 
-    column_left_offset = left_offset;
+	column_left_offset = left_offset;
 }
 
 /* Map down a column.
@@ -246,7 +246,7 @@ column_load(Model *model,
 		return FALSE;
 
 	// load to the right of any existing columns
-    col->x += column_left_offset;
+	col->x += column_left_offset;
 
 	/* Don't use iobject_set(): we don't want to trigger _changed during
 	 * load.

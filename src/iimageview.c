@@ -99,7 +99,7 @@ iimageview_refresh(vObject *vobject)
 
 		if (iimage->scale != 1.0 ||
 			iimage->offset != 0.0 ||
-            iimage->falsecolour)
+			iimage->falsecolour)
 			g_object_set(iimage->tilesource,
 				"active", TRUE,
 				"scale", iimage->scale,
