@@ -184,6 +184,7 @@ static void
 sliderview_init(Sliderview *sliderview)
 {
 	gtk_widget_init_template(GTK_WIDGET(sliderview));
+	block_scroll(sliderview->tslider);
 }
 
 View *

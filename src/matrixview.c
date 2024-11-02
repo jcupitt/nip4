@@ -140,6 +140,7 @@ matrixview_grid_build(Matrixview *matrixview)
 					G_CALLBACK(matrixview_changed), matrixview);
 				g_signal_connect(tslider, "text_changed",
 					G_CALLBACK(matrixview_text_changed), matrixview);
+				block_scroll(tslider);
 
 				item = GTK_WIDGET(tslider);
 				break;

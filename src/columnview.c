@@ -119,6 +119,11 @@ static void
 columnview_merge(Columnview *cview)
 {
 	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(cview)));
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
+	Workspace *ws = col->ws;
+
+	// workspacegroup_merge_rows() merges into the current column
+	workspace_column_select(ws, col);
 
 	GtkFileDialog *dialog;
 

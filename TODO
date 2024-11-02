@@ -2,20 +2,6 @@
 
 	- improve model_scrollto()
 
-	- any other merge actions?
-
-- drag a row a little to the right, let go, gets stlyed as to (rnum is still
-  -1)
-
-- drag top ot bottom
-
-
-	- need something to remove and reapply the css for subcolumns
-
-	- trigger it on visibility change and on subcolumn refresh
-
-	- maybe vis change should trigger subcolumn refresh?
-
 
 - check the driver script that runs all test workspaces .. do we need to
   implement batch mode?
