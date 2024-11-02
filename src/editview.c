@@ -84,12 +84,13 @@ editview_activate(GtkWidget *wid, Editview *editview)
 	Row *row = HEAPMODEL(VOBJECT(editview)->iobject)->row;
 
 #ifdef DEBUG
-	printf("editview_key_pressed:\n");
+	printf("editview_activate:\n");
 #endif /*DEBUG*/
 
 	/* If we've been changed, a subclass will have us on the scannable list ...
 	 * just recomp.
 	 */
+	view_scannable_register(VIEW(editview));
 	symbol_recalculate_all();
 
 	if (row->expr->err) {
@@ -119,8 +120,6 @@ editview_key_pressed(GtkEventControllerKey *self,
 		handled = TRUE;
 	}
 
-	// we've changed, we'll need to scan
-	view_scannable_register(VIEW(editview));
 
 	return handled;
 }

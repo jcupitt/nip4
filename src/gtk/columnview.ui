@@ -57,12 +57,12 @@
 			<signal name="activate"
                           handler="columnview_caption_edit_activate"/>
 
-	                  <child>
-                            <object class="GtkEventControllerKey">
-                              <signal name="key-pressed"
-                                handler="columnview_caption_key_pressed"/>
-                            </object>
-                          </child>
+	                <child>
+                          <object class="GtkEventControllerKey">
+                            <signal name="key-pressed"
+                              handler="columnview_caption_key_pressed"/>
+                          </object>
+                        </child>
                       </object>
                     </child>
 

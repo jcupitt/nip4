@@ -1,3 +1,18 @@
+- try
+
+	Number "hello" 42
+
+  looks like editview_key_pressed() is only tiggered for keys that the entry
+  does NOT use, like cursor up/down and esc
+
+  this means we never register as scannable, so it's not scanned on recomp
+
+  formula has the same problem
+
+  maybe watch notify::text-length for changed?
+
+
+
 - workspace merge into
 
 	- improve model_scrollto()
