@@ -1,9 +1,8 @@
 - workspace merge into
 
-	- should offset all column positions by the rightmost col pos before
-	  load
+	- improve model_scrollto()
 
-	- needs to recalc after load
+	- any other merge actions?
 
 - drag a row a little to the right, let go, gets stlyed as to (rnum is still
   -1)

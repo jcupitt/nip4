@@ -71,6 +71,8 @@ typedef struct _ColumnClass {
 	 */
 } ColumnClass;
 
+void column_set_offset(int left_offset);
+
 void *column_map(Column *col, row_map_fn fn, void *a, void *b);
 void *column_map_symbol(Column *col, symbol_map_fn fn, void *a);
 

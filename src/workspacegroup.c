@@ -904,11 +904,28 @@ workspacegroup_merge_workspaces(Workspacegroup *wsg, const char *filename)
 gboolean
 workspacegroup_merge_columns(Workspacegroup *wsg, const char *filename)
 {
+	Workspace *ws;
+
+	if ((ws = workspacegroup_get_workspace(wsg)))
+        /* We'll do a layout after load, so just load to a huge x and
+         * we'll be OK.
+         */
+        column_set_offset(2 * VIPS_RECT_RIGHT(&ws->area));
+
 	workspacegroup_set_load_type(wsg, WORKSPACEGROUP_LOAD_COLUMNS);
 	if (!filemodel_load_all(FILEMODEL(wsg), MODEL(wsg->wsr), filename, NULL))
 		return FALSE;
 
 	filemodel_set_modified(FILEMODEL(wsg), TRUE);
+
+	symbol_recalculate_all();
+
+	if (ws &&
+		COLUMN(ICONTAINER(ws)->current)) {
+		Column *col = COLUMN(ICONTAINER(ws)->current);
+
+		model_scrollto(MODEL(col), MODEL_SCROLL_BOTTOM);
+	}
 
 	return TRUE;
 }

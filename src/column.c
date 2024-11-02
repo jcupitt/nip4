@@ -35,6 +35,22 @@
 
 G_DEFINE_TYPE(Column, column, FILEMODEL_TYPE)
 
+/* Offset for this column load/save.
+ */
+static int column_left_offset = 0;
+
+/* Set the load/save offsets.
+ */
+void
+column_set_offset(int left_offset)
+{
+#ifdef DEBUG
+#endif /*DEBUG*/
+    printf("column_set_offset: load offset %d\n", left_offset);
+
+    column_left_offset = left_offset;
+}
+
 /* Map down a column.
  */
 void *
@@ -228,6 +244,9 @@ column_load(Model *model,
 		!get_bprop(xnode, "selected", &col->selected) ||
 		!get_iprop(xnode, "next", &col->next))
 		return FALSE;
+
+	// load to the right of any existing columns
+    col->x += column_left_offset;
 
 	/* Don't use iobject_set(): we don't want to trigger _changed during
 	 * load.

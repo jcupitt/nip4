@@ -705,6 +705,10 @@ workspaceview_layout(View *view)
 
 	while (layout.undone_columns)
 		workspaceview_layout_loop(&layout);
+
+	// note the size of the workspace back on the model
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+	ws->area = layout.area;
 }
 
 static void
