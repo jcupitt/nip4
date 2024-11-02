@@ -138,9 +138,9 @@ rowview_update_widgets(Rowview *rview)
 	 */
 	if (rview->rnum != pos) {
 #ifdef DEBUG
-#endif /*DEBUG*/
 		printf("rowview_update_widgets: move from row %d to row %d\n",
 			rview->rnum, pos);
+#endif /*DEBUG*/
 
 		rview->rnum = pos;
 

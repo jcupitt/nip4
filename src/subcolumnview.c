@@ -134,28 +134,44 @@ typedef struct _SubcolumnviewEnds {
 	Rowview *last;
 } SubcolumnviewEnds;
 
-static void *
-subcolumnview_refresh_find_ends(Rowview *rview,
-	Subcolumnview *sview, SubcolumnviewEnds *ends)
+int
+rowview_get_pos(Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
 
-	printf("subcolumnview_refresh_sub: %s rnum = %d\n",
-		row_name(row), rview->rnum);
+	return ICONTAINER(row)->pos;
+}
 
+static void *
+subcolumnview_find_ends_sub(Rowview *rview,
+	Subcolumnview *sview, SubcolumnviewEnds *ends)
+{
 	if (rview->visible) {
 		gtk_widget_remove_css_class(rview->frame, "top");
 		gtk_widget_remove_css_class(rview->frame, "bottom");
 
 		if (!ends->first ||
-			rview->rnum < ends->first->rnum)
+			rowview_get_pos(rview) < rowview_get_pos(ends->first))
 			ends->first = rview;
 		if (!ends->last ||
-			rview->rnum > ends->last->rnum)
+			rowview_get_pos(rview) > rowview_get_pos(ends->last))
 			ends->last = rview;
 	}
 
 	return NULL;
+}
+
+static void
+subcolumnview_find_ends(Subcolumnview *sview)
+{
+	SubcolumnviewEnds ends = { 0 };
+	(void) view_map(VIEW(sview),
+		(view_map_fn) subcolumnview_find_ends_sub, sview, &ends);
+
+	if (ends.first)
+		gtk_widget_add_css_class(ends.first->frame, "top");
+	if (ends.last)
+		gtk_widget_add_css_class(ends.last->frame, "bottom");
 }
 
 static void
@@ -167,8 +183,8 @@ subcolumnview_refresh(vObject *vobject)
 	int old_n_vis = sview->n_vis;
 
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("subcolumnview_refresh: scol = %p\n", scol);
+#endif /*DEBUG*/
 
 	sview->n_rows = icontainer_get_n_children(ICONTAINER(scol));
 	sview->n_vis = 0;
@@ -178,15 +194,7 @@ subcolumnview_refresh(vObject *vobject)
 	if (sview->n_vis != old_n_vis)
 		iobject_changed(IOBJECT(col));
 
-	SubcolumnviewEnds ends = { 0 };
-	(void) view_map(VIEW(sview),
-		(view_map_fn) subcolumnview_refresh_find_ends, sview, &ends);
-	if (ends.first)
-		gtk_widget_add_css_class(ends.first->frame, "top");
-	if (ends.last)
-		gtk_widget_add_css_class(ends.last->frame, "bottom");
-
-	printf("subcolumnview_refresh: done\n");
+	subcolumnview_find_ends(sview);
 
 	VOBJECT_CLASS(subcolumnview_parent_class)->refresh(vobject);
 }

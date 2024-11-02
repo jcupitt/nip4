@@ -893,6 +893,10 @@ workspaceview_float_rowview(Workspaceview *wview, Rowview *rview)
 
 	g_object_unref(rview);
 
+	// unstyle the floating row
+	gtk_widget_remove_css_class(rview->frame, "top");
+	gtk_widget_remove_css_class(rview->frame, "bottom");
+
 	// force a refresh to get everything in the right place
 	vobject_refresh(VOBJECT(wview->drag_rview));
 	vobject_refresh(VOBJECT(wview->floating));
