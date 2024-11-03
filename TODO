@@ -27,6 +27,10 @@
 
 		esc in tslider does nothing
 
+		"www" in scale or offset widgets is missedo
+
+		enter in scale or offset does nothing
+
 	- tslider
 
 		bad number in (Scale "hello" 1 10 5) doesn't flag an error

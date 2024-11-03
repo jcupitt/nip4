@@ -98,6 +98,8 @@ sources = files (
   'saveoptions.c',
   'secret.c',
   'spin.c',
+  'string.c',
+  'stringview.c',
   'subcolumn.c',
   'subcolumnview.c',
   'symbol.c',

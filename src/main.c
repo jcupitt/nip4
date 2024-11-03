@@ -421,10 +421,10 @@ main(int argc, char **argv)
 	(void) g_type_class_ref(TYPE_GROUP);
 	(void) g_type_class_ref(TYPE_PLOT);
 	(void) g_type_class_ref(TYPE_REAL);
-	(void) g_type_class_ref(TYPE_STRING);
 	(void) g_type_class_ref(TYPE_VECTOR);
 	 */
 
+	(void) g_type_class_ref(STRING_TYPE);
 	(void) g_type_class_ref(NUMBER_TYPE);
 	(void) g_type_class_ref(IMAGEDISPLAY_TYPE);
 	(void) g_type_class_ref(IIMAGE_TYPE);

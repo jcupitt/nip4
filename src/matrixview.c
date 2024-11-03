@@ -357,10 +357,8 @@ matrixview_scan(View *view)
 	Expr *expr = HEAPMODEL(matrix)->row->expr;
 
 #ifdef DEBUG
-	printf("matrixview_scan: ");
-	row_name_print(HEAPMODEL(matrix)->row);
-	printf("\n");
 #endif /*DEBUG*/
+	printf("matrixview_scan: %s\n", row_name(expr->row));
 
 	gboolean changed;
 
@@ -387,6 +385,7 @@ matrixview_scan(View *view)
 
 			if (!matrixview_scan_text(matrixview,
 					entry, &matrix->value.coeff[i], &changed)) {
+				printf("scan error!!\n");
 				error_top(_("Bad value"));
 				error_sub(_("cell (%d, %d) is not a number"), x, y);
 				expr_error_set(expr);

@@ -130,8 +130,7 @@ tslider_real_changed(Tslider *tslider)
 #endif /*DEBUG*/
 
 	if (tslider->auto_link)
-		tslider->svalue = tslider_value_to_slider(tslider,
-			tslider->value);
+		tslider->svalue = tslider_value_to_slider(tslider, tslider->value);
 
 	g_signal_handlers_block_matched(G_OBJECT(adj),
 		G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, tslider);
@@ -224,8 +223,8 @@ tslider_value_activate(GtkWidget *entry, Tslider *tslider)
 	double value;
 
 #ifdef DEBUG
-	printf("tslider_value_activate:\n");
 #endif /*DEBUG*/
+	printf("tslider_value_activate:\n");
 
 	if (get_geditable_double(entry, &value) &&
 		tslider->value != value) {
@@ -251,9 +250,7 @@ tslider_value_changed(GtkAdjustment *adj, Tslider *tslider)
 		tslider->svalue = gtk_adjustment_get_value(adj);
 
 		if (tslider->auto_link) {
-			tslider->value = tslider_slider_to_value(
-				tslider, tslider->svalue);
-
+			tslider->value = tslider_slider_to_value( tslider, tslider->svalue);
 			tslider_changed(tslider);
 		}
 		else

@@ -176,6 +176,7 @@ typedef struct _Rhsview Rhsview;
 typedef struct _Row Row;
 typedef struct _Rowview Rowview;
 typedef struct _Spin Spin;
+typedef struct _String String;
 typedef struct _Subcolumn Subcolumn;
 typedef struct _Subcolumnview Subcolumnview;
 typedef struct _Symbol Symbol;
@@ -253,6 +254,7 @@ typedef struct _Workspace Workspace;
 #include "fontname.h"
 #include "slider.h"
 #include "number.h"
+#include "stringi.h"
 #include "toggle.h"
 #include "iimage.h"
 #include "colour.h"
@@ -303,6 +305,7 @@ typedef struct _Workspace Workspace;
 #include "toggleview.h"
 #include "toolkitview.h"
 #include "numberview.h"
+#include "stringview.h"
 #include "toolkitgroupview.h"
 #include "subcolumnview.h"
 #include "rowview.h"
