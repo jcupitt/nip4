@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -52,6 +52,8 @@ numberview_scan(View *view)
 
 	double value;
 	if (!get_geditable_double(EDITVIEW(numberview)->text, &value)) {
+		error_top(_("Bad value"));
+		error_sub(_("not a number"));
 		expr_error_set(expr);
 		return view;
 	}

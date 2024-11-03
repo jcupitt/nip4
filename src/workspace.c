@@ -1484,9 +1484,6 @@ workspace_test_error(Row *row, Workspace *ws, int *found)
 gboolean
 workspace_next_error(Workspace *ws)
 {
-	char txt[MAX_LINELENGTH];
-	VipsBuf buf = VIPS_BUF_STATIC(txt);
-
 	int found;
 
 	if (!ws->errors) {
@@ -1516,9 +1513,7 @@ workspace_next_error(Workspace *ws)
 
 	model_scrollto(MODEL(ws->last_error), MODEL_SCROLL_TOP);
 
-	row_qualified_name(ws->last_error->expr->row, &buf);
-	error_top(_("%s in %s"),
-		ws->last_error->expr->error_top, vips_buf_all(&buf));
+	error_top("%s", ws->last_error->expr->error_top);
 	error_sub("%s", ws->last_error->expr->error_sub);
 
 	return TRUE;

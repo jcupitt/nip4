@@ -233,8 +233,8 @@ formula_scan(Formula *formula)
 	gboolean changed;
 
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("formula_scan\n");
+#endif /*DEBUG*/
 
 	changed = FALSE;
 
@@ -288,9 +288,6 @@ formula_key_pressed(GtkEventControllerKey *self,
 
 		handled = TRUE;
 	}
-
-	// there has been a keypress ... we will probably need scanning
-	g_signal_emit(G_OBJECT(formula), formula_signals[CHANGED], 0);
 
 	return handled;
 }
@@ -383,9 +380,27 @@ formula_class_init(FormulaClass *class)
 }
 
 static void
+formula_text_length_notify(GtkWidget *widget,
+	GParamSpec *pspec, Formula *formula)
+{
+#ifdef DEBUG
+	printf("formula_text_length_notify:\n");
+#endif /*DEBUG*/
+
+	// there has been a keypress ... we will probably need scanning
+	g_signal_emit(G_OBJECT(formula), formula_signals[CHANGED], 0);
+}
+
+static void
 formula_init(Formula *formula)
 {
 	gtk_widget_init_template(GTK_WIDGET(formula));
+
+	// for some reason notify::text-length on the entry doesn't work ... we
+	// need to watch the buffer
+	GtkEntryBuffer *buffer = gtk_entry_get_buffer(GTK_ENTRY(formula->entry));
+	g_signal_connect(buffer, "notify::length",
+		G_CALLBACK(formula_text_length_notify), formula);
 }
 
 Formula *

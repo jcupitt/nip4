@@ -219,12 +219,12 @@ tslider_text_changed(Tslider *tslider)
 /* Enter in entry widget
  */
 static void
-tslider_value_activate_cb(GtkWidget *entry, Tslider *tslider)
+tslider_value_activate(GtkWidget *entry, Tslider *tslider)
 {
 	double value;
 
 #ifdef DEBUG
-	printf("tslider_value_activate_cb:\n");
+	printf("tslider_value_activate:\n");
 #endif /*DEBUG*/
 
 	if (get_geditable_double(entry, &value) &&
@@ -241,10 +241,10 @@ tslider_value_activate_cb(GtkWidget *entry, Tslider *tslider)
 /* Drag on slider.
  */
 static void
-tslider_value_changed_cb(GtkAdjustment *adj, Tslider *tslider)
+tslider_value_changed(GtkAdjustment *adj, Tslider *tslider)
 {
 #ifdef DEBUG
-	printf("tslider_value_changed_cb:\n");
+	printf("tslider_value_changed:\n");
 #endif /*DEBUG*/
 
 	if (tslider->svalue != gtk_adjustment_get_value(adj)) {
@@ -302,12 +302,12 @@ tslider_init(Tslider *tslider)
 	gtk_widget_init_template(GTK_WIDGET(tslider));
 
 	g_signal_connect(tslider->entry, "activate",
-		G_CALLBACK(tslider_value_activate_cb), tslider);
+		G_CALLBACK(tslider_value_activate), tslider);
 	g_signal_connect(tslider->entry, "changed",
 		G_CALLBACK(tslider_text_changed_cb), tslider);
 
 	g_signal_connect(tslider->adj, "value_changed",
-		G_CALLBACK(tslider_value_changed_cb), tslider);
+		G_CALLBACK(tslider_value_changed), tslider);
 
 	tslider->auto_link = TRUE;
 	tslider->slider_to_value = tslider_conversion_id;

@@ -1,15 +1,52 @@
-- try
+- we should pop down the error box automatically in more cases, not just
+  on successful row add
 
-	Number "hello" 42
+	row edit, activate in itextview
 
-  looks like editview_key_pressed() is only tiggered for keys that the entry
-  does NOT use, like cursor up/down and esc
+	activate in Number edit
 
-  this means we never register as scannable, so it's not scanned on recomp
+	activate in matrixview edit
 
-  formula has the same problem
+  etc.
 
-  maybe watch notify::text-length for changed?
+	maybe pop down all error boxes in all workspaces at the start of
+	symbol_recalculate_all() (just before the scan)
+
+
+
+- Number successfully spots changes to entry by watching notify::length on the
+  entry buffer
+
+  use this trick elsewhere:
+
+	- matrixview
+
+		Esc in matrixview text boxes dows nothing?
+
+		bad number in tslider matrix items does nothing
+
+		esc in tslider does nothing
+
+	- tslider
+
+		bad number in (Scale "hello" 1 10 5) doesn't flag an error
+
+
+
+
+
+- try:
+
+	Matrix_build_item.Matrix_laplacian_item.action
+
+  edit a matrix value, enter, we lose the subclass
+
+  is it missing an edit method?
+
+  all matrix stuff seems to be like this
+
+
+
 
 
 

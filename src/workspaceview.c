@@ -1215,8 +1215,9 @@ static void
 workspaceview_error_close_clicked(GtkButton *button, void *user_data)
 {
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
-	gtk_action_bar_set_revealed(GTK_ACTION_BAR(wview->error_bar), FALSE);
+	workspace_set_show_error(ws, FALSE);
 }
 
 static void

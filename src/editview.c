@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -90,7 +90,6 @@ editview_activate(GtkWidget *wid, Editview *editview)
 	/* If we've been changed, a subclass will have us on the scannable list ...
 	 * just recomp.
 	 */
-	view_scannable_register(VIEW(editview));
 	symbol_recalculate_all();
 
 	if (row->expr->err) {
@@ -120,8 +119,18 @@ editview_key_pressed(GtkEventControllerKey *self,
 		handled = TRUE;
 	}
 
-
 	return handled;
+}
+
+static void
+editview_text_length_notify(GtkWidget *widget,
+	GParamSpec *pspec, Editview *editview)
+{
+#ifdef DEBUG
+	printf("editview_text_length_notify:\n");
+#endif /*DEBUG*/
+
+	view_scannable_register(VIEW(editview));
 }
 
 static void
@@ -154,6 +163,12 @@ static void
 editview_init(Editview *editview)
 {
 	gtk_widget_init_template(GTK_WIDGET(editview));
+
+	// for some reason notify::text-length on the entry doesn't work ... we
+	// need to watch the buffer
+	GtkEntryBuffer *buffer = gtk_entry_get_buffer(GTK_ENTRY(editview->text));
+	g_signal_connect(buffer, "notify::length",
+		G_CALLBACK(editview_text_length_notify), editview);
 }
 
 void

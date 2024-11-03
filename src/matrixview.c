@@ -80,6 +80,32 @@ matrixview_toggle_clicked(GtkWidget *widget, Matrixview *matrixview)
 }
 
 static void
+matrixview_text_length_notify(GtkWidget *widget,
+	GParamSpec *pspec, Matrixview *matrixview)
+{
+#ifdef DEBUG
+	printf("matrixview_text_length_notify:\n");
+#endif /*DEBUG*/
+
+	view_scannable_register(VIEW(matrixview));
+}
+
+static void
+matrixview_value_activate(GtkWidget *entry, Matrixview *matrixview)
+{
+	Matrix *matrix = MATRIX(VOBJECT(matrixview)->iobject);
+	Row *row = HEAPMODEL(matrix)->row;
+
+	// we're on the scan list, so just recomp
+	symbol_recalculate_all();
+
+	if (row->expr->err) {
+		expr_error_get(row->expr);
+		workspace_set_show_error(row->ws, TRUE);
+	}
+}
+
+static void
 matrixview_changed(GtkWidget *widget, Matrixview *matrixview)
 {
 	Matrix *matrix = MATRIX(VOBJECT(matrixview)->iobject);
@@ -129,6 +155,16 @@ matrixview_grid_build(Matrixview *matrixview)
 			case MATRIX_DISPLAY_TEXT:
 				item = gtk_entry_new();
 				gtk_editable_set_width_chars(GTK_EDITABLE(item), 5);
+
+				// spot any edit
+				GtkEntryBuffer *buffer = gtk_entry_get_buffer(GTK_ENTRY(item));
+				g_signal_connect(buffer, "notify::length",
+					G_CALLBACK(matrixview_text_length_notify), matrixview);
+
+				// enter
+				g_signal_connect(item, "activate",
+					G_CALLBACK(matrixview_value_activate), matrixview);
+
 				break;
 
 			case MATRIX_DISPLAY_SLIDER:
@@ -194,8 +230,11 @@ matrixview_grid_build(Matrixview *matrixview)
 	default:
 		g_assert_not_reached();
 	}
-	GtkPolicyType hpolicy = width > max_width ? GTK_POLICY_ALWAYS : GTK_POLICY_NEVER;
-	GtkPolicyType vpolicy = height > max_height ? GTK_POLICY_ALWAYS : GTK_POLICY_NEVER;
+
+	GtkPolicyType hpolicy = width > max_width ?
+		GTK_POLICY_ALWAYS : GTK_POLICY_NEVER;
+	GtkPolicyType vpolicy = height > max_height ?
+		GTK_POLICY_ALWAYS : GTK_POLICY_NEVER;
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(matrixview->swin),
 		hpolicy, vpolicy);
 }
@@ -343,12 +382,13 @@ matrixview_scan(View *view)
 		for (x = 0; x < width; x++, p = p->next) {
 			int i = x + y * width;
 			GtkWidget *item = GTK_WIDGET(p->data);
-			GtkWidget *entry = matrix->display == MATRIX_DISPLAY_SLIDER ? TSLIDER(item)->entry : item;
+			GtkWidget *entry = matrix->display == MATRIX_DISPLAY_SLIDER ?
+				TSLIDER(item)->entry : item;
 
 			if (!matrixview_scan_text(matrixview,
 					entry, &matrix->value.coeff[i], &changed)) {
 				error_top(_("Bad value"));
-				error_sub(_("cell (%d, %d):\n%s"), x, y, error_get_sub());
+				error_sub(_("cell (%d, %d) is not a number"), x, y);
 				expr_error_set(expr);
 
 				return view;

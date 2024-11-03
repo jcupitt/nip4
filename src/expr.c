@@ -463,8 +463,18 @@ expr_error_set(Expr *expr)
 		printf(": %s %s\n", error_get_top(), error_get_sub());
 #endif /*DEBUG_ERROR*/
 
-		VIPS_SETSTR(expr->error_top, error_get_top());
 		VIPS_SETSTR(expr->error_sub, error_get_sub());
+
+		// add " in A1" etc. to the top error
+		if (expr->row) {
+			char txt[MAX_LINELENGTH];
+			VipsBuf buf = VIPS_BUF_STATIC(txt);
+
+			row_qualified_name(expr->row, &buf);
+			error_top(_("%s in %s"), error_get_top(), vips_buf_all(&buf));
+		}
+
+		VIPS_SETSTR(expr->error_top, error_get_top());
 
 		/* Zap the value of the expr ... it may contain pointers to
 		 * dead stuff.
