@@ -313,32 +313,27 @@ displaybar_init(Displaybar *displaybar)
 		displaybar);
 }
 
-#define BIND(field) \
-	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-		Displaybar, field);
-
 static void
 displaybar_class_init(DisplaybarClass *class)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
-	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(class);
 
 #ifdef DEBUG
 	printf("displaybar_class_init:\n");
 #endif /*DEBUG*/
 
-	G_OBJECT_CLASS(class)->dispose = displaybar_dispose;
+	gobject_class->dispose = displaybar_dispose;
 
-	gtk_widget_class_set_layout_manager_type(widget_class,
+	BIND_RESOURCE("displaybar.ui");
+
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
 		GTK_TYPE_BIN_LAYOUT);
-	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
-		APP_PATH "/displaybar.ui");
 
-	BIND(action_bar);
-	BIND(gears);
-	BIND(page);
-	BIND(scale);
-	BIND(offset);
+	BIND_VARIABLE(Displaybar, action_bar);
+	BIND_VARIABLE(Displaybar, gears);
+	BIND_VARIABLE(Displaybar, page);
+	BIND_VARIABLE(Displaybar, scale);
+	BIND_VARIABLE(Displaybar, offset);
 
 	gobject_class->set_property = displaybar_set_property;
 	gobject_class->get_property = displaybar_get_property;

@@ -57,6 +57,7 @@ sources = files (
   'itext.c',
   'itextview.c',
   'itextview.c',
+  'ientry.c',
   'link.c',
   'log.c',
   'main.c',

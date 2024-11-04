@@ -313,15 +313,10 @@ tslider_init(Tslider *tslider)
 	tslider_changed(tslider);
 }
 
-#define BIND(field) \
-	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-		Tslider, field);
-
 static void
 tslider_class_init(TsliderClass *class)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
-	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(class);
 
 #ifdef DEBUG
 	printf("tslider_class_init:\n");
@@ -331,15 +326,15 @@ tslider_class_init(TsliderClass *class)
 
 	class->changed = tslider_real_changed;
 
-	gtk_widget_class_set_layout_manager_type(widget_class,
-		GTK_TYPE_BOX_LAYOUT);
-	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
-		APP_PATH "/tslider.ui");
+	BIND_RESOURCE("tslider.ui");
 
-	BIND(adj);
-	BIND(box);
-	BIND(entry);
-	BIND(scale);
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
+		GTK_TYPE_BIN_LAYOUT);
+
+	BIND_VARIABLE(Tslider, adj);
+	BIND_VARIABLE(Tslider, box);
+	BIND_VARIABLE(Tslider, entry);
+	BIND_VARIABLE(Tslider, scale);
 
 	/* Create signals.
 	 */

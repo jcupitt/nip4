@@ -37,6 +37,46 @@
 
 
 
+- text widgets:
+
+	- modify to add to scannable
+	- enter to trigger a recomp
+	- esc to undo all edits and remove from scannable
+
+  we have many text widgets:
+
+	- Matrixview body, scale and offset
+	- Tslider in scale
+	- Tslider in matrixview
+	- Tslider in display conversion
+	- Formula (used by itextview)
+	- Number
+	- String
+	- Expression
+	- Columnview caption
+	- Workspaceviewlabel name
+	- Saveoptions ... see pspec == STRING
+
+  let's have a new base widget ... an GtkEntry with this behaviour, use it for
+  tslider to start with
+
+  properties:
+
+	"text"		get/set value
+	"width-chars"	sets both width-chars and max-width-chars?
+
+  signals:
+
+	"activate"	enter has been pressed
+	"changed"	text has been edited, owner must add to scannable
+	"escape"	owner must remove from scannable, widget resets value
+
+
+
+- add gtk_widget_class_set_layout_manager_type() to BIND_RESOURCE()?
+
+	remove other BIND macros
+
 
 
 - try:

@@ -43,11 +43,10 @@ columnview_edit(Columnview *cview)
 
 		cview->state = COL_EDIT;
 
-		if (IOBJECT(col)->caption) {
-			GtkEntryBuffer *buffer =
-				gtk_entry_buffer_new(IOBJECT(col)->caption, -1);
-			gtk_entry_set_buffer(GTK_ENTRY(cview->caption_edit), buffer);
-		}
+		if (IOBJECT(col)->caption)
+			g_object_set(cview->caption_edit,
+				"text", IOBJECT(col)->caption,
+				NULL);
 
 		vobject_refresh_queue(VOBJECT(cview));
 		gtk_widget_grab_focus(cview->caption_edit);
@@ -61,10 +60,9 @@ columnview_caption_edit_activate(GtkEntry *self, gpointer user_data)
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
 	Workspace *ws = col->ws;
 
-	GtkEntryBuffer *buffer = gtk_entry_get_buffer(self);
-	const char *text = gtk_entry_buffer_get_text(buffer);
-
-	if (text && strspn(text, WHITESPACE) != strlen(text)) {
+	g_autofree char *text = NULL;
+	g_object_get(self, "text", &text, NULL);
+	if (text) {
 		VIPS_SETSTR(IOBJECT(col)->caption, text);
 		workspace_set_modified(ws, TRUE);
 	}
@@ -73,23 +71,13 @@ columnview_caption_edit_activate(GtkEntry *self, gpointer user_data)
 	vobject_refresh_queue(VOBJECT(cview));
 }
 
-static gboolean
-columnview_caption_key_pressed(GtkEventControllerKey *self,
-	guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+static void
+columnview_caption_edit_cancel(GtkEntry *self, gpointer user_data)
 {
 	Columnview *cview = COLUMNVIEW(user_data);
 
-	gboolean handled;
-
-	handled = FALSE;
-
-	if (keyval == GDK_KEY_Escape) {
-		cview->state = COL_WAIT;
-		vobject_refresh_queue(VOBJECT(cview));
-		handled = TRUE;
-	}
-
-	return handled;
+	cview->state = COL_WAIT;
+	vobject_refresh_queue(VOBJECT(cview));
 }
 
 static void
@@ -611,7 +599,7 @@ columnview_class_init(ColumnviewClass *class)
 	BIND_CALLBACK(columnview_activate);
 	BIND_CALLBACK(columnview_close_clicked);
 	BIND_CALLBACK(columnview_caption_edit_activate);
-	BIND_CALLBACK(columnview_caption_key_pressed);
+	BIND_CALLBACK(columnview_caption_edit_cancel);
 
 	BIND_VARIABLE(Columnview, top);
 	BIND_VARIABLE(Columnview, title);

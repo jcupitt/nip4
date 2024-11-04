@@ -204,6 +204,7 @@ typedef struct _Workspace Workspace;
 #include "tilesource.h"
 #include "tilecache.h"
 #include "imagedisplay.h"
+#include "ientry.h"
 #include "tslider.h"
 #include "imageui.h"
 #include "imagewindow.h"

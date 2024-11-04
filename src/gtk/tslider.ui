@@ -14,8 +14,7 @@
 
         <child>
           <object class="GtkEntry" id="entry">
-            <property name="max-width-chars">5</property>
-            <property name="input-purpose">digits</property>
+            <property name="width-chars">5</property>
           </object>
         </child>
 

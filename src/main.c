@@ -444,6 +444,7 @@ main(int argc, char **argv)
 	(void) g_type_class_ref(EXPRESSION_TYPE);
 	(void) g_type_class_ref(COLOUR_TYPE);
 	(void) g_type_class_ref(FONTNAME_TYPE);
+	(void) g_type_class_ref(IENTRY_TYPE);
 
 	/* Load up all defs and wses.
 	 */

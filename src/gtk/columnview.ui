@@ -52,17 +52,12 @@
                     </child>
 
                     <child>
-	              <object class="GtkEntry" id="caption_edit">
+	              <object class="iEntry" id="caption_edit">
                         <property name="hexpand">true</property>
 			<signal name="activate"
                           handler="columnview_caption_edit_activate"/>
-
-	                <child>
-                          <object class="GtkEventControllerKey">
-                            <signal name="key-pressed"
-                              handler="columnview_caption_key_pressed"/>
-                          </object>
-                        </child>
+			<signal name="cancel"
+                          handler="columnview_caption_edit_cancel"/>
 
                       </object>
                     </child>

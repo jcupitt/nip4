@@ -2024,8 +2024,7 @@ heap_gvalue_to_ip(GValue *in, PElement *out)
 			return FALSE;
 	}
 	else if (G_VALUE_HOLDS_STRING(in)) {
-		if (!heap_managedstring_new(heap,
-				g_value_get_string(in), out))
+		if (!heap_managedstring_new(heap, g_value_get_string(in), out))
 			return FALSE;
 	}
 	else if (G_VALUE_HOLDS_OBJECT(in)) {

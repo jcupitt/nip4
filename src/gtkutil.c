@@ -126,20 +126,6 @@ get_geditable_double(GtkWidget *text, double *out)
 	return TRUE;
 }
 
-/* Build a GtkEntry, with a widget width specified in characters.
- */
-GtkWidget *
-build_entry(int nchars)
-{
-	GtkWidget *entry;
-
-	entry = gtk_entry_new();
-	// FIXME
-	// gtk_entry_set_width_chars( GTK_ENTRY( entry ), nchars );
-
-	return entry;
-}
-
 /* Set the tooltip on a widget.
  */
 void
