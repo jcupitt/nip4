@@ -116,6 +116,8 @@ ientry_init(iEntry *ientry)
 	printf("ientry_init:\n");
 #endif /*DEBUG*/
 
+	VIPS_SETSTR(ientry->text, "");
+
 	gtk_widget_init_template(GTK_WIDGET(ientry));
 
 	// for some reason notify::text-length on the entry doesn't work ... we
@@ -123,45 +125,6 @@ ientry_init(iEntry *ientry)
 	GtkEntryBuffer *buffer = gtk_entry_get_buffer(GTK_ENTRY(ientry->entry));
 	g_signal_connect(buffer, "notify::length",
 		G_CALLBACK(ientry_entry_length_notify), ientry);
-}
-
-/* Detect cancel in a text field.
- */
-static gboolean
-ientry_entry_key_pressed(GtkEventControllerKey *self,
-	guint keyval, guint keycode, GdkModifierType state, iEntry *ientry)
-{
-	gboolean handled;
-
-#ifdef DEBUG
-	printf("ientry_entry_key_pressed:\n");
-#endif /*DEBUG*/
-
-	handled = FALSE;
-	if (keyval == GDK_KEY_Escape) {
-		// reset entry, don't trigger "changed"
-		g_signal_handlers_block_matched(G_OBJECT(ientry->entry),
-			G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, ientry);
-		gtk_editable_set_text(GTK_EDITABLE(ientry->entry), ientry->text);
-		g_signal_handlers_unblock_matched(G_OBJECT(ientry->entry),
-			G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, ientry);
-
-		ientry_cancel(ientry);
-
-		handled = TRUE;
-	}
-
-	return handled;
-}
-
-static void
-ientry_entry_activate(GtkWidget *wid, iEntry *ientry)
-{
-#ifdef DEBUG
-	printf("ientry_entry_activate:\n");
-#endif /*DEBUG*/
-
-	ientry_activate(ientry);
 }
 
 static void
@@ -197,11 +160,12 @@ ientry_set_property(GObject *object,
 	switch (prop_id) {
 	case PROP_TEXT:
 		const char *text = g_value_get_string(value);
-
-		if (!g_str_equal(text, ientry->text)) {
+		if (text &&
+			!g_str_equal(text, ientry->text)) {
 			VIPS_SETSTR(ientry->text, text);
 			gtk_editable_set_text(GTK_EDITABLE(ientry->entry), text);
 		}
+		gtk_widget_grab_focus(GTK_WIDGET(ientry->entry));
 		break;
 
 	case PROP_WIDTH_CHARS:
@@ -212,6 +176,46 @@ ientry_set_property(GObject *object,
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
 		break;
 	}
+}
+
+/* Detect cancel in a text field.
+ */
+static gboolean
+ientry_entry_key_pressed(GtkEventControllerKey *self,
+	guint keyval, guint keycode, GdkModifierType state, iEntry *ientry)
+{
+	gboolean handled;
+
+#ifdef DEBUG
+	printf("ientry_entry_key_pressed:\n");
+#endif /*DEBUG*/
+
+	handled = FALSE;
+	if (keyval == GDK_KEY_Escape) {
+		// reset entry, don't trigger "changed"
+		g_signal_handlers_block_matched(G_OBJECT(ientry->entry),
+			G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, ientry);
+		if (ientry->text)
+			gtk_editable_set_text(GTK_EDITABLE(ientry->entry), ientry->text);
+		g_signal_handlers_unblock_matched(G_OBJECT(ientry->entry),
+			G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, ientry);
+
+		ientry_cancel(ientry);
+
+		handled = TRUE;
+	}
+
+	return handled;
+}
+
+static void
+ientry_entry_activate(GtkWidget *wid, iEntry *ientry)
+{
+#ifdef DEBUG
+	printf("ientry_entry_activate:\n");
+#endif /*DEBUG*/
+
+	ientry_activate(ientry);
 }
 
 static void

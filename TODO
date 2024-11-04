@@ -14,36 +14,13 @@
 
 
 
-- Number successfully spots changes to entry by watching notify::length on the
-  entry buffer
+- move GtkEntry to iEntry
 
-  use this trick elsewhere:
+  done:
 
-	- matrixview
+	- Columnview caption
 
-		Esc in matrixview text boxes dows nothing?
-
-		bad number in tslider matrix items does nothing
-
-		esc in tslider does nothing
-
-		"www" in scale or offset widgets is missedo
-
-		enter in scale or offset does nothing
-
-	- tslider
-
-		bad number in (Scale "hello" 1 10 5) doesn't flag an error
-
-
-
-- text widgets:
-
-	- modify to add to scannable
-	- enter to trigger a recomp
-	- esc to undo all edits and remove from scannable
-
-  we have many text widgets:
+  todo:
 
 	- Matrixview body, scale and offset
 	- Tslider in scale
@@ -53,29 +30,17 @@
 	- Number
 	- String
 	- Expression
-	- Columnview caption
 	- Workspaceviewlabel name
 	- Saveoptions ... see pspec == STRING
 
-  let's have a new base widget ... an GtkEntry with this behaviour, use it for
-  tslider to start with
-
-  properties:
-
-	"text"		get/set value
-	"width-chars"	sets both width-chars and max-width-chars?
-
-  signals:
-
-	"activate"	enter has been pressed
-	"changed"	text has been edited, owner must add to scannable
-	"escape"	owner must remove from scannable, widget resets value
 
 
 
 - add gtk_widget_class_set_layout_manager_type() to BIND_RESOURCE()?
 
 	remove other BIND macros
+
+	tslider could use BIND_CALLBACK()?
 
 
 

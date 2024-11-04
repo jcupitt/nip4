@@ -42,13 +42,12 @@ columnview_edit(Columnview *cview)
 		Column *col = COLUMN(VOBJECT(cview)->iobject);
 
 		cview->state = COL_EDIT;
-
-		if (IOBJECT(col)->caption)
-			g_object_set(cview->caption_edit,
-				"text", IOBJECT(col)->caption,
-				NULL);
+		g_object_set(cview->caption_edit,
+			"text", IOBJECT(col)->caption,
+			NULL);
 
 		vobject_refresh_queue(VOBJECT(cview));
+
 		gtk_widget_grab_focus(cview->caption_edit);
 	}
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <template class="iEntry" parent="GtkWidget">
+
     <child>
       <object class="GtkEntry" id="entry">
         <signal name="activate" handler="ientry_entry_activate"/>
@@ -12,5 +13,6 @@
         </child>
       </object>
     </child>
+
   </template>
 </interface>
