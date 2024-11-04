@@ -80,32 +80,6 @@ matrixview_toggle_clicked(GtkWidget *widget, Matrixview *matrixview)
 }
 
 static void
-matrixview_text_length_notify(GtkWidget *widget,
-	GParamSpec *pspec, Matrixview *matrixview)
-{
-#ifdef DEBUG
-	printf("matrixview_text_length_notify:\n");
-#endif /*DEBUG*/
-
-	view_scannable_register(VIEW(matrixview));
-}
-
-static void
-matrixview_value_activate(GtkWidget *entry, Matrixview *matrixview)
-{
-	Matrix *matrix = MATRIX(VOBJECT(matrixview)->iobject);
-	Row *row = HEAPMODEL(matrix)->row;
-
-	// we're on the scan list, so just recomp
-	symbol_recalculate_all();
-
-	if (row->expr->err) {
-		expr_error_get(row->expr);
-		workspace_set_show_error(row->ws, TRUE);
-	}
-}
-
-static void
 matrixview_changed(GtkWidget *widget, Matrixview *matrixview)
 {
 	Matrix *matrix = MATRIX(VOBJECT(matrixview)->iobject);
@@ -140,6 +114,53 @@ matrixview_text_changed(Tslider *tslider, Matrixview *matrixview)
 }
 
 static void
+matrixview_ientry_changed(GtkEntry *self, gpointer user_data)
+{
+	Matrixview *matrixview = MATRIXVIEW(user_data);
+
+	printf("matrixview_ientry_changed:\n");
+
+	view_scannable_register(VIEW(matrixview));
+}
+
+static void
+matrixview_ientry_cancel(GtkEntry *self, gpointer user_data)
+{
+	Matrixview *matrixview = MATRIXVIEW(user_data);
+
+	printf("matrixview_ientry_cancel:\n");
+
+	view_scannable_unregister(VIEW(matrixview));
+}
+
+static void
+matrixview_ientry_activate(GtkEntry *self, gpointer user_data)
+{
+	Matrixview *matrixview = MATRIXVIEW(user_data);
+	Matrix *matrix = MATRIX(VOBJECT(matrixview)->iobject);
+	Row *row = HEAPMODEL(matrix)->row;
+
+	// we're on the scan list, so just recomp
+	symbol_recalculate_all();
+
+	if (row->expr->err) {
+		expr_error_get(row->expr);
+		workspace_set_show_error(row->ws, TRUE);
+	}
+}
+
+static void
+matrixview_ientry_callbacks(Matrixview *matrixview, GtkWidget *ientry)
+{
+	g_signal_connect(ientry, "changed",
+		G_CALLBACK(matrixview_ientry_changed), matrixview);
+	g_signal_connect(ientry, "cancel",
+		G_CALLBACK(matrixview_ientry_cancel), matrixview);
+	g_signal_connect(ientry, "activate",
+		G_CALLBACK(matrixview_ientry_activate), matrixview);
+}
+
+static void
 matrixview_grid_build(Matrixview *matrixview)
 {
 	Matrix *matrix = MATRIX(VOBJECT(matrixview)->iobject);
@@ -153,18 +174,9 @@ matrixview_grid_build(Matrixview *matrixview)
 			switch (matrix->display) {
 			case MATRIX_DISPLAY_TEXT_SCALE_OFFSET:
 			case MATRIX_DISPLAY_TEXT:
-				item = gtk_entry_new();
-				gtk_editable_set_width_chars(GTK_EDITABLE(item), 5);
-
-				// spot any edit
-				GtkEntryBuffer *buffer = gtk_entry_get_buffer(GTK_ENTRY(item));
-				g_signal_connect(buffer, "notify::length",
-					G_CALLBACK(matrixview_text_length_notify), matrixview);
-
-				// enter
-				g_signal_connect(item, "activate",
-					G_CALLBACK(matrixview_value_activate), matrixview);
-
+				item = GTK_WIDGET(ientry_new());
+				g_object_set(item, "width-chars", 5, NULL);
+				matrixview_ientry_callbacks(matrixview, item);
 				break;
 
 			case MATRIX_DISPLAY_SLIDER:
@@ -251,7 +263,8 @@ matrixview_grid_refresh(Matrixview *matrixview)
 
 		switch (matrix->display) {
 		case MATRIX_DISPLAY_TEXT:
-			set_gentry(item, "%g", matrix->value.coeff[i]);
+		case MATRIX_DISPLAY_TEXT_SCALE_OFFSET:
+			ientry_set_double(IENTRY(item), matrix->value.coeff[i]);
 			break;
 
 		case MATRIX_DISPLAY_SLIDER:
@@ -279,18 +292,14 @@ matrixview_grid_refresh(Matrixview *matrixview)
 			gtk_button_set_label(GTK_BUTTON(item), label);
 			break;
 
-		case MATRIX_DISPLAY_TEXT_SCALE_OFFSET:
-			set_gentry(item, "%g", matrix->value.coeff[i]);
-			break;
-
 		default:
 			g_assert_not_reached();
 		}
 	}
 
 	if (matrix->display == MATRIX_DISPLAY_TEXT_SCALE_OFFSET) {
-		set_gentry(matrixview->scale, "%g", matrix->scale);
-		set_gentry(matrixview->offset, "%g", matrix->offset);
+		ientry_set_double(IENTRY(matrixview->scale), matrix->scale);
+		ientry_set_double(IENTRY(matrixview->offset), matrix->offset);
 	}
 }
 
@@ -347,6 +356,25 @@ matrixview_scan_text(Matrixview *matrixview, GtkWidget *txt,
 	return TRUE;
 }
 
+static gboolean
+matrixview_scan_ientry(GtkWidget *ientry, double *out, gboolean *changed)
+{
+	double value;
+
+	if (!ientry_get_double(IENTRY(ientry), &value)) {
+		error_top(_("Bad value"));
+		error_sub("%s", _("not a number"));
+		return FALSE;
+	}
+
+	if (value != *out) {
+		*out = value;
+		*changed = TRUE;
+	}
+
+	return TRUE;
+}
+
 static void *
 matrixview_scan(View *view)
 {
@@ -366,10 +394,10 @@ matrixview_scan(View *view)
 	changed = FALSE;
 
 	if (matrix->display == MATRIX_DISPLAY_TEXT_SCALE_OFFSET)
-		if (!matrixview_scan_text(matrixview,
-				matrixview->scale, &matrix->scale, &changed) ||
-			!matrixview_scan_text(matrixview,
-				matrixview->offset, &matrix->offset, &changed)) {
+		if (!matrixview_scan_ientry(matrixview->scale,
+				&matrix->scale, &changed) ||
+		   !matrixview_scan_ientry(matrixview->offset,
+				&matrix->offset, &changed)) {
 			expr_error_set(expr);
 			return view;
 		}
@@ -380,17 +408,26 @@ matrixview_scan(View *view)
 		for (x = 0; x < width; x++, p = p->next) {
 			int i = x + y * width;
 			GtkWidget *item = GTK_WIDGET(p->data);
-			GtkWidget *entry = matrix->display == MATRIX_DISPLAY_SLIDER ?
-				TSLIDER(item)->entry : item;
 
-			if (!matrixview_scan_text(matrixview,
-					entry, &matrix->value.coeff[i], &changed)) {
-				printf("scan error!!\n");
-				error_top(_("Bad value"));
-				error_sub(_("cell (%d, %d) is not a number"), x, y);
-				expr_error_set(expr);
+			if (matrix->display == MATRIX_DISPLAY_SLIDER) {
+				if (!matrixview_scan_text(matrixview,
+						TSLIDER(item)->entry, &matrix->value.coeff[i], &changed)) {
+						error_top(_("Bad value"));
+						error_sub(_("cell (%d, %d) is not a number"), x, y);
+						expr_error_set(expr);
 
-				return view;
+						return view;
+				}
+			}
+			else {
+				if (!matrixview_scan_ientry(item,
+					&matrix->value.coeff[i], &changed)) {
+					error_top(_("Bad value"));
+					error_sub(_("cell (%d, %d) is not a number"), x, y);
+					expr_error_set(expr);
+
+					return view;
+				}
 			}
 		}
 
@@ -418,6 +455,10 @@ matrixview_class_init(MatrixviewClass *class)
 	BIND_VARIABLE(Matrixview, scaleoffset);
 	BIND_VARIABLE(Matrixview, scale);
 	BIND_VARIABLE(Matrixview, offset);
+
+	BIND_CALLBACK(matrixview_ientry_changed);
+	BIND_CALLBACK(matrixview_ientry_cancel);
+	BIND_CALLBACK(matrixview_ientry_activate);
 
 	object_class->dispose = matrixview_dispose;
 

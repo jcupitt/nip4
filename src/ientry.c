@@ -165,11 +165,12 @@ ientry_set_property(GObject *object,
 			VIPS_SETSTR(ientry->text, text);
 			gtk_editable_set_text(GTK_EDITABLE(ientry->entry), text);
 		}
-		gtk_widget_grab_focus(GTK_WIDGET(ientry->entry));
 		break;
 
 	case PROP_WIDTH_CHARS:
 		g_object_set_property(G_OBJECT(ientry->entry), "width-chars", value);
+		g_object_set_property(G_OBJECT(ientry->entry),
+			"max-width-chars", value);
 		break;
 
 	default:
@@ -287,4 +288,39 @@ ientry_new(void)
 	ientry = g_object_new(IENTRY_TYPE, NULL);
 
 	return ientry;
+}
+
+// how annoying, there must be an easy way to get grab_focus() on the iEntry
+// to grab the enclosed widget
+void
+ientry_grab_focus(iEntry *ientry)
+{
+	gtk_widget_grab_focus(GTK_WIDGET(ientry->entry));
+}
+
+void
+ientry_set_double(iEntry *ientry, double value)
+{
+	g_autofree char *text = g_strdup_printf("%g", value);
+	g_object_set(ientry, "text", text, NULL);
+}
+
+gboolean
+ientry_get_double(iEntry *ientry, double *out)
+{
+	g_autofree char *text = NULL;
+	g_object_get(ientry->entry, "text", &text, NULL);
+	if (!text)
+		return FALSE;
+
+	char *end;
+	double value = g_ascii_strtod(text, &end);
+	if (end == text)
+		return FALSE;
+	if (strspn(end, WHITESPACE) != strlen(end))
+		return FALSE;
+
+	*out = value;
+
+	return TRUE;
 }

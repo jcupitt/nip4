@@ -12,6 +12,13 @@
 	maybe pop down all error boxes in all workspaces at the start of
 	symbol_recalculate_all() (just before the scan)
 
+- try:
+
+	- edit matrix cell to "kjh"
+	- Enter, see an error
+	- esc, cell reverts to last good value
+	- Enter again, error does not clear
+
 
 
 - move GtkEntry to iEntry
@@ -19,10 +26,12 @@
   done:
 
 	- Columnview caption
+	- Matrixview body, scale and offset
 
   todo:
 
-	- Matrixview body, scale and offset
+	tslider next, then we can remove some duplicate code in matrixview
+
 	- Tslider in scale
 	- Tslider in matrixview
 	- Tslider in display conversion
@@ -42,7 +51,8 @@
 
 	tslider could use BIND_CALLBACK()?
 
-
+- entring a new expression at the bottom of the column does not trigger a
+  scan
 
 - try:
 

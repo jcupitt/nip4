@@ -48,7 +48,7 @@ columnview_edit(Columnview *cview)
 
 		vobject_refresh_queue(VOBJECT(cview));
 
-		gtk_widget_grab_focus(cview->caption_edit);
+		ientry_grab_focus(IENTRY(cview->caption_edit));
 	}
 }
 

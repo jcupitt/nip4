@@ -56,10 +56,14 @@
                 </child>
 
                 <child>
-                  <object class="GtkEntry" id="scale">
+                  <object class="iEntry" id="scale">
                     <property name="width-chars">5</property>
-                    <property name="max-width-chars">5</property>
-                    <property name="input-purpose">digits</property>
+                    <signal name="changed"
+                          handler="matrixview_ientry_changed"/>
+                    <signal name="cancel"
+                          handler="matrixview_ientry_cancel"/>
+                    <signal name="activate"
+                          handler="matrixview_ientry_activate"/>
                   </object>
                 </child>
 
@@ -81,10 +85,14 @@
                 </child>
 
                 <child>
-                  <object class="GtkEntry" id="offset">
+                  <object class="iEntry" id="offset">
                     <property name="width-chars">5</property>
-                    <property name="max-width-chars">5</property>
-                    <property name="input-purpose">digits</property>
+                    <signal name="changed"
+                          handler="matrixview_ientry_changed"/>
+                    <signal name="cancel"
+                          handler="matrixview_ientry_cancel"/>
+                    <signal name="activate"
+                          handler="matrixview_ientry_activate"/>
                   </object>
                 </child>
 
