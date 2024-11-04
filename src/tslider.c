@@ -122,7 +122,7 @@ static void
 tslider_real_changed(Tslider *tslider)
 {
 	GtkAdjustment *adj = tslider->adj;
-	GtkWidget *entry = tslider->entry;
+	GtkWidget *ientry = tslider->entry;
 
 #ifdef DEBUG
 	printf("tslider_real_changed: %p, val = %g\n",
@@ -134,13 +134,10 @@ tslider_real_changed(Tslider *tslider)
 
 	g_signal_handlers_block_matched(G_OBJECT(adj),
 		G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, tslider);
-	g_signal_handlers_block_matched(G_OBJECT(entry),
+	g_signal_handlers_block_matched(G_OBJECT(ientry),
 		G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, tslider);
 
-	/* Some libc's hate out-of-bounds precision, so clip, just in case.
-	 */
-	set_gentry(tslider->entry, "%.*f",
-		VIPS_CLIP(0, tslider->digits, 100), tslider->value);
+	ientry_set_double(ientry, tslider->value);
 	gtk_scale_set_digits(GTK_SCALE(tslider->scale), tslider->digits);
 
 	if (!DEQ(tslider->from, tslider->last_from) ||
@@ -163,7 +160,7 @@ tslider_real_changed(Tslider *tslider)
 
 	g_signal_handlers_unblock_matched(G_OBJECT(adj),
 		G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, tslider);
-	g_signal_handlers_unblock_matched(G_OBJECT(entry),
+	g_signal_handlers_unblock_matched(G_OBJECT(ientry),
 		G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, tslider);
 }
 
@@ -215,28 +212,6 @@ tslider_text_changed(Tslider *tslider)
 	g_signal_emit(G_OBJECT(tslider), tslider_signals[TEXT_CHANGED], 0);
 }
 
-/* Enter in entry widget
- */
-static void
-tslider_value_activate(GtkWidget *entry, Tslider *tslider)
-{
-	double value;
-
-#ifdef DEBUG
-#endif /*DEBUG*/
-	printf("tslider_value_activate:\n");
-
-	if (get_geditable_double(entry, &value) &&
-		tslider->value != value) {
-		tslider->value = value;
-
-		if (tslider->auto_link)
-			tslider_changed(tslider);
-		else
-			tslider_activate(tslider);
-	}
-}
-
 /* Drag on slider.
  */
 static void
@@ -256,18 +231,6 @@ tslider_value_changed(GtkAdjustment *adj, Tslider *tslider)
 		else
 			tslider_slider_changed(tslider);
 	}
-}
-
-/* Text has changed (and may need to be scanned later).
- */
-static void
-tslider_text_changed_cb(GtkWidget *widget, Tslider *tslider)
-{
-#ifdef DEBUG
-	printf("tslider_text_changed_cb:\n");
-#endif /*DEBUG*/
-
-	tslider_text_changed(tslider);
 }
 
 /* Default identity conversion.
@@ -298,11 +261,6 @@ tslider_init(Tslider *tslider)
 
 	gtk_widget_init_template(GTK_WIDGET(tslider));
 
-	g_signal_connect(tslider->entry, "activate",
-		G_CALLBACK(tslider_value_activate), tslider);
-	g_signal_connect(tslider->entry, "changed",
-		G_CALLBACK(tslider_text_changed_cb), tslider);
-
 	g_signal_connect(tslider->adj, "value_changed",
 		G_CALLBACK(tslider_value_changed), tslider);
 
@@ -311,6 +269,37 @@ tslider_init(Tslider *tslider)
 	tslider->value_to_slider = tslider_conversion_id;
 
 	tslider_changed(tslider);
+}
+
+static void
+tslider_ientry_changed(iEntry *ientry, Tslider *tslider)
+{
+	tslider_text_changed(tslider);
+}
+
+static void
+tslider_ientry_cancel(iEntry *ientry, Tslider *tslider)
+{
+}
+
+static void
+tslider_ientry_activate(iEntry *ientry, Tslider *tslider)
+{
+	double value;
+
+#ifdef DEBUG
+#endif /*DEBUG*/
+	printf("tslider_ientry_activate:\n");
+
+	if (ientry_get_double(ientry, &value) &&
+		tslider->value != value) {
+		tslider->value = value;
+
+		if (tslider->auto_link)
+			tslider_changed(tslider);
+		else
+			tslider_activate(tslider);
+	}
 }
 
 static void
@@ -335,6 +324,10 @@ tslider_class_init(TsliderClass *class)
 	BIND_VARIABLE(Tslider, box);
 	BIND_VARIABLE(Tslider, entry);
 	BIND_VARIABLE(Tslider, scale);
+
+	BIND_CALLBACK(tslider_ientry_changed);
+	BIND_CALLBACK(tslider_ientry_cancel);
+	BIND_CALLBACK(tslider_ientry_activate);
 
 	/* Create signals.
 	 */

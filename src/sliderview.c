@@ -100,9 +100,11 @@ sliderview_scan(View *view)
 
 	double value;
 
-	if (!get_geditable_double(sliderview->tslider->entry, &value)) {
+	if (!ientry_get_double(IENTRY(sliderview->tslider->entry), &value)) {
+		error_top(_("Bad value"));
+		error_sub("%s", _("not a number"));
 		expr_error_set(expr);
-		return (view);
+		return view;
 	}
 
 	if (slider->value != value) {
@@ -110,7 +112,7 @@ sliderview_scan(View *view)
 		classmodel_update(classmodel);
 	}
 
-	return (VIEW_CLASS(sliderview_parent_class)->scan(view));
+	return VIEW_CLASS(sliderview_parent_class)->scan(view);
 }
 
 static void
@@ -192,5 +194,5 @@ sliderview_new(void)
 {
 	Sliderview *sliderview = g_object_new(SLIDERVIEW_TYPE, NULL);
 
-	return (VIEW(sliderview));
+	return VIEW(sliderview);
 }

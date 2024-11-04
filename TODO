@@ -27,12 +27,10 @@
 
 	- Columnview caption
 	- Matrixview body, scale and offset
+	- Scale
 
   todo:
 
-	tslider next, then we can remove some duplicate code in matrixview
-
-	- Tslider in scale
 	- Tslider in matrixview
 	- Tslider in display conversion
 	- Formula (used by itextview)

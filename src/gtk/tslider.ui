@@ -13,8 +13,14 @@
         <property name="spacing">2</property>
 
         <child>
-          <object class="GtkEntry" id="entry">
+          <object class="iEntry" id="entry">
             <property name="width-chars">5</property>
+            <signal name="changed"
+                          handler="tslider_ientry_changed"/>
+            <signal name="cancel"
+                          handler="tslider_ientry_cancel"/>
+            <signal name="activate"
+                          handler="tslider_ientry_activate"/>
           </object>
         </child>
 
