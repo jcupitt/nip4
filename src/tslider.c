@@ -137,7 +137,8 @@ tslider_real_changed(Tslider *tslider)
 	g_signal_handlers_block_matched(G_OBJECT(ientry),
 		G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, tslider);
 
-	ientry_set_double(ientry, tslider->value);
+	printf("digits = %d\n", tslider->digits);
+	ientry_set_double(ientry, tslider->digits, tslider->value);
 	gtk_scale_set_digits(GTK_SCALE(tslider->scale), tslider->digits);
 
 	if (!DEQ(tslider->from, tslider->last_from) ||

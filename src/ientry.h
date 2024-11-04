@@ -60,7 +60,7 @@ typedef struct _iEntryClass {
 GType ientry_get_type();
 iEntry *ientry_new(void);
 void ientry_grab_focus(iEntry *ientry);
-void ientry_set_double(iEntry *ientry, double value);
+void ientry_set_double(iEntry *ientry, int digits, double value);
 gboolean ientry_get_double(iEntry *ientry, double *out);
 
 #endif /* __IENTRY_H */

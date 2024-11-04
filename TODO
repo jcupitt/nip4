@@ -28,10 +28,10 @@
 	- Columnview caption
 	- Matrixview body, scale and offset
 	- Scale
+	- Tslider in matrixview
 
   todo:
 
-	- Tslider in matrixview
 	- Tslider in display conversion
 	- Formula (used by itextview)
 	- Number

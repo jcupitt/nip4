@@ -80,40 +80,6 @@ matrixview_toggle_clicked(GtkWidget *widget, Matrixview *matrixview)
 }
 
 static void
-matrixview_changed(GtkWidget *widget, Matrixview *matrixview)
-{
-	Matrix *matrix = MATRIX(VOBJECT(matrixview)->iobject);
-	int width = matrix->value.width;
-	int height = matrix->value.height;
-	int pos = g_slist_index(matrixview->items, widget);
-	Tslider *tslider = TSLIDER(widget);
-
-#ifdef DEBUG
-	printf("matrixview_changed:\n");
-#endif /*DEBUG*/
-
-	if (pos >= 0 &&
-		pos < width * height &&
-		matrix->value.coeff[pos] != tslider->svalue) {
-		matrix->value.coeff[pos] = tslider->svalue;
-
-		classmodel_update(CLASSMODEL(matrix));
-		symbol_recalculate_all();
-	}
-}
-
-static void
-matrixview_text_changed(Tslider *tslider, Matrixview *matrixview)
-{
-#ifdef DEBUG
-	printf("matrixview_text_changed:\n");
-#endif /*DEBUG*/
-
-	// all text must be scanned on next recomp
-	view_scannable_register(VIEW(matrixview));
-}
-
-static void
 matrixview_ientry_changed(GtkEntry *self, gpointer user_data)
 {
 	Matrixview *matrixview = MATRIXVIEW(user_data);
@@ -184,12 +150,8 @@ matrixview_grid_build(Matrixview *matrixview)
 				tslider->from = -2.0;
 				tslider->to = 2.0;
 				tslider->digits = 3;
-				g_signal_connect(tslider, "changed",
-					G_CALLBACK(matrixview_changed), matrixview);
-				g_signal_connect(tslider, "text_changed",
-					G_CALLBACK(matrixview_text_changed), matrixview);
+				matrixview_ientry_callbacks(matrixview, tslider->entry);
 				block_scroll(GTK_WIDGET(tslider));
-
 				item = GTK_WIDGET(tslider);
 				break;
 
@@ -264,7 +226,7 @@ matrixview_grid_refresh(Matrixview *matrixview)
 		switch (matrix->display) {
 		case MATRIX_DISPLAY_TEXT:
 		case MATRIX_DISPLAY_TEXT_SCALE_OFFSET:
-			ientry_set_double(IENTRY(item), matrix->value.coeff[i]);
+			ientry_set_double(IENTRY(item), 8, matrix->value.coeff[i]);
 			break;
 
 		case MATRIX_DISPLAY_SLIDER:
@@ -298,8 +260,8 @@ matrixview_grid_refresh(Matrixview *matrixview)
 	}
 
 	if (matrix->display == MATRIX_DISPLAY_TEXT_SCALE_OFFSET) {
-		ientry_set_double(IENTRY(matrixview->scale), matrix->scale);
-		ientry_set_double(IENTRY(matrixview->offset), matrix->offset);
+		ientry_set_double(IENTRY(matrixview->scale), 8, matrix->scale);
+		ientry_set_double(IENTRY(matrixview->offset), 8, matrix->offset);
 	}
 }
 
@@ -337,23 +299,6 @@ matrixview_refresh(vObject *vobject)
 	matrixview_grid_refresh(matrixview);
 
 	VOBJECT_CLASS(matrixview_parent_class)->refresh(vobject);
-}
-
-static gboolean
-matrixview_scan_text(Matrixview *matrixview, GtkWidget *txt,
-	double *out, gboolean *changed)
-{
-	double v;
-
-	if (!get_geditable_double(txt, &v))
-		return FALSE;
-
-	if (*out != v) {
-		*out = v;
-		*changed = TRUE;
-	}
-
-	return TRUE;
 }
 
 static gboolean
@@ -407,27 +352,16 @@ matrixview_scan(View *view)
 	for (p = matrixview->items, y = 0; y < height; y++)
 		for (x = 0; x < width; x++, p = p->next) {
 			int i = x + y * width;
-			GtkWidget *item = GTK_WIDGET(p->data);
+			GtkWidget *item = matrix->display == MATRIX_DISPLAY_SLIDER ?
+				TSLIDER(p->data)->entry : GTK_WIDGET(p->data);
 
-			if (matrix->display == MATRIX_DISPLAY_SLIDER) {
-				if (!matrixview_scan_text(matrixview,
-						TSLIDER(item)->entry, &matrix->value.coeff[i], &changed)) {
-						error_top(_("Bad value"));
-						error_sub(_("cell (%d, %d) is not a number"), x, y);
-						expr_error_set(expr);
+			if (!matrixview_scan_ientry(item,
+				&matrix->value.coeff[i], &changed)) {
+				error_top(_("Bad value"));
+				error_sub(_("cell (%d, %d) is not a number"), x, y);
+				expr_error_set(expr);
 
-						return view;
-				}
-			}
-			else {
-				if (!matrixview_scan_ientry(item,
-					&matrix->value.coeff[i], &changed)) {
-					error_top(_("Bad value"));
-					error_sub(_("cell (%d, %d) is not a number"), x, y);
-					expr_error_set(expr);
-
-					return view;
-				}
+				return view;
 			}
 		}
 
