@@ -128,7 +128,7 @@ classmodel_graphic_save_cb(GObject *source_object,
 	if (file) {
 		g_autofree char *filename = g_file_get_path(file);
 
-		if (!class->graphic_save(classmodel, parent, filename)) {
+		if (class->graphic_save(classmodel, parent, filename)) {
 			VIPS_SETSTR(classmodel->filename, filename);
 			iobject_changed(IOBJECT(classmodel));
 		}
