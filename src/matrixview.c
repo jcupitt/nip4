@@ -80,26 +80,6 @@ matrixview_toggle_clicked(GtkWidget *widget, Matrixview *matrixview)
 }
 
 static void
-matrixview_ientry_changed(GtkEntry *self, gpointer user_data)
-{
-	Matrixview *matrixview = MATRIXVIEW(user_data);
-
-	printf("matrixview_ientry_changed:\n");
-
-	view_scannable_register(VIEW(matrixview));
-}
-
-static void
-matrixview_ientry_cancel(GtkEntry *self, gpointer user_data)
-{
-	Matrixview *matrixview = MATRIXVIEW(user_data);
-
-	printf("matrixview_ientry_cancel:\n");
-
-	view_scannable_unregister(VIEW(matrixview));
-}
-
-static void
 matrixview_ientry_activate(GtkEntry *self, gpointer user_data)
 {
 	Matrixview *matrixview = MATRIXVIEW(user_data);
@@ -119,9 +99,9 @@ static void
 matrixview_ientry_callbacks(Matrixview *matrixview, GtkWidget *ientry)
 {
 	g_signal_connect(ientry, "changed",
-		G_CALLBACK(matrixview_ientry_changed), matrixview);
+		G_CALLBACK(view_ientry_changed), matrixview);
 	g_signal_connect(ientry, "cancel",
-		G_CALLBACK(matrixview_ientry_cancel), matrixview);
+		G_CALLBACK(view_ientry_cancel), matrixview);
 	g_signal_connect(ientry, "activate",
 		G_CALLBACK(matrixview_ientry_activate), matrixview);
 }
@@ -390,8 +370,8 @@ matrixview_class_init(MatrixviewClass *class)
 	BIND_VARIABLE(Matrixview, scale);
 	BIND_VARIABLE(Matrixview, offset);
 
-	BIND_CALLBACK(matrixview_ientry_changed);
-	BIND_CALLBACK(matrixview_ientry_cancel);
+	BIND_CALLBACK(view_ientry_changed);
+	BIND_CALLBACK(view_ientry_cancel);
 	BIND_CALLBACK(matrixview_ientry_activate);
 
 	object_class->dispose = matrixview_dispose;

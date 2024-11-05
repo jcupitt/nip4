@@ -98,41 +98,6 @@ editview_activate(GtkWidget *wid, Editview *editview)
 	}
 }
 
-/* Detect cancel in a text field.
- */
-static gboolean
-editview_key_pressed(GtkEventControllerKey *self,
-	guint keyval, guint keycode, GdkModifierType state, Editview *editview)
-{
-	gboolean handled;
-
-#ifdef DEBUG
-	printf("editview_key_pressed:\n");
-#endif /*DEBUG*/
-
-	handled = FALSE;
-	if (keyval == GDK_KEY_Escape) {
-		/* Zap model value back into edit box.
-		 */
-		vobject_refresh_queue(VOBJECT(editview));
-
-		handled = TRUE;
-	}
-
-	return handled;
-}
-
-static void
-editview_text_length_notify(GtkWidget *widget,
-	GParamSpec *pspec, Editview *editview)
-{
-#ifdef DEBUG
-	printf("editview_text_length_notify:\n");
-#endif /*DEBUG*/
-
-	view_scannable_register(VIEW(editview));
-}
-
 static void
 editview_class_init(EditviewClass *class)
 {
@@ -147,10 +112,11 @@ editview_class_init(EditviewClass *class)
 
 	BIND_VARIABLE(Editview, top);
 	BIND_VARIABLE(Editview, label);
-	BIND_VARIABLE(Editview, text);
+	BIND_VARIABLE(Editview, ientry);
 
+	BIND_CALLBACK(view_ientry_changed);
+	BIND_CALLBACK(view_ientry_cancel);
 	BIND_CALLBACK(editview_activate);
-	BIND_CALLBACK(editview_key_pressed);
 
 	object_class->dispose = editview_dispose;
 
@@ -163,12 +129,6 @@ static void
 editview_init(Editview *editview)
 {
 	gtk_widget_init_template(GTK_WIDGET(editview));
-
-	// for some reason notify::text-length on the entry doesn't work ... we
-	// need to watch the buffer
-	GtkEntryBuffer *buffer = gtk_entry_get_buffer(GTK_ENTRY(editview->text));
-	g_signal_connect(buffer, "notify::length",
-		G_CALLBACK(editview_text_length_notify), editview);
 }
 
 void
@@ -180,12 +140,12 @@ editview_set_entry(Editview *editview, const char *fmt, ...)
 	g_autofree char *text = g_strdup_vprintf(fmt, ap);
 	va_end(ap);
 
-	/* Make sure we don't trigger "changed" when we zap in the
+	/* Make sure we don't trigger "changed" when we set the
 	 * text.
 	 */
-	g_signal_handlers_block_matched(G_OBJECT(editview->text),
+	g_signal_handlers_block_matched(G_OBJECT(editview->ientry),
 		G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, editview);
-	set_gentry(editview->text, "%s", text);
-	g_signal_handlers_unblock_matched(G_OBJECT(editview->text),
+	g_object_set(editview->ientry, "text", text, NULL);
+	g_signal_handlers_unblock_matched(G_OBJECT(editview->ientry),
 		G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, editview);
 }

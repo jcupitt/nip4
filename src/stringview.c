@@ -42,7 +42,6 @@ stringview_scan(View *view)
 {
 	Stringview *stringview = STRINGVIEW(view);
 	String *string = STRING(VOBJECT(stringview)->iobject);
-	char value2[MAX_STRSIZE];
 
 #ifdef DEBUG
 	Row *row = HEAPMODEL(string)->row;
@@ -52,15 +51,16 @@ stringview_scan(View *view)
 	printf("\n");
 #endif /*DEBUG*/
 
-	g_autofree char *str =
-		gtk_editable_get_chars(GTK_EDITABLE(EDITVIEW(stringview)->text),
-				0, -1 );
+	g_autofree char *text = NULL;
+	g_object_get(EDITVIEW(stringview)->ientry, "text", &text, NULL);
+	if (text) {
+		char value2[MAX_STRSIZE];
 
-	my_strccpy(value2, str);
-
-	if (!g_str_equal(string->value, value2)) {
-		VIPS_SETSTR(string->value, value2);
-		classmodel_update(CLASSMODEL(string));
+		my_strccpy(value2, text);
+		if (!g_str_equal(string->value, value2)) {
+			VIPS_SETSTR(string->value, value2);
+			classmodel_update(CLASSMODEL(string));
+		}
 	}
 
 	return VIEW_CLASS(stringview_parent_class)->scan(view);

@@ -51,7 +51,7 @@ numberview_scan(View *view)
 	expr_error_clear(expr);
 
 	double value;
-	if (!get_geditable_double(EDITVIEW(numberview)->text, &value)) {
+	if (!ientry_get_double(IENTRY(EDITVIEW(numberview)->ientry), &value)) {
 		error_top(_("Bad value"));
 		error_sub(_("not a number"));
 		expr_error_set(expr);

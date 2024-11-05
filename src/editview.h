@@ -46,7 +46,7 @@ typedef struct _Editview {
 	 */
 	GtkWidget *top;
 	GtkWidget *label;	/* Display caption here */
-	GtkWidget *text;	/* Edit value here */
+	GtkWidget *ientry;	/* Edit value here */
 } Editview;
 
 typedef struct _EditviewClass {

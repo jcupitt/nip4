@@ -100,7 +100,7 @@ formula_refresh(Formula *formula)
 	 */
 	if (formula->expr &&
 		!formula->changed)
-		set_gentry(formula->entry, "%s", formula->expr);
+		g_object_set(formula->entry, "text", formula->expr, NULL);
 
 	if (formula->caption) {
 		set_glabel(formula->left_label, _("%s:"), formula->caption);
@@ -118,7 +118,7 @@ formula_refresh(Formula *formula)
 	if (formula->edit &&
 		formula->needs_focus) {
 		// will select text automatically
-		gtk_widget_grab_focus(formula->entry);
+		ientry_grab_focus(IENTRY(formula->entry));
 		formula->needs_focus = FALSE;
 	}
 }
@@ -242,15 +242,13 @@ formula_scan(Formula *formula)
 	 */
 	if (formula->edit &&
 		gtk_widget_is_visible(formula->entry)) {
-		/* There should be some edited text.
+		/* There should be some text.
 		 */
-		GtkEntryBuffer *buffer =
-			gtk_entry_get_buffer(GTK_ENTRY(formula->entry));
-		const char *expr = gtk_entry_buffer_get_text(buffer);
-
-		if (expr &&
-			strspn(expr, WHITESPACE) != strlen(expr)) {
-			VIPS_SETSTR(formula->expr, expr);
+		g_autofree char *text = NULL;
+		g_object_get(formula->entry, "text", &text, NULL);
+		if (text &&
+			strspn(text, WHITESPACE) != strlen(text)) {
+			VIPS_SETSTR(formula->expr, text);
 			changed = TRUE;
 		}
 
@@ -260,36 +258,37 @@ formula_scan(Formula *formula)
 	return changed;
 }
 
-/* Detect cancel in a text field.
- */
-static gboolean
-formula_key_pressed(GtkEventControllerKey *self,
-	guint keyval, guint keycode, GdkModifierType state, Formula *formula)
+static void
+formula_changed(GtkEntry *self, Formula *formula)
 {
 #ifdef DEBUG
 #endif /*DEBUG*/
-	printf("formula_key_pressed:\n");
+	printf("formula_changed:\n");
 
-	gboolean handled;
+	// there has been a keypress ... we will probably need scanning
+	g_signal_emit(G_OBJECT(formula), formula_signals[CHANGED], 0);
+}
 
-	handled = FALSE;
+static void
+formula_cancel(GtkEntry *self, Formula *formula)
+{
+#ifdef DEBUG
+#endif /*DEBUG*/
+	printf("formula_cancel:\n");
 
-	if (keyval == GDK_KEY_Escape) {
-		set_gentry(formula->entry, "%s", formula->expr);
+	formula_set_edit(formula, FALSE);
+}
 
-		/*
+/* Activated!
+ */
+static void
+formula_activate(GtkEntry *self, Formula *formula)
+{
+#ifdef DEBUG
+#endif /*DEBUG*/
+	printf("formula_activate:\n");
 
-			FIXME ... really we want to go back to the edit mode
-			set by our environment (eg. if we're in a show_formula
-			workspace, should stay in show formula).
-
-		 */
-		formula_set_edit(formula, FALSE);
-
-		handled = TRUE;
-	}
-
-	return handled;
+	g_signal_emit(G_OBJECT(formula), formula_signals[ACTIVATE], 0);
 }
 
 static void
@@ -305,18 +304,6 @@ formula_pressed(GtkGestureClick *gesture,
 		formula_set_edit(formula, TRUE);
 		formula_set_needs_focus(formula, TRUE);
 	}
-}
-
-/* Activated!
- */
-static void
-formula_activate(GtkEntry *self, Formula *formula)
-{
-#ifdef DEBUG
-#endif /*DEBUG*/
-	printf("formula_activate:\n");
-
-	g_signal_emit(G_OBJECT(formula), formula_signals[ACTIVATE], 0);
 }
 
 static void
@@ -339,7 +326,8 @@ formula_class_init(FormulaClass *class)
 	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
 		GTK_TYPE_BIN_LAYOUT);
 
-	BIND_CALLBACK(formula_key_pressed);
+	BIND_CALLBACK(formula_changed);
+	BIND_CALLBACK(formula_cancel);
 	BIND_CALLBACK(formula_pressed);
 	BIND_CALLBACK(formula_activate);
 
@@ -380,27 +368,9 @@ formula_class_init(FormulaClass *class)
 }
 
 static void
-formula_text_length_notify(GtkWidget *widget,
-	GParamSpec *pspec, Formula *formula)
-{
-#ifdef DEBUG
-	printf("formula_text_length_notify:\n");
-#endif /*DEBUG*/
-
-	// there has been a keypress ... we will probably need scanning
-	g_signal_emit(G_OBJECT(formula), formula_signals[CHANGED], 0);
-}
-
-static void
 formula_init(Formula *formula)
 {
 	gtk_widget_init_template(GTK_WIDGET(formula));
-
-	// for some reason notify::text-length on the entry doesn't work ... we
-	// need to watch the buffer
-	GtkEntryBuffer *buffer = gtk_entry_get_buffer(GTK_ENTRY(formula->entry));
-	g_signal_connect(buffer, "notify::length",
-		G_CALLBACK(formula_text_length_notify), formula);
 }
 
 Formula *
@@ -421,7 +391,7 @@ formula_set_caption(Formula *formula, const char *caption)
 	}
 	else if (caption &&
 		(!formula->caption ||
-			!g_str_equal(caption, formula->caption))) {
+ 		 !g_str_equal(caption, formula->caption))) {
 		VIPS_SETSTR(formula->caption, caption);
 		formula_refresh_queue(formula);
 	}
@@ -437,14 +407,14 @@ formula_set_value_expr(Formula *formula, const char *value, const char *expr)
 
 	if (value &&
 		(!formula->value ||
-			!g_str_equal(value, formula->value))) {
+		 !g_str_equal(value, formula->value))) {
 		VIPS_SETSTR(formula->value, value);
 		formula_refresh_queue(formula);
 	}
 
 	if (expr &&
 		(!formula->expr ||
-			!g_str_equal(expr, formula->expr))) {
+		 !g_str_equal(expr, formula->expr))) {
 		VIPS_SETSTR(formula->expr, expr);
 		formula_refresh_queue(formula);
 	}

@@ -903,3 +903,17 @@ view_get_columnview(View *child)
 
 	return COLUMNVIEW(view);
 }
+
+/* Useful for linking up ientry change and cancel.
+ */
+void
+view_ientry_changed(GtkEntry *self, View *view)
+{
+	view_scannable_register(view);
+}
+
+void
+view_ientry_cancel(GtkEntry *self, View *view)
+{
+	view_scannable_unregister(view);
+}

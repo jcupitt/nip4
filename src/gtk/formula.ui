@@ -25,18 +25,14 @@
         </child>
 
         <child>
-          <object class="GtkEntry" id="entry">
+          <object class="iEntry" id="entry">
             <property name="hexpand">true</property>
             <property name="valign">center</property>
 	    <property name="visible">false</property>
 	    <property name="tooltip-text">Press Escape to cancel edit, press Return to accept edit and recalculate</property>
+            <signal name="changed" handler="formula_changed"/>
+            <signal name="cancel" handler="formula_cancel"/>
             <signal name="activate" handler="formula_activate"/>
-
-	    <child>
-              <object class="GtkEventControllerKey">
-                <signal name="key-pressed" handler="formula_key_pressed"/>
-              </object>
-            </child>
 
           </object>
         </child>

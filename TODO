@@ -20,6 +20,8 @@
 	- Enter again, error does not clear
 
 
+- tslider needs to set gentry to %f, not %g, we don't want sci notation
+
 
 - move GtkEntry to iEntry
 
@@ -29,13 +31,13 @@
 	- Matrixview body, scale and offset
 	- Scale
 	- Tslider in matrixview
+	- Tslider in display conversion
+	- Number
+	- String
 
   todo:
 
-	- Tslider in display conversion
 	- Formula (used by itextview)
-	- Number
-	- String
 	- Expression
 	- Workspaceviewlabel name
 	- Saveoptions ... see pspec == STRING
@@ -61,6 +63,8 @@
   is it missing an edit method?
 
   all matrix stuff seems to be like this
+
+  nip2 is fine, must be something about the way we handle activate
 
 
 

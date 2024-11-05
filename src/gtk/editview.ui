@@ -15,17 +15,13 @@
         </child>
 
         <child>
-          <object class="GtkEntry" id="text">
+          <object class="iEntry" id="ientry">
             <property name="hexpand">true</property>
-            <signal name="activate" handler="editview_activate"/>
 	    <property name="tooltip-text">Press Escape to cancel edit, press Return to accept edit and recalculate</property>
 
-            <child>
-              <object class="GtkEventControllerKey">
-                <signal name="key-pressed" handler="editview_key_pressed"/>
-              </object>
-            </child>
-
+            <signal name="changed" handler="view_ientry_changed"/>
+            <signal name="cancel" handler="view_ientry_cancel"/>
+            <signal name="activate" handler="editview_activate"/>
           </object>
         </child>
 
