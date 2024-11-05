@@ -458,9 +458,7 @@ rowview_class_init(RowviewClass *class)
 	ViewClass *view_class = (ViewClass *) class;
 
 	BIND_RESOURCE("rowview.ui");
-
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
-		GTK_TYPE_BIN_LAYOUT);
+	BIND_LAYOUT();
 
 	BIND_CALLBACK(rowview_click);
 	BIND_CALLBACK(rowview_up_click);

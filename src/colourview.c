@@ -100,9 +100,7 @@ colourview_class_init(ColourviewClass *class)
 	vObjectClass *vobject_class = (vObjectClass *) class;
 
 	BIND_RESOURCE("colourview.ui");
-
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
-		GTK_TYPE_BIN_LAYOUT);
+	BIND_LAYOUT();
 
 	BIND_VARIABLE(Colourview, top);
 	BIND_VARIABLE(Colourview, imagedisplay);

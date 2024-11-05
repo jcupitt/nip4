@@ -204,9 +204,7 @@ workspaceviewlabel_class_init(WorkspaceviewlabelClass *class)
 	G_OBJECT_CLASS(class)->dispose = workspaceviewlabel_dispose;
 
 	BIND_RESOURCE("workspaceviewlabel.ui");
-
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
-		GTK_TYPE_BIN_LAYOUT);
+	BIND_LAYOUT();
 
 	BIND_VARIABLE(Workspaceviewlabel, top);
 	BIND_VARIABLE(Workspaceviewlabel, name_edit_stack);

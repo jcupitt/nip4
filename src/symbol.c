@@ -1230,6 +1230,9 @@ symbol_recalculate_all_force(gboolean now)
 void
 symbol_recalculate_all(void)
 {
+	// it'll pop back if there's still an error
+	workspace_clear_error_all();
+
 	/* Do a scan, even if we don't recomp. We need to pick up edits before
 	 * views get refreshed.
 	 */

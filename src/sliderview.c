@@ -163,9 +163,7 @@ sliderview_class_init(SliderviewClass *class)
 	ViewClass *view_class = (ViewClass *) class;
 
 	BIND_RESOURCE("sliderview.ui");
-
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
-		GTK_TYPE_BIN_LAYOUT);
+	BIND_LAYOUT();
 
 	BIND_VARIABLE(Sliderview, top);
 	BIND_VARIABLE(Sliderview, label);

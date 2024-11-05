@@ -325,9 +325,7 @@ displaybar_class_init(DisplaybarClass *class)
 	gobject_class->dispose = displaybar_dispose;
 
 	BIND_RESOURCE("displaybar.ui");
-
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
-		GTK_TYPE_BIN_LAYOUT);
+	BIND_LAYOUT();
 
 	BIND_VARIABLE(Displaybar, action_bar);
 	BIND_VARIABLE(Displaybar, gears);

@@ -1,17 +1,3 @@
-- we should pop down the error box automatically in more cases, not just
-  on successful row add
-
-	row edit, activate in itextview
-
-	activate in Number edit
-
-	activate in matrixview edit
-
-  etc.
-
-	maybe pop down all error boxes in all workspaces at the start of
-	symbol_recalculate_all() (just before the scan)
-
 - try:
 
 	- edit matrix cell to "kjh"
@@ -19,16 +5,11 @@
 	- esc, cell reverts to last good value
 	- Enter again, error does not clear
 
-- tslider needs to set gentry to %f, not %g, we don't want sci notation
-
-- add gtk_widget_class_set_layout_manager_type() to BIND_RESOURCE()?
-
-	remove other BIND macros
-
-	tslider could use BIND_CALLBACK()?
-
 - entring a new expression at the bottom of the column does not trigger a
   scan
+
+
+
 
 - try:
 

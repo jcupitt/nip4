@@ -518,11 +518,10 @@ columnview_activate(GtkEntry *self, gpointer user_data)
 
 	if (!(sym = workspace_add_def_recalc(ws, text))) {
 		workspace_set_show_error(ws, TRUE);
-		symbol_recalculate_all();
 		return;
 	}
 
-	workspace_set_show_error(ws, FALSE);
+	symbol_recalculate_all();
 
 	set_gentry(GTK_WIDGET(self), NULL);
 }
@@ -589,9 +588,7 @@ columnview_class_init(ColumnviewClass *class)
 	ViewClass *view_class = (ViewClass *) class;
 
 	BIND_RESOURCE("columnview.ui");
-
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
-		GTK_TYPE_BIN_LAYOUT);
+	BIND_LAYOUT();
 
 	BIND_CALLBACK(columnview_pressed);
 	BIND_CALLBACK(columnview_expand_clicked);

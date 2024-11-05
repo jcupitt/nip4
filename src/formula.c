@@ -322,9 +322,7 @@ formula_class_init(FormulaClass *class)
 	GObjectClass *gobject_class = (GObjectClass *) class;
 
 	BIND_RESOURCE("formula.ui");
-
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
-		GTK_TYPE_BIN_LAYOUT);
+	BIND_LAYOUT();
 
 	BIND_CALLBACK(formula_changed);
 	BIND_CALLBACK(formula_cancel);

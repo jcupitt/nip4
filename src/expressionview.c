@@ -199,9 +199,7 @@ expressionview_class_init(ExpressionviewClass *class)
 	ViewClass *view_class = (ViewClass *) class;
 
 	BIND_RESOURCE("expressionview.ui");
-
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
-		GTK_TYPE_BIN_LAYOUT);
+	BIND_LAYOUT();
 
 	BIND_VARIABLE(Expressionview, top);
 	BIND_VARIABLE(Expressionview, formula);

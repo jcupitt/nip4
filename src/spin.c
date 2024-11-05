@@ -104,9 +104,7 @@ spin_class_init(SpinClass *class)
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(class);
 
 	BIND_RESOURCE("spin.ui");
-
-	gtk_widget_class_set_layout_manager_type(widget_class,
-		GTK_TYPE_BIN_LAYOUT);
+	BIND_LAYOUT();
 
 	BIND_CALLBACK(spin_up);
 	BIND_CALLBACK(spin_down);

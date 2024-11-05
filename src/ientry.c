@@ -233,9 +233,7 @@ ientry_class_init(iEntryClass *class)
 	gobject_class->set_property = ientry_set_property;
 
 	BIND_RESOURCE("ientry.ui");
-
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
-		GTK_TYPE_BIN_LAYOUT);
+	BIND_LAYOUT();
 
 	BIND_VARIABLE(iEntry, entry);
 

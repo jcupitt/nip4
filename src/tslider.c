@@ -317,9 +317,7 @@ tslider_class_init(TsliderClass *class)
 	class->changed = tslider_real_changed;
 
 	BIND_RESOURCE("tslider.ui");
-
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
-		GTK_TYPE_BIN_LAYOUT);
+	BIND_LAYOUT();
 
 	BIND_VARIABLE(Tslider, adj);
 	BIND_VARIABLE(Tslider, box);

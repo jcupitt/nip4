@@ -359,9 +359,7 @@ matrixview_class_init(MatrixviewClass *class)
 	ViewClass *view_class = (ViewClass *) class;
 
 	BIND_RESOURCE("matrixview.ui");
-
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
-		GTK_TYPE_BIN_LAYOUT);
+	BIND_LAYOUT();
 
 	BIND_VARIABLE(Matrixview, top);
 	BIND_VARIABLE(Matrixview, swin);

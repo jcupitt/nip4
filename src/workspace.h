@@ -126,6 +126,7 @@ typedef struct _WorkspaceClass {
 } WorkspaceClass;
 
 void workspace_set_show_error(Workspace *ws, gboolean show_error);
+void workspace_clear_error_all(void);
 
 void workspace_queue_layout(Workspace *ws);
 

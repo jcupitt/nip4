@@ -57,6 +57,20 @@ workspace_set_show_error(Workspace *ws, gboolean show_error)
 }
 
 static void
+workspace_clear_error(Workspace *ws)
+{
+	workspace_set_show_error(ws, FALSE);
+
+	return NULL;
+}
+
+void
+workspace_clear_error_all(void)
+{
+	slist_map(workspace_all, workspace_clear_error, NULL);
+}
+
+static void
 workspace_set_needs_layout(Workspace *ws, gboolean needs_layout)
 {
 #ifdef DEBUG_VERBOSE

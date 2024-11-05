@@ -196,9 +196,7 @@ workspacegroupview_class_init(WorkspacegroupviewClass *class)
 	ViewClass *view_class = (ViewClass *) class;
 
 	BIND_RESOURCE("workspacegroupview.ui");
-
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
-		GTK_TYPE_BIN_LAYOUT);
+	BIND_LAYOUT();
 
 	BIND_VARIABLE(Workspacegroupview, notebook);
 	BIND_VARIABLE(Workspacegroupview, workspace_menu);

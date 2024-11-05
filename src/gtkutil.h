@@ -37,6 +37,10 @@
 	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class), \
 		APP_PATH "/" resource);
 
+#define BIND_LAYOUT() \
+	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class), \
+		GTK_TYPE_BIN_LAYOUT);
+
 #define BIND_VARIABLE(class_name, name) \
 	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
 		class_name, name);

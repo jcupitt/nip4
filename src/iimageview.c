@@ -128,9 +128,7 @@ iimageview_class_init(iImageviewClass *class)
 	vObjectClass *vobject_class = (vObjectClass *) class;
 
 	BIND_RESOURCE("iimageview.ui");
-
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
-		GTK_TYPE_BIN_LAYOUT);
+	BIND_LAYOUT();
 
 	BIND_VARIABLE(iImageview, top);
 	BIND_VARIABLE(iImageview, imagedisplay);

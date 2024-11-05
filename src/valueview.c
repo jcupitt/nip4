@@ -78,9 +78,7 @@ valueview_class_init(ValueviewClass *class)
 	vObjectClass *vobject_class = (vObjectClass *) class;
 
 	BIND_RESOURCE("valueview.ui");
-
-	gtk_widget_class_set_layout_manager_type(GTK_WIDGET_CLASS(class),
-		GTK_TYPE_BIN_LAYOUT);
+	BIND_LAYOUT();
 
 	BIND_VARIABLE(Valueview, label);
 
