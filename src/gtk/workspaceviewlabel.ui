@@ -80,17 +80,13 @@
             </child>
 
             <child>
-              <object class="GtkEntry" id="label_edit">
+              <object class="iEntry" id="label_edit">
                 <property name="hexpand">true</property>
                 <property name="hexpand">true</property>
                 <signal name="activate"
                   handler="workspaceviewlabel_name_edit_activate"/>
-                  <child>
-                    <object class="GtkEventControllerKey">
-                      <signal name="key-pressed"
-                        handler="workspaceviewlabel_name_edit_key_pressed"/>
-                    </object>
-                  </child>
+		<signal name="cancel"
+		  handler="workspaceviewlabel_name_edit_cancel"/>
               </object>
             </child>
 

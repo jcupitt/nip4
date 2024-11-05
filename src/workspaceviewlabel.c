@@ -96,7 +96,7 @@ workspaceviewlabel_set_property(GObject *object,
 			workspaceviewlabel_refresh(wviewlabel);
 
 			if (wviewlabel->edit)
-				gtk_widget_grab_focus(wviewlabel->label_edit);
+				ientry_grab_focus(IENTRY(wviewlabel->label_edit));
 		}
 		break;
 
@@ -154,47 +154,31 @@ workspaceviewlabel_pressed(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Workspaceviewlabel *wviewlabel)
 {
 	if (n_press == 2)
-		g_object_set(wviewlabel,
-			"edit", TRUE,
-			NULL);
-}
-
-static gboolean
-workspaceviewlabel_name_edit_key_pressed(GtkEventControllerKey *self,
-	guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
-{
-	Workspaceviewlabel *wviewlabel = (Workspaceviewlabel *) user_data;
-
-	gboolean handled;
-
-	handled = FALSE;
-
-	if (keyval == GDK_KEY_Escape) {
-		g_object_set(wviewlabel,
-			"edit", FALSE,
-			NULL);
-		handled = TRUE;
-	}
-
-	return handled;
+		g_object_set(wviewlabel, "edit", TRUE, NULL);
 }
 
 static void
-workspaceviewlabel_name_edit_activate(GtkEntry *self, gpointer user_data)
+workspaceviewlabel_name_edit_activate(iEntry *self, gpointer user_data)
 {
 	Workspaceviewlabel *wviewlabel = (Workspaceviewlabel *) user_data;
 	Workspaceview *wview = wviewlabel->wview;
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
-	GtkEntryBuffer *buffer = gtk_entry_get_buffer(self);
-	const char *text = gtk_entry_buffer_get_text(buffer);
-
-	if (text && strspn(text, WHITESPACE) != strlen(text))
+	g_autofree char *text = NULL;
+	g_object_get(self, "text", &text, NULL);
+	if (text) {
 		workspace_rename(ws, text);
+	}
 
-	g_object_set(wviewlabel,
-		"edit", FALSE,
-		NULL);
+	g_object_set(wviewlabel, "edit", FALSE, NULL);
+}
+
+static void
+workspaceviewlabel_name_edit_cancel(iEntry *self, gpointer user_data)
+{
+	Workspaceviewlabel *wviewlabel = (Workspaceviewlabel *) user_data;
+
+	g_object_set(wviewlabel, "edit", FALSE, NULL);
 }
 
 static void
@@ -234,7 +218,7 @@ workspaceviewlabel_class_init(WorkspaceviewlabelClass *class)
 
 	BIND_CALLBACK(workspaceviewlabel_menu);
 	BIND_CALLBACK(workspaceviewlabel_pressed);
-	BIND_CALLBACK(workspaceviewlabel_name_edit_key_pressed);
+	BIND_CALLBACK(workspaceviewlabel_name_edit_cancel);
 	BIND_CALLBACK(workspaceviewlabel_name_edit_activate);
 	BIND_CALLBACK(workspaceviewlabel_error_pressed);
 
@@ -280,12 +264,10 @@ workspaceviewlabel_refresh(Workspaceviewlabel *wviewlabel)
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 	gtk_label_set_text(GTK_LABEL(wviewlabel->label), IOBJECT(ws)->name);
-	GtkEntryBuffer *buffer = gtk_entry_buffer_new(IOBJECT(ws)->name, -1);
-	gtk_entry_set_buffer(GTK_ENTRY(wviewlabel->label_edit), buffer);
+	g_object_set(wviewlabel->label_edit, "text", IOBJECT(ws)->name, NULL);
 
 	gtk_stack_set_visible_child(GTK_STACK(wviewlabel->name_edit_stack),
 		wviewlabel->edit ? wviewlabel->label_edit : wviewlabel->label);
-
 	gtk_widget_set_visible(wviewlabel->lock, ws->locked);
 	gtk_widget_set_visible(wviewlabel->error, ws->errors != NULL);
 }

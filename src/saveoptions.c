@@ -170,20 +170,16 @@ save_options_fetch_option(SaveOptions *options, GParamSpec *pspec)
 	 */
 	if (G_IS_PARAM_SPEC_STRING(pspec)) {
 		GParamSpecString *pspec_string = G_PARAM_SPEC_STRING(pspec);
-		GtkEntryBuffer *buffer = gtk_entry_get_buffer(GTK_ENTRY(t));
-		const char *value = gtk_entry_buffer_get_text(buffer);
+		g_autofree char *value = NULL;
+		const char *def = pspec_string->default_value;
 
 		/* Only if the value has changed.
 		 */
-		if ((!pspec_string->default_value &&
-				strcmp(value, "") != 0) ||
-			(pspec_string->default_value &&
-				strcmp(value, pspec_string->default_value) != 0)) {
-
-			g_object_set(options->save_operation,
-				name, value,
-				NULL);
-		}
+		g_object_get(t, "text", &value, NULL);
+		if (value)
+			if ((!def && !g_str_equal(value, "")) ||
+				(def && !g_str_equal(value, def)))
+				g_object_set(options->save_operation, name, value, NULL);
 	}
 	else if (G_IS_PARAM_SPEC_BOOLEAN(pspec)) {
 		gboolean value = gtk_check_button_get_active(GTK_CHECK_BUTTON(t));
@@ -408,10 +404,8 @@ save_options_add_option(SaveOptions *options, GParamSpec *pspec, int *row)
 	 */
 	if (G_IS_PARAM_SPEC_STRING(pspec)) {
 		GParamSpecString *pspec_string = G_PARAM_SPEC_STRING(pspec);
-		GtkEntryBuffer *buffer =
-			gtk_entry_buffer_new(pspec_string->default_value, -1);
-
-		t = gtk_entry_new_with_buffer(buffer);
+		t = GTK_WIDGET(ientry_new());
+		g_object_set(t, "text", pspec_string->default_value, NULL);
 	}
 	else if (G_IS_PARAM_SPEC_BOOLEAN(pspec)) {
 		GParamSpecBoolean *pspec_boolean = G_PARAM_SPEC_BOOLEAN(pspec);

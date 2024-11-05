@@ -19,31 +19,7 @@
 	- esc, cell reverts to last good value
 	- Enter again, error does not clear
 
-
 - tslider needs to set gentry to %f, not %g, we don't want sci notation
-
-
-- move GtkEntry to iEntry
-
-  done:
-
-	- Columnview caption
-	- Matrixview body, scale and offset
-	- Scale
-	- Tslider in matrixview
-	- Tslider in display conversion
-	- Number
-	- String
-
-  todo:
-
-	- Formula (used by itextview)
-	- Expression
-	- Workspaceviewlabel name
-	- Saveoptions ... see pspec == STRING
-
-
-
 
 - add gtk_widget_class_set_layout_manager_type() to BIND_RESOURCE()?
 
@@ -66,6 +42,8 @@
 
   nip2 is fine, must be something about the way we handle activate
 
+- right click on thumbnail, save image, OK, saveoptions pops up with a bizarre
+  dialog in front of it
 
 
 
