@@ -14,14 +14,6 @@
 
 	has similar issues
 
-- set centre colour for toggle matrix
-
-	we have
-
-                if (x == width / 2 &&
-                    y == height / 2)
-                    gtk_widget_add_css_class(item, "centre_widget");
-
 - try:
 
 	Matrix_build_item.Matrix_laplacian_item.action
@@ -38,6 +30,10 @@
 
   after an edit, A2.name is "Matrix_vips", so it's the wrapping of the
   output of a vips7 matrix call that loses the original type
+
+  this wrapping should happen in eg. Matrix_gaussian_item I think, but is not
+
+  perhaps because im_gauss_dmask is returning a class, not a base object?
 
 	need to wrap again with the Matrix constructor from the input
 
@@ -130,10 +126,8 @@
 
     (void) g_type_class_ref(TYPE_CLOCK);
     (void) g_type_class_ref(TYPE_GROUP);
-    (void) g_type_class_ref(TYPE_NUMBER);
     (void) g_type_class_ref(TYPE_PLOT);
     (void) g_type_class_ref(TYPE_REAL);
-    (void) g_type_class_ref(TYPE_STRING);
     (void) g_type_class_ref(TYPE_VECTOR);
 
   maybe skip clock

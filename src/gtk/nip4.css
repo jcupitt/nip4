@@ -14,6 +14,11 @@
   background-color: #4f3e22;
 }
 
+.centre_widget label {
+  font-weight: bold;
+  font-size: large;
+}
+
 .widget {
   background-color: #454545;
   color: white;
