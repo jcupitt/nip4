@@ -101,7 +101,6 @@ static void
 spin_class_init(SpinClass *class)
 {
 	GObjectClass *gobject_class = (GObjectClass *) class;
-	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(class);
 
 	BIND_RESOURCE("spin.ui");
 	BIND_LAYOUT();

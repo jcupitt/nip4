@@ -58,10 +58,9 @@
                 <child>
                   <object class="iEntry" id="scale">
                     <property name="width-chars">5</property>
-                    <signal name="changed" handler="view_ientry_changed"/>
-                    <signal name="cancel" handler="view_ientry_cancel"/>
-		    <signal name="activate"
-			    handler="matrixview_ientry_activate"/>
+                    <signal name="changed" handler="view_changed"/>
+                    <signal name="cancel" handler="view_cancel"/>
+                    <signal name="activate" handler="view_activate"/>
                   </object>
                 </child>
 
@@ -85,10 +84,9 @@
                 <child>
                   <object class="iEntry" id="offset">
                     <property name="width-chars">5</property>
-                    <signal name="changed" handler="view_ientry_changed"/>
-                    <signal name="cancel" handler="view_ientry_cancel"/>
-                    <signal name="activate"
-                          handler="matrixview_ientry_activate"/>
+                    <signal name="changed" handler="view_changed"/>
+                    <signal name="cancel" handler="view_cancel"/>
+                    <signal name="activate" handler="view_activate"/>
                   </object>
                 </child>
 

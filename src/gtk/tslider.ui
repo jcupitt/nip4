@@ -15,12 +15,8 @@
         <child>
           <object class="iEntry" id="entry">
             <property name="width-chars">5</property>
-            <signal name="changed"
-                          handler="tslider_ientry_changed"/>
-            <signal name="cancel"
-                          handler="tslider_ientry_cancel"/>
-            <signal name="activate"
-                          handler="tslider_ientry_activate"/>
+            <signal name="changed" handler="tslider_ientry_changed"/>
+            <signal name="activate" handler="tslider_ientry_activate"/>
           </object>
         </child>
 

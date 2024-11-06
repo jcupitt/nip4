@@ -56,7 +56,7 @@ workspace_set_show_error(Workspace *ws, gboolean show_error)
 	iobject_changed(IOBJECT(ws));
 }
 
-static void
+static void *
 workspace_clear_error(Workspace *ws)
 {
 	workspace_set_show_error(ws, FALSE);
@@ -67,7 +67,7 @@ workspace_clear_error(Workspace *ws)
 void
 workspace_clear_error_all(void)
 {
-	slist_map(workspace_all, workspace_clear_error, NULL);
+	slist_map(workspace_all, (SListMapFn) workspace_clear_error, NULL);
 }
 
 static void

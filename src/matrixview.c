@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -80,30 +80,36 @@ matrixview_toggle_clicked(GtkWidget *widget, Matrixview *matrixview)
 }
 
 static void
-matrixview_ientry_activate(GtkEntry *self, gpointer user_data)
+matrixview_set_callbacks(Matrixview *matrixview, GtkWidget *widget)
 {
-	Matrixview *matrixview = MATRIXVIEW(user_data);
-	Matrix *matrix = MATRIX(VOBJECT(matrixview)->iobject);
-	Row *row = HEAPMODEL(matrix)->row;
-
-	// we're on the scan list, so just recomp
-	symbol_recalculate_all();
-
-	if (row->expr->err) {
-		expr_error_get(row->expr);
-		workspace_set_show_error(row->ws, TRUE);
-	}
+	g_signal_connect(widget, "changed", G_CALLBACK(view_changed), matrixview);
+	g_signal_connect(widget, "cancel", G_CALLBACK(view_cancel), matrixview);
+	g_signal_connect(widget, "activate", G_CALLBACK(view_activate), matrixview);
 }
 
+/* Drag on a scale in a Tslider.
+ */
 static void
-matrixview_ientry_callbacks(Matrixview *matrixview, GtkWidget *ientry)
+matrixview_slider_changed(Tslider *tslider, Matrixview *matrixview)
 {
-	g_signal_connect(ientry, "changed",
-		G_CALLBACK(view_ientry_changed), matrixview);
-	g_signal_connect(ientry, "cancel",
-		G_CALLBACK(view_ientry_cancel), matrixview);
-	g_signal_connect(ientry, "activate",
-		G_CALLBACK(matrixview_ientry_activate), matrixview);
+	Matrix *matrix = MATRIX(VOBJECT(matrixview)->iobject);
+	int pos = g_slist_index(matrixview->items, tslider);
+	int x = pos % matrixview->width;
+	int y = pos / matrixview->width;
+	int i = x + y * matrix->value.width;
+
+	g_assert(pos >= 0);
+
+	/* Install value.
+	 */
+	if (matrix->value.coeff[i] != tslider->svalue) {
+		printf("matrixview_slider_changed:\n");
+
+		matrix->value.coeff[i] = tslider->svalue;
+
+		classmodel_update(CLASSMODEL(matrix));
+		symbol_recalculate_all();
+	}
 }
 
 static void
@@ -122,17 +128,20 @@ matrixview_grid_build(Matrixview *matrixview)
 			case MATRIX_DISPLAY_TEXT:
 				item = GTK_WIDGET(ientry_new());
 				g_object_set(item, "width-chars", 5, NULL);
-				matrixview_ientry_callbacks(matrixview, item);
+				matrixview_set_callbacks(matrixview, item);
 				break;
 
 			case MATRIX_DISPLAY_SLIDER:
-				Tslider *tslider = tslider_new();
-				tslider->from = -2.0;
-				tslider->to = 2.0;
-				tslider->digits = 3;
-				matrixview_ientry_callbacks(matrixview, tslider->entry);
-				block_scroll(GTK_WIDGET(tslider));
-				item = GTK_WIDGET(tslider);
+				item = tslider_new(-2.0, 2.0, 3);
+
+    			g_signal_connect(item, "text_changed",
+					G_CALLBACK(view_changed), matrixview);
+    			g_signal_connect(item, "activate",
+    				G_CALLBACK(view_activate), matrixview);
+    			g_signal_connect(item, "changed",
+    				G_CALLBACK(matrixview_slider_changed), matrixview);
+
+				block_scroll(item);
 				break;
 
 			case MATRIX_DISPLAY_TOGGLE:
@@ -368,9 +377,9 @@ matrixview_class_init(MatrixviewClass *class)
 	BIND_VARIABLE(Matrixview, scale);
 	BIND_VARIABLE(Matrixview, offset);
 
-	BIND_CALLBACK(view_ientry_changed);
-	BIND_CALLBACK(view_ientry_cancel);
-	BIND_CALLBACK(matrixview_ientry_activate);
+	BIND_CALLBACK(view_changed);
+	BIND_CALLBACK(view_cancel);
+	BIND_CALLBACK(view_activate);
 
 	object_class->dispose = matrixview_dispose;
 

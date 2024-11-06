@@ -30,8 +30,8 @@
 #include "nip4.h"
 
 /*
- */
 #define DEBUG
+ */
 
 enum {
 	PROP_TEXT = 1,

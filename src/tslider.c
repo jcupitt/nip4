@@ -31,14 +31,15 @@
 
 /*
 #define DEBUG_VERBOSE
-#define DEBUG
  */
+#define DEBUG
 
 enum {
-	CHANGED,
-	ACTIVATE,
-	SLIDER_CHANGED,
-	TEXT_CHANGED,
+	SIG_CHANGED,
+	SIG_CANCEL,
+	SIG_ACTIVATE,
+	SIG_SLIDER_CHANGED,
+	SIG_TEXT_CHANGED,
 
 	LAST
 };
@@ -174,7 +175,7 @@ tslider_changed(Tslider *tslider)
 	printf("tslider_changed\n");
 #endif /*DEBUG*/
 
-	g_signal_emit(G_OBJECT(tslider), tslider_signals[CHANGED], 0);
+	g_signal_emit(G_OBJECT(tslider), tslider_signals[SIG_CHANGED], 0);
 }
 
 /* Activated!
@@ -186,10 +187,11 @@ tslider_activate(Tslider *tslider)
 	printf("tslider_activate\n");
 #endif /*DEBUG*/
 
-	g_signal_emit(G_OBJECT(tslider), tslider_signals[ACTIVATE], 0);
+	g_signal_emit(G_OBJECT(tslider), tslider_signals[SIG_ACTIVATE], 0);
 }
 
-/* Just the slider changed.
+/* Just the slider changed, our caller will need to do some work to map svalue
+ * to value.
  */
 static void
 tslider_slider_changed(Tslider *tslider)
@@ -198,7 +200,7 @@ tslider_slider_changed(Tslider *tslider)
 	printf("tslider_slider_changed\n");
 #endif /*DEBUG*/
 
-	g_signal_emit(G_OBJECT(tslider), tslider_signals[SLIDER_CHANGED], 0);
+	g_signal_emit(G_OBJECT(tslider), tslider_signals[SIG_SLIDER_CHANGED], 0);
 }
 
 /* Text has been touched.
@@ -210,7 +212,7 @@ tslider_text_changed(Tslider *tslider)
 	printf("tslider_text_changed\n");
 #endif /*DEBUG*/
 
-	g_signal_emit(G_OBJECT(tslider), tslider_signals[TEXT_CHANGED], 0);
+	g_signal_emit(G_OBJECT(tslider), tslider_signals[SIG_TEXT_CHANGED], 0);
 }
 
 /* Drag on slider.
@@ -279,11 +281,6 @@ tslider_ientry_changed(iEntry *ientry, Tslider *tslider)
 }
 
 static void
-tslider_ientry_cancel(iEntry *ientry, Tslider *tslider)
-{
-}
-
-static void
 tslider_ientry_activate(iEntry *ientry, Tslider *tslider)
 {
 	double value;
@@ -325,31 +322,40 @@ tslider_class_init(TsliderClass *class)
 	BIND_VARIABLE(Tslider, scale);
 
 	BIND_CALLBACK(tslider_ientry_changed);
-	BIND_CALLBACK(tslider_ientry_cancel);
 	BIND_CALLBACK(tslider_ientry_activate);
 
 	/* Create signals.
 	 */
-	tslider_signals[CHANGED] = g_signal_new("changed",
+	tslider_signals[SIG_CHANGED] = g_signal_new("changed",
 		G_OBJECT_CLASS_TYPE(gobject_class),
 		G_SIGNAL_RUN_FIRST,
 		G_STRUCT_OFFSET(TsliderClass, changed),
 		NULL, NULL,
 		g_cclosure_marshal_VOID__VOID,
 		G_TYPE_NONE, 0);
-	tslider_signals[ACTIVATE] = g_signal_new("activate",
+	tslider_signals[SIG_ACTIVATE] = g_signal_new("activate",
 		G_OBJECT_CLASS_TYPE(gobject_class),
 		G_SIGNAL_RUN_FIRST,
 		0, NULL, NULL,
 		g_cclosure_marshal_VOID__VOID,
 		G_TYPE_NONE, 0);
-	tslider_signals[SLIDER_CHANGED] = g_signal_new("slider_changed",
+	tslider_signals[SIG_SLIDER_CHANGED] = g_signal_new("slider_changed",
 		G_OBJECT_CLASS_TYPE(gobject_class),
 		G_SIGNAL_RUN_FIRST,
 		0, NULL, NULL,
 		g_cclosure_marshal_VOID__VOID,
 		G_TYPE_NONE, 0);
-	tslider_signals[TEXT_CHANGED] = g_signal_new("text_changed",
+	tslider_signals[SIG_TEXT_CHANGED] = g_signal_new("text_changed",
+		G_OBJECT_CLASS_TYPE(gobject_class),
+		G_SIGNAL_RUN_FIRST,
+		0, NULL, NULL,
+		g_cclosure_marshal_VOID__VOID,
+		G_TYPE_NONE, 0);
+
+	/* We never emit this, but we have it so that tslider has the same set of
+	 * signals as ientry and we can use the same code to link to them.
+	 */
+	tslider_signals[SIG_CANCEL] = g_signal_new("cancel",
 		G_OBJECT_CLASS_TYPE(gobject_class),
 		G_SIGNAL_RUN_FIRST,
 		0, NULL, NULL,
@@ -357,8 +363,8 @@ tslider_class_init(TsliderClass *class)
 		G_TYPE_NONE, 0);
 }
 
-Tslider *
-tslider_new(void)
+GtkWidget *
+tslider_new(double from, double to, int digits)
 {
 	Tslider *tslider;
 
@@ -367,8 +373,11 @@ tslider_new(void)
 #endif /*DEBUG*/
 
 	tslider = g_object_new(TSLIDER_TYPE, NULL);
+	tslider->from = from;
+	tslider->to = to;
+	tslider->digits = digits;
 
-	return tslider;
+	return GTK_WIDGET(tslider);
 }
 
 void

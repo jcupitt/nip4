@@ -1,19 +1,48 @@
-- try:
+- symbol_recalculate_all() starts a bg recomp, so we can't test for errors
+  after
 
-	- edit matrix cell to "kjh"
-	- Enter, see an error
-	- esc, cell reverts to last good value
-	- Enter again, error does not clear
+  	eg. we have this:
 
-- entring a new expression at the bottom of the column does not trigger a
-  scan
+		static void
+		matrixview_ientry_activate(GtkEntry *self, gpointer user_data)
+		{
+			Matrixview *matrixview = MATRIXVIEW(user_data);
+			Matrix *matrix = MATRIX(VOBJECT(matrixview)->iobject);
+			Row *row = HEAPMODEL(matrix)->row;
 
+			// we're on the scan list, so just recomp
+			symbol_recalculate_all();
 
+			if (row->expr->err) {
+				expr_error_get(row->expr);
+				workspace_set_show_error(row->ws, TRUE);
+			}
+		}
 
+  instead, we need to show errors during recomp, if necessary
+
+- need some way for tslider users to pass a format string
+
+	see eg. offset slider in image display? or perhaps just a bigger
+	digits setting would fix that?
+
+	Scale "hello" 0 100 50
+
+	has similar issues
+
+- set centre colour for toggle matrix
+
+	we have
+
+                if (x == width / 2 &&
+                    y == height / 2)
+                    gtk_widget_add_css_class(item, "centre_widget");
 
 - try:
 
 	Matrix_build_item.Matrix_laplacian_item.action
+
+	Matrix_build_item.Matrix_gaussian_item.action
 
   edit a matrix value, enter, we lose the subclass
 
@@ -23,6 +52,8 @@
 
   nip2 is fine, must be something about the way we handle activate
 
+  after an edit, A2.name is "Matrix_vips", so it's the wrapping of the
+  output of a vips7 matrix call that loses the original type
 
 
 

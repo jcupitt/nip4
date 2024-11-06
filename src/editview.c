@@ -79,26 +79,6 @@ editview_refresh(vObject *vobject)
 }
 
 static void
-editview_activate(GtkWidget *wid, Editview *editview)
-{
-	Row *row = HEAPMODEL(VOBJECT(editview)->iobject)->row;
-
-#ifdef DEBUG
-	printf("editview_activate:\n");
-#endif /*DEBUG*/
-
-	/* If we've been changed, a subclass will have us on the scannable list ...
-	 * just recomp.
-	 */
-	symbol_recalculate_all();
-
-	if (row->expr->err) {
-		expr_error_get(row->expr);
-		workspace_set_show_error(row->ws, TRUE);
-	}
-}
-
-static void
 editview_class_init(EditviewClass *class)
 {
 	GObjectClass *object_class = (GObjectClass *) class;
@@ -112,9 +92,9 @@ editview_class_init(EditviewClass *class)
 	BIND_VARIABLE(Editview, label);
 	BIND_VARIABLE(Editview, ientry);
 
-	BIND_CALLBACK(view_ientry_changed);
-	BIND_CALLBACK(view_ientry_cancel);
-	BIND_CALLBACK(editview_activate);
+	BIND_CALLBACK(view_changed);
+	BIND_CALLBACK(view_cancel);
+	BIND_CALLBACK(view_activate);
 
 	object_class->dispose = editview_dispose;
 

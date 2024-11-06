@@ -146,5 +146,6 @@ void *view_map_all(View *view, view_map_fn fn, void *a);
 GtkWindow *view_get_window(View *view);
 Columnview *view_get_columnview(View *child);
 
-void view_ientry_changed(GtkEntry *self, View *view);
-void view_ientry_cancel(GtkEntry *self, View *view);
+void view_changed(GtkWidget *widget, View *view);
+void view_cancel(GtkWidget *widget, View *view);
+void view_activate(GtkWidget *widget, View *view);
