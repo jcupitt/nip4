@@ -298,7 +298,7 @@ displaybar_init(Displaybar *displaybar)
 	tslider->to = 128;
 	tslider->value = 0;
 	tslider->svalue = 0;
-	tslider->digits = 1;
+	tslider->digits = 4;
 	tslider_changed(tslider);
 	set_tooltip(GTK_WIDGET(tslider), _("Brightness offset"));
 
