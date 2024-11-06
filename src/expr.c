@@ -209,7 +209,7 @@ expr_get_root_dynamic(Expr *expr)
  *
  * Return NULL for expr is not a row and has no enclosing rows.
  */
-static Row *
+Row *
 expr_get_row(Expr *expr)
 {
 	if (expr->row)

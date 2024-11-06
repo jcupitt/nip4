@@ -94,6 +94,7 @@ void expr_name(Expr *expr, VipsBuf *buf);
 Expr *expr_get_parent(Expr *expr);
 Expr *expr_get_root(Expr *expr);
 Expr *expr_get_root_dynamic(Expr *expr);
+Row *expr_get_row(Expr *expr);
 
 GType expr_get_type(void);
 void *expr_strip(Expr *expr);

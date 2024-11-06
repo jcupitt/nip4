@@ -1112,7 +1112,7 @@ symbol_recalculate_leaf(void)
 		 * function, in which case dirty kids are OK.
 		 *
 		 * Can contain an error, in which case this recomp will just take it
-		 * ffo the dirty list.
+		 * off the dirty list.
 		 */
 		g_assert(sym->dirty);
 		g_assert(is_top(sym));
@@ -1121,6 +1121,16 @@ symbol_recalculate_leaf(void)
 		/* Found a symbol!
 		 */
 		(void) symbol_recalculate_leaf_sub(sym);
+
+		/* If we found an error, tell everyone.
+		 */
+		Row *row;
+		if (sym->expr &&
+			sym->expr->err &&
+			(row = expr_get_row(sym->expr))) {
+			expr_error_get(sym->expr);
+			workspace_set_show_error(row->ws, TRUE);
+		}
 
 		/* Note a pending GC.
 		 */

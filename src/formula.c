@@ -262,8 +262,8 @@ static void
 formula_changed(GtkEntry *self, Formula *formula)
 {
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("formula_changed:\n");
+#endif /*DEBUG*/
 
 	// there has been a keypress ... we will probably need scanning
 	g_signal_emit(G_OBJECT(formula), formula_signals[CHANGED], 0);
@@ -273,8 +273,8 @@ static void
 formula_cancel(GtkEntry *self, Formula *formula)
 {
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("formula_cancel:\n");
+#endif /*DEBUG*/
 
 	formula_set_edit(formula, FALSE);
 }
@@ -285,8 +285,8 @@ static void
 formula_activate(GtkEntry *self, Formula *formula)
 {
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("formula_activate:\n");
+#endif /*DEBUG*/
 
 	g_signal_emit(G_OBJECT(formula), formula_signals[ACTIVATE], 0);
 }
@@ -296,8 +296,8 @@ formula_pressed(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Formula *formula)
 {
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("formula_pressed:\n");
+#endif /*DEBUG*/
 
 	if (formula->sensitive &&
 		!formula->edit) {

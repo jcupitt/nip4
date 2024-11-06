@@ -197,8 +197,7 @@ regionview_model_update(Regionview *regionview)
 	if (classmodel) {
 		classmodel_update(classmodel);
 
-		if (CALC_RECOMP_REGION)
-			symbol_recalculate_all();
+		symbol_recalculate_all();
 	}
 
 #ifdef DEBUG

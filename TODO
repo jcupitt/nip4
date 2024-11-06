@@ -1,25 +1,9 @@
-- symbol_recalculate_all() starts a bg recomp, so we can't test for errors
-  after
+- break on view_scannable_register(), load a large ws
 
-  	eg. we have this:
+	many widgets trigger register during load, they should not
 
-		static void
-		matrixview_ientry_activate(GtkEntry *self, gpointer user_data)
-		{
-			Matrixview *matrixview = MATRIXVIEW(user_data);
-			Matrix *matrix = MATRIX(VOBJECT(matrixview)->iobject);
-			Row *row = HEAPMODEL(matrix)->row;
-
-			// we're on the scan list, so just recomp
-			symbol_recalculate_all();
-
-			if (row->expr->err) {
-				expr_error_get(row->expr);
-				workspace_set_show_error(row->ws, TRUE);
-			}
-		}
-
-  instead, we need to show errors during recomp, if necessary
+	many scan functions will detect a change during load, when there is
+	none
 
 - need some way for tslider users to pass a format string
 
@@ -54,6 +38,8 @@
 
   after an edit, A2.name is "Matrix_vips", so it's the wrapping of the
   output of a vips7 matrix call that loses the original type
+
+	need to wrap again with the Matrix constructor from the input
 
 
 

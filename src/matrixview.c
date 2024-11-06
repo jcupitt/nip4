@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -103,8 +103,6 @@ matrixview_slider_changed(Tslider *tslider, Matrixview *matrixview)
 	/* Install value.
 	 */
 	if (matrix->value.coeff[i] != tslider->svalue) {
-		printf("matrixview_slider_changed:\n");
-
 		matrix->value.coeff[i] = tslider->svalue;
 
 		classmodel_update(CLASSMODEL(matrix));

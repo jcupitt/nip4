@@ -31,8 +31,8 @@
 
 /*
 #define DEBUG_VERBOSE
- */
 #define DEBUG
+ */
 
 enum {
 	SIG_CHANGED,
@@ -138,7 +138,6 @@ tslider_real_changed(Tslider *tslider)
 	g_signal_handlers_block_matched(G_OBJECT(ientry),
 		G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, tslider);
 
-	printf("digits = %d\n", tslider->digits);
 	ientry_set_double(IENTRY(ientry), tslider->digits, tslider->value);
 	gtk_scale_set_digits(GTK_SCALE(tslider->scale), tslider->digits);
 
@@ -286,8 +285,8 @@ tslider_ientry_activate(iEntry *ientry, Tslider *tslider)
 	double value;
 
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("tslider_ientry_activate:\n");
+#endif /*DEBUG*/
 
 	if (ientry_get_double(ientry, &value) &&
 		tslider->value != value) {

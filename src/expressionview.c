@@ -109,16 +109,6 @@ expressionview_activate(GtkWidget *wid, Expressionview *expressionview)
 }
 
 static void
-expressionview_changed(GtkWidget *wid, Expressionview *expressionview)
-{
-#ifdef DEBUG
-	printf("expressionview_activate:\n");
-#endif /*DEBUG*/
-
-	view_scannable_register(VIEW(expressionview));
-}
-
-static void
 expressionview_refresh(vObject *vobject)
 {
 	Expressionview *expressionview = EXPRESSIONVIEW(vobject);
@@ -204,7 +194,7 @@ expressionview_class_init(ExpressionviewClass *class)
 	BIND_VARIABLE(Expressionview, top);
 	BIND_VARIABLE(Expressionview, formula);
 
-	BIND_CALLBACK(expressionview_changed);
+	BIND_CALLBACK(view_changed);
 	BIND_CALLBACK(expressionview_activate);
 
 	object_class->dispose = expressionview_dispose;

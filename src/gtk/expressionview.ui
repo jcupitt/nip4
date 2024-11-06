@@ -10,7 +10,7 @@
         <child>
           <object class="Formula" id="formula">
             <property name="hexpand">true</property>
-            <signal name="changed" handler="expressionview_changed"/>
+            <signal name="changed" handler="view_changed"/>
             <signal name="activate" handler="expressionview_activate"/>
 
           </object>
