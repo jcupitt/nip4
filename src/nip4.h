@@ -133,9 +133,9 @@ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 
 typedef struct _BuiltinInfo BuiltinInfo;
 typedef struct _Classmodel Classmodel;
+typedef struct _Colour Colour;
 typedef struct _Column Column;
 typedef struct _Columnview Columnview;
-typedef struct _Colour Colour;
 typedef struct _Compile Compile;
 typedef struct _Element Element;
 typedef struct _Expression Expression;
@@ -163,12 +163,13 @@ typedef struct _Managedgvalue Managedgvalue;
 typedef struct _Managed Managed;
 typedef struct _Managedstring Managedstring;
 typedef struct _Matrix Matrix;
-typedef struct _Number Number;
 typedef struct _Model Model;
+typedef struct _Number Number;
 typedef struct _Panechild Panechild;
 typedef struct _Pane Pane;
 typedef struct _ParseConst ParseConst;
 typedef struct _ParseNode ParseNode;
+typedef struct _Plot Plot;
 typedef struct _Reduce Reduce;
 typedef struct _Regionview Regionview;
 typedef struct _Rhs Rhs;
@@ -256,6 +257,7 @@ typedef struct _Workspace Workspace;
 #include "slider.h"
 #include "number.h"
 #include "stringi.h"
+#include "plot.h"
 #include "toggle.h"
 #include "iimage.h"
 #include "colour.h"

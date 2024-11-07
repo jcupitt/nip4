@@ -419,32 +419,32 @@ main(int argc, char **argv)
 	/*
 	(void) g_type_class_ref(TYPE_CLOCK);
 	(void) g_type_class_ref(TYPE_GROUP);
-	(void) g_type_class_ref(TYPE_PLOT);
 	(void) g_type_class_ref(TYPE_REAL);
 	(void) g_type_class_ref(TYPE_VECTOR);
 	 */
 
-	(void) g_type_class_ref(STRING_TYPE);
-	(void) g_type_class_ref(NUMBER_TYPE);
-	(void) g_type_class_ref(IMAGEDISPLAY_TYPE);
-	(void) g_type_class_ref(IIMAGE_TYPE);
-	(void) g_type_class_ref(IREGION_TYPE);
-	(void) g_type_class_ref(WORKSPACE_TYPE);
-	(void) g_type_class_ref(COLUMN_TYPE);
-	(void) g_type_class_ref(SUBCOLUMN_TYPE);
-	(void) g_type_class_ref(ROW_TYPE);
-	(void) g_type_class_ref(RHS_TYPE);
-	(void) g_type_class_ref(ITEXT_TYPE);
-	(void) g_type_class_ref(IARROW_TYPE);
-	(void) g_type_class_ref(OPTION_TYPE);
-	(void) g_type_class_ref(SLIDER_TYPE);
-	(void) g_type_class_ref(TOGGLE_TYPE);
-	(void) g_type_class_ref(PATHNAME_TYPE);
-	(void) g_type_class_ref(MATRIX_TYPE);
-	(void) g_type_class_ref(EXPRESSION_TYPE);
 	(void) g_type_class_ref(COLOUR_TYPE);
+	(void) g_type_class_ref(COLUMN_TYPE);
+	(void) g_type_class_ref(EXPRESSION_TYPE);
 	(void) g_type_class_ref(FONTNAME_TYPE);
+	(void) g_type_class_ref(IARROW_TYPE);
 	(void) g_type_class_ref(IENTRY_TYPE);
+	(void) g_type_class_ref(IIMAGE_TYPE);
+	(void) g_type_class_ref(IMAGEDISPLAY_TYPE);
+	(void) g_type_class_ref(IREGION_TYPE);
+	(void) g_type_class_ref(ITEXT_TYPE);
+	(void) g_type_class_ref(MATRIX_TYPE);
+	(void) g_type_class_ref(NUMBER_TYPE);
+	(void) g_type_class_ref(OPTION_TYPE);
+	(void) g_type_class_ref(PATHNAME_TYPE);
+	(void) g_type_class_ref(PLOT_TYPE);
+	(void) g_type_class_ref(RHS_TYPE);
+	(void) g_type_class_ref(ROW_TYPE);
+	(void) g_type_class_ref(SLIDER_TYPE);
+	(void) g_type_class_ref(STRING_TYPE);
+	(void) g_type_class_ref(SUBCOLUMN_TYPE);
+	(void) g_type_class_ref(TOGGLE_TYPE);
+	(void) g_type_class_ref(WORKSPACE_TYPE);
 
 	/* Load up all defs and wses.
 	 */
