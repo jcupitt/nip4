@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -410,6 +410,8 @@ plot_class_get(Classmodel *classmodel, PElement *root)
 
 	if (!plot_unpack(plot, image))
 		return FALSE;
+
+	printf("plot_class_get: %s\n", plot_generate_caption(IOBJECT(plot)));
 
 	return TRUE;
 }
