@@ -267,8 +267,7 @@ plot_unpack(Plot *plot, VipsImage *image)
 static View *
 plot_view_new(Model *model, View *parent)
 {
-	//return plotview_new();
-	return NULL;
+	return plotview_new();
 }
 
 static void
@@ -411,7 +410,9 @@ plot_class_get(Classmodel *classmodel, PElement *root)
 	if (!plot_unpack(plot, image))
 		return FALSE;
 
+#ifdef DEBUG
 	printf("plot_class_get: %s\n", plot_generate_caption(IOBJECT(plot)));
+#endif /*DEBUG*/
 
 	return TRUE;
 }
@@ -472,9 +473,7 @@ plot_class_init(PlotClass *class)
 
 	iobject_class->generate_caption = plot_generate_caption;
 
-#ifdef HAVE_LIBGOFFICE
 	model_class->view_new = plot_view_new;
-#endif /*HAVE_LIBGOFFICE*/
 	model_class->edit = plot_edit;
 	model_class->save = plot_save;
 	model_class->load = plot_load;

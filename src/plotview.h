@@ -27,23 +27,25 @@
 
 */
 
-#define TYPE_PLOTVIEW (plotview_get_type())
-#define PLOTVIEW(obj) (GTK_CHECK_CAST((obj), TYPE_PLOTVIEW, Plotview))
+#define PLOTVIEW_TYPE (plotview_get_type())
+#define PLOTVIEW(obj) \
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), PLOTVIEW_TYPE, Plotview))
 #define PLOTVIEW_CLASS(klass) \
-	(GTK_CHECK_CLASS_CAST((klass), TYPE_PLOTVIEW, PlotviewClass))
-#define IS_PLOTVIEW(obj) (GTK_CHECK_TYPE((obj), TYPE_PLOTVIEW))
+	(G_TYPE_CHECK_CLASS_CAST((klass), PLOTVIEW_TYPE, PlotviewClass))
+#define IS_PLOTVIEW(obj) \
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj), PLOTVIEW_TYPE))
 #define IS_PLOTVIEW_CLASS(klass) \
-	(GTK_CHECK_CLASS_TYPE((klass), TYPE_PLOTVIEW))
+	(G_TYPE_CHECK_CLASS_TYPE((klass), PLOTVIEW_TYPE))
+#define PLOTVIEW_GET_CLASS(obj) \
+	(G_TYPE_INSTANCE_GET_CLASS((obj), PLOTVIEW_TYPE, PlotviewClass))
 
 typedef struct _Plotview {
 	Graphicview parent_object;
 
-	GtkWidget *box;
+	GtkWidget *top;
 	GtkWidget *label;
-	GtkWidget *canvas;
+	GtkWidget *plotdisplay;
 
-	GogChart *gchart;
-	GogPlot *gplot;
 } Plotview;
 
 typedef struct _PlotviewClass {
@@ -53,5 +55,5 @@ typedef struct _PlotviewClass {
 	 */
 } PlotviewClass;
 
-GtkType plotview_get_type(void);
+GType plotview_get_type(void);
 View *plotview_new(void);

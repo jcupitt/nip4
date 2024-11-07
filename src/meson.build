@@ -89,6 +89,7 @@ sources = files (
   'toggleview.c',
   'path.c',
   'plot.c',
+  'plotview.c',
   'predicate.c',
   'prefcolumnview.c',
   'prefs.c',

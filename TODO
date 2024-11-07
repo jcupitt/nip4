@@ -31,6 +31,7 @@
 
 	need to run the driver script from meson
 
+- displaybar should set callbacks and tooltips in .ui
 
 - on new image in iimageview
 

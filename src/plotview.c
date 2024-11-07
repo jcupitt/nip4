@@ -32,14 +32,12 @@
 #define DEBUG
  */
 
-#include "ip.h"
+#include "nip4.h"
 
-#ifdef HAVE_LIBGOFFICE
-
-static GraphicviewClass *parent_class = NULL;
+G_DEFINE_TYPE(Plotview, plotview, GRAPHICVIEW_TYPE)
 
 static void
-plotview_destroy(GtkObject *object)
+plotview_dispose(GObject *object)
 {
 	Plotview *plotview;
 
@@ -47,14 +45,36 @@ plotview_destroy(GtkObject *object)
 	g_return_if_fail(IS_PLOTVIEW(object));
 
 #ifdef DEBUG
-	printf("plotview_destroy\n");
+	printf("plotview_disposed\n");
 #endif /*DEBUG*/
 
 	plotview = PLOTVIEW(object);
 
-	GOG_UNREF(plotview->gplot);
+	gtk_widget_dispose_template(GTK_WIDGET(plotview), PLOTVIEW_TYPE);
 
-	GTK_OBJECT_CLASS(parent_class)->destroy(object);
+	G_OBJECT_CLASS(plotview_parent_class)->dispose(object);
+}
+
+static void
+plotview_refresh_tooltip(Plotview *plotview)
+{
+	Plot *plot = PLOT(VOBJECT(plotview)->iobject);
+
+	char txt[1024];
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
+
+	vips_buf_appends(&buf, vips_buf_all(&plot->caption_buffer));
+
+	vips_buf_appendf(&buf, ", %s, %s",
+		plot_f2c(plot->format), plot_s2c(plot->style));
+
+	VipsImage *im;
+	if ((im = plot->value.ii->image)) {
+		vips_buf_appends(&buf, ", ");
+		vips_buf_appendi(&buf, im);
+	}
+
+	gtk_widget_set_tooltip_text(plotview->top, vips_buf_all(&buf));
 }
 
 static void
@@ -73,156 +93,49 @@ plotview_refresh(vObject *vobject)
 		plot->columns == 0)
 		return;
 
-	set_gcaption(plotview->label, "%s", NN(IOBJECT(plot)->caption));
+	if (plotview->label)
+		set_glabel(plotview->label, "%s", IOBJECT(plot)->caption);
 
-	GOG_UNREF(plotview->gplot);
+	plotview_refresh_tooltip(plotview);
 
-	plotview->gplot = plot_new_gplot(plot);
-	gog_object_add_by_name(GOG_OBJECT(plotview->gchart),
-		"Plot", GOG_OBJECT(plotview->gplot));
-
-	plot_style_thumbnail(plot, plotview->gchart);
-
-	gtk_widget_show_all(plotview->canvas);
-
-	VOBJECT_CLASS(parent_class)->refresh(vobject);
-}
-
-static void
-plotview_link(View *view, Model *model, View *parent)
-{
-	Plotview *plotview = PLOTVIEW(view);
-	Rowview *rview = ROWVIEW(parent->parent);
-
-	VIEW_CLASS(parent_class)->link(view, model, parent);
-
-	rowview_menu_attach(rview, GTK_WIDGET(plotview->box));
+	VOBJECT_CLASS(plotview_parent_class)->refresh(vobject);
 }
 
 static void
 plotview_class_init(PlotviewClass *class)
 {
-	GtkObjectClass *object_class = (GtkObjectClass *) class;
+	GObjectClass *gobject_class = (GObjectClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
-	ViewClass *view_class = (ViewClass *) class;
 
-	parent_class = g_type_class_peek_parent(class);
+	BIND_RESOURCE("plotview.ui");
+	BIND_LAYOUT();
 
-	object_class->destroy = plotview_destroy;
+	BIND_VARIABLE(Plotview, top);
+	BIND_VARIABLE(Plotview, plotdisplay);
+	BIND_VARIABLE(Plotview, label);
+
+	BIND_CALLBACK(graphicview_click);
+
+	gobject_class->dispose = plotview_dispose;
 
 	vobject_class->refresh = plotview_refresh;
-
-	view_class->link = plotview_link;
-}
-
-static void
-plotview_tooltip_generate(GtkWidget *widget, VipsBuf *buf, Plotview *plotview)
-{
-	Plot *plot = PLOT(VOBJECT(plotview)->iobject);
-	IMAGE *im;
-
-	vips_buf_rewind(buf);
-	vips_buf_appends(buf, vips_buf_all(&plot->caption_buffer));
-
-	vips_buf_appendf(buf, ", %s, %s",
-		plot_f2c(plot->format), plot_s2c(plot->style));
-
-	if ((im = imageinfo_get(FALSE, plot->value.ii))) {
-		vips_buf_appends(buf, ", ");
-		vips_buf_appendi(buf, im);
-	}
-}
-
-static void
-plotview_doubleclick_one_cb(GtkWidget *widget, GdkEvent *event,
-	Plotview *plotview)
-{
-	Heapmodel *heapmodel = HEAPMODEL(VOBJECT(plotview)->iobject);
-	Row *row = heapmodel->row;
-
-	row_select_modifier(row, event->button.state);
-}
-
-static void
-plotview_doubleclick_two_cb(GtkWidget *widget, GdkEvent *event,
-	Plotview *plotview)
-{
-	Plot *plot = PLOT(VOBJECT(plotview)->iobject);
-
-	model_edit(widget, MODEL(plot));
 }
 
 static void
 plotview_init(Plotview *plotview)
 {
-	GtkWidget *eb;
-
 #ifdef DEBUG
 	printf("plotview_init\n");
 #endif /*DEBUG*/
 
-	eb = gtk_event_box_new();
-	gtk_box_pack_start(GTK_BOX(plotview),
-		eb, FALSE, FALSE, 0);
-	gtk_widget_show(eb);
-	gtk_widget_set_name(eb, "caption_widget");
-	set_tooltip_generate(eb,
-		(TooltipGenerateFn) plotview_tooltip_generate, plotview, NULL);
-	doubleclick_add(eb, FALSE,
-		DOUBLECLICK_FUNC(plotview_doubleclick_one_cb), plotview,
-		DOUBLECLICK_FUNC(plotview_doubleclick_two_cb), plotview);
-
-	plotview->box = gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(eb), plotview->box);
-	gtk_widget_show(plotview->box);
-
-	plotview->canvas = go_graph_widget_new(NULL);
-	gtk_box_pack_start(GTK_BOX(plotview->box),
-		plotview->canvas, FALSE, FALSE, 0);
-	plotview->gchart = go_graph_widget_get_chart(
-		GO_GRAPH_WIDGET(plotview->canvas));
-	gtk_widget_set_size_request(GTK_WIDGET(plotview->canvas),
-		DISPLAY_THUMBNAIL, DISPLAY_THUMBNAIL);
-
-	plotview->gplot = NULL;
-
-	plotview->label = gtk_label_new("");
-	gtk_misc_set_alignment(GTK_MISC(plotview->label), 0, 0.5);
-	gtk_misc_set_padding(GTK_MISC(plotview->label), 2, 0);
-	gtk_box_pack_end(GTK_BOX(plotview->box),
-		GTK_WIDGET(plotview->label), FALSE, FALSE, 0);
-	gtk_widget_show(GTK_WIDGET(plotview->label));
-}
-
-GtkType
-plotview_get_type(void)
-{
-	static GtkType type = 0;
-
-	if (!type) {
-		static const GtkTypeInfo info = {
-			"Plotview",
-			sizeof(Plotview),
-			sizeof(PlotviewClass),
-			(GtkClassInitFunc) plotview_class_init,
-			(GtkObjectInitFunc) plotview_init,
-			/* reserved_1 */ NULL,
-			/* reserved_2 */ NULL,
-			(GtkClassInitFunc) NULL,
-		};
-
-		type = gtk_type_unique(TYPE_GRAPHICVIEW, &info);
-	}
-
-	return (type);
+	gtk_widget_init_template(GTK_WIDGET(plotview));
 }
 
 View *
 plotview_new(void)
 {
-	Plotview *plotview = gtk_type_new(TYPE_PLOTVIEW);
+	Plotview *plotview = g_object_new(PLOTVIEW_TYPE, NULL);
 
-	return (VIEW(plotview));
+	return VIEW(plotview);
 }
 
-#endif /*HAVE_LIBGOFFICE*/
