@@ -438,6 +438,7 @@ main(int argc, char **argv)
 	(void) g_type_class_ref(OPTION_TYPE);
 	(void) g_type_class_ref(PATHNAME_TYPE);
 	(void) g_type_class_ref(PLOT_TYPE);
+	(void) g_type_class_ref(PLOTDISPLAY_TYPE);
 	(void) g_type_class_ref(RHS_TYPE);
 	(void) g_type_class_ref(ROW_TYPE);
 	(void) g_type_class_ref(SLIDER_TYPE);

@@ -30,13 +30,9 @@
 #include "nip4.h"
 
 /*
+ */
 #define DEBUG_VERBOSE
 #define DEBUG
- */
-
-// the focus colour we paint
-// FIXME ... we should somehow get this from the theme, I'm not sure how
-#define BORDER ((GdkRGBA){ 0.4, 0.4, 0.6, 1 })
 
 struct _Plotdisplay {
 	GtkDrawingArea parent_instance;
@@ -110,99 +106,38 @@ plotdisplay_layout(Plotdisplay *plotdisplay)
 	if (!plotdisplay->plot)
 		return;
 
-	plotdisplay->paint_rect.width = VIPS_MIN(
-		plotdisplay->widget_rect.width,
-		plotdisplay->plot_rect.width * plotdisplay->scale);
-	plotdisplay->paint_rect.height = VIPS_MIN(
-		plotdisplay->widget_rect.height,
-		plotdisplay->plot_rect.height * plotdisplay->scale);
-
-	/* If we've zoomed right out, centre the plot in the window.
-	 */
-	plotdisplay->paint_rect.left = VIPS_MAX(0,
-		(plotdisplay->widget_rect.width -
-			plotdisplay->paint_rect.width) /
-			2);
-	plotdisplay->paint_rect.top = VIPS_MAX(0,
-		(plotdisplay->widget_rect.height -
-			plotdisplay->paint_rect.height) /
-			2);
-
-	plotdisplay_set_hadjustment_values(plotdisplay);
-	plotdisplay_set_vadjustment_values(plotdisplay);
+	// smaller margins in thumbnail mode
+	plotdisplay->paint_rect = plotdisplay->widget_rect;
+	vips_rect_marginadjust(&plotdisplay->paint_rect,
+			plotdisplay->thumbnail ? -10 : -50);
 }
 
 static void
-plotdisplay_plot_changed(Tilecache *tilecache,
-	Plotdisplay *plotdisplay)
+plotdisplay_plot_changed(Plot *plot, Plotdisplay *plotdisplay)
 {
 #ifdef DEBUG
 	printf("plotdisplay_tilecache_changed:\n");
 #endif /*DEBUG*/
 
-	plotdisplay->plot_rect.width = tilecache->tilesource->display_width;
-	plotdisplay->plot_rect.height = tilecache->tilesource->display_height;
-	plotdisplay_layout(plotdisplay);
-
-	gtk_widget_queue_draw(GTK_WIDGET(plotdisplay));
-}
-
-/* Tiles have changed, but not plot geometry. Perhaps falsecolour.
- */
-static void
-plotdisplay_tilecache_tiles_changed(Tilecache *tilecache,
-	Plotdisplay *plotdisplay)
-{
-#ifdef DEBUG
-	printf("plotdisplay_tilecache_tiles_changed:\n");
-#endif /*DEBUG*/
-
 	gtk_widget_queue_draw(GTK_WIDGET(plotdisplay));
 }
 
 static void
-plotdisplay_tilecache_area_changed(Tilecache *tilecache,
-	VipsRect *dirty, int z, Plotdisplay *plotdisplay)
+plotdisplay_set_plot(Plotdisplay *plotdisplay, Plot *plot)
 {
-#ifdef DEBUG_VERBOSE
-	printf("plotdisplay_tilecache_area_changed: "
-		   "at %d x %d, size %d x %d, z = %d\n",
-		dirty->left, dirty->top,
-		dirty->width, dirty->height,
-		z);
-#endif /*DEBUG_VERBOSE*/
+	VIPS_UNREF(plotdisplay->plot);
 
-	/* Sadly, gtk4 only has this and we can't redraw areas. Perhaps we
-	 * could just regenerate part of the snapshot?
-	 */
-	gtk_widget_queue_draw(GTK_WIDGET(plotdisplay));
-}
+	if (plot) {
+		plotdisplay->plot = plot;
+		g_object_ref(plotdisplay->plot);
 
-static void
-plotdisplay_set_tilesource(Plotdisplay *plotdisplay, Tilesource *tilesource)
-{
-	VIPS_UNREF(plotdisplay->tilecache);
-	VIPS_UNREF(plotdisplay->tilesource);
-
-	if (tilesource) {
-		plotdisplay->tilesource = tilesource;
-		g_object_ref(plotdisplay->tilesource);
-
-		plotdisplay->tilecache = tilecache_new(plotdisplay->tilesource);
-
-		g_signal_connect_object(plotdisplay->tilecache, "changed",
-			G_CALLBACK(plotdisplay_tilecache_changed),
-			plotdisplay, 0);
-		g_signal_connect_object(plotdisplay->tilecache, "tiles-changed",
-			G_CALLBACK(plotdisplay_tilecache_tiles_changed),
-			plotdisplay, 0);
-		g_signal_connect_object(plotdisplay->tilecache, "area-changed",
-			G_CALLBACK(plotdisplay_tilecache_area_changed),
+		g_signal_connect_object(plot, "changed",
+			G_CALLBACK(plotdisplay_plot_changed),
 			plotdisplay, 0);
 
 		/* Do initial change to init.
 		 */
-		plotdisplay_tilecache_changed(plotdisplay->tilecache, plotdisplay);
+		plotdisplay_plot_changed(plot, plotdisplay);
 	}
 }
 
@@ -211,48 +146,12 @@ static const char *
 plotdisplay_property_name(guint prop_id)
 {
 	switch (prop_id) {
-	case PROP_TILESOURCE:
-		return "TILESOURCE";
+	case PROP_PLOT:
+		return "PLOT";
 		break;
 
-	case PROP_HADJUSTMENT:
-		return "HADJUSTMENT";
-		break;
-
-	case PROP_HSCROLL_POLICY:
-		return "HSCROLL_POLICY";
-		break;
-
-	case PROP_VADJUSTMENT:
-		return "VADJUSTMENT";
-		break;
-
-	case PROP_VSCROLL_POLICY:
-		return "VSCROLL_POLICY";
-		break;
-
-	case PROP_BESTFIT:
-		return "BESTFIT";
-		break;
-
-	case PROP_BACKGROUND:
-		return "BACKGROUND";
-		break;
-
-	case PROP_ZOOM:
-		return "ZOOM";
-		break;
-
-	case PROP_X:
-		return "X";
-		break;
-
-	case PROP_Y:
-		return "Y";
-		break;
-
-	case PROP_DEBUG:
-		return "DEBUG";
+	case PROP_THUMBNAIL:
+		return "THUMBNAIL";
 		break;
 
 	default:
@@ -276,93 +175,12 @@ plotdisplay_set_property(GObject *object,
 #endif /*DEBUG*/
 
 	switch (prop_id) {
-	case PROP_HADJUSTMENT:
-		if (plotdisplay_set_adjustment(plotdisplay,
-				&plotdisplay->hadj,
-				g_value_get_object(value))) {
-			plotdisplay_set_hadjustment_values(plotdisplay);
-			g_object_notify(G_OBJECT(plotdisplay),
-				"hadjustment");
-		}
+	case PROP_PLOT:
+		plotdisplay_set_plot(plotdisplay, g_value_get_object(value));
 		break;
 
-	case PROP_VADJUSTMENT:
-		if (plotdisplay_set_adjustment(plotdisplay,
-				&plotdisplay->vadj,
-				g_value_get_object(value))) {
-			plotdisplay_set_vadjustment_values(plotdisplay);
-			g_object_notify(G_OBJECT(plotdisplay),
-				"vadjustment");
-		}
-		break;
-
-	case PROP_HSCROLL_POLICY:
-		if (plotdisplay->hscroll_policy !=
-			g_value_get_enum(value)) {
-			plotdisplay->hscroll_policy =
-				g_value_get_enum(value);
-			gtk_widget_queue_resize(GTK_WIDGET(plotdisplay));
-			g_object_notify_by_pspec(object, pspec);
-		}
-		break;
-
-	case PROP_VSCROLL_POLICY:
-		if (plotdisplay->vscroll_policy !=
-			g_value_get_enum(value)) {
-			plotdisplay->vscroll_policy =
-				g_value_get_enum(value);
-			gtk_widget_queue_resize(GTK_WIDGET(plotdisplay));
-			g_object_notify_by_pspec(object, pspec);
-		}
-		break;
-
-	case PROP_TILESOURCE:
-		plotdisplay_set_tilesource(plotdisplay,
-			g_value_get_object(value));
-		break;
-
-	case PROP_BESTFIT:
-		plotdisplay->bestfit = g_value_get_boolean(value);
-		break;
-
-	case PROP_BACKGROUND:
-		if (plotdisplay->tilecache)
-			g_object_set(plotdisplay->tilecache,
-				"background", g_value_get_int(value),
-				NULL);
-		break;
-
-	case PROP_ZOOM:
-		g_object_set(plotdisplay, "bestfit", FALSE, NULL);
-		plotdisplay_set_transform(plotdisplay,
-			g_value_get_double(value),
-			plotdisplay->x,
-			plotdisplay->y);
-		plotdisplay_layout(plotdisplay);
-		gtk_widget_queue_draw(GTK_WIDGET(plotdisplay));
-		break;
-
-	case PROP_X:
-		g_object_set(plotdisplay, "bestfit", FALSE, NULL);
-		plotdisplay_set_transform(plotdisplay,
-			plotdisplay->scale,
-			g_value_get_double(value),
-			plotdisplay->y);
-		gtk_widget_queue_draw(GTK_WIDGET(plotdisplay));
-		break;
-
-	case PROP_Y:
-		g_object_set(plotdisplay, "bestfit", FALSE, NULL);
-		plotdisplay_set_transform(plotdisplay,
-			plotdisplay->scale,
-			plotdisplay->x,
-			g_value_get_double(value));
-		gtk_widget_queue_draw(GTK_WIDGET(plotdisplay));
-		break;
-
-	case PROP_DEBUG:
-		plotdisplay->debug = g_value_get_boolean(value);
-		gtk_widget_queue_draw(GTK_WIDGET(plotdisplay));
+	case PROP_THUMBNAIL:
+		plotdisplay->thumbnail = g_value_get_boolean(value);
 		break;
 
 	default:
@@ -378,50 +196,12 @@ plotdisplay_get_property(GObject *object,
 	Plotdisplay *plotdisplay = (Plotdisplay *) object;
 
 	switch (prop_id) {
-	case PROP_HADJUSTMENT:
-		g_value_set_object(value, plotdisplay->hadj);
+	case PROP_PLOT:
+		g_value_set_object(value, plotdisplay->plot);
 		break;
 
-	case PROP_VADJUSTMENT:
-		g_value_set_object(value, plotdisplay->vadj);
-		break;
-
-	case PROP_HSCROLL_POLICY:
-		g_value_set_enum(value, plotdisplay->hscroll_policy);
-		break;
-
-	case PROP_VSCROLL_POLICY:
-		g_value_set_enum(value, plotdisplay->vscroll_policy);
-		break;
-
-	case PROP_TILESOURCE:
-		g_value_set_object(value, plotdisplay->tilesource);
-		break;
-
-	case PROP_BESTFIT:
-		g_value_set_boolean(value, plotdisplay->bestfit);
-		break;
-
-	case PROP_BACKGROUND:
-		if (plotdisplay->tilecache)
-			g_object_get_property(G_OBJECT(plotdisplay->tilecache),
-				"background", value);
-		break;
-
-	case PROP_ZOOM:
-		g_value_set_double(value, plotdisplay->scale);
-		break;
-
-	case PROP_X:
-		g_value_set_double(value, plotdisplay->x);
-		break;
-
-	case PROP_Y:
-		g_value_set_double(value, plotdisplay->y);
-		break;
-
-	case PROP_DEBUG:
-		g_value_set_boolean(value, plotdisplay->debug);
+	case PROP_THUMBNAIL:
+		g_value_set_boolean(value, plotdisplay->thumbnail);
 		break;
 
 	default:
@@ -431,62 +211,13 @@ plotdisplay_get_property(GObject *object,
 }
 
 static void
-plotdisplay_snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
-{
-	Plotdisplay *plotdisplay = PLOTDISPLAY(widget);
-
-#ifdef DEBUG
-	printf("plotdisplay_snapshot:\n");
-#endif /*DEBUG*/
-
-	/* Clip to the widget area, or we may paint over the display control
-	 * bar.
-	 */
-	gtk_snapshot_push_clip(snapshot,
-		&GRAPHENE_RECT_INIT(0, 0,
-			gtk_widget_get_width(widget), gtk_widget_get_height(widget)));
-
-	if (plotdisplay->tilecache &&
-		plotdisplay->tilecache->tiles)
-		tilecache_snapshot(plotdisplay->tilecache, snapshot,
-			plotdisplay->scale, plotdisplay->x, plotdisplay->y,
-			&plotdisplay->paint_rect,
-			plotdisplay->debug);
-
-	// draw any overlays
-	plotdisplay_overlay_snapshot(plotdisplay, snapshot);
-
-	gtk_snapshot_pop(snapshot);
-
-	/* It's unclear how to do this :( maybe we're supposed to get the base
-	 * widget class to do it? Draw it ourselves for now.
-	 */
-	if (gtk_widget_has_focus(widget)) {
-		GskRoundedRect outline;
-
-		gsk_rounded_rect_init_from_rect(&outline,
-			&GRAPHENE_RECT_INIT(
-				3,
-				3,
-				gtk_widget_get_width(widget) - 6,
-				gtk_widget_get_height(widget) - 6),
-			5);
-
-		gtk_snapshot_append_border(snapshot,
-			&outline,
-			(float[4]){ 2, 2, 2, 2 },
-			(GdkRGBA[4]){ BORDER, BORDER, BORDER, BORDER });
-	}
-}
-
-static void
 plotdisplay_resize(GtkWidget *widget, int width, int height)
 {
-	Plotdisplay *plotdisplay = (Plotdisplay *) widget;
-
-#ifdef DEBUG
+#ifdef DEBUG_VERBOSE
 	printf("plotdisplay_resize: %d x %d\n", width, height);
-#endif /*DEBUG*/
+#endif /*DEBUG_VERBOSE*/
+
+	Plotdisplay *plotdisplay = (Plotdisplay *) widget;
 
 	plotdisplay_layout(plotdisplay);
 
@@ -494,58 +225,44 @@ plotdisplay_resize(GtkWidget *widget, int width, int height)
 }
 
 static void
-plotdisplay_focus_notify(GtkEventControllerFocus *focus,
-	GParamSpec *pspec, gpointer user_data)
+plotdisplay_draw_function(GtkDrawingArea *area,
+	cairo_t *cr, int width, int height, gpointer user_data)
 {
-	Plotdisplay *plotdisplay = (Plotdisplay *) user_data;
+#ifdef DEBUG_VERBOSE
+	printf("plotdisplay_draw_function:\n");
+#endif /*DEBUG_VERBOSE*/
 
-#ifdef DEBUG
-	printf("plotdisplay_focus_notify: %s\n", pspec->name);
-#endif /*DEBUG*/
+	//Plotdisplay *plotdisplay = (Plotdisplay *) user_data;
 
-	gtk_widget_queue_draw(GTK_WIDGET(plotdisplay));
-}
+	GdkRGBA color;
 
-static void
-plotdisplay_click(GtkEventController *controller,
-	int n_press, double x, double y, Plotdisplay *plotdisplay)
-{
-	gtk_widget_grab_focus(GTK_WIDGET(plotdisplay));
+	cairo_arc(cr,
+		width / 2.0, height / 2.0, MIN (width, height) / 2.0, 0, 2 * G_PI);
+
+	gtk_widget_get_color(GTK_WIDGET(area), &color);
+	gdk_cairo_set_source_rgba(cr, &color);
+
+	cairo_fill(cr);
 }
 
 static void
 plotdisplay_init(Plotdisplay *plotdisplay)
 {
-	GtkEventController *controller;
-
 #ifdef DEBUG
 	printf("plotdisplay_init:\n");
 #endif /*DEBUG*/
 
-	plotdisplay->scale = 1;
-
 	g_signal_connect(GTK_DRAWING_AREA(plotdisplay), "resize",
 		G_CALLBACK(plotdisplay_resize), NULL);
 
-	gtk_widget_set_focusable(GTK_WIDGET(plotdisplay), TRUE);
-	controller = gtk_event_controller_focus_new();
-	gtk_widget_add_controller(GTK_WIDGET(plotdisplay), controller);
-	g_signal_connect(controller, "notify::is-focus",
-		G_CALLBACK(plotdisplay_focus_notify), plotdisplay);
-
-	controller = GTK_EVENT_CONTROLLER(gtk_gesture_click_new());
-	g_signal_connect(controller, "pressed",
-		G_CALLBACK(plotdisplay_click), plotdisplay);
-	gtk_widget_add_controller(GTK_WIDGET(plotdisplay), controller);
-
-	plotdisplay->bestfit = TRUE;
+	gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(plotdisplay),
+		plotdisplay_draw_function, NULL, NULL);
 }
 
 static void
 plotdisplay_class_init(PlotdisplayClass *class)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
-	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(class);
 
 #ifdef DEBUG
 	printf("plotdisplay_class_init:\n");
@@ -555,87 +272,24 @@ plotdisplay_class_init(PlotdisplayClass *class)
 	gobject_class->set_property = plotdisplay_set_property;
 	gobject_class->get_property = plotdisplay_get_property;
 
-	widget_class->snapshot = plotdisplay_snapshot;
-
-	g_object_class_install_property(gobject_class, PROP_TILESOURCE,
-		g_param_spec_object("tilesource",
-			_("Tile source"),
-			_("The tile source to be displayed"),
-			TILESOURCE_TYPE,
+	g_object_class_install_property(gobject_class, PROP_PLOT,
+		g_param_spec_object("plot",
+			_("Plot"),
+			_("Plot model to draw"),
+			PLOT_TYPE,
 			G_PARAM_READWRITE));
 
-	g_object_class_install_property(gobject_class, PROP_BESTFIT,
-		g_param_spec_boolean("bestfit",
-			_("Bestfit"),
-			_("Shrink on first display"),
+	g_object_class_install_property(gobject_class, PROP_THUMBNAIL,
+		g_param_spec_boolean("thumbnail",
+			_("Thumbnail"),
+			_("Display a plot in thumbnail mode"),
 			FALSE,
 			G_PARAM_READWRITE));
 
-	g_object_class_install_property(gobject_class, PROP_BACKGROUND,
-		g_param_spec_int("background",
-			_("Background"),
-			_("Background mode"),
-			0, TILECACHE_BACKGROUND_LAST - 1,
-			TILECACHE_BACKGROUND_CHECKERBOARD,
-			G_PARAM_READWRITE));
-
-	g_object_class_install_property(gobject_class, PROP_ZOOM,
-		g_param_spec_double("zoom",
-			_("Zoom"),
-			_("Zoom of viewport"),
-			-VIPS_MAX_COORD, VIPS_MAX_COORD, 0,
-			G_PARAM_READWRITE));
-
-	g_object_class_install_property(gobject_class, PROP_X,
-		g_param_spec_double("x",
-			_("x"),
-			_("Horizontal position of viewport"),
-			-VIPS_MAX_COORD, VIPS_MAX_COORD, 0,
-			G_PARAM_READWRITE));
-
-	g_object_class_install_property(gobject_class, PROP_Y,
-		g_param_spec_double("y",
-			_("y"),
-			_("Vertical position of viewport"),
-			-VIPS_MAX_COORD, VIPS_MAX_COORD, 0,
-			G_PARAM_READWRITE));
-
-	g_object_class_install_property(gobject_class, PROP_DEBUG,
-		g_param_spec_boolean("debug",
-			_("Debug"),
-			_("Render snapshot in debug mode"),
-			FALSE,
-			G_PARAM_READWRITE));
-
-	g_object_class_override_property(gobject_class,
-		PROP_HADJUSTMENT, "hadjustment");
-	g_object_class_override_property(gobject_class,
-		PROP_VADJUSTMENT, "vadjustment");
-	g_object_class_override_property(gobject_class,
-		PROP_HSCROLL_POLICY, "hscroll-policy");
-	g_object_class_override_property(gobject_class,
-		PROP_VSCROLL_POLICY, "vscroll-policy");
-
-	plotdisplay_signals[SIG_CHANGED] = g_signal_new("changed",
-		G_TYPE_FROM_CLASS(class),
-		G_SIGNAL_RUN_LAST,
-		0,
-		NULL, NULL,
-		g_cclosure_marshal_VOID__VOID,
-		G_TYPE_NONE, 0);
-
-	plotdisplay_signals[SIG_SNAPSHOT] = g_signal_new("snapshot",
-		G_TYPE_FROM_CLASS(class),
-		G_SIGNAL_RUN_LAST,
-		0,
-		NULL, NULL,
-		g_cclosure_marshal_VOID__OBJECT,
-		G_TYPE_NONE, 1,
-		GTK_TYPE_SNAPSHOT);
 }
 
 Plotdisplay *
-plotdisplay_new(Tilesource *tilesource)
+plotdisplay_new(Plot *plot)
 {
 	Plotdisplay *plotdisplay;
 
@@ -644,7 +298,7 @@ plotdisplay_new(Tilesource *tilesource)
 #endif /*DEBUG*/
 
 	plotdisplay = g_object_new(plotdisplay_get_type(),
-		"tilesource", tilesource,
+		"plot", plot,
 		NULL);
 
 	return plotdisplay;
@@ -660,23 +314,14 @@ void
 plotdisplay_plot_to_gtk(Plotdisplay *plotdisplay,
 	double x_plot, double y_plot, double *x_gtk, double *y_gtk)
 {
-	*x_gtk = x_plot * plotdisplay->scale -
-		plotdisplay->x + plotdisplay->paint_rect.left;
-	*y_gtk = y_plot * plotdisplay->scale -
-		plotdisplay->y + plotdisplay->paint_rect.top;
+	*x_gtk = x_plot + plotdisplay->paint_rect.left;
+	*y_gtk = y_plot + plotdisplay->paint_rect.top;
 }
 
 void
 plotdisplay_gtk_to_plot(Plotdisplay *plotdisplay,
 	double x_gtk, double y_gtk, double *x_plot, double *y_plot)
 {
-	*x_plot = (plotdisplay->x +
-				   x_gtk - plotdisplay->paint_rect.left) /
-		plotdisplay->scale;
-	*y_plot = (plotdisplay->y +
-				   y_gtk - plotdisplay->paint_rect.top) /
-		plotdisplay->scale;
-
-	*x_plot = VIPS_CLIP(0, *x_plot, plotdisplay->plot_rect.width - 1);
-	*y_plot = VIPS_CLIP(0, *y_plot, plotdisplay->plot_rect.height - 1);
+	*x_plot = x_gtk - plotdisplay->paint_rect.left;
+	*y_plot = y_gtk - plotdisplay->paint_rect.top;
 }

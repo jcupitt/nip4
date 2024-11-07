@@ -14,7 +14,7 @@
         </child>
 
         <child>
-          <object class="Imagedisplay" id="plotdisplay">
+          <object class="Plotdisplay" id="plotdisplay">
             <property name="content-height">64</property>
             <property name="can-focus">false</property>
           </object>
