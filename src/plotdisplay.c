@@ -37,9 +37,24 @@
 // these must be typedefs for autoptr
 typedef struct kdata Kdata;
 typedef struct kplot Kplot;
+typedef struct kplotcfg Kplotcfg;
+typedef struct kplotccfg Kplotccfg;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(Kdata, kdata_destroy)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(Kplot, kplot_free)
+
+/* Our series colours ... RGB for the first three, a bit random after that.
+ */
+static unsigned int plotdisplay_series_rgba[] = {
+	0xff0000ff,
+	0x00ff00ff,
+	0x0000ffff,
+	0xff00ffff,
+	0xffff00ff,
+	0x00ffffff,
+	0xffffffff,
+	0x000000ff,
+};
 
 struct _Plotdisplay {
 	GtkDrawingArea parent_instance;
@@ -62,6 +77,8 @@ struct _Plotdisplay {
 
 	// the kplot ready to draw
 	Kplot *kplot;
+	Kplotcfg kcfg;
+	Kplotccfg *kccfg;
 };
 
 G_DEFINE_TYPE(Plotdisplay, plotdisplay, GTK_TYPE_DRAWING_AREA);
@@ -87,6 +104,7 @@ plotdisplay_dispose(GObject *object)
 #endif /*DEBUG*/
 
 	VIPS_UNREF(plotdisplay->plot);
+	VIPS_FREE(plotdisplay->kccfg);
 
 	G_OBJECT_CLASS(plotdisplay_parent_class)->dispose(object);
 }
@@ -127,7 +145,14 @@ plotdisplay_build_kplot(Plotdisplay *plotdisplay)
 
 	printf("plotdisplay_build_kplot:\n");
 
-	g_autoptr(Kplot) kplot = kplot_alloc(NULL);
+	// use our scaling ... this is in config, unfortunately
+	plotdisplay->kcfg.extrema = 1;
+	plotdisplay->kcfg.extrema_xmin = plot->xmin;
+	plotdisplay->kcfg.extrema_xmax = plot->xmax;
+	plotdisplay->kcfg.extrema_ymin = plot->ymin;
+	plotdisplay->kcfg.extrema_ymax = plot->ymax;
+
+	g_autoptr(Kplot) kplot = kplot_alloc(&plotdisplay->kcfg);
 
 	for (int i = 0; i < plot->columns; i++) {
 		g_autoptr(Kdata) kdata = NULL;
@@ -138,7 +163,8 @@ plotdisplay_build_kplot(Plotdisplay *plotdisplay)
 		for (int j = 0; j < plot->rows; j++)
 			kdata_set(kdata, j, plot->xcolumn[i][j], plot->ycolumn[i][j]);
 
-		kplot_attach_data(kplot, kdata, KPLOT_LINES, NULL);
+		kplot_attach_data(kplot, kdata,
+			plot->style == PLOT_STYLE_POINT ? KPLOT_POINTS : KPLOT_LINES, NULL);
 	}
 
 	VIPS_FREEF(kplot_free, plotdisplay->kplot);
@@ -293,6 +319,25 @@ plotdisplay_init(Plotdisplay *plotdisplay)
 #ifdef DEBUG
 	printf("plotdisplay_init:\n");
 #endif /*DEBUG*/
+
+	// minimal config for thumbnail draw
+	kplotcfg_defaults(&plotdisplay->kcfg);
+	plotdisplay->kcfg.ticlabel = 0;
+	plotdisplay->kcfg.marginsz = 3;
+	plotdisplay->kcfg.ticline.len = 0;
+	plotdisplay->kcfg.grid = 0;
+
+	// set colours ... there seems to be no useful API for this
+	plotdisplay->kcfg.clrsz = VIPS_NUMBER(plotdisplay_series_rgba);
+	plotdisplay->kcfg.clrs =
+		VIPS_ARRAY(NULL, plotdisplay->kcfg.clrsz, Kplotccfg);
+	for (int i = 0; i < plotdisplay->kcfg.clrsz; i++) {
+		plotdisplay->kcfg.clrs[i].type = KPLOTCTYPE_RGBA;
+
+		for (int j = 0; j < 4; j++)
+			plotdisplay->kcfg.clrs[i].rgba[3 - j] =
+				((plotdisplay_series_rgba[i] >> (8 * j)) & 0xff) / 255.0;
+	}
 
 	g_signal_connect(GTK_DRAWING_AREA(plotdisplay), "resize",
 		G_CALLBACK(plotdisplay_resize), NULL);
