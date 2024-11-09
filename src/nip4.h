@@ -50,6 +50,8 @@
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 
+#include "kplot/kplot.h"
+
 #ifdef ENABLE_NLS
 
 #include <libintl.h>

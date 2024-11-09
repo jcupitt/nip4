@@ -34,6 +34,13 @@
 #define DEBUG_VERBOSE
 #define DEBUG
 
+// these must be typedefs for autoptr
+typedef struct kdata Kdata;
+typedef struct kplot Kplot;
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(Kdata, kdata_destroy)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(Kplot, kplot_free)
+
 struct _Plotdisplay {
 	GtkDrawingArea parent_instance;
 
@@ -53,7 +60,8 @@ struct _Plotdisplay {
 	 */
 	gboolean thumbnail;
 
-	// add the various kplot data structs
+	// the kplot ready to draw
+	Kplot *kplot;
 };
 
 G_DEFINE_TYPE(Plotdisplay, plotdisplay, GTK_TYPE_DRAWING_AREA);
@@ -112,12 +120,44 @@ plotdisplay_layout(Plotdisplay *plotdisplay)
 			plotdisplay->thumbnail ? -10 : -50);
 }
 
+static gboolean
+plotdisplay_build_kplot(Plotdisplay *plotdisplay)
+{
+	Plot *plot = plotdisplay->plot;
+
+	printf("plotdisplay_build_kplot:\n");
+
+	g_autoptr(Kplot) kplot = kplot_alloc(NULL);
+
+	for (int i = 0; i < plot->columns; i++) {
+		g_autoptr(Kdata) kdata = NULL;
+
+		if (!(kdata = kdata_array_alloc(NULL, plot->rows)))
+			return FALSE;
+
+		for (int j = 0; j < plot->rows; j++)
+			kdata_set(kdata, j, plot->xcolumn[i][j], plot->ycolumn[i][j]);
+
+		kplot_attach_data(kplot, kdata, KPLOT_LINES, NULL);
+	}
+
+	VIPS_FREEF(kplot_free, plotdisplay->kplot);
+	plotdisplay->kplot = g_steal_pointer(&kplot);
+
+	printf("\tsuccess\n");
+
+	return TRUE;
+}
+
 static void
 plotdisplay_plot_changed(Plot *plot, Plotdisplay *plotdisplay)
 {
 #ifdef DEBUG
 	printf("plotdisplay_tilecache_changed:\n");
 #endif /*DEBUG*/
+
+	if (plotdisplay->plot)
+		plotdisplay_build_kplot(plotdisplay);
 
 	gtk_widget_queue_draw(GTK_WIDGET(plotdisplay));
 }
@@ -228,21 +268,23 @@ static void
 plotdisplay_draw_function(GtkDrawingArea *area,
 	cairo_t *cr, int width, int height, gpointer user_data)
 {
+	Plotdisplay *plotdisplay = (Plotdisplay *) user_data;
+
 #ifdef DEBUG_VERBOSE
 	printf("plotdisplay_draw_function:\n");
 #endif /*DEBUG_VERBOSE*/
 
-	//Plotdisplay *plotdisplay = (Plotdisplay *) user_data;
+	if (plotdisplay->kplot) {
+		// white background
+		GdkRGBA white;
+		gdk_rgba_parse(&white, "white");
+		gdk_cairo_set_source_rgba(cr, &white);
+		cairo_rectangle(cr, 0.0, 0.0, width, height);
+		cairo_fill(cr);
 
-	GdkRGBA color;
-
-	cairo_arc(cr,
-		width / 2.0, height / 2.0, MIN (width, height) / 2.0, 0, 2 * G_PI);
-
-	gtk_widget_get_color(GTK_WIDGET(area), &color);
-	gdk_cairo_set_source_rgba(cr, &color);
-
-	cairo_fill(cr);
+		// and plot
+		kplot_draw(plotdisplay->kplot, width, height, cr);
+	}
 }
 
 static void
@@ -256,7 +298,7 @@ plotdisplay_init(Plotdisplay *plotdisplay)
 		G_CALLBACK(plotdisplay_resize), NULL);
 
 	gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(plotdisplay),
-		plotdisplay_draw_function, NULL, NULL);
+		plotdisplay_draw_function, plotdisplay, NULL);
 }
 
 static void
