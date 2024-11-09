@@ -115,13 +115,12 @@
 
 ## plotting
 
-- perhaps
+- in plotdisplay_build_kplot()
 
-	https://github.com/kristapsdz/kplot
+	set ksmthtype to smooth a series (PLOT_STYLE_SPLINE)
+	maybe use error bars plus thickness to draw a bar?
 
-  BSD-licenced C lib, we should perhaps copy to a subdir in src/
-
-  goffice has no gtk4 port
+	not clear if extrema are working
 
 ## vips8
 

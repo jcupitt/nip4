@@ -274,8 +274,13 @@ static void
 plot_edit(GtkWidget *parent, Model *model)
 {
 	Plot *plot = PLOT(model);
-	//Plotwindow *plotwindow;
-	//plotwindow = plotwindow_new(plot, parent);
+	GtkWindow *window = GTK_WINDOW(gtk_widget_get_root(parent));
+	GtkApplication *app = gtk_window_get_application(window);
+	Plotwindow *win = plotwindow_new(APP(app));
+
+	plotwindow_set_plot(win, plot);
+
+	gtk_window_present(GTK_WINDOW(win));
 }
 
 static xmlNode *

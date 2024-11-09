@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Plotwindow" parent="GtkApplicationWindow">
+    <property name="title" translatable="yes">Image window</property>
+    <property name="default-width">1100</property>
+    <property name="default-height">1000</property>
+
+    <child type="titlebar">
+      <object class="GtkHeaderBar" id="header">
+
+        <child type="title">
+          <object class="GtkBox" id="content_box">
+            <property name="valign">center</property>
+            <property name="spacing">2</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel" id="title">
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+                <property name="ellipsize">start</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="subtitle">
+                <attributes>
+                  <attribute name="weight" value="light"/>
+                </attributes>
+                <property name="ellipsize">end</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+    <child>
+      <object class="Plotdisplay" id="plotdisplay">
+      </object>
+    </child>
+  </template>
+</interface>

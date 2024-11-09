@@ -91,6 +91,7 @@ sources = files (
   'plot.c',
   'plotdisplay.c',
   'plotview.c',
+  'plotwindow.c',
   'predicate.c',
   'prefcolumnview.c',
   'prefs.c',

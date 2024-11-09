@@ -34,6 +34,7 @@
     <file preprocess="xml-stripblanks">editview.ui</file>
     <file preprocess="xml-stripblanks">ientry.ui</file>
     <file preprocess="xml-stripblanks">plotview.ui</file>
+    <file preprocess="xml-stripblanks">plotwindow.ui</file>
 
     <file>nip4.css</file>
     <file>properties.css</file>

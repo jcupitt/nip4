@@ -313,6 +313,7 @@ typedef struct _Workspace Workspace;
 #include "stringview.h"
 #include "plotdisplay.h"
 #include "plotview.h"
+#include "plotwindow.h"
 #include "toolkitgroupview.h"
 #include "subcolumnview.h"
 #include "rowview.h"
