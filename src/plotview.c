@@ -98,7 +98,9 @@ plotview_refresh(vObject *vobject)
 
 	plotview_refresh_tooltip(plotview);
 
-	g_object_set(plotview->plotdisplay, "plot", plot, NULL);
+	g_object_set(plotview->plotdisplay,
+		"plot", plot,
+		NULL);
 
 	VOBJECT_CLASS(plotview_parent_class)->refresh(vobject);
 }

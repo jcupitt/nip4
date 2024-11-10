@@ -117,7 +117,9 @@
 
 - in plotdisplay_build_kplot()
 
-	set ksmthtype to smooth a series (PLOT_STYLE_SPLINE)
+	set ksmthtype to smooth a series (PLOT_STYLE_SPLINE) see
+	kplot_attach_smooth()
+
 	maybe use error bars plus thickness to draw a bar?
 
 	not clear if extrema are working

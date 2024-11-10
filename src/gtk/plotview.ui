@@ -17,6 +17,7 @@
           <object class="Plotdisplay" id="plotdisplay">
             <property name="content-height">64</property>
             <property name="can-focus">false</property>
+            <property name="thumbnail">true</property>
           </object>
         </child>
 

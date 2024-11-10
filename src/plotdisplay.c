@@ -45,16 +45,21 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC(Kplot, kplot_free)
 
 /* Our series colours ... RGB for the first three, a bit random after that.
  */
-static unsigned int plotdisplay_series_rgba[] = {
-	0xff0000ff,
-	0x00ff00ff,
-	0x0000ffff,
-	0xff00ffff,
-	0xffff00ff,
-	0x00ffffff,
-	0xffffffff,
-	0x000000ff,
+static const char *plotdisplay_series_rgba[] = {
+	"red",
+	"green",
+	"blue",
+	"cyan",
+	"magenta",
+	"yellow",
+	"orange",
+	"purple",
+	"lime",
+	"white",
 };
+
+// colours as an array of Kplotccfg
+static Kplotccfg *plotdisplay_series_ccfg = NULL;
 
 struct _Plotdisplay {
 	GtkDrawingArea parent_instance;
@@ -63,21 +68,14 @@ struct _Plotdisplay {
 	 */
 	Plot *plot;
 
-	/* The rect of the widget.
-	 */
-	VipsRect widget_rect;
-
-	/* The sub-area of widget_rect that we paint.
-	 */
-	VipsRect paint_rect;
-
 	/* Draw in thumbnail (low detail) mode.
 	 */
 	gboolean thumbnail;
 
 	// the kplot ready to draw
 	Kplot *kplot;
-	Kplotcfg kcfg;
+	Kplotcfg kcfg_thumbnail;
+	Kplotcfg kcfg_window;
 	Kplotccfg *kccfg;
 };
 
@@ -109,50 +107,23 @@ plotdisplay_dispose(GObject *object)
 	G_OBJECT_CLASS(plotdisplay_parent_class)->dispose(object);
 }
 
-static void
-plotdisplay_layout(Plotdisplay *plotdisplay)
-{
-#ifdef DEBUG
-	printf("plotdisplay_layout:\n");
-#endif /*DEBUG*/
-
-	plotdisplay->widget_rect.width =
-		gtk_widget_get_width(GTK_WIDGET(plotdisplay));
-	plotdisplay->widget_rect.height =
-		gtk_widget_get_height(GTK_WIDGET(plotdisplay));
-
-	/* width and height will be 0 if _layout runs too early to be useful.
-	 */
-	if (!plotdisplay->widget_rect.width ||
-		!plotdisplay->widget_rect.height)
-		return;
-
-	/* If there's no plot yet, we can't do anything.
-	 */
-	if (!plotdisplay->plot)
-		return;
-
-	// smaller margins in thumbnail mode
-	plotdisplay->paint_rect = plotdisplay->widget_rect;
-	vips_rect_marginadjust(&plotdisplay->paint_rect,
-			plotdisplay->thumbnail ? -10 : -50);
-}
-
 static gboolean
 plotdisplay_build_kplot(Plotdisplay *plotdisplay)
 {
 	Plot *plot = plotdisplay->plot;
+	Kplotcfg *kcfg = plotdisplay->thumbnail ?
+		&plotdisplay->kcfg_thumbnail : &plotdisplay->kcfg_window;
 
 	printf("plotdisplay_build_kplot:\n");
 
 	// use our scaling ... this is in config, unfortunately
-	plotdisplay->kcfg.extrema = 1;
-	plotdisplay->kcfg.extrema_xmin = plot->xmin;
-	plotdisplay->kcfg.extrema_xmax = plot->xmax;
-	plotdisplay->kcfg.extrema_ymin = plot->ymin;
-	plotdisplay->kcfg.extrema_ymax = plot->ymax;
+	kcfg->extrema = 1;
+	kcfg->extrema_xmin = plot->xmin;
+	kcfg->extrema_xmax = plot->xmax;
+	kcfg->extrema_ymin = plot->ymin;
+	kcfg->extrema_ymax = plot->ymax;
 
-	g_autoptr(Kplot) kplot = kplot_alloc(&plotdisplay->kcfg);
+	g_autoptr(Kplot) kplot = kplot_alloc(kcfg);
 
 	for (int i = 0; i < plot->columns; i++) {
 		g_autoptr(Kdata) kdata = NULL;
@@ -169,8 +140,6 @@ plotdisplay_build_kplot(Plotdisplay *plotdisplay)
 
 	VIPS_FREEF(kplot_free, plotdisplay->kplot);
 	plotdisplay->kplot = g_steal_pointer(&kplot);
-
-	printf("\tsuccess\n");
 
 	return TRUE;
 }
@@ -191,19 +160,21 @@ plotdisplay_plot_changed(Plot *plot, Plotdisplay *plotdisplay)
 static void
 plotdisplay_set_plot(Plotdisplay *plotdisplay, Plot *plot)
 {
-	VIPS_UNREF(plotdisplay->plot);
+	if (plotdisplay->plot != plot) {
+		VIPS_UNREF(plotdisplay->plot);
 
-	if (plot) {
-		plotdisplay->plot = plot;
-		g_object_ref(plotdisplay->plot);
+		if (plot) {
+			plotdisplay->plot = plot;
+			g_object_ref(plotdisplay->plot);
 
-		g_signal_connect_object(plot, "changed",
-			G_CALLBACK(plotdisplay_plot_changed),
-			plotdisplay, 0);
+			g_signal_connect_object(plot, "changed",
+				G_CALLBACK(plotdisplay_plot_changed),
+				plotdisplay, 0);
 
-		/* Do initial change to init.
-		 */
-		plotdisplay_plot_changed(plot, plotdisplay);
+			/* Do initial change to init.
+			 */
+			plotdisplay_plot_changed(plot, plotdisplay);
+		}
 	}
 }
 
@@ -277,20 +248,6 @@ plotdisplay_get_property(GObject *object,
 }
 
 static void
-plotdisplay_resize(GtkWidget *widget, int width, int height)
-{
-#ifdef DEBUG_VERBOSE
-	printf("plotdisplay_resize: %d x %d\n", width, height);
-#endif /*DEBUG_VERBOSE*/
-
-	Plotdisplay *plotdisplay = (Plotdisplay *) widget;
-
-	plotdisplay_layout(plotdisplay);
-
-	gtk_widget_queue_draw(GTK_WIDGET(plotdisplay));
-}
-
-static void
 plotdisplay_draw_function(GtkDrawingArea *area,
 	cairo_t *cr, int width, int height, gpointer user_data)
 {
@@ -321,26 +278,18 @@ plotdisplay_init(Plotdisplay *plotdisplay)
 #endif /*DEBUG*/
 
 	// minimal config for thumbnail draw
-	kplotcfg_defaults(&plotdisplay->kcfg);
-	plotdisplay->kcfg.ticlabel = 0;
-	plotdisplay->kcfg.marginsz = 3;
-	plotdisplay->kcfg.ticline.len = 0;
-	plotdisplay->kcfg.grid = 0;
+	kplotcfg_defaults(&plotdisplay->kcfg_thumbnail);
+	plotdisplay->kcfg_thumbnail.ticlabel = 0;
+	plotdisplay->kcfg_thumbnail.marginsz = 3;
+	plotdisplay->kcfg_thumbnail.ticline.len = 0;
+	plotdisplay->kcfg_thumbnail.grid = 0;
+	plotdisplay->kcfg_thumbnail.clrsz = VIPS_NUMBER(plotdisplay_series_rgba);
+	plotdisplay->kcfg_thumbnail.clrs = plotdisplay_series_ccfg;
 
-	// set colours ... there seems to be no useful API for this
-	plotdisplay->kcfg.clrsz = VIPS_NUMBER(plotdisplay_series_rgba);
-	plotdisplay->kcfg.clrs =
-		VIPS_ARRAY(NULL, plotdisplay->kcfg.clrsz, Kplotccfg);
-	for (int i = 0; i < plotdisplay->kcfg.clrsz; i++) {
-		plotdisplay->kcfg.clrs[i].type = KPLOTCTYPE_RGBA;
-
-		for (int j = 0; j < 4; j++)
-			plotdisplay->kcfg.clrs[i].rgba[3 - j] =
-				((plotdisplay_series_rgba[i] >> (8 * j)) & 0xff) / 255.0;
-	}
-
-	g_signal_connect(GTK_DRAWING_AREA(plotdisplay), "resize",
-		G_CALLBACK(plotdisplay_resize), NULL);
+	// bigger for window
+	kplotcfg_defaults(&plotdisplay->kcfg_window);
+	plotdisplay->kcfg_window.clrsz = VIPS_NUMBER(plotdisplay_series_rgba);
+	plotdisplay->kcfg_window.clrs = plotdisplay_series_ccfg;
 
 	gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(plotdisplay),
 		plotdisplay_draw_function, plotdisplay, NULL);
@@ -373,6 +322,18 @@ plotdisplay_class_init(PlotdisplayClass *class)
 			FALSE,
 			G_PARAM_READWRITE));
 
+	int n_ccfg = VIPS_NUMBER(plotdisplay_series_rgba);
+	plotdisplay_series_ccfg = VIPS_ARRAY(NULL, n_ccfg, Kplotccfg);
+	for (int i = 0; i < n_ccfg; i++) {
+		plotdisplay_series_ccfg[i].type = KPLOTCTYPE_RGBA;
+
+		GdkRGBA rgba;
+		gdk_rgba_parse(&rgba, plotdisplay_series_rgba[i]);
+		plotdisplay_series_ccfg[i].rgba[0] = rgba.red;
+		plotdisplay_series_ccfg[i].rgba[1] = rgba.green;
+		plotdisplay_series_ccfg[i].rgba[2] = rgba.blue;
+		plotdisplay_series_ccfg[i].rgba[3] = rgba.alpha;
+	}
 }
 
 Plotdisplay *
@@ -391,24 +352,3 @@ plotdisplay_new(Plot *plot)
 	return plotdisplay;
 }
 
-/* plot	level0 plot coordinates ... this is the coordinate space we
- *		pass down to tilecache
- *
- * gtk		screen cods, so the coordinates we use to render tiles
- */
-
-void
-plotdisplay_plot_to_gtk(Plotdisplay *plotdisplay,
-	double x_plot, double y_plot, double *x_gtk, double *y_gtk)
-{
-	*x_gtk = x_plot + plotdisplay->paint_rect.left;
-	*y_gtk = y_plot + plotdisplay->paint_rect.top;
-}
-
-void
-plotdisplay_gtk_to_plot(Plotdisplay *plotdisplay,
-	double x_gtk, double y_gtk, double *x_plot, double *y_plot)
-{
-	*x_plot = x_gtk - plotdisplay->paint_rect.left;
-	*y_plot = y_gtk - plotdisplay->paint_rect.top;
-}

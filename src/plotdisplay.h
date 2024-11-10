@@ -36,11 +36,6 @@
 G_DECLARE_FINAL_TYPE(Plotdisplay, plotdisplay,
 	NIP4, PLOTDISPLAY, GtkDrawingArea)
 
-void plotdisplay_plot_to_gtk(Plotdisplay *plotdisplay,
-	double x_plot, double y_plot, double *x_gtk, double *y_gtk);
-void plotdisplay_gtk_to_plot(Plotdisplay *plotdisplay,
-	double x_gtk, double y_gtk, double *x_plot, double *y_plot);
-
 Plotdisplay *plotdisplay_new(Plot *plot);
 
 #endif /* __PLOTDISPLAY_H */
