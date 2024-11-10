@@ -165,11 +165,15 @@ plotdisplay_build_kplot(Plotdisplay *plotdisplay)
 	printf("plotdisplay_build_kplot:\n");
 
 	// use our scaling ... this is in config, unfortunately
-	kcfg->extrema = 1;
+	kcfg->extrema = EXTREMA_XMIN | EXTREMA_XMAX | EXTREMA_YMIN | EXTREMA_YMAX;
 	kcfg->extrema_xmin = plot->xmin;
 	kcfg->extrema_xmax = plot->xmax;
 	kcfg->extrema_ymin = plot->ymin;
 	kcfg->extrema_ymax = plot->ymax;
+	kcfg->xaxislabel = plotdisplay->thumbnail && plot->xcaption ?
+		NULL : plot->xcaption;
+	kcfg->yaxislabel = plotdisplay->thumbnail && plot->ycaption ?
+		NULL : plot->ycaption;
 
 	g_autoptr(Kplot) kplot = kplot_alloc(kcfg);
 

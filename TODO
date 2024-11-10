@@ -120,9 +120,31 @@
 	set ksmthtype to smooth a series (PLOT_STYLE_SPLINE) see
 	kplot_attach_smooth()
 
+		not really a spline, more like a blur, this would be better in
+		libvips
+
 	maybe use error bars plus thickness to draw a bar?
 
-	not clear if extrema are working
+	have some rules so set the range sensibly
+
+		max-min for range
+
+		divide range by 8 (or maybe 4 for small windows?) to get
+		interval
+
+		what is interval closest to?
+
+			0.001
+			0.01
+			0.1
+			.2
+			1
+			5
+			10
+			100
+			1000
+
+		move interval, adjust ranges
 
 ## vips8
 

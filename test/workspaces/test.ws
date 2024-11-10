@@ -118,7 +118,7 @@
               </Row>
               <Row name="auto">
                 <Rhs vislevel="1" flags="1">
-                  <Toggle caption="Auto Range" value="false"/>
+                  <Toggle caption="Auto Range" value="true"/>
                   <Subcolumn vislevel="0"/>
                   <iText/>
                 </Rhs>
@@ -188,14 +188,48 @@
               <Row name="xcaption">
                 <Rhs vislevel="1" flags="1">
                   <Expression caption="X axis caption"/>
-                  <Subcolumn vislevel="0"/>
+                  <Subcolumn vislevel="0">
+                    <Row name="caption">
+                      <Rhs vislevel="0" flags="4">
+                        <iText/>
+                      </Rhs>
+                    </Row>
+                    <Row name="expr">
+                      <Rhs vislevel="0" flags="4">
+                        <iText formula="&quot;Position&quot;"/>
+                      </Rhs>
+                    </Row>
+                    <Row name="super">
+                      <Rhs vislevel="1" flags="4">
+                        <Subcolumn vislevel="0"/>
+                        <iText/>
+                      </Rhs>
+                    </Row>
+                  </Subcolumn>
                   <iText/>
                 </Rhs>
               </Row>
               <Row name="ycaption">
                 <Rhs vislevel="1" flags="1">
                   <Expression caption="Y axis caption"/>
-                  <Subcolumn vislevel="0"/>
+                  <Subcolumn vislevel="0">
+                    <Row name="caption">
+                      <Rhs vislevel="0" flags="4">
+                        <iText/>
+                      </Rhs>
+                    </Row>
+                    <Row name="expr">
+                      <Rhs vislevel="0" flags="4">
+                        <iText formula="&quot;Pixel value&quot;"/>
+                      </Rhs>
+                    </Row>
+                    <Row name="super">
+                      <Rhs vislevel="1" flags="4">
+                        <Subcolumn vislevel="0"/>
+                        <iText/>
+                      </Rhs>
+                    </Row>
+                  </Subcolumn>
                   <iText/>
                 </Rhs>
               </Row>
