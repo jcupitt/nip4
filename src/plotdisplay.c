@@ -39,6 +39,9 @@ typedef struct kdata Kdata;
 typedef struct kplot Kplot;
 typedef struct kplotcfg Kplotcfg;
 typedef struct kplotccfg Kplotccfg;
+typedef struct kplotline Kplotline;
+typedef struct kplotpoint Kplotpoint;
+typedef struct kdatacfg Kdatacfg;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(Kdata, kdata_destroy)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(Kplot, kplot_free)
@@ -60,6 +63,45 @@ static const char *plotdisplay_series_rgba[] = {
 
 // colours as an array of Kplotccfg
 static Kplotccfg *plotdisplay_series_ccfg = NULL;
+
+// line styles
+static Kdatacfg plotdisplay_series_datacfg_thumbnail = {
+	.line = {
+		.sz = 0.5,
+		.dashesz = 0,
+		.join = CAIRO_LINE_JOIN_ROUND,
+		.clr = {
+			.type = KPLOTCTYPE_DEFAULT,
+		},
+	},
+	.point = {
+		.sz = 0.5,
+		.radius = 1,
+		.dashesz = 0,
+		.clr = {
+			.type = KPLOTCTYPE_DEFAULT,
+		},
+	},
+};
+
+static Kdatacfg plotdisplay_series_datacfg_window = (Kdatacfg) {
+	.line = {
+		.sz = 3,
+		.dashesz = 0,
+		.join = CAIRO_LINE_JOIN_ROUND,
+		.clr = {
+			.type = KPLOTCTYPE_DEFAULT,
+		},
+	},
+	.point = {
+		.sz = 3,
+		.radius = 5,
+		.dashesz = 0,
+		.clr = {
+			.type = KPLOTCTYPE_DEFAULT,
+		},
+	},
+};
 
 struct _Plotdisplay {
 	GtkDrawingArea parent_instance;
@@ -111,8 +153,14 @@ static gboolean
 plotdisplay_build_kplot(Plotdisplay *plotdisplay)
 {
 	Plot *plot = plotdisplay->plot;
+
 	Kplotcfg *kcfg = plotdisplay->thumbnail ?
-		&plotdisplay->kcfg_thumbnail : &plotdisplay->kcfg_window;
+		&plotdisplay->kcfg_thumbnail :
+		&plotdisplay->kcfg_window;
+
+	Kdatacfg *kdatacfg = plotdisplay->thumbnail ?
+		&plotdisplay_series_datacfg_thumbnail :
+		&plotdisplay_series_datacfg_window;
 
 	printf("plotdisplay_build_kplot:\n");
 
@@ -135,7 +183,8 @@ plotdisplay_build_kplot(Plotdisplay *plotdisplay)
 			kdata_set(kdata, j, plot->xcolumn[i][j], plot->ycolumn[i][j]);
 
 		kplot_attach_data(kplot, kdata,
-			plot->style == PLOT_STYLE_POINT ? KPLOT_POINTS : KPLOT_LINES, NULL);
+			plot->style == PLOT_STYLE_POINT ? KPLOT_POINTS : KPLOT_LINES,
+			kdatacfg);
 	}
 
 	VIPS_FREEF(kplot_free, plotdisplay->kplot);
@@ -334,6 +383,7 @@ plotdisplay_class_init(PlotdisplayClass *class)
 		plotdisplay_series_ccfg[i].rgba[2] = rgba.blue;
 		plotdisplay_series_ccfg[i].rgba[3] = rgba.alpha;
 	}
+
 }
 
 Plotdisplay *
