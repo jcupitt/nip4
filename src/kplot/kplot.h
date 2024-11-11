@@ -136,8 +136,8 @@ struct	kplotcfg {
 #define	BORDER_BOTTOM	  0x08
 #define	BORDER_ALL	  0xf
 	unsigned int	  border;
-	size_t		  xtics;
-	size_t		  ytics;
+	double		  xinterval;
+	double		  yinterval;
 	struct kplotticln ticline;
 #define	TIC_LEFT_IN	  0x01
 #define	TIC_LEFT_OUT	  0x02
@@ -255,6 +255,10 @@ void		 kplot_free(struct kplot *);
 int		 kplot_get_datacfg(struct kplot *, size_t,
 			struct kdatacfg **, size_t *);
 struct kplotcfg	*kplot_get_plotcfg(struct kplot *);
+
+typedef void (*tic_loop_fn)(struct kplotctx *ctx, double offs, void *user_data);
+void kplot_loop_xtics(struct kplotctx *ctx, tic_loop_fn fn, void *user_data);
+void kplot_loop_ytics(struct kplotctx *ctx, tic_loop_fn fn, void *user_data);
 
 #include "extern.h"
 

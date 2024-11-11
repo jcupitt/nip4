@@ -609,7 +609,7 @@ kplotcfg_defaults(struct kplotcfg *cfg)
 	kplotfont_defaults(&cfg->ticlabelfont);
 	cfg->ticlabel = TICLABEL_LEFT | TICLABEL_BOTTOM;
 	cfg->xticlabelpad = cfg->yticlabelpad = 15.0;
-	cfg->xtics = cfg->ytics = 5;
+	cfg->xinterval = cfg->yinterval = 1.0;
 
 	/* A bit of margin. */
 	cfg->margin = MARGIN_ALL;

@@ -28,6 +28,50 @@ bbox_extents(struct kplotctx *ctx, const char *v,
 	*w = fabs(e.width * cos(rot)) + fabs(e.height * sin(rot));
 }
 
+static void
+kplotctx_label_init_x(struct kplotctx *ctx, double offs, void *user_data)
+{
+	char buf[128];
+
+	/* Call out to xformat function. */
+	if (NULL == ctx->cfg.xticlabelfmt)
+		snprintf(buf, sizeof(buf), "%g",
+			ctx->minv.x + offs *
+			(ctx->maxv.x - ctx->minv.x));
+	else
+		(*ctx->cfg.xticlabelfmt)
+			(ctx->minv.x + offs *
+			 (ctx->maxv.x - ctx->minv.x),
+			 buf, sizeof(buf));
+
+	cairo_text_extents(ctx->cr, buf, &e);
+
+	/*
+	 * Important: if we're on the last x-axis value, then
+	 * save the width, because we'll check that the
+	 * right-hand buffer zone accomodates for it.
+	 * FIXME: only do this is TICLABEL_TOP, etc...
+	 */
+	if (i == ctx->cfg.xtics - 1 && ctx->cfg.xticlabelrot > 0.0)
+		lastx = e.width * cos
+			(M_PI * 2.0 -
+			 (M_PI_2 - ctx->cfg.xticlabelrot)) +
+			e.height * sin((ctx->cfg.xticlabelrot));
+	else if (i == ctx->cfg.xtics - 1)
+		lastx = e.width / 2.0;
+
+	/*
+	 * If we're rotating, get our height by computing the
+	 * sum of the vertical segments.
+	 */
+	if (ctx->cfg.xticlabelrot > 0.0)
+		e.height = e.width * sin(ctx->cfg.xticlabelrot) +
+			e.height * cos(M_PI * 2.0 - (M_PI_2 - ctx->cfg.xticlabelrot));
+
+	if (e.height > maxh)
+		maxh = e.height;
+}
+
 void
 kplotctx_label_init(struct kplotctx *ctx)
 {
