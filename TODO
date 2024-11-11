@@ -125,26 +125,26 @@
 
 	maybe use error bars plus thickness to draw a bar?
 
-	have some rules so set the range sensibly
+- range
 
-		max-min for range
+	add xinterval / yinterval settings
 
-		divide range by 8 (or maybe 4 for small windows?) to get
-		interval
+		if xtics is zero, xinterval is the amount to step by when
+		drawing tics
 
-		what is interval closest to?
+	use log10 to pick a magnitude, then select 1, 2, 5 scaling, depending
+	on window width
 
-			0.001
-			0.01
-			0.1
-			.2
-			1
-			5
-			10
-			100
-			1000
+- would it be very hard to port goffice? we only need a thing to draw to a
+  cairo surface
 
-		move interval, adjust ranges
+	 $ ./configure --prefix=/home/john/vips --without-gtk
+
+  works, and with only a small patch, nice!
+
+  but ... it will only work with a libgoffice that has been compiled with this
+  flag, meaning we'd need to ship our own goffice/ subdirectory and do a
+  custom build as part of install, which would not work for eg. debian
 
 ## vips8
 
