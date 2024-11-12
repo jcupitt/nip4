@@ -278,7 +278,7 @@ plot_edit(GtkWidget *parent, Model *model)
 	GtkApplication *app = gtk_window_get_application(window);
 	Plotwindow *win = plotwindow_new(APP(app));
 
-	plotwindow_set_plot(win, plot);
+	g_object_set(win, "plot", plot, NULL);
 
 	gtk_window_present(GTK_WINDOW(win));
 }

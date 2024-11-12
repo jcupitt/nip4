@@ -47,6 +47,4 @@ G_DECLARE_FINAL_TYPE(Plotwindow, plotwindow,
 
 Plotwindow *plotwindow_new(App *app);
 
-void plotwindow_set_plot(Plotwindow *win, Plot *plot);
-
 #endif /* __PLOTWINDOW_H */

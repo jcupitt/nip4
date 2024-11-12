@@ -602,7 +602,8 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 
 	/* Update title and subtitle.
 	 */
-	title = new_tilesource ? (char *) tilesource_get_path(new_tilesource) : NULL;
+	title = new_tilesource ?
+		(char *) tilesource_get_path(new_tilesource) : NULL;
 	title = (char *) tilesource_get_path(new_tilesource);
 	gtk_label_set_text(GTK_LABEL(win->title), title ? title : "Untitled");
 

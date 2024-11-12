@@ -1,3 +1,5 @@
+- fix region rubberbanding
+
 - try:
 
 	Matrix_build_item.Matrix_laplacian_item.action
@@ -124,6 +126,20 @@
 		libvips
 
 	maybe use error bars plus thickness to draw a bar?
+
+- add a burger menu
+
+	close
+	save to file (it's "Export plot" in nip2) ... perhaps support SVG
+		and raster?
+
+- a info bar with x and all the y values
+
+	or click on graph to show values? probably difficult
+
+	maybe display in titlebar?
+
+	display all the time? why not
 
 ## vips8
 
