@@ -1,5 +1,3 @@
-- fix region rubberbanding
-
 - try:
 
 	Matrix_build_item.Matrix_laplacian_item.action

@@ -76,9 +76,6 @@ struct _iRegion {
 typedef struct _iRegionClass {
 	iImageClass parent_class;
 
-	/* My methods.
-	 */
-	void (*redraw)(iRegion *);
 } iRegionClass;
 
 void iregion_instance_destroy(iRegionInstance *instance);

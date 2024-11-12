@@ -802,16 +802,8 @@ regionview_model_changed(Classmodel *classmodel, Regionview *regionview)
 #endif /*DEBUG*/
 
 	regionview_update_from_model(regionview);
-}
 
-static void
-regionview_model_redraw(Classmodel *classmodel, Regionview *regionview)
-{
-#ifdef DEBUG
-	printf("regionview_model_redraw:\n");
-#endif /*DEBUG*/
-
-	// save the state so it's not distrubed before the draw acyually occurs
+	// save the state so it's not disturbed before the draw actually occurs
 	regionview->draw_area = regionview->our_area;
 	regionview->draw_type = regionview->type;
 
@@ -869,18 +861,11 @@ regionview_new(Classmodel *classmodel)
 
 		regionview_update_from_model(regionview);
 
-		if (classmodel) {
+		if (classmodel)
 			g_signal_connect_object(G_OBJECT(classmodel), "changed",
 				G_CALLBACK(regionview_model_changed), regionview, 0);
 
-			/* "changed" is emitted all the time, "redraw" only at the end of
-			 * update.
-			 */
-			g_signal_connect_object(G_OBJECT(classmodel), "redraw",
-				G_CALLBACK(regionview_model_redraw), regionview, 0);
-		}
-
-		regionview_model_redraw(classmodel, regionview);
+		regionview_model_changed(classmodel, regionview);
 	}
 
 	return regionview;
