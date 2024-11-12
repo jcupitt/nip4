@@ -125,27 +125,6 @@
 
 	maybe use error bars plus thickness to draw a bar?
 
-- range
-
-	add xinterval / yinterval settings
-
-		if xtics is zero, xinterval is the amount to step by when
-		drawing tics
-
-	use log10 to pick a magnitude, then select 1, 2, 5 scaling, depending
-	on window width
-
-- would it be very hard to port goffice? we only need a thing to draw to a
-  cairo surface
-
-	 $ ./configure --prefix=/home/john/vips --without-gtk
-
-  works, and with only a small patch, nice!
-
-  but ... it will only work with a libgoffice that has been compiled with this
-  flag, meaning we'd need to ship our own goffice/ subdirectory and do a
-  custom build as part of install, which would not work for eg. debian
-
 ## vips8
 
 - vipsobject

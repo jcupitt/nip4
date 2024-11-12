@@ -118,7 +118,7 @@
               </Row>
               <Row name="auto">
                 <Rhs vislevel="1" flags="1">
-                  <Toggle caption="Auto Range" value="true"/>
+                  <Toggle caption="Auto Range" value="false"/>
                   <Subcolumn vislevel="0"/>
                   <iText/>
                 </Rhs>
@@ -141,7 +141,7 @@
                     </Row>
                     <Row name="expr">
                       <Rhs vislevel="0" flags="4">
-                        <iText formula="10"/>
+                        <iText formula="500"/>
                       </Rhs>
                     </Row>
                     <Row name="super">
@@ -157,7 +157,24 @@
               <Row name="ymin">
                 <Rhs vislevel="1" flags="1">
                   <Expression caption="Y range minimum"/>
-                  <Subcolumn vislevel="0"/>
+                  <Subcolumn vislevel="0">
+                    <Row name="caption">
+                      <Rhs vislevel="0" flags="4">
+                        <iText/>
+                      </Rhs>
+                    </Row>
+                    <Row name="expr">
+                      <Rhs vislevel="0" flags="4">
+                        <iText formula="25"/>
+                      </Rhs>
+                    </Row>
+                    <Row name="super">
+                      <Rhs vislevel="1" flags="4">
+                        <Subcolumn vislevel="0"/>
+                        <iText/>
+                      </Rhs>
+                    </Row>
+                  </Subcolumn>
                   <iText/>
                 </Rhs>
               </Row>
@@ -172,7 +189,7 @@
                     </Row>
                     <Row name="expr">
                       <Rhs vislevel="0" flags="4">
-                        <iText formula="10"/>
+                        <iText formula="255"/>
                       </Rhs>
                     </Row>
                     <Row name="super">

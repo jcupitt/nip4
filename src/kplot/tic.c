@@ -20,35 +20,35 @@
 void
 kplot_loop_xtics(struct kplotctx *ctx, tic_loop_fn fn, void *user_data)
 {
-	double offs;
-
 	double max = ctx->cfg.extrema_xmax;
 	double min = ctx->cfg.extrema_xmin;
 	double interval = ctx->cfg.xinterval;
 
-	double range = max - min;
-	double start = (ciel(min / interval) * interval - min) / range;
-	double step = interval / range;
+	if (interval > 0.0) {
+		double range = max - min;
+		double start = (ceil(min / interval) * interval - min) / range;
+		double step = interval / range;
 
-	for (double offs = start; offs <= 1.0; offs += step)
-		fn(ctx, offs, user_data);
+		for (double offs = start; offs <= 1.0; offs += step)
+			fn(ctx, offs, user_data);
+	}
 }
 
 void
 kplot_loop_ytics(struct kplotctx *ctx, tic_loop_fn fn, void *user_data)
 {
-	double offs;
-
 	double max = ctx->cfg.extrema_ymax;
 	double min = ctx->cfg.extrema_ymin;
 	double interval = ctx->cfg.yinterval;
 
-	double range = max - min;
-	double start = (ciel(min / interval) * interval - min) / range;
-	double step = interval / range;
+	if (interval > 0.0) {
+		double range = max - min;
+		double start = (ceil(min / interval) * interval - min) / range;
+		double step = interval / range;
 
-	for (double offs = start; offs <= 1.0; offs += step)
-		fn(ctx, offs, user_data);
+		for (double offs = start; offs <= 1.0; offs += step)
+			fn(ctx, offs, user_data);
+	}
 }
 
 static void
@@ -81,7 +81,7 @@ kplotctx_tic_init_y(struct kplotctx *ctx, double offs, void *user_data)
 {
 	double v = kplotctx_line_fix(ctx,
 		ctx->cfg.ticline.sz,
-		ctx->offs.y + offs * ctx->dims.y);
+		ctx->offs.y + ctx->dims.y - offs * ctx->dims.y);
 
 	if (TIC_LEFT_IN & ctx->cfg.tic) {
 		cairo_move_to(ctx->cr, ctx->offs.x, v);

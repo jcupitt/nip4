@@ -143,6 +143,10 @@ void	 kplotctx_ticln_init(struct kplotctx *, struct kplotticln *);
 
 void	 kplotccfg_init_palette(struct kplotccfg *, size_t);
 
+typedef void (*tic_loop_fn)(struct kplotctx *ctx, double offs, void *user_data);
+void kplot_loop_xtics(struct kplotctx *ctx, tic_loop_fn fn, void *user_data);
+void kplot_loop_ytics(struct kplotctx *ctx, tic_loop_fn fn, void *user_data);
+
 __END_DECLS
 
 #endif

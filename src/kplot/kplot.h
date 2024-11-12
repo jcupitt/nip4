@@ -256,10 +256,6 @@ int		 kplot_get_datacfg(struct kplot *, size_t,
 			struct kdatacfg **, size_t *);
 struct kplotcfg	*kplot_get_plotcfg(struct kplot *);
 
-typedef void (*tic_loop_fn)(struct kplotctx *ctx, double offs, void *user_data);
-void kplot_loop_xtics(struct kplotctx *ctx, tic_loop_fn fn, void *user_data);
-void kplot_loop_ytics(struct kplotctx *ctx, tic_loop_fn fn, void *user_data);
-
 #include "extern.h"
 
 __END_DECLS

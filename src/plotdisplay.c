@@ -42,6 +42,7 @@ typedef struct kplotccfg Kplotccfg;
 typedef struct kplotline Kplotline;
 typedef struct kplotpoint Kplotpoint;
 typedef struct kdatacfg Kdatacfg;
+typedef struct kplotfont Kplotfont;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(Kdata, kdata_destroy)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(Kplot, kplot_free)
@@ -84,7 +85,7 @@ static Kdatacfg plotdisplay_series_datacfg_thumbnail = {
 	},
 };
 
-static Kdatacfg plotdisplay_series_datacfg_window = (Kdatacfg) {
+static Kdatacfg plotdisplay_series_datacfg_window = {
 	.line = {
 		.sz = 3,
 		.dashesz = 0,
@@ -101,6 +102,20 @@ static Kdatacfg plotdisplay_series_datacfg_window = (Kdatacfg) {
 			.type = KPLOTCTYPE_DEFAULT,
 		},
 	},
+};
+
+static Kplotfont plotdisplay_tic_font = {
+	.family = "sans",
+	.sz = 12,
+    .slant = CAIRO_FONT_SLANT_NORMAL,
+    .weight = CAIRO_FONT_WEIGHT_NORMAL,
+};
+
+static Kplotfont plotdisplay_axis_font = {
+	.family = "sans",
+	.sz = 15,
+    .slant = CAIRO_FONT_SLANT_NORMAL,
+    .weight = CAIRO_FONT_WEIGHT_NORMAL,
 };
 
 struct _Plotdisplay {
@@ -300,6 +315,49 @@ plotdisplay_get_property(GObject *object,
 	}
 }
 
+static double
+plotdisplay_pick_xinterval(double min, double max, int width)
+{
+	double range = max - min;
+	double magnitude = pow(10.0, ceil(log10(range)));
+
+	if (width < 200)
+		return magnitude / 2.0;
+	else if (width < 400)
+		return magnitude / 5.0;
+	else if (width < 600)
+		return magnitude / 10.0;
+	else if (width < 1400)
+		return magnitude / 20.0;
+	else if (width < 2000)
+		return magnitude / 50.0;
+	else
+		return magnitude / 100.0;
+}
+
+// vertical labels can be quite a bit closer
+static double
+plotdisplay_pick_yinterval(double min, double max, int height)
+{
+	double range = max - min;
+	double magnitude = pow(10.0, ceil(log10(range)));
+
+	if (height < 100)
+		return magnitude / 2.0;
+	else if (height < 150)
+		return magnitude / 5.0;
+	else if (height < 250)
+		return magnitude / 10.0;
+	else if (height < 450)
+		return magnitude / 20.0;
+	else if (height < 700)
+		return magnitude / 50.0;
+	else if (height < 1300)
+		return magnitude / 100.0;
+	else
+		return magnitude / 200.0;
+}
+
 static void
 plotdisplay_draw_function(GtkDrawingArea *area,
 	cairo_t *cr, int width, int height, gpointer user_data)
@@ -307,7 +365,7 @@ plotdisplay_draw_function(GtkDrawingArea *area,
 	Plotdisplay *plotdisplay = (Plotdisplay *) user_data;
 
 #ifdef DEBUG_VERBOSE
-	printf("plotdisplay_draw_function:\n");
+	printf("plotdisplay_draw_function: %d x %d\n", width, height);
 #endif /*DEBUG_VERBOSE*/
 
 	if (plotdisplay->kplot) {
@@ -317,6 +375,19 @@ plotdisplay_draw_function(GtkDrawingArea *area,
 		gdk_cairo_set_source_rgba(cr, &white);
 		cairo_rectangle(cr, 0.0, 0.0, width, height);
 		cairo_fill(cr);
+
+		if (!plotdisplay->thumbnail) {
+			plotdisplay->kplot->cfg.xinterval =
+				plotdisplay_pick_xinterval(plotdisplay->plot->xmin,
+						plotdisplay->plot->xmax, width);
+			plotdisplay->kplot->cfg.yinterval =
+				plotdisplay_pick_yinterval(plotdisplay->plot->ymin,
+						plotdisplay->plot->ymax, height);
+		}
+		else {
+			plotdisplay->kplot->cfg.xinterval = 0.0;
+			plotdisplay->kplot->cfg.yinterval = 0.0;
+		}
 
 		// and plot
 		kplot_draw(plotdisplay->kplot, width, height, cr);
@@ -332,6 +403,8 @@ plotdisplay_init(Plotdisplay *plotdisplay)
 
 	// minimal config for thumbnail draw
 	kplotcfg_defaults(&plotdisplay->kcfg_thumbnail);
+	plotdisplay->kcfg_thumbnail.xinterval = 0;
+	plotdisplay->kcfg_thumbnail.yinterval = 0;
 	plotdisplay->kcfg_thumbnail.ticlabel = 0;
 	plotdisplay->kcfg_thumbnail.marginsz = 3;
 	plotdisplay->kcfg_thumbnail.ticline.len = 0;
@@ -341,8 +414,12 @@ plotdisplay_init(Plotdisplay *plotdisplay)
 
 	// bigger for window
 	kplotcfg_defaults(&plotdisplay->kcfg_window);
+	plotdisplay->kcfg_window.xinterval = 0;
+	plotdisplay->kcfg_window.yinterval = 0;
 	plotdisplay->kcfg_window.clrsz = VIPS_NUMBER(plotdisplay_series_rgba);
 	plotdisplay->kcfg_window.clrs = plotdisplay_series_ccfg;
+	plotdisplay->kcfg_window.ticlabelfont = plotdisplay_tic_font;
+	plotdisplay->kcfg_window.axislabelfont = plotdisplay_axis_font;
 
 	gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(plotdisplay),
 		plotdisplay_draw_function, plotdisplay, NULL);
