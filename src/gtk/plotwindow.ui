@@ -1,15 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
+  <menu id="plotwindow-menu">
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Export to ...</attribute>
+        <attribute name='action'>win.export</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Close</attribute>
+        <attribute name='action'>win.close</attribute>
+      </item>
+    </section>
+  </menu>
+
   <template class="Plotwindow" parent="GtkApplicationWindow">
     <property name="title" translatable="yes">Image window</property>
-    <property name="default-width">1100</property>
-    <property name="default-height">1000</property>
+    <property name="default-width">900</property>
+    <property name="default-height">600</property>
 
     <child type="titlebar">
       <object class="GtkHeaderBar" id="header">
 
         <child type="title">
-          <object class="GtkBox" id="content_box">
+          <object class="GtkBox">
             <property name="valign">center</property>
             <property name="spacing">2</property>
             <property name="orientation">vertical</property>
@@ -32,12 +48,47 @@
           </object>
         </child>
 
+        <child type="end">
+          <object class="GtkMenuButton">
+            <property name="direction">none</property>
+            <property name="menu-model">plotwindow-menu</property>
+          </object>
+        </child>
+
       </object>
     </child>
 
     <child>
-      <object class="Plotdisplay" id="plotdisplay">
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+
+        <child>
+          <object class="Plotdisplay" id="plotdisplay">
+            <property name="hexpand">true</property>
+            <property name="vexpand">true</property>
+
+
+            <child>
+              <object class="GtkEventControllerMotion">
+                <signal name="motion" handler="plotwindow_motion"/>
+              </object>
+            </child>
+
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkLabel" id="info">
+            <property name="xalign">0</property>
+            <property name="margin-top">3</property>
+            <property name="margin-bottom">3</property>
+            <property name="margin-start">6</property>
+            <property name="ellipsize">end</property>
+          </object>
+        </child>
+
       </object>
     </child>
+
   </template>
 </interface>

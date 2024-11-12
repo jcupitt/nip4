@@ -46,6 +46,10 @@
   background-color: #353535;
 }
 
+.info {
+  font-family: mono;
+}
+
 #rowview-frame {
   border-radius: 0px;
 }

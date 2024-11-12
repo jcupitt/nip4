@@ -28,8 +28,9 @@
 */
 
 /*
-#define DEBUG
  */
+#define DEBUG
+#define DEBUG_VERBOSE
 
 #include "nip4.h"
 
@@ -43,6 +44,7 @@ struct _Plotwindow {
 	GtkWidget *title;
 	GtkWidget *subtitle;
 	GtkWidget *plotdisplay;
+	GtkWidget *info;
 
 };
 
@@ -54,6 +56,37 @@ enum {
 	PROP_PLOT = 1,
 
 };
+
+static void
+plotwindow_motion(GtkEventControllerMotion *self,
+	gdouble x, gdouble y, gpointer user_data)
+{
+	Plotwindow *plotwindow = PLOTWINDOW(user_data);
+	Plot *plot = plotwindow->plot;
+	int index = (int) VIPS_RINT(x);
+
+	char txt[100];
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
+
+#ifdef DEBUG_VERBOSE
+	printf("plotwindow_motion: x = %g, y = %g\n", x, y);
+#endif /*DEBUG_VERBOSE*/
+
+	vips_buf_appendf(&buf, "%8d: ", index);
+
+	if (index >= 0 && index < plot->rows)
+		if (plot->style == PLOT_FORMAT_YYYY)
+			for (int c = 0; c < plot->columns; c++)
+				vips_buf_appendf(&buf, " %-6g ",
+					plot->ycolumn[c][index]);
+		else
+			for (int c = 0; c < plot->columns; c++)
+				vips_buf_appendf(&buf, "(%6g, %6g) ",
+					plot->xcolumn[c][index],
+					plot->ycolumn[c][index]);
+
+	gtk_label_set_text(GTK_LABEL(plotwindow->info), vips_buf_all(&buf));
+}
 
 static void
 plotwindow_dispose(GObject *object)
@@ -105,14 +138,6 @@ plotwindow_set_property(GObject *object,
 {
 	Plotwindow *plotwindow = (Plotwindow *) object;
 
-#ifdef DEBUG
-	{
-		g_autofree char *str = g_strdup_value_contents(value);
-		printf("plotwindow_set_property: %s = %s\n",
-			plotwindow_property_name(prop_id), str);
-	}
-#endif /*DEBUG*/
-
 	switch (prop_id) {
 	case PROP_PLOT:
 		plotwindow_set_plot(plotwindow, g_value_get_object(value));
@@ -142,6 +167,29 @@ plotwindow_get_property(GObject *object,
 }
 
 static void
+plotwindow_export_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	//Plotwindow *plotwindow = PLOTWINDOW(user_data);
+
+	printf("FIXME ... export plot as SVG or raster\n");
+}
+
+static void
+plotwindow_close_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Plotwindow *plotwindow = PLOTWINDOW(user_data);
+
+	gtk_window_destroy(GTK_WINDOW(plotwindow));
+}
+
+static GActionEntry plotwindow_entries[] = {
+	{ "export", plotwindow_export_action },
+	{ "close", plotwindow_close_action },
+};
+
+static void
 plotwindow_init(Plotwindow *plotwindow)
 {
 #ifdef DEBUG
@@ -149,6 +197,10 @@ plotwindow_init(Plotwindow *plotwindow)
 #endif /*DEBUG*/
 
 	gtk_widget_init_template(GTK_WIDGET(plotwindow));
+
+	g_action_map_add_action_entries(G_ACTION_MAP(plotwindow),
+		plotwindow_entries, G_N_ELEMENTS(plotwindow_entries),
+		plotwindow);
 }
 
 static void
@@ -161,6 +213,9 @@ plotwindow_class_init(PlotwindowClass *class)
 	BIND_VARIABLE(Plotwindow, title);
 	BIND_VARIABLE(Plotwindow, subtitle);
 	BIND_VARIABLE(Plotwindow, plotdisplay);
+	BIND_VARIABLE(Plotwindow, info);
+
+	BIND_CALLBACK(plotwindow_motion);
 
 	gobject_class->dispose = plotwindow_dispose;
 	gobject_class->set_property = plotwindow_set_property;

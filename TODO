@@ -127,19 +127,9 @@
 
 	maybe use error bars plus thickness to draw a bar?
 
-- add a burger menu
+- grid lines and tics don't quite line up on y axis
 
-	close
-	save to file (it's "Export plot" in nip2) ... perhaps support SVG
-		and raster?
-
-- a info bar with x and all the y values
-
-	or click on graph to show values? probably difficult
-
-	maybe display in titlebar?
-
-	display all the time? why not
+- look into drawing coordinate -> plot coordinate conversion in kplot
 
 ## vips8
 
