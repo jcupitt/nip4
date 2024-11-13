@@ -23,6 +23,7 @@ kplotctx_grid_init_x(struct kplotctx *ctx, double offs, void *user_data)
 	double v = kplotctx_line_fix(ctx,
 		ctx->cfg.gridline.sz,
 		ctx->offs.x + offs * ctx->dims.x);
+
 	cairo_move_to(ctx->cr, v, ctx->offs.y);
 	cairo_rel_line_to(ctx->cr, 0.0, ctx->dims.y);
 }
@@ -32,7 +33,8 @@ kplotctx_grid_init_y(struct kplotctx *ctx, double offs, void *user_data)
 {
 	double v = kplotctx_line_fix(ctx,
 		ctx->cfg.gridline.sz,
-		ctx->offs.y + offs * ctx->dims.y);
+		ctx->offs.y + ctx->dims.y - offs * ctx->dims.y);
+
 	cairo_move_to(ctx->cr, ctx->offs.x, v);
 	cairo_rel_line_to(ctx->cr, ctx->dims.x, 0.0);
 }
@@ -40,9 +42,6 @@ kplotctx_grid_init_y(struct kplotctx *ctx, double offs, void *user_data)
 void
 kplotctx_grid_init(struct kplotctx *ctx)
 {
-	double		 offs, v;
-	size_t		 i;
-
 	kplotctx_line_init(ctx, &ctx->cfg.gridline);
 
 	if (GRID_X & ctx->cfg.grid)

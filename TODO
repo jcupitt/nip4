@@ -107,7 +107,6 @@
 
     (void) g_type_class_ref(TYPE_CLOCK);
     (void) g_type_class_ref(TYPE_GROUP);
-    (void) g_type_class_ref(TYPE_PLOT);
     (void) g_type_class_ref(TYPE_REAL);
     (void) g_type_class_ref(TYPE_VECTOR);
 
@@ -125,9 +124,13 @@
 
 	maybe use error bars plus thickness to draw a bar?
 
-- grid lines and tics don't quite line up on y axis
+- ^Q in main window does not kill plotwindow
+
+	it does kill imagewindow
 
 - look into drawing coordinate -> plot coordinate conversion in kplot
+
+- improve plot status bar ... we'll need a
 
 ## vips8
 
