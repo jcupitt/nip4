@@ -637,90 +637,90 @@ kplotcfg_defaults(struct kplotcfg *cfg)
 }
 
 void
-kplot_draw(struct kplot *p, double w, double h, cairo_t *cr)
+kplot_draw_ctx(struct kplotctx *ctx,
+	struct kplot *p, double w, double h, cairo_t *cr)
 {
 	size_t	 	 i, start, end;
-	struct kplotctx	 ctx;
 	struct kplotdat	*d;
 	struct kplotccfg defs[7];
 
-	memset(&ctx, 0, sizeof(struct kplotctx));
+	memset(ctx, 0, sizeof(struct kplotctx));
 
-	ctx.w = w;
-	ctx.h = h;
-	ctx.cr = cr;
-	ctx.minv.x = ctx.minv.y = DBL_MAX;
-	ctx.maxv.x = ctx.maxv.y = -DBL_MAX;
-	ctx.cfg = p->cfg;
+	ctx->w = w;
+	ctx->h = h;
+	ctx->cr = cr;
+	ctx->minv.x = ctx->minv.y = DBL_MAX;
+	ctx->maxv.x = ctx->maxv.y = -DBL_MAX;
+	ctx->cfg = p->cfg;
 
-	if (KPLOTCTYPE_DEFAULT == ctx.cfg.borderline.clr.type) {
-		ctx.cfg.borderline.clr.type = KPLOTCTYPE_RGBA;
-		ctx.cfg.borderline.clr.rgba[0] = 0.0;
-		ctx.cfg.borderline.clr.rgba[1] = 0.0;
-		ctx.cfg.borderline.clr.rgba[2] = 0.0;
-		ctx.cfg.borderline.clr.rgba[3] = 1.0;
+	if (KPLOTCTYPE_DEFAULT == ctx->cfg.borderline.clr.type) {
+		ctx->cfg.borderline.clr.type = KPLOTCTYPE_RGBA;
+		ctx->cfg.borderline.clr.rgba[0] = 0.0;
+		ctx->cfg.borderline.clr.rgba[1] = 0.0;
+		ctx->cfg.borderline.clr.rgba[2] = 0.0;
+		ctx->cfg.borderline.clr.rgba[3] = 1.0;
 	}
 
-	if (KPLOTCTYPE_DEFAULT == ctx.cfg.axislabelfont.clr.type) {
-		ctx.cfg.axislabelfont.clr.type = KPLOTCTYPE_RGBA;
-		ctx.cfg.axislabelfont.clr.rgba[0] = 0.0;
-		ctx.cfg.axislabelfont.clr.rgba[1] = 0.0;
-		ctx.cfg.axislabelfont.clr.rgba[2] = 0.0;
-		ctx.cfg.axislabelfont.clr.rgba[3] = 1.0;
+	if (KPLOTCTYPE_DEFAULT == ctx->cfg.axislabelfont.clr.type) {
+		ctx->cfg.axislabelfont.clr.type = KPLOTCTYPE_RGBA;
+		ctx->cfg.axislabelfont.clr.rgba[0] = 0.0;
+		ctx->cfg.axislabelfont.clr.rgba[1] = 0.0;
+		ctx->cfg.axislabelfont.clr.rgba[2] = 0.0;
+		ctx->cfg.axislabelfont.clr.rgba[3] = 1.0;
 	}
 
-	if (KPLOTCTYPE_DEFAULT == ctx.cfg.ticline.clr.type) {
-		ctx.cfg.ticline.clr.type = KPLOTCTYPE_RGBA;
-		ctx.cfg.ticline.clr.rgba[0] = 0.0;
-		ctx.cfg.ticline.clr.rgba[1] = 0.0;
-		ctx.cfg.ticline.clr.rgba[2] = 0.0;
-		ctx.cfg.ticline.clr.rgba[3] = 1.0;
+	if (KPLOTCTYPE_DEFAULT == ctx->cfg.ticline.clr.type) {
+		ctx->cfg.ticline.clr.type = KPLOTCTYPE_RGBA;
+		ctx->cfg.ticline.clr.rgba[0] = 0.0;
+		ctx->cfg.ticline.clr.rgba[1] = 0.0;
+		ctx->cfg.ticline.clr.rgba[2] = 0.0;
+		ctx->cfg.ticline.clr.rgba[3] = 1.0;
 	}
 
-	if (KPLOTCTYPE_DEFAULT == ctx.cfg.gridline.clr.type) {
-		ctx.cfg.gridline.clr.type = KPLOTCTYPE_RGBA;
-		ctx.cfg.gridline.clr.rgba[0] = 0.5;
-		ctx.cfg.gridline.clr.rgba[1] = 0.5;
-		ctx.cfg.gridline.clr.rgba[2] = 0.5;
-		ctx.cfg.gridline.clr.rgba[3] = 1.0;
+	if (KPLOTCTYPE_DEFAULT == ctx->cfg.gridline.clr.type) {
+		ctx->cfg.gridline.clr.type = KPLOTCTYPE_RGBA;
+		ctx->cfg.gridline.clr.rgba[0] = 0.5;
+		ctx->cfg.gridline.clr.rgba[1] = 0.5;
+		ctx->cfg.gridline.clr.rgba[2] = 0.5;
+		ctx->cfg.gridline.clr.rgba[3] = 1.0;
 	}
 
-	if (KPLOTCTYPE_DEFAULT == ctx.cfg.ticlabelfont.clr.type) {
-		ctx.cfg.ticlabelfont.clr.type = KPLOTCTYPE_RGBA;
-		ctx.cfg.ticlabelfont.clr.rgba[0] = 0.5;
-		ctx.cfg.ticlabelfont.clr.rgba[1] = 0.5;
-		ctx.cfg.ticlabelfont.clr.rgba[2] = 0.5;
-		ctx.cfg.ticlabelfont.clr.rgba[3] = 1.0;
+	if (KPLOTCTYPE_DEFAULT == ctx->cfg.ticlabelfont.clr.type) {
+		ctx->cfg.ticlabelfont.clr.type = KPLOTCTYPE_RGBA;
+		ctx->cfg.ticlabelfont.clr.rgba[0] = 0.5;
+		ctx->cfg.ticlabelfont.clr.rgba[1] = 0.5;
+		ctx->cfg.ticlabelfont.clr.rgba[2] = 0.5;
+		ctx->cfg.ticlabelfont.clr.rgba[3] = 1.0;
 	}
 
-	if (0 == ctx.cfg.clrsz) {
-		ctx.cfg.clrs = defs;
-		ctx.cfg.clrsz = 7;
-		for (i = 0; i < ctx.cfg.clrsz; i++) {
-			ctx.cfg.clrs[i].type = KPLOTCTYPE_RGBA;
-			ctx.cfg.clrs[i].rgba[3] = 1.0;
+	if (0 == ctx->cfg.clrsz) {
+		ctx->cfg.clrs = defs;
+		ctx->cfg.clrsz = 7;
+		for (i = 0; i < ctx->cfg.clrsz; i++) {
+			ctx->cfg.clrs[i].type = KPLOTCTYPE_RGBA;
+			ctx->cfg.clrs[i].rgba[3] = 1.0;
 		}
-		ctx.cfg.clrs[0].rgba[0] = 0x94 / 255.0;
-		ctx.cfg.clrs[0].rgba[1] = 0x04 / 255.0;
-		ctx.cfg.clrs[0].rgba[2] = 0xd3 / 255.0;
-		ctx.cfg.clrs[1].rgba[0] = 0x00 / 255.0;
-		ctx.cfg.clrs[1].rgba[1] = 0x9e / 255.0;
-		ctx.cfg.clrs[1].rgba[2] = 0x73 / 255.0;
-		ctx.cfg.clrs[2].rgba[0] = 0x56 / 255.0;
-		ctx.cfg.clrs[2].rgba[1] = 0xb4 / 255.0;
-		ctx.cfg.clrs[2].rgba[2] = 0xe9 / 255.0;
-		ctx.cfg.clrs[3].rgba[0] = 0xe6 / 255.0;
-		ctx.cfg.clrs[3].rgba[1] = 0x9f / 255.0;
-		ctx.cfg.clrs[3].rgba[2] = 0x00 / 255.0;
-		ctx.cfg.clrs[4].rgba[0] = 0xf0 / 255.0;
-		ctx.cfg.clrs[4].rgba[1] = 0xe4 / 255.0;
-		ctx.cfg.clrs[4].rgba[2] = 0x42 / 255.0;
-		ctx.cfg.clrs[5].rgba[0] = 0x00 / 255.0;
-		ctx.cfg.clrs[5].rgba[1] = 0x72 / 255.0;
-		ctx.cfg.clrs[5].rgba[2] = 0xb2 / 255.0;
-		ctx.cfg.clrs[6].rgba[0] = 0xe5 / 255.0;
-		ctx.cfg.clrs[6].rgba[1] = 0x1e / 255.0;
-		ctx.cfg.clrs[6].rgba[2] = 0x10 / 255.0;
+		ctx->cfg.clrs[0].rgba[0] = 0x94 / 255.0;
+		ctx->cfg.clrs[0].rgba[1] = 0x04 / 255.0;
+		ctx->cfg.clrs[0].rgba[2] = 0xd3 / 255.0;
+		ctx->cfg.clrs[1].rgba[0] = 0x00 / 255.0;
+		ctx->cfg.clrs[1].rgba[1] = 0x9e / 255.0;
+		ctx->cfg.clrs[1].rgba[2] = 0x73 / 255.0;
+		ctx->cfg.clrs[2].rgba[0] = 0x56 / 255.0;
+		ctx->cfg.clrs[2].rgba[1] = 0xb4 / 255.0;
+		ctx->cfg.clrs[2].rgba[2] = 0xe9 / 255.0;
+		ctx->cfg.clrs[3].rgba[0] = 0xe6 / 255.0;
+		ctx->cfg.clrs[3].rgba[1] = 0x9f / 255.0;
+		ctx->cfg.clrs[3].rgba[2] = 0x00 / 255.0;
+		ctx->cfg.clrs[4].rgba[0] = 0xf0 / 255.0;
+		ctx->cfg.clrs[4].rgba[1] = 0xe4 / 255.0;
+		ctx->cfg.clrs[4].rgba[2] = 0x42 / 255.0;
+		ctx->cfg.clrs[5].rgba[0] = 0x00 / 255.0;
+		ctx->cfg.clrs[5].rgba[1] = 0x72 / 255.0;
+		ctx->cfg.clrs[5].rgba[2] = 0xb2 / 255.0;
+		ctx->cfg.clrs[6].rgba[0] = 0xe5 / 255.0;
+		ctx->cfg.clrs[6].rgba[1] = 0x1e / 255.0;
+		ctx->cfg.clrs[6].rgba[2] = 0x10 / 255.0;
 	}
 
 	for (i = 0; i < p->datasz; i++) {
@@ -728,36 +728,36 @@ kplot_draw(struct kplot *p, double w, double h, cairo_t *cr)
 		switch (d->stype) {
 		case (KPLOTS_YERRORBAR):
 		case (KPLOTS_YERRORLINE):
-			kdata_extrema_yerr(d, &ctx);
+			kdata_extrema_yerr(d, ctx);
 			break;
 		case (KPLOTS_SINGLE):
-			kdata_extrema_single(d, &ctx);
+			kdata_extrema_single(d, ctx);
 			break;
 		}
 	}
 
-	if (EXTREMA_XMIN & ctx.cfg.extrema)
-		ctx.minv.x = ctx.cfg.extrema_xmin;
-	if (EXTREMA_YMIN & ctx.cfg.extrema)
-		ctx.minv.y = ctx.cfg.extrema_ymin;
-	if (EXTREMA_XMAX & ctx.cfg.extrema)
-		ctx.maxv.x = ctx.cfg.extrema_xmax;
-	if (EXTREMA_YMAX & ctx.cfg.extrema)
-		ctx.maxv.y = ctx.cfg.extrema_ymax;
+	if (EXTREMA_XMIN & ctx->cfg.extrema)
+		ctx->minv.x = ctx->cfg.extrema_xmin;
+	if (EXTREMA_YMIN & ctx->cfg.extrema)
+		ctx->minv.y = ctx->cfg.extrema_ymin;
+	if (EXTREMA_XMAX & ctx->cfg.extrema)
+		ctx->maxv.x = ctx->cfg.extrema_xmax;
+	if (EXTREMA_YMAX & ctx->cfg.extrema)
+		ctx->maxv.y = ctx->cfg.extrema_ymax;
 
-	if (ctx.minv.x > ctx.maxv.x)
-		ctx.minv.x = ctx.maxv.x = 0.0;
-	if (ctx.minv.y > ctx.maxv.y)
-		ctx.minv.y = ctx.maxv.y = 0.0;
+	if (ctx->minv.x > ctx->maxv.x)
+		ctx->minv.x = ctx->maxv.x = 0.0;
+	if (ctx->minv.y > ctx->maxv.y)
+		ctx->minv.y = ctx->maxv.y = 0.0;
 
-	kplotctx_margin_init(&ctx);
-	kplotctx_label_init(&ctx);
-	kplotctx_grid_init(&ctx);
-	kplotctx_border_init(&ctx);
-	kplotctx_tic_init(&ctx);
+	kplotctx_margin_init(ctx);
+	kplotctx_label_init(ctx);
+	kplotctx_grid_init(ctx);
+	kplotctx_border_init(ctx);
+	kplotctx_tic_init(ctx);
 
-	ctx.h = ctx.dims.y;
-	ctx.w = ctx.dims.x;
+	ctx->h = ctx->dims.y;
+	ctx->w = ctx->dims.x;
 
 	for (i = 0; i < p->datasz; i++) {
 		d = &p->datas[i];
@@ -765,21 +765,21 @@ kplot_draw(struct kplot *p, double w, double h, cairo_t *cr)
 		case (KPLOTS_SINGLE):
 			switch (d->types[0]) {
 			case (KPLOT_POINTS):
-				kplotctx_draw_points(&ctx, d);
+				kplotctx_draw_points(ctx, d);
 				break;
 			case (KPLOT_MARKS):
-				kplotctx_draw_marks(&ctx, d);
+				kplotctx_draw_marks(ctx, d);
 				break;
 			case (KPLOT_LINES):
-				kplotctx_draw_lines(&ctx, d);
+				kplotctx_draw_lines(ctx, d);
 				break;
 			case (KPLOT_LINESPOINTS):
-				kplotctx_draw_points(&ctx, d);
-				kplotctx_draw_lines(&ctx, d);
+				kplotctx_draw_points(ctx, d);
+				kplotctx_draw_lines(ctx, d);
 				break;
 			case (KPLOT_LINESMARKS):
-				kplotctx_draw_marks(&ctx, d);
-				kplotctx_draw_lines(&ctx, d);
+				kplotctx_draw_marks(ctx, d);
+				kplotctx_draw_lines(ctx, d);
 				break;
 			default:
 				abort();
@@ -788,35 +788,27 @@ kplot_draw(struct kplot *p, double w, double h, cairo_t *cr)
 			break;
 		case (KPLOTS_YERRORBAR):
 		case (KPLOTS_YERRORLINE):
-			start = kplotctx_draw_yerrline_start
-				(&ctx, d, &end);
+			start = kplotctx_draw_yerrline_start(ctx, d, &end);
 			if (start == end)
 				break;
 			assert(d->datasz > 1);
 			switch (d->types[0]) {
 			case (KPLOT_POINTS):
-				kplotctx_draw_yerrline_basepoints
-					(&ctx, start, end, d);
+				kplotctx_draw_yerrline_basepoints(ctx, start, end, d);
 				break;
 			case (KPLOT_MARKS):
-				kplotctx_draw_yerrline_basemarks
-					(&ctx, start, end, d);
+				kplotctx_draw_yerrline_basemarks(ctx, start, end, d);
 				break;
 			case (KPLOT_LINES):
-				kplotctx_draw_yerrline_baselines
-					(&ctx, start, end, d);
+				kplotctx_draw_yerrline_baselines(ctx, start, end, d);
 				break;
 			case (KPLOT_LINESPOINTS):
-				kplotctx_draw_yerrline_basepoints
-					(&ctx, start, end, d);
-				kplotctx_draw_yerrline_baselines
-					(&ctx, start, end, d);
+				kplotctx_draw_yerrline_basepoints(ctx, start, end, d);
+				kplotctx_draw_yerrline_baselines(ctx, start, end, d);
 				break;
 			case (KPLOT_LINESMARKS):
-				kplotctx_draw_yerrline_basemarks
-					(&ctx, start, end, d);
-				kplotctx_draw_yerrline_baselines
-					(&ctx, start, end, d);
+				kplotctx_draw_yerrline_basemarks(ctx, start, end, d);
+				kplotctx_draw_yerrline_baselines(ctx, start, end, d);
 				break;
 			default:
 				abort();
@@ -824,41 +816,41 @@ kplot_draw(struct kplot *p, double w, double h, cairo_t *cr)
 			}
 			switch (p->datas[i].types[1]) {
 			case (KPLOT_POINTS):
-				kplotctx_draw_yerrline_pairpoints
-					(&ctx, start, end, d);
+				kplotctx_draw_yerrline_pairpoints(ctx, start, end, d);
 				break;
 			case (KPLOT_MARKS):
-				kplotctx_draw_yerrline_pairmarks
-					(&ctx, start, end, d);
+				kplotctx_draw_yerrline_pairmarks(ctx, start, end, d);
 				break;
 			case (KPLOT_LINES):
-				kplotctx_draw_yerrline_pairlines
-					(&ctx, start, end, d);
+				kplotctx_draw_yerrline_pairlines(ctx, start, end, d);
 				break;
 			case (KPLOT_LINESPOINTS):
-				kplotctx_draw_yerrline_pairpoints
-					(&ctx, start, end, d);
-				kplotctx_draw_yerrline_pairlines
-					(&ctx, start, end, d);
+				kplotctx_draw_yerrline_pairpoints(ctx, start, end, d);
+				kplotctx_draw_yerrline_pairlines(ctx, start, end, d);
 				break;
 			case (KPLOT_LINESMARKS):
-				kplotctx_draw_yerrline_pairmarks
-					(&ctx, start, end, d);
-				kplotctx_draw_yerrline_pairlines
-					(&ctx, start, end, d);
+				kplotctx_draw_yerrline_pairmarks(ctx, start, end, d);
+				kplotctx_draw_yerrline_pairlines(ctx, start, end, d);
 				break;
 			default:
 				abort();
 				break;
 			}
 			if (KPLOTS_YERRORBAR == d->stype)
-				kplotctx_draw_yerrline_pairbars
-					(&ctx, start, end, d);
+				kplotctx_draw_yerrline_pairbars(ctx, start, end, d);
 			break;
 		default:
 			break;
 		}
 	}
+}
+
+void
+kplot_draw(struct kplot *p, double w, double h, cairo_t *cr)
+{
+	struct kplotctx ctx;
+
+	kplot_draw_ctx(&ctx, p, w, h, cr);
 }
 
 int
@@ -899,3 +891,31 @@ kplotcfg_default_palette(struct kplotccfg **pp, size_t *szp)
 
 	return(1);
 }
+
+int
+kplot_cairo_to_data(struct kplotctx *ctx,
+	double cairo_x, double cairo_y,
+	double *data_x, double *data_y)
+{
+	if (cairo_x >= ctx->offs.x &&
+		cairo_x < ctx->offs.x + ctx->dims.x &&
+		cairo_y >= ctx->offs.y &&
+		cairo_y < ctx->offs.y + ctx->dims.y) {
+		// normalised coordinates in 0-1
+		double n_x = (cairo_x - ctx->offs.x) / ctx->dims.x;
+		double n_y = 1.0 - (cairo_y - ctx->offs.y) / ctx->dims.y;
+
+		// data range
+		double range_x = ctx->cfg.extrema_xmax - ctx->cfg.extrema_xmin;
+		double range_y = ctx->cfg.extrema_ymax - ctx->cfg.extrema_ymin;
+
+		// map to data
+		*data_x = n_x * range_x + ctx->cfg.extrema_xmin;
+		*data_y = n_y * range_y + ctx->cfg.extrema_ymin;
+
+		return 1;
+	}
+	else
+		return 0;
+}
+

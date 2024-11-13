@@ -39,14 +39,14 @@
 #define PLOT_GET_CLASS(obj) \
 	(G_TYPE_INSTANCE_GET_CLASS((obj), PLOT_TYPE, PlotClass))
 
-typedef enum {
+typedef enum _PlotFormat {
 	PLOT_FORMAT_YYYY = 0,
 	PLOT_FORMAT_XYYY,
 	PLOT_FORMAT_XYXY,
 	PLOT_FORMAT_LAST
 } PlotFormat;
 
-typedef enum {
+typedef enum _PlotStyle {
 	PLOT_STYLE_POINT = 0,
 	PLOT_STYLE_LINE,
 	PLOT_STYLE_SPLINE,

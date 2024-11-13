@@ -43,6 +43,7 @@ typedef struct kplotline Kplotline;
 typedef struct kplotpoint Kplotpoint;
 typedef struct kdatacfg Kdatacfg;
 typedef struct kplotfont Kplotfont;
+typedef struct kplotctx Kplotctx;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(Kdata, kdata_destroy)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(Kplot, kplot_free)
@@ -134,6 +135,7 @@ struct _Plotdisplay {
 	Kplotcfg kcfg_thumbnail;
 	Kplotcfg kcfg_window;
 	Kplotccfg *kccfg;
+	Kplotctx kctx;
 };
 
 G_DEFINE_TYPE(Plotdisplay, plotdisplay, GTK_TYPE_DRAWING_AREA);
@@ -390,7 +392,8 @@ plotdisplay_draw_function(GtkDrawingArea *area,
 		}
 
 		// and plot
-		kplot_draw(plotdisplay->kplot, width, height, cr);
+		kplot_draw_ctx(&plotdisplay->kctx,
+			plotdisplay->kplot, width, height, cr);
 	}
 }
 
@@ -481,5 +484,14 @@ plotdisplay_new(Plot *plot)
 		NULL);
 
 	return plotdisplay;
+}
+
+gboolean
+plotdisplay_gtk_to_data(Plotdisplay *plotdisplay,
+	double gtk_x, double gtk_y,
+	double *data_x, double *data_y)
+{
+	return kplot_cairo_to_data(&plotdisplay->kctx,
+		gtk_x, gtk_y, data_x, data_y);
 }
 

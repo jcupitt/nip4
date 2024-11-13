@@ -147,6 +147,12 @@ typedef void (*tic_loop_fn)(struct kplotctx *ctx, double offs, void *user_data);
 void kplot_loop_xtics(struct kplotctx *ctx, tic_loop_fn fn, void *user_data);
 void kplot_loop_ytics(struct kplotctx *ctx, tic_loop_fn fn, void *user_data);
 
+void kplot_draw_ctx(struct kplotctx *ctx,
+	struct kplot *p, double w, double h, cairo_t *cr);
+int kplot_cairo_to_data(struct kplotctx *ctx,
+	double cairo_x, double cairo_y,
+	double *data_x, double *data_y);
+
 __END_DECLS
 
 #endif

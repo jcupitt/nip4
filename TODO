@@ -126,11 +126,11 @@
 
 - ^Q in main window does not kill plotwindow
 
-	it does kill imagewindow
+	it does kill imagewindow, we must have a mechanism for this
 
-- look into drawing coordinate -> plot coordinate conversion in kplot
+- improve plot status bar ... we'll need a set of gtklabel
 
-- improve plot status bar ... we'll need a
+	check behaviour with scatterplots
 
 ## vips8
 

@@ -37,5 +37,8 @@ G_DECLARE_FINAL_TYPE(Plotdisplay, plotdisplay,
 	NIP4, PLOTDISPLAY, GtkDrawingArea)
 
 Plotdisplay *plotdisplay_new(Plot *plot);
+gboolean plotdisplay_gtk_to_data(Plotdisplay *plotdisplay,
+	double gtk_x, double gtk_y,
+	double *data_x, double *data_y);
 
 #endif /* __PLOTDISPLAY_H */

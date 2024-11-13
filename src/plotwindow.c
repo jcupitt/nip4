@@ -62,30 +62,36 @@ plotwindow_motion(GtkEventControllerMotion *self,
 	gdouble x, gdouble y, gpointer user_data)
 {
 	Plotwindow *plotwindow = PLOTWINDOW(user_data);
-	Plot *plot = plotwindow->plot;
-	int index = (int) VIPS_RINT(x);
-
-	char txt[100];
-	VipsBuf buf = VIPS_BUF_STATIC(txt);
+	Plotdisplay *plotdisplay = PLOTDISPLAY(plotwindow->plotdisplay);
 
 #ifdef DEBUG_VERBOSE
 	printf("plotwindow_motion: x = %g, y = %g\n", x, y);
 #endif /*DEBUG_VERBOSE*/
 
-	vips_buf_appendf(&buf, "%8d: ", index);
+	double data_x, data_y;
+	if (plotdisplay_gtk_to_data(plotdisplay, x, y, &data_x, &data_y)) {
+		Plot *plot = plotwindow->plot;
+		int index = VIPS_RINT(data_x);
 
-	if (index >= 0 && index < plot->rows)
-		if (plot->style == PLOT_FORMAT_YYYY)
-			for (int c = 0; c < plot->columns; c++)
-				vips_buf_appendf(&buf, " %-6g ",
-					plot->ycolumn[c][index]);
-		else
-			for (int c = 0; c < plot->columns; c++)
-				vips_buf_appendf(&buf, "(%6g, %6g) ",
-					plot->xcolumn[c][index],
-					plot->ycolumn[c][index]);
+		char txt[100];
+		VipsBuf buf = VIPS_BUF_STATIC(txt);
 
-	gtk_label_set_text(GTK_LABEL(plotwindow->info), vips_buf_all(&buf));
+		vips_buf_appendf(&buf, "(%9.1f, %9.1f) ", data_x, data_y);
+
+		if (index >= 0 && index < plot->rows) {
+			if (plot->format == PLOT_FORMAT_YYYY)
+				for (int c = 0; c < plot->columns; c++)
+					vips_buf_appendf(&buf, " %-6g ",
+						plot->ycolumn[c][index]);
+			else
+				for (int c = 0; c < plot->columns; c++)
+					vips_buf_appendf(&buf, "(%6g, %6g) ",
+						plot->xcolumn[c][index],
+						plot->ycolumn[c][index]);
+		}
+
+		gtk_label_set_text(GTK_LABEL(plotwindow->info), vips_buf_all(&buf));
+	}
 }
 
 static void
