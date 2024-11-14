@@ -229,7 +229,7 @@
             <child>
               <object class="GtkGestureClick">
                 <property name="button">3</property>
-                <signal name="pressed" handler="imagewindow_pressed_cb"/>
+                <signal name="pressed" handler="imagewindow_pressed"/>
               </object>
             </child>
 

@@ -301,16 +301,6 @@ displaybar_init(Displaybar *displaybar)
 	tslider->digits = 4;
 	tslider_changed(tslider);
 	set_tooltip(GTK_WIDGET(tslider), _("Brightness offset"));
-
-	g_signal_connect(displaybar->page, "value-changed",
-		G_CALLBACK(displaybar_page_value_changed),
-		displaybar);
-	g_signal_connect(displaybar->scale, "changed",
-		G_CALLBACK(displaybar_scale_value_changed),
-		displaybar);
-	g_signal_connect(displaybar->offset, "changed",
-		G_CALLBACK(displaybar_offset_value_changed),
-		displaybar);
 }
 
 static void
@@ -332,6 +322,11 @@ displaybar_class_init(DisplaybarClass *class)
 	BIND_VARIABLE(Displaybar, page);
 	BIND_VARIABLE(Displaybar, scale);
 	BIND_VARIABLE(Displaybar, offset);
+	BIND_VARIABLE(Displaybar, offset);
+
+	BIND_CALLBACK(displaybar_page_value_changed);
+	BIND_CALLBACK(displaybar_scale_value_changed);
+	BIND_CALLBACK(displaybar_offset_value_changed);
 
 	gobject_class->set_property = displaybar_set_property;
 	gobject_class->get_property = displaybar_get_property;

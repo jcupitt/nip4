@@ -389,33 +389,25 @@ infobar_init(Infobar *infobar)
 	gtk_widget_init_template(GTK_WIDGET(infobar));
 }
 
-#define BIND(field) \
-	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-		Infobar, field);
-
 static void
 infobar_class_init(InfobarClass *class)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
-	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(class);
 
 #ifdef DEBUG
 	printf("infobar_class_init:\n");
 #endif /*DEBUG*/
 
-	G_OBJECT_CLASS(class)->dispose = infobar_dispose;
+	BIND_RESOURCE("infobar.ui");
+	BIND_LAYOUT();
 
-	gtk_widget_class_set_layout_manager_type(widget_class,
-		GTK_TYPE_BIN_LAYOUT);
-	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
-		APP_PATH "/infobar.ui");
+	BIND_VARIABLE(Infobar, action_bar);
+	BIND_VARIABLE(Infobar, x);
+	BIND_VARIABLE(Infobar, y);
+	BIND_VARIABLE(Infobar, values);
+	BIND_VARIABLE(Infobar, mag);
 
-	BIND(action_bar);
-	BIND(x);
-	BIND(y);
-	BIND(values);
-	BIND(mag);
-
+	gobject_class->dispose = infobar_dispose;
 	gobject_class->set_property = infobar_set_property;
 	gobject_class->get_property = infobar_get_property;
 

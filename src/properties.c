@@ -353,15 +353,7 @@ properties_init(Properties *p)
 #endif
 
 	gtk_widget_init_template(GTK_WIDGET(p));
-
-	g_signal_connect(p->search_entry,
-		"search-changed",
-		G_CALLBACK(properties_search_changed), p);
 }
-
-#define BIND(field) \
-	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-		Properties, field);
 
 /* Initialize PropertiesClass, which GObject defines for us if we used the
  * boilerplate macros and code correctly.
@@ -374,24 +366,22 @@ static void
 properties_class_init(PropertiesClass *class)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
-	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(class);
 
 #ifdef DEBUG
 	printf("properties_class_init:\n");
 #endif
 
+	BIND_RESOURCE("properties.ui");
+	BIND_LAYOUT();
+
+	BIND_VARIABLE(Properties, revealer);
+	BIND_VARIABLE(Properties, properties);
+	BIND_VARIABLE(Properties, search_entry);
+	BIND_VARIABLE(Properties, scrolled_window);
+
+	BIND_CALLBACK(properties_search_changed);
+
 	gobject_class->dispose = properties_dispose;
-
-	gtk_widget_class_set_layout_manager_type(widget_class,
-		GTK_TYPE_BIN_LAYOUT);
-	gtk_widget_class_set_template_from_resource(widget_class,
-		APP_PATH "/properties.ui");
-
-	BIND(revealer);
-	BIND(properties);
-	BIND(search_entry);
-	BIND(scrolled_window);
-
 	gobject_class->set_property = properties_set_property;
 	gobject_class->get_property = properties_get_property;
 

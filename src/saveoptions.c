@@ -353,28 +353,23 @@ save_options_init(SaveOptions *options)
 		G_CALLBACK(save_options_response), options, 0);
 }
 
-#define BIND(field) \
-	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-		SaveOptions, field);
-
 static void
 save_options_class_init(SaveOptionsClass *class)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
-	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(class);
 
 	gobject_class->dispose = save_options_dispose;
 
-	gtk_widget_class_set_template_from_resource(widget_class,
-		APP_PATH "/saveoptions.ui");
+	BIND_RESOURCE("saveoptions.ui");
 
-	BIND(progress_bar);
-	BIND(progress);
-	BIND(progress_cancel);
-	BIND(error_bar);
-	BIND(error_label);
-	BIND(options_grid);
-	BIND(ok_button);
+	BIND_VARIABLE(SaveOptions, progress_bar);
+	BIND_VARIABLE(SaveOptions, progress);
+	BIND_VARIABLE(SaveOptions, progress_cancel);
+	BIND_VARIABLE(SaveOptions, error_bar);
+	BIND_VARIABLE(SaveOptions, error_label);
+	BIND_VARIABLE(SaveOptions, options_grid);
+	BIND_VARIABLE(SaveOptions, ok_button);
+
 }
 
 /* This function is used by:

@@ -1220,48 +1220,30 @@ imageui_init(Imageui *imageui)
 	imageui->should_animate = widget_should_animate(GTK_WIDGET(imageui));
 }
 
-#define BIND(field) \
-	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-		Imageui, field);
-
 static void
 imageui_class_init(ImageuiClass *class)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
-	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(class);
 
 #ifdef DEBUG
 	printf("imageui_class_init:\n");
 #endif /*DEBUG*/
 
-	G_OBJECT_CLASS(class)->dispose = imageui_dispose;
+	BIND_RESOURCE("imageui.ui");
+	BIND_LAYOUT();
 
-	gtk_widget_class_set_layout_manager_type(widget_class,
-		GTK_TYPE_BIN_LAYOUT);
-	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
-		APP_PATH "/imageui.ui");
+	BIND_VARIABLE(Imageui, scrolled_window);
+	BIND_VARIABLE(Imageui, imagedisplay);
 
-	BIND(scrolled_window);
-	BIND(imagedisplay);
+	BIND_CALLBACK(imageui_drag_begin);
+	BIND_CALLBACK(imageui_drag_update);
+	BIND_CALLBACK(imageui_drag_end);
+	BIND_CALLBACK(imageui_key_pressed);
+	BIND_CALLBACK(imageui_key_released);
+	BIND_CALLBACK(imageui_motion);
+	BIND_CALLBACK(imageui_scroll);
 
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		imageui_drag_begin);
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		imageui_drag_update);
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		imageui_drag_end);
-
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		imageui_key_pressed);
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		imageui_key_released);
-
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		imageui_motion);
-
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		imageui_scroll);
-
+	gobject_class->dispose = imageui_dispose;
 	gobject_class->set_property = imageui_set_property;
 	gobject_class->get_property = imageui_get_property;
 

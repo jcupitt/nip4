@@ -116,18 +116,24 @@
                 <property name="climb-rate">1</property>
                 <property name="digits">0</property>
                 <property name="numeric">true</property>
+		<signal name="value-changed"
+			handler="displaybar_page_value_changed"/>
 	      </object>
             </child>
 
             <child>
               <object class="Tslider" id="scale">
                 <property name="hexpand">True</property>
+		<signal name="changed"
+			handler="displaybar_scale_value_changed"/>
               </object>
             </child>
 
             <child>
               <object class="Tslider" id="offset">
                 <property name="hexpand">True</property>
+		<signal name="changed"
+			handler="displaybar_offset_value_changed"/>
               </object>
             </child>
 

@@ -1407,7 +1407,7 @@ imagewindow_init(Imagewindow *win)
 }
 
 static void
-imagewindow_pressed_cb(GtkGestureClick *gesture,
+imagewindow_pressed(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Imagewindow *win)
 {
 	gtk_popover_set_pointing_to(GTK_POPOVER(win->right_click_menu),
@@ -1420,32 +1420,26 @@ imagewindow_pressed_cb(GtkGestureClick *gesture,
 	gtk_popover_popup(GTK_POPOVER(win->right_click_menu));
 }
 
-#define BIND(field) \
-	gtk_widget_class_bind_template_child(GTK_WIDGET_CLASS(class), \
-		Imagewindow, field);
-
 static void
 imagewindow_class_init(ImagewindowClass *class)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
 
-	gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class),
-		APP_PATH "/imagewindow.ui");
+	BIND_RESOURCE("imagewindow.ui");
 
-	BIND(right_click_menu);
-	BIND(title);
-	BIND(subtitle);
-	BIND(gears);
-	BIND(error_bar);
-	BIND(error_label);
-	BIND(main_box);
-	BIND(stack);
-	BIND(properties);
-	BIND(display_bar);
-	BIND(info_bar);
+	BIND_VARIABLE(Imagewindow, right_click_menu);
+	BIND_VARIABLE(Imagewindow, title);
+	BIND_VARIABLE(Imagewindow, subtitle);
+	BIND_VARIABLE(Imagewindow, gears);
+	BIND_VARIABLE(Imagewindow, error_bar);
+	BIND_VARIABLE(Imagewindow, error_label);
+	BIND_VARIABLE(Imagewindow, main_box);
+	BIND_VARIABLE(Imagewindow, stack);
+	BIND_VARIABLE(Imagewindow, properties);
+	BIND_VARIABLE(Imagewindow, display_bar);
+	BIND_VARIABLE(Imagewindow, info_bar);
 
-	gtk_widget_class_bind_template_callback(GTK_WIDGET_CLASS(class),
-		imagewindow_pressed_cb);
+	BIND_CALLBACK(imagewindow_pressed);
 
 	gobject_class->dispose = imagewindow_dispose;
 

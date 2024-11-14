@@ -19,8 +19,12 @@
 
   perhaps because im_gauss_dmask is returning a class, not a base object?
 
-	need to wrap again with the Matrix constructor from the input
+	need to wrap again with the Matrix constructor from the input?
 
+
+- save_options_init() connects some signals that should be in the template
+
+- imagewindow has an error bar we never use (I think?)
 
 - check the driver script that runs all test workspaces .. do we need to
   implement batch mode?
@@ -37,6 +41,18 @@
 
     - don't clear the tile pyramid completely, certainly not if dimensions
       are unchanged
+
+	imagedisplay needs to make tilecache
+
+	on new tilesource, update the tilesource in the tilecache and don't
+   	free it
+
+	in tilecache, don't throw away tiles on tilesource change, just
+	update dimensions
+
+	... tilecache is strictly uint8 srgb, right?
+
+	if not, then only throw away tilecache on format/bands/etc. change
 
     - don't lose zoom, pan, scale, offset, etc., see "keep view settings"?
 
@@ -133,6 +149,9 @@
 	maybe imagewindow_iimage_destroy() ?
 
 	we destroy an image view window if the underlying iimage is destroyed
+
+	so ... right now we ref plot, instead we should watch for changed and
+	destroy, and kill ourselves when plot is destroyed
 
 ## vips8
 
