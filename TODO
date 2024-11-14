@@ -22,8 +22,6 @@
 	need to wrap again with the Matrix constructor from the input
 
 
-
-
 - check the driver script that runs all test workspaces .. do we need to
   implement batch mode?
 
@@ -32,6 +30,8 @@
 	need to run the driver script from meson
 
 - displaybar should set callbacks and tooltips in .ui
+
+	could use BIND more in all of the vipsdisp code
 
 - on new image in iimageview
 
@@ -124,9 +124,15 @@
 
 	maybe use error bars plus thickness to draw a bar?
 
+	leave it for now, not very important
+
 - ^Q in main window does not kill plotwindow
 
 	it does kill imagewindow, we must have a mechanism for this
+
+	maybe imagewindow_iimage_destroy() ?
+
+	we destroy an image view window if the underlying iimage is destroyed
 
 ## vips8
 
