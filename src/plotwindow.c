@@ -28,9 +28,9 @@
 */
 
 /*
- */
 #define DEBUG
 #define DEBUG_VERBOSE
+ */
 
 #include "nip4.h"
 
@@ -44,8 +44,13 @@ struct _Plotwindow {
 	GtkWidget *title;
 	GtkWidget *subtitle;
 	GtkWidget *plotdisplay;
-	GtkWidget *info;
+	GtkWidget *x;
+	GtkWidget *y;
+	GtkWidget *values;
 
+	/* The set of labels we make for the info bar value display.
+	 */
+	GSList *value_widgets;
 };
 
 G_DEFINE_TYPE(Plotwindow, plotwindow, GTK_TYPE_APPLICATION_WINDOW);
@@ -56,6 +61,59 @@ enum {
 	PROP_PLOT = 1,
 
 };
+
+static void
+plotwindow_info_refresh(Plotwindow *plotwindow)
+{
+	Plot *plot = plotwindow->plot;
+
+	/* Remove all existing children.
+	 */
+	GSList *p;
+	for (p = plotwindow->value_widgets; p; p = p->next) {
+		GtkWidget *label = GTK_WIDGET(p->data);
+
+		gtk_box_remove(GTK_BOX(plotwindow->values), label);
+	}
+	VIPS_FREEF(g_slist_free, plotwindow->value_widgets);
+
+	// limit the number of widgets ... columns can potentially get very large
+	int n_children = VIPS_MIN(plot->columns, 20);
+
+	for (int i = 0; i < n_children; i++) {
+		GtkWidget *label;
+
+		label = gtk_label_new("123");
+		gtk_label_set_width_chars(GTK_LABEL(label), 10);
+		gtk_label_set_xalign(GTK_LABEL(label), 1.0);
+		gtk_box_append(GTK_BOX(plotwindow->values), label);
+		plotwindow->value_widgets =
+			g_slist_append(plotwindow->value_widgets, label);
+	}
+}
+
+/* Find nearest x, display that y.
+ */
+static void
+plotwindow_series_update(GtkWidget *label,
+	Plot *plot, int column, double x, double y)
+{
+    double *xcolumn = plot->xcolumn[column];
+    double *ycolumn = plot->ycolumn[column];
+
+    int best_row = 0;
+    double best_score = VIPS_ABS(x - xcolumn[0]);
+    for (int r = 1; r < plot->rows; r++) {
+        double score = VIPS_ABS(x - xcolumn[r]);
+
+        if (score < best_score) {
+            best_score = score;
+            best_row = r;
+        }
+    }
+
+    set_glabel(label, "%g", ycolumn[best_row]);
+}
 
 static void
 plotwindow_motion(GtkEventControllerMotion *self,
@@ -73,24 +131,19 @@ plotwindow_motion(GtkEventControllerMotion *self,
 		Plot *plot = plotwindow->plot;
 		int index = VIPS_RINT(data_x);
 
-		char txt[100];
-		VipsBuf buf = VIPS_BUF_STATIC(txt);
+		set_glabel(plotwindow->x, "%9.1f", data_x);
+		set_glabel(plotwindow->y, "%9.1f", data_y);
 
-		vips_buf_appendf(&buf, "(%9.1f, %9.1f) ", data_x, data_y);
+		GSList *p;
+		int c;
+		for (c = 0, p = plotwindow->value_widgets; p; p = p->next, c++) {
+			GtkWidget *label = GTK_WIDGET(p->data);
 
-		if (index >= 0 && index < plot->rows) {
-			if (plot->format == PLOT_FORMAT_YYYY)
-				for (int c = 0; c < plot->columns; c++)
-					vips_buf_appendf(&buf, " %-6g ",
-						plot->ycolumn[c][index]);
-			else
-				for (int c = 0; c < plot->columns; c++)
-					vips_buf_appendf(&buf, "(%6g, %6g) ",
-						plot->xcolumn[c][index],
-						plot->ycolumn[c][index]);
+			if (c < plot->columns &&
+				index >= 0 &&
+				index < plot->rows)
+				plotwindow_series_update(label, plot, c, data_x, data_y);
 		}
-
-		gtk_label_set_text(GTK_LABEL(plotwindow->info), vips_buf_all(&buf));
 	}
 }
 
@@ -135,6 +188,8 @@ plotwindow_set_plot(Plotwindow *plotwindow, Plot *plot)
 
 		gtk_label_set_text(GTK_LABEL(plotwindow->subtitle),
 			vips_buf_all(&plot->caption_buffer));
+
+		plotwindow_info_refresh(plotwindow);
 	}
 }
 
@@ -219,7 +274,9 @@ plotwindow_class_init(PlotwindowClass *class)
 	BIND_VARIABLE(Plotwindow, title);
 	BIND_VARIABLE(Plotwindow, subtitle);
 	BIND_VARIABLE(Plotwindow, plotdisplay);
-	BIND_VARIABLE(Plotwindow, info);
+	BIND_VARIABLE(Plotwindow, x);
+	BIND_VARIABLE(Plotwindow, y);
+	BIND_VARIABLE(Plotwindow, values);
 
 	BIND_CALLBACK(plotwindow_motion);
 

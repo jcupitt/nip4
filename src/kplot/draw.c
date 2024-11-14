@@ -897,25 +897,22 @@ kplot_cairo_to_data(struct kplotctx *ctx,
 	double cairo_x, double cairo_y,
 	double *data_x, double *data_y)
 {
-	if (cairo_x >= ctx->offs.x &&
-		cairo_x < ctx->offs.x + ctx->dims.x &&
-		cairo_y >= ctx->offs.y &&
-		cairo_y < ctx->offs.y + ctx->dims.y) {
-		// normalised coordinates in 0-1
-		double n_x = (cairo_x - ctx->offs.x) / ctx->dims.x;
-		double n_y = 1.0 - (cairo_y - ctx->offs.y) / ctx->dims.y;
+	// normalised coordinates in 0-1
+	double n_x = (cairo_x - ctx->offs.x) / ctx->dims.x;
+	double n_y = 1.0 - (cairo_y - ctx->offs.y) / ctx->dims.y;
 
-		// data range
-		double range_x = ctx->cfg.extrema_xmax - ctx->cfg.extrema_xmin;
-		double range_y = ctx->cfg.extrema_ymax - ctx->cfg.extrema_ymin;
-
-		// map to data
-		*data_x = n_x * range_x + ctx->cfg.extrema_xmin;
-		*data_y = n_y * range_y + ctx->cfg.extrema_ymin;
-
-		return 1;
-	}
-	else
+	if (n_x < 0 || n_x > 1.0 ||
+		n_y < 0 || n_y > 1.0)
 		return 0;
+
+	// data range
+	double range_x = ctx->cfg.extrema_xmax - ctx->cfg.extrema_xmin;
+	double range_y = ctx->cfg.extrema_ymax - ctx->cfg.extrema_ymin;
+
+	// map to data
+	*data_x = n_x * range_x + ctx->cfg.extrema_xmin;
+	*data_y = n_y * range_y + ctx->cfg.extrema_ymin;
+
+	return 1;
 }
 

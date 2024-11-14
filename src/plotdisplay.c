@@ -30,9 +30,9 @@
 #include "nip4.h"
 
 /*
- */
 #define DEBUG_VERBOSE
 #define DEBUG
+ */
 
 // these must be typedefs for autoptr
 typedef struct kdata Kdata;

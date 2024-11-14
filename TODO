@@ -128,10 +128,6 @@
 
 	it does kill imagewindow, we must have a mechanism for this
 
-- improve plot status bar ... we'll need a set of gtklabel
-
-	check behaviour with scatterplots
-
 ## vips8
 
 - vipsobject
