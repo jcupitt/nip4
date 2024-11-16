@@ -302,11 +302,6 @@ imagedisplay_layout(Imagedisplay *imagedisplay)
 		!imagedisplay->widget_rect.height)
 		return;
 
-	/* If there's no image yet, we can't do anything.
-	 */
-	if (!imagedisplay->tilecache)
-		return;
-
 	if (imagedisplay->bestfit) {
 		double hscale = (double) imagedisplay->widget_rect.width /
 			imagedisplay->image_rect.width;
@@ -397,29 +392,21 @@ imagedisplay_tilecache_area_changed(Tilecache *tilecache,
 static void
 imagedisplay_set_tilesource(Imagedisplay *imagedisplay, Tilesource *tilesource)
 {
-	VIPS_UNREF(imagedisplay->tilecache);
 	VIPS_UNREF(imagedisplay->tilesource);
 
 	if (tilesource) {
 		imagedisplay->tilesource = tilesource;
 		g_object_ref(imagedisplay->tilesource);
-
-		imagedisplay->tilecache = tilecache_new(imagedisplay->tilesource);
-
-		g_signal_connect_object(imagedisplay->tilecache, "changed",
-			G_CALLBACK(imagedisplay_tilecache_changed),
-			imagedisplay, 0);
-		g_signal_connect_object(imagedisplay->tilecache, "tiles-changed",
-			G_CALLBACK(imagedisplay_tilecache_tiles_changed),
-			imagedisplay, 0);
-		g_signal_connect_object(imagedisplay->tilecache, "area-changed",
-			G_CALLBACK(imagedisplay_tilecache_area_changed),
-			imagedisplay, 0);
-
-		/* Do initial change to init.
-		 */
-		imagedisplay_tilecache_changed(imagedisplay->tilecache, imagedisplay);
 	}
+
+	if (imagedisplay->tilecache)
+		g_object_set(imagedisplay->tilecache,
+			"tilesource", tilesource,
+			NULL);
+
+	/* Do initial paint.
+	 */
+	gtk_widget_queue_draw(GTK_WIDGET(imagedisplay));
 }
 
 #ifdef DEBUG
@@ -755,6 +742,20 @@ imagedisplay_init(Imagedisplay *imagedisplay)
 	gtk_widget_add_controller(GTK_WIDGET(imagedisplay), controller);
 
 	imagedisplay->bestfit = TRUE;
+
+	// the tilesource attaches to the tilecache in
+	// imagedisplay_set_tilesource()
+	imagedisplay->tilecache = tilecache_new();
+
+	g_signal_connect_object(imagedisplay->tilecache, "changed",
+		G_CALLBACK(imagedisplay_tilecache_changed),
+		imagedisplay, 0);
+	g_signal_connect_object(imagedisplay->tilecache, "tiles-changed",
+		G_CALLBACK(imagedisplay_tilecache_tiles_changed),
+		imagedisplay, 0);
+	g_signal_connect_object(imagedisplay->tilecache, "area-changed",
+		G_CALLBACK(imagedisplay_tilecache_area_changed),
+		imagedisplay, 0);
 }
 
 static void

@@ -195,6 +195,25 @@ tilecache_build_pyramid(Tilecache *tilecache)
 	printf("tilecache_build_pyramid:\n");
 #endif /*DEBUG*/
 
+	/* No image? Nothing to do.
+	 */
+	if (!tilesource ||
+		!tilesource->rgb)
+		return;
+
+	/* If we have a pyr with the same geometry, there's no need to rebuild.
+	 */
+	if (tilecache->levels &&
+		tilecache->levels[0] &&
+		tilesource->display_width == tilecache->levels[0]->Xsize &&
+		tilesource->display_height == tilecache->levels[0]->Ysize &&
+		tilesource->bands == tilecache->levels[0]->Bands) {
+#ifdef DEBUG
+		printf("\tno geometry change, skipping pyr rebuild\n");
+#endif /*DEBUG*/
+		return;
+	}
+
 	tilecache_free_pyramid(tilecache);
 
 	/* How many levels? Keep shrinking until we get down to one tile on
@@ -357,6 +376,11 @@ tilecache_fetch_area(Tilecache *tilecache, VipsRect *viewport, int z)
 {
 	int size0 = TILE_SIZE << z;
 
+	// no image ready for paint? try again later
+	if (!tilecache->tilesource ||
+		!tilecache->tilesource->rgb)
+		return;
+
 	/* All the tiles rect touches in this pyr level.
 	 */
 	int left = VIPS_ROUND_DOWN(viewport->left, size0);
@@ -463,6 +487,9 @@ tilecache_set_tilesource(Tilecache *tilecache, Tilesource *tilesource)
 	tilecache->tilesource = tilesource;
 	g_object_ref(tilesource);
 
+	// this will only rebuild if the image geometry has changed
+	tilecache_build_pyramid(tilecache);
+
 	tilecache->tilesource_changed_sid =
 		g_signal_connect(tilesource, "changed",
 			G_CALLBACK(tilecache_source_changed), tilecache);
@@ -472,6 +499,10 @@ tilecache_set_tilesource(Tilecache *tilecache, Tilesource *tilesource)
 	tilecache->tilesource_area_changed_sid =
 		g_signal_connect(tilesource, "area-changed",
 			G_CALLBACK(tilecache_source_area_changed), tilecache);
+
+	/* Any tiles must be invalidated.
+	 */
+	tilecache_source_tiles_changed(tilesource, tilecache);
 }
 
 static void
@@ -780,15 +811,9 @@ tilecache_compute_visibility(Tilecache *tilecache,
 }
 
 Tilecache *
-tilecache_new(Tilesource *tilesource)
+tilecache_new(void)
 {
 	Tilecache *tilecache = g_object_new(TILECACHE_TYPE, NULL);
-
-	tilecache_set_tilesource(tilecache, tilesource);
-
-	/* Don't build the pyramid yet -- the source probably hasn't loaded.
-	 * Wait for "changed".
-	 */
 
 	return tilecache;
 }

@@ -60,7 +60,7 @@
 
 	... tilecache is strictly uint8 srgb, right?
 
-	if not, then only throw away tilecache on format/bands/etc. change
+		can be rgb or rgba
 
 
 

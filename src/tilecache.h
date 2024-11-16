@@ -87,9 +87,12 @@ typedef struct _Tilecache {
 	 */
 	GdkTexture *background_texture;
 
+	/* The signals we watcgh tilesource with.
+	 */
 	guint tilesource_changed_sid;
 	guint tilesource_tiles_changed_sid;
 	guint tilesource_area_changed_sid;
+
 } Tilecache;
 
 typedef struct _TilecacheClass {
@@ -101,7 +104,7 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC(Tilecache, g_object_unref)
 
 GType tilecache_get_type(void);
 
-Tilecache *tilecache_new(Tilesource *tilesource);
+Tilecache *tilecache_new();
 
 /* Render the tiles to a snapshot.
  */
