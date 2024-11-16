@@ -378,20 +378,20 @@ imagedisplay_tilecache_tiles_changed(Tilecache *tilecache,
 
 static void
 imagedisplay_tilecache_area_changed(Tilecache *tilecache,
-	VipsRect *dirty, int z, Imagedisplay *imagedisplay)
+       VipsRect *dirty, int z, Imagedisplay *imagedisplay)
 {
 #ifdef DEBUG_VERBOSE
-	printf("imagedisplay_tilecache_area_changed: "
-		   "at %d x %d, size %d x %d, z = %d\n",
-		dirty->left, dirty->top,
-		dirty->width, dirty->height,
-		z);
+       printf("imagedisplay_tilecache_area_changed: "
+                  "at %d x %d, size %d x %d, z = %d\n",
+               dirty->left, dirty->top,
+               dirty->width, dirty->height,
+               z);
 #endif /*DEBUG_VERBOSE*/
 
-	/* Sadly, gtk4 only has this and we can't redraw areas. Perhaps we
-	 * could just regenerate part of the snapshot?
-	 */
-	gtk_widget_queue_draw(GTK_WIDGET(imagedisplay));
+       /* Sadly, gtk4 only has this and we can't redraw areas. Perhaps we
+        * could just regenerate part of the snapshot?
+        */
+       gtk_widget_queue_draw(GTK_WIDGET(imagedisplay));
 }
 
 static void

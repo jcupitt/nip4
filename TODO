@@ -42,6 +42,14 @@
     - don't clear the tile pyramid completely, certainly not if dimensions
       are unchanged
 
+	right now, imagedisplay_set_tilesource() destroys then rebuilds
+	tilecache
+
+	we need a set-tilesource thing on tilecache
+
+
+
+
 	imagedisplay needs to make tilecache
 
 	on new tilesource, update the tilesource in the tilecache and don't
@@ -53,6 +61,10 @@
 	... tilecache is strictly uint8 srgb, right?
 
 	if not, then only throw away tilecache on format/bands/etc. change
+
+
+
+
 
     - don't lose zoom, pan, scale, offset, etc., see "keep view settings"?
 
