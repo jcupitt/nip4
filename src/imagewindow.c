@@ -1488,18 +1488,24 @@ imagewindow_get_settings(Imagewindow *win)
 void
 imagewindow_set_tilesource(Imagewindow *win, Tilesource *tilesource)
 {
-	Imageui *imageui = imageui_new(tilesource, win->iimage);
-	if (!imageui) {
-		imagewindow_error(win);
-		return;
-	}
+	if (win->imageui)
+		g_object_set(win->imageui,
+			"tilesource", tilesource,
+			NULL);
+	else {
+		Imageui *imageui = imageui_new(tilesource, win->iimage);
+		if (!imageui) {
+			imagewindow_error(win);
+			return;
+		}
 
-	imagewindow_files_free(win);
-	if (tilesource->filename)
-		imagewindow_files_set(win, &tilesource->filename, 1);
-	imagewindow_imageui_add(win, imageui);
-	imagewindow_imageui_set_visible(win,
-		imageui, GTK_STACK_TRANSITION_TYPE_SLIDE_DOWN);
+		imagewindow_files_free(win);
+		if (tilesource->filename)
+			imagewindow_files_set(win, &tilesource->filename, 1);
+		imagewindow_imageui_add(win, imageui);
+		imagewindow_imageui_set_visible(win,
+			imageui, GTK_STACK_TRANSITION_TYPE_SLIDE_DOWN);
+	}
 }
 
 static void
