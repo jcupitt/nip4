@@ -142,8 +142,7 @@ static Kplotfont plotdisplay_axis_font = {
 struct _Plotdisplay {
 	GtkDrawingArea parent_instance;
 
-	/* The Plot model we draw. We hold a ref to this.
-	 */
+	// a weakref to the model we display
 	Plot *plot;
 
 	/* Draw in thumbnail (low detail) mode.
@@ -156,6 +155,8 @@ struct _Plotdisplay {
 	Kplotcfg kcfg_window;
 	Kplotccfg *kccfg;
 	Kplotctx kctx;
+
+	guint plot_changed_sid;
 };
 
 G_DEFINE_TYPE(Plotdisplay, plotdisplay, GTK_TYPE_DRAWING_AREA);
@@ -180,7 +181,7 @@ plotdisplay_dispose(GObject *object)
 	printf("plotdisplay_dispose:\n");
 #endif /*DEBUG*/
 
-	VIPS_UNREF(plotdisplay->plot);
+	FREESID(plotdisplay->plot_changed_sid, plotdisplay->plot);
 	VIPS_FREE(plotdisplay->kccfg);
 
 	G_OBJECT_CLASS(plotdisplay_parent_class)->dispose(object);
@@ -238,7 +239,7 @@ static void
 plotdisplay_plot_changed(Plot *plot, Plotdisplay *plotdisplay)
 {
 #ifdef DEBUG
-	printf("plotdisplay_tilecache_changed:\n");
+	printf("plotdisplay_plot_changed:\n");
 #endif /*DEBUG*/
 
 	if (plotdisplay->plot)
@@ -251,20 +252,16 @@ static void
 plotdisplay_set_plot(Plotdisplay *plotdisplay, Plot *plot)
 {
 	if (plotdisplay->plot != plot) {
-		VIPS_UNREF(plotdisplay->plot);
+		FREESID(plotdisplay->plot_changed_sid, plotdisplay->plot);
 
-		if (plot) {
-			plotdisplay->plot = plot;
-			g_object_ref(plotdisplay->plot);
+		plotdisplay->plot = plot;
 
-			g_signal_connect_object(plot, "changed",
+		if (plot)
+			plotdisplay->plot_changed_sid = g_signal_connect(plot, "changed",
 				G_CALLBACK(plotdisplay_plot_changed),
-				plotdisplay, 0);
+				plotdisplay);
 
-			/* Do initial change to init.
-			 */
-			plotdisplay_plot_changed(plot, plotdisplay);
-		}
+		plotdisplay_plot_changed(plot, plotdisplay);
 	}
 }
 

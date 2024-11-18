@@ -21,6 +21,16 @@
 
 	need to wrap again with the Matrix constructor from the input?
 
+- scales need to use %f, not %g
+
+	try (Scale "hello" 0 255 128)
+
+- put a time delay on row label colour change -- stop the flashing
+
+	we have vobject_refresh_queue(), but that does all views, we just
+	want to delay colour changes
+
+
 
 - save_options_init() connects some signals that should be in the template
 
@@ -122,17 +132,6 @@
 	maybe use error bars plus thickness to draw a bar?
 
 	leave it for now, not very important
-
-- ^Q in main window does not kill plotwindow
-
-	it does kill imagewindow, we must have a mechanism for this
-
-	maybe imagewindow_iimage_destroy() ?
-
-	we destroy an image view window if the underlying iimage is destroyed
-
-	so ... right now we ref plot, instead we should watch for changed and
-	destroy, and kill ourselves when plot is destroyed
 
 ## vips8
 

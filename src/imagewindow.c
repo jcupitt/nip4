@@ -1540,7 +1540,11 @@ imagewindow_set_iimage(Imagewindow *win, iImage *iimage)
 	printf("imagewindow_set_iimage:\n");
 #endif /*DEBUG*/
 
+	FREESID(win->iimage_changed_sid, win->iimage);
+	FREESID(win->iimage_destroy_sid, win->iimage);
+
 	win->iimage = iimage;
+
 	win->iimage_changed_sid = g_signal_connect(iimage, "changed",
 		G_CALLBACK(imagewindow_iimage_changed), win);
 	win->iimage_destroy_sid = g_signal_connect(iimage, "destroy",

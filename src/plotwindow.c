@@ -51,6 +51,9 @@ struct _Plotwindow {
 	/* The set of labels we make for the info bar value display.
 	 */
 	GSList *value_widgets;
+
+	guint plot_changed_sid;
+	guint plot_destroy_sid;
 };
 
 G_DEFINE_TYPE(Plotwindow, plotwindow, GTK_TYPE_APPLICATION_WINDOW);
@@ -156,20 +159,28 @@ plotwindow_dispose(GObject *object)
 	printf("plotwindow_dispose:\n");
 #endif /*DEBUG*/
 
-	VIPS_UNREF(plotwindow->plot);
+	FREESID(plotwindow->plot_changed_sid, plotwindow->plot);
+	FREESID(plotwindow->plot_destroy_sid, plotwindow->plot);
 
 	G_OBJECT_CLASS(plotwindow_parent_class)->dispose(object);
 }
 
 static void
-plotwindow_set_plot(Plotwindow *plotwindow, Plot *plot)
+plotwindow_plot_destroy(Plot *plot, Plotwindow *plotwindow)
 {
-	VIPS_UNREF(plotwindow->plot);
+#ifdef DEBUG
+	printf("plotwindow_plot_destroy:\n");
+#endif /*DEBUG*/
 
-	plotwindow->plot = plot;
-	g_object_ref(plot);
+	gtk_window_destroy(GTK_WINDOW(plotwindow));
+}
 
-	g_object_set(plotwindow->plotdisplay, "plot", plot, NULL);
+static void
+plotwindow_plot_changed(Plot *plot, Plotwindow *plotwindow)
+{
+#ifdef DEBUG
+	printf("plotwindow_plot_changed:\n");
+#endif /*DEBUG*/
 
 	gtk_label_set_text(GTK_LABEL(plotwindow->title), "");
 	gtk_label_set_text(GTK_LABEL(plotwindow->subtitle), "");
@@ -190,6 +201,32 @@ plotwindow_set_plot(Plotwindow *plotwindow, Plot *plot)
 			vips_buf_all(&plot->caption_buffer));
 
 		plotwindow_info_refresh(plotwindow);
+	}
+}
+
+static void
+plotwindow_set_plot(Plotwindow *plotwindow, Plot *plot)
+{
+	if (plotwindow->plot != plot) {
+		FREESID(plotwindow->plot_changed_sid, plotwindow->plot);
+		FREESID(plotwindow->plot_destroy_sid, plotwindow->plot);
+
+		plotwindow->plot = plot;
+
+		if (plot) {
+			plotwindow->plot_changed_sid = g_signal_connect(plot, "changed",
+				G_CALLBACK(plotwindow_plot_changed),
+				plotwindow);
+			plotwindow->plot_destroy_sid = g_signal_connect(plot, "destroy",
+				G_CALLBACK(plotwindow_plot_destroy),
+				plotwindow);
+		}
+
+		g_object_set(plotwindow->plotdisplay,
+			"plot", plot,
+			NULL);
+
+		plotwindow_plot_changed(plot, plotwindow);
 	}
 }
 
