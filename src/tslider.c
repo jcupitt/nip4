@@ -126,8 +126,7 @@ tslider_real_changed(Tslider *tslider)
 	GtkWidget *ientry = tslider->entry;
 
 #ifdef DEBUG
-	printf("tslider_real_changed: %p, val = %g\n",
-		tslider, tslider->value);
+	printf("tslider_real_changed: %p, val = %g\n", tslider, tslider->value);
 #endif /*DEBUG*/
 
 	if (tslider->auto_link)

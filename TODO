@@ -21,9 +21,7 @@
 
 	need to wrap again with the Matrix constructor from the input?
 
-- scales need to use %f, not %g
 
-	try (Scale "hello" 0 255 128)
 
 - put a time delay on row label colour change -- stop the flashing
 
@@ -31,8 +29,6 @@
 	want to delay colour changes
 
 
-
-- save_options_init() connects some signals that should be in the template
 
 - imagewindow has an error bar we never use (I think?)
 
@@ -42,10 +38,6 @@
 	need --test and --prefix
 
 	need to run the driver script from meson
-
-- displaybar should set callbacks and tooltips in .ui
-
-    - don't lose zoom, pan, scale, offset, etc., see "keep view settings"?
 
 - this fails:
 

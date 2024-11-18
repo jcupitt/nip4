@@ -4,6 +4,7 @@
   <template class="SaveOptions" parent="GtkDialog">
     <property name="title" translatable="yes">Save options</property>
     <property name="modal">True</property>
+    <signal name="response" handler="save_options_response"/>
 
     <style>
       <class name="saveoptions"/>
@@ -30,8 +31,10 @@
             </child>
 
             <child type="end">
-              <object class="GtkButton" id="progress_cancel">
+              <object class="GtkButton">
                 <property name="label">Cancel</property>
+		<signal name="clicked" handler="save_options_cancel_clicked"/>
+
               </object>
             </child>
           </object>
@@ -42,6 +45,8 @@
             <property name="message-type">error</property>
             <property name="show-close-button">true</property>
             <property name="revealed">false</property>
+            <signal name="response" handler="save_options_error_response"/>
+
             <child>
               <object class="GtkLabel" id="error_label">
                 <attributes>
@@ -93,7 +98,7 @@
       <action-widget response="cancel">cancel_button</action-widget>
       <action-widget response="ok" default="true">ok_button</action-widget>
     </action-widgets>
-  
+
   </template>
 
 </interface>

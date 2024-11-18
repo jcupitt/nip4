@@ -195,6 +195,8 @@
             <property name="message-type">error</property>
             <property name="show-close-button">true</property>
             <property name="revealed">false</property>
+            <signal name="response" handler="imagewindow_error_response"/>
+
             <child>
               <object class="GtkLabel" id="error_label">
                 <property name="ellipsize">middle</property>

@@ -280,8 +280,6 @@ displaybar_init(Displaybar *displaybar)
 
 	gtk_widget_init_template(GTK_WIDGET(displaybar));
 
-	set_tooltip(GTK_WIDGET(displaybar->page), _("Page select"));
-
 	tslider = TSLIDER(displaybar->scale);
 	tslider_set_conversions(tslider,
 		tslider_log_value_to_slider, tslider_log_slider_to_value);
@@ -291,7 +289,6 @@ displaybar_init(Displaybar *displaybar)
 	tslider->svalue = 128;
 	tslider->digits = 3;
 	tslider_changed(tslider);
-	set_tooltip(GTK_WIDGET(tslider), _("Brightness scale factor"));
 
 	tslider = TSLIDER(displaybar->offset);
 	tslider->from = -128;
@@ -300,7 +297,6 @@ displaybar_init(Displaybar *displaybar)
 	tslider->svalue = 0;
 	tslider->digits = 4;
 	tslider_changed(tslider);
-	set_tooltip(GTK_WIDGET(tslider), _("Brightness offset"));
 }
 
 static void

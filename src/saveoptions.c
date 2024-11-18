@@ -45,7 +45,6 @@ struct _SaveOptions {
 	// the progress and error indicators we show
 	GtkWidget *progress_bar;
 	GtkWidget *progress;
-	GtkWidget *progress_cancel;
 	GtkWidget *error_bar;
 	GtkWidget *error_label;
 	GtkWidget *ok_button;
@@ -339,18 +338,9 @@ save_options_init(SaveOptions *options)
 {
 	gtk_widget_init_template(GTK_WIDGET(options));
 
-	g_signal_connect_object(options->progress_cancel, "clicked",
-		G_CALLBACK(save_options_cancel_clicked), options, 0);
-
-	g_signal_connect_object(options->error_bar, "response",
-		G_CALLBACK(save_options_error_response), options, 0);
-
 	options->value_widgets = g_hash_table_new(g_str_hash, g_str_equal);
 
 	options->progress_timer = g_timer_new();
-
-	g_signal_connect_object(options, "response",
-		G_CALLBACK(save_options_response), options, 0);
 }
 
 static void
@@ -364,12 +354,14 @@ save_options_class_init(SaveOptionsClass *class)
 
 	BIND_VARIABLE(SaveOptions, progress_bar);
 	BIND_VARIABLE(SaveOptions, progress);
-	BIND_VARIABLE(SaveOptions, progress_cancel);
 	BIND_VARIABLE(SaveOptions, error_bar);
 	BIND_VARIABLE(SaveOptions, error_label);
 	BIND_VARIABLE(SaveOptions, options_grid);
 	BIND_VARIABLE(SaveOptions, ok_button);
 
+	BIND_CALLBACK(save_options_response);
+	BIND_CALLBACK(save_options_cancel_clicked);
+	BIND_CALLBACK(save_options_error_response);
 }
 
 /* This function is used by:

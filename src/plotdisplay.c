@@ -200,7 +200,9 @@ plotdisplay_build_kplot(Plotdisplay *plotdisplay)
 		&plotdisplay_series_datacfg_thumbnail :
 		&plotdisplay_series_datacfg_window;
 
+#ifdef DEBUG
 	printf("plotdisplay_build_kplot:\n");
+#endif /*DEBUG*/
 
 	// use our scaling ... this is in config, unfortunately
 	kcfg->extrema = EXTREMA_XMIN | EXTREMA_XMAX | EXTREMA_YMIN | EXTREMA_YMAX;

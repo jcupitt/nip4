@@ -299,7 +299,8 @@ ientry_grab_focus(iEntry *ientry)
 void
 ientry_set_double(iEntry *ientry, int digits, double value)
 {
-	g_autofree char *text = g_strdup_printf("%.*g",
+	// this is used for tslider text update, so we need %gf (no e^x notation)
+	g_autofree char *text = g_strdup_printf("%.*f",
 		VIPS_CLIP(0, digits, 100), value);
 	g_object_set(ientry, "text", text, NULL);
 }

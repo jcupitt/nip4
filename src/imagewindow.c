@@ -1349,9 +1349,6 @@ imagewindow_init(Imagewindow *win)
 		"image-window", win,
 		NULL);
 
-	g_signal_connect_object(win->error_bar, "response",
-		G_CALLBACK(imagewindow_error_response), win, 0);
-
 	g_action_map_add_action_entries(G_ACTION_MAP(win),
 		imagewindow_entries, G_N_ELEMENTS(imagewindow_entries),
 		win);
@@ -1440,6 +1437,7 @@ imagewindow_class_init(ImagewindowClass *class)
 	BIND_VARIABLE(Imagewindow, info_bar);
 
 	BIND_CALLBACK(imagewindow_pressed);
+	BIND_CALLBACK(imagewindow_error_response);
 
 	gobject_class->dispose = imagewindow_dispose;
 
