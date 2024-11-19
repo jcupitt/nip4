@@ -299,7 +299,9 @@ matrixview_scan_ientry(GtkWidget *ientry, double *out, gboolean *changed)
 		return FALSE;
 	}
 
-	if (value != *out) {
+	// look for some largish difference, or we'll scan accidentally because of
+	// float->str->float conversion errors
+	if (fabs(value - *out) > 0.0001) {
 		*out = value;
 		*changed = TRUE;
 	}

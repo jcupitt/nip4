@@ -4,23 +4,9 @@
 
 	Matrix_build_item.Matrix_gaussian_item.action
 
-  edit a matrix value, enter, we lose the subclass
+  edit a cell and hit enter, lose the widgets, same happens in nip2
 
-  is it missing an edit method?
-
-  all matrix stuff seems to be like this
-
-  nip2 is fine, must be something about the way we handle activate
-
-  after an edit, A2.name is "Matrix_vips", so it's the wrapping of the
-  output of a vips7 matrix call that loses the original type
-
-  this wrapping should happen in eg. Matrix_gaussian_item I think, but is not
-
-  perhaps because im_gauss_dmask is returning a class, not a base object?
-
-	need to wrap again with the Matrix constructor from the input?
-
+  do we need to define a Matrix_base member in Matrix_gaussian_item.action?
 
 
 - put a time delay on row label colour change -- stop the flashing
@@ -28,9 +14,8 @@
 	we have vobject_refresh_queue(), but that does all views, we just
 	want to delay colour changes
 
+	maybe do a separate pass at the end of recomp that sets label colours?
 
-
-- imagewindow has an error bar we never use (I think?)
 
 - check the driver script that runs all test workspaces .. do we need to
   implement batch mode?
@@ -180,11 +165,14 @@
 
 - need something to make sure only one image loads at once?
 
+
 - fix imagewindow copy/paste
 
   add copy/paste to mainwindow as well
 
 - open imageview window for groups? < and > could move up and down the group
+
+	or disable < > ref for computed images?
 
 ## toolkit browser
 
@@ -213,76 +201,3 @@
 
 - we have the css_name thing in several _refresh() methods ... should this be
   in the base class?
-
-## can't fix
-
-- open dialogs have a "open read only" toggle at the bottom argh
-
-	not clear how to remove this
-
-- scroll to selected on ws change is annoying, where does it come from>?
-
-	comment out workspacegroupview_switch_page_cb() and it's still there
-
-  add a breakpoint for the scrolling and see what triggers it
-
-  do we have a separate scrolled_window for each tab? what does the
-  gtk_adjustment_set_value for the swin when we flip to it?
-
-	wtf gtk_adjustment_set_value() is not being called on page flip,
-	yet it's scrolling!
-
-	maybe we should reset the scrollbars in
-	workspacegroupview_switch_page_cb() from the saved view port
-
-	no idea why this is happening
-
-- expand and close buttons in column title should be grey when label text is
-  grey
-
-	doesn't seem to be possible with gtkimage
-
-  column entry needs a background colour to make it more visible
-
-	entry text {
-	  background-color: dimgrey;
-	}
-
-  works, but looks terrible
-
-- imagedisplay should not draw the focus rect ... get the base widget class
-  to do that for us
-
-	  doesn't seem to be possible with drawing area?
-
-- see if having a rowview menu for every row has a significant overhead
-
-	x.ws has 1,000 rows
-
-		before 366mb
-		after: 566mb
-
-	about 200mb, so /1000 is 200kb per row
-
-	a significant saving!
-
-	ws load is much faster without a menu per row
-
-- when we drag a tab out, can we position the new window more intelligently?
-
-	doesn't seem to be possible
-
-- tab name vanishes in old wsgview, current tab indicators stop working
-
-	in workspacegroupview_create_window_cb()
-
-	is workspaceviewlabel doing something wrong?
-
-	maybe we can force a redraw somehow?
-
-	wsview->label hide/show?
-
-		tried lots of things, none worked
-
-	newer gtk4 doesn't seem to help
-
