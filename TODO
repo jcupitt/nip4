@@ -1,3 +1,31 @@
+## toolkit browser
+
+- hook up activate
+
+	single-click?
+
+- need to handle separators?
+
+	somehow make seps in the .ui code for GtkBuilderListItemFactory?
+
+	we might need our own itemfactory
+
+- add filtering
+
+- rename as toolkitview
+
+	it's exactly the nip2 menu structure as a listview
+
+	we'll need toolkitbrowser for the programming window
+
+
+
+## other
+
+- have workspace defs on the right with a slideable pane
+
+- remove the "open" button from the top bar? not very useful
+
 - try:
 
 	Matrix_build_item.Matrix_laplacian_item.action
@@ -173,29 +201,6 @@
 - open imageview window for groups? < and > could move up and down the group
 
 	or disable < > ref for computed images?
-
-## toolkit browser
-
-- use a filemanager style left bar for the toolkit browser
-
-	does this need libadiwata?
-
-	where should workspace local defs go?
-
-	need something like lpane / rpane
-
-	just a pane with a revealer to make the lhs or rhs show and hide
-
-	remove the "open" button from the top bar?
-
-	use a treeview?
-
-		see the lpane in program.c, but show as tools, not as
-		definitions
-
-	put workspace local defs in a pullout on the right? or maybe a popup
-
-	put inside workspaceview, since tools are per workspace?
 
 ## ideas
 

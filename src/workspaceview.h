@@ -55,12 +55,12 @@ struct _Workspaceview {
 	GtkWidget *error_bar;
 	GtkWidget *error_top;
 	GtkWidget *error_sub;
+	GtkWidget *toolkitbrowser;
 	GtkWidget *fixed;			/* GtkFixed for tally */
 	GtkWidget *scrolled_window; /* ScrolledWindow holding fixed */
 	GtkAdjustment *hadj;
 	GtkAdjustment *vadj;
 
-	Toolkitbrowser *toolkitbrowser;
 	Workspacedefs *workspacedefs;
 
 	/* Left and right panes ... program window and toolkit browser.

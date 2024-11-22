@@ -308,8 +308,6 @@ displaybar_class_init(DisplaybarClass *class)
 	printf("displaybar_class_init:\n");
 #endif /*DEBUG*/
 
-	gobject_class->dispose = displaybar_dispose;
-
 	BIND_RESOURCE("displaybar.ui");
 	BIND_LAYOUT();
 
@@ -324,6 +322,7 @@ displaybar_class_init(DisplaybarClass *class)
 	BIND_CALLBACK(displaybar_scale_value_changed);
 	BIND_CALLBACK(displaybar_offset_value_changed);
 
+	gobject_class->dispose = displaybar_dispose;
 	gobject_class->set_property = displaybar_set_property;
 	gobject_class->get_property = displaybar_get_property;
 

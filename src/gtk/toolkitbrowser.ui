@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Toolkitbrowser" parent="vObject">
+    <child>
+
+      <object class="GtkBox" id="top">
+        <property name="margin-start">10px</property>
+        <property name="margin-end">10px</property>
+        <property name="orientation">vertical</property>
+        <property name="hexpand">false</property>
+        <property name="vexpand">true</property>
+        <style>
+          <class name="navigation-sidebar"/>
+        </style>
+
+        <child>
+          <object class="GtkSearchEntry" id="search_entry">
+            <property name="margin-top">10px</property>
+            <property name="margin-bottom">10px</property>
+            <property name="hexpand">true</property>
+            <property name="placeholder-text">Filter tools</property>
+	    <signal name="search-changed"
+              handler="toolkitbrowser_search_changed"/>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkScrolledWindow">
+            <property name="hexpand">true</property>
+            <property name="vexpand">true</property>
+            <property name="hscrollbar-policy">never</property>
+
+            <child>
+              <object class="GtkListView" id="list_view">
+                <property name="tab-behavior">item</property>
+                <style>
+                  <class name="navigation-sidebar"/>
+                </style>
+
+                <property name="factory">
+                  <object class="GtkBuilderListItemFactory">
+                    <property name="bytes"><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="GtkListItem">
+    <property name="child">
+      <object class="GtkTreeExpander" id="expander">
+        <binding name="list-row">
+          <lookup name="item">GtkListItem</lookup>
+        </binding>
+        <property name="child">
+          <object class="GtkLabel">
+            <property name="xalign">0</property>
+            <binding name="label">
+              <lookup name="name" type="Node">
+                <lookup name="item">expander</lookup>
+              </lookup>
+            </binding>
+          </object>
+        </property>
+      </object>
+    </property>
+  </template>
+</interface>
+                    ]]></property>
+                  </object>
+                </property>
+
+
+
+              </object>
+            </child>
+
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+  </template>
+</interface>
