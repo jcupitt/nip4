@@ -1,14 +1,17 @@
 ## toolkit browser
 
-- need to handle separators?
+- need to handle separators and tooltips
 
-	somehow make seps in the .ui code for GtkBuilderListItemFactory?
+	we need our own itemfactory
 
-	we might need our own itemfactory
+	also need this for tooltip generation
 
-- add filtering
+- need two views in a stack, a tree and a flat list with a filter
 
-- add a big tooltip
+	could have a magnifying glass button and maybe something else in a
+	header bar (an "edit" button?)
+
+	press mag, view changes to a flat list plus a search box
 
 - rename as toolkitview
 
@@ -16,6 +19,7 @@
 
 	we'll need toolkitbrowser for the programming window
 
+- need "im_system_image" wrapper for Magick menu
 
 
 ## other

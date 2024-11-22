@@ -242,16 +242,20 @@ toolkitbrowser_refresh(vObject *vobject)
 		FALSE, FALSE, toolkitbrowser_create_model,
 		toolkitbrowser, NULL);
 
+	GtkExpression *row_expression =
+		gtk_property_expression_new(GTK_TYPE_TREE_LIST_ROW, NULL, "item");
+	GtkExpression *expression =
+		gtk_property_expression_new(NODE_TYPE, row_expression, "name");
+	toolkitbrowser->filter = gtk_string_filter_new(expression);
+	GtkFilterListModel *filter_model =
+		gtk_filter_list_model_new(G_LIST_MODEL(toolkitbrowser->treemodel),
+				GTK_FILTER(toolkitbrowser->filter));
+
 	toolkitbrowser->selection =
-		gtk_single_selection_new(G_LIST_MODEL(toolkitbrowser->treemodel));
+		gtk_single_selection_new(G_LIST_MODEL(filter_model));
 
 	gtk_list_view_set_model(GTK_LIST_VIEW(toolkitbrowser->list_view),
 		GTK_SELECTION_MODEL(toolkitbrowser->selection));
-
-	printf("toolkitbrowser_refresh: FIXME ... add a filter\n");
-	//GtkExpression *expression =
-		//gtk_property_expression_new(NODE_TYPE, NULL, "name");
-	//toolkitbrowser->filter = gtk_string_filter_new(expression);
 
 	VOBJECT_CLASS(toolkitbrowser_parent_class)->refresh(vobject);
 }
@@ -293,15 +297,24 @@ toolkitbrowser_activate(GtkListView *self, guint position, gpointer user_data)
 }
 
 static void
-toolkitbrowser_search_changed(GtkEditable *editable,
-	Toolkitbrowser *toolkitbrowser)
+toolkitbrowser_set_expand(Toolkitbrowser *toolkitbrowser, gboolean expand)
 {
+}
+
+static void
+toolkitbrowser_search_changed(GtkSearchEntry *entry, void *a)
+{
+	Toolkitbrowser *toolkitbrowser = TOOLKITBROWSER(a);
+
 #ifdef DEBUG
 	printf("toolkitbrowser_search_changed:\n");
 #endif /*DEBUG*/
 
-	printf("toolkitbrowser_search_changed: FIXME .. update filter\n");
-	// gtk_string_filter_set_search (GTK_STRING_FILTER (current_filter), text);
+	const char *text = gtk_editable_get_text(GTK_EDITABLE(entry));
+
+	toolkitbrowser_set_expand(toolkitbrowser, strlen(text) > 0);
+
+	gtk_string_filter_set_search(toolkitbrowser->filter, text);
 }
 
 static void
