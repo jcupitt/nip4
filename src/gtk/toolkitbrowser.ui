@@ -33,6 +33,9 @@
             <child>
               <object class="GtkListView" id="list_view">
                 <property name="tab-behavior">item</property>
+                <property name="single-click-activate">true</property>
+	        <signal name="activate"
+                  handler="toolkitbrowser_activate"/>
                 <style>
                   <class name="navigation-sidebar"/>
                 </style>

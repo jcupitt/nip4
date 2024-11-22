@@ -49,6 +49,7 @@ struct _Toolkitbrowser {
 	 * display in the GtkListView.
 	 */
 	GtkTreeListModel *treemodel;
+	GtkSingleSelection *selection;
 	GtkStringFilter *filter;
 
 	GtkWidget *top;

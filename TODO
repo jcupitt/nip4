@@ -1,9 +1,5 @@
 ## toolkit browser
 
-- hook up activate
-
-	single-click?
-
 - need to handle separators?
 
 	somehow make seps in the .ui code for GtkBuilderListItemFactory?
@@ -11,6 +7,8 @@
 	we might need our own itemfactory
 
 - add filtering
+
+- add a big tooltip
 
 - rename as toolkitview
 

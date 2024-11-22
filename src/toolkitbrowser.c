@@ -242,11 +242,11 @@ toolkitbrowser_refresh(vObject *vobject)
 		FALSE, FALSE, toolkitbrowser_create_model,
 		toolkitbrowser, NULL);
 
-	GtkNoSelection *selection =
-		gtk_no_selection_new(G_LIST_MODEL(toolkitbrowser->treemodel));
+	toolkitbrowser->selection =
+		gtk_single_selection_new(G_LIST_MODEL(toolkitbrowser->treemodel));
 
 	gtk_list_view_set_model(GTK_LIST_VIEW(toolkitbrowser->list_view),
-		GTK_SELECTION_MODEL(selection));
+		GTK_SELECTION_MODEL(toolkitbrowser->selection));
 
 	printf("toolkitbrowser_refresh: FIXME ... add a filter\n");
 	//GtkExpression *expression =
@@ -270,6 +270,26 @@ toolkitbrowser_link(vObject *vobject, iObject *iobject)
 	toolkitbrowser_refresh(VOBJECT(toolkitbrowser));
 
 	VOBJECT_CLASS(toolkitbrowser_parent_class)->link(vobject, iobject);
+}
+
+static void
+toolkitbrowser_activate(GtkListView *self, guint position, gpointer user_data)
+{
+	Toolkitbrowser *toolkitbrowser = TOOLKITBROWSER(user_data);
+	GObject *row =
+		gtk_single_selection_get_selected_item(toolkitbrowser->selection);
+	Node *node = NODE(gtk_tree_list_row_get_item(GTK_TREE_LIST_ROW(row)));
+	Toolitem *toolitem = node->toolitem;
+
+	if (toolitem &&
+		!toolitem->is_separator &&
+		!toolitem->is_pullright &&
+		toolitem->action) {
+		if (!workspace_add_action(toolkitbrowser->ws,
+			toolitem->name, toolitem->action,
+			toolitem->action_sym->expr->compile->nparam))
+			workspace_set_show_error(toolkitbrowser->ws, TRUE);
+	}
 }
 
 static void
@@ -302,6 +322,7 @@ toolkitbrowser_class_init(ToolkitbrowserClass *class)
 	BIND_VARIABLE(Toolkitbrowser, search_entry);
 	BIND_VARIABLE(Toolkitbrowser, list_view);
 
+	BIND_CALLBACK(toolkitbrowser_activate);
 	BIND_CALLBACK(toolkitbrowser_search_changed);
 
 }
