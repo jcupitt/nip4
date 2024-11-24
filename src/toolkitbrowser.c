@@ -385,18 +385,22 @@ toolkitbrowser_search_changed(GtkSearchEntry *entry, void *a)
 	printf("toolkitbrowser_search_changed:\n");
 #endif /*DEBUG*/
 
-	const char *text = gtk_editable_get_text(GTK_EDITABLE(entry));
+	gtk_string_filter_set_search(toolkitbrowser->filter,
+		gtk_editable_get_text(GTK_EDITABLE(entry)));
+}
 
-	if (strlen(text) > 0)
-		g_object_set(toolkitbrowser->mode_stack,
-			"visible-child-name", "search",
-			NULL);
-	else
-		g_object_set(toolkitbrowser->mode_stack,
-			"visible-child-name", "browse",
-			NULL);
+static void
+toolkitbrowser_search_toggled(GtkToggleButton *button, void *a)
+{
+	Toolkitbrowser *toolkitbrowser = TOOLKITBROWSER(a);
 
-	gtk_string_filter_set_search(toolkitbrowser->filter, text);
+#ifdef DEBUG
+	printf("toolkitbrowser_search_changed:\n");
+#endif /*DEBUG*/
+
+	g_object_set(toolkitbrowser->mode_stack, "visible-child-name",
+		gtk_toggle_button_get_active(button) ?  "search" : "browse",
+		NULL);
 }
 
 static void
@@ -419,6 +423,7 @@ toolkitbrowser_class_init(ToolkitbrowserClass *class)
 	BIND_VARIABLE(Toolkitbrowser, mode_stack);
 
 	BIND_CALLBACK(toolkitbrowser_list_view_activate);
+	BIND_CALLBACK(toolkitbrowser_search_toggled);
 
 	BIND_CALLBACK(toolkitbrowser_search_changed);
 
