@@ -6,12 +6,36 @@
 
 	also need this for tooltip generation
 
+	make it more compact
+
 - need two views in a stack, a tree and a flat list with a filter
 
 	could have a magnifying glass button and maybe something else in a
 	header bar (an "edit" button?)
 
-	press mag, view changes to a flat list plus a search box
+	press mag, search bar appears with a flat list of matching items
+	below it
+
+	don't just search name -- search tooltip as well
+
+- could have a many-column look instead, more like a menu
+
+	could we just use a menu view thing to render it?
+
+	probably not, it'll only render menus into a popup, and has a lot of o
+	code for focus and navigation which would not be right for us
+
+  do it ourselves:
+
+	- keep current code to use as search mode (though without the tree)
+
+	- a gtkstack of listview with left-right transition
+
+	- top element of stack is "go back" with a label for the enclosing thing
+
+
+
+	subclass of GtkPopover
 
 - rename as toolkitview
 
@@ -23,6 +47,11 @@
 
 
 ## other
+
+- when dragging a row, always select destination column on drop
+
+	since the source column could be selected ... if this was the only
+	row, we'll then have no selected column
 
 - have workspace defs on the right with a slideable pane
 

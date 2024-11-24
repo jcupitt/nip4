@@ -48,13 +48,16 @@ struct _Toolkitbrowser {
 	/* The model for this toolkit view. This implements GListModel, which we
 	 * display in the GtkListView.
 	 */
-	GtkTreeListModel *treemodel;
 	GtkSingleSelection *selection;
 	GtkStringFilter *filter;
 
 	GtkWidget *top;
+
+	/* Seach mode.
+	 */
 	GtkWidget *search_entry;	/* Search widget */
 	GtkWidget *list_view;		/* Display of items */
+	GtkWidget *mode_stack;		/* Stack to flip between search and browse */
 };
 
 typedef struct _ToolkitbrowserClass {

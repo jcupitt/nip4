@@ -134,11 +134,10 @@ toolkitbrowser_dispose(GObject *object)
 	gtk_widget_dispose_template(GTK_WIDGET(toolkitbrowser),
 		TOOLKITBROWSER_TYPE);
 
-	VIPS_UNREF(toolkitbrowser->treemodel);
-	VIPS_UNREF(toolkitbrowser->filter);
-
 	G_OBJECT_CLASS(toolkitbrowser_parent_class)->dispose(object);
 }
+
+/*
 
 static void *
 toolkitbrowser_build_kit(Toolkit *kit, void *a, void *b)
@@ -187,8 +186,9 @@ toolkitbrowser_build_toolitem(Toolitem *toolitem, void *a, void *b)
 	return NULL;
 }
 
-/* Make a layer in the tree of nodes.
  */
+
+/* Make a layer in the tree of nodes.
 static GListModel *
 toolkitbrowser_create_model(void *a, void *b)
 {
@@ -225,6 +225,65 @@ toolkitbrowser_create_model(void *a, void *b)
 
 	return G_LIST_MODEL(store);
 }
+ */
+
+static void *
+toolkitbrowser_build_toolitem_list(Toolitem *toolitem, void *a)
+{
+	GListStore *store = G_LIST_STORE(a);
+
+	if (toolitem->tool &&
+		MODEL(toolitem->tool)->display &&
+		!toolitem->is_separator) {
+		printf("toolkitbrowser_build_toolitem_list: adding %s\n",
+			toolitem->name);
+		g_list_store_append(store, G_OBJECT(node_new(NULL, toolitem)));
+	}
+
+	return NULL;
+}
+
+static void *
+toolkitbrowser_build_tool_list(Tool *tool, void *a, void *b)
+{
+	GListStore *store = G_LIST_STORE(a);
+
+	if (MODEL(tool)->display &&
+		tool->toolitem)
+		slist_map(tool->toolitem->children,
+			(SListMapFn) toolkitbrowser_build_toolitem_list, store);
+
+	return NULL;
+}
+
+static void *
+toolkitbrowser_build_kit_list(Toolkit *kit, void *a, void *b)
+{
+	GListStore *store = G_LIST_STORE(a);
+
+	if (kit &&
+		MODEL(kit)->display &&
+		IOBJECT(kit)->name)
+		toolkit_map(kit,
+			toolkitbrowser_build_tool_list, store, NULL);
+
+	return NULL;
+}
+
+/* Make a flat list of all tools, ready for searching.
+ */
+static GListModel *
+toolkitbrowser_create_list(Toolkitbrowser *toolkitbrowser)
+{
+	GListStore *store;
+
+	store = g_list_store_new(NODE_TYPE);
+
+	toolkitgroup_map(toolkitbrowser->kitg,
+		toolkitbrowser_build_kit_list, store, NULL);
+
+	return G_LIST_MODEL(store);
+}
 
 static void
 toolkitbrowser_refresh(vObject *vobject)
@@ -235,6 +294,7 @@ toolkitbrowser_refresh(vObject *vobject)
 	printf("toolkitbrowser_refresh:\n");
 #endif /*DEBUG*/
 
+	/*
 	VIPS_UNREF(toolkitbrowser->treemodel);
 
 	GListModel *model = toolkitbrowser_create_model(NULL, toolkitbrowser);
@@ -256,6 +316,21 @@ toolkitbrowser_refresh(vObject *vobject)
 
 	gtk_list_view_set_model(GTK_LIST_VIEW(toolkitbrowser->list_view),
 		GTK_SELECTION_MODEL(toolkitbrowser->selection));
+	 */
+
+	GListModel *list_model = toolkitbrowser_create_list(toolkitbrowser);
+
+	GtkExpression *expression =
+		gtk_property_expression_new(NODE_TYPE, NULL, "name");
+	toolkitbrowser->filter = gtk_string_filter_new(expression);
+	GtkFilterListModel *filter_model =
+		gtk_filter_list_model_new(G_LIST_MODEL(list_model),
+				GTK_FILTER(toolkitbrowser->filter));
+
+	toolkitbrowser->selection =
+		gtk_single_selection_new(G_LIST_MODEL(filter_model));
+	gtk_list_view_set_model(GTK_LIST_VIEW(toolkitbrowser->list_view),
+		GTK_SELECTION_MODEL(toolkitbrowser->selection));
 
 	VOBJECT_CLASS(toolkitbrowser_parent_class)->refresh(vobject);
 }
@@ -265,6 +340,10 @@ toolkitbrowser_link(vObject *vobject, iObject *iobject)
 {
 	Toolkitbrowser *toolkitbrowser = TOOLKITBROWSER(vobject);
 	Toolkitgroup *kitg = TOOLKITGROUP(iobject);
+
+#ifdef DEBUG
+	printf("toolkitbrowser_link:\n");
+#endif /*DEBUG*/
 
 	g_assert(!toolkitbrowser->kitg);
 
@@ -277,12 +356,13 @@ toolkitbrowser_link(vObject *vobject, iObject *iobject)
 }
 
 static void
-toolkitbrowser_activate(GtkListView *self, guint position, gpointer user_data)
+toolkitbrowser_list_view_activate(GtkListView *self,
+	guint position, gpointer user_data)
 {
 	Toolkitbrowser *toolkitbrowser = TOOLKITBROWSER(user_data);
-	GObject *row =
-		gtk_single_selection_get_selected_item(toolkitbrowser->selection);
-	Node *node = NODE(gtk_tree_list_row_get_item(GTK_TREE_LIST_ROW(row)));
+
+	Node *node =
+		NODE(gtk_single_selection_get_selected_item(toolkitbrowser->selection));
 	Toolitem *toolitem = node->toolitem;
 
 	if (toolitem &&
@@ -297,11 +377,6 @@ toolkitbrowser_activate(GtkListView *self, guint position, gpointer user_data)
 }
 
 static void
-toolkitbrowser_set_expand(Toolkitbrowser *toolkitbrowser, gboolean expand)
-{
-}
-
-static void
 toolkitbrowser_search_changed(GtkSearchEntry *entry, void *a)
 {
 	Toolkitbrowser *toolkitbrowser = TOOLKITBROWSER(a);
@@ -312,7 +387,14 @@ toolkitbrowser_search_changed(GtkSearchEntry *entry, void *a)
 
 	const char *text = gtk_editable_get_text(GTK_EDITABLE(entry));
 
-	toolkitbrowser_set_expand(toolkitbrowser, strlen(text) > 0);
+	if (strlen(text) > 0)
+		g_object_set(toolkitbrowser->mode_stack,
+			"visible-child-name", "search",
+			NULL);
+	else
+		g_object_set(toolkitbrowser->mode_stack,
+			"visible-child-name", "browse",
+			NULL);
 
 	gtk_string_filter_set_search(toolkitbrowser->filter, text);
 }
@@ -334,10 +416,41 @@ toolkitbrowser_class_init(ToolkitbrowserClass *class)
 	BIND_VARIABLE(Toolkitbrowser, top);
 	BIND_VARIABLE(Toolkitbrowser, search_entry);
 	BIND_VARIABLE(Toolkitbrowser, list_view);
+	BIND_VARIABLE(Toolkitbrowser, mode_stack);
 
-	BIND_CALLBACK(toolkitbrowser_activate);
+	BIND_CALLBACK(toolkitbrowser_list_view_activate);
+
 	BIND_CALLBACK(toolkitbrowser_search_changed);
 
+}
+
+static void
+toolkitbrowser_setup_listitem(GtkListItemFactory *factory,
+	GtkListItem *list_item)
+{
+	GtkWidget *label;
+
+	label = gtk_label_new("");
+	gtk_label_set_xalign(GTK_LABEL(label), 0.0);
+	gtk_widget_add_css_class(label, "tool-name");
+	gtk_list_item_set_child(list_item, label);
+}
+
+static void
+toolkitbrowser_bind_listitem(GtkListItemFactory *factory,
+	GtkListItem *list_item)
+{
+	GtkWidget *label;
+	Node *node;
+
+	label = gtk_list_item_get_child(list_item);
+	node = gtk_list_item_get_item(list_item);
+
+	const char *name;
+	g_object_get(node, "name", &name, NULL);
+	gtk_label_set_label(GTK_LABEL(label), name);
+	if (node->toolitem)
+		set_tooltip(label, node->toolitem->help);
 }
 
 static void
@@ -345,6 +458,13 @@ toolkitbrowser_init(Toolkitbrowser *toolkitbrowser)
 {
 	gtk_widget_init_template(GTK_WIDGET(toolkitbrowser));
 
+	GtkListItemFactory *factory = gtk_signal_list_item_factory_new();
+	g_signal_connect(factory, "setup",
+		G_CALLBACK(toolkitbrowser_setup_listitem), NULL);
+	g_signal_connect(factory, "bind",
+		G_CALLBACK(toolkitbrowser_bind_listitem), NULL);
+	gtk_list_view_set_factory(GTK_LIST_VIEW(toolkitbrowser->list_view),
+		factory);
 }
 
 Toolkitbrowser *

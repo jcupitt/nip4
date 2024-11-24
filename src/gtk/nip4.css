@@ -63,3 +63,10 @@
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
 }
+
+.tool-name {
+  margin-top: 3px;
+  margin-bottom: 3px;
+  margin-left: 6px;
+  margin-right: 6px;
+}

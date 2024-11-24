@@ -12,8 +12,7 @@
 
         <child>
           <object class="Toolkitbrowser" id="toolkitbrowser">
-            <property name="margin-start">10px</property>
-            <property name="margin-end">10px</property>
+            <property name="margin-start">3px</property>
             <property name="hexpand">false</property>
             <property name="vexpand">true</property>
             <style><class name="navigation-sidebar"/></style>
