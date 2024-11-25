@@ -1,45 +1,18 @@
 ## toolkit browser
 
-- need to handle separators and tooltips
+- make toolkitbrowser into a standalone widget
 
-	we need our own itemfactory
+	- emit "activate" on tool activate
 
-	also need this for tooltip generation
+		and do tool activation itself in workspaceview
 
-	make it more compact
+	- have a toolkitgroup property instead of a _set() function
 
-- need two views in a stack, a tree and a flat list with a filter
+- double-click in browse mode will crash (adds two pages with the same name)
 
-	could have a magnifying glass button and maybe something else in a
-	header bar (an "edit" button?)
-
-	press mag, search bar appears with a flat list of matching items
-	below it
-
-	don't just search name -- search tooltip as well
-
-- could have a many-column look instead, more like a menu
-
-	could we just use a menu view thing to render it?
-
-	probably not, it'll only render menus into a popup, and has a lot of o
-	code for focus and navigation which would not be right for us
-
-  do it ourselves:
-
-	- keep current code to use as search mode (though without the tree)
-
-	- a gtkstack of listview with left-right transition
-
-	- top element of stack is "go back" with a label for the enclosing thing
-
-
-
-	subclass of GtkPopover
+- polish naming conventions
 
 - rename as toolkitview
-
-	it's exactly the nip2 menu structure as a listview
 
 	we'll need toolkitbrowser for the programming window
 

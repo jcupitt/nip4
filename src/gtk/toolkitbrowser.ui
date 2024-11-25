@@ -42,7 +42,30 @@
 
         <child>
           <object class="GtkStack" id="mode_stack">
-            <property name="transition-type">over-up-down</property>
+            <property name="transition-type">over-right-left</property>
+
+            <!-- left-right column "menu" -->
+            <child>
+              <object class="GtkStackPage">
+                <property name="name">browse</property>
+
+                <property name="child">
+                  <object class="GtkScrolledWindow">
+                    <property name="hexpand">false</property>
+                    <property name="vexpand">true</property>
+                    <property name="hscrollbar-policy">never</property>
+
+                    <child>
+                      <object class="GtkStack" id="browse_stack">
+                        <property name="transition-type">slide-left-right</property>
+                      </object>
+                    </child>
+
+                  </object>
+                </property>
+
+              </object>
+            </child>
 
             <!-- flat searchable list -->
             <child>
@@ -80,30 +103,6 @@
                       </object>
                     </child>
 
-                  </object>
-                </property>
-
-              </object>
-            </child>
-
-            <!-- left-right column "menu" -->
-            <child>
-              <object class="GtkStackPage">
-                <property name="name">browse</property>
-
-                <property name="child">
-                  <object class="GtkScrolledWindow">
-                    <property name="hexpand">false</property>
-                    <property name="vexpand">true</property>
-                    <property name="hscrollbar-policy">never</property>
-
-                    <child>
-                      <object class="GtkListView">
-                        <property name="tab-behavior">item</property>
-                        <property name="single-click-activate">true</property>
-
-                      </object>
-                    </child>
                   </object>
                 </property>
 
