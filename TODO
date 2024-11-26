@@ -1,7 +1,5 @@
 ## toolkit browser
 
-- list view still has some pullrights!
-
 - make toolkitbrowser into a standalone widget
 
 	- emit "activate" on tool activate
@@ -10,9 +8,11 @@
 
 	- have a toolkitgroup property instead of a _set() function
 
-- double-click in browse mode will crash (adds two pages with the same name)
+- double-click in browse mode will add two pages with the same name
 
-- polish naming conventions
+	harmless, but you get a warning
+
+- polish naming conventions, read final code
 
 - rename as toolkitview
 
