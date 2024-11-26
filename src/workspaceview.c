@@ -436,8 +436,8 @@ workspaceview_link(View *view, Model *model, View *parent)
 
 	Workspace *ws = WORKSPACE(model);
 	Workspaceview *wview = WORKSPACEVIEW(view);
-	vobject_link(VOBJECT(wview->toolkitbrowser), IOBJECT(ws->kitg));
-	toolkitbrowser_set_workspace(TOOLKITBROWSER(wview->toolkitbrowser), ws);
+	vobject_link(VOBJECT(wview->kitgview), IOBJECT(ws->kitg));
+	toolkitgroupview_set_workspace(TOOLKITGROUPVIEW(wview->kitgview), ws);
 
 	printf("workspaceview_link: FIXME ws defs, panes, etc.\n");
 	// vobject_link(VOBJECT(wview->workspacedefs), IOBJECT(ws));
@@ -1236,7 +1236,7 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_VARIABLE(Workspaceview, error_bar);
 	BIND_VARIABLE(Workspaceview, error_top);
 	BIND_VARIABLE(Workspaceview, error_sub);
-	BIND_VARIABLE(Workspaceview, toolkitbrowser);
+	BIND_VARIABLE(Workspaceview, kitgview);
 	BIND_VARIABLE(Workspaceview, scrolled_window);
 	BIND_VARIABLE(Workspaceview, fixed);
 

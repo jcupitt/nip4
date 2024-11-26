@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <template class="Toolkitbrowser" parent="View">
+  <template class="Toolkitgroupview" parent="View">
     <child>
 
       <object class="GtkStack" id="stack">
         <property name="transition-type">slide-left-right</property>
-        <style>
-          <class name="navigation-sidebar"/>
-        </style>
 
         <child>
           <object class="GtkStackPage">
@@ -29,7 +26,7 @@
                       <object class="GtkToggleButton" id="search_toggle">
                         <property name="icon-name">system-search-symbolic</property>
                         <signal name="toggled"
-                                handler="toolkitbrowser_search_toggled"/>
+                                handler="toolkitgroupview_search_toggled"/>
                       </object>
                     </child>
 
@@ -41,14 +38,14 @@
                         <child>
                           <object class="GtkEventControllerKey">
                             <signal name="key-pressed"
-                                    handler="toolkitbrowser_key_pressed"/>
+                                    handler="toolkitgroupview_key_pressed"/>
                           </object>
                         </child>
 
                         <child>
                           <object class="GtkEventControllerFocus">
                             <signal name="enter"
-                                    handler="toolkitbrowser_focus_enter"/>
+                                    handler="toolkitgroupview_focus_enter"/>
                           </object>
                         </child>
 

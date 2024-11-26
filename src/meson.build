@@ -115,7 +115,6 @@ sources = files (
   'tilecache.c',
   'tilesource.c',
   'tool.c',
-  'toolkitbrowser.c',
   'toolkit.c',
   'toolkitgroup.c',
   'toolkitgroupview.c',

@@ -184,8 +184,8 @@ typedef struct _Subcolumn Subcolumn;
 typedef struct _Subcolumnview Subcolumnview;
 typedef struct _Symbol Symbol;
 typedef struct _Toolitem Toolitem;
-typedef struct _Toolkitbrowser Toolkitbrowser;
 typedef struct _Toolkitgroup Toolkitgroup;
+typedef struct _Toolkitgroupview Toolkitgroupview;
 typedef struct _Toolkit Toolkit;
 typedef struct _Tool Tool;
 typedef struct _Trace Trace;
@@ -276,7 +276,6 @@ typedef struct _Workspace Workspace;
 #include "tool.h"
 #include "toolkit.h"
 #include "toolkitgroup.h"
-#include "toolkitbrowser.h"
 #include "builtin.h"
 #include "symbol.h"
 #include "dump.h"

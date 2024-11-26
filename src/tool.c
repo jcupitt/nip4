@@ -528,7 +528,7 @@ toolitem_set_user_path(Toolitem *toolitem)
 		vips_buf_appends(&buf, toolitem->parent->user_path);
 	else
 		vips_buf_appends(&buf, IOBJECT(toolitem->tool->kit)->name);
-	vips_buf_appendf(&buf, " / %s", toolitem->name);
+	vips_buf_appendf(&buf, " > %s", toolitem->name);
 	VIPS_SETSTR(toolitem->user_path, vips_buf_all(&buf));
 }
 

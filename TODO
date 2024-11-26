@@ -6,7 +6,7 @@
 
 		and do tool activation itself in workspaceview
 
-	- have a toolkitgroup property instead of a _set() function
+		no longer need toolkitbrowser_set_workspace() is ws does the activate
 
 - double-click in browse mode will add two pages with the same name
 
@@ -16,9 +16,16 @@
 
 - polish naming conventions, read final code
 
-- rename as toolkitview
+- rename as toolkitgroupview
 
 	we'll need toolkitbrowser for the programming window
+
+	maybe have a flag to make it show *all* toolkits and defs?
+
+	use view_link() in workspaceview_init to link toolkitgroupview to the
+	ws->local_kitg model
+
+	now we no longer need a thing to set kitg
 
 - need "im_system_image" wrapper for Magick menu
 

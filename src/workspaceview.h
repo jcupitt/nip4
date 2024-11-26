@@ -55,7 +55,7 @@ struct _Workspaceview {
 	GtkWidget *error_bar;
 	GtkWidget *error_top;
 	GtkWidget *error_sub;
-	GtkWidget *toolkitbrowser;
+	GtkWidget *kitgview;
 	GtkWidget *fixed;			/* GtkFixed for tally */
 	GtkWidget *scrolled_window; /* ScrolledWindow holding fixed */
 	GtkAdjustment *hadj;
