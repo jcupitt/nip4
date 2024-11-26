@@ -71,16 +71,10 @@
   margin-right: 8px;
 }
 
-.toolkitbrowser-separator {
+.toolkitgroupview-item {
   padding-top: 0px;
   padding-bottom: 0px;
   padding-left: 8px;
   padding-right: 8px;
-  min-height: 8px;
 }
-.toolkitbrowser-button {
-  padding-top: 1px;
-  padding-bottom: 1px;
-  padding-left: 8px;
-  padding-right: 8px;
-}
+

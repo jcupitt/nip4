@@ -50,6 +50,7 @@ subcolumnview_dispose(GObject *object)
 	sview = SUBCOLUMNVIEW(object);
 
 	gtk_widget_dispose_template(GTK_WIDGET(sview), SUBCOLUMNVIEW_TYPE);
+	VIPS_UNREF(sview->group);
 
 	G_OBJECT_CLASS(subcolumnview_parent_class)->dispose(object);
 }

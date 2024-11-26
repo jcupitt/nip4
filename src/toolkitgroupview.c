@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -304,11 +304,6 @@ static void
 toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 	GtkListItem *item)
 {
-	// bind can be triggered many times, we don't want to eg. attach
-	// callbacks more than once
-	if (g_object_get_qdata(G_OBJECT(button), node_quark))
-		return;
-
 	Toolkitgroupview *kitgview =
 		g_object_get_qdata(G_OBJECT(factory), toolkitgroupview_quark);
 
@@ -321,9 +316,16 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 	GtkWidget *label = gtk_widget_get_next_sibling(left);
 	GtkWidget *right = gtk_widget_get_next_sibling(label);
 
-	gtk_label_set_label(GTK_LABEL(label),
-		kitgview->search_mode && node->toolitem ?
-			node->toolitem->user_path : node_get_name(node));
+	// bind can be triggered many times, we don't want to eg. attach
+	// callbacks more than once
+	if (g_object_get_qdata(G_OBJECT(button), node_quark))
+		return;
+
+	if (kitgview->search_mode)
+		gtk_label_set_label(GTK_LABEL(label), node->toolitem->user_path);
+	else if (node->kit ||
+		(node->toolitem && !node->toolitem->is_separator))
+		gtk_label_set_label(GTK_LABEL(label), node_get_name(node));
 
 	if (parent &&
 		gtk_list_item_get_position(item) == 0) {
@@ -349,11 +351,10 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 			G_CALLBACK(toolkitgroupview_browse_clicked), kitgview);
 	}
 
+	gtk_widget_add_css_class(button, "toolkitgroupview-item");
 	if (node->toolitem &&
 		node->toolitem->is_separator)
-		gtk_widget_add_css_class(button, "toolkitgroupview-separator");
-	else
-		gtk_widget_add_css_class(button, "toolkitgroupview-button");
+		gtk_widget_set_sensitive(button, FALSE);
 
 	gtk_widget_remove_css_class(gtk_widget_get_parent(button), "activatable");
 }

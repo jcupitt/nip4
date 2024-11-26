@@ -4,15 +4,13 @@
 
 	harmless, but you get a warning
 
-- fix memleaks in tk browser
+- often see
 
-	often see
+	view_dump(): 2 views
+	0x5d40451c8110 Toolkitgroupview count=3
+	0x5d40447a9790 Workspaceview count=1
 
-		view_dump(): 2 views
-		0x5d40451c8110 Toolkitgroupview count=3
-		0x5d40447a9790 Workspaceview count=1
-
-	on shutdown, I'm sure there are others
+  on shutdown
 
 ## other
 

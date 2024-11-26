@@ -1,0 +1,99 @@
+# various nvidia wtfs
+
+{
+   nv1
+   Memcheck:ReallocZero
+   fun:realloc
+   ...
+   fun:NvGlEglApiInit
+}
+
+{
+   nv2
+   Memcheck:BadSize
+   fun:posix_memalign
+   ...
+   fun:NvGlEglApiInit
+}
+
+{
+   nv3
+   Memcheck:Param
+   write(buf)
+   fun:__libc_write
+   fun:write
+   obj:/usr/lib/x86_64-linux-gnu/libnvidia-egl-wayland.so.1.1.15
+   ...
+   fun:gdk_surface_ensure_egl_surface
+}
+
+{
+   nv4
+   Memcheck:Param
+   write(buf)
+   fun:__libc_write
+   fun:write
+   ...
+   fun:gdk_gl_context_real_end_frame
+}
+
+{
+   nv5
+   Memcheck:Param
+   write(buf)
+   fun:__libc_write
+   fun:write
+   ...
+   fun:gdk_surface_set_egl_native_window
+}
+
+# gtk accessibility seems to leak?
+{
+   gtk1
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:gtk_string_accessible_value_new
+}
+
+# gsk surfaces and stuff
+{
+   gsk1
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:gsk_gl_driver_for_display
+}
+
+{
+   gsk2
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:g_malloc0
+   fun:g_atomic_rc_box_alloc0
+   fun:gsk_transform_alloc
+   fun:gsk_transform_translate_3d
+   fun:gsk_transform_translate
+   fun:gtk_widget_allocate
+}
+
+{
+   gsk3
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   fun:g_realloc
+   ...
+   fun:gsk_gl_driver_load_programs
+}
+
+
+
+
+
+
+
+
