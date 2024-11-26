@@ -63,8 +63,6 @@ ientry_dispose(GObject *object)
 	G_OBJECT_CLASS(ientry_parent_class)->dispose(object);
 }
 
-/* From/to/value have changed ... tell everyone.
- */
 void
 ientry_changed(iEntry *ientry)
 {

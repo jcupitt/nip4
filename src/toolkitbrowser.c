@@ -130,10 +130,8 @@ node_new(Toolkit *kit, Toolitem *toolitem)
 static const char *
 node_get_name(Node *node)
 {
-	if (node->toolitem)
-		return node->toolitem->name;
-	else if (node->kit)
-		return IOBJECT(node->kit)->name;
+	return node->toolitem ?
+		node->toolitem->name : IOBJECT(node->kit)->name;
 }
 
 G_DEFINE_TYPE(Toolkitbrowser, toolkitbrowser, VOBJECT_TYPE);
@@ -232,13 +230,9 @@ toolkitbrowser_build_node(Toolkitbrowser *toolkitbrowser, Node *parent)
 }
 
 static void
-toolkitbrowser_build_browse_page(Toolkitbrowser *toolkitbrowser, Node *parent);
-
-static void
 toolkitbrowser_setup_browse_item(GtkListItemFactory *factory, GtkListItem *item)
 {
 	GtkWidget *button = gtk_button_new();
-	gtk_widget_add_css_class(button, "toolkitbrowser-button");
 	gtk_button_set_has_frame(GTK_BUTTON(button), FALSE);
 
 	GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
@@ -280,6 +274,9 @@ toolkitbrowser_activate(Toolkitbrowser *toolkitbrowser, Toolitem *toolitem)
 }
 
 static void
+toolkitbrowser_build_browse_page(Toolkitbrowser *toolkitbrowser, Node *parent);
+
+static void
 toolkitbrowser_browse_clicked(GtkWidget *button,
 	Toolkitbrowser *toolkitbrowser)
 {
@@ -319,12 +316,12 @@ toolkitbrowser_browse_back_clicked(GtkWidget *button,
 		(const char *) g_slist_last(toolkitbrowser->page_names)->data;
 
 	GtkWidget *last_page =
-		gtk_stack_get_visible_child(GTK_STACK(toolkitbrowser->browse_stack));
+		gtk_stack_get_visible_child(GTK_STACK(toolkitbrowser->stack));
 
-	gtk_stack_set_visible_child_name(GTK_STACK(toolkitbrowser->browse_stack),
+	gtk_stack_set_visible_child_name(GTK_STACK(toolkitbrowser->stack),
 		name);
 
-	gtk_stack_remove(GTK_STACK(toolkitbrowser->browse_stack), last_page);
+	gtk_stack_remove(GTK_STACK(toolkitbrowser->stack), last_page);
 }
 
 static void
@@ -367,14 +364,20 @@ toolkitbrowser_bind_browse_item(GtkListItemFactory *factory, GtkListItem *item)
 		g_signal_connect(button, "clicked",
 			G_CALLBACK(toolkitbrowser_browse_clicked), toolkitbrowser);
 	}
+
+	if (node->toolitem &&
+		node->toolitem->is_separator)
+		gtk_widget_add_css_class(button, "toolkitbrowser-separator");
+	else
+		gtk_widget_add_css_class(button, "toolkitbrowser-button");
+
+	gtk_widget_remove_css_class(gtk_widget_get_parent(button), "activatable");
 }
 
 static void
-toolkitbrowser_build_browse_page(Toolkitbrowser *toolkitbrowser, Node *this)
+toolkitbrowser_fill_browse_page(Toolkitbrowser *toolkitbrowser,
+	Node *this, GtkWidget *list_view)
 {
-	GListModel *model = toolkitbrowser_build_node(toolkitbrowser, this);
-	GtkNoSelection *selection = gtk_no_selection_new(G_LIST_MODEL(model));
-
 	GtkListItemFactory *factory = gtk_signal_list_item_factory_new();
 	g_object_set_qdata(G_OBJECT(factory), toolkitbrowser_quark, toolkitbrowser);
 	g_object_set_qdata(G_OBJECT(factory), node_quark, this);
@@ -382,19 +385,35 @@ toolkitbrowser_build_browse_page(Toolkitbrowser *toolkitbrowser, Node *this)
 		G_CALLBACK(toolkitbrowser_setup_browse_item), NULL);
 	g_signal_connect(factory, "bind",
 		G_CALLBACK(toolkitbrowser_bind_browse_item), NULL);
+	gtk_list_view_set_factory(GTK_LIST_VIEW(list_view), factory);
 
-	GtkWidget *view =
-		gtk_list_view_new(GTK_SELECTION_MODEL(selection), factory);
+	GListModel *model = toolkitbrowser_build_node(toolkitbrowser, this);
+	GtkNoSelection *selection = gtk_no_selection_new(G_LIST_MODEL(model));
+	gtk_list_view_set_model(GTK_LIST_VIEW(list_view),
+			GTK_SELECTION_MODEL(selection));
 
-	const char *name = this ? node_get_name(this) : "root";
-	GtkStackPage *page =
-		gtk_stack_add_named(GTK_STACK(toolkitbrowser->browse_stack),
-			view, name);
+}
 
+static void
+toolkitbrowser_build_browse_page(Toolkitbrowser *toolkitbrowser,
+	Node *this)
+{
+	const char *name = node_get_name(this);
+
+	GtkWidget *scrolled_window = gtk_scrolled_window_new();
+	gtk_stack_add_named(GTK_STACK(toolkitbrowser->stack),
+		scrolled_window, name);
 	toolkitbrowser->page_names =
 		g_slist_append(toolkitbrowser->page_names, (void *) name);
 
-	gtk_stack_set_visible_child(GTK_STACK(toolkitbrowser->browse_stack), view);
+	GtkWidget *list_view = gtk_list_view_new(NULL, NULL);
+	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window),
+		list_view);
+
+	toolkitbrowser_fill_browse_page(toolkitbrowser, this, list_view);
+
+	gtk_stack_set_visible_child(GTK_STACK(toolkitbrowser->stack),
+		scrolled_window);
 }
 
 /* Build the flat search list.
@@ -462,32 +481,41 @@ toolkitbrowser_refresh(vObject *vobject)
 	printf("toolkitbrowser_refresh:\n");
 #endif /*DEBUG*/
 
-	// rebuild the nested menu
+	// remove all stack pages except the first
+	GtkWidget *stack = toolkitbrowser->stack;
+	GtkWidget *root_page = gtk_widget_get_first_child(stack);
+	if (root_page) {
+		GtkWidget *child;
 
-	GtkWidget *stack = toolkitbrowser->browse_stack;
-	GtkWidget *child;
-	while ((child = gtk_widget_get_first_child(stack)))
-		gtk_stack_remove(GTK_STACK(stack), child);
-
+		while ((child = gtk_widget_get_next_sibling(root_page)))
+			gtk_stack_remove(GTK_STACK(stack), child);
+	}
 	VIPS_FREEF(g_slist_free, toolkitbrowser->page_names);
+	toolkitbrowser->page_names =
+		g_slist_append(toolkitbrowser->page_names, (void *) "root");
 
-	toolkitbrowser_build_browse_page(toolkitbrowser, NULL);
+	if (toolkitbrowser->search_mode) {
+		// build the flat search list
+		GListModel *list_model = toolkitbrowser_create_list(toolkitbrowser);
 
-	// rebuild the search list for find
+		GtkExpression *expression =
+			gtk_property_expression_new(NODE_TYPE, NULL, "search-text");
+		toolkitbrowser->filter = gtk_string_filter_new(expression);
+		GtkFilterListModel *filter_model =
+			gtk_filter_list_model_new(G_LIST_MODEL(list_model),
+					GTK_FILTER(toolkitbrowser->filter));
 
-	GListModel *list_model = toolkitbrowser_create_list(toolkitbrowser);
-
-	GtkExpression *expression =
-		gtk_property_expression_new(NODE_TYPE, NULL, "search-text");
-	toolkitbrowser->filter = gtk_string_filter_new(expression);
-	GtkFilterListModel *filter_model =
-		gtk_filter_list_model_new(G_LIST_MODEL(list_model),
-				GTK_FILTER(toolkitbrowser->filter));
-
-	GtkNoSelection *selection =
-		gtk_no_selection_new(G_LIST_MODEL(filter_model));
-	gtk_list_view_set_model(GTK_LIST_VIEW(toolkitbrowser->list_view),
-		GTK_SELECTION_MODEL(selection));
+		GtkNoSelection *selection =
+			gtk_no_selection_new(G_LIST_MODEL(filter_model));
+		gtk_list_view_set_model(GTK_LIST_VIEW(toolkitbrowser->list_view),
+			GTK_SELECTION_MODEL(selection));
+	}
+	else {
+		// build the nested menu
+		toolkitbrowser_fill_browse_page(toolkitbrowser,
+			NULL, toolkitbrowser->list_view);
+		toolkitbrowser->filter = NULL;
+	}
 
 	VOBJECT_CLASS(toolkitbrowser_parent_class)->refresh(vobject);
 }
@@ -507,7 +535,7 @@ toolkitbrowser_link(vObject *vobject, iObject *iobject)
 	toolkitbrowser->kitg = kitg;
 
 	// do we need this?
-	toolkitbrowser_refresh(VOBJECT(toolkitbrowser));
+	vobject_refresh_queue(VOBJECT(toolkitbrowser));
 
 	VOBJECT_CLASS(toolkitbrowser_parent_class)->link(vobject, iobject);
 }
@@ -536,30 +564,74 @@ toolkitbrowser_list_view_activate(GtkListView *self,
 }
 
 static void
-toolkitbrowser_search_changed(GtkSearchEntry *entry, void *a)
+toolkitbrowser_set_search_mode(Toolkitbrowser *toolkitbrowser,
+	gboolean search_mode)
 {
-	Toolkitbrowser *toolkitbrowser = TOOLKITBROWSER(a);
+	if (toolkitbrowser->search_mode != search_mode) {
+		toolkitbrowser->search_mode = search_mode;
 
-#ifdef DEBUG
-	printf("toolkitbrowser_search_changed:\n");
-#endif /*DEBUG*/
+		gtk_toggle_button_set_active(
+			GTK_TOGGLE_BUTTON(toolkitbrowser->search_toggle), search_mode);
 
-	gtk_string_filter_set_search(toolkitbrowser->filter,
-		gtk_editable_get_text(GTK_EDITABLE(entry)));
+		if (search_mode)
+			gtk_widget_grab_focus(toolkitbrowser->search_entry);
+		else {
+			GtkEntryBuffer *buffer =
+				gtk_entry_get_buffer(GTK_ENTRY(toolkitbrowser->search_entry));
+
+			g_signal_handlers_block_matched(
+				G_OBJECT(toolkitbrowser->search_entry),
+				G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, toolkitbrowser);
+			gtk_entry_buffer_set_text(buffer, "", 0);
+			g_signal_handlers_unblock_matched(
+				G_OBJECT(toolkitbrowser->search_entry),
+				G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, toolkitbrowser);
+
+			gtk_widget_grab_focus(toolkitbrowser->search_toggle);
+		}
+
+		toolkitbrowser_refresh(VOBJECT(toolkitbrowser));
+	}
 }
 
 static void
-toolkitbrowser_search_toggled(GtkToggleButton *button, void *a)
+toolkitbrowser_search_toggled(GtkToggleButton *button,
+	Toolkitbrowser *toolkitbrowser)
 {
-	Toolkitbrowser *toolkitbrowser = TOOLKITBROWSER(a);
-
 #ifdef DEBUG
-	printf("toolkitbrowser_search_changed:\n");
+	printf("toolkitbrowser_search_toggled:\n");
 #endif /*DEBUG*/
 
-	g_object_set(toolkitbrowser->mode_stack, "visible-child-name",
-		gtk_toggle_button_get_active(button) ?  "search" : "browse",
-		NULL);
+	toolkitbrowser_set_search_mode(toolkitbrowser,
+		gtk_toggle_button_get_active(button));
+}
+
+static gboolean
+toolkitbrowser_key_pressed(GtkEventControllerKey *self,
+	guint keyval, guint keycode, GdkModifierType state,
+	Toolkitbrowser *toolkitbrowser)
+{
+	gboolean handled;
+
+#ifdef DEBUG
+	printf("toolkitbrowser_key_pressed:\n");
+#endif /*DEBUG*/
+
+	handled = FALSE;
+
+	if (keyval == GDK_KEY_Escape) {
+		toolkitbrowser_set_search_mode(toolkitbrowser, FALSE);
+		handled = TRUE;
+	}
+
+	return handled;
+}
+
+static void
+toolkitbrowser_focus_enter(GtkEventControllerFocus *self,
+	Toolkitbrowser *toolkitbrowser)
+{
+	toolkitbrowser_set_search_mode(toolkitbrowser, TRUE);
 }
 
 static void
@@ -576,20 +648,18 @@ toolkitbrowser_class_init(ToolkitbrowserClass *class)
 	BIND_RESOURCE("toolkitbrowser.ui");
 	BIND_LAYOUT();
 
-	BIND_VARIABLE(Toolkitbrowser, top);
+	BIND_VARIABLE(Toolkitbrowser, stack);
+	BIND_VARIABLE(Toolkitbrowser, search_toggle);
 	BIND_VARIABLE(Toolkitbrowser, search_entry);
-	BIND_VARIABLE(Toolkitbrowser, mode_stack);
 	BIND_VARIABLE(Toolkitbrowser, list_view);
-	BIND_VARIABLE(Toolkitbrowser, browse_stack);
 
 	BIND_CALLBACK(toolkitbrowser_list_view_activate);
 	BIND_CALLBACK(toolkitbrowser_search_toggled);
-
-	BIND_CALLBACK(toolkitbrowser_search_changed);
+	BIND_CALLBACK(toolkitbrowser_key_pressed);
+	BIND_CALLBACK(toolkitbrowser_focus_enter);
 
 	toolkitbrowser_quark = g_quark_from_static_string("toolkitbrowser-quark");
 	node_quark = g_quark_from_static_string("node-quark");
-
 }
 
 static void
@@ -632,6 +702,21 @@ toolkitbrowser_bind_listitem(GtkListItemFactory *factory,
 }
 
 static void
+toolkitbrowser_entry_length_notify(GtkWidget *widget,
+	GParamSpec *pspec, Toolkitbrowser *toolkitbrowser)
+{
+#ifdef DEBUG
+	printf("ientry_length_notify:\n");
+#endif /*DEBUG*/
+
+	//toolkitbrowser_set_search_mode(toolkitbrowser, TRUE);
+
+	if (toolkitbrowser->filter)
+		gtk_string_filter_set_search(toolkitbrowser->filter,
+			gtk_editable_get_text(GTK_EDITABLE(toolkitbrowser->search_entry)));
+}
+
+static void
 toolkitbrowser_init(Toolkitbrowser *toolkitbrowser)
 {
 	gtk_widget_init_template(GTK_WIDGET(toolkitbrowser));
@@ -644,6 +729,11 @@ toolkitbrowser_init(Toolkitbrowser *toolkitbrowser)
 		G_CALLBACK(toolkitbrowser_bind_listitem), NULL);
 	gtk_list_view_set_factory(GTK_LIST_VIEW(toolkitbrowser->list_view),
 		factory);
+
+	GtkEntryBuffer *buffer =
+		gtk_entry_get_buffer(GTK_ENTRY(toolkitbrowser->search_entry));
+	g_signal_connect(buffer, "notify::length",
+		G_CALLBACK(toolkitbrowser_entry_length_notify), toolkitbrowser);
 }
 
 Toolkitbrowser *

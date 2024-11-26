@@ -1,5 +1,7 @@
 ## toolkit browser
 
+- list view still has some pullrights!
+
 - make toolkitbrowser into a standalone widget
 
 	- emit "activate" on tool activate

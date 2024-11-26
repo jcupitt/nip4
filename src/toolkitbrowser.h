@@ -45,19 +45,20 @@ struct _Toolkitbrowser {
 	Toolkitgroup *kitg;
 	Workspace *ws;
 
-	/* Fuilter list mode with this.
+	/* Filter list mode with this.
 	 */
 	GtkStringFilter *filter;
 
-	GtkWidget *top;
+	/* In search mode.
+	 */
+	gboolean search_mode;
 
-	GtkWidget *mode_stack;		/* Stack to flip between search and browse */
+	GtkWidget *stack;
+	GSList *page_names;			/* Page names for our stack, root first */
+	GtkWidget *search_toggle;
+	GtkWidget *search_entry;
+	GtkWidget *list_view;
 
-	GtkWidget *browse_stack;	/* Menu-like browser */
-	GSList *page_names;			/* List of page names, root first */
-
-	GtkWidget *search_entry;	/* Search widget */
-	GtkWidget *list_view;		/* Flat list of items */
 };
 
 typedef struct _ToolkitbrowserClass {

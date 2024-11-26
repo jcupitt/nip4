@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Toolkitbrowser" parent="vObject">
+    <child>
+
+      <object class="GtkBox" id="top">
+        <property name="orientation">vertical</property>
+        <property name="hexpand">false</property>
+        <property name="vexpand">true</property>
+        <style>
+          <class name="navigation-sidebar"/>
+        </style>
+
+        <child>
+          <object class="GtkActionBar">
+
+            <child type="start">
+              <object class="GtkToggleButton">
+                <property name="icon-name">system-search-symbolic</property>
+                <signal name="toggled"
+                        handler="toolkitbrowser_search_toggled"/>
+              </object>
+            </child>
+
+            <child type="center">
+              <object class="GtkLabel">
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+		<property name="label">Toolkits</property>
+              </object>
+            </child>
+
+            <child type="end">
+              <object class="GtkButton">
+                <property name="icon-name">document-edit-symbolic</property>
+	      </object>
+            </child>
+
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkStack" id="mode_stack">
+            <property name="transition-type">over-right-left</property>
+
+            <!-- left-right column "menu" -->
+            <child>
+              <object class="GtkStackPage">
+                <property name="name">browse</property>
+
+                <property name="child">
+                  <object class="GtkScrolledWindow">
+                    <property name="hexpand">false</property>
+                    <property name="vexpand">true</property>
+                    <property name="hscrollbar-policy">never</property>
+
+                    <child>
+                      <object class="GtkStack" id="browse_stack">
+                        <property name="transition-type">slide-left-right</property>
+                      </object>
+                    </child>
+
+                  </object>
+                </property>
+
+              </object>
+            </child>
+
+            <!-- flat searchable list -->
+            <child>
+              <object class="GtkStackPage">
+                <property name="name">search</property>
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+
+                    <child>
+                      <object class="GtkSearchEntry" id="search_entry">
+                        <property name="hexpand">false</property>
+                        <property name="placeholder-text">Filter tools</property>
+                        <signal name="search-changed"
+                                handler="toolkitbrowser_search_changed"/>
+                      </object>
+                    </child>
+
+
+                    <child>
+                      <object class="GtkScrolledWindow">
+                        <property name="hexpand">false</property>
+                        <property name="vexpand">true</property>
+                        <property name="hscrollbar-policy">never</property>
+
+                        <child>
+                          <object class="GtkListView" id="list_view">
+                            <property name="tab-behavior">item</property>
+                            <property name="single-click-activate">true</property>
+                            <signal name="activate"
+                               handler="toolkitbrowser_list_view_activate"/>
+
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                  </object>
+                </property>
+
+              </object>
+            </child>
+
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+  </template>
+</interface>
