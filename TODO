@@ -1,9 +1,5 @@
 ## toolkit browser
 
-- clicking in list mode issues toolkitgroupview_browse_clicked() four times!
-
-	works in nested mode?
-
 - double-click in browse mode will add two pages with the same name
 
 	harmless, but you get a warning

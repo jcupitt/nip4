@@ -304,6 +304,11 @@ static void
 toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 	GtkListItem *item)
 {
+	// bind can be triggered many times, we don't want to eg. attach
+	// callbacks more than once
+	if (g_object_get_qdata(G_OBJECT(button), node_quark))
+		return;
+
 	Toolkitgroupview *kitgview =
 		g_object_get_qdata(G_OBJECT(factory), toolkitgroupview_quark);
 
