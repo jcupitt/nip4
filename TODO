@@ -12,6 +12,8 @@
 
 	harmless, but you get a warning
 
+- fix memleaks in tk browser
+
 - polish naming conventions, read final code
 
 - rename as toolkitview

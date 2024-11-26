@@ -40,7 +40,7 @@
 	(G_TYPE_INSTANCE_GET_CLASS((obj), TOOLKITBROWSER_TYPE, ToolkitbrowserClass))
 
 struct _Toolkitbrowser {
-	vObject parent_object;
+	View parent_object;
 
 	Toolkitgroup *kitg;
 	Workspace *ws;
@@ -62,7 +62,7 @@ struct _Toolkitbrowser {
 };
 
 typedef struct _ToolkitbrowserClass {
-	vObjectClass parent_class;
+	ViewClass parent_class;
 
 } ToolkitbrowserClass;
 

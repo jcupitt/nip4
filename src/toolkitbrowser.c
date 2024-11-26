@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -134,7 +134,7 @@ node_get_name(Node *node)
 		node->toolitem->name : IOBJECT(node->kit)->name;
 }
 
-G_DEFINE_TYPE(Toolkitbrowser, toolkitbrowser, VOBJECT_TYPE);
+G_DEFINE_TYPE(Toolkitbrowser, toolkitbrowser, VIEW_TYPE);
 
 static void
 toolkitbrowser_dispose(GObject *object)
@@ -155,10 +155,7 @@ toolkitbrowser_dispose(GObject *object)
 static void *
 toolkitbrowser_build_kit(Toolkit *kit, void *a, void *b)
 {
-	Toolkitbrowser *toolkitbrowser = TOOLKITBROWSER(a);
 	GListStore *store = G_LIST_STORE(b);
-
-	printf("toolkitbrowser_build_kit: %s\n", IOBJECT(kit)->name);
 
 	if (kit &&
 		MODEL(kit)->display &&
@@ -171,10 +168,7 @@ toolkitbrowser_build_kit(Toolkit *kit, void *a, void *b)
 static void *
 toolkitbrowser_build_tool(Tool *tool, void *a, void *b)
 {
-	Toolkitbrowser *toolkitbrowser = TOOLKITBROWSER(a);
 	GListStore *store = G_LIST_STORE(b);
-
-	printf("toolkitbrowser_build_tool: %s\n", IOBJECT(tool)->name);
 
 	if (MODEL(tool)->display &&
 		tool->toolitem)
@@ -186,10 +180,7 @@ toolkitbrowser_build_tool(Tool *tool, void *a, void *b)
 static void *
 toolkitbrowser_build_toolitem(Toolitem *toolitem, void *a, void *b)
 {
-	Toolkitbrowser *toolkitbrowser = TOOLKITBROWSER(a);
 	GListStore *store = G_LIST_STORE(b);
-
-	printf("toolkitbrowser_build_toolitem: %s\n", toolitem->name);
 
 	if (toolitem->tool &&
 		MODEL(toolitem->tool)->display &&
@@ -282,8 +273,6 @@ toolkitbrowser_browse_clicked(GtkWidget *button,
 {
 	Node *node = g_object_get_qdata(G_OBJECT(button), node_quark);
 
-	printf("toolkitbrowser_browse_clicked:\n");
-
 	if (node->toolitem &&
 		!node->toolitem->is_separator &&
 		!node->toolitem->is_pullright &&
@@ -299,15 +288,6 @@ static void
 toolkitbrowser_browse_back_clicked(GtkWidget *button,
 	Toolkitbrowser *toolkitbrowser)
 {
-	printf("toolkitbrowser_browse_back_clicked:\n");
-
-	Node *parent = g_object_get_qdata(G_OBJECT(button), node_quark);
-
-	GtkWidget *box = gtk_button_get_child(GTK_BUTTON(button));
-	GtkWidget *left = gtk_widget_get_first_child(box);
-	GtkWidget *label = gtk_widget_get_next_sibling(left);
-	GtkWidget *right = gtk_widget_get_next_sibling(label);
-
 	const char *last_name =
 		(const char *) g_slist_last(toolkitbrowser->page_names)->data;
 	toolkitbrowser->page_names =
@@ -534,9 +514,6 @@ toolkitbrowser_link(vObject *vobject, iObject *iobject)
 	g_assert(!toolkitbrowser->kitg);
 
 	toolkitbrowser->kitg = kitg;
-
-	// do we need this?
-	vobject_refresh_queue(VOBJECT(toolkitbrowser));
 
 	VOBJECT_CLASS(toolkitbrowser_parent_class)->link(vobject, iobject);
 }
