@@ -1,12 +1,8 @@
 ## toolkit browser
 
-- make toolkitbrowser into a standalone widget
+- clicking in list mode issues toolkitgroupview_browse_clicked() four times!
 
-	- emit "activate" on tool activate
-
-		and do tool activation itself in workspaceview
-
-		no longer need toolkitbrowser_set_workspace() is ws does the activate
+	works in nested mode?
 
 - double-click in browse mode will add two pages with the same name
 
@@ -14,23 +10,17 @@
 
 - fix memleaks in tk browser
 
-- polish naming conventions, read final code
+	often see
 
-- rename as toolkitgroupview
+		view_dump(): 2 views
+		0x5d40451c8110 Toolkitgroupview count=3
+		0x5d40447a9790 Workspaceview count=1
 
-	we'll need toolkitbrowser for the programming window
-
-	maybe have a flag to make it show *all* toolkits and defs?
-
-	use view_link() in workspaceview_init to link toolkitgroupview to the
-	ws->local_kitg model
-
-	now we no longer need a thing to set kitg
-
-- need "im_system_image" wrapper for Magick menu
-
+	on shutdown, I'm sure there are others
 
 ## other
+
+- need "im_system_image" wrapper for Magick menu
 
 - when dragging a row, always select destination column on drop
 

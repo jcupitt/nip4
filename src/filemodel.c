@@ -732,17 +732,14 @@ filemodel_save_before_close_cb(GObject *source_object,
 		next(parent, filemodel, a, b);
 		break;
 
-	case 1:
-		// cancel whole process
-		break;
-
 	case 2:
 		// save then move on
 		filemodel_saveas(parent, filemodel, next, error, a, b);
 		break;
 
 	default:
-		g_assert_not_reached();
+		// cancel whole process
+		break;
 	}
 }
 

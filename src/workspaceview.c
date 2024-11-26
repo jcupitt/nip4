@@ -430,6 +430,23 @@ workspaceview_realize(GtkWidget *widget)
 }
 
 static void
+workspaceview_kitg_activate(Toolkitgroupview *kitgview,
+	Toolitem *toolitem, Workspaceview *wview)
+{
+	if (toolitem &&
+		!toolitem->is_separator &&
+		!toolitem->is_pullright &&
+		toolitem->action) {
+		Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+		if (!workspace_add_action(ws,
+				toolitem->name, toolitem->action,
+				toolitem->action_sym->expr->compile->nparam))
+			workspace_set_show_error(ws, TRUE);
+	}
+}
+
+static void
 workspaceview_link(View *view, Model *model, View *parent)
 {
 	VIEW_CLASS(workspaceview_parent_class)->link(view, model, parent);
@@ -437,7 +454,8 @@ workspaceview_link(View *view, Model *model, View *parent)
 	Workspace *ws = WORKSPACE(model);
 	Workspaceview *wview = WORKSPACEVIEW(view);
 	vobject_link(VOBJECT(wview->kitgview), IOBJECT(ws->kitg));
-	toolkitgroupview_set_workspace(TOOLKITGROUPVIEW(wview->kitgview), ws);
+	g_signal_connect(G_OBJECT(wview->kitgview), "activate",
+		G_CALLBACK(workspaceview_kitg_activate), wview);
 
 	printf("workspaceview_link: FIXME ws defs, panes, etc.\n");
 	// vobject_link(VOBJECT(wview->workspacedefs), IOBJECT(ws));

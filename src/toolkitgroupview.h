@@ -44,9 +44,6 @@
 struct _Toolkitgroupview {
 	View parent_object;
 
-	Toolkitgroup *kitg;
-	Workspace *ws;
-
 	/* Filter list mode with this.
 	 */
 	GtkStringFilter *filter;
@@ -55,8 +52,11 @@ struct _Toolkitgroupview {
 	 */
 	gboolean search_mode;
 
+	/* Page names for our stack, root first. Use this for go-backk.
+	 */
+	GSList *page_names;
+
 	GtkWidget *stack;
-	GSList *page_names;			/* Page names for our stack, root first */
 	GtkWidget *search_toggle;
 	GtkWidget *search_entry;
 	GtkWidget *list_view;
@@ -70,6 +70,3 @@ typedef struct _ToolkitgroupviewClass {
 
 GType toolkitgroupview_get_type(void);
 View *toolkitgroupview_new(void);
-
-void toolkitgroupview_set_workspace(Toolkitgroupview *toolkitgroupview,
-	Workspace *ws);

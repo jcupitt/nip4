@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -58,7 +58,6 @@ G_DEFINE_TYPE(Node, node, G_TYPE_OBJECT);
 #define NODE_TYPE (node_get_type())
 #define NODE(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), NODE_TYPE, Node))
 
-static GQuark toolkitgroupview_quark = 0;
 static GQuark node_quark = 0;
 
 enum {
@@ -136,14 +135,33 @@ node_get_name(Node *node)
 
 G_DEFINE_TYPE(Toolkitgroupview, toolkitgroupview, VIEW_TYPE);
 
+enum {
+	SIG_ACTIVATE = 1,
+
+	SIG_LAST
+};
+
+static GQuark toolkitgroupview_quark = 0;
+
+static guint toolkitgroupview_signals[SIG_LAST] = { 0 };
+
+static void
+toolkitgroupview_activate(Toolkitgroupview *kitgview, Toolitem *toolitem)
+{
+#ifdef DEBUG
+	printf("toolkitgroupview_activate:\n");
+#endif /*DEBUG*/
+
+	g_signal_emit(G_OBJECT(kitgview),
+		toolkitgroupview_signals[SIG_ACTIVATE], 0, toolitem);
+}
+
 static void
 toolkitgroupview_dispose(GObject *object)
 {
 	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(object);
 
-	gtk_widget_dispose_template(GTK_WIDGET(kitgview),
-		TOOLKITGROUPVIEW_TYPE);
-
+	gtk_widget_dispose_template(GTK_WIDGET(kitgview), TOOLKITGROUPVIEW_TYPE);
 	VIPS_FREEF(g_slist_free, kitgview->page_names);
 
 	G_OBJECT_CLASS(toolkitgroupview_parent_class)->dispose(object);
@@ -193,6 +211,7 @@ toolkitgroupview_build_toolitem(Toolitem *toolitem, void *a, void *b)
 static GListModel *
 toolkitgroupview_build_node(Toolkitgroupview *kitgview, Node *parent)
 {
+	Toolkitgroup *kitg = TOOLKITGROUP(VOBJECT(kitgview)->iobject);
 	GListStore *store = g_list_store_new(NODE_TYPE);
 
 	// make "go to parent" the first item
@@ -200,10 +219,9 @@ toolkitgroupview_build_node(Toolkitgroupview *kitgview, Node *parent)
 		g_list_store_append(store, G_OBJECT(parent));
 
 	if (!parent &&
-		kitgview->kitg)
+		kitg)
 		// make the root store
-		toolkitgroup_map(kitgview->kitg,
-			toolkitgroupview_build_kit, kitgview, store);
+		toolkitgroup_map(kitg, toolkitgroupview_build_kit, kitgview, store);
 	else if (parent &&
 		parent->kit)
 		// expand the kit to a new store
@@ -252,20 +270,6 @@ toolkitgroupview_setup_browse_item(GtkListItemFactory *factory,
 }
 
 static void
-toolkitgroupview_activate(Toolkitgroupview *kitgview, Toolitem *toolitem)
-{
-	if (toolitem &&
-		!toolitem->is_separator &&
-		!toolitem->is_pullright &&
-		toolitem->action) {
-		if (!workspace_add_action(kitgview->ws,
-			toolitem->name, toolitem->action,
-			toolitem->action_sym->expr->compile->nparam))
-			workspace_set_show_error(kitgview->ws, TRUE);
-	}
-}
-
-static void
 toolkitgroupview_build_browse_page(Toolkitgroupview *kitgview, Node *parent);
 
 static void
@@ -274,11 +278,7 @@ toolkitgroupview_browse_clicked(GtkWidget *button,
 {
 	Node *node = g_object_get_qdata(G_OBJECT(button), node_quark);
 
-	if (node->toolitem &&
-		!node->toolitem->is_separator &&
-		!node->toolitem->is_pullright &&
-		node->toolitem->action)
-		toolkitgroupview_activate(kitgview, node->toolitem);
+	toolkitgroupview_activate(kitgview, node->toolitem);
 
 	if (node->kit ||
 		(node->toolitem && node->toolitem->is_pullright))
@@ -370,20 +370,16 @@ toolkitgroupview_fill_browse_page(Toolkitgroupview *kitgview,
 	GtkNoSelection *selection = gtk_no_selection_new(G_LIST_MODEL(model));
 	gtk_list_view_set_model(GTK_LIST_VIEW(list_view),
 			GTK_SELECTION_MODEL(selection));
-
 }
 
 static void
-toolkitgroupview_build_browse_page(Toolkitgroupview *kitgview,
-	Node *this)
+toolkitgroupview_build_browse_page(Toolkitgroupview *kitgview, Node *this)
 {
 	const char *name = node_get_name(this);
 
 	GtkWidget *scrolled_window = gtk_scrolled_window_new();
-	gtk_stack_add_named(GTK_STACK(kitgview->stack),
-		scrolled_window, name);
-	kitgview->page_names =
-		g_slist_append(kitgview->page_names, (void *) name);
+	gtk_stack_add_named(GTK_STACK(kitgview->stack), scrolled_window, name);
+	kitgview->page_names = g_slist_append(kitgview->page_names, (void *) name);
 
 	GtkWidget *list_view = gtk_list_view_new(NULL, NULL);
 	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window),
@@ -433,8 +429,7 @@ toolkitgroupview_build_kit_list(Toolkit *kit, void *a, void *b)
 	if (kit &&
 		MODEL(kit)->display &&
 		IOBJECT(kit)->name)
-		toolkit_map(kit,
-			toolkitgroupview_build_tool_list, store, NULL);
+		toolkit_map(kit, toolkitgroupview_build_tool_list, store, NULL);
 
 	return NULL;
 }
@@ -442,12 +437,12 @@ toolkitgroupview_build_kit_list(Toolkit *kit, void *a, void *b)
 static GListModel *
 toolkitgroupview_create_list(Toolkitgroupview *kitgview)
 {
+	Toolkitgroup *kitg = TOOLKITGROUP(VOBJECT(kitgview)->iobject);
+
 	GListStore *store;
 
 	store = g_list_store_new(NODE_TYPE);
-
-	toolkitgroup_map(kitgview->kitg,
-		toolkitgroupview_build_kit_list, store, NULL);
+	toolkitgroup_map(kitg, toolkitgroupview_build_kit_list, store, NULL);
 
 	return G_LIST_MODEL(store);
 }
@@ -474,6 +469,10 @@ toolkitgroupview_refresh(vObject *vobject)
 	kitgview->page_names =
 		g_slist_append(kitgview->page_names, (void *) "root");
 
+	// remove any model the base list_view
+	gtk_list_view_set_model(GTK_LIST_VIEW(kitgview->list_view), NULL);
+	kitgview->filter = NULL;
+
 	if (kitgview->search_mode) {
 		// build the flat search list
 		GListModel *list_model = toolkitgroupview_create_list(kitgview);
@@ -492,29 +491,11 @@ toolkitgroupview_refresh(vObject *vobject)
 	}
 	else {
 		// build the nested menu
-		toolkitgroupview_fill_browse_page(kitgview,
-			NULL, kitgview->list_view);
+		toolkitgroupview_fill_browse_page(kitgview, NULL, kitgview->list_view);
 		kitgview->filter = NULL;
 	}
 
 	VOBJECT_CLASS(toolkitgroupview_parent_class)->refresh(vobject);
-}
-
-static void
-toolkitgroupview_link(vObject *vobject, iObject *iobject)
-{
-	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(vobject);
-	Toolkitgroup *kitg = TOOLKITGROUP(iobject);
-
-#ifdef DEBUG
-	printf("toolkitgroupview_link:\n");
-#endif /*DEBUG*/
-
-	g_assert(!kitgview->kitg);
-
-	kitgview->kitg = kitg;
-
-	VOBJECT_CLASS(toolkitgroupview_parent_class)->link(vobject, iobject);
 }
 
 static void
@@ -597,7 +578,6 @@ toolkitgroupview_class_init(ToolkitgroupviewClass *class)
 	gobject_class->dispose = toolkitgroupview_dispose;
 
 	vobject_class->refresh = toolkitgroupview_refresh;
-	vobject_class->link = toolkitgroupview_link;
 
 	BIND_RESOURCE("toolkitgroupview.ui");
 	BIND_LAYOUT();
@@ -611,7 +591,16 @@ toolkitgroupview_class_init(ToolkitgroupviewClass *class)
 	BIND_CALLBACK(toolkitgroupview_key_pressed);
 	BIND_CALLBACK(toolkitgroupview_focus_enter);
 
-	toolkitgroupview_quark = g_quark_from_static_string("toolkitgroupview-quark");
+	toolkitgroupview_signals[SIG_ACTIVATE] = g_signal_new("activate",
+		G_OBJECT_CLASS_TYPE(gobject_class),
+		G_SIGNAL_RUN_FIRST,
+		0, NULL, NULL,
+		g_cclosure_marshal_VOID__POINTER,
+		G_TYPE_NONE, 1,
+		G_TYPE_POINTER);
+
+	toolkitgroupview_quark =
+		g_quark_from_static_string("toolkitgroupview-quark");
 	node_quark = g_quark_from_static_string("node-quark");
 }
 
@@ -620,7 +609,7 @@ toolkitgroupview_entry_length_notify(GtkWidget *widget,
 	GParamSpec *pspec, Toolkitgroupview *kitgview)
 {
 #ifdef DEBUG
-	printf("ientry_length_notify:\n");
+	printf("toolkitgroupview_length_notify:\n");
 #endif /*DEBUG*/
 
 	if (kitgview->filter)
@@ -647,10 +636,3 @@ toolkitgroupview_new(void)
 	return VIEW(kitgview);
 }
 
-void
-toolkitgroupview_set_workspace(Toolkitgroupview *kitgview, Workspace *ws)
-{
-	g_assert(!kitgview->ws);
-
-	kitgview->ws = ws;
-}
