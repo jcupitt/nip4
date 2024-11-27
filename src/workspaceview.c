@@ -1312,6 +1312,9 @@ workspaceview_init(Workspaceview *wview)
 	if (GTK_IS_VIEWPORT(child))
 		gtk_viewport_set_scroll_to_focus(GTK_VIEWPORT(child), FALSE);
 
+	gtk_paned_set_resize_start_child(GTK_PANED(wview->top), TRUE);
+	gtk_paned_set_shrink_start_child(GTK_PANED(wview->top), TRUE);
+
 	// a lot of stuff to go in here
 	printf("workspaceview_init: FIXME we must do stuff\n");
 }

@@ -4,15 +4,14 @@
   <template class="Workspaceview" parent="View">
 
     <child>
-      <object class="GtkBox" id="top">
+      <object class="GtkPaned" id="top">
         <property name="orientation">horizontal</property>
-        <property name="hexpand">true</property>
-        <property name="vexpand">true</property>
-        <property name="spacing">3</property>
+        <property name="position">200</property>
 
         <child>
           <object class="Toolkitgroupview" id="kitgview">
             <property name="margin-start">3px</property>
+            <property name="margin-end">3px</property>
             <property name="hexpand">false</property>
             <property name="vexpand">true</property>
             <style><class name="navigation-sidebar"/></style>

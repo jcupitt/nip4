@@ -12,8 +12,6 @@
 
   on shutdown
 
-- put the tkgview in a pane?
-
 ## other
 
 - Colour / New / Colour, convert to scRGB, black!

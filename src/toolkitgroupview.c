@@ -257,6 +257,7 @@ toolkitgroupview_setup_browse_item(GtkListItemFactory *factory,
 	GtkWidget *label = gtk_label_new("");
 	gtk_widget_set_hexpand(label, TRUE);
 	gtk_label_set_xalign(GTK_LABEL(label), 0.0);
+	gtk_label_set_ellipsize(GTK_LABEL(label), PANGO_ELLIPSIZE_END);
 	gtk_box_append(GTK_BOX(box), label);
 
 	GtkWidget *right = gtk_image_new();
