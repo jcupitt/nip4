@@ -162,6 +162,7 @@ toolkitgroupview_dispose(GObject *object)
 	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(object);
 
 	gtk_widget_dispose_template(GTK_WIDGET(kitgview), TOOLKITGROUPVIEW_TYPE);
+
 	VIPS_FREEF(g_slist_free, kitgview->page_names);
 
 	G_OBJECT_CLASS(toolkitgroupview_parent_class)->dispose(object);
@@ -514,8 +515,10 @@ toolkitgroupview_set_search_mode(Toolkitgroupview *kitgview,
 		gtk_toggle_button_set_active(
 			GTK_TOGGLE_BUTTON(kitgview->search_toggle), search_mode);
 
-		if (search_mode)
+		if (search_mode) {
+			gtk_widget_set_sensitive(kitgview->search_entry, TRUE);
 			gtk_widget_grab_focus(kitgview->search_entry);
+		}
 		else {
 			GtkEntryBuffer *buffer =
 				gtk_entry_get_buffer(GTK_ENTRY(kitgview->search_entry));
@@ -528,7 +531,8 @@ toolkitgroupview_set_search_mode(Toolkitgroupview *kitgview,
 				G_OBJECT(kitgview->search_entry),
 				G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, kitgview);
 
-			gtk_widget_grab_focus(kitgview->search_toggle);
+			gtk_widget_set_sensitive(kitgview->search_entry, FALSE);
+			//gtk_widget_grab_focus(kitgview->search_toggle);
 		}
 
 		toolkitgroupview_refresh(VOBJECT(kitgview));

@@ -12,9 +12,15 @@
 
   on shutdown
 
+- put the tkgview in a pane?
+
 ## other
 
-- need "im_system_image" wrapper for Magick menu
+- Colour / New / Colour, convert to scRGB, black!
+
+- image, convert to srgb, Convert to Colour
+
+	fails with eg. "26 not in table" for many colourspaces
 
 - when dragging a row, always select destination column on drop
 

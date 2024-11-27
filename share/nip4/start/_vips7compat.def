@@ -578,5 +578,14 @@ im_tbmosaic1 ref sec bandno
 		$mblend => mwidth
 	];
 
+im_system_image in in_format out_format command
+	= vips_call "system" [command] [
+		$in => [in],
+		$out => true,
+		$in_format => in_format,
+		$out_format => out_format,
+		$log => true
+	];
+
 // add a lot more!
 
