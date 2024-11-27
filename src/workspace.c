@@ -1068,7 +1068,8 @@ workspace_class_init(WorkspaceClass *class)
 static void
 workspace_init(Workspace *ws)
 {
-	ws->sym = NULL;
+	ws->lpane_open = TRUE;
+	ws->lpane_position = 200;
 
 	/* We default to using the main toolkitgroup for our definitions.
 	 * Unref and load private defs if we need compatibility.
@@ -1076,34 +1077,17 @@ workspace_init(Workspace *ws)
 	ws->kitg = main_toolkitgroup;
 	g_object_ref(G_OBJECT(ws->kitg));
 
-	ws->next = 0;
-	ws->selected = NULL;
-	ws->errors = NULL;
 	ws->mode = WORKSPACE_MODE_REGULAR;
 
 	ws->major = MAJOR_VERSION;
 	ws->minor = MINOR_VERSION;
 
-	ws->compat_major = 0;
-	ws->compat_minor = 0;
-
-	ws->area.left = 0;
-	ws->area.top = 0;
-	ws->area.width = 0;
-	ws->area.height = 0;
 	ws->vp = ws->area;
-
-	ws->lpane_open = WORKSPACE_LPANE_OPEN;
-	ws->lpane_position = WORKSPACE_LPANE_POSITION;
-	ws->rpane_open = WORKSPACE_RPANE_OPEN;
-	ws->rpane_position = WORKSPACE_RPANE_POSITION;
 
 	ws->scale = 1.0;
 	ws->offset = 0.0;
 
 	ws->local_defs = g_strdup(_("// private definitions for this tab\n"));
-	ws->local_kitg = NULL;
-	ws->local_kit = NULL;
 
 	workspace_all = g_slist_prepend(workspace_all, ws);
 }

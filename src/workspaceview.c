@@ -525,15 +525,11 @@ workspaceview_refresh(vObject *vobject)
 
 	gtk_widget_set_sensitive(GTK_WIDGET(wview), !ws->locked);
 
-	if (ws->rpane_open)
-		pane_animate_open(wview->rpane);
-	if (!ws->rpane_open)
-		pane_animate_closed(wview->rpane);
-
-	if (ws->lpane_open)
-		pane_animate_open(wview->lpane);
+	if (ws->lpane_open &&
+		gtk_paned_get_position(GTK_PANED(wview->top)) < 20)
+		gtk_paned_set_position(GTK_PANED(wview->top), ws->lpane_position);
 	if (!ws->lpane_open)
-		pane_animate_closed(wview->lpane);
+		gtk_paned_set_position(GTK_PANED(wview->top), 0);
 
 	if (wview->label)
 		workspaceviewlabel_refresh(wview->label);

@@ -417,6 +417,32 @@ mainwindow_fullscreen(GSimpleAction *action,
 }
 
 static void
+mainwindow_toolkits(GSimpleAction *action,
+	GVariant *state, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+	Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
+
+	ws->lpane_open = g_variant_get_boolean(state);
+	iobject_changed(IOBJECT(ws));
+
+	g_simple_action_set_state(action, state);
+}
+
+static void
+mainwindow_definitions(GSimpleAction *action,
+	GVariant *state, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+	Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
+
+	ws->rpane_open = g_variant_get_boolean(state);
+	iobject_changed(IOBJECT(ws));
+
+	g_simple_action_set_state(action, state);
+}
+
+static void
 mainwindow_tab_new(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
@@ -515,6 +541,8 @@ static GActionEntry mainwindow_entries[] = {
 	// workspaceview rightclick menu
 	{ "column-new", mainwindow_view_action },
 	{ "next-error", mainwindow_view_action },
+	{ "toolkits", action_toggle, NULL, "true", mainwindow_toolkits },
+	{ "definitions", action_toggle, NULL, "false", mainwindow_definitions },
 
 	// column menu
 	{ "column-edit-caption", mainwindow_view_action },

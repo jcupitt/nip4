@@ -12,10 +12,6 @@
 
   on shutdown
 
-- can drag the left pane so far it vanishes
-
-	add a toggle for pane visible, add to ws bg menu
-
 ## other
 
 - we really need cursor changes for region manipulation
