@@ -25,8 +25,12 @@
 		    <child>
                       <object class="GtkToggleButton" id="search_toggle">
                         <property name="icon-name">system-search-symbolic</property>
+                        <property name="tooltip-text">Toggle search mode</property>
                         <signal name="toggled"
                                 handler="toolkitgroupview_search_toggled"/>
+                        <style>
+                          <class name="left"/>
+                        </style>
                       </object>
                     </child>
 
@@ -35,6 +39,10 @@
                         <property name="hexpand">true</property>
                         <property name="sensitive">false</property>
                         <property name="placeholder-text">Search tools</property>
+                        <property name="margin-end">8px</property>
+                        <style>
+                          <class name="right"/>
+                        </style>
 
                         <child>
                           <object class="GtkEventControllerKey">
@@ -56,6 +64,7 @@
 		    <child>
                       <object class="GtkButton">
                         <property name="icon-name">document-edit-symbolic</property>
+                        <property name="tooltip-text">Edit toolkits</property>
 	              </object>
                     </child>
 
