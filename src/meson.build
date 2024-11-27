@@ -128,6 +128,7 @@ sources = files (
   'vipsobject.c',
   'vobject.c',
   'workspace.c',
+  'workspacedefs.c',
   'workspacegroup.c',
   'workspacegroupview.c',
   'workspaceroot.c',

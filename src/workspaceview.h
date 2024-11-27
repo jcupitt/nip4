@@ -50,8 +50,9 @@ typedef enum {
 struct _Workspaceview {
 	View view;
 
-	Workspaceviewlabel *label; /* For the notebook tab */
+	Workspaceviewlabel *label;	/* For the notebook tab */
 	GtkWidget *top;
+	GtkWidget *centre;
 	GtkWidget *error_bar;
 	GtkWidget *error_top;
 	GtkWidget *error_sub;
@@ -60,7 +61,6 @@ struct _Workspaceview {
 	GtkWidget *scrolled_window; /* ScrolledWindow holding fixed */
 	GtkAdjustment *hadj;
 	GtkAdjustment *vadj;
-
 	Workspacedefs *workspacedefs;
 
 	/* Left and right panes ... program window and toolkit browser.
@@ -80,7 +80,7 @@ struct _Workspaceview {
 	Rowview *drag_rview;	/* Row we are dragging (if any) */
 	int obj_x;				/* Object position at start of drag */
 	int obj_y;
-	int start_x; /* Mouse at start of drag */
+	int start_x;			/* Mouse at start of drag */
 	int start_y;
 
 	/* Row shadow during row drag.

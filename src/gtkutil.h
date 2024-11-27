@@ -93,3 +93,8 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC(cairo_t, cairo_destroy)
 typedef void (*Yesno)(GtkWindow *parent, void *user_data);
 void alert_yesno(GtkWindow *parent, Yesno yesno, void *user_data,
 	const char *message, const char *format, ...);
+
+char *text_view_get_text(GtkTextView *text);
+void text_view_set_text(GtkTextView *text, const char *str, gboolean editable);
+void text_view_select_text(GtkTextView *text, int start, int end);
+

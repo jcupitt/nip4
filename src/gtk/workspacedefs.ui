@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="Workspacedefs" parent="View">
+    <child>
+
+      <object class="GtkBox" id="top">
+        <property name="orientation">vertical</property>
+        <property name="hexpand">false</property>
+        <property name="vexpand">true</property>
+
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="hexpand">true</property>
+            <property name="vexpand">false</property>
+            <property name="spacing">8</property>
+
+            <child>
+              <object class="GtkButton">
+                <property name="icon-name">media-playback-start-symbolic</property>
+                <property name="tooltip-text">Process text</property>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkLabel" id="status">
+                <property name="hexpand">true</property>
+                <property name="vexpand">false</property>
+
+              </object>
+            </child>
+
+          </object>
+        </child> <!-- end of top bar -->
+
+        <child>
+          <object class="GtkScrolledWindow">
+            <property name="hexpand">false</property>
+            <property name="vexpand">true</property>
+            <property name="hscrollbar-policy">never</property>
+
+            <child>
+              <object class="GtkTextView" id="text">
+
+              </object>
+            </child>
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+  </template>
+</interface>

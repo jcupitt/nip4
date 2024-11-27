@@ -335,3 +335,43 @@ alert_yesno(GtkWindow *parent, Yesno yesno, void *user_data,
 	g_object_set_data(G_OBJECT(alert), "nip4-yesno", yesno);
 	gtk_alert_dialog_choose(alert, parent, NULL, alert_yesno_cb, user_data);
 }
+
+char *
+text_view_get_text(GtkTextView *text)
+{
+    GtkTextBuffer *buffer = gtk_text_view_get_buffer(text);
+
+    GtkTextIter start;
+    GtkTextIter end;
+
+    gtk_text_buffer_get_start_iter(buffer, &start);
+    gtk_text_buffer_get_end_iter(buffer, &end);
+
+	return gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
+}
+
+void
+text_view_set_text(GtkTextView *text, const char *str, gboolean editable)
+{
+    GtkTextBuffer *buffer = gtk_text_view_get_buffer(text);
+
+    gtk_text_buffer_set_text(buffer, str ? str : "", -1);
+
+    gtk_text_view_set_editable(text, editable);
+    gtk_text_view_set_cursor_visible(text, editable);
+}
+
+void
+text_view_select_text(GtkTextView *text, int start, int end)
+{
+    GtkTextBuffer *buffer = gtk_text_view_get_buffer(text);
+
+    GtkTextMark *mark = gtk_text_buffer_get_insert(buffer);
+    GtkTextIter start_iter;
+    GtkTextIter end_iter;
+
+    gtk_text_buffer_get_iter_at_offset(buffer, &start_iter, start);
+    gtk_text_buffer_get_iter_at_offset(buffer, &end_iter, end);
+    gtk_text_buffer_select_range(buffer, &start_iter, &end_iter);
+    gtk_text_view_scroll_mark_onscreen(text, mark);
+}

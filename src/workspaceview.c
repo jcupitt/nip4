@@ -453,12 +453,14 @@ workspaceview_link(View *view, Model *model, View *parent)
 
 	Workspace *ws = WORKSPACE(model);
 	Workspaceview *wview = WORKSPACEVIEW(view);
+
 	vobject_link(VOBJECT(wview->kitgview), IOBJECT(ws->kitg));
 	g_signal_connect(G_OBJECT(wview->kitgview), "activate",
 		G_CALLBACK(workspaceview_kitg_activate), wview);
 
-	printf("workspaceview_link: FIXME ws defs, panes, etc.\n");
-	// vobject_link(VOBJECT(wview->workspacedefs), IOBJECT(ws));
+	vobject_link(VOBJECT(wview->workspacedefs), IOBJECT(ws));
+
+	printf("workspaceview_link: FIXME panes, etc.\n");
 	//   pane_set_state(wview->rpane, ws->rpane_open, ws->rpane_position);
 	//   pane_set_state(wview->lpane, ws->lpane_open, ws->lpane_position);
 }
@@ -1247,12 +1249,14 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_LAYOUT();
 
 	BIND_VARIABLE(Workspaceview, top);
+	BIND_VARIABLE(Workspaceview, centre);
 	BIND_VARIABLE(Workspaceview, error_bar);
 	BIND_VARIABLE(Workspaceview, error_top);
 	BIND_VARIABLE(Workspaceview, error_sub);
 	BIND_VARIABLE(Workspaceview, kitgview);
 	BIND_VARIABLE(Workspaceview, scrolled_window);
 	BIND_VARIABLE(Workspaceview, fixed);
+	BIND_VARIABLE(Workspaceview, workspacedefs);
 
 	BIND_CALLBACK(workspaceview_click);
 	BIND_CALLBACK(workspaceview_drag_begin);
@@ -1307,9 +1311,6 @@ workspaceview_init(Workspaceview *wview)
 	GtkWidget *child = gtk_scrolled_window_get_child(scrolled_window);
 	if (GTK_IS_VIEWPORT(child))
 		gtk_viewport_set_scroll_to_focus(GTK_VIEWPORT(child), FALSE);
-
-	gtk_paned_set_resize_start_child(GTK_PANED(wview->top), TRUE);
-	gtk_paned_set_shrink_start_child(GTK_PANED(wview->top), TRUE);
 
 	// a lot of stuff to go in here
 	printf("workspaceview_init: FIXME we must do stuff\n");

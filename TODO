@@ -12,7 +12,19 @@
 
   on shutdown
 
+## ws defs
+
+- link up "process" button
+
+- use mono font
+
+- tabs?
+
+- syntax highlighting?
+
 ## other
+
+- move ellipsize in tkgroupview to start
 
 - we really need cursor changes for region manipulation
 
