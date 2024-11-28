@@ -540,12 +540,15 @@ workspaceview_refresh(vObject *vobject)
 		gtk_widget_set_visible(GTK_WIDGET(wview->workspacedefs), TRUE);
 
 		int width = gtk_widget_get_width(GTK_WIDGET(wview));
-		int lpos = gtk_paned_get_position(GTK_PANED(wview->left));
+		int lpos = ws->lpane_open ?
+			gtk_paned_get_position(GTK_PANED(wview->left)) : 0;
 		int rpos = gtk_paned_get_position(GTK_PANED(wview->right));
+		// rpane_position can be crazy
+		int rpane_position = VIPS_MAX(50, ws->rpane_position);
 
 		if (lpos + rpos > width - 20)
 			gtk_paned_set_position(GTK_PANED(wview->right),
-				width - lpos - ws->rpane_position);
+				width - lpos - rpane_position);
 	}
 	else
 		gtk_widget_set_visible(GTK_WIDGET(wview->workspacedefs), FALSE);

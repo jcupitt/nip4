@@ -188,6 +188,7 @@ workspacedefs_class_init(WorkspacedefsClass *class)
 	BIND_VARIABLE(Workspacedefs, text);
 
 	BIND_CALLBACK(workspacedefs_clicked);
+	BIND_CALLBACK(workspacedefs_text_changed);
 
 }
 
@@ -280,10 +281,6 @@ workspacedefs_init(Workspacedefs *workspacedefs)
 	workspacedefs->text_hash = 0;
 
 	gtk_widget_init_template(GTK_WIDGET(workspacedefs));
-
-	GtkTextView *text = GTK_TEXT_VIEW(workspacedefs->text);
-	g_signal_connect(gtk_text_view_get_buffer(text),
-		"changed", G_CALLBACK(workspacedefs_text_changed), workspacedefs);
 
 	gtk_label_set_xalign(GTK_LABEL(workspacedefs->status), 1.0);
 }

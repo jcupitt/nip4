@@ -14,9 +14,16 @@
 
 ## ws defs
 
-- get rid of Pane?
+- have "changed" on wsdefs and move processing into wsview?
+
+- set initial state of right-click menu Toolkit and Workspace defs items
 
 - animate open/close of panes?
+
+- get rid of Pane?
+
+- would be cool if we could define menu items in local defs ... would we need
+  to load as a toolkit for this?
 
 - mono font?
 
