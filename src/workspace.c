@@ -1071,6 +1071,10 @@ workspace_init(Workspace *ws)
 	ws->lpane_open = TRUE;
 	ws->lpane_position = 200;
 
+	ws->rpane_open = FALSE;
+	// distabnce from the right edge
+	ws->rpane_position = 200;
+
 	/* We default to using the main toolkitgroup for our definitions.
 	 * Unref and load private defs if we need compatibility.
 	 */
@@ -1087,7 +1091,7 @@ workspace_init(Workspace *ws)
 	ws->scale = 1.0;
 	ws->offset = 0.0;
 
-	ws->local_defs = g_strdup(_("// private definitions for this tab\n"));
+	ws->local_defs = g_strdup(_("// local definitions for this tab\n"));
 
 	workspace_all = g_slist_prepend(workspace_all, ws);
 }

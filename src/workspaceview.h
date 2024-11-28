@@ -52,21 +52,17 @@ struct _Workspaceview {
 
 	Workspaceviewlabel *label;	/* For the notebook tab */
 	GtkWidget *top;
-	GtkWidget *centre;
 	GtkWidget *error_bar;
 	GtkWidget *error_top;
 	GtkWidget *error_sub;
+	GtkWidget *left;
+	GtkWidget *right;
 	GtkWidget *kitgview;
 	GtkWidget *fixed;			/* GtkFixed for tally */
 	GtkWidget *scrolled_window; /* ScrolledWindow holding fixed */
 	GtkAdjustment *hadj;
 	GtkAdjustment *vadj;
 	Workspacedefs *workspacedefs;
-
-	/* Left and right panes ... program window and toolkit browser.
-	 */
-	Pane *lpane;
-	Pane *rpane;
 
 	GtkWidget *popup;
 

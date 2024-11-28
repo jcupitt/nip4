@@ -527,11 +527,28 @@ workspaceview_refresh(vObject *vobject)
 
 	gtk_widget_set_sensitive(GTK_WIDGET(wview), !ws->locked);
 
-	if (ws->lpane_open &&
-		gtk_paned_get_position(GTK_PANED(wview->top)) < 20)
-		gtk_paned_set_position(GTK_PANED(wview->top), ws->lpane_position);
-	if (!ws->lpane_open)
-		gtk_paned_set_position(GTK_PANED(wview->top), 0);
+	if (ws->lpane_open) {
+		gtk_widget_set_visible(GTK_WIDGET(wview->kitgview), TRUE);
+
+		if (gtk_paned_get_position(GTK_PANED(wview->left)) < 20)
+			gtk_paned_set_position(GTK_PANED(wview->left), ws->lpane_position);
+	}
+	else
+		gtk_widget_set_visible(GTK_WIDGET(wview->kitgview), FALSE);
+
+	if (ws->rpane_open) {
+		gtk_widget_set_visible(GTK_WIDGET(wview->workspacedefs), TRUE);
+
+		int width = gtk_widget_get_width(GTK_WIDGET(wview));
+		int lpos = gtk_paned_get_position(GTK_PANED(wview->left));
+		int rpos = gtk_paned_get_position(GTK_PANED(wview->right));
+
+		if (lpos + rpos > width - 20)
+			gtk_paned_set_position(GTK_PANED(wview->right),
+				width - lpos - ws->rpane_position);
+	}
+	else
+		gtk_widget_set_visible(GTK_WIDGET(wview->workspacedefs), FALSE);
 
 	if (wview->label)
 		workspaceviewlabel_refresh(wview->label);
@@ -1249,10 +1266,11 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_LAYOUT();
 
 	BIND_VARIABLE(Workspaceview, top);
-	BIND_VARIABLE(Workspaceview, centre);
 	BIND_VARIABLE(Workspaceview, error_bar);
 	BIND_VARIABLE(Workspaceview, error_top);
 	BIND_VARIABLE(Workspaceview, error_sub);
+	BIND_VARIABLE(Workspaceview, left);
+	BIND_VARIABLE(Workspaceview, right);
 	BIND_VARIABLE(Workspaceview, kitgview);
 	BIND_VARIABLE(Workspaceview, scrolled_window);
 	BIND_VARIABLE(Workspaceview, fixed);

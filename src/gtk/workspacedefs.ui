@@ -19,6 +19,8 @@
               <object class="GtkButton">
                 <property name="icon-name">media-playback-start-symbolic</property>
                 <property name="tooltip-text">Process text</property>
+		<signal name="clicked" handler="workspacedefs_clicked"/>
+
               </object>
             </child>
 

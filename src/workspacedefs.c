@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -133,6 +133,42 @@ workspacedefs_link(vObject *vobject, iObject *iobject)
 	VOBJECT_CLASS(workspacedefs_parent_class)->link(vobject, iobject);
 }
 
+static gboolean
+workspacedefs_set_text(Workspacedefs *workspacedefs, const char *txt)
+{
+	Workspace *ws = workspacedefs->ws;
+
+	workspacedefs->changed = FALSE;
+	workspacedefs->errors = FALSE;
+	workspacedefs->text_hash = g_str_hash(txt);
+	if (!workspace_local_set(ws, txt)) {
+		text_view_select_text(GTK_TEXT_VIEW(workspacedefs->text),
+			input_state.charpos - yyleng, input_state.charpos);
+		workspacedefs->errors = TRUE;
+
+		return FALSE;
+	}
+
+	symbol_recalculate_all();
+
+	return TRUE;
+}
+
+/* "Process" in defs area.
+ */
+static void
+workspacedefs_clicked(GtkWidget *wid, Workspacedefs *workspacedefs)
+{
+#ifdef DEBUG
+	printf("workspacedefs_clicked:\n");
+#endif /*DEBUG*/
+
+	g_autofree char *txt =
+		text_view_get_text(GTK_TEXT_VIEW(workspacedefs->text));
+	if (!workspacedefs_set_text(workspacedefs, txt))
+		workspace_set_show_error(workspacedefs->ws, TRUE);
+}
+
 static void
 workspacedefs_class_init(WorkspacedefsClass *class)
 {
@@ -150,6 +186,8 @@ workspacedefs_class_init(WorkspacedefsClass *class)
 	BIND_VARIABLE(Workspacedefs, top);
 	BIND_VARIABLE(Workspacedefs, status);
 	BIND_VARIABLE(Workspacedefs, text);
+
+	BIND_CALLBACK(workspacedefs_clicked);
 
 }
 
@@ -229,42 +267,6 @@ workspacedefs_save_as_cb(GtkWidget *wid, Workspacedefs *workspacedefs)
 			FILEMODEL(ws->local_kit));
 }
  */
-
-static gboolean
-workspacedefs_set_text(Workspacedefs *workspacedefs, const char *txt)
-{
-	Workspace *ws = workspacedefs->ws;
-
-	workspacedefs->changed = FALSE;
-	workspacedefs->errors = FALSE;
-	workspacedefs->text_hash = g_str_hash(txt);
-	if (!workspace_local_set(ws, txt)) {
-		text_view_select_text(GTK_TEXT_VIEW(workspacedefs->text),
-			input_state.charpos - yyleng, input_state.charpos);
-		workspacedefs->errors = TRUE;
-
-		return FALSE;
-	}
-
-	symbol_recalculate_all();
-
-	return TRUE;
-}
-
-/* "Process" in defs area.
- */
-static void
-workspacedefs_clicked(GtkWidget *wid, Workspacedefs *workspacedefs)
-{
-#ifdef DEBUG
-	printf("workspacedefs_clicked:\n");
-#endif /*DEBUG*/
-
-	g_autofree char *txt =
-		text_view_get_text(GTK_TEXT_VIEW(workspacedefs->text));
-	if (!workspacedefs_set_text(workspacedefs, txt))
-		workspace_set_show_error(workspacedefs->ws, TRUE);
-}
 
 static void
 workspacedefs_init(Workspacedefs *workspacedefs)

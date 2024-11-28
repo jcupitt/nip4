@@ -1,84 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-
   <template class="Workspaceview" parent="View">
-
     <child>
-      <object class="GtkPaned" id="top">
-        <property name="orientation">horizontal</property>
-        <property name="position">200</property>
+      <object class="GtkBox" id="top">
+        <property name="orientation">vertical</property>
+        <property name="hexpand">true</property>
+        <property name="vexpand">true</property>
+        <property name="spacing">3</property>
 
-        <child>
-          <object class="Toolkitgroupview" id="kitgview">
-            <property name="margin-start">5px</property>
-            <property name="margin-end">5px</property>
-            <property name="margin-top">2px</property>
-            <property name="hexpand">false</property>
-            <property name="vexpand">true</property>
-            <style><class name="navigation-sidebar"/></style>
+	<child>
+          <object class="GtkActionBar" id="error_bar">
+            <property name="revealed">false</property>
 
-          </object>
-        </child>
-
-        <child>
-          <object class="GtkPaned" id="centre">
-            <property name="orientation">horizontal</property>
-            <property name="position">500</property>
-
-            <child> <!-- centre area -->
+            <child type="center">
               <object class="GtkBox">
                 <property name="orientation">vertical</property>
                 <property name="hexpand">true</property>
-                <property name="vexpand">true</property>
-                <property name="spacing">3</property>
+                <property name="spacing">15</property>
 
                 <child>
-                  <object class="GtkActionBar" id="error_bar">
-                    <property name="revealed">false</property>
-
-                    <child type="center">
-                      <object class="GtkBox">
-                        <property name="orientation">vertical</property>
-                        <property name="hexpand">true</property>
-                        <property name="spacing">15</property>
-
-                        <child>
-                          <object class="GtkLabel" id="error_top">
-                            <property name="ellipsize">middle</property>
-                            <property name="selectable">true</property>
-                            <property name="can-focus">false</property>
-                            <style>
-                              <class name="error_top"/>
-                            </style>
-                          </object>
-                        </child>
-
-                        <child>
-                          <object class="GtkLabel" id="error_sub">
-                            <property name="ellipsize">middle</property>
-                            <property name="selectable">true</property>
-                            <property name="can-focus">false</property>
-                            <style>
-                              <class name="error_sub"/>
-                            </style>
-                          </object>
-                        </child>
-
-                      </object>
-                    </child>
-
-                    <child type="end">
-                      <object class="GtkButton">
-                        <property name="label">OK</property>
-                        <property name="valign">center</property>
-                        <signal name="clicked"
-                            handler="workspaceview_error_close_clicked"/>
-                      </object>
-                    </child>
+                  <object class="GtkLabel" id="error_top">
+                    <property name="ellipsize">middle</property>
+                    <property name="selectable">true</property>
+                    <property name="can-focus">false</property>
+                    <style>
+                      <class name="error_top"/>
+                    </style>
                   </object>
                 </child>
 
                 <child>
+                  <object class="GtkLabel" id="error_sub">
+                    <property name="ellipsize">middle</property>
+                    <property name="selectable">true</property>
+                    <property name="can-focus">false</property>
+                    <style>
+                      <class name="error_sub"/>
+                    </style>
+                  </object>
+                </child>
+
+              </object>
+            </child>
+
+            <child type="end">
+              <object class="GtkButton">
+                <property name="label">OK</property>
+                <property name="valign">center</property>
+                <signal name="clicked"
+                    handler="workspaceview_error_close_clicked"/>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkPaned" id="left">
+            <property name="orientation">horizontal</property>
+            <property name="position">200</property>
+
+	    <child> <!-- left-hand pane -->
+              <object class="Toolkitgroupview" id="kitgview">
+                <property name="margin-start">5px</property>
+                <property name="margin-end">5px</property>
+                <property name="margin-top">2px</property>
+                <property name="hexpand">false</property>
+                <property name="vexpand">true</property>
+                <style><class name="navigation-sidebar"/></style>
+
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkPaned" id="right">
+                <property name="orientation">horizontal</property>
+                <property name="position">500</property>
+
+                <child> <!-- centre area -->
                   <object class="GtkScrolledWindow" id="scrolled_window">
                     <property name="hexpand">true</property>
                     <property name="vexpand">true</property>
@@ -91,18 +89,19 @@
                         <child>
                           <object class="GtkGestureClick">
                             <property name="button">1</property>
-                            <signal name="pressed" handler="workspaceview_click"/>
+			    <signal name="pressed"
+                                    handler="workspaceview_click"/>
                           </object>
                         </child>
 
                         <child>
                           <object class="GtkGestureDrag">
                             <signal name="drag-begin"
-    			    handler="workspaceview_drag_begin"/>
+                                    handler="workspaceview_drag_begin"/>
                             <signal name="drag-update"
-    			    handler="workspaceview_drag_update"/>
+                                    handler="workspaceview_drag_update"/>
                             <signal name="drag-end"
-    			    handler="workspaceview_drag_end"/>
+                                    handler="workspaceview_drag_end"/>
                           </object>
                         </child>
 
@@ -112,16 +111,16 @@
                   </object>
                 </child>
 
-              </object>
-            </child>
+	        <child> <!-- right hand pane -->
+                  <object class="Workspacedefs" id="workspacedefs">
+                    <property name="margin-start">5px</property>
+                    <property name="margin-end">5px</property>
+                    <property name="margin-top">8px</property>
+                    <property name="hexpand">false</property>
+                    <property name="vexpand">true</property>
 
-	    <child> <!-- right hand pane -->
-              <object class="Workspacedefs" id="workspacedefs">
-                <property name="margin-start">5px</property>
-                <property name="margin-end">5px</property>
-                <property name="margin-top">8px</property>
-                <property name="hexpand">false</property>
-                <property name="vexpand">true</property>
+                  </object>
+                </child>
 
               </object>
             </child>
