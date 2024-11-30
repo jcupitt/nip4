@@ -1,3 +1,7 @@
+## program window
+
+
+
 ## toolkit browser
 
 - double-click in browse mode will add two pages with the same name
@@ -12,15 +16,7 @@
 
   on shutdown
 
-## ws defs
-
-- get rid of Pane?
-
 ## other
-
-- move ellipsize in tkgroupview to start
-
-	and right-align
 
 - we really need cursor changes for region manipulation
 
@@ -35,9 +31,9 @@
 	since the source column could be selected ... if this was the only
 	row, we'll then have no selected column
 
-- have workspace defs on the right with a slideable pane
-
 - remove the "open" button from the top bar? not very useful
+
+	could be an icon, see vipsdisp
 
 - try:
 
@@ -49,14 +45,12 @@
 
   do we need to define a Matrix_base member in Matrix_gaussian_item.action?
 
-
 - put a time delay on row label colour change -- stop the flashing
 
 	we have vobject_refresh_queue(), but that does all views, we just
 	want to delay colour changes
 
 	maybe do a separate pass at the end of recomp that sets label colours?
-
 
 - check the driver script that runs all test workspaces .. do we need to
   implement batch mode?
@@ -98,7 +92,12 @@
 
 - syntax error in startup .def stops nip4 loading
 
-- ctrl-bsp for delete selected?
+- ctrl-bsp for delete selected rows?
+
+	we can't set accels on action menus, since the windiow won't know
+	what view to pass the action to, see mainwindow_view_action()
+
+	maybe action menus should be on the class, not the object?
 
 - should we support
 
