@@ -162,7 +162,6 @@ toolkitgroupview_dispose(GObject *object)
 	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(object);
 
 	gtk_widget_dispose_template(GTK_WIDGET(kitgview), TOOLKITGROUPVIEW_TYPE);
-
 	VIPS_FREEF(g_slist_free, kitgview->page_names);
 
 	G_OBJECT_CLASS(toolkitgroupview_parent_class)->dispose(object);
@@ -257,7 +256,6 @@ toolkitgroupview_setup_browse_item(GtkListItemFactory *factory,
 	GtkWidget *label = gtk_label_new("");
 	gtk_widget_set_hexpand(label, TRUE);
 	gtk_label_set_xalign(GTK_LABEL(label), 0.0);
-	gtk_label_set_ellipsize(GTK_LABEL(label), PANGO_ELLIPSIZE_END);
 	gtk_box_append(GTK_BOX(box), label);
 
 	GtkWidget *right = gtk_image_new();
@@ -323,8 +321,11 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 	if (g_object_get_qdata(G_OBJECT(button), node_quark))
 		return;
 
-	if (kitgview->search_mode)
+	if (kitgview->search_mode) {
 		gtk_label_set_label(GTK_LABEL(label), node->toolitem->user_path);
+		gtk_label_set_xalign(GTK_LABEL(label), 1.0);
+		gtk_label_set_ellipsize(GTK_LABEL(label), PANGO_ELLIPSIZE_START);
+	}
 	else if (node->kit ||
 		(node->toolitem && !node->toolitem->is_separator))
 		gtk_label_set_label(GTK_LABEL(label), node_get_name(node));

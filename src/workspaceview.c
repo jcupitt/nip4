@@ -460,9 +460,16 @@ workspaceview_link(View *view, Model *model, View *parent)
 
 	vobject_link(VOBJECT(wview->workspacedefs), IOBJECT(ws));
 
-	printf("workspaceview_link: FIXME panes, etc.\n");
-	//   pane_set_state(wview->rpane, ws->rpane_open, ws->rpane_position);
-	//   pane_set_state(wview->lpane, ws->lpane_open, ws->lpane_position);
+	// link settings to our widget
+	GSettings *settings = mainwindow_get_settings(GTK_WIDGET(wview));
+	g_settings_bind(settings, "toolkits",
+		G_OBJECT(wview->left),
+		"reveal-child",
+		G_SETTINGS_BIND_DEFAULT);
+	g_settings_bind(settings, "definitions",
+		G_OBJECT(wview->right),
+		"reveal-child",
+		G_SETTINGS_BIND_DEFAULT);
 }
 
 static void
@@ -526,32 +533,6 @@ workspaceview_refresh(vObject *vobject)
 #endif /*DEBUG*/
 
 	gtk_widget_set_sensitive(GTK_WIDGET(wview), !ws->locked);
-
-	if (ws->lpane_open) {
-		gtk_widget_set_visible(GTK_WIDGET(wview->kitgview), TRUE);
-
-		if (gtk_paned_get_position(GTK_PANED(wview->left)) < 20)
-			gtk_paned_set_position(GTK_PANED(wview->left), ws->lpane_position);
-	}
-	else
-		gtk_widget_set_visible(GTK_WIDGET(wview->kitgview), FALSE);
-
-	if (ws->rpane_open) {
-		gtk_widget_set_visible(GTK_WIDGET(wview->workspacedefs), TRUE);
-
-		int width = gtk_widget_get_width(GTK_WIDGET(wview));
-		int lpos = ws->lpane_open ?
-			gtk_paned_get_position(GTK_PANED(wview->left)) : 0;
-		int rpos = gtk_paned_get_position(GTK_PANED(wview->right));
-		// rpane_position can be crazy
-		int rpane_position = VIPS_MAX(50, ws->rpane_position);
-
-		if (lpos + rpos > width - 20)
-			gtk_paned_set_position(GTK_PANED(wview->right),
-				width - lpos - rpane_position);
-	}
-	else
-		gtk_widget_set_visible(GTK_WIDGET(wview->workspacedefs), FALSE);
 
 	if (wview->label)
 		workspaceviewlabel_refresh(wview->label);
@@ -1332,9 +1313,6 @@ workspaceview_init(Workspaceview *wview)
 	GtkWidget *child = gtk_scrolled_window_get_child(scrolled_window);
 	if (GTK_IS_VIEWPORT(child))
 		gtk_viewport_set_scroll_to_focus(GTK_VIEWPORT(child), FALSE);
-
-	// a lot of stuff to go in here
-	printf("workspaceview_init: FIXME we must do stuff\n");
 }
 
 View *

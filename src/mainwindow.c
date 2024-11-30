@@ -55,6 +55,10 @@ struct _Mainwindow {
 	/* Set for progress cancel.
 	 */
 	gboolean cancel;
+
+	/* Store things like toolkit menu visibility in gsettings.
+	 */
+	GSettings *settings;
 };
 
 // current autocalc state
@@ -148,6 +152,7 @@ mainwindow_dispose(GObject *object)
 
 	IDESTROY(main->wsg);
 	VIPS_FREEF(g_source_remove, main->refresh_timeout);
+	VIPS_UNREF(main->settings);
 
 	mainwindow_all = g_slist_remove(mainwindow_all, main);
 
@@ -421,10 +426,9 @@ mainwindow_toolkits(GSimpleAction *action,
 	GVariant *state, gpointer user_data)
 {
 	Mainwindow *main = MAINWINDOW(user_data);
-	Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
 
-	ws->lpane_open = g_variant_get_boolean(state);
-	iobject_changed(IOBJECT(ws));
+	g_settings_set_boolean(main->settings,
+		"toolkits", g_variant_get_boolean(state));
 
 	g_simple_action_set_state(action, state);
 }
@@ -434,10 +438,9 @@ mainwindow_definitions(GSimpleAction *action,
 	GVariant *state, gpointer user_data)
 {
 	Mainwindow *main = MAINWINDOW(user_data);
-	Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
 
-	ws->rpane_open = g_variant_get_boolean(state);
-	iobject_changed(IOBJECT(ws));
+	g_settings_set_boolean(main->settings,
+		"definitions", g_variant_get_boolean(state));
 
 	g_simple_action_set_state(action, state);
 }
@@ -541,7 +544,7 @@ static GActionEntry mainwindow_entries[] = {
 	// workspaceview rightclick menu
 	{ "column-new", mainwindow_view_action },
 	{ "next-error", mainwindow_view_action },
-	{ "toolkits", action_toggle, NULL, "true", mainwindow_toolkits },
+	{ "toolkits", action_toggle, NULL, "false", mainwindow_toolkits },
 	{ "definitions", action_toggle, NULL, "false", mainwindow_definitions },
 
 	// column menu
@@ -605,6 +608,8 @@ mainwindow_init(Mainwindow *main)
 #ifdef DEBUG
 	printf("mainwindow_init:\n");
 #endif /*DEBUG*/
+
+	main->settings = g_settings_new(APPLICATION_ID);
 
 	g_autofree char *cwd = g_get_current_dir();
 	main->save_folder = g_file_new_for_path(cwd);
@@ -851,13 +856,15 @@ mainwindow_settings(Mainwindow *main)
 	return app ? app_settings(app) : NULL;
 }
 
+// init stateful actions from settings
 static void
 mainwindow_init_settings(Mainwindow *main)
 {
 	GSettings *settings = mainwindow_settings(main);
 
 	if (settings) {
-		// FIXME ... set window state from settings
+		set_state(GTK_WIDGET(main), mainwindow_settings(main), "definitions");
+		set_state(GTK_WIDGET(main), mainwindow_settings(main), "toolkits");
 	}
 }
 
@@ -872,10 +879,11 @@ mainwindow_new(App *app, Workspacegroup *wsg)
 		"application", app,
 		NULL);
 
-	mainwindow_set_wsg(main, wsg ? wsg : workspacegroup_new_blank(main_workspaceroot, NULL));
+	mainwindow_set_wsg(main,
+		wsg ? wsg : workspacegroup_new_blank(main_workspaceroot, NULL));
 
-	// we can't do this in _init() since we need app to be set
-	mainwindow_init_settings(main);
+    // we can't do this in _init() since we need app to be set
+    mainwindow_init_settings(main);
 
 	gboolean welcome;
 	g_object_get(app, "welcome", &welcome, NULL);
@@ -1003,4 +1011,12 @@ GtkWindow *
 mainwindow_pick_one(void)
 {
 	return mainwindow_all ? GTK_WINDOW(mainwindow_all->data) : NULL;
+}
+
+GSettings *
+mainwindow_get_settings(GtkWidget *widget)
+{
+	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(widget)));
+
+	return main->settings;
 }

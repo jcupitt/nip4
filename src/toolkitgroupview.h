@@ -60,7 +60,6 @@ struct _Toolkitgroupview {
 	GtkWidget *search_toggle;
 	GtkWidget *search_entry;
 	GtkWidget *list_view;
-
 };
 
 typedef struct _ToolkitgroupviewClass {

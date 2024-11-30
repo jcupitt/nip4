@@ -383,6 +383,7 @@ workspacegroupview_init(Workspacegroupview *wsgview)
 		workspacegroupview_supported_types,
 		workspacegroupview_n_supported_types);
 	gtk_widget_add_controller(wsgview->notebook, controller);
+
 }
 
 View *

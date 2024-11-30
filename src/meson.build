@@ -74,7 +74,6 @@ sources = files (
   'model.c',
   'number.c',
   'numberview.c',
-  'pane.c',
   'option.c',
   'expression.c',
   'expressionview.c',

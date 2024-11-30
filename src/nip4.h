@@ -167,8 +167,6 @@ typedef struct _Managedstring Managedstring;
 typedef struct _Matrix Matrix;
 typedef struct _Model Model;
 typedef struct _Number Number;
-typedef struct _Panechild Panechild;
-typedef struct _Pane Pane;
 typedef struct _ParseConst ParseConst;
 typedef struct _ParseNode ParseNode;
 typedef struct _Plot Plot;
@@ -271,7 +269,6 @@ typedef struct _Workspace Workspace;
 #include "row.h"
 #include "matrix.h"
 #include "rhs.h"
-#include "pane.h"
 #include "class.h"
 #include "tool.h"
 #include "toolkit.h"

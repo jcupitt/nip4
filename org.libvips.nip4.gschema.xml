@@ -69,5 +69,21 @@
       <description>The background texture for image rendering</description>
     </key>
 
+    <key type="b" name="toolkits">
+      <default>true</default>
+      <summary>Toolkits viewer</summary>
+      <description>
+        Show the workspace toolkits viewer
+      </description>
+    </key>
+
+    <key type="b" name="definitions">
+      <default>false</default>
+      <summary>Workspace definitions</summary>
+      <description>
+        Show the workspace definitions editor
+      </description>
+    </key>
+
   </schema>
 </schemalist>

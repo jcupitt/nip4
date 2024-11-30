@@ -52,4 +52,6 @@ void mainwindow_about(Mainwindow *main, VipsBuf *buf);
 gboolean mainwindow_is_empty(Mainwindow *main);
 GtkWindow *mainwindow_pick_one(void);
 
+GSettings *mainwindow_get_settings(GtkWidget *widget);
+
 #endif /* __MAINWINDOW_H */

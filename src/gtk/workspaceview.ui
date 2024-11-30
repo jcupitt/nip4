@@ -55,67 +55,76 @@
         </child>
 
         <child>
-          <object class="GtkPaned" id="left">
+          <object class="GtkBox">
             <property name="orientation">horizontal</property>
-            <property name="position">200</property>
+            <property name="hexpand">true</property>
+            <property name="vexpand">true</property>
 
-	    <child> <!-- left-hand pane -->
-              <object class="Toolkitgroupview" id="kitgview">
-                <property name="margin-start">5px</property>
-                <property name="margin-end">5px</property>
-                <property name="margin-top">2px</property>
+            <child> <!-- left-hand pane -->
+              <object class="GtkRevealer" id="left">
+                <property name="transition-type">slide-right</property>
                 <property name="hexpand">false</property>
                 <property name="vexpand">true</property>
-                <style><class name="navigation-sidebar"/></style>
 
+	        <child>
+                  <object class="Toolkitgroupview" id="kitgview">
+                    <property name="margin-start">5px</property>
+                    <property name="margin-end">5px</property>
+                    <property name="hexpand">false</property>
+                    <property name="vexpand">true</property>
+                    <style><class name="navigation-sidebar"/></style>
+
+                  </object>
+                </child>
               </object>
             </child>
 
-            <child>
-              <object class="GtkPaned" id="right">
-                <property name="orientation">horizontal</property>
-                <property name="position">500</property>
 
-                <child> <!-- centre area -->
-                  <object class="GtkScrolledWindow" id="scrolled_window">
-                    <property name="hexpand">true</property>
-                    <property name="vexpand">true</property>
+            <child> <!-- centre area -->
+              <object class="GtkScrolledWindow" id="scrolled_window">
+                <property name="hexpand">true</property>
+                <property name="vexpand">true</property>
+
+                <child>
+                  <object class="GtkFixed" id="fixed">
+
+                    <!-- columns are added as children of this fixed -->
 
                     <child>
-                      <object class="GtkFixed" id="fixed">
+                      <object class="GtkGestureClick">
+                        <property name="button">1</property>
+                        <signal name="pressed" handler="workspaceview_click"/>
+                      </object>
+                    </child>
 
-                        <!-- columns are added as children of this fixed -->
-
-                        <child>
-                          <object class="GtkGestureClick">
-                            <property name="button">1</property>
-			    <signal name="pressed"
-                                    handler="workspaceview_click"/>
-                          </object>
-                        </child>
-
-                        <child>
-                          <object class="GtkGestureDrag">
-                            <signal name="drag-begin"
-                                    handler="workspaceview_drag_begin"/>
-                            <signal name="drag-update"
-                                    handler="workspaceview_drag_update"/>
-                            <signal name="drag-end"
-                                    handler="workspaceview_drag_end"/>
-                          </object>
-                        </child>
-
+                    <child>
+                      <object class="GtkGestureDrag">
+                        <signal name="drag-begin"
+                                handler="workspaceview_drag_begin"/>
+                        <signal name="drag-update"
+                                handler="workspaceview_drag_update"/>
+                        <signal name="drag-end"
+                                handler="workspaceview_drag_end"/>
                       </object>
                     </child>
 
                   </object>
                 </child>
 
-	        <child> <!-- right hand pane -->
+              </object>
+            </child>
+
+            <child> <!-- right-hand pane -->
+              <object class="GtkRevealer" id="right">
+                <property name="transition-type">slide-left</property>
+                <property name="hexpand">false</property>
+                <property name="vexpand">true</property>
+
+	        <child>
                   <object class="Workspacedefs" id="workspacedefs">
                     <property name="margin-start">5px</property>
                     <property name="margin-end">5px</property>
-                    <property name="margin-top">8px</property>
+                    <property name="margin-top">5px</property>
                     <property name="hexpand">false</property>
                     <property name="vexpand">true</property>
 

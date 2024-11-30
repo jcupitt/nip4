@@ -167,9 +167,7 @@ copy_adj(GtkAdjustment *to, GtkAdjustment *from)
 void
 change_state(GtkWidget *widget, const char *name, GVariant *state)
 {
-	GAction *action;
-
-	action = g_action_map_lookup_action(G_ACTION_MAP(widget), name);
+	GAction *action = g_action_map_lookup_action(G_ACTION_MAP(widget), name);
 	if (action)
 		g_action_change_state(action, state);
 }

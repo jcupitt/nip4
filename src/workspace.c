@@ -803,11 +803,6 @@ workspace_load(Model *model,
 
 	(void) get_bprop(xnode, "locked", &ws->locked);
 
-	(void) get_bprop(xnode, "lpane_open", &ws->lpane_open);
-	(void) get_iprop(xnode, "lpane_position", &ws->lpane_position);
-	(void) get_bprop(xnode, "rpane_open", &ws->rpane_open);
-	(void) get_iprop(xnode, "rpane_position", &ws->rpane_position);
-
 	if (get_sprop(xnode, "name", buf, FILENAME_MAX))
 		VIPS_SETSTR(IOBJECT(ws)->name, buf);
 
@@ -841,10 +836,6 @@ workspace_save(Model *model, xmlNode *xnode)
 		!set_dprop(xthis, "scale", ws->scale) ||
 		!set_dprop(xthis, "offset", ws->offset) ||
 		!set_sprop(xthis, "locked", bool_to_char(ws->locked)) ||
-		!set_iprop(xthis, "lpane_position", ws->lpane_position) ||
-		!set_sprop(xthis, "lpane_open", bool_to_char(ws->lpane_open)) ||
-		!set_iprop(xthis, "rpane_position", ws->rpane_position) ||
-		!set_sprop(xthis, "rpane_open", bool_to_char(ws->rpane_open)) ||
 		!set_sprop(xthis, "local_defs", ws->local_defs) ||
 		!set_sprop(xthis, "name", IOBJECT(ws)->name))
 		return NULL;
@@ -1068,13 +1059,6 @@ workspace_class_init(WorkspaceClass *class)
 static void
 workspace_init(Workspace *ws)
 {
-	ws->lpane_open = TRUE;
-	ws->lpane_position = 200;
-
-	ws->rpane_open = FALSE;
-	// distabnce from the right edge
-	ws->rpane_position = 200;
-
 	/* We default to using the main toolkitgroup for our definitions.
 	 * Unref and load private defs if we need compatibility.
 	 */

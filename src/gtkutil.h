@@ -69,6 +69,7 @@ GtkWidget *build_entry(int nchars);
 void set_tooltip(GtkWidget *wid, const char *fmt, ...);
 void copy_adj(GtkAdjustment *to, GtkAdjustment *from);
 
+
 void change_state(GtkWidget *widget, const char *name, GVariant *state);
 void set_state(GtkWidget *to, GSettings *settings, const char *name);
 GVariant *get_state(GtkWidget *widget, const char *name);

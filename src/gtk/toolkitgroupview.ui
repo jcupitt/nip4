@@ -15,6 +15,7 @@
                 <property name="orientation">vertical</property>
                 <property name="hexpand">false</property>
                 <property name="vexpand">true</property>
+                <property name="spacing">3</property>
 
                 <child>
                   <object class="GtkBox">

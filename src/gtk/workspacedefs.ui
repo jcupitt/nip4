@@ -28,6 +28,7 @@
               <object class="GtkLabel" id="status">
                 <property name="hexpand">true</property>
                 <property name="vexpand">false</property>
+                <property name="width-chars">40</property>
 
               </object>
             </child>
@@ -39,8 +40,6 @@
           <object class="GtkScrolledWindow">
             <property name="hexpand">false</property>
             <property name="vexpand">true</property>
-            <property name="hscrollbar-policy">never</property>
-            <property name="hscrollbar-policy">never</property>
 
             <child>
               <object class="GtkTextView" id="text">

@@ -94,10 +94,6 @@ struct _Workspace {
 
 	VipsRect area;		 /* Rect enclosing the set of columns */
 	VipsRect vp;		 /* Viewport hint ... set by views */
-	gboolean lpane_open; /* Pane model */
-	int lpane_position;
-	gboolean rpane_open;
-	int rpane_position;
 
 	/* Visualisation defaults for this ws.
 	 */
