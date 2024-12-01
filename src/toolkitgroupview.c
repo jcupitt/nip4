@@ -451,7 +451,8 @@ toolkitgroupview_create_list(Toolkitgroupview *kitgview)
 	GListStore *store;
 
 	store = g_list_store_new(NODE_TYPE);
-	toolkitgroup_map(kitg, toolkitgroupview_build_kit_list, store, NULL);
+	if (kitg)
+		toolkitgroup_map(kitg, toolkitgroupview_build_kit_list, store, NULL);
 
 	return G_LIST_MODEL(store);
 }

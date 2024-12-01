@@ -546,6 +546,7 @@ static GActionEntry mainwindow_entries[] = {
 	{ "next-error", mainwindow_view_action },
 	{ "toolkits", action_toggle, NULL, "false", mainwindow_toolkits },
 	{ "definitions", action_toggle, NULL, "false", mainwindow_definitions },
+	{ "program", mainwindow_view_action },
 
 	// column menu
 	{ "column-edit-caption", mainwindow_view_action },

@@ -822,6 +822,8 @@ static void
 workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 {
 	Workspaceview *wview = WORKSPACEVIEW(view);
+	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(wview)));
+	App *app = APP(gtk_window_get_application(GTK_WINDOW(main)));
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 	const char *name = g_action_get_name(G_ACTION(action));
 
@@ -831,6 +833,8 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		workspace_column_new(ws);
 	else if (g_str_equal(name, "next-error"))
 		workspace_set_show_error(ws, workspace_next_error(ws));
+	else if (g_str_equal(name, "program"))
+		program_new(app, ws->kitg);
 	else if (g_str_equal(name, "tab-rename"))
 		g_object_set(wview->label,
 			"edit", TRUE,

@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="program-menu">
+    <section>
+      <attribute name="display-hint">horizontal-buttons</attribute>
+      <item>
+        <attribute name="label">Copy</attribute>
+        <attribute name="action">win.copy</attribute>
+        <attribute name="verb-icon">edit-copy-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="label">Paste</attribute>
+        <attribute name="action">win.paste</attribute>
+        <attribute name="verb-icon">edit-paste-symbolic</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Open ...</attribute>
+        <attribute name='action'>win.open</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>New workspace</attribute>
+        <attribute name='action'>app.new</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Merge workspace ...</attribute>
+        <attribute name='action'>win.merge</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Duplicate workspace</attribute>
+        <attribute name='action'>win.duplicate</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Save workspace</attribute>
+        <attribute name='action'>win.save</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Save workspace as ...</attribute>
+        <attribute name='action'>win.saveas</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Fullscreen</attribute>
+        <attribute name="action">win.fullscreen</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Quit</attribute>
+        <attribute name='action'>win.quit</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>About nip4</attribute>
+        <attribute name='action'>app.about</attribute>
+      </item>
+    </section>
+
+  </menu>
+
+  <template class="Program" parent="GtkApplicationWindow">
+    <property name="title" translatable="yes">Program window</property>
+    <property name="default-width">800</property>
+    <property name="default-height">500</property>
+
+    <child type="titlebar">
+      <object class="GtkHeaderBar" id="header">
+
+        <child type="start">
+          <object class="GtkButton">
+            <property name="label">Open</property>
+            <property name="action-name">win.open</property>
+          </object>
+        </child>
+
+        <child type="title">
+          <object class="GtkBox" id="content_box">
+            <property name="valign">center</property>
+            <property name="spacing">2</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel" id="title">
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+                <property name="ellipsize">start</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="subtitle">
+                <attributes>
+                  <attribute name="weight" value="light"/>
+                </attributes>
+                <property name="ellipsize">end</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child type="end">
+          <object class="GtkMenuButton" id="gears">
+            <property name="direction">none</property>
+            <property name="menu-model">program-menu</property>
+          </object>
+        </child>
+
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+
+        <child type="center">
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <property name="hexpand">true</property>
+            <property name="spacing">15</property>
+            <property name="visible">false</property>
+
+            <child>
+              <object class="GtkLabel" id="error_top">
+                <property name="ellipsize">middle</property>
+                <property name="selectable">true</property>
+                <property name="can-focus">false</property>
+                <style>
+                  <class name="error_top"/>
+                </style>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkLabel" id="error_sub">
+                <property name="ellipsize">middle</property>
+                <property name="selectable">true</property>
+                <property name="can-focus">false</property>
+                <style>
+                  <class name="error_sub"/>
+                </style>
+              </object>
+            </child>
+
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+
+            <child> <!-- left-hand pane -->
+              <object class="GtkRevealer" id="left">
+                <property name="transition-type">slide-right</property>
+                <property name="reveal-child">true</property>
+                <property name="hexpand">false</property>
+                <property name="vexpand">true</property>
+
+                <child>
+                  <object class="Toolkitgroupview" id="kitgview">
+                    <property name="hexpand">false</property>
+                    <property name="vexpand">true</property>
+                  </object>
+                </child>
+
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="hexpand">true</property>
+                <property name="vexpand">true</property>
+                <property name="spacing">8</property>
+
+		<child> <!-- top bar -->
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <property name="hexpand">true</property>
+                    <property name="vexpand">false</property>
+                    <property name="spacing">8</property>
+
+                    <child>
+                      <object class="GtkButton">
+                        <property name="icon-name">media-playback-start-symbolic</property>
+                        <property name="tooltip-text">Process text</property>
+		        <signal name="clicked" handler="program_process_clicked"/>
+
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkLabel" id="status">
+                        <property name="hexpand">true</property>
+                        <property name="vexpand">false</property>
+                        <property name="width-chars">40</property>
+
+                      </object>
+                    </child>
+
+                  </object>
+                </child> <!-- end of top bar -->
+
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <property name="hexpand">false</property>
+                    <property name="vexpand">true</property>
+
+                    <child>
+                      <object class="GtkTextView" id="text_view">
+                        <property name="monospace">true</property>
+                        <property name="hexpand">true</property>
+                        <property name="vexpand">true</property>
+                        <property name="buffer">buffer</property>
+
+                      </object>
+                    </child>
+
+                  </object>
+                </child>
+
+              </object>
+            </child>
+
+          </object>
+        </child>
+
+      </object>
+    </child>
+  </template>
+
+  <object class="GtkTextBuffer" id="buffer">
+    <signal name="changed" handler="program_text_changed"/>
+  </object>
+</interface>

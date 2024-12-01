@@ -225,6 +225,7 @@ typedef struct _Workspace Workspace;
 #include "predicate.h"
 #include "nip4marshal.h"
 #include "mainwindow.h"
+#include "program.h"
 #include "iobject.h"
 #include "vobject.h"
 #include "icontainer.h"

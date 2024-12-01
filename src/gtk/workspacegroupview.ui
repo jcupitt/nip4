@@ -25,6 +25,10 @@
         <attribute name="label">Workspace definitions</attribute>
         <attribute name="action">win.definitions</attribute>
       </item>
+      <item>
+        <attribute name="label">Edit toolkits ...</attribute>
+        <attribute name="action">win.program</attribute>
+      </item>
     </section>
     <section>
       <item>

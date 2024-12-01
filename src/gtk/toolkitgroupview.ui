@@ -62,13 +62,6 @@
 	              </object>
                     </child>
 
-		    <child>
-                      <object class="GtkButton">
-                        <property name="icon-name">document-edit-symbolic</property>
-                        <property name="tooltip-text">Edit toolkits</property>
-	              </object>
-                    </child>
-
                   </object>
                 </child> <!-- end of top bar -->
 

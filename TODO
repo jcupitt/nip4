@@ -1,6 +1,10 @@
 ## program window
 
+- get rid of
 
+	 TOOL_DIA, TOOL_SEP
+
+- update status bar
 
 ## toolkit browser
 
@@ -10,13 +14,21 @@
 
 - often see
 
-	view_dump(): 2 views
-	0x5d40451c8110 Toolkitgroupview count=3
+	view_dump(): 3 views
+	0x5e14b821e120 Workspacedefs count=2
+	0x5d40451c8110 Toolkitgroupview count=2
 	0x5d40447a9790 Workspaceview count=1
 
   on shutdown
 
+  could wsdefs and tkview be referencing workspaceview?
+
+  maybe we are sometimes using VIPS_UNREF() rather than IDESTROY()?
+
 ## other
+
+- close column, select column, click Colour > New > Colour, column should pop
+  open since a row has been added to it
 
 - we really need cursor changes for region manipulation
 

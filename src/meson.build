@@ -95,6 +95,7 @@ sources = files (
   'prefcolumnview.c',
   'prefs.c',
   'prefworkspaceview.c',
+  'program.c',
   'progress.c',
   'properties.c',
   'reduce.c',
