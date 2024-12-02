@@ -52,7 +52,8 @@ struct _Toolkitgroupview {
 	 */
 	gboolean search_mode;
 
-	/* Page names for our stack, root first. Use this for go-backk.
+	/* Page names for our stack, root first. Use this for go-back, and to
+	 * rebuild the view on refresh.
 	 */
 	GSList *page_names;
 

@@ -116,6 +116,10 @@ program_dispose(GObject *object)
 static void
 program_refresh(Program *program)
 {
+#ifdef DEBUG
+	printf("program_refresh:\n");
+#endif /*DEBUG*/
+
 	char txt1[512];
 	char txt2[512];
 	VipsBuf title = VIPS_BUF_STATIC(txt1);
@@ -168,16 +172,45 @@ program_kitg_changed(Toolkitgroup *kitg, Program *program)
 }
 
 static void
+program_text_changed(GtkTextBuffer *buffer, Program *program)
+{
+#ifdef DEBUG
+	printf("program_text_changed\n");
+#endif /*DEBUG*/
+
+	if (!program->changed) {
+		program->changed = TRUE;
+
+		if (program->tool &&
+			program->tool->kit)
+			filemodel_set_modified(FILEMODEL(program->tool->kit), TRUE);
+
+#ifdef DEBUG
+		printf("\t(changed = TRUE)\n");
+#endif /*DEBUG*/
+	}
+}
+
+static void
+program_set_text(Program *program, const char *text)
+{
+	GtkTextBuffer *buffer =
+		gtk_text_view_get_buffer(GTK_TEXT_VIEW(program->text_view));
+
+	g_signal_handlers_block_by_func(buffer, program_text_changed, program);
+	text_view_set_text(GTK_TEXT_VIEW(program->text_view), text, TRUE );
+	g_signal_handlers_unblock_by_func(buffer, program_text_changed, program);
+}
+
+static void
 program_kitgview_activate(Toolkitgroupview *kitgview,
 	Toolitem *toolitem, Program *program)
 {
 	if (toolitem &&
 		toolitem->tool) {
 		program->tool = toolitem->tool;
-		//program_refresh(program);
-
-		text_view_set_text(GTK_TEXT_VIEW(program->text_view),
-			program->tool->sym->expr->compile->text, TRUE );
+		program_set_text(program, program->tool->sym->expr->compile->text);
+		iobject_changed(IOBJECT(program->kitg));
 	}
 }
 
@@ -200,7 +233,7 @@ program_set_property(GObject *object,
 		g_signal_connect_object(G_OBJECT(program->kitgview), "activate",
 			G_CALLBACK(program_kitgview_activate), program, 0);
 
-		program_refresh(program);
+		iobject_changed(IOBJECT(program->kitg));
 
 		break;
 
@@ -226,27 +259,6 @@ program_init(Program *program)
 	gtk_widget_init_template(GTK_WIDGET(program));
 
 	program_all = g_slist_prepend(program_all, program);
-}
-
-static void
-program_text_changed(GtkTextBuffer *buffer, Program *program)
-{
-#ifdef DEBUG
-	printf("program_text_changed\n");
-#endif /*DEBUG*/
-
-	if (!program->changed) {
-		program->changed = TRUE;
-
-#ifdef DEBUG
-		printf("\t(changed = TRUE)\n");
-#endif /*DEBUG*/
-
-		/* The kitg hasn't changed, but this will queue a refresh
-		 * on us.
-		 */
-		iobject_changed(IOBJECT(program->kitg));
-	}
 }
 
 static void

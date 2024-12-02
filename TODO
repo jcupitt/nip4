@@ -1,5 +1,11 @@
 ## program window
 
+- toolkitgroupview needs to track the currently displayed thing and recreate
+  that column on _refresh, if possible
+
+	bounce back to root display if the thing being displayed has
+	been deleted
+
 - get rid of
 
 	 TOOL_DIA, TOOL_SEP

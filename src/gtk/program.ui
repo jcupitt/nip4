@@ -73,7 +73,7 @@
 
   <template class="Program" parent="GtkApplicationWindow">
     <property name="title" translatable="yes">Program window</property>
-    <property name="default-width">800</property>
+    <property name="default-width">1100</property>
     <property name="default-height">500</property>
 
     <child type="titlebar">

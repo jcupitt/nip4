@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -173,12 +173,16 @@ toolkitgroupview_dispose(GObject *object)
 static void *
 toolkitgroupview_build_kit(Toolkit *kit, void *a, void *b)
 {
+	printf("toolkitgroupview_build_kit: kit = %p\n", kit);
+
 	GListStore *store = G_LIST_STORE(b);
 
 	if (kit &&
 		MODEL(kit)->display &&
-		IOBJECT(kit)->name)
+		IOBJECT(kit)->name) {
+		printf("\tadding name = %s\n", IOBJECT(kit)->name);
 		g_list_store_append(store, G_OBJECT(node_new(kit, NULL)));
+	}
 
 	return NULL;
 }
@@ -186,6 +190,8 @@ toolkitgroupview_build_kit(Toolkit *kit, void *a, void *b)
 static void *
 toolkitgroupview_build_tool(Tool *tool, void *a, void *b)
 {
+	printf("toolkitgroupview_build_tool:\n");
+
 	GListStore *store = G_LIST_STORE(b);
 
 	if (MODEL(tool)->display &&
@@ -198,6 +204,8 @@ toolkitgroupview_build_tool(Tool *tool, void *a, void *b)
 static void *
 toolkitgroupview_build_toolitem(Toolitem *toolitem, void *a, void *b)
 {
+	printf("toolkitgroupview_build_toolitem:\n");
+
 	GListStore *store = G_LIST_STORE(b);
 
 	if (toolitem->tool &&
@@ -213,6 +221,13 @@ toolkitgroupview_build_node(Toolkitgroupview *kitgview, Node *parent)
 {
 	Toolkitgroup *kitg = TOOLKITGROUP(VOBJECT(kitgview)->iobject);
 	GListStore *store = g_list_store_new(NODE_TYPE);
+
+	printf("toolkitgroupview_build_node: node = %p\n", parent);
+	printf("\tkitg = %p\n", kitg);
+	if (parent) {
+		printf("\tnode->toolitem = %p\n", parent->toolitem);
+		printf("\tnode->kit = %p\n", parent->kit);
+	}
 
 	// make "go to parent" the first item
 	if (parent)
@@ -366,6 +381,8 @@ static void
 toolkitgroupview_fill_browse_page(Toolkitgroupview *kitgview,
 	Node *this, GtkWidget *list_view)
 {
+	printf("toolkitgroupview_fill_browse_page: node = %p\n", this);
+
 	GtkListItemFactory *factory = gtk_signal_list_item_factory_new();
 	g_object_set_qdata(G_OBJECT(factory), toolkitgroupview_quark, kitgview);
 	g_object_set_qdata(G_OBJECT(factory), node_quark, this);
@@ -466,6 +483,9 @@ toolkitgroupview_refresh(vObject *vobject)
 	printf("toolkitgroupview_refresh:\n");
 #endif /*DEBUG*/
 
+	// the currently selected page path eg. ["root", "Colour"]
+	GSList *old_page_name = kitgview->page_names;
+
 	// remove all stack pages except the first
 	GtkWidget *stack = kitgview->stack;
 	GtkWidget *root_page = gtk_widget_get_first_child(stack);
@@ -475,9 +495,8 @@ toolkitgroupview_refresh(vObject *vobject)
 		while ((child = gtk_widget_get_next_sibling(root_page)))
 			gtk_stack_remove(GTK_STACK(stack), child);
 	}
-	VIPS_FREEF(g_slist_free, kitgview->page_names);
-	kitgview->page_names =
-		g_slist_append(kitgview->page_names, (void *) "root");
+	kitgview->page_names = g_slist_append(NULL, (void *) "root");
+	gtk_stack_set_visible_child(GTK_STACK(kitgview->stack), root_page);
 
 	// remove any model the base list_view
 	gtk_list_view_set_model(GTK_LIST_VIEW(kitgview->list_view), NULL);
