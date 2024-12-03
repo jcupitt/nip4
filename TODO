@@ -3,9 +3,6 @@
 - toolkitgroupview needs to track the currently displayed thing and recreate
   that column on _refresh, if possible
 
-	bounce back to root display if the thing being displayed has
-	been deleted
-
 	we'll need to restore the scroll position too argh
 
 - get rid of
@@ -13,6 +10,15 @@
 	 TOOL_DIA, TOOL_SEP
 
 - update status bar
+
+- make kitgview insensitive if the text is modified?
+
+	some way to discard edits too
+
+	maybe parse and recompute on kitgview click? with some way for
+	program to block activate if there's an error
+
+	how does nip2 handle this?
 
 ## toolkit browser
 
