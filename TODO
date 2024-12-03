@@ -6,6 +6,8 @@
 	bounce back to root display if the thing being displayed has
 	been deleted
 
+	we'll need to restore the scroll position too argh
+
 - get rid of
 
 	 TOOL_DIA, TOOL_SEP
@@ -32,6 +34,10 @@
   maybe we are sometimes using VIPS_UNREF() rather than IDESTROY()?
 
 ## other
+
+- need to clip region drawing or cairo will crap the bed
+
+	or at least get very slow
 
 - close column, select column, click Colour > New > Colour, column should pop
   open since a row has been added to it

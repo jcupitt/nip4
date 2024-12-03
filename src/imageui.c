@@ -1208,13 +1208,13 @@ imageui_init(Imageui *imageui)
 
 	imageui->zoom_rate = 1.0;
 
-	/* Uncomment to test animation disable
+	g_signal_connect_object(G_OBJECT(imageui->imagedisplay), "snapshot",
+		G_CALLBACK(imageui_overlay_snapshot), imageui, 0);
+
+	/* Uncomment to test our animation disable
 	g_object_set( gtk_widget_get_settings( GTK_WIDGET( win ) ),
 		"gtk-enable-animations", FALSE, NULL );
 	 */
-
-	g_signal_connect_object(G_OBJECT(imageui->imagedisplay), "snapshot",
-		G_CALLBACK(imageui_overlay_snapshot), imageui, 0);
 
 	// read the gtk animation setting preference
 	imageui->should_animate = widget_should_animate(GTK_WIDGET(imageui));

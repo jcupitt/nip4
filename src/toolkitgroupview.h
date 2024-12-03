@@ -44,6 +44,9 @@
 struct _Toolkitgroupview {
 	View parent_object;
 
+	// show all tools and toolkits, even hidden ones
+	gboolean show_all;
+
 	/* Filter list mode with this.
 	 */
 	GtkStringFilter *filter;

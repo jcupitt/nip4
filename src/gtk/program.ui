@@ -171,6 +171,8 @@
                   <object class="Toolkitgroupview" id="kitgview">
                     <property name="hexpand">false</property>
                     <property name="vexpand">true</property>
+                    <property name="show-all">true</property>
+
                   </object>
                 </child>
 

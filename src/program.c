@@ -204,11 +204,14 @@ program_set_text(Program *program, const char *text)
 
 static void
 program_kitgview_activate(Toolkitgroupview *kitgview,
-	Toolitem *toolitem, Program *program)
+	Toolitem *toolitem, Tool *tool, Program *program)
 {
-	if (toolitem &&
-		toolitem->tool) {
-		program->tool = toolitem->tool;
+	Tool *selected = tool ? tool : (toolitem ? toolitem->tool : NULL);
+
+	if (selected &&
+		program->tool != selected) {
+		program->tool = selected;
+
 		program_set_text(program, program->tool->sym->expr->compile->text);
 		iobject_changed(IOBJECT(program->kitg));
 	}

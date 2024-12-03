@@ -23,5 +23,6 @@
 #   BOOL        deprecated alias for BOOLEAN
 
 VOID: POINTER, INT
+VOID: POINTER, POINTER
 VOID: OBJECT, INT
 
