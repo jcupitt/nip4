@@ -1057,7 +1057,7 @@ nip2yyerror(const char *sub, ...)
 	(void) g_vsnprintf(buf, 4096, sub, ap);
 	va_end(ap);
 
-	error_top(_("Parse error."));
+	error_top(_("Parse error"));
 
 	if (current_compile && current_compile->last_sym)
 		error_sub(_("Error in %s: %s"),

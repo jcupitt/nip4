@@ -82,7 +82,7 @@
         <child type="start">
           <object class="GtkButton">
             <property name="label">Process</property>
-            <property name="action-name">win.process</property>
+            <signal name="clicked" handler="program_process_clicked"/>
           </object>
         </child>
 
@@ -125,32 +125,46 @@
         <property name="orientation">vertical</property>
         <property name="margin-top">8px</property>
 
-        <child type="center">
-          <object class="GtkBox">
-            <property name="orientation">vertical</property>
-            <property name="hexpand">true</property>
-            <property name="spacing">15</property>
-            <property name="visible">false</property>
+	<child>
+          <object class="GtkActionBar" id="error_bar">
+            <property name="revealed">false</property>
 
-            <child>
-              <object class="GtkLabel" id="error_top">
-                <property name="ellipsize">middle</property>
-                <property name="selectable">true</property>
-                <property name="can-focus">false</property>
-                <style>
-                  <class name="error_top"/>
-                </style>
+	    <child type="center">
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="hexpand">true</property>
+                <property name="spacing">15</property>
+
+                <child>
+                  <object class="GtkLabel" id="error_top">
+                    <property name="ellipsize">middle</property>
+                    <property name="selectable">true</property>
+                    <property name="can-focus">false</property>
+                    <style>
+                      <class name="error_top"/>
+                    </style>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel" id="error_sub">
+                    <property name="ellipsize">middle</property>
+                    <property name="selectable">true</property>
+                    <property name="can-focus">false</property>
+                    <style>
+                      <class name="error_sub"/>
+                    </style>
+                  </object>
+                </child>
+
               </object>
             </child>
 
-            <child>
-              <object class="GtkLabel" id="error_sub">
-                <property name="ellipsize">middle</property>
-                <property name="selectable">true</property>
-                <property name="can-focus">false</property>
-                <style>
-                  <class name="error_sub"/>
-                </style>
+            <child type="end">
+              <object class="GtkButton">
+                <property name="label">OK</property>
+                <property name="valign">center</property>
+                <signal name="clicked" handler="program_error_close_clicked"/>
               </object>
             </child>
 

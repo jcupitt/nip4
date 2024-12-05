@@ -37,8 +37,12 @@ struct _Program {
 
 	// the model we display
 	Toolkitgroup *kitg;
+
+	// weak ref to current kit
 	Toolkit *kit;
 	char *kit_path;
+
+	// weak ref to current tool and position
 	Tool *tool;
 	int tool_pos;
 
@@ -49,6 +53,9 @@ struct _Program {
 	GtkWidget *title;
 	GtkWidget *subtitle;
 	GtkWidget *gears;
+	GtkWidget *error_bar;
+	GtkWidget *error_top;
+	GtkWidget *error_sub;
 	GtkWidget *left;
 	GtkWidget *kitgview;
 	GtkWidget *text_view;
@@ -100,21 +107,14 @@ program_set_load_folder(Program *program, GFile *file)
 }
 
 static void
-program_dispose(GObject *object)
+program_set_error(Program *program, gboolean error)
 {
-	Program *program = PROGRAM(object);
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(program->error_bar), error);
 
-#ifdef DEBUG
-	printf("program_dispose:\n");
-#endif /*DEBUG*/
-
-	VIPS_UNREF(program->kitg);
-	VIPS_UNREF(program->settings);
-	VIPS_FREE(program->path);
-
-	program_all = g_slist_remove(program_all, program);
-
-	G_OBJECT_CLASS(program_parent_class)->dispose(object);
+	if (error) {
+		set_glabel(program->error_top, error_get_top());
+		set_glabel(program->error_sub, error_get_sub());
+	}
 }
 
 static void
@@ -125,8 +125,8 @@ program_refresh(Program *program)
 #endif /*DEBUG*/
 
 	char txt1[512];
-	char txt2[512];
 	VipsBuf title = VIPS_BUF_STATIC(txt1);
+	char txt2[512];
 	VipsBuf subtitle = VIPS_BUF_STATIC(txt2);
 
 	if (program->kitg) {
@@ -134,26 +134,84 @@ program_refresh(Program *program)
 		symbol_qualified_name(program->kitg->root, &title);
 	}
 
-	if (program->tool) {
-		if (FILEMODEL(program->tool->kit)->modified)
+	if (program->kit) {
+		if (FILEMODEL(program->kit)->modified)
 			vips_buf_appends(&subtitle, "*");
 
-		// filename for the toolkit containing this tool
-		char *filename;
-		if ((filename = FILEMODEL(program->tool->kit)->filename))
+		const char *filename;
+		if ((filename = FILEMODEL(program->kit)->filename))
 			vips_buf_appends(&subtitle, filename);
 		else
 			vips_buf_appends(&subtitle, _("unsaved toolkit"));
+	}
 
+	if (program->tool) {
 		vips_buf_appends(&subtitle, " - ");
 		symbol_qualified_name(program->tool->sym, &subtitle);
-
-		if (program->changed)
-			vips_buf_appends(&subtitle, " [modified]");
 	}
+
+	if (program->changed)
+		vips_buf_appends(&subtitle, " [modified]");
 
 	gtk_label_set_text(GTK_LABEL(program->title), vips_buf_all(&title));
 	gtk_label_set_text(GTK_LABEL(program->subtitle), vips_buf_all(&subtitle));
+}
+
+static void
+weakref_notify(void *user_data, GObject *where_the_object_was)
+{
+	GObject **pointer = (GObject **) user_data;
+
+	if (pointer)
+		*pointer = NULL;
+}
+
+static void
+weakref_set(GObject **pointer, GObject *object)
+{
+	if (*pointer)
+		g_object_weak_unref(*pointer, weakref_notify, pointer);
+	if (pointer)
+		*pointer = object;
+	if (*pointer)
+		g_object_weak_ref(*pointer, weakref_notify, pointer);
+}
+
+#define WEAKREF_SET(A, B) weakref_set((GObject **) &(A), (GObject *) (B));
+
+/* Break the tool & kit links.
+ */
+static void
+program_detach(Program *program)
+{
+    if (program->tool) {
+        program->tool_pos = -1;
+		WEAKREF_SET(program->tool, NULL);
+    }
+
+    if (program->kit)
+		WEAKREF_SET(program->kit, NULL);
+
+    program_refresh(program);
+}
+
+static void
+program_dispose(GObject *object)
+{
+	Program *program = PROGRAM(object);
+
+#ifdef DEBUG
+	printf("program_dispose:\n");
+#endif /*DEBUG*/
+
+	program_detach(program);
+	VIPS_UNREF(program->kitg);
+	VIPS_UNREF(program->settings);
+	VIPS_FREE(program->kit_path);
+
+	program_all = g_slist_remove(program_all, program);
+
+	G_OBJECT_CLASS(program_parent_class)->dispose(object);
 }
 
 static void
@@ -196,24 +254,81 @@ program_text_changed(GtkTextBuffer *buffer, Program *program)
 	}
 }
 
+/* Pick a kit ... but don't touch the text yet.
+ */
+static void
+program_set_kit(Program *program, Toolkit *kit)
+{
+    /* None? Pick "untitled".
+     */
+    if (!kit)
+        kit = toolkit_by_name( program->kitg, "untitled" );
+
+    program_detach(program);
+
+    if (kit)
+		WEAKREF_SET(program->kit, kit);
+
+    program_refresh(program);
+}
+
+static void
+program_set_text(Program *program, const char *text)
+{
+	GtkTextBuffer *buffer =
+		gtk_text_view_get_buffer(GTK_TEXT_VIEW(program->text_view));
+    guint text_hash = g_str_hash(text);
+
+	if (program->text_hash != text_hash) {
+		g_signal_handlers_block_by_func(buffer,
+			program_text_changed, program);
+
+		text_view_set_text(GTK_TEXT_VIEW(program->text_view), text, TRUE);
+		program->text_hash = text_hash;
+
+		g_signal_handlers_unblock_by_func(buffer,
+			program_text_changed, program);
+	}
+
+	program->changed = FALSE;
+}
+
+static void
+program_set_tool(Program *program, Tool *tool)
+{
+	if (program->tool != tool) {
+		WEAKREF_SET(program->tool, tool);
+
+		if (tool)
+			program_set_text(program, program->tool->sym->expr->compile->text);
+
+		iobject_changed(IOBJECT(program->kitg));
+	}
+}
+
 /* Read and parse the text.
  */
 static gboolean
 program_parse(Program *program)
 {
+#ifdef DEBUG
+    printf("program_parse:\n");
+#endif /*DEBUG*/
+
     char buffer[MAX_STRSIZE];
 	VipsBuf buf = VIPS_BUF_STATIC(buffer);
 
     Compile *compile;
 
-    if (!program->dirty)
+    if (!program->changed)
         return TRUE;
 
     /* Irritatingly, we need to append a ';'. Also, update the hash, so we
      * don't set the same text back again if we can help it.
      */
-    g_autofree *txt = text_view_get_text(program->text_view);
-    guint text_hash = g_str_hash(txt);
+    g_autofree char *txt =
+		text_view_get_text(GTK_TEXT_VIEW(program->text_view));
+    program->text_hash = g_str_hash(txt);
     vips_buf_appendf(&buf, "%s;", txt);
 
     if (strspn(buffer, WHITESPACE ";") == strlen(buffer))
@@ -222,31 +337,33 @@ program_parse(Program *program)
     /* Make sure we've got a kit.
      */
     if (!program->kit)
-        program_select_kit_sub(program, program->kit);
+        program_set_kit(program, program->kit);
     compile = program->kit->kitg->root->expr->compile;
 
 #ifdef DEBUG
-    printf("program_parse: parsing to kit \"%s\", pos %d\n",
-        IOBJECT(program->kit)->name, program->pos);
+    printf("\tparsing to kit \"%s\", pos %d\n",
+        IOBJECT(program->kit)->name, program->tool_pos);
 #endif /*DEBUG*/
 
     /* ... and parse the new text into it.
      */
     attach_input_string(buffer);
-    if (!parse_onedef(program->kit, program->pos)) {
+    if (!parse_onedef(program->kit, program->tool_pos)) {
+		printf("\terror top = %s\n", error_get_top());
+
         text_view_select_text(GTK_TEXT_VIEW(program->text_view),
             input_state.charpos - yyleng, input_state.charpos);
         return FALSE;
     }
 
-    program->dirty = FALSE;
+    program->changed = FALSE;
     if (program->kit)
         filemodel_set_modified(FILEMODEL(program->kit), TRUE);
 
     /* Reselect last_sym, the last thing the parser saw.
      */
     if (compile->last_sym && compile->last_sym->tool)
-        program_select_tool(program, compile->last_sym->tool);
+        program_set_tool(program, compile->last_sym->tool);
 
     symbol_recalculate_all();
 
@@ -254,46 +371,28 @@ program_parse(Program *program)
 }
 
 static void
-program_set_text(Program *program, const char *text)
-{
-	GtkTextBuffer *buffer =
-		gtk_text_view_get_buffer(GTK_TEXT_VIEW(program->text_view));
-
-	g_signal_handlers_block_by_func(buffer, program_text_changed, program);
-	text_view_set_text(GTK_TEXT_VIEW(program->text_view), text, TRUE );
-	g_signal_handlers_unblock_by_func(buffer, program_text_changed, program);
-}
-
-static void
-program_set_tool(Program *program, Tool *tool)
-{
-	if (program->tool != tool) {
-		program->tool = tool;
-
-		program_set_text(program, program->tool->sym->expr->compile->text);
-		VIPS_FREE(program->path);
-		const char *path;
-		g_object_get(program->kitgview, "path", &path, NULL);
-		program->path = g_strdup(path);
-		printf("program_set_tool: path = %s\n", path);
-
-		iobject_changed(IOBJECT(program->kitg));
-	}
-}
-
-static void
 program_kitgview_activate(Toolkitgroupview *kitgview,
 	Toolitem *toolitem, Tool *tool, Program *program)
 {
-	Tool *selected = tool ? tool : (toolitem ? toolitem->tool : NULL);
+	Tool *selected_tool = tool ? tool : (toolitem ? toolitem->tool : NULL);
 
-	if (selected) {
-		if (program->changed) {
-			// parse and compile
-			// on error, revert to old path and display an error
+	if (selected_tool) {
+		if (program->changed &&
+			!program_parse(program)) {
+			program_set_error(program, TRUE);
+			g_object_set(program->kitgview, "path", program->kit_path, NULL);
 		}
+		else {
+			program_set_error(program, FALSE);
+			program_set_kit(program, selected_tool->kit);
 
-		program_set_tool(program, selected);
+			VIPS_FREE(program->kit_path);
+			const char *kit_path;
+			g_object_get(program->kitgview, "path", &kit_path, NULL);
+			program->kit_path = g_strdup(kit_path);
+
+			program_set_tool(program, selected_tool);
+		}
 	}
 }
 
@@ -350,6 +449,18 @@ program_process_clicked(GtkButton *button, Program *program)
 #ifdef DEBUG
 	printf("program_process_clicked\n");
 #endif /*DEBUG*/
+
+	program_set_error(program, !program_parse(program));
+}
+
+static void
+program_error_close_clicked(GtkButton *button, Program *program)
+{
+#ifdef DEBUG
+	printf("program_error_close_clicked\n");
+#endif /*DEBUG*/
+
+	program_set_error(program, FALSE);
 }
 
 static void
@@ -362,12 +473,16 @@ program_class_init(ProgramClass *class)
 	BIND_VARIABLE(Program, title);
 	BIND_VARIABLE(Program, subtitle);
 	BIND_VARIABLE(Program, gears);
+	BIND_VARIABLE(Program, error_bar);
+	BIND_VARIABLE(Program, error_top);
+	BIND_VARIABLE(Program, error_sub);
 	BIND_VARIABLE(Program, left);
 	BIND_VARIABLE(Program, kitgview);
 	BIND_VARIABLE(Program, text_view);
 
 	BIND_CALLBACK(program_text_changed);
 	BIND_CALLBACK(program_process_clicked);
+	BIND_CALLBACK(program_error_close_clicked);
 
 	gobject_class->dispose = program_dispose;
 	gobject_class->get_property = program_get_property;

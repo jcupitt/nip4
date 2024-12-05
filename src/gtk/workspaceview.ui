@@ -51,6 +51,7 @@
                     handler="workspaceview_error_close_clicked"/>
               </object>
             </child>
+
           </object>
         </child>
 

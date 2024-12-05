@@ -1,9 +1,6 @@
 ## program window
 
-- toolkitgroupview needs to track the currently displayed thing and recreate
-  that column on _refresh, if possible
-
-	we'll need to restore the scroll position too argh
+- restore scroll positions on menu path set
 
 - get rid of
 
@@ -11,22 +8,15 @@
 
 - for a click on a computed tool, could scroll to or highlight the text?
 
-- need to be able to get and set a path on the kitgview eg. ["Colour",
-  "New", "Colour"]
-
-	track current path, on kitgview, process the text and reset the path
-	back to the failure on parse error
-
-	we'll need to be able to set the path for the usage browser too
-
 - burger menu needs
 
 	- load, save toolkit
 	- new toolkit, new tool
 	- delete toolkit, delete tool
-	- process (and set a shortcut) ... or put "Process" in the titlebar?
 	- reload all
 	- errors
+
+  more in the titlebar? load?
 
   find and find all could be in a "uses" pane on the right?
 

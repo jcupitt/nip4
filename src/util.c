@@ -104,8 +104,8 @@ error_set(VipsBuf *buf, const char *fmt, va_list ap)
 		(void) vips_buf_appends(buf, vips_buf_all(&tmp));
 
 #ifdef DEBUG_ERROR
-		printf("error: %p %s\n", buf, vips_buf_all(buf));
 #endif /*DEBUG_ERROR*/
+		printf("error: %p %s\n", buf, vips_buf_all(buf));
 	}
 }
 
@@ -117,8 +117,8 @@ error_clear_nip(void)
 		vips_buf_rewind(&error_sub_buf);
 
 #ifdef DEBUG_ERROR
-		printf("error_clear_nip\n");
 #endif /*DEBUG_ERROR*/
+		printf("error_clear_nip\n");
 	}
 }
 
