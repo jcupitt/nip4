@@ -9,16 +9,32 @@
 
 	 TOOL_DIA, TOOL_SEP
 
-- update status bar
+- for a click on a computed tool, could scroll to or highlight the text?
 
-- make kitgview insensitive if the text is modified?
+- need to be able to get and set a path on the kitgview eg. ["Colour",
+  "New", "Colour"]
 
-	some way to discard edits too
+	track current path, on kitgview, process the text and reset the path
+	back to the failure on parse error
 
-	maybe parse and recompute on kitgview click? with some way for
-	program to block activate if there's an error
+	we'll need to be able to set the path for the usage browser too
 
-	how does nip2 handle this?
+- burger menu needs
+
+	- load, save toolkit
+	- new toolkit, new tool
+	- delete toolkit, delete tool
+	- process (and set a shortcut) ... or put "Process" in the titlebar?
+	- reload all
+	- errors
+
+  find and find all could be in a "uses" pane on the right?
+
+- drag in left to reorder tools and toolkits
+
+	argh!
+
+- fix 16-bit alpha composite over background
 
 ## toolkit browser
 

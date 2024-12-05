@@ -47,7 +47,6 @@ struct _Program {
 	GtkWidget *gears;
 	GtkWidget *left;
 	GtkWidget *kitgview;
-	GtkWidget *status;
 	GtkWidget *text_view;
 
 	GSettings *settings;
@@ -134,14 +133,18 @@ program_refresh(Program *program)
 		if (FILEMODEL(program->tool->kit)->modified)
 			vips_buf_appends(&subtitle, "*");
 
-		symbol_qualified_name(program->tool->sym, &subtitle);
-		vips_buf_appends(&subtitle, " - ");
-
+		// filename for the toolkit containing this tool
 		char *filename;
 		if ((filename = FILEMODEL(program->tool->kit)->filename))
 			vips_buf_appends(&subtitle, filename);
 		else
 			vips_buf_appends(&subtitle, _("unsaved toolkit"));
+
+		vips_buf_appends(&subtitle, " - ");
+		symbol_qualified_name(program->tool->sym, &subtitle);
+
+		if (program->changed)
+			vips_buf_appends(&subtitle, " [modified]");
 	}
 
 	gtk_label_set_text(GTK_LABEL(program->title), vips_buf_all(&title));
@@ -180,10 +183,7 @@ program_text_changed(GtkTextBuffer *buffer, Program *program)
 
 	if (!program->changed) {
 		program->changed = TRUE;
-
-		if (program->tool &&
-			program->tool->kit)
-			filemodel_set_modified(FILEMODEL(program->tool->kit), TRUE);
+		program_refresh(program);
 
 #ifdef DEBUG
 		printf("\t(changed = TRUE)\n");
