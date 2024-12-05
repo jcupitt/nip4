@@ -148,6 +148,7 @@ G_DEFINE_TYPE(Toolkitgroupview, toolkitgroupview, VIEW_TYPE);
 
 enum {
 	PROP_SHOW_ALL = 1,
+	PROP_PATH,
 
 	SIG_ACTIVATE,
 
@@ -181,6 +182,19 @@ toolkitgroupview_dispose(GObject *object)
 	G_OBJECT_CLASS(toolkitgroupview_parent_class)->dispose(object);
 }
 
+static GSList *
+toolkitgroupview_parse_path(char *path)
+{
+	GSList *page_names = NULL;
+
+	char *p;
+	char *q;
+	for (p = path; (q = vips_break_token(p, ">")); p = q)
+		page_names = g_slist_append(page_names, g_strdup(p));
+
+	return page_names;
+}
+
 static void
 toolkitgroupview_set_property(GObject *object,
 	guint prop_id, const GValue *value, GParamSpec *pspec)
@@ -193,10 +207,33 @@ toolkitgroupview_set_property(GObject *object,
 		vobject_refresh_queue(VOBJECT(kitgview));
 		break;
 
+	case PROP_PATH:
+		g_slist_free_full(g_steal_pointer(&kitgview->page_names), g_free);
+		g_autofree char *path = g_strdup(g_value_get_string(value));
+		kitgview->page_names = toolkitgroupview_parse_path(path);
+		vobject_refresh_queue(VOBJECT(kitgview));
+		break;
+
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
 		break;
 	}
+}
+
+static char *
+toolkitgroupview_print_path(GSList *page_names)
+{
+	GString *path = g_string_new("");
+
+	for (GSList *p = page_names; p; p = p->next) {
+		const char *name = (const char *) p->data;
+
+		g_string_append(path, name);
+		if (p->next)
+			g_string_append(path, ">");
+	}
+
+	return g_string_free_and_steal(path);
 }
 
 static void
@@ -208,6 +245,11 @@ toolkitgroupview_get_property(GObject *object,
 	switch (prop_id) {
 	case PROP_SHOW_ALL:
 		g_value_set_boolean(value, kitgview->show_all);
+		break;
+
+	case PROP_PATH:
+		g_value_take_string(value,
+			toolkitgroupview_print_path(kitgview->page_names));
 		break;
 
 	default:
@@ -222,15 +264,12 @@ toolkitgroupview_get_property(GObject *object,
 static void *
 toolkitgroupview_build_kit(Toolkit *kit, void *a, void *b)
 {
-	printf("toolkitgroupview_build_kit: kit = %p\n", kit);
-
 	GListStore *store = G_LIST_STORE(a);
 	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(b);
 
 	if (kit &&
 		(kitgview->show_all || MODEL(kit)->display) &&
 		IOBJECT(kit)->name) {
-		printf("\tadding name = %s\n", IOBJECT(kit)->name);
 		g_list_store_append(store, G_OBJECT(node_new(kit, NULL, NULL)));
 	}
 
@@ -240,8 +279,6 @@ toolkitgroupview_build_kit(Toolkit *kit, void *a, void *b)
 static void *
 toolkitgroupview_build_tool(Tool *tool, void *a, void *b)
 {
-	printf("toolkitgroupview_build_tool:\n");
-
 	GListStore *store = G_LIST_STORE(a);
 	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(b);
 
@@ -275,13 +312,6 @@ toolkitgroupview_build_node(Toolkitgroupview *kitgview, Node *parent)
 {
 	Toolkitgroup *kitg = TOOLKITGROUP(VOBJECT(kitgview)->iobject);
 	GListStore *store = g_list_store_new(NODE_TYPE);
-
-	printf("toolkitgroupview_build_node: node = %p\n", parent);
-	printf("\tkitg = %p\n", kitg);
-	if (parent) {
-		printf("\tnode->toolitem = %p\n", parent->toolitem);
-		printf("\tnode->kit = %p\n", parent->kit);
-	}
 
 	// make "go to parent" the first item
 	if (parent)
@@ -345,11 +375,13 @@ toolkitgroupview_browse_clicked(GtkWidget *button,
 {
 	Node *node = g_object_get_qdata(G_OBJECT(button), node_quark);
 
-	toolkitgroupview_activate(kitgview, node->toolitem, node->tool);
-
 	if (node->kit ||
 		(node->toolitem && node->toolitem->is_pullright))
 		toolkitgroupview_build_browse_page(kitgview, node);
+
+	// avtivate after moving to the new page so listeners can get the new page
+	// name
+	toolkitgroupview_activate(kitgview, node->toolitem, node->tool);
 }
 
 static void
@@ -753,6 +785,13 @@ toolkitgroupview_class_init(ToolkitgroupviewClass *class)
 			_("Show all"),
 			_("Show all tools and toolkits"),
 			FALSE,
+			G_PARAM_READWRITE));
+
+	g_object_class_install_property(gobject_class, PROP_PATH,
+		g_param_spec_string("path",
+			_("Path"),
+			_("Path to display"),
+			"",
 			G_PARAM_READWRITE));
 
 	toolkitgroupview_signals[SIG_ACTIVATE] = g_signal_new("activate",

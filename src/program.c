@@ -37,10 +37,14 @@ struct _Program {
 
 	// the model we display
 	Toolkitgroup *kitg;
+	Toolkit *kit;
+	char *kit_path;
 	Tool *tool;
+	int tool_pos;
 
-	// our text_view has been modified
+	// our text_view has been modified, and the hash of the last text we set
 	gboolean changed;
+	guint text_hash;
 
 	GtkWidget *title;
 	GtkWidget *subtitle;
@@ -106,6 +110,7 @@ program_dispose(GObject *object)
 
 	VIPS_UNREF(program->kitg);
 	VIPS_UNREF(program->settings);
+	VIPS_FREE(program->path);
 
 	program_all = g_slist_remove(program_all, program);
 
@@ -191,6 +196,63 @@ program_text_changed(GtkTextBuffer *buffer, Program *program)
 	}
 }
 
+/* Read and parse the text.
+ */
+static gboolean
+program_parse(Program *program)
+{
+    char buffer[MAX_STRSIZE];
+	VipsBuf buf = VIPS_BUF_STATIC(buffer);
+
+    Compile *compile;
+
+    if (!program->dirty)
+        return TRUE;
+
+    /* Irritatingly, we need to append a ';'. Also, update the hash, so we
+     * don't set the same text back again if we can help it.
+     */
+    g_autofree *txt = text_view_get_text(program->text_view);
+    guint text_hash = g_str_hash(txt);
+    vips_buf_appendf(&buf, "%s;", txt);
+
+    if (strspn(buffer, WHITESPACE ";") == strlen(buffer))
+        return TRUE;
+
+    /* Make sure we've got a kit.
+     */
+    if (!program->kit)
+        program_select_kit_sub(program, program->kit);
+    compile = program->kit->kitg->root->expr->compile;
+
+#ifdef DEBUG
+    printf("program_parse: parsing to kit \"%s\", pos %d\n",
+        IOBJECT(program->kit)->name, program->pos);
+#endif /*DEBUG*/
+
+    /* ... and parse the new text into it.
+     */
+    attach_input_string(buffer);
+    if (!parse_onedef(program->kit, program->pos)) {
+        text_view_select_text(GTK_TEXT_VIEW(program->text_view),
+            input_state.charpos - yyleng, input_state.charpos);
+        return FALSE;
+    }
+
+    program->dirty = FALSE;
+    if (program->kit)
+        filemodel_set_modified(FILEMODEL(program->kit), TRUE);
+
+    /* Reselect last_sym, the last thing the parser saw.
+     */
+    if (compile->last_sym && compile->last_sym->tool)
+        program_select_tool(program, compile->last_sym->tool);
+
+    symbol_recalculate_all();
+
+    return TRUE;
+}
+
 static void
 program_set_text(Program *program, const char *text)
 {
@@ -203,17 +265,35 @@ program_set_text(Program *program, const char *text)
 }
 
 static void
+program_set_tool(Program *program, Tool *tool)
+{
+	if (program->tool != tool) {
+		program->tool = tool;
+
+		program_set_text(program, program->tool->sym->expr->compile->text);
+		VIPS_FREE(program->path);
+		const char *path;
+		g_object_get(program->kitgview, "path", &path, NULL);
+		program->path = g_strdup(path);
+		printf("program_set_tool: path = %s\n", path);
+
+		iobject_changed(IOBJECT(program->kitg));
+	}
+}
+
+static void
 program_kitgview_activate(Toolkitgroupview *kitgview,
 	Toolitem *toolitem, Tool *tool, Program *program)
 {
 	Tool *selected = tool ? tool : (toolitem ? toolitem->tool : NULL);
 
-	if (selected &&
-		program->tool != selected) {
-		program->tool = selected;
+	if (selected) {
+		if (program->changed) {
+			// parse and compile
+			// on error, revert to old path and display an error
+		}
 
-		program_set_text(program, program->tool->sym->expr->compile->text);
-		iobject_changed(IOBJECT(program->kitg));
+		program_set_tool(program, selected);
 	}
 }
 
