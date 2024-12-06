@@ -24,7 +24,7 @@
 
 	argh!
 
-- fix 16-bit alpha composite over background
+  I suppose we will need our own two-level tree view
 
 ## toolkit browser
 
@@ -51,16 +51,14 @@
 
 	or at least get very slow
 
+  diagonal lines are the only only hard case
+
+  do we have code for this in nip2? it feels like we might
+
 - close column, select column, click Colour > New > Colour, column should pop
   open since a row has been added to it
 
 - we really need cursor changes for region manipulation
-
-- Colour / New / Colour, convert to scRGB, black!
-
-- image, convert to srgb, Convert to Colour
-
-	fails with eg. "26 not in table" for many colourspaces
 
 - when dragging a row, always select destination column on drop
 
@@ -241,6 +239,11 @@
 
 - need something to make sure only one image loads at once?
 
+- Colour / New / Colour, convert to scRGB, black!
+
+- image, convert to srgb, Convert to Colour
+
+	fails with eg. "26 not in table" for many colourspaces
 
 - fix imagewindow copy/paste
 
@@ -249,6 +252,8 @@
 - open imageview window for groups? < and > could move up and down the group
 
 	or disable < > ref for computed images?
+
+- fix 16-bit alpha composite over background
 
 ## ideas
 
