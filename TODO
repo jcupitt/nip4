@@ -1,3 +1,57 @@
+## small
+
+- new row type ... enter " (double quotes) as first character, then there's no
+  need to terminate the string
+
+  displayed slightly differently? maybe display all cells which are just a
+  static string like this?
+
+  maybe allow eg. "<span background=\"white\">hello</span>" too?
+
+	formula isn't a great place to do this -- eg. "<function>" won't parse
+	as markup
+
+	a special graphical view widget for top-level strings would be better
+
+## imagewindow
+
+- next/prev in imagewindow often fails
+
+	to do with background load and region ownership
+
+	a libvips release build hides the error
+
+	might fix region display error too
+
+- need something to make next/prev block while the current image is loading
+
+	we had this, when did it go?
+
+	need it back anyway
+
+- need something to make sure only one image loads at once?
+
+- Colour / New / Colour, convert to scRGB, black!
+
+- image, convert to srgb, Convert to Colour
+
+	fails with eg. "26 not in table" for many colourspaces
+
+- fix imagewindow copy/paste
+
+  add copy/paste to mainwindow as well
+
+- open imageview window for groups? < and > could move up and down the group
+
+	or disable < > ref for computed images?
+
+- fix 16-bit alpha composite over background
+
+## ideas
+
+- we have the css_name thing in several _refresh() methods ... should this be
+  in the base class?
+
 ## program window
 
 - restore scroll positions on menu path set
@@ -205,57 +259,3 @@
 
 	we'd need to make a floating column (not just a columnview) and
 	reparent the rows to it
-
-## small
-
-- new row type ... enter " (double quotes) as first character, then there's no
-  need to terminate the string
-
-  displayed slightly differently? maybe display all cells which are just a
-  static string like this?
-
-  maybe allow eg. "<span background=\"white\">hello</span>" too?
-
-	formula isn't a great place to do this -- eg. "<function>" won't parse
-	as markup
-
-	a special graphical view widget for top-level strings would be better
-
-## imagewindow
-
-- next/prev in imagewindow often fails
-
-	to do with background load and region ownership
-
-	a libvips release build hides the error
-
-	might fix region display error too
-
-- need something to make next/prev block while the current image is loading
-
-	we had this, when did it go?
-
-	need it back anyway
-
-- need something to make sure only one image loads at once?
-
-- Colour / New / Colour, convert to scRGB, black!
-
-- image, convert to srgb, Convert to Colour
-
-	fails with eg. "26 not in table" for many colourspaces
-
-- fix imagewindow copy/paste
-
-  add copy/paste to mainwindow as well
-
-- open imageview window for groups? < and > could move up and down the group
-
-	or disable < > ref for computed images?
-
-- fix 16-bit alpha composite over background
-
-## ideas
-
-- we have the css_name thing in several _refresh() methods ... should this be
-  in the base class?

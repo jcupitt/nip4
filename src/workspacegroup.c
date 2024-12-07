@@ -65,8 +65,6 @@ workspacegroup_workspace_pick(Workspacegroup *wsg)
 {
 	Workspace *ws;
 
-	printf("workspacegroup_workspace_pick:\n");
-
 	if ((ws = workspacegroup_get_workspace(wsg)))
 		;
 	else if (ICONTAINER(wsg)->children) {
@@ -793,8 +791,6 @@ workspacegroup_new_blank(Workspaceroot *wsr, const char *name)
 {
 	Workspacegroup *wsg;
 
-	printf("workspacegroup_new_blank:\n");
-
 	if (!(wsg = workspacegroup_new(wsr)))
 		return NULL;
 	iobject_set(IOBJECT(wsg), name, NULL);
@@ -829,8 +825,8 @@ workspacegroup_new_from_file(Workspaceroot *wsr,
 	Workspacegroup *wsg;
 
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("workspacegroup_new_from_file: %s\n", filename);
+#endif /*DEBUG*/
 
 	if (!(wsg = workspacegroup_new(wsr)))
 		return NULL;
@@ -864,8 +860,8 @@ workspacegroup_new_from_openfile(Workspaceroot *wsr, iOpenFile *of)
 	char name[FILENAME_MAX];
 
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("workspacegroup_new_from_openfile: %s\n", of->fname);
+#endif /*DEBUG*/
 
 	if (!(wsg = workspacegroup_new(wsr)))
 		return NULL;

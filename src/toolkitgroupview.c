@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -473,8 +473,6 @@ static GListModel *
 toolkitgroupview_fill_browse_page(Toolkitgroupview *kitgview,
 	Node *this, GtkWidget *list_view)
 {
-	printf("toolkitgroupview_fill_browse_page: node = %p\n", this);
-
 	GtkListItemFactory *factory = gtk_signal_list_item_factory_new();
 	g_object_set_qdata(G_OBJECT(factory), toolkitgroupview_quark, kitgview);
 	g_object_set_qdata(G_OBJECT(factory), node_quark, this);
@@ -517,12 +515,6 @@ toolkitgroupview_build_browse_page(Toolkitgroupview *kitgview, Node *this)
 static void
 toolkitgroupview_rebuild_browse(Toolkitgroupview *kitgview)
 {
-	printf("toolkitgroupview_rebuild_browse:\n");
-	printf("\tpage_names = ");
-	for (GSList *p = kitgview->page_names; p; p = p->next)
-		printf("'%s', ", (char *) p->data);
-	printf("\n");
-
 	// take a copy of the old pages_names list and reset to the root
 	GSList *old_page_names = kitgview->page_names;
 	kitgview->page_names = g_slist_append(NULL, g_strdup("root"));

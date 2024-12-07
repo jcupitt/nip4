@@ -464,8 +464,6 @@ rowview_class_init(RowviewClass *class)
 	BIND_CALLBACK(rowview_up_click);
 	BIND_CALLBACK(rowview_down_click);
 
-	printf("rowview_class_init: need button enter, leave, focus, tooltip\n");
-
 	BIND_VARIABLE(Rowview, spin);
 	BIND_VARIABLE(Rowview, frame);
 	BIND_VARIABLE(Rowview, label);
