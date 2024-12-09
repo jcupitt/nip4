@@ -1,4 +1,15 @@
-## small
+## toolkitgroupview
+
+- in program window, search is cleared on refresh
+
+	eg. seatrch for is_Plot, click on it, list fills again
+
+- in main window, list stops at Image > Transform > Resize > Size within
+
+	Image > Transform > Resize > Canvas never appears ?
+
+
+
 
 - new row type ... enter " (double quotes) as first character, then there's no
   need to terminate the string

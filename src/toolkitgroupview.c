@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -65,6 +65,19 @@ enum {
 	// text we search for the find expression
 	PROP_SEARCH_TEXT = 1,
 };
+
+#ifdef DEBUG
+static void
+node_print(Node *node)
+{
+	if (node->kit)
+		printf("node kit %s\n", IOBJECT(node->kit)->name);
+	if (node->tool)
+		printf("node tool %s\n", IOBJECT(node->tool)->name);
+	if (node->toolitem)
+		printf("node toolitem %s\n", IOBJECT(node->toolitem->tool)->name);
+}
+#endif /*DEBUG*/
 
 static void
 node_get_property(GObject *object,
@@ -127,6 +140,10 @@ node_new(Toolkit *kit, Tool *tool, Toolitem *toolitem)
 	node->kit = kit;
 	node->tool = tool;
 	node->toolitem = toolitem;
+
+#ifdef DEBUG
+	node_print(node);
+#endif /*DEBUG*/
 
 	return node;
 }
@@ -261,17 +278,40 @@ toolkitgroupview_get_property(GObject *object,
 /* Build a page in the tree view.
  */
 
+static void
+toolkitgroupview_add_kit(Toolkitgroupview *kitgview, GListStore *store, Toolkit *kit)
+{
+	if (kit &&
+		(kitgview->show_all || MODEL(kit)->display) &&
+		IOBJECT(kit)->name)
+		g_list_store_append(store, G_OBJECT(node_new(kit, NULL, NULL)));
+}
+
+static void
+toolkitgroupview_add_tool(Toolkitgroupview *kitgview, GListStore *store, Tool *tool)
+{
+	if (tool &&
+		(kitgview->show_all || MODEL(tool)->display) &&
+		IOBJECT(tool)->name)
+		g_list_store_append(store, G_OBJECT(node_new(NULL, tool, NULL)));
+}
+
+static void
+toolkitgroupview_add_toolitem(Toolkitgroupview *kitgview, GListStore *store, Toolitem *toolitem)
+{
+	if (toolitem &&
+		(kitgview->show_all || MODEL(toolitem->tool)->display) &&
+		IOBJECT(toolitem->tool)->name)
+		g_list_store_append(store, G_OBJECT(node_new(NULL, NULL, toolitem)));
+}
+
 static void *
 toolkitgroupview_build_kit(Toolkit *kit, void *a, void *b)
 {
 	GListStore *store = G_LIST_STORE(a);
 	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(b);
 
-	if (kit &&
-		(kitgview->show_all || MODEL(kit)->display) &&
-		IOBJECT(kit)->name) {
-		g_list_store_append(store, G_OBJECT(node_new(kit, NULL, NULL)));
-	}
+	toolkitgroupview_add_kit(kitgview, store, kit);
 
 	return NULL;
 }
@@ -282,12 +322,10 @@ toolkitgroupview_build_tool(Tool *tool, void *a, void *b)
 	GListStore *store = G_LIST_STORE(a);
 	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(b);
 
-	if (tool->toolitem &&
-		(kitgview->show_all || MODEL(tool)->display))
-		g_list_store_append(store,
-			G_OBJECT(node_new(NULL, NULL, tool->toolitem)));
-	else if (kitgview->show_all)
-		g_list_store_append(store, G_OBJECT(node_new(NULL, tool, NULL)));
+	if (tool->toolitem)
+		toolkitgroupview_add_toolitem(kitgview, store, tool->toolitem);
+	else
+		toolkitgroupview_add_tool(kitgview, store, tool);
 
 	return NULL;
 }
@@ -302,7 +340,7 @@ toolkitgroupview_build_toolitem(void *a, void *b, void *c)
 	if (toolitem->tool &&
 		(kitgview->show_all || MODEL(toolitem->tool)->display) &&
 		(kitgview->show_all || !toolitem->is_separator))
-		g_list_store_append(store, G_OBJECT(node_new(NULL, NULL, toolitem)));
+		toolkitgroupview_add_toolitem(kitgview, store, toolitem);
 
 	return NULL;
 }
@@ -428,7 +466,10 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 		return;
 
 	if (kitgview->search_mode) {
-		gtk_label_set_label(GTK_LABEL(label), node->toolitem->user_path);
+		if (node->toolitem)
+			gtk_label_set_label(GTK_LABEL(label), node->toolitem->user_path);
+		else
+			gtk_label_set_label(GTK_LABEL(label), IOBJECT(node->tool)->name);
 		gtk_label_set_xalign(GTK_LABEL(label), 1.0);
 		gtk_label_set_ellipsize(GTK_LABEL(label), PANGO_ELLIPSIZE_START);
 	}
@@ -571,11 +612,12 @@ toolkitgroupview_build_toolitem_list(void *a, void *b, void *c)
 	GListStore *store = G_LIST_STORE(b);
 	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(c);
 
-	if (toolitem->tool &&
-		(kitgview->show_all || MODEL(toolitem->tool)->display) &&
-		!toolitem->is_pullright &&
+	if (toolitem->children)
+		slist_map2(toolitem->children,
+			toolkitgroupview_build_toolitem_list, store, kitgview);
+	else if (!toolitem->is_pullright &&
 		!toolitem->is_separator)
-		g_list_store_append(store, G_OBJECT(node_new(NULL, NULL, toolitem)));
+		toolkitgroupview_add_toolitem(kitgview, store, toolitem);
 
 	return NULL;
 }
@@ -586,10 +628,10 @@ toolkitgroupview_build_tool_list(Tool *tool, void *a, void *b)
 	GListStore *store = G_LIST_STORE(a);
 	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(b);
 
-	if (tool->toolitem &&
-		(kitgview->show_all || MODEL(tool)->display))
-		slist_map2(tool->toolitem->children,
-			toolkitgroupview_build_toolitem_list, store, kitgview);
+	if (tool->toolitem)
+		toolkitgroupview_build_toolitem_list(tool->toolitem, store, kitgview);
+	else if (kitgview->show_all)
+		toolkitgroupview_add_tool(kitgview, store, tool);
 
 	return NULL;
 }
@@ -600,10 +642,7 @@ toolkitgroupview_build_kit_list(Toolkit *kit, void *a, void *b)
 	GListStore *store = G_LIST_STORE(a);
 	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(b);
 
-	if (kit &&
-		(kitgview->show_all || MODEL(kit)->display) &&
-		IOBJECT(kit)->name)
-		toolkit_map(kit, toolkitgroupview_build_tool_list, store, kitgview);
+	toolkit_map(kit, toolkitgroupview_build_tool_list, store, kitgview);
 
 	return NULL;
 }
@@ -616,6 +655,7 @@ toolkitgroupview_create_list(Toolkitgroupview *kitgview)
 	GListStore *store;
 
 	store = g_list_store_new(NODE_TYPE);
+
 	if (kitg)
 		toolkitgroup_map(kitg,
 			toolkitgroupview_build_kit_list, store, kitgview);
