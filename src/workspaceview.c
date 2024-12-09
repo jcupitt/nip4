@@ -431,7 +431,7 @@ workspaceview_realize(GtkWidget *widget)
 
 static void
 workspaceview_kitg_activate(Toolkitgroupview *kitgview,
-	Toolitem *toolitem, Workspaceview *wview)
+	Toolitem *toolitem, Tool *tool, Workspaceview *wview)
 {
 	if (toolitem &&
 		!toolitem->is_separator &&
