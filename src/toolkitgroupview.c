@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -64,6 +64,7 @@ static GQuark node_quark = 0;
 enum {
 	// text we search for the find expression
 	PROP_SEARCH_TEXT = 1,
+	PROP_SORT_TEXT,
 };
 
 #ifdef DEBUG
@@ -101,7 +102,21 @@ node_get_property(GObject *object,
 			node->toolitem->name)
 			g_value_set_string(value, node->toolitem->help);
 		else
-			g_value_set_string(value, NULL);
+			g_value_set_string(value, "");
+		break;
+
+	case PROP_SORT_TEXT:
+		if (node->toolitem &&
+			node->toolitem->name)
+			g_value_set_string(value, node->toolitem->user_path);
+		else if (node->tool &&
+			IOBJECT(node->tool)->name)
+			g_value_set_string(value, IOBJECT(node->tool)->name);
+		else
+			g_value_set_string(value, "");
+
+		printf("SORT_TEXT: %s\n", g_value_get_string(value));
+
 		break;
 
 	default:
@@ -120,9 +135,17 @@ node_class_init(NodeClass *class)
 	g_object_class_install_property(gobject_class, PROP_SEARCH_TEXT,
 		g_param_spec_string("search-text",
 			_("Text to search for matches"),
-			_("Display name, or NULL"),
+			_("Display name"),
 			NULL,
 			G_PARAM_READABLE));
+
+	g_object_class_install_property(gobject_class, PROP_SORT_TEXT,
+		g_param_spec_string("sort-text",
+			_("Sort by this text"),
+			_("Search key"),
+			NULL,
+			G_PARAM_READABLE));
+
 }
 
 static void
@@ -166,6 +189,7 @@ G_DEFINE_TYPE(Toolkitgroupview, toolkitgroupview, VIEW_TYPE);
 enum {
 	PROP_SHOW_ALL = 1,
 	PROP_PATH,
+	PROP_SEARCH,
 
 	SIG_ACTIVATE,
 
@@ -225,10 +249,23 @@ toolkitgroupview_set_property(GObject *object,
 		break;
 
 	case PROP_PATH:
-		g_slist_free_full(g_steal_pointer(&kitgview->page_names), g_free);
 		g_autofree char *path = g_strdup(g_value_get_string(value));
-		kitgview->page_names = toolkitgroupview_parse_path(path);
-		vobject_refresh_queue(VOBJECT(kitgview));
+		if (strlen(path) > 0) {
+			g_slist_free_full(g_steal_pointer(&kitgview->page_names), g_free);
+			kitgview->page_names = toolkitgroupview_parse_path(path);
+			kitgview->search_mode = FALSE;
+			vobject_refresh_queue(VOBJECT(kitgview));
+		}
+		break;
+
+	case PROP_SEARCH:
+		g_autofree char *search_text = g_strdup(g_value_get_string(value));
+		if (strlen(search_text) > 0) {
+			kitgview->search_mode = TRUE;
+			vobject_refresh_queue(VOBJECT(kitgview));
+			gtk_editable_set_text(GTK_EDITABLE(kitgview->search_entry),
+				search_text);
+		}
 		break;
 
 	default:
@@ -265,8 +302,19 @@ toolkitgroupview_get_property(GObject *object,
 		break;
 
 	case PROP_PATH:
-		g_value_take_string(value,
-			toolkitgroupview_print_path(kitgview->page_names));
+		if (kitgview->search_mode)
+			g_value_set_string(value, "");
+		else
+			g_value_take_string(value,
+				toolkitgroupview_print_path(kitgview->page_names));
+		break;
+
+	case PROP_SEARCH:
+		if (kitgview->search_mode)
+			g_value_set_string(value,
+				gtk_editable_get_text(GTK_EDITABLE(kitgview->search_entry)));
+		else
+			g_value_set_string(value, "");
 		break;
 
 	default:
@@ -689,17 +737,25 @@ toolkitgroupview_refresh(vObject *vobject)
 
 	if (kitgview->search_mode) {
 		// build the flat search list
-		GListModel *list_model = toolkitgroupview_create_list(kitgview);
+		GtkExpression *expression;
+		GListModel *list_model;
 
-		GtkExpression *expression =
+		list_model = toolkitgroupview_create_list(kitgview);
+
+		expression =
+			gtk_property_expression_new(NODE_TYPE, NULL, "sort-text");
+		GtkSorter *sorter = GTK_SORTER(gtk_string_sorter_new(expression));
+		list_model = G_LIST_MODEL(gtk_sort_list_model_new(list_model, sorter));
+
+		expression =
 			gtk_property_expression_new(NODE_TYPE, NULL, "search-text");
 		kitgview->filter = gtk_string_filter_new(expression);
-		GtkFilterListModel *filter_model =
-			gtk_filter_list_model_new(G_LIST_MODEL(list_model),
-					GTK_FILTER(kitgview->filter));
+		list_model = G_LIST_MODEL(
+			gtk_filter_list_model_new(list_model,
+				GTK_FILTER(kitgview->filter)));
 
-		GtkNoSelection *selection =
-			gtk_no_selection_new(G_LIST_MODEL(filter_model));
+		GtkNoSelection *selection = gtk_no_selection_new(list_model);
+
 		gtk_list_view_set_model(GTK_LIST_VIEW(kitgview->list_view),
 			GTK_SELECTION_MODEL(selection));
 
@@ -823,6 +879,13 @@ toolkitgroupview_class_init(ToolkitgroupviewClass *class)
 		g_param_spec_string("path",
 			_("Path"),
 			_("Path to display"),
+			"",
+			G_PARAM_READWRITE));
+
+	g_object_class_install_property(gobject_class, PROP_SEARCH,
+		g_param_spec_string("search",
+			_("Search"),
+			_("Text to search for"),
 			"",
 			G_PARAM_READWRITE));
 

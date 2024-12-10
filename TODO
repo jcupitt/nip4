@@ -6,6 +6,8 @@
 
 	eg. search for is_Plot, click on it, list fills again
 
+- toolkitgroupview often fails to find things
+
 - new row type ... enter " (double quotes) as first character, then there's no
   need to terminate the string
 
