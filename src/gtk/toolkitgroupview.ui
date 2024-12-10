@@ -66,10 +66,10 @@
                 </child> <!-- end of top bar -->
 
                 <child>
-                  <object class="GtkScrolledWindow">
+                  <object class="GtkScrolledWindow" id="scrolled_window">
                     <property name="hexpand">false</property>
                     <property name="vexpand">true</property>
-                    <property name="hscrollbar-policy">never</property>
+                    <property name="propagate-natural-width">true</property>
 
                     <child>
                       <object class="GtkListView" id="list_view">

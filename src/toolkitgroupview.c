@@ -470,7 +470,7 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 			gtk_label_set_label(GTK_LABEL(label), node->toolitem->user_path);
 		else
 			gtk_label_set_label(GTK_LABEL(label), IOBJECT(node->tool)->name);
-		gtk_label_set_xalign(GTK_LABEL(label), 1.0);
+		gtk_label_set_xalign(GTK_LABEL(label), 0.0);
 		gtk_label_set_ellipsize(GTK_LABEL(label), PANGO_ELLIPSIZE_START);
 	}
 	else if (node->kit ||
