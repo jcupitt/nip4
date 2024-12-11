@@ -63,6 +63,7 @@ struct _Toolkitgroupview {
 	GtkWidget *stack;
 	GtkWidget *search_toggle;
 	GtkWidget *search_entry;
+	GtkWidget *scrolled_window;
 	GtkWidget *list_view;
 };
 

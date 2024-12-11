@@ -71,12 +71,6 @@
                     <property name="vexpand">true</property>
                     <property name="propagate-natural-width">true</property>
 
-                    <child>
-                      <object class="GtkListView" id="list_view">
-                        <property name="tab-behavior">item</property>
-
-                      </object>
-                    </child>
                   </object>
                 </child>
 

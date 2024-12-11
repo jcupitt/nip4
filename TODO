@@ -6,20 +6,6 @@
 
 	eg. search for is_Plot, click on it, list fills again
 
-- toolkitgroupview often fails to find things
-
-- new row type ... enter " (double quotes) as first character, then there's no
-  need to terminate the string
-
-  displayed slightly differently? maybe display all cells which are just a
-  static string like this?
-
-  maybe allow eg. "<span background=\"white\">hello</span>" too?
-
-	formula isn't a great place to do this -- eg. "<function>" won't parse
-	as markup
-
-	a special graphical view widget for top-level strings would be better
 
 ## imagewindow
 
@@ -267,3 +253,16 @@
 
 	we'd need to make a floating column (not just a columnview) and
 	reparent the rows to it
+
+- new row type ... enter " (double quotes) as first character, then there's no
+  need to terminate the string
+
+  displayed slightly differently? maybe display all cells which are just a
+  static string like this?
+
+  maybe allow eg. "<span background=\"white\">hello</span>" too?
+
+	formula isn't a great place to do this -- eg. "<function>" won't parse
+	as markup
+
+	a special graphical view widget for top-level strings would be better

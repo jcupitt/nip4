@@ -421,12 +421,58 @@ toolkitgroupview_build_node(Toolkitgroupview *kitgview, Node *parent)
 	return G_LIST_MODEL(store);
 }
 
+static GtkWidget *
+toolkitgroupview_build_browse_page(Toolkitgroupview *kitgview, Node *parent);
+
+static void
+toolkitgroupview_browse_clicked(GtkWidget *button,
+	Toolkitgroupview *kitgview)
+{
+	Node *node = g_object_get_qdata(G_OBJECT(button), node_quark);
+
+	GtkWidget *box = gtk_button_get_child(GTK_BUTTON(button));
+	GtkWidget *left = gtk_widget_get_first_child(box);
+
+	// click on "go back?"
+	if (gtk_widget_is_visible(left)) {
+		// remove the last item from the page_names list ... we know we are
+		// at least one deep in the menu
+		g_assert(kitgview->page_names->next);
+		char *last_name =
+			(char *) g_slist_last(kitgview->page_names)->data;
+		kitgview->page_names = g_slist_remove(kitgview->page_names, last_name);
+		g_free(last_name);
+
+		// get the (new) last name
+		const char *name =
+			(const char *) g_slist_last(kitgview->page_names)->data;
+		GtkWidget *last_page =
+			gtk_stack_get_visible_child(GTK_STACK(kitgview->stack));
+
+		gtk_stack_set_visible_child_name(GTK_STACK(kitgview->stack), name);
+		gtk_stack_remove(GTK_STACK(kitgview->stack), last_page);
+	}
+	else {
+		if (node->kit ||
+			(node->toolitem && node->toolitem->is_pullright))
+			toolkitgroupview_build_browse_page(kitgview, node);
+
+		// activate after moving to the new page so listeners can get the new
+		// page name
+		toolkitgroupview_activate(kitgview, node->toolitem, node->tool);
+	}
+}
+
 static void
 toolkitgroupview_setup_browse_item(GtkListItemFactory *factory,
-	GtkListItem *item)
+	GtkListItem *item, Toolkitgroupview *kitgview)
 {
 	GtkWidget *button = gtk_button_new();
 	gtk_button_set_has_frame(GTK_BUTTON(button), FALSE);
+	gtk_widget_add_css_class(button, "toolkitgroupview-item");
+	g_object_set_qdata(G_OBJECT(button), toolkitgroupview_quark, kitgview);
+	g_signal_connect(button, "clicked",
+		G_CALLBACK(toolkitgroupview_browse_clicked), kitgview);
 
 	GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 	gtk_button_set_child(GTK_BUTTON(button), box);
@@ -445,60 +491,13 @@ toolkitgroupview_setup_browse_item(GtkListItemFactory *factory,
 	gtk_image_set_from_icon_name(GTK_IMAGE(right), "go-next-symbolic");
 	gtk_box_append(GTK_BOX(box), right);
 
-	Toolkitgroupview *kitgview =
-		g_object_get_qdata(G_OBJECT(factory), toolkitgroupview_quark);
-	g_object_set_qdata(G_OBJECT(button), toolkitgroupview_quark, kitgview);
-
 	gtk_list_item_set_child(item, button);
-}
-
-static GListModel *
-toolkitgroupview_build_browse_page(Toolkitgroupview *kitgview, Node *parent);
-
-static void
-toolkitgroupview_browse_clicked(GtkWidget *button,
-	Toolkitgroupview *kitgview)
-{
-	Node *node = g_object_get_qdata(G_OBJECT(button), node_quark);
-
-	if (node->kit ||
-		(node->toolitem && node->toolitem->is_pullright))
-		toolkitgroupview_build_browse_page(kitgview, node);
-
-	// avtivate after moving to the new page so listeners can get the new page
-	// name
-	toolkitgroupview_activate(kitgview, node->toolitem, node->tool);
-}
-
-static void
-toolkitgroupview_browse_back_clicked(GtkWidget *button,
-	Toolkitgroupview *kitgview)
-{
-	// remove the last item from the page_names list
-	// we know we are at least one deep in the menu
-	g_assert(kitgview->page_names->next);
-	char *last_name =
-		(char *) g_slist_last(kitgview->page_names)->data;
-	kitgview->page_names = g_slist_remove(kitgview->page_names, last_name);
-	g_free(last_name);
-
-	// get the (new) last name
-	const char *name =
-		(const char *) g_slist_last(kitgview->page_names)->data;
-	GtkWidget *last_page =
-		gtk_stack_get_visible_child(GTK_STACK(kitgview->stack));
-
-	gtk_stack_set_visible_child_name(GTK_STACK(kitgview->stack), name);
-	gtk_stack_remove(GTK_STACK(kitgview->stack), last_page);
 }
 
 static void
 toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
-	GtkListItem *item)
+	GtkListItem *item, Toolkitgroupview *kitgview)
 {
-	Toolkitgroupview *kitgview =
-		g_object_get_qdata(G_OBJECT(factory), toolkitgroupview_quark);
-
 	GtkWidget *button = gtk_list_item_get_child(item);
 	Node *node = gtk_list_item_get_item(item);
 	Node *parent = g_object_get_qdata(G_OBJECT(factory), node_quark);
@@ -508,20 +507,7 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 	GtkWidget *label = gtk_widget_get_next_sibling(left);
 	GtkWidget *right = gtk_widget_get_next_sibling(label);
 
-	// bind can be triggered many times, we don't want to eg. attach
-	// callbacks more than once
-	if (g_object_get_qdata(G_OBJECT(button), node_quark))
-		return;
-
-	if (kitgview->search_mode) {
-		if (node->toolitem)
-			gtk_label_set_label(GTK_LABEL(label), node->toolitem->user_path);
-		else
-			gtk_label_set_label(GTK_LABEL(label), IOBJECT(node->tool)->name);
-		gtk_label_set_xalign(GTK_LABEL(label), 0.0);
-		gtk_label_set_ellipsize(GTK_LABEL(label), PANGO_ELLIPSIZE_START);
-	}
-	else if (node->kit ||
+	if (node->kit ||
 		(node->toolitem && !node->toolitem->is_separator) ||
 		node->tool)
 		gtk_label_set_label(GTK_LABEL(label), node_get_name(node));
@@ -532,11 +518,9 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 		gtk_widget_set_visible(right, FALSE);
 		gtk_label_set_xalign(GTK_LABEL(label), 0.5);
 		g_object_set_qdata(G_OBJECT(button), node_quark, parent);
-
-		g_signal_connect(button, "clicked",
-			G_CALLBACK(toolkitgroupview_browse_back_clicked), kitgview);
 	}
 	else {
+		gtk_label_set_xalign(GTK_LABEL(label), 0.0);
 		gtk_widget_set_visible(right,
 			node->kit ||
 			(node->toolitem && node->toolitem->is_pullright));
@@ -545,12 +529,8 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 			set_tooltip(button, node->toolitem->help);
 
 		g_object_set_qdata(G_OBJECT(button), node_quark, node);
-
-		g_signal_connect(button, "clicked",
-			G_CALLBACK(toolkitgroupview_browse_clicked), kitgview);
 	}
 
-	gtk_widget_add_css_class(button, "toolkitgroupview-item");
 	if (node->toolitem &&
 		node->toolitem->is_separator)
 		gtk_widget_set_sensitive(button, FALSE);
@@ -558,28 +538,25 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 	gtk_widget_remove_css_class(gtk_widget_get_parent(button), "activatable");
 }
 
-static GListModel *
-toolkitgroupview_fill_browse_page(Toolkitgroupview *kitgview,
-	Node *this, GtkWidget *list_view)
+static GtkWidget *
+toolkitgroupview_build_browse_list_view(Toolkitgroupview *kitgview, Node *this)
 {
 	GtkListItemFactory *factory = gtk_signal_list_item_factory_new();
 	g_object_set_qdata(G_OBJECT(factory), toolkitgroupview_quark, kitgview);
 	g_object_set_qdata(G_OBJECT(factory), node_quark, this);
 	g_signal_connect(factory, "setup",
-		G_CALLBACK(toolkitgroupview_setup_browse_item), NULL);
+		G_CALLBACK(toolkitgroupview_setup_browse_item), kitgview);
 	g_signal_connect(factory, "bind",
-		G_CALLBACK(toolkitgroupview_bind_browse_item), NULL);
-	gtk_list_view_set_factory(GTK_LIST_VIEW(list_view), factory);
+		G_CALLBACK(toolkitgroupview_bind_browse_item), kitgview);
 
 	GListModel *model = toolkitgroupview_build_node(kitgview, this);
-	GtkNoSelection *selection = gtk_no_selection_new(G_LIST_MODEL(model));
-	gtk_list_view_set_model(GTK_LIST_VIEW(list_view),
-			GTK_SELECTION_MODEL(selection));
+	GtkSelectionModel *selection =
+		GTK_SELECTION_MODEL(gtk_no_selection_new(G_LIST_MODEL(model)));
 
-	return model;
+	return gtk_list_view_new(selection, factory);
 }
 
-static GListModel *
+static GtkWidget *
 toolkitgroupview_build_browse_page(Toolkitgroupview *kitgview, Node *this)
 {
 	const char *name = node_get_name(this);
@@ -589,13 +566,15 @@ toolkitgroupview_build_browse_page(Toolkitgroupview *kitgview, Node *this)
 	gtk_stack_add_named(GTK_STACK(kitgview->stack), scrolled_window, name);
 	kitgview->page_names = g_slist_append(kitgview->page_names, g_strdup(name));
 
-	GtkWidget *list_view = gtk_list_view_new(NULL, NULL);
+	GtkWidget *list_view =
+		toolkitgroupview_build_browse_list_view(kitgview, this);
+
 	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window),
 		list_view);
 
 	gtk_stack_set_visible_child(GTK_STACK(kitgview->stack), scrolled_window);
 
-	return toolkitgroupview_fill_browse_page(kitgview, this, list_view);
+	return list_view;
 }
 
 /* The menu is on the empty root page. Rebuild everything, matching the page
@@ -604,20 +583,29 @@ toolkitgroupview_build_browse_page(Toolkitgroupview *kitgview, Node *this)
 static void
 toolkitgroupview_rebuild_browse(Toolkitgroupview *kitgview)
 {
+	g_assert(!kitgview->list_view);
+	g_assert(!kitgview->filter);
+
 	// take a copy of the old pages_names list and reset to the root
 	GSList *old_page_names = kitgview->page_names;
 	kitgview->page_names = g_slist_append(NULL, g_strdup("root"));
 
-	// don't animate the browser rebuild
+	// don't animate the browser rebuild process
 	gboolean should_animate =
 		widget_should_animate(GTK_WIDGET(kitgview->stack));
 	g_object_set(gtk_widget_get_settings(GTK_WIDGET(kitgview->stack)),
 		"gtk-enable-animations", FALSE,
 		NULL);
 
-	// fill the root page
-	GListModel *list_model = toolkitgroupview_fill_browse_page(kitgview,
-		NULL, kitgview->list_view);
+	// build and fill the root page in the root scrolled window
+	kitgview->list_view =
+		toolkitgroupview_build_browse_list_view(kitgview, NULL);
+	gtk_scrolled_window_set_child(
+		GTK_SCROLLED_WINDOW(kitgview->scrolled_window), kitgview->list_view);
+
+	GListModel *list_model =
+		G_LIST_MODEL(gtk_list_view_get_model(
+			GTK_LIST_VIEW(kitgview->list_view)));
 
 	for (GSList *p = old_page_names->next; p; p = p->next) {
 		char *name = (char *) p->data;
@@ -640,7 +628,10 @@ toolkitgroupview_rebuild_browse(Toolkitgroupview *kitgview)
 		if (!this)
 			break;
 
-		list_model = toolkitgroupview_build_browse_page(kitgview, this);
+		GtkWidget *list_view =
+			toolkitgroupview_build_browse_page(kitgview, this);
+		list_model = G_LIST_MODEL(gtk_list_view_get_model(
+			GTK_LIST_VIEW(list_view)));
 	}
 
 	g_slist_free_full(g_steal_pointer(&old_page_names), g_free);
@@ -712,6 +703,93 @@ toolkitgroupview_create_list(Toolkitgroupview *kitgview)
 }
 
 static void
+toolkitgroupview_setup_list_item(GtkListItemFactory *factory,
+	GtkListItem *item, Toolkitgroupview *kitgview)
+{
+	GtkWidget *label = gtk_label_new("");
+	gtk_widget_set_hexpand(label, TRUE);
+	gtk_label_set_xalign(GTK_LABEL(label), 0.0);
+	gtk_label_set_ellipsize(GTK_LABEL(label), PANGO_ELLIPSIZE_START);
+
+	GtkWidget *button = gtk_button_new();
+	gtk_button_set_has_frame(GTK_BUTTON(button), FALSE);
+	gtk_button_set_child(GTK_BUTTON(button), label);
+	g_signal_connect(button, "clicked",
+		G_CALLBACK(toolkitgroupview_browse_clicked), kitgview);
+	gtk_widget_add_css_class(button, "toolkitgroupview-item");
+
+	g_object_set_qdata(G_OBJECT(button), toolkitgroupview_quark, kitgview);
+
+	gtk_list_item_set_child(item, button);
+}
+
+static void
+toolkitgroupview_bind_list_item(GtkListItemFactory *factory,
+	GtkListItem *item, Toolkitgroupview *kitgview)
+{
+	GtkWidget *button = gtk_list_item_get_child(item);
+	Node *node = gtk_list_item_get_item(item);
+
+#ifdef DEBUG
+	printf("toolkitgroupview_bind_list_item: ");
+	node_print(node);
+#endif /*DEBUG*/
+
+	GtkWidget *label = gtk_button_get_child(GTK_BUTTON(button));
+
+	if (node->toolitem)
+		gtk_label_set_label(GTK_LABEL(label), node->toolitem->user_path);
+	else
+		gtk_label_set_label(GTK_LABEL(label), IOBJECT(node->tool)->name);
+
+	if (node->toolitem)
+		set_tooltip(button, node->toolitem->help);
+
+	g_object_set_qdata(G_OBJECT(button), node_quark, node);
+
+	gtk_widget_remove_css_class(gtk_widget_get_parent(button), "activatable");
+}
+
+static void
+toolkitgroupview_rebuild_list(Toolkitgroupview *kitgview)
+{
+	g_assert(!kitgview->list_view);
+	g_assert(!kitgview->filter);
+
+	GtkExpression *expression;
+	GListModel *list_model;
+
+	list_model = toolkitgroupview_create_list(kitgview);
+
+	expression = gtk_property_expression_new(NODE_TYPE, NULL, "sort-text");
+	GtkSorter *sorter = GTK_SORTER(gtk_string_sorter_new(expression));
+	list_model = G_LIST_MODEL(gtk_sort_list_model_new(list_model, sorter));
+
+	expression = gtk_property_expression_new(NODE_TYPE, NULL, "search-text");
+	kitgview->filter = gtk_string_filter_new(expression);
+	gtk_string_filter_set_search(kitgview->filter, "");
+	list_model = G_LIST_MODEL(gtk_filter_list_model_new(list_model,
+			GTK_FILTER(kitgview->filter)));
+
+	GtkSelectionModel *selection =
+		GTK_SELECTION_MODEL(gtk_no_selection_new(list_model));
+
+	GtkListItemFactory *factory = gtk_signal_list_item_factory_new();
+	g_signal_connect(factory, "setup",
+		G_CALLBACK(toolkitgroupview_setup_list_item), kitgview);
+	g_signal_connect(factory, "bind",
+		G_CALLBACK(toolkitgroupview_bind_list_item), kitgview);
+
+	kitgview->list_view = gtk_list_view_new(selection, factory);
+
+	gtk_scrolled_window_set_child(
+		GTK_SCROLLED_WINDOW(kitgview->scrolled_window), kitgview->list_view);
+
+	// truncate the page_names list, since we're a flat view
+	g_slist_free_full(g_steal_pointer(&kitgview->page_names->next), g_free);
+}
+
+static void
 toolkitgroupview_refresh(vObject *vobject)
 {
 	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(vobject);
@@ -731,42 +809,16 @@ toolkitgroupview_refresh(vObject *vobject)
 	}
 	gtk_stack_set_visible_child(GTK_STACK(kitgview->stack), root_page);
 
-	// remove any model the base list_view
-	gtk_list_view_set_model(GTK_LIST_VIEW(kitgview->list_view), NULL);
+	// remove the base list_view
+	gtk_scrolled_window_set_child(
+		GTK_SCROLLED_WINDOW(kitgview->scrolled_window), NULL);
+	kitgview->list_view = NULL;
 	kitgview->filter = NULL;
 
-	if (kitgview->search_mode) {
-		// build the flat search list
-		GtkExpression *expression;
-		GListModel *list_model;
-
-		list_model = toolkitgroupview_create_list(kitgview);
-
-		expression =
-			gtk_property_expression_new(NODE_TYPE, NULL, "sort-text");
-		GtkSorter *sorter = GTK_SORTER(gtk_string_sorter_new(expression));
-		list_model = G_LIST_MODEL(gtk_sort_list_model_new(list_model, sorter));
-
-		expression =
-			gtk_property_expression_new(NODE_TYPE, NULL, "search-text");
-		kitgview->filter = gtk_string_filter_new(expression);
-		list_model = G_LIST_MODEL(
-			gtk_filter_list_model_new(list_model,
-				GTK_FILTER(kitgview->filter)));
-
-		GtkNoSelection *selection = gtk_no_selection_new(list_model);
-
-		gtk_list_view_set_model(GTK_LIST_VIEW(kitgview->list_view),
-			GTK_SELECTION_MODEL(selection));
-
-		// truncate the page_names list, since we're a flat view
-		g_slist_free_full(g_steal_pointer(&kitgview->page_names->next), g_free);
-	}
-	else {
-		// rebuild the nested menu
+	if (kitgview->search_mode)
+		toolkitgroupview_rebuild_list(kitgview);
+	else
 		toolkitgroupview_rebuild_browse(kitgview);
-		kitgview->filter = NULL;
-	}
 
 	VOBJECT_CLASS(toolkitgroupview_parent_class)->refresh(vobject);
 }
@@ -862,7 +914,7 @@ toolkitgroupview_class_init(ToolkitgroupviewClass *class)
 	BIND_VARIABLE(Toolkitgroupview, stack);
 	BIND_VARIABLE(Toolkitgroupview, search_toggle);
 	BIND_VARIABLE(Toolkitgroupview, search_entry);
-	BIND_VARIABLE(Toolkitgroupview, list_view);
+	BIND_VARIABLE(Toolkitgroupview, scrolled_window);
 
 	BIND_CALLBACK(toolkitgroupview_search_toggled);
 	BIND_CALLBACK(toolkitgroupview_key_pressed);
