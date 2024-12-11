@@ -265,6 +265,8 @@ toolkitgroupview_set_property(GObject *object,
 			vobject_refresh_queue(VOBJECT(kitgview));
 			gtk_editable_set_text(GTK_EDITABLE(kitgview->search_entry),
 				search_text);
+			gtk_string_filter_set_search(kitgview->filter,
+				search_text);
 		}
 		break;
 
@@ -703,6 +705,15 @@ toolkitgroupview_create_list(Toolkitgroupview *kitgview)
 }
 
 static void
+toolkitgroupview_list_clicked(GtkWidget *button,
+	Toolkitgroupview *kitgview)
+{
+	Node *node = g_object_get_qdata(G_OBJECT(button), node_quark);
+
+	toolkitgroupview_activate(kitgview, node->toolitem, node->tool);
+}
+
+static void
 toolkitgroupview_setup_list_item(GtkListItemFactory *factory,
 	GtkListItem *item, Toolkitgroupview *kitgview)
 {
@@ -715,7 +726,7 @@ toolkitgroupview_setup_list_item(GtkListItemFactory *factory,
 	gtk_button_set_has_frame(GTK_BUTTON(button), FALSE);
 	gtk_button_set_child(GTK_BUTTON(button), label);
 	g_signal_connect(button, "clicked",
-		G_CALLBACK(toolkitgroupview_browse_clicked), kitgview);
+		G_CALLBACK(toolkitgroupview_list_clicked), kitgview);
 	gtk_widget_add_css_class(button, "toolkitgroupview-item");
 
 	g_object_set_qdata(G_OBJECT(button), toolkitgroupview_quark, kitgview);

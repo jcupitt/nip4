@@ -1,4 +1,4 @@
-## toolkitgroupview
+## program
 
 - program window tabs should be 4 spaces
 
@@ -6,8 +6,26 @@
 
 	eg. search for is_Plot, click on it, list fills again
 
+	not clear why this happens? we try to restore the search string
+	and filter
 
 ## imagewindow
+
+- we really need cursor changes for region manipulation
+
+- need to clip region drawing or cairo will crap the bed
+
+	or at least get very slow
+
+	diagonal lines are the only only hard case
+
+	pan is slow as well as zoom
+
+	cairo seems to handle the trivial case
+
+	check shadow as well
+
+  do we have code for this in nip2? it feels like we might
 
 - next/prev in imagewindow often fails
 
@@ -95,23 +113,8 @@
 
 ## other
 
-- need to clip region drawing or cairo will crap the bed
-
-	or at least get very slow
-
-  diagonal lines are the only only hard case
-
-  do we have code for this in nip2? it feels like we might
-
 - close column, select column, click Colour > New > Colour, column should pop
   open since a row has been added to it
-
-- we really need cursor changes for region manipulation
-
-- when dragging a row, always select destination column on drop
-
-	since the source column could be selected ... if this was the only
-	row, we'll then have no selected column
 
 - remove the "open" button from the top bar? not very useful
 

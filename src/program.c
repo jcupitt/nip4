@@ -41,6 +41,7 @@ struct _Program {
 	// weak ref to current kit
 	Toolkit *kit;
 	char *kit_path;
+	char *kit_search;
 
 	// weak ref to current tool and position
 	Tool *tool;
@@ -208,6 +209,7 @@ program_dispose(GObject *object)
 	VIPS_UNREF(program->kitg);
 	VIPS_UNREF(program->settings);
 	VIPS_FREE(program->kit_path);
+	VIPS_FREE(program->kit_search);
 
 	program_all = g_slist_remove(program_all, program);
 
@@ -299,7 +301,8 @@ program_set_tool(Program *program, Tool *tool)
 	if (program->tool != tool) {
 		WEAKREF_SET(program->tool, tool);
 
-		if (tool)
+		if (tool &&
+			program->tool->sym->expr)
 			program_set_text(program, program->tool->sym->expr->compile->text);
 
 		iobject_changed(IOBJECT(program->kitg));
@@ -380,7 +383,10 @@ program_kitgview_activate(Toolkitgroupview *kitgview,
 		if (program->changed &&
 			!program_parse(program)) {
 			program_set_error(program, TRUE);
-			g_object_set(program->kitgview, "path", program->kit_path, NULL);
+			g_object_set(program->kitgview,
+				"path", program->kit_path, NULL);
+			g_object_set(program->kitgview,
+				"search", program->kit_search, NULL);
 		}
 		else {
 			program_set_error(program, FALSE);
@@ -390,6 +396,11 @@ program_kitgview_activate(Toolkitgroupview *kitgview,
 			const char *kit_path;
 			g_object_get(program->kitgview, "path", &kit_path, NULL);
 			program->kit_path = g_strdup(kit_path);
+
+			VIPS_FREE(program->kit_search);
+			const char *kit_search;
+			g_object_get(program->kitgview, "search", &kit_search, NULL);
+			program->kit_search = g_strdup(kit_search);
 
 			program_set_tool(program, selected_tool);
 		}
@@ -433,6 +444,9 @@ program_init(Program *program)
 #endif /*DEBUG*/
 
 	program->settings = g_settings_new(APPLICATION_ID);
+
+	program->kit_path = g_strdup("");
+	program->kit_search = g_strdup("");
 
 	g_autofree char *cwd = g_get_current_dir();
 	program->save_folder = g_file_new_for_path(cwd);

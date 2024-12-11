@@ -998,6 +998,7 @@ workspaceview_drop_rowview(Workspaceview *wview)
 		icontainer_reparent(ICONTAINER(col->scol), ICONTAINER(row), new_pos);
 
 	workspaceview_remove_row_shadow(wview);
+	workspace_column_select(ws, col);
 	workspace_queue_layout(ws);
 	filemodel_set_modified(FILEMODEL(wsg), TRUE);
 }
