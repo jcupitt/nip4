@@ -428,6 +428,44 @@ regionview_draw_mark(Regionview *regionview, GtkSnapshot *snapshot)
 }
 
 static void
+regionview_draw_line(Regionview *regionview,
+	GtkSnapshot *snapshot, VipsRect *rect)
+{
+	GskStroke *stroke;
+
+	int x0 = rect->left;
+	int y0 = rect->top;
+	int x1 = VIPS_RECT_RIGHT(rect);
+	int y1 = VIPS_RECT_BOTTOM(rect);
+	VipsRect window = {
+		0,
+		0,
+		gtk_widget_get_width(GTK_WIDGET(regionview->imageui)),
+		gtk_widget_get_height(GTK_WIDGET(regionview->imageui))
+	};
+	if (line_clip(&window, &x0, &y0, &x1, &y1)) {
+		GskPathBuilder *builder;
+		builder = gsk_path_builder_new();
+		gsk_path_builder_move_to(builder, x0, y0);
+		gsk_path_builder_line_to(builder, x1, y1);
+		g_autoptr(GskPath) path = gsk_path_builder_free_to_path(builder);
+
+		stroke = gsk_stroke_new(3);
+		gsk_stroke_set_dash(stroke, (float[1]){ 10 }, 1);
+		gtk_snapshot_append_stroke(snapshot, path, stroke, &regionview_border);
+		gsk_stroke_free(stroke);
+
+		stroke = gsk_stroke_new(3);
+		gsk_stroke_set_dash(stroke, (float[1]){ 10 }, 1);
+		gsk_stroke_set_dash_offset(stroke, 10);
+		gtk_snapshot_append_stroke(snapshot, path, stroke, &regionview_shadow);
+		gsk_stroke_free(stroke);
+	}
+	else
+		printf("regionview_draw_line: clipped\n");
+}
+
+static void
 regionview_draw_arrow(Regionview *regionview, GtkSnapshot *snapshot)
 {
 	Imageui *imageui = regionview->imageui;
@@ -455,27 +493,7 @@ regionview_draw_arrow(Regionview *regionview, GtkSnapshot *snapshot)
 
 	regionview_draw_label(regionview, snapshot);
 
-	/* Stroke a connecting line.
-	 */
-	GskPathBuilder *builder;
-	builder = gsk_path_builder_new();
-	gsk_path_builder_move_to(builder,
-		regionview->frame.left, regionview->frame.top);
-	gsk_path_builder_line_to(builder,
-		VIPS_RECT_RIGHT(&regionview->frame),
-		VIPS_RECT_BOTTOM(&regionview->frame));
-	g_autoptr(GskPath) path = gsk_path_builder_free_to_path(builder);
-
-	GskStroke *stroke = gsk_stroke_new(3);
-	gsk_stroke_set_dash(stroke, (float[1]){ 10 }, 1);
-	gtk_snapshot_append_stroke(snapshot, path, stroke, &regionview_border);
-	gsk_stroke_free(stroke);
-
-	stroke = gsk_stroke_new(3);
-	gsk_stroke_set_dash(stroke, (float[1]){ 10 }, 1);
-	gsk_stroke_set_dash_offset(stroke, 10);
-	gtk_snapshot_append_stroke(snapshot, path, stroke, &regionview_shadow);
-	gsk_stroke_free(stroke);
+	regionview_draw_line(regionview, snapshot, &regionview->frame);
 }
 
 // called from imageui for "snapshot" on imagedisplay

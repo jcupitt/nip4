@@ -373,3 +373,119 @@ text_view_select_text(GtkTextView *text, int start, int end)
     gtk_text_buffer_select_range(buffer, &start_iter, &end_iter);
     gtk_text_view_scroll_mark_onscreen(text, mark);
 }
+
+/* Cohen–Sutherland line clipping, see:
+ *
+ *	https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
+ *
+ */
+
+static const int INSIDE = 0b0000;
+static const int LEFT   = 0b0001;
+static const int RIGHT  = 0b0010;
+static const int BOTTOM = 0b0100;
+static const int TOP    = 0b1000;
+
+// Compute the bit code for a point (x, y) using the clip rectangle
+// rect
+
+static int compute_out_code(VipsRect *rect, int x, int y)
+{
+	int code;
+
+	code = INSIDE;
+	if (x < rect->left)
+		code |= LEFT;
+	else if (x > VIPS_RECT_RIGHT(rect))
+		code |= RIGHT;
+	if (y < rect->top)
+		code |= TOP;
+	else if (y > VIPS_RECT_BOTTOM(rect))
+		code |= BOTTOM;
+
+	return code;
+}
+
+// Cohen–Sutherland clipping algorithm clips a line from
+// P0 = (x0, y0) to P1 = (x1, y1) against a rectangle with
+// diagonal from (xmin, ymin) to (xmax, ymax).
+gboolean
+line_clip(VipsRect *rect, int *x0, int *y0, int *x1, int *y1)
+{
+	int bottom = VIPS_RECT_BOTTOM(rect);
+	int right = VIPS_RECT_RIGHT(rect);
+
+	int outcode0;
+	int outcode1;
+	gboolean accept;
+
+	outcode0 = compute_out_code(rect, *x0, *y0);
+	outcode1 = compute_out_code(rect, *x1, *y1);
+	accept = FALSE;
+	for (;;) {
+		if (!(outcode0 | outcode1)) {
+			// bitwise OR is 0, both points inside window
+			// trivially accept and exit
+			accept = TRUE;
+			break;
+		}
+		else if (outcode0 & outcode1) {
+			// bitwise AND is not 0: both points share an outside zone
+			// (LEFT, RIGHT, TOP, or BOTTOM), so both must be outside window
+			accept = FALSE;
+			break;
+		}
+		else {
+			// failed both tests, so calculate the line segment to clip
+			// from an outside point to an intersection with clip edge
+			int x, y;
+
+			// At least one endpoint is outside the clip rectangle; pick it.
+			int outcode_out = outcode1 > outcode0 ? outcode1 : outcode0;
+
+			// Now find the intersection point;
+			// use formulas:
+			//   slope = (y1 - y0) / (x1 - x0)
+			//   x = x0 + (1 / slope) * (ym - y0), where ym is ymin or ymax
+			//   y = y0 + slope * (xm - x0), where xm is xmin or xmax
+			// No need to worry about divide-by-zero because, in each case, the
+			// outcode bit being tested guarantees the denominator is non-zero
+
+			if (outcode_out & TOP) {
+				// above the clip window
+				x = *x0 + (*x1 - *x0) * (rect->top - *y0) / (*y1 - *y0);
+				y = rect->top;
+			}
+			else if (outcode_out & BOTTOM) {
+				// below the clip window
+				x = *x0 + (*x1 - *x0) * (bottom - *y0) / (*y1 - *y0);
+				y = bottom;
+			}
+			else if (outcode_out & RIGHT) {
+				// to the right of clip window
+				y = *y0 + (*y1 - *y0) * (right - *x0) / (*x1 - *x0);
+				x = right;
+			}
+			else if (outcode_out & LEFT) {
+				// point is to the left of clip window
+				y = *y0 + (*y1 - *y0) * (rect->left - *x0) / (*x1 - *x0);
+				x = rect->left;
+			}
+
+			// Now we move outside point to intersection point to clip
+			// and get ready for next pass.
+			if (outcode_out == outcode0) {
+				*x0 = x;
+				*y0 = y;
+				outcode0 = compute_out_code(rect, *x0, *y0);
+			} else {
+				*x1 = x;
+				*y1 = y;
+				outcode1 = compute_out_code(rect, *x1, *y1);
+			}
+		}
+	}
+
+	return accept;
+}
+

@@ -17,15 +17,9 @@
 
 	or at least get very slow
 
-	diagonal lines are the only only hard case
+	done arrow, region edges next
 
-	pan is slow as well as zoom
-
-	cairo seems to handle the trivial case
-
-	check shadow as well
-
-  do we have code for this in nip2? it feels like we might
+	tweak API
 
 - next/prev in imagewindow often fails
 
