@@ -99,5 +99,6 @@ char *text_view_get_text(GtkTextView *text);
 void text_view_set_text(GtkTextView *text, const char *str, gboolean editable);
 void text_view_select_text(GtkTextView *text, int start, int end);
 
-gboolean line_clip(VipsRect *rect, int *x0, int *y0, int *x1, int *y1);
-
+gboolean line_clip(VipsRect *rect,
+	int x0, int y0, int x1, int y1,
+	int *x0_out, int *y0_out, int *x1_out, int *y1_out);

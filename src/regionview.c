@@ -274,6 +274,50 @@ regionview_draw_init_region_label(Regionview *regionview)
 		2 * regionview_label_margin;
 }
 
+/* gsk clips the case where the region is completely off screen, but does
+ * NOT clip if we are within the rect. This will cause terrible
+ * performance and even crashes with large zooms.
+ *
+ * We have to clip these cases ourselves.
+ */
+static gboolean
+regionview_clip_frame(Regionview *regionview, VipsRect *frame)
+{
+	VipsRect window = {
+		0,
+		0,
+		gtk_widget_get_width(GTK_WIDGET(regionview->imageui)),
+		gtk_widget_get_height(GTK_WIDGET(regionview->imageui))
+	};
+	int right = VIPS_RECT_RIGHT(frame);
+	int bottom = VIPS_RECT_BOTTOM(frame);
+
+	// zoomed within the frame? nothing will be visible
+	if (frame->left < 0 &&
+		frame->top < 0 &&
+		right > window.width &&
+		bottom > window.height)
+		return TRUE;
+
+	// left / right / below / above the frame? again, nothing visible
+	if (right < 0 ||
+		frame->left > window.width ||
+		bottom < 0 ||
+		frame->top > window.height)
+		return TRUE;
+
+	// frame must be partially visible ... bring each edge in to the window
+	// edge ... this is enough to stop catastrophic overdraw on zooms
+	frame->left = VIPS_MAX(frame->left, 0);
+	frame->top = VIPS_MAX(frame->top, 0);
+	right = VIPS_MIN(right, window.width);
+	bottom = VIPS_MIN(bottom, window.height);
+	frame->width = right - frame->left;
+	frame->height = bottom - frame->top;
+
+	return FALSE;
+}
+
 static void
 regionview_draw_region(Regionview *regionview, GtkSnapshot *snapshot)
 {
@@ -290,42 +334,44 @@ regionview_draw_region(Regionview *regionview, GtkSnapshot *snapshot)
 	regionview->frame.width = regionview->draw_area.width * zoom;
 	regionview->frame.height = regionview->draw_area.height * zoom;
 
-	GskRoundedRect frame;
-	gsk_rounded_rect_init_from_rect(&frame,
-		&GRAPHENE_RECT_INIT(
-			regionview->frame.left,
-			regionview->frame.top,
-			regionview->frame.width,
-			regionview->frame.height),
-		0);
+	if (!regionview_clip_frame(regionview, &regionview->frame)) {
+		GskRoundedRect frame;
+		gsk_rounded_rect_init_from_rect(&frame,
+			&GRAPHENE_RECT_INIT(
+				regionview->frame.left,
+				regionview->frame.top,
+				regionview->frame.width,
+				regionview->frame.height),
+			0);
 
-	regionview_draw_init_region_label(regionview);
+		regionview_draw_init_region_label(regionview);
 
-	// bottom and right frame shadown
-	float shadow_offset = regionview_line_width / 2.0;
-	gtk_snapshot_append_outset_shadow(snapshot, &frame, &regionview_shadow,
-		2 * shadow_offset, 2 * shadow_offset,
-		3, regionview_corner_radius);
+		// bottom and right frame shadown
+		float shadow_offset = regionview_line_width / 2.0;
+		gtk_snapshot_append_outset_shadow(snapshot, &frame, &regionview_shadow,
+			2 * shadow_offset, 2 * shadow_offset,
+			3, regionview_corner_radius);
 
-	// top and left frame shadown
-	gtk_snapshot_append_inset_shadow(snapshot, &frame, &regionview_shadow,
-		shadow_offset, shadow_offset,
-		1, regionview_corner_radius);
+		// top and left frame shadown
+		gtk_snapshot_append_inset_shadow(snapshot, &frame, &regionview_shadow,
+			shadow_offset, shadow_offset,
+			1, regionview_corner_radius);
 
-	regionview_draw_label_shadow(regionview, snapshot);
+		regionview_draw_label_shadow(regionview, snapshot);
 
-	// border append draws *within* the rect, so we must step out
-	gsk_rounded_rect_shrink(&frame,
-		-regionview_line_width, -regionview_line_width,
-		-regionview_line_width, -regionview_line_width);
-	gtk_snapshot_append_border(snapshot,
-		&frame,
-		((float[4]){ regionview_line_width, regionview_line_width,
-			regionview_line_width, regionview_line_width }),
-		((GdkRGBA[4]){ regionview_border, regionview_border,
-			regionview_border, regionview_border }));
+		// border append draws *within* the rect, so we must step out
+		gsk_rounded_rect_shrink(&frame,
+			-regionview_line_width, -regionview_line_width,
+			-regionview_line_width, -regionview_line_width);
+		gtk_snapshot_append_border(snapshot,
+			&frame,
+			((float[4]){ regionview_line_width, regionview_line_width,
+				regionview_line_width, regionview_line_width }),
+			((GdkRGBA[4]){ regionview_border, regionview_border,
+				regionview_border, regionview_border }));
 
-	regionview_draw_label(regionview, snapshot);
+		regionview_draw_label(regionview, snapshot);
+	}
 }
 
 static void
@@ -431,19 +477,20 @@ static void
 regionview_draw_line(Regionview *regionview,
 	GtkSnapshot *snapshot, VipsRect *rect)
 {
-	GskStroke *stroke;
-
-	int x0 = rect->left;
-	int y0 = rect->top;
-	int x1 = VIPS_RECT_RIGHT(rect);
-	int y1 = VIPS_RECT_BOTTOM(rect);
 	VipsRect window = {
 		0,
 		0,
 		gtk_widget_get_width(GTK_WIDGET(regionview->imageui)),
 		gtk_widget_get_height(GTK_WIDGET(regionview->imageui))
 	};
-	if (line_clip(&window, &x0, &y0, &x1, &y1)) {
+
+	GskStroke *stroke;
+	int x0, y0;
+	int x1, y1;
+
+	if (line_clip(&window,
+		rect->left, rect->top, VIPS_RECT_RIGHT(rect), VIPS_RECT_BOTTOM(rect),
+		&x0, &y0, &x1, &y1)) {
 		GskPathBuilder *builder;
 		builder = gsk_path_builder_new();
 		gsk_path_builder_move_to(builder, x0, y0);

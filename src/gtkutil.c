@@ -410,7 +410,9 @@ static int compute_out_code(VipsRect *rect, int x, int y)
 // P0 = (x0, y0) to P1 = (x1, y1) against a rectangle with
 // diagonal from (xmin, ymin) to (xmax, ymax).
 gboolean
-line_clip(VipsRect *rect, int *x0, int *y0, int *x1, int *y1)
+line_clip(VipsRect *rect,
+	int x0, int y0, int x1, int y1,
+	int *x0_out, int *y0_out, int *x1_out, int *y1_out)
 {
 	int bottom = VIPS_RECT_BOTTOM(rect);
 	int right = VIPS_RECT_RIGHT(rect);
@@ -419,8 +421,8 @@ line_clip(VipsRect *rect, int *x0, int *y0, int *x1, int *y1)
 	int outcode1;
 	gboolean accept;
 
-	outcode0 = compute_out_code(rect, *x0, *y0);
-	outcode1 = compute_out_code(rect, *x1, *y1);
+	outcode0 = compute_out_code(rect, x0, y0);
+	outcode1 = compute_out_code(rect, x1, y1);
 	accept = FALSE;
 	for (;;) {
 		if (!(outcode0 | outcode1)) {
@@ -453,38 +455,43 @@ line_clip(VipsRect *rect, int *x0, int *y0, int *x1, int *y1)
 
 			if (outcode_out & TOP) {
 				// above the clip window
-				x = *x0 + (*x1 - *x0) * (rect->top - *y0) / (*y1 - *y0);
+				x = x0 + (x1 - x0) * (rect->top - y0) / (y1 - y0);
 				y = rect->top;
 			}
 			else if (outcode_out & BOTTOM) {
 				// below the clip window
-				x = *x0 + (*x1 - *x0) * (bottom - *y0) / (*y1 - *y0);
+				x = x0 + (x1 - x0) * (bottom - y0) / (y1 - y0);
 				y = bottom;
 			}
 			else if (outcode_out & RIGHT) {
 				// to the right of clip window
-				y = *y0 + (*y1 - *y0) * (right - *x0) / (*x1 - *x0);
+				y = y0 + (y1 - y0) * (right - x0) / (x1 - x0);
 				x = right;
 			}
 			else if (outcode_out & LEFT) {
 				// point is to the left of clip window
-				y = *y0 + (*y1 - *y0) * (rect->left - *x0) / (*x1 - *x0);
+				y = y0 + (y1 - y0) * (rect->left - x0) / (x1 - x0);
 				x = rect->left;
 			}
 
 			// Now we move outside point to intersection point to clip
 			// and get ready for next pass.
 			if (outcode_out == outcode0) {
-				*x0 = x;
-				*y0 = y;
-				outcode0 = compute_out_code(rect, *x0, *y0);
+				x0 = x;
+				y0 = y;
+				outcode0 = compute_out_code(rect, x0, y0);
 			} else {
-				*x1 = x;
-				*y1 = y;
-				outcode1 = compute_out_code(rect, *x1, *y1);
+				x1 = x;
+				y1 = y;
+				outcode1 = compute_out_code(rect, x1, y1);
 			}
 		}
 	}
+
+	*x0_out = x0;
+	*y0_out = y0;
+	*x1_out = x1;
+	*y1_out = y1;
 
 	return accept;
 }

@@ -13,14 +13,6 @@
 
 - we really need cursor changes for region manipulation
 
-- need to clip region drawing or cairo will crap the bed
-
-	or at least get very slow
-
-	done arrow, region edges next
-
-	tweak API
-
 - next/prev in imagewindow often fails
 
 	to do with background load and region ownership
