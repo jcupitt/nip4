@@ -2,6 +2,10 @@
 
 - program window tabs should be 4 spaces
 
+- it's "process" in program window, but |> in ws defs
+
+	use |> everywhere
+
 - in program window, search is cleared on refresh
 
 	eg. search for is_Plot, click on it, list fills again
@@ -11,7 +15,9 @@
 
 ## imagewindow
 
-- we really need cursor changes for region manipulation
+- improve tile alignment
+
+	stupid black lines
 
 - next/prev in imagewindow often fails
 

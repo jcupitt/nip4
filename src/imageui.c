@@ -149,6 +149,26 @@ enum {
 
 static guint imageui_signals[SIG_LAST] = { 0 };
 
+static GdkCursor *imageui_cursors[REGIONVIEW_RESIZE_LAST] = { NULL };
+
+// indexes must match Cursor
+static const char *imageui_cursor_names[REGIONVIEW_RESIZE_LAST] = {
+	"none",
+
+	"move",
+
+	"cell",
+
+	"nwse-resize",
+	"n-resize",
+	"nesw-resize",
+	"e-resize",
+	"nwse-resize",
+	"s-resize",
+	"nesw-resize",
+	"w-resize",
+};
+
 static void *
 imageui_add_region(Classmodel *classmodel, Imageui *imageui)
 {
@@ -1145,6 +1165,33 @@ imageui_drag_end(GtkEventControllerMotion *self,
 }
 
 static void
+imageui_set_cursor(Imageui *imageui)
+{
+	RegionviewResize resize;
+
+	resize = REGIONVIEW_RESIZE_NONE;
+
+	if (imageui->grabbed)
+		resize = imageui->grabbed->resize;
+	else {
+		int x = imageui->last_x_gtk;
+		int y = imageui->last_y_gtk;
+
+		Regionview *regionview;
+
+		if ((regionview = imageui_find_regionview(imageui, x, y)))
+			resize = regionview_hit(regionview, x, y);
+	}
+
+	GdkCursor *cursor;
+	cursor = NULL;
+	if (resize != REGIONVIEW_RESIZE_NONE)
+		cursor = imageui_cursors[resize];
+	printf("gtk_widget_set_cursor: %p (%d)\n", cursor, resize);
+	gtk_widget_set_cursor(GTK_WIDGET(imageui), cursor);
+}
+
+static void
 imageui_motion(GtkEventControllerMotion *self,
 	gdouble x, gdouble y, gpointer user_data)
 {
@@ -1157,6 +1204,7 @@ imageui_motion(GtkEventControllerMotion *self,
 	imageui->last_x_gtk = x;
 	imageui->last_y_gtk = y;
 
+	imageui_set_cursor(imageui);
 	imageui_changed(imageui);
 }
 
@@ -1297,6 +1345,10 @@ imageui_class_init(ImageuiClass *class)
 		NULL, NULL,
 		g_cclosure_marshal_VOID__VOID,
 		G_TYPE_NONE, 0);
+
+	for (int i = 0; i < REGIONVIEW_RESIZE_LAST; i++)
+		imageui_cursors[i] =
+			gdk_cursor_new_from_name(imageui_cursor_names[i], NULL);
 }
 
 Imageui *
