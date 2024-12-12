@@ -81,7 +81,7 @@
 
         <child type="start">
           <object class="GtkButton">
-            <property name="label">Process</property>
+            <property name="icon-name">media-playback-start-symbolic</property>
             <signal name="clicked" handler="program_process_clicked"/>
           </object>
         </child>
