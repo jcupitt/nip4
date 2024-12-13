@@ -264,7 +264,7 @@ program_set_kit(Program *program, Toolkit *kit)
     /* None? Pick "untitled".
      */
     if (!kit)
-        kit = toolkit_by_name( program->kitg, "untitled" );
+        kit = toolkit_by_name(program->kitg, "untitled");
 
     program_detach(program);
 
@@ -418,6 +418,7 @@ program_set_property(GObject *object,
 		VIPS_UNREF(program->kitg);
 		Toolkitgroup *kitg = g_value_get_object(value);
 		program->kitg = kitg;
+		g_object_ref(program->kitg);
 
 		g_signal_connect_object(G_OBJECT(program->kitg), "changed",
 			G_CALLBACK(program_kitg_changed), program, 0);
@@ -453,6 +454,11 @@ program_init(Program *program)
 	program->load_folder = g_file_new_for_path(cwd);
 
 	gtk_widget_init_template(GTK_WIDGET(program));
+
+	PangoTabArray *tabs = pango_tab_array_new(10, FALSE);
+	for (int i = 0; i < 10; i++)
+		pango_tab_array_set_tab(tabs, i, PANGO_TAB_LEFT, i * 2 * 10 * 1024);
+	gtk_text_view_set_tabs(GTK_TEXT_VIEW(program->text_view), tabs);
 
 	program_all = g_slist_prepend(program_all, program);
 }

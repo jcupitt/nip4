@@ -1,7 +1,5 @@
 ## program
 
-- program window tabs should be 4 spaces
-
 - in program window, search is cleared on refresh
 
 	eg. search for is_Plot, click on it, list fills again
