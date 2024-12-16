@@ -1510,8 +1510,8 @@ static void
 imagewindow_iimage_changed(iImage *iimage, Imagewindow *win)
 {
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("imagewindow_iimage_changed:\n");
+#endif /*DEBUG*/
 
 	iimage_tilesource_update(iimage);
 	imagewindow_set_tilesource(win, iimage->tilesource);

@@ -1,5 +1,7 @@
 ## program
 
+- restore scroll positions on menu path set
+
 - in program window, search is cleared on refresh
 
 	eg. search for is_Plot, click on it, list fills again
@@ -51,8 +53,6 @@
   in the base class?
 
 ## program window
-
-- restore scroll positions on menu path set
 
 - get rid of
 

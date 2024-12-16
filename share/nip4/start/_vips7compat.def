@@ -578,6 +578,39 @@ im_tbmosaic1 ref sec bandno
 		$mblend => mwidth
 	];
 
+im_lrmerge1 ref sec
+	xr1 yr1 xs1 ys1
+	xr2 yr2 xs2 ys2
+	mwidth
+	= vips_call "mosaic1" [ref, sec, "horizontal",
+		xr1, yr1, xs1, ys1,
+		xr2, yr2, xs2, ys2
+	] [
+		$mblend => mwidth
+	];
+
+im_tbmerge1 ref sec
+	xr1 yr1 xs1 ys1
+	xr2 yr2 xs2 ys2
+	mwidth
+	= vips_call "mosaic1" [ref, sec, "vertical",
+		xr1, yr1, xs1, ys1,
+		xr2, yr2, xs2, ys2
+	] [
+		$mblend => mwidth
+	];
+
+im_global_balancef in gamma
+	= vips_call "globalbalance" [in] [
+		$gamma => gamma
+	];
+
+im_global_balance in gamma
+	= vips_call "globalbalance" [in] [
+		$gamma => gamma,
+		$int_output => true
+	];
+
 im_system_image in in_format out_format command
 	= vips_call "system" [command] [
 		$in => [in],

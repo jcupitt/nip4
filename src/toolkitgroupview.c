@@ -564,7 +564,6 @@ toolkitgroupview_build_browse_page(Toolkitgroupview *kitgview, Node *this)
 	const char *name = node_get_name(this);
 
 	GtkWidget *scrolled_window = gtk_scrolled_window_new();
-	printf("toolkitgroupview_build_browse_page: adding %s\n", name);
 	gtk_stack_add_named(GTK_STACK(kitgview->stack), scrolled_window, name);
 	kitgview->page_names = g_slist_append(kitgview->page_names, g_strdup(name));
 

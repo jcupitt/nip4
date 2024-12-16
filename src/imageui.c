@@ -1187,7 +1187,6 @@ imageui_set_cursor(Imageui *imageui)
 	cursor = NULL;
 	if (resize != REGIONVIEW_RESIZE_NONE)
 		cursor = imageui_cursors[resize];
-	printf("gtk_widget_set_cursor: %p (%d)\n", cursor, resize);
 	gtk_widget_set_cursor(GTK_WIDGET(imageui), cursor);
 }
 
