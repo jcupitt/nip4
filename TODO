@@ -1,3 +1,17 @@
+- not getting a save progress bar for tiff pyr deflate save?
+
+	seems to be caused by mosaic pipeline ... works with an image source
+
+	image display with mosaic oftens gets stuuck too
+
+	enabling the info bar and moving the mouse often unsticks it
+
+- save as TIFF, pick a set of options which will fail (eg. deflate + float
+  predictor), savem fix options, save again, get:
+
+	(nip4:3658140): VIPS-WARNING **: 12:51:27.408: ../libvips/iofuncs/object.c:1231: VipsForeignSaveTiffFile can only assign 'nickname' once
+	(nip4:3658140): VIPS-WARNING **: 12:51:27.408: ../libvips/iofuncs/object.c:1231: VipsForeignSaveTiffFile can only assign 'description' once
+
 ## program
 
 - restore scroll positions on menu path set
@@ -14,22 +28,6 @@
 - improve tile alignment
 
 	stupid black lines
-
-- next/prev in imagewindow often fails
-
-	to do with background load and region ownership
-
-	a libvips release build hides the error
-
-	might fix region display error too
-
-- need something to make next/prev block while the current image is loading
-
-	we had this, when did it go?
-
-	need it back anyway
-
-- need something to make sure only one image loads at once?
 
 - Colour / New / Colour, convert to scRGB, black!
 

@@ -1035,15 +1035,15 @@ tilesource_init(Tilesource *tilesource)
 static int
 tilesource_force_load(Tilesource *tilesource)
 {
-	if (tilesource->image_region &&
+	if (tilesource->image &&
 		!tilesource->loaded) {
-		VipsRect rect;
-
-		rect.left = 0;
-		rect.top = 0;
-		rect.width = 1;
-		rect.height = 1;
-		if (vips_region_prepare(tilesource->image_region, &rect))
+		/* We can't just call prepare on image_region -- this will get region
+		 * ownership tangled up. Crop and average a pixel.
+		 */
+		g_autoptr(VipsImage) pixel = NULL;
+		double d;
+		if (vips_crop(tilesource->image, &pixel, 0, 0, 1, 1, NULL) ||
+			vips_avg(pixel, &d, NULL))
 			return -1;
 	}
 

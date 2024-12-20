@@ -1072,8 +1072,6 @@ imagewindow_next_image(GSimpleAction *action,
 {
 	Imagewindow *win = IMAGEWINDOW(user_data);
 
-	printf("imagewindow_next_image:\n");
-
 	// if there's a background load active, do nothing
 	// we want to prevent many bg loads queueing up
 	if (imagewindow_loading(win))
