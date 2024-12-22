@@ -36,15 +36,16 @@
 /* Set of allowed colour_space strings. Do a case-insensitive match.
  */
 static const char *colour_colour_space[] = {
-	"xyz",	 /* index 0 */
-	"yxy",	 /* index 1 */
-	"lab",	 /* index 2 */
-	"lch",	 /* index 3 */
-	"ucs",	 /* index 4 */
-	"rgb",	 /* index 5 */
-	"srgb",	 /* index 6 */
-	"rgb16", /* index 7 */
-	"grey16" /* index 8 */
+	"xyz",	  /* index 0 */
+	"yxy",	  /* index 1 */
+	"lab",	  /* index 2 */
+	"lch",	  /* index 3 */
+	"ucs",	  /* index 4 */
+	"rgb",	  /* index 5 */
+	"srgb",	  /* index 6 */
+	"rgb16",  /* index 7 */
+	"grey16", /* index 8 */
+	"scrgb",  /* index 9 */
 };
 
 /* For each allowed colourspace, the corresponding VIPS interpretation.
@@ -58,7 +59,8 @@ static const int colour_type[] = {
 	VIPS_INTERPRETATION_RGB,
 	VIPS_INTERPRETATION_sRGB,
 	VIPS_INTERPRETATION_RGB16,
-	VIPS_INTERPRETATION_GREY16
+	VIPS_INTERPRETATION_GREY16,
+	VIPS_INTERPRETATION_scRGB,
 };
 
 G_DEFINE_TYPE(Colour, colour, CLASSMODEL_TYPE)
@@ -156,6 +158,7 @@ colour_ii_new(Colour *colour)
 
 #ifdef DEBUG
 	printf("colour_ii_new:\n");
+	printf("\tspace = %s\n", colour->colour_space);
 	printf("\tv0 = %g, v1 = %g, v2 = %g\n",
 		colour->value[0], colour->value[1], colour->value[2]);
 #endif /*DEBUG*/
@@ -175,6 +178,16 @@ colour_ii_new(Colour *colour)
 		valuef[i] = colour->value[i];
 	if (vips_image_write_line(ii->image, 0, (VipsPel *) valuef))
 		return NULL;
+
+#ifdef DEBUG
+	char txt[256];
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
+	vips_buf_appendi(&buf, ii->image);
+	printf("\tmade %s\n", vips_buf_all(&buf));
+	vips_buf_rewind(&buf);
+	imageinfo_to_text(ii, &buf);
+	printf("\tpixels %s\n", vips_buf_all(&buf));
+#endif /*DEBUG*/
 
 	return ii;
 }

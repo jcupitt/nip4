@@ -1,16 +1,17 @@
-- not getting a save progress bar for tiff pyr deflate save?
-
-	seems to be caused by mosaic pipeline ... works with an image source
-
-	image display with mosaic oftens gets stuuck too
-
-	enabling the info bar and moving the mouse often unsticks it
-
 - save as TIFF, pick a set of options which will fail (eg. deflate + float
   predictor), savem fix options, save again, get:
 
 	(nip4:3658140): VIPS-WARNING **: 12:51:27.408: ../libvips/iofuncs/object.c:1231: VipsForeignSaveTiffFile can only assign 'nickname' once
 	(nip4:3658140): VIPS-WARNING **: 12:51:27.408: ../libvips/iofuncs/object.c:1231: VipsForeignSaveTiffFile can only assign 'description' once
+
+
+- 1 and 0 should be swapped in Enum class
+
+        // is a legal name or thing
+        has_name x = this.present 1 x;
+        has_thing x = this.present 0 x;
+
+  can we fix this in 8.9? seems to cause problems
 
 ## program
 
@@ -25,15 +26,9 @@
 
 ## imagewindow
 
-- improve tile alignment
+- k2.jpg -> Yxy -> to_colour
 
-	stupid black lines
-
-- Colour / New / Colour, convert to scRGB, black!
-
-- image, convert to srgb, Convert to Colour
-
-	fails with eg. "26 not in table" for many colourspaces
+	error "avg: param out not set"
 
 - fix imagewindow copy/paste
 

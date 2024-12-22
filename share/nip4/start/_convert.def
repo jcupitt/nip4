@@ -122,13 +122,18 @@ to_colour x
 	to_colour_op = Operator "to_colour" toc Operator_type.COMPOUND false;
 
 	toc x
-		= Colour (colour_space (get_type x))
-			(map mean (bandsplit (get_image x))),
+		= Colour (colour_space (get_type x'))
+			(map mean (bandsplit (get_image x'))),
 			has_image x && has_type x
 		= Colour "sRGB" [x, x, x], is_real x	// since Colour can't do mono
 		= Colour "sRGB" x, is_real_list x && is_list_len 3 x
 		= map toc x, is_matrix x
-		= error (_ "bad arguments to " ++ "to_colour");
+		= error (_ "bad arguments to " ++ "to_colour")
+	{
+		x'
+			= x, Image_type.colour_spaces.has_name (get_type x)
+			= colour_transform_to Image_type.sRGB x;
+	}
 
 	colour_space type
 		= table.get_name type, table.has_name type
