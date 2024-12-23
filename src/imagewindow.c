@@ -28,8 +28,8 @@
 */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -799,68 +799,57 @@ imagewindow_copy_action(GSimpleAction *action,
 }
 
 static void
-image_new_from_texture_free(VipsImage *image, GBytes *bytes)
-{
-	g_bytes_unref(bytes);
-}
-
-static VipsImage *
-image_new_from_texture(GdkTexture *texture)
-{
-	g_autoptr(GBytes) bytes = gdk_texture_save_to_tiff_bytes(texture);
-
-	if (bytes) {
-		gsize len;
-		gconstpointer data = g_bytes_get_data(bytes, &len);
-
-		VipsImage *image;
-		if ((image = vips_image_new_from_buffer(data, len, "", NULL))) {
-			g_signal_connect(image, "close",
-				G_CALLBACK(image_new_from_texture_free), bytes);
-			g_bytes_ref(bytes);
-
-			return image;
-		}
-	}
-	else
-		vips_error("Convert to TIFF", _("unable to convert texture to TIFF"));
-
-	return NULL;
-}
-
-static void
 imagewindow_set_from_value(Imagewindow *win, const GValue *value)
 {
-	printf("imagewindow_set_from_value: FIXME ... paste\n");
-	/*
+	printf("imagewindow_set_from_value:\n");
+
 	if (G_VALUE_TYPE(value) == GDK_TYPE_FILE_LIST) {
 		GdkFileList *file_list = g_value_get_boxed(value);
 		g_autoptr(GSList) files = gdk_file_list_get_files(file_list);
+		g_autoptr(GPtrArray) paths =
+			g_ptr_array_new_full(10, (GDestroyNotify) g_free);
 
-		imagewindow_open_list_gfiles(win, files);
+		for (GSList *p = files; p; p = p->next) {
+			GFile *file = G_FILE(p->data);
+
+			g_ptr_array_add(paths, g_file_get_path(file));
+		}
+
+		imagewindow_files_set(win, (char **) paths->pdata, paths->len);
+		imagewindow_open_current_file(win,
+			GTK_STACK_TRANSITION_TYPE_ROTATE_LEFT);
 	}
 	else if (G_VALUE_TYPE(value) == G_TYPE_FILE) {
 		GFile *file = g_value_get_object(value);
+		g_autofree char *path = g_file_get_path(file);
+		g_autofree char *text = g_strstrip(g_strdup(path));
 
-		imagewindow_open_gfiles(win, &file, 1);
+		imagewindow_files_set(win, &path, 1);
+		imagewindow_open_current_file(win,
+			GTK_STACK_TRANSITION_TYPE_ROTATE_LEFT);
 	}
 	else if (G_VALUE_TYPE(value) == G_TYPE_STRING) {
 		// remove leading and trailing whitespace
 		// modifies the string in place, so we must dup
 		g_autofree char *text = g_strstrip(g_strdup(g_value_get_string(value)));
 
-		imagewindow_open_files(win, (char **) &text, 1);
+		imagewindow_files_set(win, &text, 1);
+		imagewindow_open_current_file(win,
+			GTK_STACK_TRANSITION_TYPE_ROTATE_LEFT);
 	}
 	else if (G_VALUE_TYPE(value) == GDK_TYPE_TEXTURE) {
 		GdkTexture *texture = g_value_get_object(value);
 
-		g_autoptr(VipsImage) image = image_new_from_texture(texture);
-		if (image)
-			imagewindow_open_image(win, image);
-		else
+		Imageinfo *ii =
+			imageinfo_new_from_texture(main_imageinfogroup, NULL, texture);
+		if (!ii) {
 			imagewindow_error(win);
+			return;
+		}
+
+		iimage_replace_imageinfo(win->iimage, ii);
+		symbol_recalculate_all_force(FALSE);
 	}
-	 */
 }
 
 static void
@@ -959,18 +948,15 @@ static void
 imagewindow_reload_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
-	printf("imagewindow_reload_action: FIXME\n");
-	/*
 	Imagewindow *win = IMAGEWINDOW(user_data);
 	Tilesource *tilesource = imagewindow_get_tilesource(win);
 
 	if (tilesource) {
-		g_autoptr(GFile) file = tilesource_get_file(tilesource);
+		const char *path = tilesource_get_path(tilesource);
 
-		if (file)
-			imagewindow_open_gfiles(win, &file, 1);
+		if (path)
+			imagewindow_files_set(win, (char **) &path, 1);
 	}
-	 */
 }
 
 static void

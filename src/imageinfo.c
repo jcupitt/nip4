@@ -706,6 +706,37 @@ imageinfo_new_from_pixbuf(Imageinfogroup *imageinfogroup,
 	return ii;
 }
 
+static void
+imageinfo_new_from_texture_free(VipsImage *image, GBytes *bytes)
+{
+	g_bytes_unref(bytes);
+}
+
+Imageinfo *
+imageinfo_new_from_texture(Imageinfogroup *imageinfogroup,
+	Heap *heap, GdkTexture *texture)
+{
+	g_autoptr(GBytes) bytes = gdk_texture_save_to_tiff_bytes(texture);
+	if (!bytes) {
+		error_top(_("Unable to create image"));
+		return NULL;
+	}
+
+	gsize len;
+	gconstpointer data = g_bytes_get_data(bytes, &len);
+	VipsImage *image;
+	if (!(image = vips_image_new_from_buffer(data, len, "", NULL))) {
+		error_top(_("Unable to create image"));
+		error_vips();
+		return NULL;
+	}
+	g_signal_connect(image, "close",
+		G_CALLBACK(imageinfo_new_from_texture_free), bytes);
+	g_bytes_ref(bytes);
+
+	return imageinfo_new(imageinfogroup, heap, image, NULL);
+}
+
 /* Was this ii loaded from a file (ie. ->name contains a filename the user
  * might recognise).
  */

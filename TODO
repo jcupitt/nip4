@@ -1,3 +1,13 @@
+- texture paste doesn't update downstream
+
+	see imagewindow_set_from_value() and  iimage_replace_imageinfo()
+
+	makebe we should use classmodel_update mechanism? it's just like
+	dragging a slider
+
+
+
+
 - save as TIFF, pick a set of options which will fail (eg. deflate + float
   predictor), savem fix options, save again, get:
 
@@ -26,17 +36,11 @@
 
 ## imagewindow
 
-- k2.jpg -> Yxy -> to_colour
-
-	error "avg: param out not set"
-
-- fix imagewindow copy/paste
-
-  add copy/paste to mainwindow as well
-
 - open imageview window for groups? < and > could move up and down the group
 
 	or disable < > ref for computed images?
+
+	need a groupview widget
 
 - fix 16-bit alpha composite over background
 
@@ -201,6 +205,8 @@
   maybe skip clock
 
 ## plotting
+
+- need get-plot-as-image for lungs
 
 - in plotdisplay_build_kplot()
 

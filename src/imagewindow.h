@@ -55,5 +55,6 @@ GtkWidget *imagewindow_get_main_box(Imagewindow *win);
 GSettings *imagewindow_get_settings(Imagewindow *win);
 
 void imagewindow_set_iimage(Imagewindow *win, iImage *iimage);
+void imagewindow_set_tilesource(Imagewindow *win, Tilesource *tilesource);
 
 #endif /* __IMAGEWINDOW_H */

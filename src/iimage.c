@@ -367,6 +367,20 @@ iimage_replace(iImage *iimage, const char *filename)
 	return TRUE;
 }
 
+gboolean
+iimage_replace_imageinfo(iImage *iimage, Imageinfo *ii)
+{
+	ImageValue *imagevalue = &iimage->value;
+	Row *row = HEAPMODEL(iimage)->row;
+
+	image_value_set(imagevalue, ii);
+	iobject_changed(IOBJECT(iimage));
+	workspace_set_modified(row->ws, TRUE);
+	symbol_dirty_intrans(row->expr->sym, link_serial_new());
+
+	return TRUE;
+}
+
 static gboolean
 iimage_graphic_replace(Classmodel *classmodel,
 	GtkWidget *parent, const char *filename)

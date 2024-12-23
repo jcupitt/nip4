@@ -142,7 +142,6 @@ void *imageinfo_area_changed(Imageinfo *imageinfo, VipsRect *dirty);
 void *imageinfo_expr_remove(Expr *expr, Imageinfo *imageinfo);
 void imageinfo_expr_add(Imageinfo *imageinfo, Expr *expr);
 GSList *imageinfo_expr_which(Imageinfo *imageinfo);
-
 GType imageinfo_get_type(void);
 Imageinfo *imageinfo_new(Imageinfogroup *imageinfogroup,
 	Heap *heap, VipsImage *im, const char *name);
@@ -152,6 +151,8 @@ Imageinfo *imageinfo_new_memory(Imageinfogroup *imageinfogroup,
 	Heap *heap, const char *name);
 Imageinfo *imageinfo_new_from_pixbuf(Imageinfogroup *imageinfogroup,
 	Heap *heap, GdkPixbuf *pixbuf);
+Imageinfo *imageinfo_new_from_texture(Imageinfogroup *imageinfogroup,
+	Heap *heap, GdkTexture *texture);
 gboolean imageinfo_is_from_file(Imageinfo *imageinfo);
 Imageinfo *imageinfo_new_input(Imageinfogroup *imageinfogroup,
 	GtkWidget *parent, Heap *heap, const char *name);
