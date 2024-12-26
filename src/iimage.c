@@ -213,12 +213,12 @@ iimage_update_heap(Heapmodel *heapmodel)
 #endif /*DEBUG*/
 
 	/* Read the heap into the model, over the top of the unapplied edits.
-	 */
 	if (!class_get_exact(&expr->root, IOBJECT(heapmodel)->name, &pe))
 		return FALSE;
 	if (!class_get_member_image(&pe, MEMBER_VALUE, &ii))
 		return FALSE;
 	image_value_set(value, ii);
+	 */
 
 	VIPS_FREE(CLASSMODEL(iimage)->filename);
 
@@ -370,13 +370,15 @@ iimage_replace(iImage *iimage, const char *filename)
 gboolean
 iimage_replace_imageinfo(iImage *iimage, Imageinfo *ii)
 {
-	ImageValue *imagevalue = &iimage->value;
-	Row *row = HEAPMODEL(iimage)->row;
+	image_value_set(&iimage->value, ii);
+	classmodel_update(CLASSMODEL(iimage));
 
-	image_value_set(imagevalue, ii);
+	/*
+	Row *row = HEAPMODEL(iimage)->row;
 	iobject_changed(IOBJECT(iimage));
 	workspace_set_modified(row->ws, TRUE);
 	symbol_dirty_intrans(row->expr->sym, link_serial_new());
+	 */
 
 	return TRUE;
 }

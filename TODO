@@ -1,10 +1,19 @@
-- texture paste doesn't update downstream
+- investigate behavour with updated iimage_update_heap() ... there will be
+  quite a few cases which now fail (I expect)
 
-	see imagewindow_set_from_value() and  iimage_replace_imageinfo()
+	replace from file?
 
-	makebe we should use classmodel_update mechanism? it's just like
-	dragging a slider
+- paste in main window should eg. create a new row with the image in, or load
+  a file
 
+- to_colour should remove alpha?
+
+	curretnt fails for eg. RGBA images I think
+
+- we could paste to a temp file, then overwrite the row expr to be Image_file
+  "tmp/xxx.v"
+
+	this is what graphic replace etc. do
 
 
 
@@ -13,7 +22,6 @@
 
 	(nip4:3658140): VIPS-WARNING **: 12:51:27.408: ../libvips/iofuncs/object.c:1231: VipsForeignSaveTiffFile can only assign 'nickname' once
 	(nip4:3658140): VIPS-WARNING **: 12:51:27.408: ../libvips/iofuncs/object.c:1231: VipsForeignSaveTiffFile can only assign 'description' once
-
 
 - 1 and 0 should be swapped in Enum class
 
@@ -41,6 +49,9 @@
 	or disable < > ref for computed images?
 
 	need a groupview widget
+
+	it would need to make a model for every element in the group, then
+	display a set of views
 
 - fix 16-bit alpha composite over background
 

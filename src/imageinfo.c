@@ -730,6 +730,15 @@ imageinfo_new_from_texture(Imageinfogroup *imageinfogroup,
 		error_vips();
 		return NULL;
 	}
+
+	// we can't have NULL filenames
+	char buf[FILENAME_MAX];
+	if (!temp_name(buf, "tif")) {
+		VIPS_UNREF(image);
+		return NULL;
+	}
+	VIPS_SETSTR(image->filename, buf);
+
 	g_signal_connect(image, "close",
 		G_CALLBACK(imageinfo_new_from_texture_free), bytes);
 	g_bytes_ref(bytes);

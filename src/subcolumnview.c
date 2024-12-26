@@ -1,4 +1,4 @@
-/* a subcolumnview button in a workspace
+/* a vertical tally of name / value pairs
  */
 
 /*
@@ -86,11 +86,13 @@ subcolumnview_child_remove(View *parent, View *child)
 	Rowview *rview = ROWVIEW(child);
 
 #ifdef DEBUG
-	printf("subcolumnview_child_remove:\n");
+	printf("subcolumnview_child_remove: ");
+	row_name_print(ROW(VOBJECT(rview)->iobject));
+	printf("\n");
 #endif /*DEBUG*/
 
-	/* rowview_refresh() attaches spin, frame and rhsview to the grid, we need
-	 * to remove them here.
+	/* rowview_update_widgets() attaches spin, frame and rhsview to the grid,
+	 * we need to remove them here.
 	 *
 	 * If refresh hasn't been called, these widgets will still be attached to
 	 * the rowview and we mustn't take them off the grid.
@@ -101,6 +103,11 @@ subcolumnview_child_remove(View *parent, View *child)
 		gtk_grid_remove(GTK_GRID(sview->grid), rview->frame);
 		if (rview->rhsview)
 			gtk_grid_remove(GTK_GRID(sview->grid), GTK_WIDGET(rview->rhsview));
+
+		// all pointers now invalid
+		rview->spin = NULL;
+		rview->frame = NULL;
+		rview->rhsview = NULL;
 	}
 
 	VIEW_CLASS(subcolumnview_parent_class)->child_remove(parent, child);
@@ -184,8 +191,10 @@ subcolumnview_refresh(vObject *vobject)
 	int old_n_vis = sview->n_vis;
 
 #ifdef DEBUG
-	printf("subcolumnview_refresh: scol = %p\n", scol);
 #endif /*DEBUG*/
+	printf("subcolumnview_refresh: scol = %p\n", scol);
+	printf("\told n_rows = %d\n", sview->n_rows);
+	printf("\tnew n_rows = %d\n", icontainer_get_n_children(ICONTAINER(scol)));
 
 	sview->n_rows = icontainer_get_n_children(ICONTAINER(scol));
 	sview->n_vis = 0;

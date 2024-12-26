@@ -634,8 +634,14 @@ apply_header_string_call(Reduce *rc,
 	// a managedstring, since value might go away ... take a copy and control
 	// it with our GC
 	const char *value;
-	if (vips_image_get_string(ii->image, buf, &value) ||
-		!heap_managedstring_new(heap, value, out))
+	if (vips_image_get_string(ii->image, buf, &value))
+		reduce_throw(rc);
+	if (!value) {
+		error_top(_("Null value"));
+		error_sub(_("field %s has a NULL value"), buf);
+		reduce_throw(rc);
+	}
+	if (!heap_managedstring_new(heap, value, out))
 		reduce_throw(rc);
 }
 

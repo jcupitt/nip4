@@ -226,20 +226,10 @@ rowview_child_add(View *parent, View *child)
 	// does
 	rview->rhsview = RHSVIEW(child);
 
+	// this pointer is NULL'd out in subcolumnview_child_remove(), when we
+	// detach from the grid
+
 	VIEW_CLASS(rowview_parent_class)->child_add(parent, child);
-}
-
-static void
-rowview_child_remove(View *parent, View *child)
-{
-	Rowview *rview = ROWVIEW(parent);
-
-	g_assert(IS_RHSVIEW(child));
-	g_assert(rview->rhsview);
-
-	rview->rhsview = NULL;
-
-	VIEW_CLASS(rowview_parent_class)->child_remove(parent, child);
 }
 
 /* Edit our object.
@@ -478,7 +468,6 @@ rowview_class_init(RowviewClass *class)
 	vobject_class->refresh = rowview_refresh;
 
 	view_class->child_add = rowview_child_add;
-	view_class->child_remove = rowview_child_remove;
 	view_class->reset = rowview_reset;
 	view_class->scrollto = rowview_scrollto;
 	view_class->action = rowview_action;
