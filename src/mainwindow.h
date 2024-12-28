@@ -34,6 +34,8 @@ G_DECLARE_FINAL_TYPE(Mainwindow, mainwindow,
 
 extern gboolean mainwindow_auto_recalc;
 
+gboolean mainwindow_paste_value(Mainwindow *main, const GValue *value);
+
 void mainwindow_set_action_view(View *action_view);
 void mainwindow_set_save_folder(Mainwindow *main, GFile *save_folder);
 GFile *mainwindow_get_save_folder(Mainwindow *main);

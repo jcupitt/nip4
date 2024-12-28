@@ -136,56 +136,109 @@ workspacegroupview_new_tab_clicked(GtkButton *button, void *user_data)
 		mainwindow_error(MAINWINDOW(view_get_window(VIEW(wsgview))));
 }
 
+static Workspaceview *
+workspacegroupview_get_workspaceview(Workspacegroupview *wsgview)
+{
+	GtkNotebook *notebook = GTK_NOTEBOOK(wsgview->notebook);
+	int page_number = gtk_notebook_get_current_page(notebook);
+
+	return WORKSPACEVIEW(gtk_notebook_get_nth_page(notebook, page_number));
+}
+
+// translate (x,y) to workspace coordinates for the current page
+static gboolean
+workspacegroupview_to_fixed(Workspacegroupview *wsgview,
+	double *x, double *y)
+{
+	Workspaceview *wview = workspacegroupview_get_workspaceview(wsgview);
+
+	graphene_point_t wsgview_point = GRAPHENE_POINT_INIT(*x, *y);
+	graphene_point_t wview_point;
+	if (!gtk_widget_compute_point(GTK_WIDGET(wsgview), GTK_WIDGET(wview->fixed),
+			&wsgview_point, &wview_point))
+		return FALSE;
+
+	*x = wview_point.x;
+	*y = wview_point.y;
+
+	return TRUE;
+}
+
+static Columnview *
+workspacegroupview_pick_columnview(Workspacegroupview *wsgview,
+	double x, double y)
+{
+	Workspaceview *wview = workspacegroupview_get_workspaceview(wsgview);
+
+	if (!workspacegroupview_to_fixed(wsgview, &x, &y))
+		return NULL;
+
+	return workspaceview_find_columnview(wview, x, y);
+}
+
+static Columnview *
+workspacegroupview_pick_columnview_title(Workspacegroupview *wsgview,
+	double x, double y)
+{
+	Workspaceview *wview = workspacegroupview_get_workspaceview(wsgview);
+
+	if (!workspacegroupview_to_fixed(wsgview, &x, &y))
+		return NULL;
+
+	return workspaceview_find_columnview_title(wview, x, y);
+}
+
+static Rowview *
+workspacegroupview_pick_rowview(Workspacegroupview *wsgview,
+	double x, double y)
+{
+	Columnview *cview = workspacegroupview_pick_columnview(wsgview, x, y);
+	if (!cview)
+		return NULL;
+
+	if (!workspacegroupview_to_fixed(wsgview, &x, &y))
+		return NULL;
+
+	return columnview_find_rowview(cview, x, y);
+}
+
 static void
 workspacegroupview_background_menu(GtkGestureClick *gesture,
 	guint n_press, double x, double y, void *user_data)
 {
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
-	GtkNotebook *notebook = GTK_NOTEBOOK(wsgview->notebook);
-	int page_number = gtk_notebook_get_current_page(notebook);
-	Workspaceview *wview =
-		WORKSPACEVIEW(gtk_notebook_get_nth_page(notebook, page_number));
+	Workspaceview *wview = workspacegroupview_get_workspaceview(wsgview);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 	// disable on locked workspaces
 	if (ws->locked)
 		return;
 
-	// translate (x,y) to workspace coordinates for the current page
-	graphene_point_t wsgview_point = GRAPHENE_POINT_INIT(x, y);
-	graphene_point_t wview_point;
-	if (gtk_widget_compute_point(GTK_WIDGET(wsgview), GTK_WIDGET(wview->fixed),
-			&wsgview_point, &wview_point)) {
-		Columnview *title = workspaceview_find_columnview_title(wview,
-			wview_point.x, wview_point.y);
-		Columnview *cview = workspaceview_find_columnview(wview,
-			wview_point.x, wview_point.y);
+	GtkWidget *menu = NULL;
 
-		GtkWidget *menu = NULL;
-		if (title) {
-			mainwindow_set_action_view(VIEW(title));
-			menu = wsgview->column_menu;
+	Columnview *cview;
+	if ((cview = workspacegroupview_pick_columnview_title(wsgview, x, y))) {
+		mainwindow_set_action_view(VIEW(cview));
+		menu = wsgview->column_menu;
+	}
+	else if ((cview = workspacegroupview_pick_columnview(wsgview, x, y))) {
+		Rowview *rview;
+
+		if ((rview = workspacegroupview_pick_rowview(wsgview, x, y))) {
+			mainwindow_set_action_view(VIEW(rview));
+			menu = wsgview->row_menu;
 		}
-		else if (!cview) {
+		else {
 			mainwindow_set_action_view(VIEW(wview));
 			menu = wsgview->workspace_menu;
 		}
-		else if (cview) {
-			// search for row button in column
-			Rowview *rview =
-				columnview_find_rowview(cview, wview_point.x, wview_point.y);
-			if (rview) {
-				mainwindow_set_action_view(VIEW(rview));
-				menu = wsgview->row_menu;
-			}
-		}
+	}
 
-		if (menu) {
-			gtk_popover_set_pointing_to(GTK_POPOVER(menu),
-				&(const GdkRectangle){ x, y, 1, 1 });
+	if (menu) {
+		gtk_popover_set_pointing_to(GTK_POPOVER(menu),
+			&(const GdkRectangle){ x, y, 1, 1 });
 
-			gtk_popover_popup(GTK_POPOVER(menu));
-		}
+		gtk_popover_popup(GTK_POPOVER(menu));
 	}
 }
 
@@ -357,6 +410,40 @@ workspacegroupview_page_reordered(GtkNotebook *notebook,
 		icontainer_pos_sort(ICONTAINER(wsg));
 }
 
+static gboolean
+workspacegroupview_dnd_drop(GtkDropTarget *target,
+	const GValue *value, double x, double y, gpointer user_data)
+{
+	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
+	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(wsgview)));
+
+	printf("workspacegroupview_dnd_drop: %g x %g\n", x, y);
+
+	gboolean handled = FALSE;
+
+	Columnview *cview;
+	Rowview *rview;
+	if ((cview = workspacegroupview_pick_columnview(wsgview, x, y))) {
+		handled = TRUE;
+
+		if ((rview = workspacegroupview_pick_rowview(wsgview, x, y)))
+			printf("\tdrop in row\n");
+		else
+			printf("\tdrop in column\n");
+	}
+	else {
+		printf("\tdrop on background\n");
+		handled = TRUE;
+
+		if (!mainwindow_paste_value(main, value))
+			mainwindow_error(main);
+		else
+			symbol_recalculate_all();
+	}
+
+	return handled;
+}
+
 static void
 workspacegroupview_init(Workspacegroupview *wsgview)
 {
@@ -377,12 +464,14 @@ workspacegroupview_init(Workspacegroupview *wsgview)
 
 	/* We are a drop target for tabs.
 	 */
-	GtkEventController *controller = GTK_EVENT_CONTROLLER(
-		gtk_drop_target_new(G_TYPE_INVALID, GDK_ACTION_COPY));
-	gtk_drop_target_set_gtypes(GTK_DROP_TARGET(controller),
+	GtkDropTarget *target =
+		gtk_drop_target_new(G_TYPE_INVALID, GDK_ACTION_COPY);
+	gtk_drop_target_set_gtypes(target,
 		workspacegroupview_supported_types,
 		workspacegroupview_n_supported_types);
-	gtk_widget_add_controller(wsgview->notebook, controller);
+	g_signal_connect(target, "drop",
+		G_CALLBACK(workspacegroupview_dnd_drop), wsgview);
+	gtk_widget_add_controller(wsgview->notebook, GTK_EVENT_CONTROLLER(target));
 
 }
 

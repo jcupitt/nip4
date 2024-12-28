@@ -207,7 +207,7 @@ mainwindow_load_path(Mainwindow *main, const char *path)
 	return TRUE;
 }
 
-static gboolean
+gboolean
 mainwindow_paste_value(Mainwindow *main, const GValue *value)
 {
 	printf("mainwindow_paste_value:\n");
@@ -223,13 +223,9 @@ mainwindow_paste_value(Mainwindow *main, const GValue *value)
 			g_autofree char *path = g_file_get_path(file);
 			g_autofree char *strip_path = g_strstrip(g_strdup(path));
 
-			if (!mainwindow_load_path(main, strip_path)) {
-				mainwindow_error(main);
+			if (!mainwindow_load_path(main, strip_path))
 				return FALSE;
-			}
 		}
-
-		symbol_recalculate_all();
 	}
 	else if (G_VALUE_TYPE(value) == G_TYPE_FILE) {
 		printf("mainwindow_paste_value: G_TYPE_FILE\n");
@@ -238,12 +234,8 @@ mainwindow_paste_value(Mainwindow *main, const GValue *value)
 		g_autofree char *path = g_file_get_path(file);
 		g_autofree char *strip_path = g_strstrip(g_strdup(path));
 
-		if (!mainwindow_load_path(main, strip_path)) {
-			mainwindow_error(main);
+		if (!mainwindow_load_path(main, strip_path))
 			return FALSE;
-		}
-
-		symbol_recalculate_all();
 	}
 	else if (G_VALUE_TYPE(value) == G_TYPE_STRING) {
 		printf("mainwindow_paste_value: G_TYPE_STRING\n");
@@ -253,12 +245,8 @@ mainwindow_paste_value(Mainwindow *main, const GValue *value)
 		g_autofree char *strip_path =
 			g_strstrip(g_strdup(g_value_get_string(value)));
 
-		if (!mainwindow_load_path(main, strip_path)) {
-			mainwindow_error(main);
+		if (!mainwindow_load_path(main, strip_path))
 			return FALSE;
-		}
-
-		symbol_recalculate_all();
 	}
 	else if (G_VALUE_TYPE(value) == GDK_TYPE_TEXTURE) {
 		printf("mainwindow_paste_value: texture paste into main FIXME\n");
@@ -273,7 +261,6 @@ mainwindow_paste_value(Mainwindow *main, const GValue *value)
 		}
 
 		iimage_replace_imageinfo(win->iimage, ii);
-		symbol_recalculate_all_force(FALSE);
 		 */
 	}
 
@@ -298,8 +285,12 @@ mainwindow_paste_action_ready(GObject *source_object,
 		g_error_free(error);
 		mainwindow_error(main);
 	}
-	else if (value)
-		mainwindow_paste_value(main, value);
+	else if (value) {
+		if (!mainwindow_paste_value(main, value))
+			mainwindow_error(main);
+		else
+			symbol_recalculate_all();
+	}
 }
 
 /* GTypes we handle in copy/paste and drag/drop paste ... these are in the
@@ -751,19 +742,6 @@ static GActionEntry mainwindow_entries[] = {
 
 };
 
-static gboolean
-mainwindow_dnd_drop(GtkDropTarget *target,
-	const GValue *value, double x, double y, gpointer user_data)
-{
-	Mainwindow *main = MAINWINDOW(user_data);
-
-	printf("mainwindow_dnd_drop: %g x %g\n", x, y);
-
-	mainwindow_paste_value(main, value);
-
-	return TRUE;
-}
-
 static void
 mainwindow_progress_begin(Progress *progress, Mainwindow *main)
 {
@@ -816,16 +794,6 @@ mainwindow_init(Mainwindow *main)
 	g_action_map_add_action_entries(G_ACTION_MAP(main),
 		mainwindow_entries, G_N_ELEMENTS(mainwindow_entries),
 		main);
-
-	/* We are a drop target for filenames and images.
-	 */
-	GtkDropTarget *target =
-		gtk_drop_target_new(G_TYPE_INVALID, GDK_ACTION_COPY);
-	gtk_drop_target_set_gtypes(target,
-		mainwindow_supported_types, mainwindow_n_supported_types);
-	g_signal_connect(target, "drop",
-		G_CALLBACK(mainwindow_dnd_drop), main);
-	//gtk_widget_add_controller(main->main_box, GTK_EVENT_CONTROLLER(target));
 
 	Progress *progress = progress_get();
 	g_signal_connect_object(progress, "begin",

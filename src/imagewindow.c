@@ -798,12 +798,16 @@ imagewindow_copy_action(GSimpleAction *action,
 	}
 }
 
-static void
+static gboolean
 imagewindow_paste_value(Imagewindow *win, const GValue *value)
 {
 	printf("imagewindow_paste_value:\n");
 
+	gboolean handled = FALSE;
+
 	if (G_VALUE_TYPE(value) == GDK_TYPE_FILE_LIST) {
+		handled = TRUE;
+
 		GdkFileList *file_list = g_value_get_boxed(value);
 		g_autoptr(GSList) files = gdk_file_list_get_files(file_list);
 		g_autoptr(GPtrArray) paths =
@@ -820,6 +824,8 @@ imagewindow_paste_value(Imagewindow *win, const GValue *value)
 			GTK_STACK_TRANSITION_TYPE_ROTATE_LEFT);
 	}
 	else if (G_VALUE_TYPE(value) == G_TYPE_FILE) {
+		handled = TRUE;
+
 		GFile *file = g_value_get_object(value);
 		g_autofree char *path = g_file_get_path(file);
 		g_autofree char *text = g_strstrip(g_strdup(path));
@@ -829,6 +835,8 @@ imagewindow_paste_value(Imagewindow *win, const GValue *value)
 			GTK_STACK_TRANSITION_TYPE_ROTATE_LEFT);
 	}
 	else if (G_VALUE_TYPE(value) == G_TYPE_STRING) {
+		handled = TRUE;
+
 		// remove leading and trailing whitespace
 		// modifies the string in place, so we must dup
 		g_autofree char *text = g_strstrip(g_strdup(g_value_get_string(value)));
@@ -838,18 +846,20 @@ imagewindow_paste_value(Imagewindow *win, const GValue *value)
 			GTK_STACK_TRANSITION_TYPE_ROTATE_LEFT);
 	}
 	else if (G_VALUE_TYPE(value) == GDK_TYPE_TEXTURE) {
+		handled = TRUE;
+
 		GdkTexture *texture = g_value_get_object(value);
 
 		Imageinfo *ii =
 			imageinfo_new_from_texture(main_imageinfogroup, NULL, texture);
-		if (!ii) {
-			imagewindow_error(win);
-			return;
-		}
+		if (!ii)
+			return FALSE;
 
 		iimage_replace_imageinfo(win->iimage, ii);
 		symbol_recalculate_all_force(FALSE);
 	}
+
+	return handled;
 }
 
 static void
@@ -1310,9 +1320,7 @@ imagewindow_dnd_drop(GtkDropTarget *target,
 
 	printf("imagewindow_dnd_drop: %g x %g\n", x, y);
 
-	imagewindow_paste_value(win, value);
-
-	return TRUE;
+	return imagewindow_paste_value(win, value);
 }
 
 static void
