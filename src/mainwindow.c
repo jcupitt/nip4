@@ -22,8 +22,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -44,6 +44,7 @@ struct _Mainwindow {
 	GtkWidget *title;
 	GtkWidget *subtitle;
 	GtkWidget *gears;
+	GtkWidget *main_box;
 	GtkWidget *progress_bar;
 	GtkWidget *progress;
 	GtkWidget *wsgview;
@@ -159,6 +160,196 @@ mainwindow_dispose(GObject *object)
 	G_OBJECT_CLASS(mainwindow_parent_class)->dispose(object);
 }
 
+static void
+mainwindow_copy_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	printf("mainwindow_copy_action: FIXME\n");
+	/*
+		GdkClipboard *clipboard = gtk_widget_get_clipboard(GTK_WIDGET(win));
+		g_autoptr(GFile) file = tilesource_get_file(tilesource);
+
+		VipsImage *image;
+
+		if (file)
+			gdk_clipboard_set(clipboard, G_TYPE_FILE, file);
+		else if ((image = tilesource_get_base_image(tilesource))) {
+			g_autoptr(GdkTexture) texture = texture_new_from_image(image);
+
+			if (texture)
+				gdk_clipboard_set(clipboard, GDK_TYPE_TEXTURE, texture);
+			else
+				imagewindow_error(win);
+		}
+	}
+
+	 */
+}
+
+static gboolean
+mainwindow_load_path(Mainwindow *main, const char *path)
+{
+	// turn it into eg. (Image_file "filename")
+	char txt[MAX_STRSIZE];
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
+	if (!workspace_load_file_buf(&buf, path))
+		return FALSE;
+
+	Workspace *ws = mainwindow_get_workspace(main);
+	if (!workspace_add_def_recalc(ws, vips_buf_all(&buf))) {
+		error_top(_("Load failed."));
+		error_sub(_("unable to execute:\n   %s"), vips_buf_all(&buf));
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static gboolean
+mainwindow_paste_value(Mainwindow *main, const GValue *value)
+{
+	printf("mainwindow_paste_value:\n");
+
+	if (G_VALUE_TYPE(value) == GDK_TYPE_FILE_LIST) {
+		printf("mainwindow_paste_value: GDK_TYPE_FILE_LIST\n");
+
+		GdkFileList *file_list = g_value_get_boxed(value);
+		g_autoptr(GSList) files = gdk_file_list_get_files(file_list);
+
+		for (GSList *p = files; p; p = p->next) {
+			GFile *file = G_FILE(p->data);
+			g_autofree char *path = g_file_get_path(file);
+			g_autofree char *strip_path = g_strstrip(g_strdup(path));
+
+			if (!mainwindow_load_path(main, strip_path)) {
+				mainwindow_error(main);
+				return FALSE;
+			}
+		}
+
+		symbol_recalculate_all();
+	}
+	else if (G_VALUE_TYPE(value) == G_TYPE_FILE) {
+		printf("mainwindow_paste_value: G_TYPE_FILE\n");
+
+		GFile *file = g_value_get_object(value);
+		g_autofree char *path = g_file_get_path(file);
+		g_autofree char *strip_path = g_strstrip(g_strdup(path));
+
+		if (!mainwindow_load_path(main, strip_path)) {
+			mainwindow_error(main);
+			return FALSE;
+		}
+
+		symbol_recalculate_all();
+	}
+	else if (G_VALUE_TYPE(value) == G_TYPE_STRING) {
+		printf("mainwindow_paste_value: G_TYPE_STRING\n");
+
+		// remove leading and trailing whitespace
+		// modifies the string in place, so we must dup
+		g_autofree char *strip_path =
+			g_strstrip(g_strdup(g_value_get_string(value)));
+
+		if (!mainwindow_load_path(main, strip_path)) {
+			mainwindow_error(main);
+			return FALSE;
+		}
+
+		symbol_recalculate_all();
+	}
+	else if (G_VALUE_TYPE(value) == GDK_TYPE_TEXTURE) {
+		printf("mainwindow_paste_value: texture paste into main FIXME\n");
+		/*
+		GdkTexture *texture = g_value_get_object(value);
+
+		Imageinfo *ii =
+			imageinfo_new_from_texture(main_imageinfogroup, NULL, texture);
+		if (!ii) {
+			imagewindow_error(win);
+			return;
+		}
+
+		iimage_replace_imageinfo(win->iimage, ii);
+		symbol_recalculate_all_force(FALSE);
+		 */
+	}
+
+	return TRUE;
+}
+
+static void
+mainwindow_paste_action_ready(GObject *source_object,
+	GAsyncResult *res, gpointer user_data)
+{
+	GdkClipboard *clipboard = GDK_CLIPBOARD(source_object);
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	printf("mainwindow_paste_action_ready:\n");
+
+	const GValue *value;
+	GError *error = NULL;
+	value = gdk_clipboard_read_value_finish(clipboard, res, &error);
+	if (error) {
+		error_top(_("Unable to paste"));
+		error_sub("%s", error->message);
+		g_error_free(error);
+		mainwindow_error(main);
+	}
+	else if (value)
+		mainwindow_paste_value(main, value);
+}
+
+/* GTypes we handle in copy/paste and drag/drop paste ... these are in the
+ * order we try, so a GFile is preferred to a simple string.
+ *
+ * gnome file manager pastes as GdkFileList, GFile, gchararray
+ * print-screen button pastes as GdkTexture, GdkPixbuf
+ *
+ * Created in _class_init(), since some of these types are only defined at
+ * runtime.
+ */
+static GType *mainwindow_supported_types;
+static int mainwindow_n_supported_types;
+
+static void
+mainwindow_paste_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+	GdkClipboard *clipboard = gtk_widget_get_clipboard(GTK_WIDGET(main));
+
+	GdkContentFormats *formats = gdk_clipboard_get_formats(clipboard);
+	gsize n_types;
+	const GType *types = gdk_content_formats_get_gtypes(formats, &n_types);
+
+#ifdef DEBUG
+	printf("clipboard in %lu formats\n", n_types);
+	for (gsize i = 0; i < n_types; i++)
+		printf("%lu - %s\n", i, g_type_name(types[i]));
+#endif /*DEBUG*/
+
+	gboolean handled = FALSE;
+	for (gsize i = 0; i < n_types; i++) {
+		for (int j = 0; j < mainwindow_n_supported_types; j++)
+			if (types[i] == mainwindow_supported_types[j]) {
+				gdk_clipboard_read_value_async(clipboard,
+					mainwindow_supported_types[j],
+					G_PRIORITY_DEFAULT,
+					NULL,
+					mainwindow_paste_action_ready,
+					main);
+				handled = TRUE;
+				break;
+			}
+
+		if (handled)
+			break;
+	}
+}
+
 static gboolean
 mainwindow_open_workspace(Mainwindow *main, const char *filename)
 {
@@ -185,20 +376,8 @@ mainwindow_open_workspace(Mainwindow *main, const char *filename)
 static gboolean
 mainwindow_open_definition(Mainwindow *main, const char *filename)
 {
-	// turn it into eg. (Image_file "filename")
-	char txt[MAX_STRSIZE];
-	VipsBuf buf = VIPS_BUF_STATIC(txt);
-	if (!workspace_load_file_buf(&buf, filename)) {
-		mainwindow_error(main);
+	if (!mainwindow_load_path(main, filename))
 		return FALSE;
-	}
-
-	Workspace *ws = mainwindow_get_workspace(main);
-	if (!workspace_add_def_recalc(ws, vips_buf_all(&buf))) {
-		error_top(_("Load failed."));
-		error_sub(_("unable to execute:\n   %s"), vips_buf_all(&buf));
-		return FALSE;
-	}
 
 	symbol_recalculate_all();
 
@@ -519,6 +698,9 @@ mainwindow_keyboard_duplicate_action(GSimpleAction *action,
 
 static GActionEntry mainwindow_entries[] = {
 	// main window actions
+	{ "copy", mainwindow_copy_action },
+	{ "paste", mainwindow_paste_action },
+
 	{ "open", mainwindow_open_action },
 	{ "merge", mainwindow_merge_action },
 	{ "duplicate", mainwindow_duplicate_action },
@@ -568,6 +750,19 @@ static GActionEntry mainwindow_entries[] = {
 	{ "row-delete", mainwindow_view_action },
 
 };
+
+static gboolean
+mainwindow_dnd_drop(GtkDropTarget *target,
+	const GValue *value, double x, double y, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	printf("mainwindow_dnd_drop: %g x %g\n", x, y);
+
+	mainwindow_paste_value(main, value);
+
+	return TRUE;
+}
 
 static void
 mainwindow_progress_begin(Progress *progress, Mainwindow *main)
@@ -623,18 +818,14 @@ mainwindow_init(Mainwindow *main)
 		main);
 
 	/* We are a drop target for filenames and images.
-	 *
-	 * FIXME ... implement this
-	 *
-	controller = GTK_EVENT_CONTROLLER(
-		gtk_drop_target_new(G_TYPE_INVALID, GDK_ACTION_COPY));
-	gtk_drop_target_set_gtypes(GTK_DROP_TARGET(controller),
-		mainwindow_supported_types,
-		mainwindow_n_supported_types);
-	g_signal_connect(controller, "drop",
+	 */
+	GtkDropTarget *target =
+		gtk_drop_target_new(G_TYPE_INVALID, GDK_ACTION_COPY);
+	gtk_drop_target_set_gtypes(target,
+		mainwindow_supported_types, mainwindow_n_supported_types);
+	g_signal_connect(target, "drop",
 		G_CALLBACK(mainwindow_dnd_drop), main);
-	gtk_widget_add_controller(main->imagedisplay, controller);
-	) */
+	//gtk_widget_add_controller(main->main_box, GTK_EVENT_CONTROLLER(target));
 
 	Progress *progress = progress_get();
 	g_signal_connect_object(progress, "begin",
@@ -704,12 +895,26 @@ mainwindow_class_init(MainwindowClass *class)
 	BIND_VARIABLE(Mainwindow, title);
 	BIND_VARIABLE(Mainwindow, subtitle);
 	BIND_VARIABLE(Mainwindow, gears);
+	BIND_VARIABLE(Mainwindow, main_box);
 	BIND_VARIABLE(Mainwindow, progress_bar);
 	BIND_VARIABLE(Mainwindow, progress);
 	BIND_VARIABLE(Mainwindow, wsgview);
 
 	BIND_CALLBACK(mainwindow_progress_cancel_clicked);
 	BIND_CALLBACK(mainwindow_close_request);
+
+	GType supported_types[] = {
+		GDK_TYPE_FILE_LIST,
+		G_TYPE_FILE,
+		GDK_TYPE_TEXTURE,
+		G_TYPE_STRING,
+	};
+
+	mainwindow_n_supported_types = VIPS_NUMBER(supported_types);
+	mainwindow_supported_types =
+		VIPS_ARRAY(NULL, mainwindow_n_supported_types + 1, GType);
+	for (int i = 0; i < mainwindow_n_supported_types; i++)
+		mainwindow_supported_types[i] = supported_types[i];
 }
 
 static void

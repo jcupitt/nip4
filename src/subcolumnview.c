@@ -191,10 +191,10 @@ subcolumnview_refresh(vObject *vobject)
 	int old_n_vis = sview->n_vis;
 
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("subcolumnview_refresh: scol = %p\n", scol);
 	printf("\told n_rows = %d\n", sview->n_rows);
 	printf("\tnew n_rows = %d\n", icontainer_get_n_children(ICONTAINER(scol)));
+#endif /*DEBUG*/
 
 	sview->n_rows = icontainer_get_n_children(ICONTAINER(scol));
 	sview->n_vis = 0;

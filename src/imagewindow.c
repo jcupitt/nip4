@@ -799,9 +799,9 @@ imagewindow_copy_action(GSimpleAction *action,
 }
 
 static void
-imagewindow_set_from_value(Imagewindow *win, const GValue *value)
+imagewindow_paste_value(Imagewindow *win, const GValue *value)
 {
-	printf("imagewindow_set_from_value:\n");
+	printf("imagewindow_paste_value:\n");
 
 	if (G_VALUE_TYPE(value) == GDK_TYPE_FILE_LIST) {
 		GdkFileList *file_list = g_value_get_boxed(value);
@@ -865,7 +865,7 @@ imagewindow_paste_action_ready(GObject *source_object,
 	if (error)
 		imagewindow_gerror(win, &error);
 	else if (value)
-		imagewindow_set_from_value(win, value);
+		imagewindow_paste_value(win, value);
 }
 
 static void
@@ -1308,7 +1308,9 @@ imagewindow_dnd_drop(GtkDropTarget *target,
 {
 	Imagewindow *win = IMAGEWINDOW(user_data);
 
-	imagewindow_set_from_value(win, value);
+	printf("imagewindow_dnd_drop: %g x %g\n", x, y);
+
+	imagewindow_paste_value(win, value);
 
 	return TRUE;
 }

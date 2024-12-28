@@ -122,7 +122,7 @@
     </child>
 
     <child>
-      <object class="GtkBox">
+      <object class="GtkBox" id="main_box">
         <property name="orientation">vertical</property>
 
         <child>
