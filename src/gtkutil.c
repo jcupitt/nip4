@@ -501,11 +501,7 @@ line_clip(VipsRect *rect,
 gboolean
 value_to_filename(const GValue *value, ValueToFilenameFn fn, void *user_data)
 {
-	printf("value_to_filename:\n");
-
 	if (G_VALUE_TYPE(value) == GDK_TYPE_FILE_LIST) {
-		printf("value_to_filename: GDK_TYPE_FILE_LIST\n");
-
 		GdkFileList *file_list = g_value_get_boxed(value);
 		g_autoptr(GSList) files = gdk_file_list_get_files(file_list);
 
@@ -519,8 +515,6 @@ value_to_filename(const GValue *value, ValueToFilenameFn fn, void *user_data)
 		}
 	}
 	else if (G_VALUE_TYPE(value) == G_TYPE_FILE) {
-		printf("value_to_filename: G_TYPE_FILE\n");
-
 		GFile *file = g_value_get_object(value);
 		g_autofree char *path = g_file_get_path(file);
 		g_autofree char *strip_path = g_strstrip(g_strdup(path));
@@ -529,8 +523,6 @@ value_to_filename(const GValue *value, ValueToFilenameFn fn, void *user_data)
 			return FALSE;
 	}
 	else if (G_VALUE_TYPE(value) == G_TYPE_STRING) {
-		printf("value_to_filename: G_TYPE_STRING\n");
-
 		g_autofree char *strip_path =
 			g_strstrip(g_strdup(g_value_get_string(value)));
 
@@ -538,14 +530,10 @@ value_to_filename(const GValue *value, ValueToFilenameFn fn, void *user_data)
 			return FALSE;
 	}
 	else if (G_VALUE_TYPE(value) == GDK_TYPE_TEXTURE) {
-		printf("value_to_filename: texture paste into main FIXME\n");
-
 		GdkTexture *texture = g_value_get_object(value);
 
 		Imageinfo *ii =
 			imageinfo_new_from_texture(main_imageinfogroup, NULL, texture);
-
-		VIPS_UNREF(texture);
 
 		if (!ii)
 			return FALSE;
