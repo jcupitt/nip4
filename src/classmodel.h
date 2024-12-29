@@ -136,6 +136,8 @@ void image_value_caption(ImageValue *value, VipsBuf *buf);
 
 void *classmodel_get_instance(Classmodel *classmodel);
 void classmodel_graphic_save(Classmodel *classmodel, GtkWidget *parent);
+gboolean classmodel_graphic_replace_filename(Classmodel *classmodel,
+	GtkWidget *parent, const char *filename);
 void classmodel_graphic_replace(Classmodel *classmodel, GtkWidget *parent);
 
 void *classmodel_iimage_unlink(Classmodel *classmodel, iImage *iimage);

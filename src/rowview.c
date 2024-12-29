@@ -440,6 +440,75 @@ rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		rowview_reset_menu(rview);
 }
 
+gboolean
+rowview_paste_value(Rowview *rview, const GValue *value)
+{
+	Row *row = ROW(VOBJECT(rview)->iobject);
+
+	printf("rowview_paste_value:\n");
+
+	// no rhs graphic? we can't paste into it
+	if (!row->child_rhs ||
+		!row->child_rhs->graphic)
+		return TRUE;
+
+	Classmodel *graphic = CLASSMODEL(row->child_rhs->graphic);
+
+	if (G_VALUE_TYPE(value) == GDK_TYPE_FILE_LIST) {
+		printf("rowview_paste_value: GDK_TYPE_FILE_LIST\n");
+
+		GdkFileList *file_list = g_value_get_boxed(value);
+		g_autoptr(GSList) files = gdk_file_list_get_files(file_list);
+
+		for (GSList *p = files; p; p = p->next) {
+			GFile *file = G_FILE(p->data);
+			g_autofree char *path = g_file_get_path(file);
+			g_autofree char *strip_path = g_strstrip(g_strdup(path));
+
+			if (!classmodel_graphic_replace_filename(graphic, NULL, strip_path))
+				return FALSE;
+		}
+	}
+	else if (G_VALUE_TYPE(value) == G_TYPE_FILE) {
+		printf("rowview_paste_value: G_TYPE_FILE\n");
+
+		GFile *file = g_value_get_object(value);
+		g_autofree char *path = g_file_get_path(file);
+		g_autofree char *strip_path = g_strstrip(g_strdup(path));
+
+		if (!classmodel_graphic_replace_filename(graphic, NULL, strip_path))
+			return FALSE;
+	}
+	else if (G_VALUE_TYPE(value) == G_TYPE_STRING) {
+		printf("rowview_paste_value: G_TYPE_STRING\n");
+
+		// remove leading and trailing whitespace
+		// modifies the string in place, so we must dup
+		g_autofree char *strip_path =
+			g_strstrip(g_strdup(g_value_get_string(value)));
+
+		if (!classmodel_graphic_replace_filename(graphic, NULL, strip_path))
+			return FALSE;
+	}
+	else if (G_VALUE_TYPE(value) == GDK_TYPE_TEXTURE) {
+		printf("rowview_paste_value: texture paste into main FIXME\n");
+		/*
+		GdkTexture *texture = g_value_get_object(value);
+
+		Imageinfo *ii =
+			imageinfo_new_from_texture(main_imageinfogroup, NULL, texture);
+		if (!ii) {
+			imagewindow_error(win);
+			return;
+		}
+
+		iimage_replace_imageinfo(win->iimage, ii);
+		 */
+	}
+
+	return TRUE;
+}
+
 static void
 rowview_class_init(RowviewClass *class)
 {

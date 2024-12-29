@@ -426,20 +426,31 @@ workspacegroupview_dnd_drop(GtkDropTarget *target,
 	if ((cview = workspacegroupview_pick_columnview(wsgview, x, y))) {
 		handled = TRUE;
 
-		if ((rview = workspacegroupview_pick_rowview(wsgview, x, y)))
-			printf("\tdrop in row\n");
-		else
-			printf("\tdrop in column\n");
+		if ((rview = workspacegroupview_pick_rowview(wsgview, x, y))) {
+			if (!rowview_paste_value(rview, value))
+				mainwindow_error(main);
+		}
+		else {
+			if (!mainwindow_paste_value(main, value))
+				mainwindow_error(main);
+		}
 	}
 	else {
-		printf("\tdrop on background\n");
-		handled = TRUE;
+		Workspaceview *wview = workspacegroupview_get_workspaceview(wsgview);
+		Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+		char name[MAX_STRSIZE];
+		workspace_column_name_new(ws, name);
+		if (!workspacegroupview_to_fixed(wsgview, &x, &y))
+			return FALSE;
+		Column *col = column_new(ws, name, VIPS_MAX(0, x - 150), y);
+		icontainer_current(ICONTAINER(ws), ICONTAINER(col));
 
 		if (!mainwindow_paste_value(main, value))
 			mainwindow_error(main);
-		else
-			symbol_recalculate_all();
 	}
+
+	symbol_recalculate_all();
 
 	return handled;
 }

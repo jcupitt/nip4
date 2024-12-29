@@ -17,9 +17,12 @@
 
 	lung
 
+- add file.ws drag-drop and copy-paste
+
 - mainwindow copy/paste
 
-	- image paste in workspacegroupview fails with
+	- image paste in workspacegroupview and imagewindow from "recent" in
+	  nautilus fails with
 
 		Could not convert data from application/vnd.portal.filetransfer to GdkFileList
 
@@ -36,6 +39,8 @@
 
 	- drop on column should add item
 
+- we have mainwindow_paste_value(), rowview_paste_value(),
+  imagewindow_paste_value() all very similar ... combine this if() somehow
 
 
 

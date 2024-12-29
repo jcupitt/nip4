@@ -178,12 +178,34 @@ classmodel_graphic_save(Classmodel *classmodel, GtkWidget *parent)
 		classmodel_graphic_save_cb, classmodel);
 }
 
+gboolean
+classmodel_graphic_replace_filename(Classmodel *classmodel,
+	GtkWidget *parent, const char *filename)
+{
+	ClassmodelClass *class = CLASSMODEL_GET_CLASS(classmodel);
+
+	if (!class->graphic_replace)
+		return TRUE;
+
+	if (!class->graphic_replace(classmodel, parent, filename))
+		return FALSE;
+
+	g_object_ref(G_OBJECT(classmodel));
+
+	symbol_recalculate_all();
+	VIPS_SETSTR(classmodel->filename, filename);
+	iobject_changed(IOBJECT(classmodel));
+
+	g_object_unref(G_OBJECT(classmodel));
+
+	return TRUE;
+}
+
 static void
 classmodel_graphic_replace_cb(GObject *source_object,
 	GAsyncResult *res, gpointer user_data)
 {
 	Classmodel *classmodel = CLASSMODEL(user_data);
-	ClassmodelClass *class = CLASSMODEL_GET_CLASS(classmodel);
 	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
 	GtkWidget *parent = g_object_get_data(G_OBJECT(dialog), "nip4-parent");
 
@@ -191,16 +213,7 @@ classmodel_graphic_replace_cb(GObject *source_object,
 	if (file) {
 		g_autofree char *filename = g_file_get_path(file);
 
-		if (class->graphic_replace(classmodel, parent, filename)) {
-			g_object_ref(G_OBJECT(classmodel));
-
-			symbol_recalculate_all();
-			VIPS_SETSTR(classmodel->filename, filename);
-			iobject_changed(IOBJECT(classmodel));
-
-			g_object_unref(G_OBJECT(classmodel));
-		}
-		else
+		if (!classmodel_graphic_replace_filename(classmodel, parent, filename))
 			error_alert(parent);
 	}
 }
