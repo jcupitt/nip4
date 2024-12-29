@@ -296,6 +296,16 @@ imageinfo_expr_which(Imageinfo *imageinfo)
 	return imageinfo->exprs;
 }
 
+void
+imageinfo_set_delete_on_close(Imageinfo *imageinfo)
+{
+	// this must be a temp file of some kind
+	imageinfo->from_file = FALSE;
+
+	imageinfo->dfile = TRUE;
+	VIPS_SETSTR(imageinfo->delete_filename, imageinfo->image->filename);
+}
+
 static void
 imageinfo_dispose_eval(Imageinfo *imageinfo)
 {
@@ -326,6 +336,12 @@ imageinfo_dispose(GObject *gobject)
 
 	VIPS_FREEF(g_source_remove, imageinfo->check_tid);
 
+	if (imageinfo->dfile &&
+		imageinfo->delete_filename)
+		unlinkf("%s", imageinfo->delete_filename);
+
+	VIPS_UNREF(imageinfo->image);
+
 	G_OBJECT_CLASS(imageinfo_parent_class)->dispose(gobject);
 }
 
@@ -341,7 +357,7 @@ imageinfo_finalize(GObject *gobject)
 	imageinfo_print(imageinfo);
 #endif /*DEBUG_MAKE*/
 
-	VIPS_UNREF(imageinfo->image);
+	VIPS_FREE(imageinfo->delete_filename);
 
 	G_OBJECT_CLASS(imageinfo_parent_class)->finalize(gobject);
 }

@@ -1,3 +1,9 @@
+- value_to_filename() from texture leaks files and images
+
+	maybe have an imageinfo cache? then we can set delete_on_close and all
+	reopens will inherit that setting
+
+
 - investigate behavour with updated iimage_update_heap() ... there will be
   quite a few cases which now fail (I expect)
 
@@ -19,28 +25,6 @@
 
 - add file.ws drag-drop and copy-paste
 
-- mainwindow copy/paste
-
-	- image paste in workspacegroupview and imagewindow from "recent" in
-	  nautilus fails with
-
-		Could not convert data from application/vnd.portal.filetransfer to GdkFileList
-
-	- filename paste works, woo!
-
-	- texture paste needs implementing
-
-- mainwindow drag/drop
-
-	- drop on background should make a new column at that position
-	  containing that image
-
-	- drop on row should do image replace
-
-	- drop on column should add item
-
-- we have mainwindow_paste_value(), rowview_paste_value(),
-  imagewindow_paste_value() all very similar ... combine this if() somehow
 
 
 

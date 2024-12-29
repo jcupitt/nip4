@@ -164,10 +164,11 @@ static void
 mainwindow_copy_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
-	Mainwindow *main = MAINWINDOW(user_data);
-
 	printf("mainwindow_copy_action: FIXME\n");
+
 	/*
+		Mainwindow *main = MAINWINDOW(user_data);
+
 		GdkClipboard *clipboard = gtk_widget_get_clipboard(GTK_WIDGET(win));
 		g_autoptr(GFile) file = tilesource_get_file(tilesource);
 
@@ -208,63 +209,9 @@ mainwindow_load_path(Mainwindow *main, const char *path)
 }
 
 gboolean
-mainwindow_paste_value(Mainwindow *main, const GValue *value)
+mainwindow_paste_filename(const char *filename, void *user_data)
 {
-	printf("mainwindow_paste_value:\n");
-
-	if (G_VALUE_TYPE(value) == GDK_TYPE_FILE_LIST) {
-		printf("mainwindow_paste_value: GDK_TYPE_FILE_LIST\n");
-
-		GdkFileList *file_list = g_value_get_boxed(value);
-		g_autoptr(GSList) files = gdk_file_list_get_files(file_list);
-
-		for (GSList *p = files; p; p = p->next) {
-			GFile *file = G_FILE(p->data);
-			g_autofree char *path = g_file_get_path(file);
-			g_autofree char *strip_path = g_strstrip(g_strdup(path));
-
-			if (!mainwindow_load_path(main, strip_path))
-				return FALSE;
-		}
-	}
-	else if (G_VALUE_TYPE(value) == G_TYPE_FILE) {
-		printf("mainwindow_paste_value: G_TYPE_FILE\n");
-
-		GFile *file = g_value_get_object(value);
-		g_autofree char *path = g_file_get_path(file);
-		g_autofree char *strip_path = g_strstrip(g_strdup(path));
-
-		if (!mainwindow_load_path(main, strip_path))
-			return FALSE;
-	}
-	else if (G_VALUE_TYPE(value) == G_TYPE_STRING) {
-		printf("mainwindow_paste_value: G_TYPE_STRING\n");
-
-		// remove leading and trailing whitespace
-		// modifies the string in place, so we must dup
-		g_autofree char *strip_path =
-			g_strstrip(g_strdup(g_value_get_string(value)));
-
-		if (!mainwindow_load_path(main, strip_path))
-			return FALSE;
-	}
-	else if (G_VALUE_TYPE(value) == GDK_TYPE_TEXTURE) {
-		printf("mainwindow_paste_value: texture paste into main FIXME\n");
-		/*
-		GdkTexture *texture = g_value_get_object(value);
-
-		Imageinfo *ii =
-			imageinfo_new_from_texture(main_imageinfogroup, NULL, texture);
-		if (!ii) {
-			imagewindow_error(win);
-			return;
-		}
-
-		iimage_replace_imageinfo(win->iimage, ii);
-		 */
-	}
-
-	return TRUE;
+	return mainwindow_load_path(MAINWINDOW(user_data), filename);
 }
 
 static void
@@ -286,7 +233,7 @@ mainwindow_paste_action_ready(GObject *source_object,
 		mainwindow_error(main);
 	}
 	else if (value) {
-		if (!mainwindow_paste_value(main, value))
+		if (!value_to_filename(value, mainwindow_paste_filename, main))
 			mainwindow_error(main);
 		else
 			symbol_recalculate_all();

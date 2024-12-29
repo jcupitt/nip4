@@ -71,6 +71,8 @@ Imageinfogroup *imageinfogroup_new(void);
 /* An image.
  */
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(Imageinfo, g_object_unref)
+
 #define IMAGEINFO_TYPE (imageinfo_get_type())
 #define IMAGEINFO(obj) \
 	(G_TYPE_CHECK_INSTANCE_CAST((obj), IMAGEINFO_TYPE, Imageinfo))
@@ -97,11 +99,11 @@ typedef struct _Imageinfoproxy {
 struct _Imageinfo {
 	Managed parent_object;
 
-	VipsImage *image;	   /* Image we manage */
-	Imageinfoproxy *proxy; /* Proxy for VipsImage callbacks */
+	VipsImage *image;		/* Image we manage */
+	Imageinfoproxy *proxy;	/* Proxy for VipsImage callbacks */
 
-	gboolean from_file; /* Set if ->name is a user file */
-	time_t mtime;		/* mtime when we loaded this file */
+	gboolean from_file;		/* Set if ->name is a user file */
+	time_t mtime;			/* mtime when we loaded this file */
 
 	/* Exprs which are thought to have this image as their value. See
 	 * expr_value_new().
@@ -117,6 +119,9 @@ struct _Imageinfo {
 	 */
 	time_t check_mtime;
 	guint check_tid;
+
+    gboolean dfile;			/* delete_file on final close */
+    char *delete_filename;  /* and the file we delete */
 };
 
 typedef struct _ImageinfoClass {
@@ -142,6 +147,9 @@ void *imageinfo_area_changed(Imageinfo *imageinfo, VipsRect *dirty);
 void *imageinfo_expr_remove(Expr *expr, Imageinfo *imageinfo);
 void imageinfo_expr_add(Imageinfo *imageinfo, Expr *expr);
 GSList *imageinfo_expr_which(Imageinfo *imageinfo);
+
+void imageinfo_set_delete_on_close(Imageinfo *imageinfo);
+
 GType imageinfo_get_type(void);
 Imageinfo *imageinfo_new(Imageinfogroup *imageinfogroup,
 	Heap *heap, VipsImage *im, const char *name);

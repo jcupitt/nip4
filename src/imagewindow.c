@@ -312,7 +312,7 @@ imagewindow_files_set_list(Imagewindow *win, GSList *files)
 }
 
 static void
-imagewindow_files_set_path(Imagewindow *win, char *path)
+imagewindow_files_set_path(Imagewindow *win, const char *path)
 {
 	g_autofree char *dirname = g_path_get_dirname(path);
 	g_autoptr(GFile) file = g_file_new_for_path(path);
@@ -366,7 +366,7 @@ imagewindow_files_set_path(Imagewindow *win, char *path)
 }
 
 static void
-imagewindow_files_set(Imagewindow *win, char **files, int n_files)
+imagewindow_files_set(Imagewindow *win, const char **files, int n_files)
 {
 	imagewindow_files_free(win);
 
@@ -799,67 +799,16 @@ imagewindow_copy_action(GSimpleAction *action,
 }
 
 static gboolean
-imagewindow_paste_value(Imagewindow *win, const GValue *value)
+imagewindow_paste_filename(const char *filename, void *user_data)
 {
-	printf("imagewindow_paste_value:\n");
+	Imagewindow *win = IMAGEWINDOW(user_data);
 
-	gboolean handled = FALSE;
+	printf("imagewindow_paste_filename:\n");
 
-	if (G_VALUE_TYPE(value) == GDK_TYPE_FILE_LIST) {
-		handled = TRUE;
+	imagewindow_files_set(win, &filename, 1);
+	imagewindow_open_current_file(win, GTK_STACK_TRANSITION_TYPE_ROTATE_LEFT);
 
-		GdkFileList *file_list = g_value_get_boxed(value);
-		g_autoptr(GSList) files = gdk_file_list_get_files(file_list);
-		g_autoptr(GPtrArray) paths =
-			g_ptr_array_new_full(10, (GDestroyNotify) g_free);
-
-		for (GSList *p = files; p; p = p->next) {
-			GFile *file = G_FILE(p->data);
-
-			g_ptr_array_add(paths, g_file_get_path(file));
-		}
-
-		imagewindow_files_set(win, (char **) paths->pdata, paths->len);
-		imagewindow_open_current_file(win,
-			GTK_STACK_TRANSITION_TYPE_ROTATE_LEFT);
-	}
-	else if (G_VALUE_TYPE(value) == G_TYPE_FILE) {
-		handled = TRUE;
-
-		GFile *file = g_value_get_object(value);
-		g_autofree char *path = g_file_get_path(file);
-		g_autofree char *text = g_strstrip(g_strdup(path));
-
-		imagewindow_files_set(win, &path, 1);
-		imagewindow_open_current_file(win,
-			GTK_STACK_TRANSITION_TYPE_ROTATE_LEFT);
-	}
-	else if (G_VALUE_TYPE(value) == G_TYPE_STRING) {
-		handled = TRUE;
-
-		// remove leading and trailing whitespace
-		// modifies the string in place, so we must dup
-		g_autofree char *text = g_strstrip(g_strdup(g_value_get_string(value)));
-
-		imagewindow_files_set(win, &text, 1);
-		imagewindow_open_current_file(win,
-			GTK_STACK_TRANSITION_TYPE_ROTATE_LEFT);
-	}
-	else if (G_VALUE_TYPE(value) == GDK_TYPE_TEXTURE) {
-		handled = TRUE;
-
-		GdkTexture *texture = g_value_get_object(value);
-
-		Imageinfo *ii =
-			imageinfo_new_from_texture(main_imageinfogroup, NULL, texture);
-		if (!ii)
-			return FALSE;
-
-		iimage_replace_imageinfo(win->iimage, ii);
-		symbol_recalculate_all_force(FALSE);
-	}
-
-	return handled;
+	return TRUE;
 }
 
 static void
@@ -872,10 +821,14 @@ imagewindow_paste_action_ready(GObject *source_object,
 	const GValue *value;
 	GError *error = NULL;
 	value = gdk_clipboard_read_value_finish(clipboard, res, &error);
-	if (error)
+	if (error) {
 		imagewindow_gerror(win, &error);
-	else if (value)
-		imagewindow_paste_value(win, value);
+		return;
+	}
+
+	if (value &&
+		!value_to_filename(value, imagewindow_paste_filename, win))
+		imagewindow_error(win);
 }
 
 static void
@@ -965,7 +918,7 @@ imagewindow_reload_action(GSimpleAction *action,
 		const char *path = tilesource_get_path(tilesource);
 
 		if (path)
-			imagewindow_files_set(win, (char **) &path, 1);
+			imagewindow_files_set(win, &path, 1);
 	}
 }
 
@@ -1320,7 +1273,7 @@ imagewindow_dnd_drop(GtkDropTarget *target,
 
 	printf("imagewindow_dnd_drop: %g x %g\n", x, y);
 
-	return imagewindow_paste_value(win, value);
+	return value_to_filename(value, imagewindow_paste_filename, win);
 }
 
 static void
@@ -1493,7 +1446,8 @@ imagewindow_set_tilesource(Imagewindow *win, Tilesource *tilesource)
 
 		imagewindow_files_free(win);
 		if (tilesource->filename)
-			imagewindow_files_set(win, &tilesource->filename, 1);
+			imagewindow_files_set(win,
+				(const char **) &tilesource->filename, 1);
 		imagewindow_imageui_add(win, imageui);
 		imagewindow_imageui_set_visible(win,
 			imageui, GTK_STACK_TRANSITION_TYPE_SLIDE_DOWN);

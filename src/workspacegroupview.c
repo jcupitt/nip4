@@ -427,11 +427,11 @@ workspacegroupview_dnd_drop(GtkDropTarget *target,
 		handled = TRUE;
 
 		if ((rview = workspacegroupview_pick_rowview(wsgview, x, y))) {
-			if (!rowview_paste_value(rview, value))
+			if (!value_to_filename(value, rowview_paste_filename, rview))
 				mainwindow_error(main);
 		}
 		else {
-			if (!mainwindow_paste_value(main, value))
+			if (!value_to_filename(value, mainwindow_paste_filename, main))
 				mainwindow_error(main);
 		}
 	}
@@ -446,7 +446,7 @@ workspacegroupview_dnd_drop(GtkDropTarget *target,
 		Column *col = column_new(ws, name, VIPS_MAX(0, x - 150), y);
 		icontainer_current(ICONTAINER(ws), ICONTAINER(col));
 
-		if (!mainwindow_paste_value(main, value))
+		if (!value_to_filename(value, mainwindow_paste_filename, main))
 			mainwindow_error(main);
 	}
 

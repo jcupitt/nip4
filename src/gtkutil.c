@@ -496,3 +496,75 @@ line_clip(VipsRect *rect,
 	return accept;
 }
 
+/* Used for copy-paste, so it needs to support that set of GValues.
+ */
+gboolean
+value_to_filename(const GValue *value, ValueToFilenameFn fn, void *user_data)
+{
+	printf("value_to_filename:\n");
+
+	if (G_VALUE_TYPE(value) == GDK_TYPE_FILE_LIST) {
+		printf("value_to_filename: GDK_TYPE_FILE_LIST\n");
+
+		GdkFileList *file_list = g_value_get_boxed(value);
+		g_autoptr(GSList) files = gdk_file_list_get_files(file_list);
+
+		for (GSList *p = files; p; p = p->next) {
+			GFile *file = G_FILE(p->data);
+			g_autofree char *path = g_file_get_path(file);
+			g_autofree char *strip_path = g_strstrip(g_strdup(path));
+
+			if (!fn(strip_path, user_data))
+				return FALSE;
+		}
+	}
+	else if (G_VALUE_TYPE(value) == G_TYPE_FILE) {
+		printf("value_to_filename: G_TYPE_FILE\n");
+
+		GFile *file = g_value_get_object(value);
+		g_autofree char *path = g_file_get_path(file);
+		g_autofree char *strip_path = g_strstrip(g_strdup(path));
+
+		if (!fn(strip_path, user_data))
+			return FALSE;
+	}
+	else if (G_VALUE_TYPE(value) == G_TYPE_STRING) {
+		printf("value_to_filename: G_TYPE_STRING\n");
+
+		g_autofree char *strip_path =
+			g_strstrip(g_strdup(g_value_get_string(value)));
+
+		if (!fn(strip_path, user_data))
+			return FALSE;
+	}
+	else if (G_VALUE_TYPE(value) == GDK_TYPE_TEXTURE) {
+		printf("value_to_filename: texture paste into main FIXME\n");
+
+		GdkTexture *texture = g_value_get_object(value);
+
+		Imageinfo *ii =
+			imageinfo_new_from_texture(main_imageinfogroup, NULL, texture);
+
+		VIPS_UNREF(texture);
+
+		if (!ii)
+			return FALSE;
+
+		char filename[FILENAME_MAX];
+		if (!temp_name(filename, "v"))
+			return FALSE;
+		if (vips_image_write_to_file(ii->image, filename, NULL))
+			return FALSE;
+
+		// delete on next GC
+		Imageinfo *temp =
+			imageinfo_new_input(main_imageinfogroup, NULL, NULL, filename);
+		imageinfo_set_delete_on_close(temp);
+
+		if (!fn(filename, user_data))
+			return FALSE;
+	}
+
+	return TRUE;
+}
+

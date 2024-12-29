@@ -102,3 +102,7 @@ void text_view_select_text(GtkTextView *text, int start, int end);
 gboolean line_clip(VipsRect *rect,
 	int x0, int y0, int x1, int y1,
 	int *x0_out, int *y0_out, int *x1_out, int *y1_out);
+
+typedef gboolean (*ValueToFilenameFn)(const char *filename, void *user_data);
+gboolean value_to_filename(const GValue *value,
+	ValueToFilenameFn fn, void *user_data);
