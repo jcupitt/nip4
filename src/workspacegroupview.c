@@ -417,8 +417,6 @@ workspacegroupview_dnd_drop(GtkDropTarget *target,
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(user_data);
 	Mainwindow *main = MAINWINDOW(gtk_widget_get_root(GTK_WIDGET(wsgview)));
 
-	printf("workspacegroupview_dnd_drop: %g x %g\n", x, y);
-
 	gboolean handled = FALSE;
 
 	Columnview *cview;
@@ -448,6 +446,11 @@ workspacegroupview_dnd_drop(GtkDropTarget *target,
 
 		if (!value_to_filename(value, mainwindow_paste_filename, main))
 			mainwindow_error(main);
+
+		// if the new col has no children, we probably loaded a ws, or maybe
+		// had a load error
+		if (icontainer_get_n_children(ICONTAINER(col->scol)) == 0)
+			IDESTROY(col);
 	}
 
 	symbol_recalculate_all();

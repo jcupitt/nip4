@@ -1,3 +1,4 @@
+
 - investigate behavour with updated iimage_update_heap() ... there will be
   quite a few cases which now fail (I expect)
 
@@ -17,7 +18,19 @@
 
 	lung
 
-- add file.ws drag-drop and copy-paste
+- try:
+
+	nip4 ~/pics/gas.ws
+
+  segv
+
+- try:
+
+	nip4 ~/pics/car.ws
+
+  seems to work, but leaks
+
+- that's paste, now implement copy
 
 - save as TIFF, pick a set of options which will fail (eg. deflate + float
   predictor), savem fix options, save again, get:

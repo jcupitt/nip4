@@ -190,19 +190,47 @@ mainwindow_copy_action(GSimpleAction *action,
 }
 
 static gboolean
-mainwindow_load_path(Mainwindow *main, const char *path)
+mainwindow_open_workspace(Mainwindow *main, const char *filename)
 {
-	// turn it into eg. (Image_file "filename")
-	char txt[MAX_STRSIZE];
-	VipsBuf buf = VIPS_BUF_STATIC(txt);
-	if (!workspace_load_file_buf(&buf, path))
+#ifdef DEBUG
+	printf("mainwindow_open_workspace: %s\n", filename);
+#endif /*DEBUG*/
+
+	GtkApplication *app = gtk_window_get_application(GTK_WINDOW(main));
+
+	Workspacegroup *wsg;
+	if (!(wsg = workspacegroup_new_from_file(main_workspaceroot,
+			  filename, filename)))
 		return FALSE;
 
-	Workspace *ws = mainwindow_get_workspace(main);
-	if (!workspace_add_def_recalc(ws, vips_buf_all(&buf))) {
-		error_top(_("Load failed."));
-		error_sub(_("unable to execute:\n   %s"), vips_buf_all(&buf));
-		return FALSE;
+	Mainwindow *new_main = mainwindow_new(APP(app), wsg);
+	gtk_window_present(GTK_WINDOW(new_main));
+
+	symbol_recalculate_all();
+
+	return TRUE;
+}
+
+static gboolean
+mainwindow_load_path(Mainwindow *main, const char *path)
+{
+	if (vips_iscasepostfix(path, ".ws")) {
+		if (!mainwindow_open_workspace(main, path))
+			return FALSE;
+	}
+	else {
+		// turn it into eg. (Image_file "filename")
+		char txt[MAX_STRSIZE];
+		VipsBuf buf = VIPS_BUF_STATIC(txt);
+		if (!workspace_load_file_buf(&buf, path))
+			return FALSE;
+
+		Workspace *ws = mainwindow_get_workspace(main);
+		if (!workspace_add_def_recalc(ws, vips_buf_all(&buf))) {
+			error_top(_("Load failed."));
+			error_sub(_("unable to execute:\n   %s"), vips_buf_all(&buf));
+			return FALSE;
+		}
 	}
 
 	return TRUE;
@@ -220,8 +248,6 @@ mainwindow_paste_action_ready(GObject *source_object,
 {
 	GdkClipboard *clipboard = GDK_CLIPBOARD(source_object);
 	Mainwindow *main = MAINWINDOW(user_data);
-
-	printf("mainwindow_paste_action_ready:\n");
 
 	const GValue *value;
 	GError *error = NULL;
@@ -286,29 +312,6 @@ mainwindow_paste_action(GSimpleAction *action,
 		if (handled)
 			break;
 	}
-}
-
-static gboolean
-mainwindow_open_workspace(Mainwindow *main, const char *filename)
-{
-#ifdef DEBUG
-	printf("mainwindow_open_workspace: %s\n", filename);
-#endif /*DEBUG*/
-
-	GtkApplication *app = gtk_window_get_application(GTK_WINDOW(main));
-
-	Workspacegroup *wsg;
-	if (!(wsg = workspacegroup_new_from_file(main_workspaceroot,
-			  filename, filename))) {
-		return FALSE;
-	}
-
-	Mainwindow *new_main = mainwindow_new(APP(app), wsg);
-	gtk_window_present(GTK_WINDOW(new_main));
-
-	symbol_recalculate_all();
-
-	return TRUE;
 }
 
 static gboolean
