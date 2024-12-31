@@ -43,12 +43,13 @@
 	(G_TYPE_INSTANCE_GET_CLASS((obj), MANAGED_TYPE, ManagedClass))
 
 #define MANAGED_UNREF(X) \
-	{ \
+	G_STMT_START { \
 		if (X) { \
 			managed_destroy_nonheap(MANAGED(X)); \
 			X = NULL; \
 		} \
-	}
+	} G_STMT_END
+
 #define MANAGED_REF(X) managed_dup_nonheap(MANAGED(X))
 
 struct _Managed {

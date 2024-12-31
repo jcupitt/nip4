@@ -260,7 +260,7 @@ imageinfo_expr_add(Imageinfo *imageinfo, Expr *expr)
 #ifdef DEBUG
 	printf("imageinfo_expr_add: ");
 	expr_name_print(expr);
-	printf("has imageinfo \"%s\" as value\n", imageinfo->im->filename);
+	printf("has imageinfo \"%s\" as value\n", imageinfo->image->filename);
 #endif /*DEBUG*/
 
 	g_assert(!g_slist_find(imageinfo->exprs, expr));
@@ -277,7 +277,7 @@ imageinfo_expr_remove(Expr *expr, Imageinfo *imageinfo)
 	printf("imageinfo_expr_remove: ");
 	expr_name_print(expr);
 	printf("has lost imageinfo \"%s\" as value\n",
-		imageinfo->im->filename);
+		imageinfo->image->filename);
 #endif /*DEBUG*/
 
 	g_assert(expr->imageinfo);

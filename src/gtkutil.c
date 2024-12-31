@@ -534,7 +534,6 @@ value_to_filename(const GValue *value, ValueToFilenameFn fn, void *user_data)
 
 		Imageinfo *ii =
 			imageinfo_new_from_texture(main_imageinfogroup, NULL, texture);
-
 		if (!ii)
 			return FALSE;
 
@@ -544,10 +543,12 @@ value_to_filename(const GValue *value, ValueToFilenameFn fn, void *user_data)
 		if (vips_image_write_to_file(ii->image, filename, NULL))
 			return FALSE;
 
-		// delete on next GC
 		Imageinfo *temp =
 			imageinfo_new_input(main_imageinfogroup, NULL, NULL, filename);
 		imageinfo_set_delete_on_close(temp);
+		// will be unreffed on the next GC, so fn() below will need to
+		// grab it
+		MANAGED_UNREF(temp);
 
 		if (!fn(filename, user_data))
 			return FALSE;
