@@ -138,7 +138,8 @@ link_clean_child(Link *link)
 	 * link->parent gets a chance to recalc. The new value of
 	 * link->child might fix the problem.
 	 */
-	if (parent->ndirtychildren == 0)
+	if (parent->ndirtychildren == 0 &&
+		parent->expr)
 		expr_error_clear(parent->expr);
 
 	symbol_state_change(parent);
