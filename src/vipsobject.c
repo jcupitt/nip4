@@ -154,6 +154,7 @@ vo_set_required_input(VipsObject *object, GParamSpec *pspec,
 	if ((argument_class->flags & VIPS_ARGUMENT_REQUIRED) &&
 		(argument_class->flags & VIPS_ARGUMENT_CONSTRUCT) &&
 		(argument_class->flags & VIPS_ARGUMENT_INPUT) &&
+		!(argument_class->flags & VIPS_ARGUMENT_DEPRECATED) &&
 		!argument_instance->assigned) {
 		int i = vo->nargs_required;
 		const char *name = g_param_spec_get_name(pspec);
@@ -321,6 +322,7 @@ vo_get_required_output(VipsObject *object, GParamSpec *pspec,
 {
 	if ((argument_class->flags & VIPS_ARGUMENT_REQUIRED) &&
 		(argument_class->flags & VIPS_ARGUMENT_OUTPUT) &&
+		!(argument_class->flags & VIPS_ARGUMENT_DEPRECATED) &&
 		argument_instance->assigned) {
 		const char *name = g_param_spec_get_name(pspec);
 		GType type = G_PARAM_SPEC_VALUE_TYPE(pspec);

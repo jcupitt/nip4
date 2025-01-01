@@ -20,29 +20,25 @@
 
 - try:
 
-	nip4 ~/pics/gas.ws
-
-  does not appear in compat mode! should be 7.28
-
-  we removed the code that parsed the version from the namespce (I think?)
-
-  gas.ws has no major="xx" etc attributes
-
-- recomp of rows with serious errors can fail
-
-	get
-
-(nip4:340666): GLib-GObject-CRITICAL **: 14:28:39.296: invalid uninstantiatable type '(null)' in cast to 'Heapmodel'
-
-	top_row can be NULL since things fail before or during parent_add,
-	and that messes up recomp and dirty clean setting
-
-
-- try:
-
 	nip4 ~/pics/car.ws
 
   seems to work, but leaks
+
+6 objects alive:
+0) VipsImage (0x55555ec0cf10), count=2
+VipsImage (image), image class, 1160x772 uchar, 1 band, multiband
+1) VipsCopy (0x55555934d880), count=1
+VipsCopy (copy), copy an image, copy in=((VipsImage*) 0x55555ec0cf10) out=((VipsImage*) 0x55555ec12610) -
+2) VipsImage (0x55555ec16210), count=1
+VipsImage (image), image class, 1160x772 float, 1 band, multiband
+3) VipsCast (0x55555ec15d50), count=1
+[Thread 0x7fff84c006c0 (LWP 356103) exited]
+VipsCast (cast), cast an image, cast in=((VipsImage*) 0x55555ec0cf10) out=((VipsImage*) 0x55555ec16210) format=((VipsBandFormat) VIPS_FORMAT_FLOAT) -
+4) VipsImage (0x55555ec12610), count=1
+VipsImage (image), image class, 1160x772 uchar, 1 band, multiband
+5) VipsBlack (0x55555eb7a750), count=1
+VipsBlack (black), make a black image, black out=((VipsImage*) 0x55555ec0cf10) width=1160 height=772 -
+
 
 - that's paste, now implement copy
 

@@ -456,8 +456,7 @@ filemodel_load_all_xml(Filemodel *filemodel,
 			state->filename, PACKAGE);
 		return FALSE;
 	}
-	if (sscanf((char *) xnode->nsDef->href + strlen(NAMESPACE) + 1,
-			"%d.%d.%d",
+	if (sscanf((char *) xnode->nsDef->href + strlen(NAMESPACE) + 1, "%d.%d.%d",
 			&state->major, &state->minor, &state->micro) != 3) {
 		error_top(_("Load failed"));
 		error_sub(_("can't load XML file \"%s\", "

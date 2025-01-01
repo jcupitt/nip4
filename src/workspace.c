@@ -888,26 +888,18 @@ static int n_compat = 0;
 static void *
 workspace_build_compat_fn(const char *filename)
 {
-	char *basename;
+	g_autofree char *basename = g_path_get_basename(filename);
 	int major;
 	int minor;
-
-	basename = g_path_get_basename(filename);
-
-	if (sscanf(basename, "%d.%d", &major, &minor) != 2) {
-		g_free(basename);
-		return NULL;
-	}
-	g_free(basename);
-
-	compat_major[n_compat] = major;
-	compat_minor[n_compat] = minor;
-	n_compat += 1;
+	if (sscanf(basename, "%d.%d", &major, &minor) == 2) {
+		compat_major[n_compat] = major;
+		compat_minor[n_compat] = minor;
+		n_compat += 1;
 
 #ifdef DEBUG
-	printf("workspace_build_compat_fn: found major = %d, minor = %d\n",
-		major, minor);
+		printf("\tfound major = %d, minor = %d\n", major, minor);
 #endif /*DEBUG*/
+	}
 
 	return NULL;
 }

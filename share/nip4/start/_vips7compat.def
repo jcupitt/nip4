@@ -54,6 +54,7 @@ im_recomb x y = vips_call "recomb" [x, y] [];
 im_embed im t x y w h = vips_call "embed" [im, x, y, w, h] [$extend => t];
 im_insert main sub x y = vips_call "insert" [main, sub, x, y] [$expand => true];
 im_extract_area in x y w h = vips_call "crop" [in, x, y, w, h] [];
+im_shrink in xfac yfac = vips_call "shrink" [in, xfac, yfac] [];
 
 im_avg x = vips_call "avg" [x] [];
 im_deviate x = vips_call "deviate" [x] [];
