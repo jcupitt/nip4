@@ -22,7 +22,21 @@
 
 	nip4 ~/pics/gas.ws
 
-  segv
+  does not appear in compat mode! should be 7.28
+
+  we removed the code that parsed the version from the namespce (I think?)
+
+  gas.ws has no major="xx" etc attributes
+
+- recomp of rows with serious errors can fail
+
+	get
+
+(nip4:340666): GLib-GObject-CRITICAL **: 14:28:39.296: invalid uninstantiatable type '(null)' in cast to 'Heapmodel'
+
+	top_row can be NULL since things fail before or during parent_add,
+	and that messes up recomp and dirty clean setting
+
 
 - try:
 

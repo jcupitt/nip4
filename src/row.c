@@ -192,7 +192,8 @@ row_dirty_set_single(Row *row, gboolean clear_error)
 	}
 #endif /*DEBUG_DIRTY*/
 
-	if (!row->dirty) {
+	if (!row->dirty &&
+		row->top_row) {
 		Row *top_row = row->top_row;
 
 		row->dirty = TRUE;
@@ -400,10 +401,6 @@ row_dispose(GObject *gobject)
 	slist_map(row->children, (SListMapFn) row_link_break_rev, row);
 	g_assert(!row->parents && !row->children);
 	(void) slist_map(row->recomp, (SListMapFn) row_dirty_clear, NULL);
-	if (row->top_row)
-		row->top_row->recomp_save =
-			g_slist_remove(row->top_row->recomp_save, row);
-	VIPS_FREEF(g_slist_free, row->recomp_save);
 
 	g_assert(!row->recomp);
 
@@ -995,8 +992,6 @@ row_init(Row *row)
 	row->children = NULL;
 	row->dirty = FALSE;
 	row->recomp = NULL;
-	row->recomp_save = NULL;
-
 	row->depend = FALSE;
 
 	row->show = ROW_SHOW_NONE;
@@ -1264,8 +1259,9 @@ row_dependent_map(Row *row, row_map_fn fn, void *a)
 {
 	/* Clear the flags we use to spot loops.
 	 */
-	row_map_all(row->top_row,
-		(row_map_fn) row_dependent_clear, NULL, NULL, NULL);
+	if (row->top_row)
+		row_map_all(row->top_row,
+			(row_map_fn) row_dependent_clear, NULL, NULL, NULL);
 
 	return row_dependent_map_sub(row, fn, a);
 }
@@ -1614,6 +1610,23 @@ row_recomp_all(Row *top_row)
 	}
 }
 
+static GSList *
+row_list_copy(GSList *rows)
+{
+	GSList *copy = NULL;
+
+	for (GSList *p = rows; p; p = p->next) {
+		Row *row = ROW(p->data);
+
+		if (row->top_row) {
+			g_object_ref(row);
+			copy = g_slist_append(copy, row);
+		}
+	}
+
+	return copy;
+}
+
 void
 row_recomp(Row *row)
 {
@@ -1632,8 +1645,7 @@ row_recomp(Row *row)
 
 	/* Take a copy of the recomp list for later testing.
 	 */
-	VIPS_FREEF(g_slist_free, top_row->recomp_save);
-	top_row->recomp_save = g_slist_copy(top_row->recomp);
+	GSList *recomp_save = row_list_copy(top_row->recomp);
 
 	/* Remove all top-level dependencies.
 	 */
@@ -1669,14 +1681,14 @@ row_recomp(Row *row)
 	 *
 	 * Be careful not to wipe out any errors we found on this first pass.
 	 */
-	slist_map(top_row->recomp_save, (SListMapFn) row_dirty, FALSE);
+	slist_map(recomp_save, (SListMapFn) row_dirty, FALSE);
 
 	/* Is this topsym still a leaf? We may have discovered an external
 	 * reference to another dirty top-level sym. We can come back here
 	 * later.
 	 */
 	if (top_row->sym->ndirtychildren != 0) {
-		VIPS_FREEF(g_slist_free, top_row->recomp_save);
+		g_slist_free_full(g_steal_pointer(&recomp_save), g_object_unref);
 		return;
 	}
 
@@ -1687,13 +1699,12 @@ row_recomp(Row *row)
 	/* Now: if the recomp list is the same as last time, we don't need to
 	 * recalc again.
 	 */
-	if (slist_equal(top_row->recomp_save, top_row->recomp)) {
+	if (slist_equal(recomp_save, top_row->recomp)) {
 		/* Provided we didn't abandon recomp on an error, we can
 		 * just mark all rows clean.
 		 */
 		if (!top_row->err)
-			slist_map(top_row->recomp,
-				(SListMapFn) row_dirty_clear, NULL);
+			slist_map(top_row->recomp, (SListMapFn) row_dirty_clear, NULL);
 	}
 	else {
 #ifdef DEBUG_DIRTY
@@ -1710,7 +1721,7 @@ row_recomp(Row *row)
 			return;
 	}
 
-	VIPS_FREEF(g_slist_free, top_row->recomp_save);
+	g_slist_free_full(g_steal_pointer(&recomp_save), g_object_unref);
 
 	/* The symbol can be cleared as well.
 	 */
