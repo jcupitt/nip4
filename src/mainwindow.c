@@ -695,8 +695,6 @@ static GActionEntry mainwindow_entries[] = {
 static void
 mainwindow_progress_begin(Progress *progress, Mainwindow *main)
 {
-	printf("mainwindow_progress_begin:\n");
-
 	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(main->progress), 0.0);
 	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(main->progress), "");
 	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->progress_bar), TRUE);
@@ -706,9 +704,6 @@ static void
 mainwindow_progress_update(Progress *progress,
 	gboolean *cancel, Mainwindow *main)
 {
-	printf("mainwindow_progress_update: %d%% %s\n",
-		progress->percent, vips_buf_all(&progress->feedback));
-
 	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(main->progress),
 		progress->percent / 100.0);
 	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(main->progress),
@@ -721,8 +716,6 @@ mainwindow_progress_update(Progress *progress,
 static void
 mainwindow_progress_end(Progress *progress, Mainwindow *main)
 {
-	printf("mainwindow_progress_end:\n");
-
 	gtk_action_bar_set_revealed(GTK_ACTION_BAR(main->progress_bar), FALSE);
 }
 

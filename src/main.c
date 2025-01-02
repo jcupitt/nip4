@@ -415,7 +415,6 @@ main(int argc, char **argv)
 	/* We have to init some of our other classes to get them registered
 	 * with the XML loader.
 	 */
-	printf("app_startup: FIXME ... register more types\n");
 	/*
 	(void) g_type_class_ref(TYPE_CLOCK);
 	(void) g_type_class_ref(TYPE_GROUP);

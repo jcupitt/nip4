@@ -222,8 +222,6 @@ columnview_add_shadow(Columnview *cview)
 
 		Columnview *shadow;
 
-		printf("columnview_add_shadow:\n");
-
 		/* We can't use model_view_new() etc as we don't want the shadow to be
 		 * part of the viewchild system, or to auto update when col updates.
 		 *

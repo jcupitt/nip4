@@ -621,6 +621,7 @@ path_init(void)
 	path_tmp_default = g_strdup(buf);
 #endif /*DEBUG_LOCAL*/
 
+#ifdef DEBUG_SEARCH
 	printf("path_start_default = ");
 	path_print(path_start_default);
 	printf("\n");
@@ -630,6 +631,7 @@ path_init(void)
 	printf("\n");
 
 	printf("path_tmp_default = %s\n", path_tmp_default);
+#endif /*DEBUG_SEARCH*/
 
 	// make libvips save temps to ~/.nip4-xxx/tmp etc.
 	expand_variables(path_tmp_default, buf);

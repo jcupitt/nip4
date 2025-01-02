@@ -55,16 +55,6 @@ iimageview_dispose(GObject *object)
 }
 
 static void
-iimageview_realize(GtkWidget *widget)
-{
-	GTK_WIDGET_CLASS(iimageview_parent_class)->realize(widget);
-
-	/* Mark us as a symbol drag-to widget.
-	 */
-	set_symbol_drag_type(widget);
-}
-
-static void
 iimageview_refresh(vObject *vobject)
 {
 	iImageview *iimageview = IIMAGEVIEW(vobject);
@@ -124,7 +114,6 @@ static void
 iimageview_class_init(iImageviewClass *class)
 {
 	GObjectClass *object_class = (GObjectClass *) class;
-	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
 
 	BIND_RESOURCE("iimageview.ui");
@@ -137,16 +126,6 @@ iimageview_class_init(iImageviewClass *class)
 	BIND_CALLBACK(graphicview_click);
 
 	object_class->dispose = iimageview_dispose;
-
-	widget_class->realize = iimageview_realize;
-
-	printf("iimageview_class_init: FIXME ... implement drag-drop\n");
-	/*
-	widget_class->drag_begin = iimageview_drag_begin;
-	widget_class->drag_end = iimageview_drag_end;
-	widget_class->drag_data_get = iimageview_drag_data_get;
-	widget_class->drag_data_received = iimageview_drag_data_received;
-	 */
 
 	vobject_class->refresh = iimageview_refresh;
 }

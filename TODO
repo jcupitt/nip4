@@ -1,7 +1,15 @@
 - replace from file in imagewindow often fails to update the title bar
 
+- right click on ws background has stopped working
+
+- need "recover after crash"
+
 - investigate behaviour with updated iimage_update_heap() ... there will be
   quite a few cases which now fail (I expect)
+
+- imagedisplay animations should shut down for invisible images
+
+	see iimageview_refresh()
 
 - test other workspaces
 
@@ -9,12 +17,11 @@
 
 	lung
 
-
 - that's paste, now implement copy
 
 	copy in image window
 
-	copy in mainwindow could copy selected image?
+	copy in mainwindow could copy selected image or object?
 
 - save as TIFF, pick a set of options which will fail (eg. deflate + float
   predictor), savem fix options, save again, get:

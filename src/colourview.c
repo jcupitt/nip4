@@ -55,16 +55,6 @@ colourview_dispose(GObject *object)
 }
 
 static void
-colourview_realize(GtkWidget *widget)
-{
-	GTK_WIDGET_CLASS(colourview_parent_class)->realize(widget);
-
-	/* Mark us as a symbol drag-to widget.
-	 */
-	set_symbol_drag_type(widget);
-}
-
-static void
 colourview_refresh(vObject *vobject)
 {
 	Colourview *colourview = COLOURVIEW(vobject);
@@ -96,7 +86,6 @@ static void
 colourview_class_init(ColourviewClass *class)
 {
 	GObjectClass *object_class = (GObjectClass *) class;
-	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
 
 	BIND_RESOURCE("colourview.ui");
@@ -109,8 +98,6 @@ colourview_class_init(ColourviewClass *class)
 	BIND_CALLBACK(graphicview_click);
 
 	object_class->dispose = colourview_dispose;
-
-	widget_class->realize = colourview_realize;
 
 	vobject_class->refresh = colourview_refresh;
 }

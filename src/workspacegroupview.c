@@ -53,20 +53,6 @@ workspacegroupview_dispose(GObject *object)
 }
 
 static void
-workspacegroupview_realize(GtkWidget *widget)
-{
-#ifdef DEBUG
-	printf("workspacegroupview_realize\n");
-#endif /*DEBUG*/
-
-	GTK_WIDGET_CLASS(workspacegroupview_parent_class)->realize(widget);
-
-	/* Mark us as a symbol drag-to widget.
-	 */
-	set_symbol_drag_type(widget);
-}
-
-static void
 workspacegroupview_child_add(View *parent, View *child)
 {
 	Workspacegroupview *wsgview = WORKSPACEGROUPVIEW(parent);
@@ -245,7 +231,6 @@ workspacegroupview_background_menu(GtkGestureClick *gesture,
 static void
 workspacegroupview_class_init(WorkspacegroupviewClass *class)
 {
-	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
 
 	BIND_RESOURCE("workspacegroupview.ui");
@@ -260,8 +245,6 @@ workspacegroupview_class_init(WorkspacegroupviewClass *class)
 	BIND_CALLBACK(workspacegroupview_background_menu);
 
 	G_OBJECT_CLASS(class)->dispose = workspacegroupview_dispose;
-
-	widget_class->realize = workspacegroupview_realize;
 
 	view_class->child_add = workspacegroupview_child_add;
 	view_class->child_remove = workspacegroupview_child_remove;

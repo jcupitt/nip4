@@ -411,25 +411,6 @@ workspaceview_dispose(GObject *object)
 }
 
 static void
-workspaceview_realize(GtkWidget *widget)
-{
-#ifdef DEBUG
-	{
-		Workspaceview *wview = WORKSPACEVIEW(widget);
-		Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-
-		printf("workspaceview_realize: %s\n", IOBJECT(ws)->name);
-	}
-#endif /*DEBUG*/
-
-	GTK_WIDGET_CLASS(workspaceview_parent_class)->realize(widget);
-
-	/* Mark us as a symbol drag-to widget.
-	 */
-	set_symbol_drag_type(widget);
-}
-
-static void
 workspaceview_kitg_activate(Toolkitgroupview *kitgview,
 	Toolitem *toolitem, Tool *tool, Workspaceview *wview)
 {
@@ -1247,7 +1228,6 @@ static void
 workspaceview_class_init(WorkspaceviewClass *class)
 {
 	GObjectClass *object_class = (GObjectClass *) class;
-	GtkWidgetClass *widget_class = (GtkWidgetClass *) class;
 	vObjectClass *vobject_class = (vObjectClass *) class;
 	ViewClass *view_class = (ViewClass *) class;
 
@@ -1272,8 +1252,6 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_CALLBACK(workspaceview_error_close_clicked);
 
 	object_class->dispose = workspaceview_dispose;
-
-	widget_class->realize = workspaceview_realize;
 
 	vobject_class->refresh = workspaceview_refresh;
 
