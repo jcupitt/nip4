@@ -1,16 +1,7 @@
+- replace from file in imagewindow often fails to update the title bar
 
-- investigate behavour with updated iimage_update_heap() ... there will be
+- investigate behaviour with updated iimage_update_heap() ... there will be
   quite a few cases which now fail (I expect)
-
-	replace from file stop in pasted windows
-
-		reset fixes it
-
-		need to clear edited on replace from file
-
-	paste in imagewindow is not updating the titlebar
-
-	paste in regionview imagewindows doesn't work
 
 - test other workspaces
 
@@ -18,16 +9,12 @@
 
 	lung
 
-- try:
-
-	nip4 ~/pics/car.ws
-
-  seems to work, but leaks
-
-  remove the call to fill_nearest and it goes
-
 
 - that's paste, now implement copy
+
+	copy in image window
+
+	copy in mainwindow could copy selected image?
 
 - save as TIFF, pick a set of options which will fail (eg. deflate + float
   predictor), savem fix options, save again, get:
@@ -42,6 +29,8 @@
         has_thing x = this.present 0 x;
 
   can we fix this in 8.9? seems to cause problems
+
+  do the fix in v9.0 menus
 
 ## program
 

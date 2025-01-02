@@ -208,20 +208,6 @@ iimage_update_heap(Heapmodel *heapmodel)
 	printf("\n");
 #endif /*DEBUG*/
 
-	/* Read the heap into the model, over the top of the unapplied edits.
-
-	   removed to try to get image paste working like other graphical edits
-
-	Expr *expr = heapmodel->row->expr;
-	PElement pe;
-	Imageinfo *ii;
-	if (!class_get_exact(&expr->root, IOBJECT(heapmodel)->name, &pe))
-		return FALSE;
-	if (!class_get_member_image(&pe, MEMBER_VALUE, &ii))
-		return FALSE;
-	image_value_set(value, ii);
-	 */
-
 	VIPS_FREE(CLASSMODEL(iimage)->filename);
 
 	if (value->ii && imageinfo_is_from_file(value->ii))
