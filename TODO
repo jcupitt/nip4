@@ -2,6 +2,8 @@
 
 - right click on ws background has stopped working
 
+	broke in a3cdcc5413e75ca4df2a75d948faf2085997ded3
+
 - need "recover after crash"
 
 - investigate behaviour with updated iimage_update_heap() ... there will be
@@ -16,6 +18,10 @@
 	charisma
 
 	lung
+
+		hammersmith/data/demo3
+
+		add im_read_dmask
 
 - that's paste, now implement copy
 
