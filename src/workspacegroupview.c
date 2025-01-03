@@ -203,21 +203,18 @@ workspacegroupview_background_menu(GtkGestureClick *gesture,
 	GtkWidget *menu = NULL;
 
 	Columnview *cview;
+	Rowview *rview;
 	if ((cview = workspacegroupview_pick_columnview_title(wsgview, x, y))) {
 		mainwindow_set_action_view(VIEW(cview));
 		menu = wsgview->column_menu;
 	}
-	else if ((cview = workspacegroupview_pick_columnview(wsgview, x, y))) {
-		Rowview *rview;
-
-		if ((rview = workspacegroupview_pick_rowview(wsgview, x, y))) {
-			mainwindow_set_action_view(VIEW(rview));
-			menu = wsgview->row_menu;
-		}
-		else {
-			mainwindow_set_action_view(VIEW(wview));
-			menu = wsgview->workspace_menu;
-		}
+	else if ((rview = workspacegroupview_pick_rowview(wsgview, x, y))) {
+		mainwindow_set_action_view(VIEW(rview));
+		menu = wsgview->row_menu;
+	}
+	else {
+		mainwindow_set_action_view(VIEW(wview));
+		menu = wsgview->workspace_menu;
 	}
 
 	if (menu) {

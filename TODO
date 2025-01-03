@@ -1,8 +1,12 @@
 - replace from file in imagewindow often fails to update the title bar
 
-- right click on ws background has stopped working
+- open rightclick menu, very chuggy as you mouse up and down the menu
 
-	broke in a3cdcc5413e75ca4df2a75d948faf2085997ded3
+	doesn't appear on sysprof
+
+	some kind of gtk4 issue?
+
+	do olsder nip4s have this?
 
 - need "recover after crash"
 
