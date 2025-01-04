@@ -193,6 +193,12 @@ im_gauss_imask_sep sigma min_amp
 	];
 }
 
+im_read_dmask filename
+	= im_vips2mask matrix
+{
+        matrix = vips_call "matrixload" [filename] [];
+}
+
 im_conv in matrix
 	= vips_call "conv" [in, matrix] [
 		$precision => "integer"
@@ -619,6 +625,16 @@ im_system_image in in_format out_format command
 		$in_format => in_format,
 		$out_format => out_format,
 		$log => true
+	];
+
+im_grid input tile_height across down
+	= vips_call "grid" [input, tile_height, across, down] [];
+
+im_copy in = vips_call "copy" [in] [];
+
+im_flood_blob_copy in start_x start_y ink
+	= vips_call "draw_flood" [in, ink, start_x, start_y] [
+		$equal => true
 	];
 
 // add a lot more!

@@ -604,8 +604,6 @@ static void
 mainwindow_view_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
-	printf("mainwindow_view_action: %s\n", g_action_get_name(G_ACTION(action)));
-
 	Mainwindow *main = MAINWINDOW(user_data);
 
 	if (main->action_view &&

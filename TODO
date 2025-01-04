@@ -1,13 +1,5 @@
 - replace from file in imagewindow often fails to update the title bar
 
-- open rightclick menu, very chuggy as you mouse up and down the menu
-
-	doesn't appear on sysprof
-
-	some kind of gtk4 issue?
-
-	do olsder nip4s have this?
-
 - need "recover after crash"
 
 - investigate behaviour with updated iimage_update_heap() ... there will be
@@ -24,8 +16,6 @@
 	lung
 
 		hammersmith/data/demo3
-
-		add im_read_dmask
 
 - that's paste, now implement copy
 

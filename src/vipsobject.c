@@ -143,6 +143,29 @@ vo_set_property(Vo *vo,
 	return 0;
 }
 
+// pointers can be equal
+static gboolean
+vo_gvalue_copy(const GValue *in, GValue *out)
+{
+	g_value_copy(in, out);
+
+	if (G_VALUE_TYPE(out) == VIPS_TYPE_IMAGE) {
+		VipsImage *image = VIPS_IMAGE(g_value_get_object(out));
+
+		VipsImage *copy;
+		if (!(copy = vips_image_copy_memory(image))) {
+			error_top(_("Bad argument"));
+			error_sub(_("unable to copy value"));
+			error_vips();
+			return FALSE;
+		}
+
+		g_value_take_object(out, G_OBJECT(copy));
+	}
+
+	return TRUE;
+}
+
 static void *
 vo_set_required_input(VipsObject *object, GParamSpec *pspec,
 	VipsArgumentClass *argument_class,
@@ -164,6 +187,15 @@ vo_set_required_input(VipsObject *object, GParamSpec *pspec,
 
 			if (!heap_ip_to_gvalue(&vo->args[i], &gvalue))
 				return object;
+
+			// modify args must be given a private copy of a value
+			if (argument_class->flags & VIPS_ARGUMENT_MODIFY) {
+				if (!vo_gvalue_copy(&gvalue, &gvalue)) {
+					g_value_unset(&gvalue);
+					return object;
+				}
+			}
+
 			if (vo_set_property(vo, name, pspec, &gvalue)) {
 				g_value_unset(&gvalue);
 				return object;
@@ -320,8 +352,10 @@ vo_get_required_output(VipsObject *object, GParamSpec *pspec,
 	VipsArgumentClass *argument_class,
 	VipsArgumentInstance *argument_instance, Vo *vo, PElement *out)
 {
+	// modify input args are also output args
 	if ((argument_class->flags & VIPS_ARGUMENT_REQUIRED) &&
-		(argument_class->flags & VIPS_ARGUMENT_OUTPUT) &&
+		((argument_class->flags & VIPS_ARGUMENT_OUTPUT) ||
+		 (argument_class->flags & VIPS_ARGUMENT_MODIFY)) &&
 		!(argument_class->flags & VIPS_ARGUMENT_DEPRECATED) &&
 		argument_instance->assigned) {
 		const char *name = g_param_spec_get_name(pspec);

@@ -96,8 +96,6 @@ app_activate(GApplication *gapp)
 {
 	Mainwindow *main;
 
-	printf("app_activate:\n");
-
 	main = mainwindow_new(APP(gapp), NULL);
 	gtk_window_present(GTK_WINDOW(main));
 }

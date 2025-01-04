@@ -549,4 +549,3 @@ value_to_filename(const GValue *value, ValueToFilenameFn fn, void *user_data)
 
 	return TRUE;
 }
-
