@@ -17,6 +17,7 @@
         <child>
           <object class="iEntry" id="ientry">
             <property name="hexpand">true</property>
+            <property name="width-chars">10</property>
 	    <property name="tooltip-text">Press Escape to cancel edit, press Return to accept edit and recalculate</property>
 
             <signal name="changed" handler="view_changed"/>

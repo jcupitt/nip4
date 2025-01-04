@@ -296,16 +296,6 @@ workspacegroupview_switch_page(GtkNotebook *notebook,
 
 	// we must relayout in case this tab was previously laid out while hidden
 	workspace_queue_layout(ws);
-
-	if (ws->compat_major) {
-		error_top(_("Compatibility mode"));
-		error_sub(_("this workspace was created by version %d.%d -- "
-					"a set of compatibility menus have been loaded "
-					"for this window"),
-			ws->compat_major,
-			ws->compat_minor);
-		workspace_set_show_error(ws, TRUE);
-	}
 }
 
 /* We come here for tab drag, so we reparent if the enclosing notebook is part

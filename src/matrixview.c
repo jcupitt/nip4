@@ -319,8 +319,8 @@ matrixview_scan(View *view)
 	Expr *expr = HEAPMODEL(matrix)->row->expr;
 
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("matrixview_scan: %s\n", row_name(expr->row));
+#endif /*DEBUG*/
 
 	gboolean changed;
 

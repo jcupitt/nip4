@@ -17,6 +17,33 @@
 
 		hammersmith/data/demo3
 
+			incredibly slow!
+
+			maybe check im_cache settings?
+
+			probably thumbnail draw
+
+			seems stuck at 3.2gb memory
+
+			could it be stuck in a GC loop, bumping into the
+			heap limit? try logging GCs
+
+				GC seems fine
+
+			thumbnail draw?
+
+				log sink_screen behaviour?
+
+				only draw thumbnails on expose?
+
+				shut down off-screen thumbnails
+
+- need render plot to image, whatever it's called
+
+	apply_graph_export_image_call() calls plot_to_image()
+
+	should probably be in plotdisplay, that has all the kplot code
+
 - that's paste, now implement copy
 
 	copy in image window
