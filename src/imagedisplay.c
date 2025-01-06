@@ -86,6 +86,11 @@ struct _Imagedisplay {
 	/* _layout will pick a scale to fit the image to the window.
 	 */
 	gboolean bestfit;
+
+	/* This is set to enable screen paints, for example if a widget is
+	 * mapped or has been scrolled into view.
+	 */
+	gboolean enable;
 };
 
 /* imagedisplay is actually a drawing area the size of the widget on screen: we
@@ -639,8 +644,8 @@ imagedisplay_snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
 	Imagedisplay *imagedisplay = IMAGEDISPLAY(widget);
 
 #ifdef DEBUG
-	printf("imagedisplay_snapshot:\n");
 #endif /*DEBUG*/
+	printf("imagedisplay_snapshot:\n");
 
 	/* Clip to the widget area, or we may paint over the display control
 	 * bar.

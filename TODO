@@ -19,24 +19,78 @@
 
 			incredibly slow!
 
-			maybe check im_cache settings?
+- need to limit thumbnail drawing
 
-			probably thumbnail draw
+	only update visible thumbnails
 
-			seems stuck at 3.2gb memory
+	on scroll events, intersect the set of thumbnails in this workspace
+	with the viewport
 
-			could it be stuck in a GC loop, bumping into the
-			heap limit? try logging GCs
+	imagedisplay should own a tilecache it uses for painting, but the
+	tilecache should only have a weakref to the tilesource it uses to make
+	tiles
 
-				GC seems fine
+	get rid of (and rebuild) tilesources on scroll
 
-			thumbnail draw?
+	some tilesources are expensive to make? perhaps the operation cache
+	will keep them for us?
 
-				log sink_screen behaviour?
 
-				only draw thumbnails on expose?
+	- make all thumbnails with no tilesource, so expose will not trigger
+	  computation
 
-				shut down off-screen thumbnails
+	- on scroll events, find visible thumbs and create tilesources
+
+		maybe have a queue and throttle tilesource creation to eg. 1
+		per second?
+
+		need a thing to make and unref tilesources, then set and
+		unset them on the thumbnails that are visible
+
+		workspaceview needs to know when a scroll happens ...
+
+		wsview->vp is a rect with the viewport updated on
+		workspaceview_scroll_update()
+
+		workspaceview needs to keep a list of the iimageview in this
+		workspace, on scroll we walk it looking to any mapped
+		iimageview in the viewport
+
+		iimageview needs to register and unregister with the
+		workspaceview
+
+	- imagedisplay has tilesource set to NULL to stop refresh of that
+	  thumb driving computation
+
+	- we want to keep the sharing of tilesource between thumbnail and
+	  viewer
+
+	- make sure tilesource has no state that needs preserving
+
+
+		tilesource is on iimage, we need to make and destroy on that
+
+		when we remake the tilesource, we'll need to use something
+		like this:
+
+		if (iimage->scale != 1.0 ||
+			iimage->offset != 0.0 ||
+			iimage->falsecolour)
+			g_object_set(iimage->tilesource,
+				"active", TRUE,
+				"scale", iimage->scale,
+				"offset", iimage->offset,
+				"falsecolour", iimage->falsecolour,
+				NULL);
+
+
+
+  seems to work for thumbnails, but not when they have image view windows open
+
+  if we have a thumbnail and an imageview, which holds the ref to the
+  tilesource?
+
+
 
 - need render plot to image, whatever it's called
 

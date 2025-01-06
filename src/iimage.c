@@ -458,7 +458,24 @@ iimage_tilesource_update(iImage *iimage)
 		!tilesource_has_imageinfo(iimage->tilesource, ii)) {
 		VIPS_UNREF(iimage->tilesource);
 
-		if (ii)
+		if (ii &&
+			iimage->enable)
 			iimage->tilesource = tilesource_new_from_imageinfo(ii);
+	}
+}
+
+/* Turn an iimage tilesource on and off ... this is called during scroll to
+ * start and stop thumbnail updates.
+ */
+void
+iimage_set_enable(iImage *iimage, gboolean enable)
+{
+	if (iimage->enable != enable) {
+		iimage->enable = enable;
+		printf("iimage_set_enable: iimage = %p, enable = %d\n", iimage, enable);
+
+		// will refresh views, and they will call iimage_tilesource_update()
+		// above
+		iobject_changed(IOBJECT(iimage));
 	}
 }

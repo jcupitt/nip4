@@ -131,6 +131,10 @@ struct _Workspaceview {
 	/* A temp floating columnview we just make for row drag.
 	 */
 	Columnview *floating;
+
+	/* All the iimageview widgets in this workspace.
+	 */
+	GSList *iimageviews;
 };
 
 typedef struct _WorkspaceviewClass {
@@ -153,3 +157,7 @@ GType workspaceview_get_type(void);
 View *workspaceview_new(void);
 
 void workspaceview_set_label(Workspaceview *wview, GtkWidget *label);
+
+void workspaceview_add_iimageview(Workspaceview *wview, iImageview *iimageview);
+void workspaceview_remove_iimageview(Workspaceview *wview,
+	iImageview *iimageview);

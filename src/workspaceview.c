@@ -297,11 +297,46 @@ workspaceview_scroll(Workspaceview *wview, int x, int y, int w, int h)
 	workspaceview_scroll_to(wview, nx, ny);
 }
 
+static void *
+workspaceview_scroll_update_iimageview(iImageview *iimageview,
+	Workspaceview *wview)
+{
+	iImage *iimage = IIMAGE(VOBJECT(iimageview)->iobject);
+
+	gboolean enable;
+
+	enable = FALSE;
+
+	if (gtk_widget_get_mapped(GTK_WIDGET(iimageview->imagedisplay))) {
+		graphene_rect_t bounds;
+
+		if (gtk_widget_compute_bounds(GTK_WIDGET(iimageview->imagedisplay),
+			wview->fixed, &bounds)) {
+			VipsRect widget = {
+				.left = bounds.origin.x,
+				.top = bounds.origin.y,
+				.width = bounds.size.width,
+				.height = bounds.size.height
+			};
+
+			vips_rect_intersectrect(&wview->vp, &widget, &widget);
+			enable = !vips_rect_isempty(&widget);
+		}
+	}
+
+	if (iimage)
+		iimage_set_enable(iimage, enable);
+
+	return NULL;
+}
+
 /* Update our geometry from the fixed widget.
  */
 static void
 workspaceview_scroll_update(Workspaceview *wview)
 {
+	printf("workspaceview_scroll_update:\n");
+
 	wview->vp.left = gtk_adjustment_get_value(wview->hadj);
 	wview->vp.top = gtk_adjustment_get_value(wview->vadj);
 	wview->vp.width = gtk_adjustment_get_page_size(wview->hadj);
@@ -315,6 +350,11 @@ workspaceview_scroll_update(Workspaceview *wview)
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 	if (ws)
 		ws->vp = wview->vp;
+
+	/* Find the set of visible iimageview and set them painting.
+	 */
+	slist_map(wview->iimageviews,
+		(SListMapFn) workspaceview_scroll_update_iimageview, wview);
 
 #ifdef DEBUG_VERBOSE
 	printf("workspaceview_scroll_update: %s\n", IOBJECT(ws)->name);
@@ -1303,3 +1343,20 @@ workspaceview_new(void)
 
 	return VIEW(wview);
 }
+
+void
+workspaceview_add_iimageview(Workspaceview *wview, iImageview *iimageview)
+{
+	g_assert(!g_slist_find(wview->iimageviews, iimageview));
+
+	wview->iimageviews = g_slist_prepend(wview->iimageviews, iimageview);
+}
+
+void workspaceview_remove_iimageview(Workspaceview *wview,
+	iImageview *iimageview)
+{
+	// can't assert it's not there, it might not be yet
+	wview->iimageviews = g_slist_remove(wview->iimageviews, iimageview);
+}
+
+

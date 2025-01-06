@@ -35,6 +35,19 @@
 
 G_DEFINE_TYPE(iImageview, iimageview, GRAPHICVIEW_TYPE)
 
+static Workspaceview *
+iimageview_get_wview(iImageview *iimageview)
+{
+	GtkWidget *p;
+
+	for (p = GTK_WIDGET(iimageview);
+		p && !IS_WORKSPACEVIEW(p);
+		p = gtk_widget_get_parent(p))
+		;
+
+	return WORKSPACEVIEW(p);
+}
+
 static void
 iimageview_dispose(GObject *object)
 {
@@ -50,6 +63,9 @@ iimageview_dispose(GObject *object)
 #endif /*DEBUG*/
 
 	gtk_widget_dispose_template(GTK_WIDGET(iimageview), IIMAGEVIEW_TYPE);
+	Workspaceview *wview = iimageview_get_wview(iimageview);
+	if (wview)
+		workspaceview_remove_iimageview(wview, iimageview);
 
 	G_OBJECT_CLASS(iimageview_parent_class)->dispose(object);
 }
@@ -82,27 +98,14 @@ iimageview_refresh(vObject *vobject)
 	}
 	VIPS_UNREF(current_tilesource);
 
-	// on the first refresh, init tilesource from the saved settings
-	if (iimage->tilesource &&
-		iimageview->first) {
+	// on the first refresh, register with the encosing workspaceview
+	if (iimageview->first) {
+		Workspaceview *wview = iimageview_get_wview(iimageview);
+
+		if (wview)
+			workspaceview_add_iimageview(wview, iimageview);
 		iimageview->first = FALSE;
-
-		if (iimage->scale != 1.0 ||
-			iimage->offset != 0.0 ||
-			iimage->falsecolour)
-			g_object_set(iimage->tilesource,
-				"active", TRUE,
-				"scale", iimage->scale,
-				"offset", iimage->offset,
-				"falsecolour", iimage->falsecolour,
-				NULL);
 	}
-
-	// we will need to disable visible for thumbnails that are
-	// off-screen, in a closed column, or in a workspace that's
-	// not at the front of the stack or performance will be
-	// horrible
-	printf("iimageview_refresh: FIXME ... don't set visible\n");
 
 	if (iimageview->label)
 		set_glabel(iimageview->label, "%s", IOBJECT(iimage)->caption);

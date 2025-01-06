@@ -60,6 +60,10 @@ struct _Imageui {
 
 	Tilesource *tilesource;
 
+	/* The zoom factor that was used at load time, handy for scaling SVGs.
+	 */
+	double zoom_load;
+
 	/* The iimage we represent ... we add/remove ourselves from iimage->views
 	 * so that iregiongroupview.c can find us.
 	 *
@@ -346,6 +350,8 @@ imageui_set_property(GObject *object,
 
 		// not a ref ... the real one is held by imagedisplay
 		imageui->tilesource = TILESOURCE(g_value_get_object(value));
+		if (imageui->tilesource)
+			imageui->zoom_load = imageui->tilesource->zoom;
 		break;
 
 	case PROP_IIMAGE:
@@ -413,7 +419,7 @@ imageui_get_property(GObject *object,
 
 		/* Scale by the zoom factor (SVG etc. zoom) we picked on load.
 		 */
-		zoom *= imageui->tilesource->zoom;
+		zoom *= imageui->zoom_load;
 
 		g_value_set_double(value, zoom);
 

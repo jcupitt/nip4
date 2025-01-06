@@ -485,24 +485,26 @@ tilecache_set_tilesource(Tilecache *tilecache, Tilesource *tilesource)
 	VIPS_UNREF(tilecache->tilesource);
 
 	tilecache->tilesource = tilesource;
-	g_object_ref(tilesource);
+	if (tilesource) {
+		g_object_ref(tilesource);
 
-	// this will only rebuild if the image geometry has changed
-	tilecache_build_pyramid(tilecache);
+		// this will only rebuild if the image geometry has changed
+		tilecache_build_pyramid(tilecache);
 
-	tilecache->tilesource_changed_sid =
-		g_signal_connect(tilesource, "changed",
-			G_CALLBACK(tilecache_source_changed), tilecache);
-	tilecache->tilesource_tiles_changed_sid =
-		g_signal_connect(tilesource, "tiles-changed",
-			G_CALLBACK(tilecache_source_tiles_changed), tilecache);
-	tilecache->tilesource_area_changed_sid =
-		g_signal_connect(tilesource, "area-changed",
-			G_CALLBACK(tilecache_source_area_changed), tilecache);
+		tilecache->tilesource_changed_sid =
+			g_signal_connect(tilesource, "changed",
+				G_CALLBACK(tilecache_source_changed), tilecache);
+		tilecache->tilesource_tiles_changed_sid =
+			g_signal_connect(tilesource, "tiles-changed",
+				G_CALLBACK(tilecache_source_tiles_changed), tilecache);
+		tilecache->tilesource_area_changed_sid =
+			g_signal_connect(tilesource, "area-changed",
+				G_CALLBACK(tilecache_source_area_changed), tilecache);
 
-	/* Any tiles must be invalidated.
-	 */
-	tilecache_source_tiles_changed(tilesource, tilecache);
+		/* Any tiles must be invalidated.
+		 */
+		tilecache_source_tiles_changed(tilesource, tilecache);
+	}
 }
 
 static void
@@ -893,6 +895,8 @@ tilecache_snapshot(Tilecache *tilecache, GtkSnapshot *snapshot,
 	GTimer *snapshot_timer = g_timer_new();
 #endif /*DEBUG_RENDER_TIME*/
 
+	g_assert(tilecache->n_levels > 0);
+
 	if (debug) {
 		gtk_snapshot_translate(snapshot, &debug_offset);
 		gtk_snapshot_scale(snapshot, debug_scale, debug_scale);
@@ -942,7 +946,7 @@ tilecache_snapshot(Tilecache *tilecache, GtkSnapshot *snapshot,
 
 	/* If there's an alpha, we'll need a backdrop.
 	 */
-	if (vips_image_hasalpha(tilecache->tilesource->image)) {
+	if (vips_image_hasalpha(tilecache->levels[0])) {
 		graphene_rect_t bounds;
 
 #ifdef DEBUG_VERBOSE
