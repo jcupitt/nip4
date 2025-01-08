@@ -301,13 +301,12 @@ static void *
 workspaceview_scroll_update_iimageview(iImageview *iimageview,
 	Workspaceview *wview)
 {
-	iImage *iimage = IIMAGE(VOBJECT(iimageview)->iobject);
-
 	gboolean enable;
 
 	enable = FALSE;
 
-	if (gtk_widget_get_mapped(GTK_WIDGET(iimageview->imagedisplay))) {
+	if (iimageview->imagedisplay &&
+		gtk_widget_get_mapped(GTK_WIDGET(iimageview->imagedisplay))) {
 		graphene_rect_t bounds;
 
 		if (gtk_widget_compute_bounds(GTK_WIDGET(iimageview->imagedisplay),
@@ -324,8 +323,7 @@ workspaceview_scroll_update_iimageview(iImageview *iimageview,
 		}
 	}
 
-	if (iimage)
-		iimage_set_enable(iimage, enable);
+	iimageview_set_enable(iimageview, enable);
 
 	return NULL;
 }

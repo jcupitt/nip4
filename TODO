@@ -5,10 +5,6 @@
 - investigate behaviour with updated iimage_update_heap() ... there will be
   quite a few cases which now fail (I expect)
 
-- imagedisplay animations should shut down for invisible images
-
-	see iimageview_refresh()
-
 - test other workspaces
 
 	charisma
@@ -65,24 +61,6 @@
 	- we want to keep the sharing of tilesource between thumbnail and
 	  viewer
 
-	- make sure tilesource has no state that needs preserving
-
-
-		tilesource is on iimage, we need to make and destroy on that
-
-		when we remake the tilesource, we'll need to use something
-		like this:
-
-		if (iimage->scale != 1.0 ||
-			iimage->offset != 0.0 ||
-			iimage->falsecolour)
-			g_object_set(iimage->tilesource,
-				"active", TRUE,
-				"scale", iimage->scale,
-				"offset", iimage->offset,
-				"falsecolour", iimage->falsecolour,
-				NULL);
-
 
 
   seems to work for thumbnails, but not when they have image view windows open
@@ -90,13 +68,43 @@
   if we have a thumbnail and an imageview, which holds the ref to the
   tilesource?
 
+	iimage should hold a weakref and export iimage_get_tilesource_ref()
 
+		- if the weakref is NULL, make a new tilesource, init
+		  tilesource setings, set the weakref, return it
+
+		- otherwise, ref the weakref and return it
+
+	iimageview and imageui should each hold a true ref
+
+	iimageview ref is set NULL when it's out of view
+
+  how do we do updates? eg. iimageview_refresh needs to get a new tilesource
+  and queue a redraw
+
+	iimageview_refresh calls iimage_get_tilesource_ref()
+
+	equal to current tilesource? unref
+
+	different? swap, then queue repaint
+
+- try large animated GIF
+
+	do we reload on scroll? that'd be bad
+
+- try
+
+	nip4 ../test/workspaces/test_image.ws
+
+  segv
 
 - need render plot to image, whatever it's called
 
 	apply_graph_export_image_call() calls plot_to_image()
 
 	should probably be in plotdisplay, that has all the kplot code
+
+	various bits of plotdisplay need to be functions, not methods
 
 - that's paste, now implement copy
 

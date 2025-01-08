@@ -1430,7 +1430,7 @@ imagewindow_get_settings(Imagewindow *win)
 	return win->settings;
 }
 
-void
+static void
 imagewindow_set_tilesource(Imagewindow *win, Tilesource *tilesource)
 {
 	if (win->imageui)
@@ -1461,10 +1461,10 @@ imagewindow_iimage_changed(iImage *iimage, Imagewindow *win)
 	printf("imagewindow_iimage_changed:\n");
 #endif /*DEBUG*/
 
-	iimage_tilesource_update(iimage);
-	imagewindow_set_tilesource(win, iimage->tilesource);
-	if (iimage->tilesource)
-		tilesource_background_load(iimage->tilesource);
+	Tilesource *tilesource = iimage_get_tilesource_ref(iimage);
+	imagewindow_set_tilesource(win, tilesource);
+	tilesource_background_load(tilesource);
+	VIPS_UNREF(tilesource);
 }
 
 static void
@@ -1496,5 +1496,5 @@ imagewindow_set_iimage(Imagewindow *win, iImage *iimage)
 	win->iimage_destroy_sid = g_signal_connect(iimage, "destroy",
 		G_CALLBACK(imagewindow_iimage_destroy), win);
 
-	imagewindow_set_tilesource(win, iimage->tilesource);
+	iobject_changed(IOBJECT(iimage));
 }

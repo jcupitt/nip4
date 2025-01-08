@@ -78,13 +78,10 @@ struct _iImage {
 	 */
 	VipsBuf caption_buffer;
 
-	// the tilesource for the imagevalue on our model ... this is shared with
-	// any imagewindow for this iimageview
+	// the tilesource for the ImageValue ... a weakref which gets dupped and
+	// given out to any viewers (iimageview, imageui) by
+	// iimage_get_tilesource_ref()
 	Tilesource *tilesource;
-
-	// whether this iimage has display updates enabled ... this is set and
-	// unset during scroll as iimageviews pop into view
-	gboolean enable;
 };
 
 typedef struct _iImageClass {
@@ -97,5 +94,4 @@ typedef struct _iImageClass {
 GType iimage_get_type(void);
 gboolean iimage_replace(iImage *iimage, const char *filename);
 gboolean iimage_replace_imageinfo(iImage *iimage, Imageinfo *ii);
-void iimage_tilesource_update(iImage *iimage);
-void iimage_set_enable(iImage *iimage, gboolean enable);
+Tilesource *iimage_get_tilesource_ref(iImage *iimage);

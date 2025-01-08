@@ -104,3 +104,6 @@ gboolean line_clip(VipsRect *rect,
 typedef gboolean (*ValueToFilenameFn)(const char *filename, void *user_data);
 gboolean value_to_filename(const GValue *value,
 	ValueToFilenameFn fn, void *user_data);
+
+void weakref_set(GObject **pointer, GObject *object);
+#define WEAKREF_SET(A, B) weakref_set((GObject **) &(A), (GObject *) (B));

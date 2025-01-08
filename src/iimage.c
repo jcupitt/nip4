@@ -52,7 +52,6 @@ iimage_dispose(GObject *gobject)
 	slist_map(iimage->classmodels,
 		(SListMapFn) classmodel_iimage_unlink, iimage);
 	g_assert(!iimage->classmodels);
-	VIPS_UNREF(iimage->tilesource);
 
 	G_OBJECT_CLASS(iimage_parent_class)->dispose(gobject);
 }
@@ -445,37 +444,31 @@ iimage_init(iImage *iimage)
 	iobject_set(IOBJECT(iimage), CLASS_IMAGE, NULL);
 }
 
-/* This is called from iimageview and imagewindow on iimage "changed" to
- * remake the tilesource that they share.
+/* Return a new reference to the tilesource for this iimage. Make a new
+ * tilesource if there's none.
  */
-void
-iimage_tilesource_update(iImage *iimage)
+Tilesource *
+iimage_get_tilesource_ref(iImage *iimage)
 {
 	Imageinfo *ii = iimage->value.ii;
 
-	// no tilesource, or it's for an old iimage
-	if (!iimage->tilesource ||
-		!tilesource_has_imageinfo(iimage->tilesource, ii)) {
-		VIPS_UNREF(iimage->tilesource);
+	if (iimage->tilesource &&
+		tilesource_has_imageinfo(iimage->tilesource, ii))
+		// there's a tilesource, and it's for the image we hold
+		return g_object_ref(iimage->tilesource);
+	else {
+		// no tilesource, or it's out of date ... make a new one
+		Tilesource *tilesource = tilesource_new_from_imageinfo(ii);
 
-		if (ii &&
-			iimage->enable)
-			iimage->tilesource = tilesource_new_from_imageinfo(ii);
-	}
-}
+		g_object_set(tilesource,
+			"active", TRUE,
+			"scale", iimage->scale,
+			"offset", iimage->offset,
+			"falsecolour", iimage->falsecolour,
+			NULL);
 
-/* Turn an iimage tilesource on and off ... this is called during scroll to
- * start and stop thumbnail updates.
- */
-void
-iimage_set_enable(iImage *iimage, gboolean enable)
-{
-	if (iimage->enable != enable) {
-		iimage->enable = enable;
-		printf("iimage_set_enable: iimage = %p, enable = %d\n", iimage, enable);
+		WEAKREF_SET(iimage->tilesource, tilesource);
 
-		// will refresh views, and they will call iimage_tilesource_update()
-		// above
-		iobject_changed(IOBJECT(iimage));
+		return tilesource;
 	}
 }

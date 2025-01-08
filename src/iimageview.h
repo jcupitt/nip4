@@ -49,6 +49,8 @@ typedef struct _iImageview {
 	// this is the first _refresh()
 	gboolean first;
 
+	// true if we are visible and should paint
+	gboolean enable;
 } iImageview;
 
 typedef struct _iImageviewClass {
@@ -61,3 +63,4 @@ typedef struct _iImageviewClass {
 GtkWidget *iimageview_drag_window_new(int width, int height);
 GType iimageview_get_type(void);
 View *iimageview_new(void);
+void iimageview_set_enable(iImageview *iimageview, gboolean enable);

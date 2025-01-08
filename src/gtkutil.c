@@ -549,3 +549,25 @@ value_to_filename(const GValue *value, ValueToFilenameFn fn, void *user_data)
 
 	return TRUE;
 }
+
+static void
+weakref_notify(void *user_data, GObject *where_the_object_was)
+{
+	GObject **pointer = (GObject **) user_data;
+
+	if (pointer)
+		*pointer = NULL;
+}
+
+void
+weakref_set(GObject **pointer, GObject *object)
+{
+	if (*pointer)
+		g_object_weak_unref(*pointer, weakref_notify, pointer);
+	if (pointer)
+		*pointer = object;
+	if (*pointer)
+		g_object_weak_ref(*pointer, weakref_notify, pointer);
+}
+
+#define WEAKREF_SET(A, B) weakref_set((GObject **) &(A), (GObject *) (B));

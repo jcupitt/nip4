@@ -158,28 +158,6 @@ program_refresh(Program *program)
 	gtk_label_set_text(GTK_LABEL(program->subtitle), vips_buf_all(&subtitle));
 }
 
-static void
-weakref_notify(void *user_data, GObject *where_the_object_was)
-{
-	GObject **pointer = (GObject **) user_data;
-
-	if (pointer)
-		*pointer = NULL;
-}
-
-static void
-weakref_set(GObject **pointer, GObject *object)
-{
-	if (*pointer)
-		g_object_weak_unref(*pointer, weakref_notify, pointer);
-	if (pointer)
-		*pointer = object;
-	if (*pointer)
-		g_object_weak_ref(*pointer, weakref_notify, pointer);
-}
-
-#define WEAKREF_SET(A, B) weakref_set((GObject **) &(A), (GObject *) (B));
-
 /* Break the tool & kit links.
  */
 static void

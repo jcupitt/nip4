@@ -77,34 +77,37 @@ iimageview_refresh(vObject *vobject)
 	iImage *iimage = IIMAGE(vobject->iobject);
 
 #ifdef DEBUG
-	printf("iimageview_refresh: FIXME\n");
+	printf("iimageview_refresh:\n");
 #endif /*DEBUG*/
 
-	iimage_tilesource_update(iimage);
-
-	Tilesource *current_tilesource;
-	g_object_get(iimageview->imagedisplay,
-		"tilesource", &current_tilesource,
-		NULL);
-	if (current_tilesource != iimage->tilesource) {
-		g_object_set(iimageview->imagedisplay,
-			"bestfit", TRUE,
-			"tilesource", iimage->tilesource,
-			NULL);
-
-		// set the image loading, if necessary
-		if (iimage->tilesource)
-			tilesource_background_load(iimage->tilesource);
-	}
-	VIPS_UNREF(current_tilesource);
-
-	// on the first refresh, register with the encosing workspaceview
+	// on the first refresh, register with the enclosing workspaceview
 	if (iimageview->first) {
-		Workspaceview *wview = iimageview_get_wview(iimageview);
+		iimageview->first = FALSE;
 
+		Workspaceview *wview = iimageview_get_wview(iimageview);
 		if (wview)
 			workspaceview_add_iimageview(wview, iimageview);
-		iimageview->first = FALSE;
+	}
+
+	if (iimageview->enable) {
+		Tilesource *current_tilesource;
+		g_object_get(iimageview->imagedisplay,
+			"tilesource", &current_tilesource,
+			NULL);
+		Tilesource *new_tilesource = iimage_get_tilesource_ref(iimage);
+
+		if (current_tilesource != new_tilesource) {
+			g_object_set(iimageview->imagedisplay,
+				"bestfit", TRUE,
+				"tilesource", new_tilesource,
+				NULL);
+
+			// set the image loading, if necessary
+			tilesource_background_load(new_tilesource);
+		}
+
+		VIPS_UNREF(current_tilesource);
+		VIPS_UNREF(new_tilesource);
 	}
 
 	if (iimageview->label)
@@ -146,4 +149,19 @@ iimageview_new(void)
 	iImageview *iimageview = g_object_new(IIMAGEVIEW_TYPE, NULL);
 
 	return VIEW(iimageview);
+}
+
+void
+iimageview_set_enable(iImageview *iimageview, gboolean enable)
+{
+	printf("iimageview_set_enable: %d\n", enable);
+
+	iimageview->enable = enable;
+	if (!enable)
+		g_object_set(iimageview->imagedisplay,
+			"tilesource", NULL,
+			NULL);
+
+	// don't make tilesource if enable is TRUE, we can wait for _refresh to do
+	// this
 }
