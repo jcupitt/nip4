@@ -35,7 +35,7 @@
 
 G_DEFINE_TYPE(iImageview, iimageview, GRAPHICVIEW_TYPE)
 
-static Workspaceview *
+Workspaceview *
 iimageview_get_wview(iImageview *iimageview)
 {
 	GtkWidget *p;
@@ -70,6 +70,59 @@ iimageview_dispose(GObject *object)
 	G_OBJECT_CLASS(iimageview_parent_class)->dispose(object);
 }
 
+void
+iimageview_compute_visibility(iImageview *iimageview)
+{
+	gboolean enable;
+
+	enable = FALSE;
+
+	if (iimageview->imagedisplay &&
+		gtk_widget_get_mapped(GTK_WIDGET(iimageview->imagedisplay))) {
+		Workspaceview *wview = iimageview_get_wview(iimageview);
+
+		graphene_rect_t bounds;
+		if (gtk_widget_compute_bounds(GTK_WIDGET(iimageview->imagedisplay),
+			wview->fixed, &bounds)) {
+			VipsRect widget = {
+				.left = bounds.origin.x,
+				.top = bounds.origin.y,
+				.width = bounds.size.width,
+				.height = bounds.size.height
+			};
+
+			// widgets are often size 0 on first refresh, so we can only test
+			// x, y
+			if (vips_rect_isempty(&widget))
+				enable = vips_rect_includespoint(&wview->vp,
+					widget.left, widget.top);
+			else {
+				vips_rect_intersectrect(&wview->vp, &widget, &widget);
+				enable = !vips_rect_isempty(&widget);
+			}
+		}
+	}
+
+	if (iimageview->enable != enable) {
+#ifdef DEBUG
+#endif /*DEBUG*/
+		printf("iimageview_compute_visibility: %d\n", enable);
+
+		iimageview->enable = enable;
+
+		if (enable)
+			// this will (eventually) restart animated GIF display etc.
+			iobject_changed(VOBJECT(iimageview)->iobject);
+		else
+			g_object_set(iimageview->imagedisplay,
+				"tilesource", NULL,
+				NULL);
+
+		// don't make tilesource if enable is TRUE, we can wait for
+		// _refresh to do this
+	}
+}
+
 static void
 iimageview_refresh(vObject *vobject)
 {
@@ -77,8 +130,8 @@ iimageview_refresh(vObject *vobject)
 	iImage *iimage = IIMAGE(vobject->iobject);
 
 #ifdef DEBUG
-	printf("iimageview_refresh:\n");
 #endif /*DEBUG*/
+	printf("iimageview_refresh:\n");
 
 	// on the first refresh, register with the enclosing workspaceview
 	if (iimageview->first) {
@@ -88,6 +141,8 @@ iimageview_refresh(vObject *vobject)
 		if (wview)
 			workspaceview_add_iimageview(wview, iimageview);
 	}
+
+	iimageview_compute_visibility(iimageview);
 
 	if (iimageview->enable) {
 		Tilesource *current_tilesource;
@@ -149,20 +204,4 @@ iimageview_new(void)
 	iImageview *iimageview = g_object_new(IIMAGEVIEW_TYPE, NULL);
 
 	return VIEW(iimageview);
-}
-
-void
-iimageview_set_enable(iImageview *iimageview, gboolean enable)
-{
-	if (iimageview->enable != enable)
-		printf("iimageview_set_enable: %d\n", enable);
-
-	iimageview->enable = enable;
-	if (!enable)
-		g_object_set(iimageview->imagedisplay,
-			"tilesource", NULL,
-			NULL);
-
-	// don't make tilesource if enable is TRUE, we can wait for _refresh to do
-	// this
 }

@@ -60,7 +60,8 @@ typedef struct _iImageviewClass {
 	 */
 } iImageviewClass;
 
+Workspaceview *iimageview_get_wview(iImageview *iimageview);
+void iimageview_compute_visibility(iImageview *iimageview);
 GtkWidget *iimageview_drag_window_new(int width, int height);
 GType iimageview_get_type(void);
 View *iimageview_new(void);
-void iimageview_set_enable(iImageview *iimageview, gboolean enable);

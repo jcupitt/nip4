@@ -644,8 +644,8 @@ imagedisplay_snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
 	Imagedisplay *imagedisplay = IMAGEDISPLAY(widget);
 
 #ifdef DEBUG
-	printf("imagedisplay_snapshot:\n");
 #endif /*DEBUG*/
+	printf("imagedisplay_snapshot:\n");
 
 	/* Clip to the widget area, or we may paint over the display control
 	 * bar.

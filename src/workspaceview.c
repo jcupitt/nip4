@@ -301,29 +301,7 @@ static void *
 workspaceview_scroll_update_iimageview(iImageview *iimageview,
 	Workspaceview *wview)
 {
-	gboolean enable;
-
-	enable = FALSE;
-
-	if (iimageview->imagedisplay &&
-		gtk_widget_get_mapped(GTK_WIDGET(iimageview->imagedisplay))) {
-		graphene_rect_t bounds;
-
-		if (gtk_widget_compute_bounds(GTK_WIDGET(iimageview->imagedisplay),
-			wview->fixed, &bounds)) {
-			VipsRect widget = {
-				.left = bounds.origin.x,
-				.top = bounds.origin.y,
-				.width = bounds.size.width,
-				.height = bounds.size.height
-			};
-
-			vips_rect_intersectrect(&wview->vp, &widget, &widget);
-			enable = !vips_rect_isempty(&widget);
-		}
-	}
-
-	iimageview_set_enable(iimageview, enable);
+	iimageview_compute_visibility(iimageview);
 
 	return NULL;
 }

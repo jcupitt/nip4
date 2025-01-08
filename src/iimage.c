@@ -457,7 +457,7 @@ iimage_get_tilesource_ref(iImage *iimage)
 		tilesource_has_imageinfo(iimage->tilesource, ii))
 		// there's a tilesource, and it's for the image we hold
 		return g_object_ref(iimage->tilesource);
-	else {
+	else if (ii) {
 		// no tilesource, or it's out of date ... make a new one
 		Tilesource *tilesource = tilesource_new_from_imageinfo(ii);
 
@@ -475,4 +475,6 @@ iimage_get_tilesource_ref(iImage *iimage)
 
 		return tilesource;
 	}
+	else
+		return NULL;
 }

@@ -1,10 +1,8 @@
-- try:
+- we are reloading images (eg. GIFs) when we remake tilesource!
 
-	nip4 ~/pics/k2.jpg
+	don't we decompress to a temp file?
 
-  iimageview_set_enable() is being run, but the thumbnail is not being
-  redrawn
-
+	the cache should catch this, shouldn't it?
 
 - iimage.h has:
 
