@@ -154,7 +154,8 @@ iimageview_new(void)
 void
 iimageview_set_enable(iImageview *iimageview, gboolean enable)
 {
-	printf("iimageview_set_enable: %d\n", enable);
+	if (iimageview->enable != enable)
+		printf("iimageview_set_enable: %d\n", enable);
 
 	iimageview->enable = enable;
 	if (!enable)

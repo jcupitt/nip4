@@ -1778,6 +1778,24 @@ is_absolute(const char *fname)
 	return buf[0] == '/' || (buf[0] != '\0' && buf[1] == ':');
 }
 
+/* Are two filenames pointng at the same file? Expand, absoluteize, nativise.
+ */
+gboolean
+filenames_equal(const char *f1, const char *f2)
+{
+	char b1[FILENAME_MAX];
+	expand_variables(f1, b1);
+	nativeize_path(b1);
+	absoluteize_path(b1);
+
+	char b2[FILENAME_MAX];
+	expand_variables(f2, b2);
+	nativeize_path(b2);
+	absoluteize_path(b2);
+
+	return g_str_equal(b1, b2);
+}
+
 /* Free an iOpenFile.
  */
 void

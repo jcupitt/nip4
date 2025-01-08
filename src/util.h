@@ -225,6 +225,7 @@ gboolean touchf(const char *fmt, ...)
 int unlinkf(const char *fmt, ...)
 	__attribute__((format(printf, 1, 2)));
 gboolean is_absolute(const char *fname);
+gboolean filenames_equal(const char *f1, const char *f2);
 
 /* Text IO to/from files. Track the filename too, to help error messages.
  */

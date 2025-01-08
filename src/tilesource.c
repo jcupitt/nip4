@@ -29,8 +29,9 @@
 
 /*
 #define DEBUG_VERBOSE
- */
 #define DEBUG
+ */
+#define DEBUG_MAKE
 
 #include "nip4.h"
 
@@ -74,9 +75,9 @@ tilesource_dispose(GObject *object)
 {
 	Tilesource *tilesource = TILESOURCE(object);
 
-#ifdef DEBUG
+#ifdef DEBUG_MAKE
 	printf("tilesource_dispose: %s\n", tilesource->filename);
-#endif /*DEBUG*/
+#endif /*DEBUG_MAKE*/
 
 	VIPS_FREEF(g_source_remove, tilesource->page_flip_id);
 
@@ -1028,6 +1029,10 @@ tilesource_get_property(GObject *object,
 static void
 tilesource_init(Tilesource *tilesource)
 {
+#ifdef DEBUG_MAKE
+	printf("tilesource_init:\n");
+#endif /*DEBUG_MAKE*/
+
 	tilesource->scale = 1.0;
 	tilesource->zoom = 1.0;
 }
@@ -1398,7 +1403,7 @@ tilesource_has_imageinfo(Tilesource *tilesource, Imageinfo *ii)
 		return !tilesource->image;
 	else if (imageinfo_is_from_file(ii) &&
 		tilesource->filename)
-		return g_str_equal(IOBJECT(ii)->name, tilesource->filename);
+		return filenames_equal(IOBJECT(ii)->name, tilesource->filename);
 	else
 		return ii->image == tilesource->image;
 }

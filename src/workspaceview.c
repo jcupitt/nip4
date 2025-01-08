@@ -333,8 +333,6 @@ workspaceview_scroll_update_iimageview(iImageview *iimageview,
 static void
 workspaceview_scroll_update(Workspaceview *wview)
 {
-	printf("workspaceview_scroll_update:\n");
-
 	wview->vp.left = gtk_adjustment_get_value(wview->hadj);
 	wview->vp.top = gtk_adjustment_get_value(wview->vadj);
 	wview->vp.width = gtk_adjustment_get_page_size(wview->hadj);
@@ -746,6 +744,9 @@ workspaceview_layout(View *view)
 	// note the size of the workspace back on the model
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 	ws->area = layout.area;
+
+	// update enable state
+	workspaceview_scroll_update(wview);
 }
 
 static void

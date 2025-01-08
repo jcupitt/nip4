@@ -1,3 +1,19 @@
+- try:
+
+	nip4 ~/pics/k2.jpg
+
+  iimageview_set_enable() is being run, but the thumbnail is not being
+  redrawn
+
+
+- iimage.h has:
+
+	gboolean show_status;
+	gboolean show_paintbox;
+	gboolean show_convert;
+
+  do we use these?
+
 - replace from file in imagewindow often fails to update the title bar
 
 - need "recover after crash"

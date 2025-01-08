@@ -157,13 +157,10 @@ iimage_save(Model *model, xmlNode *xnode)
 			bool_to_char(iimage->show_paintbox)) ||
 		!set_sprop(xthis, "show_convert",
 			bool_to_char(iimage->show_convert)) ||
-		!set_sprop(xthis, "show_rulers",
-			bool_to_char(iimage->show_rulers)) ||
 		!set_dprop(xthis, "scale", iimage->scale) ||
 		!set_dprop(xthis, "offset", iimage->offset) ||
 		!set_sprop(xthis, "falsecolour",
-			bool_to_char(iimage->falsecolour)) ||
-		!set_sprop(xthis, "type", bool_to_char(iimage->type)))
+			bool_to_char(iimage->falsecolour)))
 		return NULL;
 
 	return xthis;
@@ -183,11 +180,9 @@ iimage_load(Model *model,
 	(void) get_bprop(xnode, "show_status", &iimage->show_status);
 	(void) get_bprop(xnode, "show_paintbox", &iimage->show_paintbox);
 	(void) get_bprop(xnode, "show_convert", &iimage->show_convert);
-	(void) get_bprop(xnode, "show_rulers", &iimage->show_rulers);
 	(void) get_dprop(xnode, "scale", &iimage->scale);
 	(void) get_dprop(xnode, "offset", &iimage->offset);
 	(void) get_bprop(xnode, "falsecolour", &iimage->falsecolour);
-	(void) get_bprop(xnode, "type", &iimage->type);
 
 	return MODEL_CLASS(iimage_parent_class)->load(model, state, parent, xnode);
 }
@@ -432,16 +427,22 @@ iimage_init(iImage *iimage)
 	iimage->show_status = FALSE;
 	iimage->show_paintbox = FALSE;
 	iimage->show_convert = FALSE;
-	iimage->show_rulers = FALSE;
 
 	iimage->scale = 0.0;
 	iimage->offset = 0.0;
 	iimage->falsecolour = FALSE;
-	iimage->type = TRUE;
 
 	vips_buf_init_dynamic(&iimage->caption_buffer, MAX_LINELENGTH);
 
 	iobject_set(IOBJECT(iimage), CLASS_IMAGE, NULL);
+}
+
+static void
+iimage_tilesource_tiles_changed(Tilesource *tilesource, iImage *iimage)
+{
+	iimage->scale = tilesource->scale;
+	iimage->offset = tilesource->offset;
+	iimage->falsecolour = tilesource->falsecolour;
 }
 
 /* Return a new reference to the tilesource for this iimage. Make a new
@@ -468,6 +469,9 @@ iimage_get_tilesource_ref(iImage *iimage)
 			NULL);
 
 		WEAKREF_SET(iimage->tilesource, tilesource);
+
+		g_signal_connect_object(tilesource, "tiles-changed",
+			G_CALLBACK(iimage_tilesource_tiles_changed), iimage, 0);
 
 		return tilesource;
 	}

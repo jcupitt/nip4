@@ -65,14 +65,12 @@ struct _iImage {
 	gboolean show_status;
 	gboolean show_paintbox;
 	gboolean show_convert;
-	gboolean show_rulers;
 
 	/* Bar settings we remember.
 	 */
 	double scale;
 	double offset;
 	gboolean falsecolour;
-	gboolean type;
 
 	/* Private ... build iobject caption here.
 	 */
