@@ -130,11 +130,11 @@ ientry_get_property(GObject *object,
 	guint prop_id, GValue *value, GParamSpec *pspec)
 {
 	iEntry *ientry = (iEntry *) object;
+	g_autofree char *text = NULL;
 
 	switch (prop_id) {
 	case PROP_TEXT:
-		g_autofree char *text =
-			gtk_editable_get_chars(GTK_EDITABLE(ientry->entry), 0, -1);
+		text = gtk_editable_get_chars(GTK_EDITABLE(ientry->entry), 0, -1);
 		VIPS_SETSTR(ientry->text, text);
 		g_value_set_string(value, text);
 		break;

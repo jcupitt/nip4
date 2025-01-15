@@ -53,6 +53,8 @@ iimage_dispose(GObject *gobject)
 		(SListMapFn) classmodel_iimage_unlink, iimage);
 	g_assert(!iimage->classmodels);
 
+	WEAKREF_SET(iimage->tilesource, NULL);
+
 	G_OBJECT_CLASS(iimage_parent_class)->dispose(gobject);
 }
 

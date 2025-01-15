@@ -1,8 +1,73 @@
+- drag iimageview row, null pointer segv
+
+	workspaceview_float_rowview() calls
+
+		view_child_remove(VIEW(rview));
+
+	to unparent rview from the enclosing subcolumnview, and that calls
+	subcolumnview_child_remove()
+
+	this in turn removes spin, frame and rhsview from the grid, and nulls
+	all those pointers
+
+	wrong!
+
+	rview must hold explicit refs to spin, frame and rhsview (since
+	rview is not a true widget)
+
+	see rowview_attach() ... complicated!
+
+	maybe view should have an unparent or reparent method?
+
+
+	or perhaps we should destroy the old view and make a new one? much
+	simpler, if it's quick enough
+
+
+
+
+
+
+
+- try:
+
+	nip4 main4a.ws blood4a.ws image4a.ws
+
+  scroll image4a.ws, nip4 locks up on 100% CPU
+
 - we are reloading images (eg. GIFs) when we remake tilesource!
 
 	don't we decompress to a temp file?
 
 	the cache should catch this, shouldn't it?
+
+	we need to do open to disc with a cache ourselves and not use the
+	libvips cache thing
+
+	at the moment we open in seq mode I think, so images are not cached
+	for us (I think?)
+
+  check exactly where and how we open the GIF, where we unref it, how it gets
+  forced from cache, and when libvips junks the temp file
+
+	load:
+
+		vips_foreign_load_nsgif_header
+		...
+		imageinfo_open_image_input()
+			vips_image_new_from_file(filename, "n", -1, NULL)
+		vips_image builtin
+
+
+		vips_image_new_from_file()
+		tilesource_new_from_file()
+		iimage_get_tilesource_ref()
+
+
+
+  watch the cache ... what goes in, when is it reused, why or why not
+
+	  seem to always open in seq mode? why is this?
 
 - iimage.h has:
 
@@ -88,6 +153,7 @@
 		  tilesource setings, set the weakref, return it
 
 		- otherwise, ref the weakref and return it
+
 
 	iimageview and imageui should each hold a true ref
 

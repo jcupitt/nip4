@@ -342,8 +342,11 @@ static void
 kplotctx_draw_yerrline_pairbars(struct kplotctx *ctx,
 	size_t start, size_t end, const struct kplotdat *d)
 {
+	struct kpair	 bot = {0.0, 0.0};
+	struct kpair	 top = {0.0, 0.0};
+	struct kpair	 pair = {0.0, 0.0};
+
 	size_t	 	 i;
-	struct kpair	 bot, top, pair;
 	int		 rc;
 
 	ksubwin_lines(ctx, &d->cfgs[1]);
@@ -361,10 +364,12 @@ kplotctx_draw_yerrline_pairbars(struct kplotctx *ctx,
 
 		rc = kplotctx_point_to_real(&bot, &pair, ctx);
 		assert(0 != rc);
+		(void) rc;
 		cairo_move_to(ctx->cr, pair.x, pair.y);
 
 		rc = kplotctx_point_to_real(&top, &pair, ctx);
 		assert(0 != rc);
+		(void) rc;
 		cairo_line_to(ctx->cr, pair.x, pair.y);
 	}
 	cairo_stroke(ctx->cr);
@@ -441,16 +446,17 @@ static void
 kplotctx_draw_yerrline_baselines(struct kplotctx *ctx,
 	size_t start, size_t end, const struct kplotdat *d)
 {
+	struct kpair	 pair = {0.0, 0.0};
+
 	size_t		 i;
-	struct kpair	 pair;
 	int		 rc;
 
 	assert(d->datasz > 1);
 	ksubwin_lines(ctx, &d->cfgs[0]);
 	kplotctx_line_init(ctx, &d->cfgs[0].line);
-	rc = kplotctx_point_to_real
-		(&d->datas[0]->pairs[start], &pair, ctx);
+	rc = kplotctx_point_to_real(&d->datas[0]->pairs[start], &pair, ctx);
 	assert(0 != rc);
+	(void) rc;
 	cairo_move_to(ctx->cr, pair.x, pair.y);
 	for (i = start; i < end; i++) {
 		if ( ! (kpair_vrfy(&d->datas[0]->pairs[i]) &&
@@ -459,6 +465,7 @@ kplotctx_draw_yerrline_baselines(struct kplotctx *ctx,
 		rc = kplotctx_point_to_real
 			(&d->datas[0]->pairs[i], &pair, ctx);
 		assert(0 != rc);
+		(void) rc;
 		cairo_line_to(ctx->cr, pair.x, pair.y);
 	}
 	cairo_stroke(ctx->cr);
@@ -469,7 +476,9 @@ static void
 kplotctx_draw_yerrline_pairlines(struct kplotctx *ctx,
 	size_t start, size_t end, const struct kplotdat *d)
 {
-	struct kpair	 orig, pair;
+	struct kpair	 orig = {0.0, 0.0};
+	struct kpair	 pair = {0.0, 0.0};
+
 	size_t		 i;
 	int		 rc;
 
@@ -480,6 +489,7 @@ kplotctx_draw_yerrline_pairlines(struct kplotctx *ctx,
 		 d->datas[1]->pairs[start].y;
 	rc = kplotctx_point_to_real(&orig, &pair, ctx);
 	assert(0 != rc);
+	(void) rc;
 	cairo_move_to(ctx->cr, pair.x, pair.y);
 	for (i = start; i < end; i++) {
 		if ( ! (kpair_vrfy(&d->datas[0]->pairs[i]) &&
@@ -490,6 +500,7 @@ kplotctx_draw_yerrline_pairlines(struct kplotctx *ctx,
 			 d->datas[1]->pairs[i].y;
 		rc = kplotctx_point_to_real(&orig, &pair, ctx);
 		assert(0 != rc);
+		(void) rc;
 		cairo_line_to(ctx->cr, pair.x, pair.y);
 	}
 	cairo_stroke(ctx->cr);
@@ -509,6 +520,7 @@ kplotctx_draw_yerrline_pairlines(struct kplotctx *ctx,
 			 d->datas[1]->pairs[i].y;
 		rc = kplotctx_point_to_real(&orig, &pair, ctx);
 		assert(0 != rc);
+		(void) rc;
 		cairo_line_to(ctx->cr, pair.x, pair.y);
 	}
 	cairo_stroke(ctx->cr);

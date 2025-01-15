@@ -114,9 +114,6 @@ node_get_property(GObject *object,
 			g_value_set_string(value, IOBJECT(node->tool)->name);
 		else
 			g_value_set_string(value, "");
-
-		printf("SORT_TEXT: %s\n", g_value_get_string(value));
-
 		break;
 
 	default:
@@ -241,6 +238,8 @@ toolkitgroupview_set_property(GObject *object,
 	guint prop_id, const GValue *value, GParamSpec *pspec)
 {
 	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(object);
+	g_autofree char *path = NULL;
+	g_autofree char *search_text = NULL;
 
 	switch (prop_id) {
 	case PROP_SHOW_ALL:
@@ -249,7 +248,7 @@ toolkitgroupview_set_property(GObject *object,
 		break;
 
 	case PROP_PATH:
-		g_autofree char *path = g_strdup(g_value_get_string(value));
+		path = g_strdup(g_value_get_string(value));
 		if (strlen(path) > 0) {
 			g_slist_free_full(g_steal_pointer(&kitgview->page_names), g_free);
 			kitgview->page_names = toolkitgroupview_parse_path(path);
@@ -259,7 +258,7 @@ toolkitgroupview_set_property(GObject *object,
 		break;
 
 	case PROP_SEARCH:
-		g_autofree char *search_text = g_strdup(g_value_get_string(value));
+		search_text = g_strdup(g_value_get_string(value));
 		if (strlen(search_text) > 0) {
 			kitgview->search_mode = TRUE;
 			vobject_refresh_queue(VOBJECT(kitgview));

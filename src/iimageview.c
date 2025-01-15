@@ -105,8 +105,8 @@ iimageview_compute_visibility(iImageview *iimageview)
 
 	if (iimageview->enable != enable) {
 #ifdef DEBUG
-#endif /*DEBUG*/
 		printf("iimageview_compute_visibility: %d\n", enable);
+#endif /*DEBUG*/
 
 		iimageview->enable = enable;
 
@@ -130,8 +130,8 @@ iimageview_refresh(vObject *vobject)
 	iImage *iimage = IIMAGE(vobject->iobject);
 
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("iimageview_refresh:\n");
+#endif /*DEBUG*/
 
 	// on the first refresh, register with the enclosing workspaceview
 	if (iimageview->first) {

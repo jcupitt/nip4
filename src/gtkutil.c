@@ -382,7 +382,8 @@ static const int TOP    = 0b1000;
 // Compute the bit code for a point (x, y) using the clip rectangle
 // rect
 
-static int compute_out_code(VipsRect *rect, int x, int y)
+static int
+compute_out_code(VipsRect *rect, int x, int y)
 {
 	int code;
 
@@ -461,8 +462,8 @@ line_clip(VipsRect *rect,
 				y = y0 + (y1 - y0) * (right - x0) / (x1 - x0);
 				x = right;
 			}
-			else if (outcode_out & LEFT) {
-				// point is to the left of clip window
+			else {
+				// point must be to the left of clip window
 				y = y0 + (y1 - y0) * (rect->left - x0) / (x1 - x0);
 				x = rect->left;
 			}

@@ -186,6 +186,11 @@ columnview_get_position(Columnview *cview, int *x, int *y, int *w, int *h)
 
 	graphene_rect_t bounds;
 
+	*x = 0;
+	*y = 0;
+	*w = 0;
+	*h = 0;
+
 	if (gtk_widget_compute_bounds(GTK_WIDGET(cview), parent, &bounds)) {
 		*x = bounds.origin.x;
 		*y = bounds.origin.y;
