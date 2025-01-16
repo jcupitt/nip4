@@ -104,10 +104,8 @@ subcolumnview_child_remove(View *parent, View *child)
 		if (rview->rhsview)
 			gtk_grid_remove(GTK_GRID(sview->grid), GTK_WIDGET(rview->rhsview));
 
-		// all pointers now invalid
-		rview->spin = NULL;
-		rview->frame = NULL;
-		rview->rhsview = NULL;
+		// rowview has extra refs to spin, frame, rhsview that keep them alive
+		// so the pointers are still valid
 	}
 
 	VIEW_CLASS(subcolumnview_parent_class)->child_remove(parent, child);

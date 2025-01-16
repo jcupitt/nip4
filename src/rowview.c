@@ -62,10 +62,17 @@ rowview_dispose(GObject *object)
 	printf("\n");
 #endif /*DEBUG*/
 
+	gtk_widget_dispose_template(GTK_WIDGET(rview), ROWVIEW_TYPE);
+
 	VIPS_FREE(rview->last_tooltip);
-	// we may run more than once ... only dispose the template the first time
-	if (rview->spin)
-		gtk_widget_dispose_template(GTK_WIDGET(rview), ROWVIEW_TYPE);
+
+	// we keep extra refs to child widgets
+	//
+	// rowview is not a true widget -- its children attach to the grid of the
+	// enclosing subcolumn, we don't attach rowview itself
+	VIPS_UNREF(rview->spin);
+	VIPS_UNREF(rview->frame);
+	VIPS_UNREF(rview->rhsview);
 
 	G_OBJECT_CLASS(rowview_parent_class)->dispose(object);
 }
@@ -79,8 +86,16 @@ rowview_attach(Rowview *rview, GtkWidget *child, int x)
 
 	GtkWidget *parent = gtk_widget_get_parent(child);
 	if (parent) {
-		if (IS_ROWVIEW(parent))
+		if (IS_ROWVIEW(parent)) {
+			// if the parent is the rview, this is the first _attach of a
+			// template child and it will have a single ref, held by
+			// rview
+			//
+			// add an extra ref (dropped in _dispose) to keep the child alive
+			// across any later reparenting during row drag
 			gtk_widget_unparent(child);
+			g_object_ref(child);
+		}
 		else
 			gtk_grid_remove(GTK_GRID(sview->grid), child);
 	}
@@ -222,14 +237,28 @@ rowview_child_add(View *parent, View *child)
 	g_assert(IS_RHSVIEW(child));
 	g_assert(!rview->rhsview);
 
-	// we don't hold a ref to rhsview, the grid in the enclosing subcolumnview
-	// does
 	rview->rhsview = RHSVIEW(child);
 
-	// this pointer is NULL'd out in subcolumnview_child_remove(), when we
-	// detach from the grid
+	// we hold an extra magic ref to rhsview that gets dropped in child_remove
+	// and in _dispose ... this is because rowview is not a true child and
+	// never get sadded to the widget hierarchy directly
+	g_object_ref(child);
 
 	VIEW_CLASS(rowview_parent_class)->child_add(parent, child);
+}
+
+static void
+rowview_child_remove(View *parent, View *child)
+{
+	Rowview *rview = ROWVIEW(parent);
+
+	g_assert(IS_RHSVIEW(child));
+	g_assert(rview->rhsview);
+	g_assert(child == VIEW(rview->rhsview));
+
+	VIPS_UNREF(rview->rhsview);
+
+	VIEW_CLASS(rowview_parent_class)->child_remove(parent, child);
 }
 
 /* Edit our object.
@@ -485,6 +514,7 @@ rowview_class_init(RowviewClass *class)
 	vobject_class->refresh = rowview_refresh;
 
 	view_class->child_add = rowview_child_add;
+	view_class->child_remove = rowview_child_remove;
 	view_class->reset = rowview_reset;
 	view_class->scrollto = rowview_scrollto;
 	view_class->action = rowview_action;
