@@ -35,19 +35,6 @@
 
 G_DEFINE_TYPE(iImageview, iimageview, GRAPHICVIEW_TYPE)
 
-Workspaceview *
-iimageview_get_wview(iImageview *iimageview)
-{
-	GtkWidget *p;
-
-	for (p = GTK_WIDGET(iimageview);
-		p && !IS_WORKSPACEVIEW(p);
-		p = gtk_widget_get_parent(p))
-		;
-
-	return WORKSPACEVIEW(p);
-}
-
 static void
 iimageview_dispose(GObject *object)
 {
@@ -62,10 +49,10 @@ iimageview_dispose(GObject *object)
 	printf("iimageview_dispose:\n");
 #endif /*DEBUG*/
 
+	if (iimageview->wview)
+		workspaceview_remove_iimageview(iimageview->wview, iimageview);
+
 	gtk_widget_dispose_template(GTK_WIDGET(iimageview), IIMAGEVIEW_TYPE);
-	Workspaceview *wview = iimageview_get_wview(iimageview);
-	if (wview)
-		workspaceview_remove_iimageview(wview, iimageview);
 
 	G_OBJECT_CLASS(iimageview_parent_class)->dispose(object);
 }
@@ -78,8 +65,9 @@ iimageview_compute_visibility(iImageview *iimageview)
 	enable = FALSE;
 
 	if (iimageview->imagedisplay &&
+		iimageview->wview &&
 		gtk_widget_get_mapped(GTK_WIDGET(iimageview->imagedisplay))) {
-		Workspaceview *wview = iimageview_get_wview(iimageview);
+		Workspaceview *wview = iimageview->wview;
 
 		graphene_rect_t bounds;
 		if (gtk_widget_compute_bounds(GTK_WIDGET(iimageview->imagedisplay),
@@ -123,6 +111,19 @@ iimageview_compute_visibility(iImageview *iimageview)
 	}
 }
 
+static Workspaceview *
+iimageview_get_wview(iImageview *iimageview)
+{
+	GtkWidget *p;
+
+	for (p = GTK_WIDGET(iimageview);
+		p && !IS_WORKSPACEVIEW(p);
+		p = gtk_widget_get_parent(p))
+		;
+
+	return WORKSPACEVIEW(p);
+}
+
 static void
 iimageview_refresh(vObject *vobject)
 {
@@ -137,9 +138,8 @@ iimageview_refresh(vObject *vobject)
 	if (iimageview->first) {
 		iimageview->first = FALSE;
 
-		Workspaceview *wview = iimageview_get_wview(iimageview);
-		if (wview)
-			workspaceview_add_iimageview(wview, iimageview);
+		iimageview->wview = iimageview_get_wview(iimageview);
+		workspaceview_add_iimageview(iimageview->wview, iimageview);
 	}
 
 	iimageview_compute_visibility(iimageview);

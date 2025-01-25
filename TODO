@@ -1,42 +1,16 @@
 - try:
 
+	make error bar pop up somehow
+	do successgful action with toolkitbrowser
+	error bar does not autopopdown
+
+- try:
+
 	nip4 main4a.ws blood4a.ws image4a.ws
 
   scroll image4a.ws, nip4 locks up on 100% CPU
 
-- we are reloading images (eg. GIFs) when we remake tilesource!
-
-	don't we decompress to a temp file?
-
-	the cache should catch this, shouldn't it?
-
-	we need to do open to disc with a cache ourselves and not use the
-	libvips cache thing
-
-	at the moment we open in seq mode I think, so images are not cached
-	for us (I think?)
-
-  check exactly where and how we open the GIF, where we unref it, how it gets
-  forced from cache, and when libvips junks the temp file
-
-	load:
-
-		vips_foreign_load_nsgif_header
-		...
-		imageinfo_open_image_input()
-			vips_image_new_from_file(filename, "n", -1, NULL)
-		vips_image builtin
-
-
-		vips_image_new_from_file()
-		tilesource_new_from_file()
-		iimage_get_tilesource_ref()
-
-
-
-  watch the cache ... what goes in, when is it reused, why or why not
-
-	  seem to always open in seq mode? why is this?
+- enlarge the operation cache
 
 - iimage.h has:
 

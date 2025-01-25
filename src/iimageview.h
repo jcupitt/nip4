@@ -51,6 +51,9 @@ typedef struct _iImageview {
 
 	// true if we are visible and should paint
 	gboolean enable;
+
+	// enclosing workspaceview
+	Workspaceview *wview;
 } iImageview;
 
 typedef struct _iImageviewClass {
@@ -60,7 +63,6 @@ typedef struct _iImageviewClass {
 	 */
 } iImageviewClass;
 
-Workspaceview *iimageview_get_wview(iImageview *iimageview);
 void iimageview_compute_visibility(iImageview *iimageview);
 GtkWidget *iimageview_drag_window_new(int width, int height);
 GType iimageview_get_type(void);

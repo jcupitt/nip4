@@ -1324,6 +1324,8 @@ workspaceview_new(void)
 void
 workspaceview_add_iimageview(Workspaceview *wview, iImageview *iimageview)
 {
+	printf("workspaceview_add_iimageview: adding %p\n", iimageview);
+
 	g_assert(!g_slist_find(wview->iimageviews, iimageview));
 
 	wview->iimageviews = g_slist_prepend(wview->iimageviews, iimageview);
@@ -1332,6 +1334,10 @@ workspaceview_add_iimageview(Workspaceview *wview, iImageview *iimageview)
 void workspaceview_remove_iimageview(Workspaceview *wview,
 	iImageview *iimageview)
 {
+	printf("workspaceview_remove_iimageview: removing %p\n", iimageview);
+	if (!g_slist_find(wview->iimageviews, iimageview))
+		printf("\tnot there!!\n");
+
 	// can't assert it's not there, it might not be yet
 	wview->iimageviews = g_slist_remove(wview->iimageviews, iimageview);
 }
