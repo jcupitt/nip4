@@ -1670,7 +1670,7 @@ resize kernel xfac yfac image
 		= vips_resize kernel xfac' yfac' im
 	{
 		vips_resize kernel hscale vscale im
-			= vips_call99 "resize" [im, hscale]
+			= vips_call9 "resize" [im, hscale]
 				[$vscale => vscale, $kernel => kernel.value];
 	}
 }

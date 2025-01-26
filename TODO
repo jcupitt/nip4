@@ -4,7 +4,13 @@
 
   takes forever :(
 
-  need thing to get image from plot
+- lung needs render plot to image
+
+	apply_graph_export_image_call() calls plot_to_image()
+
+	should probably be in plotdisplay, that has all the kplot code
+
+	various bits of plotdisplay need to be functions, not methods
 
 - try:
 
@@ -120,24 +126,6 @@
 	equal to current tilesource? unref
 
 	different? swap, then queue repaint
-
-- try large animated GIF
-
-	do we reload on scroll? that'd be bad
-
-- try
-
-	nip4 ../test/workspaces/test_image.ws
-
-  segv
-
-- need render plot to image, whatever it's called
-
-	apply_graph_export_image_call() calls plot_to_image()
-
-	should probably be in plotdisplay, that has all the kplot code
-
-	various bits of plotdisplay need to be functions, not methods
 
 - that's paste, now implement copy
 
@@ -346,8 +334,6 @@
   maybe skip clock
 
 ## plotting
-
-- need get-plot-as-image for lungs
 
 - in plotdisplay_build_kplot()
 
