@@ -1,16 +1,22 @@
 - try:
 
-	make error bar pop up somehow
-	do successgful action with toolkitbrowser
-	error bar does not autopopdown
+	nip4 ~/pics/demo/demo.ws
+
+  lungmask.E11 fails with:
+
+	im_draw_flood not defined
+
 
 - try:
 
-	nip4 main4a.ws blood4a.ws image4a.ws
+	load workspace with compat menus
+	right click, edit toolkits
+	does not say compat in title bar
 
-  scroll image4a.ws, nip4 locks up on 100% CPU
+- try:
 
-- enlarge the operation cache
+	cd ~/hammersmith/data/demo3
+	nip4 main4a.ws blood4a.ws image4a.ws patlak4a.ws
 
 - iimage.h has:
 
@@ -30,12 +36,6 @@
 - test other workspaces
 
 	charisma
-
-	lung
-
-		hammersmith/data/demo3
-
-			incredibly slow!
 
 - need to limit thumbnail drawing
 

@@ -484,6 +484,14 @@ main(int argc, char **argv)
 	 */
 	symbol_recalculate_all_force(TRUE);
 
+	/* Expand vips operation cache.
+	 *
+	 * FIXME .. link this to prefs?
+	 */
+	vips_cache_set_max(10000);
+	vips_cache_set_max_mem(1000 * 1024 * 1024);
+	vips_cache_set_max_files(1000);
+
 	app = app_new(welcome);
 
 	status = g_application_run(G_APPLICATION(app), argc, argv);

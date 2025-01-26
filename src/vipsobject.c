@@ -488,7 +488,7 @@ vo_call_execute(Vo *vo, PElement *optional)
 }
 
 static gboolean
-vo_write_result(Vo *vo, PElement *out)
+vo_write_result(Vo *vo, PElement *out, gboolean strip)
 {
 	/* The output object.
 	 */
@@ -497,7 +497,8 @@ vo_write_result(Vo *vo, PElement *out)
 
 	/* If the output list is a single element, move pe to that.
 	 */
-	if (heap_list_length(&pe) == 1)
+	if (strip &&
+		heap_list_length(&pe) == 1)
 		heap_list_index(&pe, 0, &pe);
 
 	/* And write to out.
@@ -509,6 +510,8 @@ vo_write_result(Vo *vo, PElement *out)
 
 /* Run a VipsOperation. Like vo_object_new(), but we return the output args
  * rather than the operation.
+ *
+ * This version is strictly compatible with old nip code.
  */
 void
 vo_call(Reduce *rc, PElement *out, const char *name,
@@ -530,7 +533,35 @@ vo_call(Reduce *rc, PElement *out, const char *name,
 		reduce_throw(rc);
 	}
 
-	vo_write_result(vo, out);
+	vo_write_result(vo, out, FALSE);
+
+	vips_object_unref_outputs(vo->object);
+	vo_free(vo);
+}
+
+/* Same, but the revised nip9 version.
+ */
+void
+vo_call9(Reduce *rc, PElement *out, const char *name,
+	PElement *required, PElement *optional)
+{
+	Vo *vo;
+
+	if (!(vo = vo_new(rc, name)))
+		reduce_throw(rc);
+
+	if (!vo_args(vo, required, optional)) {
+		vo_free(vo);
+		reduce_throw(rc);
+	}
+
+	if (!vo_call_execute(vo, optional)) {
+		vips_object_unref_outputs(vo->object);
+		vo_free(vo);
+		reduce_throw(rc);
+	}
+
+	vo_write_result(vo, out, TRUE);
 
 	vips_object_unref_outputs(vo->object);
 	vo_free(vo);
@@ -601,7 +632,7 @@ vo_callva_sub(Reduce *rc, PElement *out, const char *name, va_list ap)
 		vips_buf_appends(trace_current(), " ->\n");
 
 	result = result && vo_call_execute(vo, NULL);
-	result = result && vo_write_result(vo, out);
+	result = result && vo_write_result(vo, out, TRUE);
 
 	if (trace_flags & TRACE_VIPS) {
 		trace_result(TRACE_VIPS, out);

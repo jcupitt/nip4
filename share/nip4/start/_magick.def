@@ -77,7 +77,7 @@ Magick = class {
 	version
 		= map parse_int (split (member ".-") version_string)
 	{
-		output = vips_call "system"
+		output = vips_call9 "system"
 			["'" ++ command_path ++ "' -version"] [$log=>true];
 		version_string
 			= (split (equal ' ') output)?1, use_gm

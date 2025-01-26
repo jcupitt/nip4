@@ -1174,6 +1174,25 @@ apply_vo_call_call(Reduce *rc,
 	vo_call(rc, out, buf, &required, &optional);
 }
 
+/* Do a vips_call call, nip9 style.
+ */
+static void
+apply_vo_call9_call(Reduce *rc,
+	const char *name, HeapNode **arg, PElement *out)
+{
+	PElement rhs;
+	char buf[256];
+	PElement required;
+	PElement optional;
+
+	PEPOINTRIGHT(arg[2], &rhs);
+	reduce_get_string(rc, &rhs, buf, 256);
+	PEPOINTRIGHT(arg[1], &required);
+	PEPOINTRIGHT(arg[0], &optional);
+
+	vo_call9(rc, out, buf, &required, &optional);
+}
+
 /* All ip's builtin functions.
  */
 static BuiltinInfo builtin_table[] = {
@@ -1212,6 +1231,9 @@ static BuiltinInfo builtin_table[] = {
 	{ "vips_call", N_("call vips8 operator"),
 		FALSE, VIPS_NUMBER(vo_call_args),
 		&vo_call_args[0], apply_vo_call_call },
+	{ "vips_call9", N_("call vips8 operator, nip9 style"),
+		FALSE, VIPS_NUMBER(vo_call_args),
+		&vo_call_args[0], apply_vo_call9_call },
 
 	/* Predicates.
 	 */
