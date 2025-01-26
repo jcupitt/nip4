@@ -1,16 +1,8 @@
-- try:
+- benchmark:
 
 	nip4 ~/pics/demo/demo.ws
 
-  takes forever :(
-
-- lung needs render plot to image
-
-	apply_graph_export_image_call() calls plot_to_image()
-
-	should probably be in plotdisplay, that has all the kplot code
-
-	various bits of plotdisplay need to be functions, not methods
+  seems to takes forever :( time vs nip2
 
 - try:
 

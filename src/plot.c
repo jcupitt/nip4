@@ -520,3 +520,4 @@ plot_init(Plot *plot)
 
 	plot_reset(CLASSMODEL(plot));
 }
+

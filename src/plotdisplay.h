@@ -40,5 +40,6 @@ Plotdisplay *plotdisplay_new(Plot *plot);
 gboolean plotdisplay_gtk_to_data(Plotdisplay *plotdisplay,
 	double gtk_x, double gtk_y,
 	double *data_x, double *data_y);
+Imageinfo *plotdisplay_to_image(Plot *plot, Reduce *rc, int width, int height);
 
 #endif /* __PLOTDISPLAY_H */

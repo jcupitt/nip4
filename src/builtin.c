@@ -489,7 +489,6 @@ static void
 apply_graph_export_image_call(Reduce *rc,
 	const char *name, HeapNode **arg, PElement *out)
 {
-	/*
 	PElement rhs;
 	double dpi;
 	Plot *plot;
@@ -512,23 +511,22 @@ apply_graph_export_image_call(Reduce *rc,
 		reduce_throw(rc);
 	}
 
-	plot = g_object_new(TYPE_PLOT, NULL);
+	plot = g_object_new(PLOT_TYPE, NULL);
 
 	if (!classmodel_update_members(CLASSMODEL(plot), &rhs)) {
-		UNREF(plot);
+		VIPS_UNREF(plot);
 		reduce_throw(rc);
 	}
 
-	if (!(ii = plot_to_image(plot, rc, dpi))) {
-		UNREF(plot);
+	if (!(ii = plotdisplay_to_image(plot,
+			rc, dpi * 340.0 / 72.0, dpi * 226.0 / 72.0))) {
+		VIPS_UNREF(plot);
 		reduce_throw(rc);
 	}
-	UNREF(plot);
+
+	VIPS_UNREF(plot);
 
 	PEPUTP(out, ELEMENT_MANAGED, ii);
-	 */
-
-	PEPUTP(out, ELEMENT_BOOL, TRUE);
 }
 
 /* Args for "header_get_typeof_args".

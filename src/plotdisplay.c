@@ -139,6 +139,16 @@ static Kplotfont plotdisplay_axis_font = {
     .weight = CAIRO_FONT_WEIGHT_NORMAL,
 };
 
+/* Everything we need to be able to plot a graph.
+ */
+typedef struct _Drawstate {
+	Kplot *kplot;
+	Kplotcfg kcfg_thumbnail;
+	Kplotcfg kcfg_window;
+	Kplotccfg *kccfg;
+	Kplotctx kctx;
+} Drawstate;
+
 struct _Plotdisplay {
 	GtkDrawingArea parent_instance;
 
@@ -149,12 +159,7 @@ struct _Plotdisplay {
 	 */
 	gboolean thumbnail;
 
-	// the kplot ready to draw
-	Kplot *kplot;
-	Kplotcfg kcfg_thumbnail;
-	Kplotcfg kcfg_window;
-	Kplotccfg *kccfg;
-	Kplotctx kctx;
+	Drawstate state;
 
 	guint plot_changed_sid;
 };
@@ -173,36 +178,20 @@ enum {
 };
 
 static void
-plotdisplay_dispose(GObject *object)
+drawstate_free(Drawstate *state)
 {
-	Plotdisplay *plotdisplay = (Plotdisplay *) object;
-
-#ifdef DEBUG
-	printf("plotdisplay_dispose:\n");
-#endif /*DEBUG*/
-
-	FREESID(plotdisplay->plot_changed_sid, plotdisplay->plot);
-	VIPS_FREE(plotdisplay->kccfg);
-
-	G_OBJECT_CLASS(plotdisplay_parent_class)->dispose(object);
+	VIPS_FREE(state->kccfg);
+	VIPS_FREEF(kplot_free, state->kplot);
 }
 
 static gboolean
-plotdisplay_build_kplot(Plotdisplay *plotdisplay)
+drawstate_build_kplot(Drawstate *state, Plot *plot, gboolean thumbnail)
 {
-	Plot *plot = plotdisplay->plot;
+	Kplotcfg *kcfg = thumbnail ? &state->kcfg_thumbnail : &state->kcfg_window;
 
-	Kplotcfg *kcfg = plotdisplay->thumbnail ?
-		&plotdisplay->kcfg_thumbnail :
-		&plotdisplay->kcfg_window;
-
-	Kdatacfg *kdatacfg = plotdisplay->thumbnail ?
+	Kdatacfg *kdatacfg = thumbnail ?
 		&plotdisplay_series_datacfg_thumbnail :
 		&plotdisplay_series_datacfg_window;
-
-#ifdef DEBUG
-	printf("plotdisplay_build_kplot:\n");
-#endif /*DEBUG*/
 
 	// use our scaling ... this is in config, unfortunately
 	kcfg->extrema = EXTREMA_XMIN | EXTREMA_XMAX | EXTREMA_YMIN | EXTREMA_YMAX;
@@ -210,18 +199,17 @@ plotdisplay_build_kplot(Plotdisplay *plotdisplay)
 	kcfg->extrema_xmax = plot->xmax;
 	kcfg->extrema_ymin = plot->ymin;
 	kcfg->extrema_ymax = plot->ymax;
-	kcfg->xaxislabel = plotdisplay->thumbnail && plot->xcaption ?
-		NULL : plot->xcaption;
-	kcfg->yaxislabel = plotdisplay->thumbnail && plot->ycaption ?
-		NULL : plot->ycaption;
+	kcfg->xaxislabel = thumbnail && plot->xcaption ? NULL : plot->xcaption;
+	kcfg->yaxislabel = thumbnail && plot->ycaption ? NULL : plot->ycaption;
 
 	g_autoptr(Kplot) kplot = kplot_alloc(kcfg);
 
 	for (int i = 0; i < plot->columns; i++) {
 		g_autoptr(Kdata) kdata = NULL;
 
-		if (!(kdata = kdata_array_alloc(NULL, plot->rows)))
+		if (!(kdata = kdata_array_alloc(NULL, plot->rows))) {
 			return FALSE;
+		}
 
 		for (int j = 0; j < plot->rows; j++)
 			kdata_set(kdata, j, plot->xcolumn[i][j], plot->ycolumn[i][j]);
@@ -231,10 +219,120 @@ plotdisplay_build_kplot(Plotdisplay *plotdisplay)
 			kdatacfg);
 	}
 
-	VIPS_FREEF(kplot_free, plotdisplay->kplot);
-	plotdisplay->kplot = g_steal_pointer(&kplot);
+	VIPS_FREEF(kplot_free, state->kplot);
+	state->kplot = g_steal_pointer(&kplot);
 
 	return TRUE;
+}
+
+static double
+drawstate_pick_xinterval(double min, double max, int width)
+{
+	double range = max - min;
+	double magnitude = pow(10.0, ceil(log10(range)));
+
+	if (width < 200)
+		return magnitude / 2.0;
+	else if (width < 400)
+		return magnitude / 5.0;
+	else if (width < 600)
+		return magnitude / 10.0;
+	else if (width < 1400)
+		return magnitude / 20.0;
+	else if (width < 2000)
+		return magnitude / 50.0;
+	else
+		return magnitude / 100.0;
+}
+
+// vertical labels can be quite a bit closer
+static double
+drawstate_pick_yinterval(double min, double max, int height)
+{
+	double range = max - min;
+	double magnitude = pow(10.0, ceil(log10(range)));
+
+	if (height < 100)
+		return magnitude / 2.0;
+	else if (height < 150)
+		return magnitude / 5.0;
+	else if (height < 250)
+		return magnitude / 10.0;
+	else if (height < 450)
+		return magnitude / 20.0;
+	else if (height < 700)
+		return magnitude / 50.0;
+	else if (height < 1300)
+		return magnitude / 100.0;
+	else
+		return magnitude / 200.0;
+}
+
+static void
+drawstate_draw(Drawstate *state,
+	cairo_t *cr, int width, int height, gboolean thumbnail, Plot *plot)
+{
+	// white background
+	GdkRGBA white;
+	gdk_rgba_parse(&white, "white");
+	gdk_cairo_set_source_rgba(cr, &white);
+	cairo_rectangle(cr, 0.0, 0.0, width, height);
+	cairo_fill(cr);
+
+	if (thumbnail) {
+		state->kplot->cfg.xinterval = 0.0;
+		state->kplot->cfg.yinterval = 0.0;
+	}
+	else {
+		state->kplot->cfg.xinterval =
+			drawstate_pick_xinterval(plot->xmin, plot->xmax, width);
+		state->kplot->cfg.yinterval =
+			drawstate_pick_yinterval(plot->ymin, plot->ymax, height);
+	}
+
+	// and plot
+	kplot_draw_ctx(&state->kctx, state->kplot, width, height, cr);
+}
+
+static void
+drawstate_init(Drawstate *state)
+{
+	// minimal config for thumbnail draw
+	kplotcfg_defaults(&state->kcfg_thumbnail);
+	state->kcfg_thumbnail.xinterval = 0;
+	state->kcfg_thumbnail.yinterval = 0;
+	state->kcfg_thumbnail.ticlabel = 0;
+	state->kcfg_thumbnail.marginsz = 3;
+	state->kcfg_thumbnail.ticline.len = 0;
+	state->kcfg_thumbnail.grid = 0;
+	state->kcfg_thumbnail.clrsz = VIPS_NUMBER(plotdisplay_series_rgba);
+	state->kcfg_thumbnail.clrs = plotdisplay_series_ccfg;
+
+	// bigger for window
+	kplotcfg_defaults(&state->kcfg_window);
+	state->kcfg_window.xinterval = 0;
+	state->kcfg_window.yinterval = 0;
+	state->kcfg_window.clrsz = VIPS_NUMBER(plotdisplay_series_rgba);
+	state->kcfg_window.clrs = plotdisplay_series_ccfg;
+	state->kcfg_window.ticlabelfont = plotdisplay_tic_font;
+	state->kcfg_window.axislabelfont = plotdisplay_axis_font;
+
+	state->kplot = NULL;
+}
+
+static void
+plotdisplay_dispose(GObject *object)
+{
+	Plotdisplay *plotdisplay = (Plotdisplay *) object;
+
+#ifdef DEBUG
+	printf("plotdisplay_dispose:\n");
+#endif /*DEBUG*/
+
+	FREESID(plotdisplay->plot_changed_sid, plotdisplay->plot);
+	drawstate_free(&plotdisplay->state);
+
+	G_OBJECT_CLASS(plotdisplay_parent_class)->dispose(object);
 }
 
 static void
@@ -245,7 +343,8 @@ plotdisplay_plot_changed(Plot *plot, Plotdisplay *plotdisplay)
 #endif /*DEBUG*/
 
 	if (plotdisplay->plot)
-		plotdisplay_build_kplot(plotdisplay);
+		drawstate_build_kplot(&plotdisplay->state,
+			plotdisplay->plot, plotdisplay->thumbnail);
 
 	gtk_widget_queue_draw(GTK_WIDGET(plotdisplay));
 }
@@ -336,49 +435,6 @@ plotdisplay_get_property(GObject *object,
 	}
 }
 
-static double
-plotdisplay_pick_xinterval(double min, double max, int width)
-{
-	double range = max - min;
-	double magnitude = pow(10.0, ceil(log10(range)));
-
-	if (width < 200)
-		return magnitude / 2.0;
-	else if (width < 400)
-		return magnitude / 5.0;
-	else if (width < 600)
-		return magnitude / 10.0;
-	else if (width < 1400)
-		return magnitude / 20.0;
-	else if (width < 2000)
-		return magnitude / 50.0;
-	else
-		return magnitude / 100.0;
-}
-
-// vertical labels can be quite a bit closer
-static double
-plotdisplay_pick_yinterval(double min, double max, int height)
-{
-	double range = max - min;
-	double magnitude = pow(10.0, ceil(log10(range)));
-
-	if (height < 100)
-		return magnitude / 2.0;
-	else if (height < 150)
-		return magnitude / 5.0;
-	else if (height < 250)
-		return magnitude / 10.0;
-	else if (height < 450)
-		return magnitude / 20.0;
-	else if (height < 700)
-		return magnitude / 50.0;
-	else if (height < 1300)
-		return magnitude / 100.0;
-	else
-		return magnitude / 200.0;
-}
-
 static void
 plotdisplay_draw_function(GtkDrawingArea *area,
 	cairo_t *cr, int width, int height, gpointer user_data)
@@ -389,31 +445,9 @@ plotdisplay_draw_function(GtkDrawingArea *area,
 	printf("plotdisplay_draw_function: %d x %d\n", width, height);
 #endif /*DEBUG_VERBOSE*/
 
-	if (plotdisplay->kplot) {
-		// white background
-		GdkRGBA white;
-		gdk_rgba_parse(&white, "white");
-		gdk_cairo_set_source_rgba(cr, &white);
-		cairo_rectangle(cr, 0.0, 0.0, width, height);
-		cairo_fill(cr);
-
-		if (!plotdisplay->thumbnail) {
-			plotdisplay->kplot->cfg.xinterval =
-				plotdisplay_pick_xinterval(plotdisplay->plot->xmin,
-						plotdisplay->plot->xmax, width);
-			plotdisplay->kplot->cfg.yinterval =
-				plotdisplay_pick_yinterval(plotdisplay->plot->ymin,
-						plotdisplay->plot->ymax, height);
-		}
-		else {
-			plotdisplay->kplot->cfg.xinterval = 0.0;
-			plotdisplay->kplot->cfg.yinterval = 0.0;
-		}
-
-		// and plot
-		kplot_draw_ctx(&plotdisplay->kctx,
-			plotdisplay->kplot, width, height, cr);
-	}
+	if (plotdisplay->state.kplot)
+		drawstate_draw(&plotdisplay->state,
+			cr, width, height, plotdisplay->thumbnail, plotdisplay->plot);
 }
 
 static void
@@ -423,26 +457,7 @@ plotdisplay_init(Plotdisplay *plotdisplay)
 	printf("plotdisplay_init:\n");
 #endif /*DEBUG*/
 
-	// minimal config for thumbnail draw
-	kplotcfg_defaults(&plotdisplay->kcfg_thumbnail);
-	plotdisplay->kcfg_thumbnail.xinterval = 0;
-	plotdisplay->kcfg_thumbnail.yinterval = 0;
-	plotdisplay->kcfg_thumbnail.ticlabel = 0;
-	plotdisplay->kcfg_thumbnail.marginsz = 3;
-	plotdisplay->kcfg_thumbnail.ticline.len = 0;
-	plotdisplay->kcfg_thumbnail.grid = 0;
-	plotdisplay->kcfg_thumbnail.clrsz = VIPS_NUMBER(plotdisplay_series_rgba);
-	plotdisplay->kcfg_thumbnail.clrs = plotdisplay_series_ccfg;
-
-	// bigger for window
-	kplotcfg_defaults(&plotdisplay->kcfg_window);
-	plotdisplay->kcfg_window.xinterval = 0;
-	plotdisplay->kcfg_window.yinterval = 0;
-	plotdisplay->kcfg_window.clrsz = VIPS_NUMBER(plotdisplay_series_rgba);
-	plotdisplay->kcfg_window.clrs = plotdisplay_series_ccfg;
-	plotdisplay->kcfg_window.ticlabelfont = plotdisplay_tic_font;
-	plotdisplay->kcfg_window.axislabelfont = plotdisplay_axis_font;
-
+	drawstate_init(&plotdisplay->state);
 	gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(plotdisplay),
 		plotdisplay_draw_function, plotdisplay, NULL);
 }
@@ -486,7 +501,6 @@ plotdisplay_class_init(PlotdisplayClass *class)
 		plotdisplay_series_ccfg[i].rgba[2] = rgba.blue;
 		plotdisplay_series_ccfg[i].rgba[3] = rgba.alpha;
 	}
-
 }
 
 Plotdisplay *
@@ -510,63 +524,51 @@ plotdisplay_gtk_to_data(Plotdisplay *plotdisplay,
 	double gtk_x, double gtk_y,
 	double *data_x, double *data_y)
 {
-	return kplot_cairo_to_data(&plotdisplay->kctx,
+	return kplot_cairo_to_data(&plotdisplay->state.kctx,
 		gtk_x, gtk_y, data_x, data_y);
 }
 
-/*
 Imageinfo *
-plotdisplay_to_image(Plot *plot, Reduce *rc, double dpi)
+plotdisplay_to_image(Plot *plot, Reduce *rc, int width, int height)
 {
-    GdkPixbuf *pixbuf;
-    double width_in_pts, height_in_pts;
-    Imageinfo *ii;
+	g_autoptr(VipsImage) image = NULL;
 
-	need to call plotdisplay_build_kplot() to set everything up, then
+	if (!(image = vips_image_new_memory())) {
+		error_vips_all();
+		return NULL;
+	}
+	vips_image_init_fields(image, width, height, 4,
+		VIPS_FORMAT_UCHAR, VIPS_CODING_NONE,
+		VIPS_INTERPRETATION_sRGB, 1.0, 1.0);
+	if (vips_image_write_prepare(image)) {
+		error_vips_all();
+		return NULL;
+	}
 
-		needs to become a function
+	g_autoptr(cairo_surface_t) surface = NULL;
+	surface = cairo_image_surface_create_for_data(VIPS_IMAGE_ADDR(image, 0, 0),
+        CAIRO_FORMAT_ARGB32, width, height, VIPS_IMAGE_SIZEOF_LINE(image));
+	if (!surface) {
+		error_vips_all();
+		return NULL;
+	}
 
-	plotdisplay_draw_function() to draw to a cairo surface
+	g_autoptr(cairo_t) cr = cairo_create(surface);
+	if (!cr) {
+		error_vips_all();
+		return NULL;
+	}
 
-		needs to become a function
+	Drawstate state;
+	drawstate_init(&state);
+	drawstate_build_kplot(&state, plot, FALSE);
+	drawstate_draw(&state, cr, width, height, FALSE, plot);
+	drawstate_free(&state);
 
-	then make an imageinfo from the cairo surface
-
-
-    ggraph = g_object_new( GOG_TYPE_GRAPH, NULL );
-
-    gchart = g_object_new( GOG_TYPE_CHART, NULL );
-    gog_object_add_by_name( GOG_OBJECT( ggraph ),
-        "Chart", GOG_OBJECT( gchart ) );
-
-    gplot = plot_new_gplot( plot );
-    gog_object_add_by_name( GOG_OBJECT( gchart ),
-        "Plot", GOG_OBJECT( gplot ) );
-
-    plot_style_main( plot, gchart );
-
-    renderer = gog_renderer_new( ggraph );
-
-    gog_graph_force_update( ggraph );
-
-    gog_graph_get_size( ggraph, &width_in_pts, &height_in_pts);
-
-    gog_renderer_update( renderer,
-        width_in_pts * dpi / 72.0, height_in_pts * dpi / 72.0 );
-
-    pixbuf = gog_renderer_get_pixbuf(renderer);
-
-    if (!(ii =
-		imageinfo_new_from_pixbuf(main_imageinfogroup, rc->heap, pixbuf))) {
-        UNREF(renderer);
-        UNREF(ggraph);
-
-        return NULL;
-    }
-
-    UNREF(renderer);
-    UNREF(ggraph);
+	Imageinfo *ii;
+    if (!(ii = imageinfo_new(main_imageinfogroup, rc->heap, image, NULL)))
+		return NULL;
+	image = NULL;
 
     return ii;
 }
- */
