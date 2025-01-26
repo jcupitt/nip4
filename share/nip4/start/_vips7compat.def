@@ -38,9 +38,7 @@ im_copy_set im t xr yr xo yo
 		$yoffset => yo
 	];
 
-// not really possible with the vips8 API
-im_copy_set_meta in field value
-	= error "im_copy_set_meta: not implemented";
+// im_copy_set_meta is implemented as a builtin
 
 im_tile_cache_random in tile_width tile_height max_tiles
 	= vips_call9 "tilecache" [in] [
@@ -650,6 +648,11 @@ im_draw_flood in start_x start_y ink
         = vips_call9 "draw_flood" [in, ink, start_x, start_y] [
                 $equal => false
         ];
+
+im_segment test
+        = vips_call9 "labelregions" [test] [
+                $segments => true
+	];
 
 // add a lot more!
 

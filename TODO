@@ -2,14 +2,20 @@
 
 	nip4 ~/pics/demo/demo.ws
 
-  lungmask.K6 fails with:
+  takes forever :(
 
-	im_copy_set_meta not implemented
+  need thing to get image from plot
 
-  see _vips7compat.def
+- try:
 
-	do we need to write this as a builtin?
+	nip4 ~/pics/demo/demo.ws
 
+  see
+
+	ORC: ERROR: ../orc/orcprogram.c(1025): orc_program_append_str_n(): bad operand "c8b" in position 3 for opcode: loadoffb at line 0
+	ORC: ERROR: ../orc/orcprogram.c(1025): orc_program_append_str_n(): bad operand "c1b" in position 3 for opcode: loadoffb at line 0
+	ORC: ERROR: ../orc/orcprogram.c(1025): orc_program_append_str_n(): bad operand "c8b" in position 3 for opcode: loadoffb at line 0
+	ORC: ERROR: ../orc/orcprogram.c(1025): orc_program_append_str_n(): bad operand "c9b" in position 3 for opcode: loadoffb at line 0
 
 - try:
 

@@ -253,10 +253,12 @@ rowview_child_remove(View *parent, View *child)
 	Rowview *rview = ROWVIEW(parent);
 
 	g_assert(IS_RHSVIEW(child));
-	g_assert(rview->rhsview);
-	g_assert(child == VIEW(rview->rhsview));
 
-	VIPS_UNREF(rview->rhsview);
+	if (rview->rhsview) {
+		g_assert(child == VIEW(rview->rhsview));
+
+		VIPS_UNREF(rview->rhsview);
+	}
 
 	VIEW_CLASS(rowview_parent_class)->child_remove(parent, child);
 }

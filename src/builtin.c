@@ -1193,6 +1193,55 @@ apply_vo_call9_call(Reduce *rc,
 	vo_call9(rc, out, buf, &required, &optional);
 }
 
+/* Args for "copy_set_meta".
+ */
+static BuiltinTypeSpot *vo_copy_set_meta_args[] = {
+	&vimage_spot,
+	&string_spot,
+	&any_spot
+};
+
+static void
+apply_vo_copy_set_meta_call(Reduce *rc,
+	const char *name, HeapNode **arg, PElement *out)
+{
+	// im_copy_set_meta in field value
+	PElement image;
+	PElement field;
+	PElement value;
+
+	PEPOINTRIGHT(arg[2], &image);
+	PEPOINTRIGHT(arg[1], &field);
+	PEPOINTRIGHT(arg[0], &value);
+
+	Imageinfo *ii = reduce_get_image(rc, &image);
+
+	char buf[256];
+	reduce_get_string(rc, &field, buf, 256);
+
+	GValue gvalue = { 0 };
+	if (!heap_ip_to_gvalue(&value, &gvalue))
+		reduce_throw(rc);
+
+	VipsImage *x;
+	if (vips_copy(ii->image, &x, NULL)) {
+		g_value_unset(&gvalue);
+		error_vips_all();
+		reduce_throw(rc);
+	}
+
+	vips_image_set(x, buf, &gvalue);
+
+	g_value_unset(&gvalue);
+
+	if (!(ii = imageinfo_new(main_imageinfogroup, rc->heap, x, NULL))) {
+		VIPS_UNREF(x);
+		reduce_throw(rc);
+	}
+
+	PEPUTP(out, ELEMENT_MANAGED, ii);
+}
+
 /* All ip's builtin functions.
  */
 static BuiltinInfo builtin_table[] = {
@@ -1234,6 +1283,12 @@ static BuiltinInfo builtin_table[] = {
 	{ "vips_call9", N_("call vips8 operator, nip9 style"),
 		FALSE, VIPS_NUMBER(vo_call_args),
 		&vo_call_args[0], apply_vo_call9_call },
+
+	/* compat
+	 */
+	{ "im_copy_set_meta", N_("copy, setting a metadata item"),
+		FALSE, VIPS_NUMBER(vo_copy_set_meta_args),
+		&vo_copy_set_meta_args[0], apply_vo_copy_set_meta_call },
 
 	/* Predicates.
 	 */
