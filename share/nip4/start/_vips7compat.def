@@ -644,6 +644,12 @@ im_flood_blob_copy in start_x start_y ink
 	= vips_call9 "draw_flood" [in, ink, start_x, start_y] [
 		$equal => true
 	];
+im_draw_flood_blob = im_flood_blob_copy;
+
+im_draw_flood in start_x start_y ink
+        = vips_call9 "draw_flood" [in, ink, start_x, start_y] [
+                $equal => false
+        ];
 
 // add a lot more!
 

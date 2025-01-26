@@ -2,9 +2,13 @@
 
 	nip4 ~/pics/demo/demo.ws
 
-  lungmask.E11 fails with:
+  lungmask.K6 fails with:
 
-	im_draw_flood not defined
+	im_copy_set_meta not implemented
+
+  see _vips7compat.def
+
+	do we need to write this as a builtin?
 
 
 - try:
