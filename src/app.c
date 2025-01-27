@@ -21,6 +21,10 @@
 
  */
 
+/*
+#define DEBUG
+ */
+
 #include "nip4.h"
 
 struct _App {
@@ -197,6 +201,10 @@ static GActionEntry app_entries[] = {
 static void
 app_startup(GApplication *app)
 {
+#ifdef DEBUG
+	printf("app_startup:\n");
+#endif /*DEBUG*/
+
 	struct {
 		const gchar *action_and_target;
 		const gchar *accelerators[2];
@@ -274,6 +282,10 @@ app_startup(GApplication *app)
 static void
 app_open(GApplication *app, GFile **files, int n_files, const char *hint)
 {
+#ifdef DEBUG
+	printf("app_open:\n");
+#endif /*DEBUG*/
+
 	if (main_option_batch) {
 		for (int i = 0; i < n_files; i++) {
 			g_autofree char *filename = g_file_get_path(files[i]);
@@ -339,6 +351,10 @@ app_class_init(AppClass *class)
 App *
 app_new(gboolean welcome)
 {
+#ifdef DEBUG
+	printf("app_new:\n");
+#endif /*DEBUG*/
+
 	return g_object_new(APP_TYPE,
 		"welcome", welcome,
 		"application-id", APPLICATION_ID,

@@ -1,3 +1,10 @@
+- try:
+
+	cd ~/GIT/bm-workspaces
+	nip4 bm-workspaces.ws
+
+  need some sample images
+
 - benchmark:
 
 	nip4 ~/pics/demo/demo.ws
@@ -25,17 +32,10 @@
 
 	exit(0) just after workspacegroup_autosave_clean() saves 60s
 
+	still feels slow in interactive mode :( there's a LONG pause between
+	^Q and app_shutdown() being called
 
-- try:
-
-	nip4 ~/pics/demo/demo.ws
-
-  see
-
-	ORC: ERROR: ../orc/orcprogram.c(1025): orc_program_append_str_n(): bad operand "c8b" in position 3 for opcode: loadoffb at line 0
-	ORC: ERROR: ../orc/orcprogram.c(1025): orc_program_append_str_n(): bad operand "c1b" in position 3 for opcode: loadoffb at line 0
-	ORC: ERROR: ../orc/orcprogram.c(1025): orc_program_append_str_n(): bad operand "c8b" in position 3 for opcode: loadoffb at line 0
-	ORC: ERROR: ../orc/orcprogram.c(1025): orc_program_append_str_n(): bad operand "c9b" in position 3 for opcode: loadoffb at line 0
+	I suppose we have to exit(0) in the ^Q handler itself?
 
 - try:
 
@@ -47,6 +47,21 @@
 
 	cd ~/hammersmith/data/demo3
 	nip4 main4a.ws blood4a.ws image4a.ws patlak4a.ws
+
+	$ time nip4 --benchmark main4a.ws blood4a.ws image4a.ws patlak4a.ws
+	real	1m40.949s
+	user	41m2.885s
+	sys	0m27.297s
+
+  put those four tabs into one ws and run:
+
+	$ time nip4 --benchmark all.ws
+	real	17m24.971s
+	user	18m12.380s
+	sys	0m16.356s
+
+ W T F
+
 
 - iimage.h has:
 
