@@ -408,6 +408,41 @@ main(int argc, char **argv)
 	main_imageinfogroup = imageinfogroup_new();
 	iobject_ref_sink(IOBJECT(main_imageinfogroup));
 
+    /* First pass at command-line options. Just look at the flags that
+     * imply other flags, don't do any processing yet.
+     */
+    if (main_option_script) {
+        main_option_batch = TRUE;
+        main_option_no_load_menus = TRUE;
+        main_option_no_load_args = TRUE;
+        main_option_print_main = TRUE;
+    }
+
+    if (main_option_test) {
+        main_option_batch = TRUE;
+        main_option_verbose = TRUE;
+    }
+
+    if (main_option_expression) {
+        main_option_batch = TRUE;
+        main_option_no_load_menus = TRUE;
+        main_option_no_load_args = TRUE;
+        main_option_print_main = TRUE;
+    }
+
+    if (main_option_benchmark) {
+        main_option_batch = TRUE;
+        main_option_no_load_menus = FALSE;
+    }
+
+    if (main_option_i18n) {
+        /* Just start up and shutdown, no display. Output constant
+         * i18n strings.
+         */
+        main_option_batch = TRUE;
+        main_option_no_load_menus = FALSE;
+    }
+
 	/* Add builtin toolkit.
 	 */
 	builtin_init();
@@ -511,13 +546,6 @@ main(int argc, char **argv)
 	/* Junk reduction machine ... this should remove all image temps.
 	 */
 	reduce_destroy(reduce_context);
-
-#ifdef HAVE_LIBGOFFICE
-	/* Not quite sure what this does, but don't do it in batch mode.
-	 */
-	if (!main_option_batch)
-		libgoffice_shutdown();
-#endif /*HAVE_LIBGOFFICE*/
 
 	path_rewrite_free_all();
 

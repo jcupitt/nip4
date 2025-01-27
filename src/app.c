@@ -94,10 +94,12 @@ app_init(App *app)
 static void
 app_activate(GApplication *gapp)
 {
-	Mainwindow *main;
+	if (!main_option_batch) {
+		Mainwindow *main;
 
-	main = mainwindow_new(APP(gapp), NULL);
-	gtk_window_present(GTK_WINDOW(main));
+		main = mainwindow_new(APP(gapp), NULL);
+		gtk_window_present(GTK_WINDOW(main));
+	}
 }
 
 static void *
@@ -152,6 +154,7 @@ app_about_activated(GSimpleAction *action,
 
 	static const char *authors[] = {
 		"jcupitt",
+		"jpadfield",
 		"angstyloop",
 		"TingPing",
 		"earboxer",
@@ -271,16 +274,29 @@ app_startup(GApplication *app)
 static void
 app_open(GApplication *app, GFile **files, int n_files, const char *hint)
 {
-	Mainwindow *main = mainwindow_new(APP(app), NULL);
+	if (main_option_batch) {
+		for (int i = 0; i < n_files; i++) {
+			g_autofree char *filename = g_file_get_path(files[i]);
 
-	gtk_window_present(GTK_WINDOW(main));
+			if (!workspacegroup_new_from_file(main_workspaceroot,
+				filename, filename))
+				error_alert(NULL);
+		}
 
-	for (int i = 0; i < n_files; i++)
-		mainwindow_open(main, files[i]);
+		symbol_recalculate_all();
+	}
+	else {
+		Mainwindow *main = mainwindow_new(APP(app), NULL);
 
-	if (n_files > 0 &&
-		mainwindow_is_empty(main))
-		gtk_window_destroy(GTK_WINDOW(main));
+		gtk_window_present(GTK_WINDOW(main));
+
+		for (int i = 0; i < n_files; i++)
+			mainwindow_open(main, files[i]);
+
+		if (n_files > 0 &&
+			mainwindow_is_empty(main))
+			gtk_window_destroy(GTK_WINDOW(main));
+	}
 }
 
 static void

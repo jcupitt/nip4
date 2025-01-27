@@ -4,6 +4,28 @@
 
   seems to takes forever :( time vs nip2
 
+  add "--benchmark" flag?
+
+	$ time nip4 --benchmark demo.ws
+	real	3m54.090s
+	user	4m40.215s
+	sys	0m24.972s
+
+	$ time nip2 --benchmark demo.ws
+	real	0m47.814s
+	user	0m47.408s
+	sys	0m0.383s
+
+  nip4 is doing symbol_recalculate_all(), perhaps we only need to recomp
+  "main"?
+
+- takes a long time to shut down
+
+	only do a full cleanup in debug mode, fast exit otherwise
+
+	exit(0) just after workspacegroup_autosave_clean() saves 60s
+
+
 - try:
 
 	nip4 ~/pics/demo/demo.ws

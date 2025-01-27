@@ -1110,7 +1110,17 @@ mainwindow_about(Mainwindow *main, VipsBuf *buf)
 	vips_object_map((VipsSListMap2Fn) mainwindow_count_images, &n, NULL);
 
 	vips_buf_append_size(buf, size);
-	vips_buf_appendf(buf, _(" in %d images"), n);
+	vips_buf_appendf(buf, _(" in %d images\n"), n);
+
+	vips_buf_appendf(buf, _("%d operations cached\n"), vips_cache_get_size());
+
+	vips_buf_append_size(buf, vips_tracked_get_mem());
+	vips_buf_appendf(buf, _(" bytes in %d pixel buffers\n"),
+		vips_tracked_get_allocs());
+	vips_buf_append_size(buf, vips_tracked_get_mem_highwater());
+	vips_buf_appendf(buf, _(" pixel buffer highwater mark\n"));
+
+	vips_buf_appendf(buf, _("%d open files\n"), vips_tracked_get_files());
 }
 
 gboolean
