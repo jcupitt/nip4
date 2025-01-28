@@ -133,6 +133,10 @@ program_refresh(Program *program)
 	if (program->kitg) {
 		vips_buf_appends(&title, _("Toolkits for "));
 		symbol_qualified_name(program->kitg->root, &title);
+
+		if (program->kitg->compat_major)
+			vips_buf_appendf(&title, _(" - compatibility mode %d.%d"),
+				program->kitg->compat_major, program->kitg->compat_minor);
 	}
 
 	if (program->kit) {

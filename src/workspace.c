@@ -983,6 +983,9 @@ workspace_load_compat(Workspace *ws, int major, int minor)
 		ws->kitg = toolkitgroup_new(ws->sym);
 		iobject_ref_sink(IOBJECT(ws->kitg));
 
+		ws->kitg->compat_major = best_major;
+		ws->kitg->compat_minor = best_minor;
+
 		g_snprintf(pathname, FILENAME_MAX,
 			"$VIPSHOME/share/" PACKAGE "/compat/%d.%d", best_major, best_minor);
 		path = path_parse(pathname);
@@ -997,19 +1000,6 @@ workspace_load_compat(Workspace *ws, int major, int minor)
 		printf("workspace_load_compat: loaded %d.%d\n",
 			best_major, best_minor);
 #endif /*DEBUG*/
-
-		ws->compat_major = best_major;
-		ws->compat_minor = best_minor;
-	}
-	else {
-#ifdef DEBUG
-		printf("workspace_load_compat: no compat necessary\n");
-#endif /*DEBUG*/
-
-		/* No compat defs necessary for this ws.
-		 */
-		ws->compat_major = 0;
-		ws->compat_minor = 0;
 	}
 
 	return TRUE;

@@ -37,11 +37,7 @@
 
 	I suppose we have to exit(0) in the ^Q handler itself?
 
-- try:
-
-	load workspace with compat menus
-	right click, edit toolkits
-	does not say compat in title bar
+- nip4 icon in "about" does not display, and needs to be 512x512
 
 - try:
 

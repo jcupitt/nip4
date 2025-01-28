@@ -855,12 +855,12 @@ mainwindow_title_update(Mainwindow *main)
 	if ((ws = mainwindow_get_workspace(main))) {
 		vips_buf_appends(&title, " - ");
 		vips_buf_appendf(&title, "%s", IOBJECT(ws->sym)->name);
-		if (ws->compat_major) {
+		if (ws->kitg->compat_major) {
 			vips_buf_appends(&title, " - ");
 			vips_buf_appends(&title, _("compatibility mode"));
 			vips_buf_appendf(&title, " %d.%d",
-				ws->compat_major,
-				ws->compat_minor);
+				ws->kitg->compat_major,
+				ws->kitg->compat_minor);
 		}
 	}
 

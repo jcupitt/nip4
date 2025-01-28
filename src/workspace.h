@@ -73,15 +73,6 @@ struct _Workspace {
 	int major;
 	int minor;
 
-	/* We may load some compat definitions to support this workspace, if it
-	 * was written by an older version.
-	 *
-	 * The version number of the compat stuff we loaded. Zero for no compat
-	 * stuff loaded.
-	 */
-	int compat_major;
-	int compat_minor;
-
 	/* The last row we scrolled to on next-error.
 	 */
 	Row *last_error;

@@ -504,8 +504,8 @@ main(int argc, char **argv)
 	if (container) {
 		Workspace *ws = SYMBOL(container)->ws;
 
-		if (ws->compat_major ||
-			ws->compat_minor)
+		if (ws->kitg->compat_major ||
+			ws->kitg->compat_minor)
 			printf("Preferences loaded in compat mode!\n");
 	}
 	else

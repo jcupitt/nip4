@@ -44,6 +44,15 @@
 struct _Toolkitgroup {
 	Model parent_class;
 
+	/* We may load some compat definitions to support this workspace, if it
+	 * was written by an older version.
+	 *
+	 * The version number of the compat stuff we loaded. Zero for no compat
+	 * stuff loaded.
+	 */
+	int compat_major;
+	int compat_minor;
+
 	/* Defs in toolkits in this group are created as locals of this
 	 * symbol. This is symbol_root for the main toolkitgroup, but can be
 	 * local to a workspace if we are loading a set of compatibility defs.

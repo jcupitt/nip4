@@ -118,10 +118,6 @@ struct _Workspaceview {
 	 */
 	guint watch_changed_sid;
 
-	/* Only show the compat warning once.
-	 */
-	gboolean popped_compat;
-
 	/* For layout animation.
 	 */
 	guint tick_handler;
