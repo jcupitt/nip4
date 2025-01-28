@@ -1,3 +1,23 @@
+- need preferences
+
+- need "recover after crash"
+
+	scan tmp dir for .ws, make a table
+
+		date 	| time		| size in bytes 	| process id
+		--------+---------------+-----------------------+-----------
+		1/2/3	| 15:12		| 2342			| 2398572
+
+	sort by process id, then date, then time ... maybe a blank line
+	between PIDs?
+
+	on linux and macos at least, can skip wses for processes that still
+	exist ... at least skip this process
+
+	click on one to select, then click "Recover"
+
+	have a "delete all saved workspaces" button
+
 - try:
 
 	cd ~/GIT/bm-workspaces
@@ -39,6 +59,16 @@
 
 - nip4 icon in "about" does not display, and needs to be 512x512
 
+	maybe copy-paste the vipsdisp icon for now
+
+- thumbnails and image windows are still flashing black on update
+
+	eg. load GIF, A2 = A1 * 1.2
+
+  should start to drop frames on GIFs as we slow down, not lock or flicker
+
+- should tilecache work in image tiles, not RGBA tiles?
+
 - try:
 
 	cd ~/hammersmith/data/demo3
@@ -56,7 +86,7 @@
 	user	18m12.380s
 	sys	0m16.356s
 
- W T F
+  W T F
 
 
 - iimage.h has:
@@ -68,8 +98,6 @@
   do we use these?
 
 - replace from file in imagewindow often fails to update the title bar
-
-- need "recover after crash"
 
 - investigate behaviour with updated iimage_update_heap() ... there will be
   quite a few cases which now fail (I expect)

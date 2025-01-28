@@ -420,6 +420,30 @@ program_set_property(GObject *object,
 }
 
 static void
+program_close_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Program *program = PROGRAM(user_data);
+
+	gtk_window_destroy(GTK_WINDOW(program));
+}
+
+static GActionEntry program_entries[] = {
+	// FIXME ... ooof
+
+	// { "open", program_open_action },
+
+	// { "new-toolkit", program_new_toolkit_action },
+	// { "new-tool", program_new_tool_action },
+
+	// { "save", program_saveas_action },
+	// { "saveas", program_saveas_action },
+
+	{ "close", program_close_action },
+};
+
+
+static void
 program_init(Program *program)
 {
 #ifdef DEBUG
@@ -436,6 +460,10 @@ program_init(Program *program)
 	program->load_folder = g_file_new_for_path(cwd);
 
 	gtk_widget_init_template(GTK_WIDGET(program));
+
+	g_action_map_add_action_entries(G_ACTION_MAP(program),
+		program_entries, G_N_ELEMENTS(program_entries),
+		program);
 
 	PangoTabArray *tabs = pango_tab_array_new(10, FALSE);
 	for (int i = 0; i < 10; i++)

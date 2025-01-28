@@ -2,20 +2,6 @@
 <interface>
   <menu id="program-menu">
     <section>
-      <attribute name="display-hint">horizontal-buttons</attribute>
-      <item>
-        <attribute name="label">Copy</attribute>
-        <attribute name="action">win.copy</attribute>
-        <attribute name="verb-icon">edit-copy-symbolic</attribute>
-      </item>
-      <item>
-        <attribute name="label">Paste</attribute>
-        <attribute name="action">win.paste</attribute>
-        <attribute name="verb-icon">edit-paste-symbolic</attribute>
-      </item>
-    </section>
-
-    <section>
       <item>
         <attribute name='label' translatable='yes'>Open ...</attribute>
         <attribute name='action'>win.open</attribute>
@@ -24,48 +10,30 @@
 
     <section>
       <item>
-        <attribute name='label' translatable='yes'>New workspace</attribute>
-        <attribute name='action'>app.new</attribute>
+        <attribute name='label' translatable='yes'>New toolkit ...</attribute>
+        <attribute name='action'>app.new-toolkit</attribute>
       </item>
       <item>
-        <attribute name='label' translatable='yes'>Merge workspace ...</attribute>
-        <attribute name='action'>win.merge</attribute>
-      </item>
-      <item>
-        <attribute name='label' translatable='yes'>Duplicate workspace</attribute>
-        <attribute name='action'>win.duplicate</attribute>
+        <attribute name='label' translatable='yes'>New tool ...</attribute>
+        <attribute name='action'>win.new-tool</attribute>
       </item>
     </section>
 
     <section>
       <item>
-        <attribute name='label' translatable='yes'>Save workspace</attribute>
+        <attribute name='label' translatable='yes'>Save toolkit</attribute>
         <attribute name='action'>win.save</attribute>
       </item>
       <item>
-        <attribute name='label' translatable='yes'>Save workspace as ...</attribute>
+        <attribute name='label' translatable='yes'>Save toolkit as ...</attribute>
         <attribute name='action'>win.saveas</attribute>
       </item>
     </section>
 
     <section>
       <item>
-        <attribute name="label" translatable="yes">Fullscreen</attribute>
-        <attribute name="action">win.fullscreen</attribute>
-      </item>
-    </section>
-
-    <section>
-      <item>
-        <attribute name='label' translatable='yes'>Quit</attribute>
-        <attribute name='action'>win.quit</attribute>
-      </item>
-    </section>
-
-    <section>
-      <item>
-        <attribute name='label' translatable='yes'>About nip4</attribute>
-        <attribute name='action'>app.about</attribute>
+        <attribute name='label' translatable='yes'>Close</attribute>
+        <attribute name='action'>win.close</attribute>
       </item>
     </section>
 
