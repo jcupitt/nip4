@@ -260,7 +260,7 @@ char *break_token(char *str, const char *brk);
 void number_to_string(int n, char *buf);
 
 double find_space(const char *name);
-gboolean temp_name(char *name, const char *ext);
+gboolean temp_name(char *filename, const char *name, const char *ext);
 int findmaxmin(VipsImage *in,
 	int left, int top, int width, int height, double *min, double *max);
 
@@ -287,3 +287,5 @@ double *ink_to_vector(const char *domain, VipsImage *im, VipsPel *ink, int *n);
 typedef void(DrawPoint)(VipsImage *image, int x, int y, void *client);
 void draw_line(VipsImage *image, int x1, int y1, int x2, int y2,
 	DrawPoint draw_point, void *client);
+
+GPid get_gpid(void);

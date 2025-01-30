@@ -492,6 +492,16 @@ mainwindow_saveas_action(GSimpleAction *action,
 }
 
 static void
+mainwindow_recover_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	Recover *recover = recover_new(GTK_WINDOW(main));
+	gtk_window_present(GTK_WINDOW(recover));
+}
+
+static void
 mainwindow_save_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
@@ -645,6 +655,7 @@ static GActionEntry mainwindow_entries[] = {
 	{ "duplicate", mainwindow_duplicate_action },
 	{ "save", mainwindow_save_action },
 	{ "saveas", mainwindow_saveas_action },
+	{ "recover", mainwindow_recover_action },
 	{ "close", mainwindow_tab_close_current },
 	{ "quit", mainwindow_quit_action },
 	{ "keyboard-duplicate", mainwindow_keyboard_duplicate_action },

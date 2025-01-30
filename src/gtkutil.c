@@ -532,7 +532,7 @@ value_to_filename(const GValue *value, ValueToFilenameFn fn, void *user_data)
 			return FALSE;
 
 		char filename[FILENAME_MAX];
-		if (!temp_name(filename, "v"))
+		if (!temp_name(filename, NULL, "v"))
 			return FALSE;
 		if (vips_image_write_to_file(ii->image, filename, NULL))
 			return FALSE;

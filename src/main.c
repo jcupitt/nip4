@@ -344,7 +344,7 @@ main(int argc, char **argv)
 
 		/* We need native paths.
 		 */
-		strncpy(buf, home, FILENAME_MAX);
+		g_strlcpy(buf, home, FILENAME_MAX);
 		nativeize_path(buf);
 		setenvf("HOME", "%s", buf);
 	}

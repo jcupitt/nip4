@@ -2240,10 +2240,11 @@ find_space(const char *name)
 
 #endif /*HAVE_SYS_STATVFS_H*/
 
-/* Make a name for a temp file. Add the specified extension.
+/* Make a name for a temp file. Add the object name (can be NULL) and
+ * specified extension.
  */
 gboolean
-temp_name(char *name, const char *type)
+temp_name(char *filename, const char *name, const char *type)
 {
 	/* Some mkstemp() require files to actually exist before they don't
 	 * reuse the filename :-( add an extra field.
@@ -2258,8 +2259,9 @@ temp_name(char *name, const char *type)
 	if (!existsf("%s", dir))
 		dir = G_DIR_SEPARATOR_S;
 
-	g_snprintf(name, FILENAME_MAX, "%s/untitled-" PACKAGE "-%d-XXXXXXX",
-		dir, n++);
+	g_snprintf(name, FILENAME_MAX,
+		"%s/" PACKAGE "-%s-" G_PID_FORMAT "-%d-XXXXXXX",
+		dir, name ? name : "untitled", get_gpid(), n++);
 	expand_variables(name, buf);
 
 	fd = g_mkstemp(buf);
@@ -2415,7 +2417,7 @@ extract_first_line(char *buf, char *str, int len)
 
 	/* Copy those characters and make sure we have a '\0'.
 	 */
-	strncpy(buf, str, n);
+	g_strlcpy(buf, str, n);
 	buf[n] = '\0';
 
 	return n;
@@ -2733,4 +2735,18 @@ draw_line(VipsImage *image, int x1, int y1, int x2, int y2,
 	}
 	else
 		g_assert_not_reached();
+}
+
+GPid
+get_gpid(void)
+{
+	GPid gpid;
+
+#ifdef OS_WIN32
+	gpid = GetCurrentProcessId();
+#else /*!OS_WIN32*/
+	gpid = getpid();
+#endif /*OS_WIN32*/
+
+	return gpid;
 }

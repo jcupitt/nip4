@@ -212,6 +212,7 @@ typedef struct _Workspace Workspace;
 #include "infobar.h"
 #include "displaybar.h"
 #include "saveoptions.h"
+#include "recover.h"
 #include "properties.h"
 #include "fuzzy.h"
 #include "formula.h"

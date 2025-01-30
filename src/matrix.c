@@ -197,7 +197,7 @@ matrix2image(PElement *root)
 
 	char buf[MAX_STRSIZE];
 	if (!class_get_member_string(root, MEMBER_FILENAME, buf, MAX_STRSIZE) &&
-		!temp_name(buf, "mat")) {
+		!temp_name(buf, NULL, "mat")) {
 		VIPS_UNREF(matrix);
 		return NULL;
 	}

@@ -1,5 +1,3 @@
-- need preferences
-
 - need "recover after crash"
 
 	scan tmp dir for .ws, make a table
@@ -17,6 +15,20 @@
 	click on one to select, then click "Recover"
 
 	have a "delete all saved workspaces" button
+
+  see workspacegroup_autosave_recover()
+
+  break out to recover.c / recover.h
+
+  add "Recover after crash ..." menu item
+
+- need preferences
+
+- saveoptions.c should derive from GtkWindow, not GtkDialog
+
+	paste back into vipsdisp
+
+	other changes to go back?
 
 - try:
 

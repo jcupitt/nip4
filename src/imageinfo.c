@@ -569,7 +569,7 @@ imageinfo_new(Imageinfogroup *imageinfogroup,
 
 	char buf[FILENAME_MAX];
 	if (!name) {
-		if (!temp_name(buf, "v"))
+		if (!temp_name(buf, NULL, "v"))
 			/* Will be freed on next GC.
 			 */
 			return NULL;
@@ -749,7 +749,7 @@ imageinfo_new_from_texture(Imageinfogroup *imageinfogroup,
 
 	// we can't have NULL filenames
 	char buf[FILENAME_MAX];
-	if (!temp_name(buf, "tif")) {
+	if (!temp_name(buf, NULL, "tif")) {
 		VIPS_UNREF(image);
 		return NULL;
 	}

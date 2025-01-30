@@ -38,6 +38,7 @@
     <file preprocess="xml-stripblanks">toolkitgroupview.ui</file>
     <file preprocess="xml-stripblanks">workspacedefs.ui</file>
     <file preprocess="xml-stripblanks">program.ui</file>
+    <file preprocess="xml-stripblanks">recover.ui</file>
 
     <file>nip4.css</file>
     <file>properties.css</file>

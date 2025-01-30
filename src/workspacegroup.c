@@ -622,10 +622,9 @@ workspacegroup_checkmark_timeout(Workspacegroup *wsg)
 	if (!retain_files[retain_next]) {
 		char filename[FILENAME_MAX];
 
-		/* No name yet - make one up.
-		 */
-		if (!temp_name(filename, "ws"))
+		if (!temp_name(filename, IOBJECT(wsg)->name, "ws"))
 			return FALSE;
+
 		retain_files[retain_next] = g_strdup(filename);
 	}
 
@@ -653,64 +652,6 @@ workspacegroup_checkmark(Workspacegroup *wsg)
 		(GSourceFunc) workspacegroup_checkmark_timeout, wsg);
 }
 
-typedef struct {
-	/* Best so far filename.
-	 */
-	char filename[FILENAME_MAX];
-
-	/* Best-so-far file date.
-	 */
-	time_t time;
-} AutoRecover;
-
-/* This file any better than the previous best candidate? Subfn of below.
- */
-static void *
-workspacegroup_test_file(const char *name, void *a, void *b, void *c)
-{
-	AutoRecover *recover = (AutoRecover *) a;
-
-	char buf[FILENAME_MAX];
-	time_t time;
-	int i;
-
-	g_strlcpy(buf, name, FILENAME_MAX);
-	path_expand(buf);
-	for (i = 0; i < WS_RETAIN; i++)
-		if (retain_files[i] &&
-			strcmp(buf, retain_files[i]) == 0)
-			return NULL;
-	if (!(time = mtime("%s", buf)))
-		return NULL;
-	if (recover->time > 0 && time < recover->time)
-		return NULL;
-
-	strcpy(recover->filename, buf);
-	recover->time = time;
-
-	return NULL;
-}
-
-/* Search for the most recent "*.ws" file
- * in the tmp area owned by us, with a size > 0, that's not in our
- * retain_files[] set.
- */
-char *
-workspacegroup_autosave_recover(void)
-{
-	AutoRecover recover;
-
-	strcpy(recover.filename, "");
-	recover.time = 0;
-	(void) path_map_dir(PATH_TMP, "*.ws",
-		(path_map_fn) workspacegroup_test_file, &recover);
-
-	if (!recover.time)
-		return NULL;
-
-	return g_strdup(recover.filename);
-}
-
 static void
 workspacegroup_set_modified(Filemodel *filemodel, gboolean modified)
 {
@@ -718,7 +659,8 @@ workspacegroup_set_modified(Filemodel *filemodel, gboolean modified)
 
 	workspacegroup_checkmark(wsg);
 
-	FILEMODEL_CLASS(workspacegroup_parent_class)->set_modified(filemodel, modified);
+	FILEMODEL_CLASS(workspacegroup_parent_class)->
+		set_modified(filemodel, modified);
 }
 
 static void
@@ -992,7 +934,7 @@ workspacegroup_duplicate(Workspacegroup *wsg)
 	Workspacegroup *new_wsg;
 	char filename[FILENAME_MAX];
 
-	if (!temp_name(filename, "ws") ||
+	if (!temp_name(filename, IOBJECT(wsg)->name, "ws") ||
 		!workspacegroup_save_all(wsg, filename))
 		return NULL;
 

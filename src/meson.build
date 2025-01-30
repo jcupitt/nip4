@@ -104,6 +104,7 @@ sources = files (
   'row.c',
   'rowview.c',
   'saveoptions.c',
+  'recover.c',
   'secret.c',
   'spin.c',
   'string.c',

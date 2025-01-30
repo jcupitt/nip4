@@ -1580,7 +1580,7 @@ workspace_selected_duplicate(Workspace *ws)
 			row_select(row);
 	}
 
-	if (!temp_name(filename, "ws"))
+	if (!temp_name(filename, IOBJECT(ws)->name, "ws"))
 		return FALSE;
 	if (!workspace_selected_save(ws, filename))
 		return FALSE;
@@ -1676,7 +1676,7 @@ workspace_duplicate(Workspace *ws)
 
 	char filename[FILENAME_MAX];
 
-	if (!temp_name(filename, "ws"))
+	if (!temp_name(filename, IOBJECT(ws)->name, "ws"))
 		return FALSE;
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 	if (!workspacegroup_save_current(wsg, filename))

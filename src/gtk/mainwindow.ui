@@ -50,6 +50,13 @@
 
     <section>
       <item>
+        <attribute name="label" translatable="yes">Recover after crash ...</attribute>
+        <attribute name="action">win.recover</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
         <attribute name="label" translatable="yes">Fullscreen</attribute>
         <attribute name="action">win.fullscreen</attribute>
       </item>
