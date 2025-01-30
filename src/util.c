@@ -2254,15 +2254,16 @@ temp_name(char *filename, const char *name, const char *type)
 	const char *dir;
 	int fd;
 	char buf[FILENAME_MAX];
+	char buf2[FILENAME_MAX];
 
 	dir = PATH_TMP;
 	if (!existsf("%s", dir))
 		dir = G_DIR_SEPARATOR_S;
 
-	g_snprintf(name, FILENAME_MAX,
-		"%s/" PACKAGE "-%s-" G_PID_FORMAT "-%d-XXXXXXX",
+	g_snprintf(buf2, FILENAME_MAX,
+		"%s/" PACKAGE "-%s-%" G_PID_FORMAT "-%d-XXXXXXX",
 		dir, name ? name : "untitled", get_gpid(), n++);
-	expand_variables(name, buf);
+	expand_variables(buf2, buf);
 
 	fd = g_mkstemp(buf);
 	if (fd == -1) {
@@ -2273,7 +2274,7 @@ temp_name(char *filename, const char *name, const char *type)
 	close(fd);
 	unlinkf("%s", buf);
 
-	g_snprintf(name, FILENAME_MAX, "%s.%s", buf, type);
+	g_snprintf(filename, FILENAME_MAX, "%s.%s", buf, type);
 
 	return TRUE;
 }

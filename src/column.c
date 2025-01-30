@@ -335,9 +335,9 @@ column_new(Workspace *ws, const char *name, int x, int y)
 		col->y = y;
 	}
 	else {
-		// default to the right edge
-		col->x = ws->vp.left + 50;
-		col->y = ws->vp.top;
+		// fly in from the far right
+		col->x = ws->vp.left + 5000;
+		col->y = ws->vp.top + 200;
 	}
 
 	subcolumn_new(NULL, col);

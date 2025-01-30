@@ -1,26 +1,19 @@
-- need "recover after crash"
+- we have:
 
-	scan tmp dir for .ws, make a table
+	static char *retain_files[10];
 
-		date 	| time		| size in bytes 	| process id
-		--------+---------------+-----------------------+-----------
-		1/2/3	| 15:12		| 2342			| 2398572
+  ie. retain names are global ... we need one of these for each wsg, so we can
+  have the wsg name in the retain file
 
-	sort by process id, then date, then time ... maybe a blank line
-	between PIDs?
+- wire up recover after crash
 
-	on linux and macos at least, can skip wses for processes that still
-	exist ... at least skip this process
-
-	click on one to select, then click "Recover"
-
-	have a "delete all saved workspaces" button
-
-  see workspacegroup_autosave_recover()
-
-  break out to recover.c / recover.h
-
-  add "Recover after crash ..." menu item
+  	cancel
+	ok
+	delete
+	show filename too?
+	improve sorting (just size for now)
+	esc to popdown
+	doubleclick to recover and clsoe
 
 - need preferences
 

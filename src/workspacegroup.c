@@ -574,13 +574,9 @@ workspacegroup_top_load(Filemodel *filemodel,
 	return FILEMODEL_CLASS(workspacegroup_parent_class)->top_load(filemodel, state, parent, xnode);
 }
 
-/* Backup the last WS_RETAIN workspaces.
- */
-#define WS_RETAIN (10)
-
 /* Array of names of workspace files we are keeping.
  */
-static char *retain_files[WS_RETAIN] = { NULL };
+static char *retain_files[10];
 
 /* On safe exit, remove all ws checkmarks.
  */
@@ -589,7 +585,7 @@ workspacegroup_autosave_clean(void)
 {
 	int i;
 
-	for (i = 0; i < WS_RETAIN; i++) {
+	for (i = 0; i < VIPS_NUMBER(retain_files); i++) {
 		if (retain_files[i]) {
 			unlinkf("%s", retain_files[i]);
 			VIPS_FREE(retain_files[i]);
@@ -631,7 +627,7 @@ workspacegroup_checkmark_timeout(Workspacegroup *wsg)
 	if (!filemodel_top_save(FILEMODEL(wsg), retain_files[retain_next]))
 		return FALSE;
 
-	retain_next = (retain_next + 1) % WS_RETAIN;
+	retain_next = (retain_next + 1) % VIPS_NUMBER(retain_files);
 
 	return FALSE;
 }
