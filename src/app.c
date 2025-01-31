@@ -289,15 +289,24 @@ app_open(GApplication *app, GFile **files, int n_files, const char *hint)
 #endif /*DEBUG*/
 
 	if (main_option_batch) {
+		Workspacegroup *wsg;
+
 		for (int i = 0; i < n_files; i++) {
 			g_autofree char *filename = g_file_get_path(files[i]);
 
-			if (!workspacegroup_new_from_file(main_workspaceroot,
-				filename, filename))
+			wsg = workspacegroup_new_from_file(main_workspaceroot,
+				filename, filename);
+			if (!wsg)
 				error_alert(NULL);
 		}
 
-		symbol_recalculate_all();
+		if (wsg) {
+			Workspace *ws = workspacegroup_get_workspace(wsg);
+			Symbol *sym = compile_lookup(ws->sym->expr->compile, "main");
+
+			if (sym)
+				main_print_main(sym);
+		}
 	}
 	else {
 		Mainwindow *main = mainwindow_new(APP(app), NULL);

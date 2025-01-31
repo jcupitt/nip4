@@ -21,6 +21,7 @@
  */
 
 const char *get_prefix(void);
+void main_print_main(Symbol *sym);
 
 extern Workspaceroot *main_workspaceroot;	/* All the workspaces */
 extern Toolkitgroup *main_toolkitgroup;		/* All the toolkits */

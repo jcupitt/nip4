@@ -147,6 +147,65 @@ get_prefix(void)
 	return prefix_buffer;
 }
 
+/* Print all errors and quit. Batch mode only.
+ */
+static void
+main_error_exit(const char *fmt, ...)
+{
+    va_list args;
+
+	va_start(args, fmt);
+	(void) vfprintf(stderr, fmt, args);
+	va_end(args);
+    fprintf(stderr, "\n");
+
+    if (!g_str_equal(error_get_top(), "")) {
+        fprintf(stderr, "%s\n", error_get_top());
+        if (!g_str_equal(error_get_sub(), ""))
+            fprintf(stderr, "%s\n", error_get_sub());
+    }
+
+    if (main_option_verbose) {
+        char txt[MAX_STRSIZE];
+        VipsBuf buf = VIPS_BUF_STATIC(txt);
+
+        slist_map(expr_error_all,
+            (SListMapFn) expr_error_print, &buf);
+        fprintf(stderr, "%s", vips_buf_all(&buf));
+    }
+
+    exit(1);
+}
+
+/* Output a single main.
+ */
+void
+main_print_main(Symbol *sym)
+{
+    PElement *root;
+
+	/* Strict reduction of this object, then print.
+	 */
+    root = &sym->expr->root;
+    if (!symbol_recalculate_check(sym) ||
+        !reduce_pelement(reduce_context, reduce_spine_strict, root))
+        main_error_exit(_( "error calculating \"%s\""), symbol_name_scope(sym));
+
+	/* FIXME ... need Group for this
+    if (main_option_output) {
+        char filename[FILENAME_MAX];
+
+        g_strlcpy(filename, main_option_output, FILENAME_MAX);
+        if (!group_save_item(root, filename))
+            main_error_exit(_( "error saving \"%s\""),
+                symbol_name_scope(sym));
+    }
+	 */
+
+    if (main_option_print_main)
+        graph_value(root);
+}
+
 /* Make sure a savedir exists. Used to build the "~/.nip2-xx/tmp" etc.
  * directory tree.
  */

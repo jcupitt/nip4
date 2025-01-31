@@ -1,12 +1,3 @@
-- wire up recover after crash
-
-  	cancel
-	ok
-	delete
-	esc to popdown
-	doubleclick to recover and close
-	enter to recover and close
-
 - need preferences
 
 - saveoptions.c should derive from GtkWindow, not GtkDialog
@@ -21,54 +12,6 @@
 	nip4 bm-workspaces.ws
 
   need some sample images
-
-- benchmark:
-
-	nip4 ~/pics/demo/demo.ws
-
-  seems to takes forever :( time vs nip2
-
-  add "--benchmark" flag?
-
-	$ time nip4 --benchmark demo.ws
-	real	3m54.090s
-	user	4m40.215s
-	sys	0m24.972s
-
-	$ time nip2 --benchmark demo.ws
-	real	0m47.814s
-	user	0m47.408s
-	sys	0m0.383s
-
-  nip4 is doing symbol_recalculate_all(), perhaps we only need to recomp
-  "main"?
-
-  this will walk main and use that to drive eval
-
-	static void *
-	main_print_ws( Workspace *ws, gboolean *found )
-	{
-	    Symbol *sym;
-
-	    if( (sym = compile_lookup( ws->sym->expr->compile, "main" )) ) {
-		main_print_main( sym );
-		*found = TRUE;
-	    }
-
-	    return( NULL );
-	}
-
-
-- takes a long time to shut down
-
-	only do a full cleanup in debug mode, fast exit otherwise
-
-	exit(0) just after workspacegroup_autosave_clean() saves 60s
-
-	still feels slow in interactive mode :( there's a LONG pause between
-	^Q and app_shutdown() being called
-
-	I suppose we have to exit(0) in the ^Q handler itself?
 
 - nip4 icon in "about" does not display, and needs to be 512x512
 
@@ -100,7 +43,6 @@
 	sys	0m16.356s
 
   W T F
-
 
 - iimage.h has:
 
