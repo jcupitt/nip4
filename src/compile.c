@@ -63,7 +63,8 @@ G_DEFINE_TYPE(Compile, compile, ICONTAINER_TYPE)
 Compile *
 compile_get_parent(Compile *compile)
 {
-	return ICONTAINER(compile->sym)->parent ? COMPILE(ICONTAINER(compile->sym)->parent) : NULL;
+	return ICONTAINER(compile->sym)->parent ?
+		COMPILE(ICONTAINER(compile->sym)->parent) : NULL;
 }
 
 void *
@@ -106,7 +107,8 @@ compile_name(Compile *compile, VipsBuf *buf)
 static Compile *
 compile_map_all_sub(Symbol *sym, map_compile_fn fn, void *a)
 {
-	return sym->expr && sym->expr->compile ? compile_map_all(sym->expr->compile, fn, a) : NULL;
+	return sym->expr && sym->expr->compile ?
+		compile_map_all(sym->expr->compile, fn, a) : NULL;
 }
 
 /* Apply a function to a compile ... and any local compiles. Do top-down.

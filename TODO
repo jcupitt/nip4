@@ -1,3 +1,19 @@
+- try:
+
+	load ~/pics/x.v
+	open view window
+	mouse displays coodinates and values in hist plot, not
+		in underlying image
+
+- plot yinterval is too small
+
+- plot to image gets the colours wrong
+
+	we need to add cairo BGRA to vips RGBA
+
+- the imagewindow title bar for computed images shuld display eg.
+  A2.reference, not "untitled"
+
 - need preferences
 
 - saveoptions.c should derive from GtkWindow, not GtkDialog
@@ -11,7 +27,38 @@
 	cd ~/GIT/bm-workspaces
 	nip4 bm-workspaces.ws
 
-  need some sample images
+  this fails:
+
+	Option "Combine bands as" ["X - RG", "GB - X"] 0
+
+  with error:
+
+	bad LHS of '.'
+	error in binary .
+		left = <function>
+		right = .Real
+	called from "Option.super"
+
+  works fine in 9.0 menus, fails in 7.38 compat
+
+  in the falsecolour tab there seems to be a definition of "scope"??
+
+  seems to be equal to "falsecolour"????
+
+  nip2 fails too!
+
+  can we get it to display eg. line numbers for "<function>"?
+
+  enable debug in compile, "scope" in viscalib outputs
+
+	compile_resolve: resolving zombie K14.falsecolour to symbol falsecolour
+	compiled K14 to: <symbol "falsecolour">
+
+  "dir scope" outputs
+
+	compile_resolve: resolving zombie K15.dir to symbol dir
+	compile_resolve: resolving zombie K15.falsecolour to symbol falsecolour
+	compiled K15 to: (<symbol "dir"> <symbol "falsecolour">)
 
 - nip4 icon in "about" does not display, and needs to be 512x512
 

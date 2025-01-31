@@ -28,7 +28,7 @@
               <object class="GtkLabel" id="status">
                 <property name="hexpand">true</property>
                 <property name="vexpand">false</property>
-                <property name="width-chars">40</property>
+                <property name="width-chars">80</property>
 
               </object>
             </child>

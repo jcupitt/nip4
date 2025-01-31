@@ -169,7 +169,7 @@ plot_generate_caption(iObject *iobject)
 static gboolean
 plot_unpack(Plot *plot, VipsImage *image)
 {
-	g_assert (image->Xsize == 1 &&
+	g_assert(image->Xsize == 1 &&
 		image->data &&
 		image->BandFmt == VIPS_FORMAT_DOUBLE);
 	double *data = (double *) image->data;

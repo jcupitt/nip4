@@ -63,6 +63,7 @@ im_stats x = im_vips2mask (vips_call9 "stats" [x] []);
 im_lintra_vec a in b = vips_call9 "linear" [in, a, b] [];
 // nip2 matinv only works on Matrix objects, and returns a matrix object
 im_matinv x = im_vips2mask (vips_call9 "matrixinvert" [x] []);
+im_matmul in1 in2 = im_vips2mask (vips_call9 "matrixmultiply" [in1, in2] []);
 im_abs x = vips_call9 "abs" [x] [];
 im_sign x = vips_call9 "sign" [x] [];
 im_rint x = vips_call9 "round" [x, "rint"] [];
@@ -128,12 +129,20 @@ im_icc_import x profile intent
 		$intent => intent,
 		$input_profile => profile
 	];
+
+im_icc_import_embedded x intent
+	= vips_call9 "icc_import" [x] [
+		$intent => intent,
+		$embedded => true
+	];
+
 im_icc_export_depth x depth profile intent
 	= vips_call9 "icc_export" [x] [
 		$depth => depth,
 		$intent => intent,
 		$output_profile => profile
 	];
+
 im_icc_transform x input_profile output_profile intent
 	= vips_call9 "icc_transform" [x, output_profile] [
 		$intent => intent,
@@ -443,6 +452,11 @@ im_extract_bands input band nbands
 
 im_maplut in lut
 	= vips_call9 "maplut" [in, lut] [
+	];
+
+im_invertlut measures lut_size
+	= vips_call9 "invertlut" [measures] [
+		$size => lut_size
 	];
 
 im_make_xy xsize ysize
