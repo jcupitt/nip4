@@ -34,8 +34,8 @@
 
 #define RECOVER NIP4_RECOVER
 
-G_DECLARE_FINAL_TYPE(Recover, recover, NIP4, RECOVER, GtkWindow);
+G_DECLARE_FINAL_TYPE(Recover, recover, NIP4, RECOVER, GtkApplicationWindow);
 
-Recover *recover_new(GtkWindow *parent_window);
+Recover *recover_new(GtkWindow *parent_window, Workspaceroot *wsr);
 
 #endif /* __RECOVER_H */

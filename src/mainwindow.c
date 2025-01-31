@@ -497,7 +497,7 @@ mainwindow_recover_action(GSimpleAction *action,
 {
 	Mainwindow *main = MAINWINDOW(user_data);
 
-	Recover *recover = recover_new(GTK_WINDOW(main));
+	Recover *recover = recover_new(GTK_WINDOW(main), main->wsg->wsr);
 	gtk_window_present(GTK_WINDOW(recover));
 }
 

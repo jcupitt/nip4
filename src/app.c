@@ -210,6 +210,8 @@ app_startup(GApplication *app)
 		const gchar *accelerators[2];
 	} accels[] = {
 		// main window accels ... the "win." prefix is wired into gtk
+		{ "win.cancel", { "Escape", NULL } },
+		{ "win.ok", { "Return", NULL } },
 		{ "win.close", { "<Primary>w", NULL } },
 		{ "win.quit", { "<Primary>q", NULL } },
 		{ "win.open", { "<Primary>o", NULL } },

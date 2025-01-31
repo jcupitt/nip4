@@ -77,6 +77,12 @@ struct _Workspacegroup {
 	 * during load.
 	 */
 	GtkWindow *win;
+
+	/* The set of save files for this WSG. This needs to be per-WASG, since
+	 * save file names include the WSG name.
+	 */
+	char *retain_files[10];
+	int retain_next;
 };
 
 typedef struct _WorkspacegroupClass {
@@ -126,6 +132,3 @@ gboolean workspacegroup_save_all(Workspacegroup *wsg,
 	const char *filename);
 
 Workspacegroup *workspacegroup_duplicate(Workspacegroup *wsg);
-
-char *workspacegroup_autosave_recover(void);
-void workspacegroup_autosave_clean(void);

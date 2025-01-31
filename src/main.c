@@ -531,10 +531,6 @@ main(int argc, char **argv)
 
 	status = g_application_run(G_APPLICATION(app), argc, argv);
 
-	/* Remove any ws retain files.
-	 */
-	workspacegroup_autosave_clean();
-
 	/* Junk all symbols. This may remove a bunch of intermediate images
 	 * too.
 	 */

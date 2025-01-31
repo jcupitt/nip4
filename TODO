@@ -1,19 +1,11 @@
-- we have:
-
-	static char *retain_files[10];
-
-  ie. retain names are global ... we need one of these for each wsg, so we can
-  have the wsg name in the retain file
-
 - wire up recover after crash
 
   	cancel
 	ok
 	delete
-	show filename too?
-	improve sorting (just size for now)
 	esc to popdown
-	doubleclick to recover and clsoe
+	doubleclick to recover and close
+	enter to recover and close
 
 - need preferences
 

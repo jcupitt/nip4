@@ -132,6 +132,19 @@ workspacegroup_get_n_objects(Workspacegroup *wsg)
 	return n_objects;
 }
 
+/* On safe exit, remove all ws checkmarks.
+ */
+static void
+workspacegroup_retain_free(Workspacegroup *wsg)
+{
+	for (int i = 0; i < VIPS_NUMBER(wsg->retain_files); i++) {
+		if (wsg->retain_files[i]) {
+			unlinkf("%s", wsg->retain_files[i]);
+			VIPS_FREE(wsg->retain_files[i]);
+		}
+	}
+}
+
 static void
 workspacegroup_dispose(GObject *gobject)
 {
@@ -147,6 +160,7 @@ workspacegroup_dispose(GObject *gobject)
 #endif /*DEBUG*/
 
 	VIPS_FREEF(g_source_remove, wsg->autosave_timeout);
+	workspacegroup_retain_free(wsg);
 
 	G_OBJECT_CLASS(workspacegroup_parent_class)->dispose(gobject);
 }
@@ -574,34 +588,11 @@ workspacegroup_top_load(Filemodel *filemodel,
 	return FILEMODEL_CLASS(workspacegroup_parent_class)->top_load(filemodel, state, parent, xnode);
 }
 
-/* Array of names of workspace files we are keeping.
- */
-static char *retain_files[10];
-
-/* On safe exit, remove all ws checkmarks.
- */
-void
-workspacegroup_autosave_clean(void)
-{
-	int i;
-
-	for (i = 0; i < VIPS_NUMBER(retain_files); i++) {
-		if (retain_files[i]) {
-			unlinkf("%s", retain_files[i]);
-			VIPS_FREE(retain_files[i]);
-		}
-	}
-}
-
 /* Save the workspace to one of our temp files.
  */
 static gboolean
 workspacegroup_checkmark_timeout(Workspacegroup *wsg)
 {
-	/* The next one we allocate.
-	 */
-	static int retain_next = 0;
-
 	wsg->autosave_timeout = 0;
 
 	if (!AUTO_WS_SAVE)
@@ -615,19 +606,20 @@ workspacegroup_checkmark_timeout(Workspacegroup *wsg)
 
 	/* Do we have a name for this retain file?
 	 */
-	if (!retain_files[retain_next]) {
+	if (!wsg->retain_files[wsg->retain_next]) {
 		char filename[FILENAME_MAX];
 
 		if (!temp_name(filename, IOBJECT(wsg)->name, "ws"))
 			return FALSE;
 
-		retain_files[retain_next] = g_strdup(filename);
+		wsg->retain_files[wsg->retain_next] = g_strdup(filename);
 	}
 
-	if (!filemodel_top_save(FILEMODEL(wsg), retain_files[retain_next]))
+	if (!filemodel_top_save(FILEMODEL(wsg),
+		wsg->retain_files[wsg->retain_next]))
 		return FALSE;
 
-	retain_next = (retain_next + 1) % VIPS_NUMBER(retain_files);
+	wsg->retain_next = (wsg->retain_next + 1) % VIPS_NUMBER(wsg->retain_files);
 
 	return FALSE;
 }

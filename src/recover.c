@@ -28,8 +28,8 @@
 */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -241,7 +241,9 @@ recoverfile_new(const char *filename)
 }
 
 struct _Recover {
-	GtkWindow parent_instance;
+	GtkApplicationWindow parent_instance;
+
+	Workspaceroot *wsr;
 
 	GtkWidget *table;
 
@@ -249,11 +251,11 @@ struct _Recover {
 };
 
 struct _RecoverClass {
-	GtkWindowClass parent_class;
+	GtkApplicationWindowClass parent_class;
 
 };
 
-G_DEFINE_TYPE(Recover, recover, GTK_TYPE_WINDOW);
+G_DEFINE_TYPE(Recover, recover, GTK_TYPE_APPLICATION_WINDOW);
 
 static void
 recover_dispose(GObject *object)
@@ -273,10 +275,10 @@ recover_setup_item(GtkListItemFactory *factory,
 	GtkWidget *label = gtk_label_new("");
 
 	gtk_widget_set_hexpand(label, TRUE);
-	if (g_str_equal(field, "size"))
-		gtk_label_set_xalign(GTK_LABEL(label), 1.0);
-	else
+	if (g_str_equal(field, "name"))
 		gtk_label_set_xalign(GTK_LABEL(label), 0.0);
+	else
+		gtk_label_set_xalign(GTK_LABEL(label), 1.0);
 
 	gtk_list_item_set_child(item, label);
 }
@@ -310,6 +312,8 @@ recover_bind_item(GtkListItemFactory *factory,
 	}
 
 	g_value_unset(&value);
+
+	gtk_widget_set_tooltip_text(label, file->filename);
 }
 
 static void *
@@ -322,11 +326,148 @@ store_add_file(const char *filename, GListStore *store)
 	return NULL;
 }
 
+static GtkSingleSelection *
+recover_build_model(Recover *recover)
+{
+	GListModel *model = G_LIST_MODEL(g_list_store_new(RECOVERFILE_TYPE));
+	(void) path_map_dir(PATH_TMP, "*.ws",
+		(path_map_fn) store_add_file, model);
+
+	// sort by PID, then date, then time
+	GtkMultiSorter *multi = gtk_multi_sorter_new();
+	GtkExpression *expression;
+	GtkSorter *sorter;
+	expression = gtk_property_expression_new(RECOVERFILE_TYPE, NULL, "pid");
+	sorter = GTK_SORTER(gtk_string_sorter_new(expression));
+	gtk_multi_sorter_append(multi, sorter);
+	expression = gtk_property_expression_new(RECOVERFILE_TYPE, NULL, "date");
+	sorter = GTK_SORTER(gtk_string_sorter_new(expression));
+	gtk_multi_sorter_append(multi, sorter);
+	expression = gtk_property_expression_new(RECOVERFILE_TYPE, NULL, "time");
+	sorter = GTK_SORTER(gtk_string_sorter_new(expression));
+	gtk_multi_sorter_append(multi, sorter);
+	model = G_LIST_MODEL(gtk_sort_list_model_new(model, GTK_SORTER(multi)));
+
+	return gtk_single_selection_new(model);
+}
+
+static void *
+recover_delete_temp(const char *filename)
+{
+    unlinkf("%s", filename);
+
+    return NULL;
+}
+
+static void
+recover_delete_temps(void)
+{
+    /* Don't "rm *", too dangerous.
+     */
+    path_map_dir(PATH_TMP, "*.v",
+        (path_map_fn) recover_delete_temp, NULL);
+    path_map_dir(PATH_TMP, "*.ws",
+        (path_map_fn) recover_delete_temp, NULL);
+
+    /* _stdenv.def:magick can generate .tif files.
+     */
+    path_map_dir(PATH_TMP, "*.tif",
+        (path_map_fn) recover_delete_temp, NULL);
+
+    /* autotrace can make some others.
+     */
+    path_map_dir(PATH_TMP, "*.ppm",
+        (path_map_fn) recover_delete_temp, NULL);
+    path_map_dir(PATH_TMP, "*.svg",
+        (path_map_fn) recover_delete_temp, NULL);
+}
+
+static void
+recover_delete_temps_yesno(GtkWindow *parent, void *user_data)
+{
+	Recover *recover = RECOVER(user_data);
+
+	recover_delete_temps();
+
+	recover->selection = recover_build_model(recover);
+
+	gtk_column_view_set_model(GTK_COLUMN_VIEW(recover->table),
+		GTK_SELECTION_MODEL(recover->selection));
+}
+
+static void
+recover_delete_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Recover *recover = RECOVER(user_data);
+
+	alert_yesno(GTK_WINDOW(recover), recover_delete_temps_yesno, recover,
+		_("Wipe the nip4 temp area?"),
+		"%s", _("This will remove all temporary files and backups, and "
+		"cannot be undone."));
+}
+
+static void
+recover_cancel_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Recover *recover = RECOVER(user_data);
+
+	gtk_window_destroy(GTK_WINDOW(recover));
+}
+
+static void
+recover_ok_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Recover *recover = RECOVER(user_data);
+	GObject *item = gtk_single_selection_get_selected_item(recover->selection);
+	Recoverfile *file = RECOVERFILE(item);
+
+	Workspacegroup *wsg = workspacegroup_new_from_file(recover->wsr,
+		file->filename, file->filename);
+	if (wsg) {
+		GtkApplication *app = gtk_window_get_application(GTK_WINDOW(recover));
+
+		// try to restore the filename
+		iobject_set(IOBJECT(wsg), file->name, "recovered workspace");
+		g_autofree char *filename = g_strdup_printf("%s.ws", file->name);
+		filemodel_set_filename(FILEMODEL(wsg), filename);
+
+		Mainwindow *main = mainwindow_new(APP(app), wsg);
+		gtk_window_present(GTK_WINDOW(main));
+		mainwindow_cull();
+		symbol_recalculate_all();
+
+		gtk_window_destroy(GTK_WINDOW(recover));
+	}
+}
+
+static GActionEntry recover_entries[] = {
+	// FIXME ... ooof
+
+	// { "open", program_open_action },
+
+	// { "new-toolkit", program_new_toolkit_action },
+	// { "new-tool", program_new_tool_action },
+
+	// { "save", program_saveas_action },
+	// { "saveas", program_saveas_action },
+
+	{ "delete", recover_delete_action },
+	{ "cancel", recover_cancel_action },
+	{ "ok", recover_ok_action },
+};
+
 static void
 recover_init(Recover *recover)
 {
 	GtkListItemFactory *factory;
 	GtkColumnViewColumn *column;
+
+	g_action_map_add_action_entries(G_ACTION_MAP(recover),
+		recover_entries, G_N_ELEMENTS(recover_entries),
+		recover);
 
 	gtk_widget_init_template(GTK_WIDGET(recover));
 
@@ -341,10 +482,18 @@ recover_init(Recover *recover)
 
 	factory = gtk_signal_list_item_factory_new();
 	g_signal_connect(factory, "setup",
+		G_CALLBACK(recover_setup_item), "pid");
+	g_signal_connect(factory, "bind",
+		G_CALLBACK(recover_bind_item), "pid");
+	column = gtk_column_view_column_new("Process ID", factory);
+	gtk_column_view_append_column(GTK_COLUMN_VIEW(recover->table), column);
+
+	factory = gtk_signal_list_item_factory_new();
+	g_signal_connect(factory, "setup",
 		G_CALLBACK(recover_setup_item), "date");
 	g_signal_connect(factory, "bind",
 		G_CALLBACK(recover_bind_item), "date");
-	column = gtk_column_view_column_new("Date", factory);
+	column = gtk_column_view_column_new("YYYY/MM/DD", factory);
 	gtk_column_view_append_column(GTK_COLUMN_VIEW(recover->table), column);
 
 	factory = gtk_signal_list_item_factory_new();
@@ -352,7 +501,7 @@ recover_init(Recover *recover)
 		G_CALLBACK(recover_setup_item), "time");
 	g_signal_connect(factory, "bind",
 		G_CALLBACK(recover_bind_item), "time");
-	column = gtk_column_view_column_new("Time", factory);
+	column = gtk_column_view_column_new("HH:MM.ss", factory);
 	gtk_column_view_append_column(GTK_COLUMN_VIEW(recover->table), column);
 
 	factory = gtk_signal_list_item_factory_new();
@@ -360,48 +509,13 @@ recover_init(Recover *recover)
 		G_CALLBACK(recover_setup_item), "size");
 	g_signal_connect(factory, "bind",
 		G_CALLBACK(recover_bind_item), "size");
-	column = gtk_column_view_column_new("Size", factory);
+	column = gtk_column_view_column_new("Bytes", factory);
 	gtk_column_view_append_column(GTK_COLUMN_VIEW(recover->table), column);
 
-	factory = gtk_signal_list_item_factory_new();
-	g_signal_connect(factory, "setup",
-		G_CALLBACK(recover_setup_item), "pid");
-	g_signal_connect(factory, "bind",
-		G_CALLBACK(recover_bind_item), "pid");
-	column = gtk_column_view_column_new("Process ID", factory);
-	gtk_column_view_append_column(GTK_COLUMN_VIEW(recover->table), column);
-
-	GListModel *model = G_LIST_MODEL(g_list_store_new(RECOVERFILE_TYPE));
-	(void) path_map_dir(PATH_TMP, "*.ws",
-		(path_map_fn) store_add_file, model);
-
-	GtkExpression *expression =
-		gtk_property_expression_new(RECOVERFILE_TYPE, NULL, "size");
-	GtkSorter *sorter = GTK_SORTER(gtk_numeric_sorter_new(expression));
-	model = G_LIST_MODEL(gtk_sort_list_model_new(model, sorter));
-
-	recover->selection = gtk_single_selection_new(model);
+	recover->selection = recover_build_model(recover);
 
 	gtk_column_view_set_model(GTK_COLUMN_VIEW(recover->table),
 		GTK_SELECTION_MODEL(recover->selection));
-}
-
-static void
-recover_delete_clicked(GtkWidget *button, Recover *recover)
-{
-	printf("recover_delete_clicked:\n");
-}
-
-static void
-recover_ok_clicked(GtkWidget *button, Recover *recover)
-{
-	printf("recover_ok_clicked:\n");
-}
-
-static void
-recover_cancel_clicked(GtkWidget *button, Recover *recover)
-{
-	printf("recover_cancel_clicked:\n");
 }
 
 static void
@@ -414,21 +528,19 @@ recover_class_init(RecoverClass *class)
 	BIND_RESOURCE("recover.ui");
 
 	BIND_VARIABLE(Recover, table);
-
-	BIND_CALLBACK(recover_delete_clicked);
-	BIND_CALLBACK(recover_ok_clicked);
-	BIND_CALLBACK(recover_cancel_clicked);
-
 }
 
 Recover *
-recover_new(GtkWindow *parent_window)
+recover_new(GtkWindow *parent_window, Workspaceroot *wsr)
 {
 	Recover *recover;
 
 	recover = g_object_new(RECOVER_TYPE,
 		"transient-for", parent_window,
+		"application", gtk_window_get_application(parent_window),
 		NULL);
+
+	recover->wsr = wsr;
 
 	return recover;
 }
