@@ -14,6 +14,14 @@
 	scope
 	falsecolour
 
+- recover after crash should display the total size of any backed up image
+  files too
+
+- trace checkmark save and make sure we're not calling it too often
+
+- recover after crash should have a _refresh() method that can be called to
+  rebuild the view
+
 - the imagewindow title bar for computed images shuld display eg.
   A2.reference, not "untitled"
 
