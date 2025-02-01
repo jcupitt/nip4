@@ -226,7 +226,7 @@ drawstate_build_kplot(Drawstate *state, Plot *plot, gboolean thumbnail)
 }
 
 static double
-drawstate_pick_xinterval(double min, double max, int width)
+drawstate_pick_interval(double min, double max, int width)
 {
 	double range = max - min;
 	double magnitude = pow(10.0, ceil(log10(range)));
@@ -243,29 +243,6 @@ drawstate_pick_xinterval(double min, double max, int width)
 		return magnitude / 50.0;
 	else
 		return magnitude / 100.0;
-}
-
-// vertical labels can be quite a bit closer
-static double
-drawstate_pick_yinterval(double min, double max, int height)
-{
-	double range = max - min;
-	double magnitude = pow(10.0, ceil(log10(range)));
-
-	if (height < 100)
-		return magnitude / 2.0;
-	else if (height < 150)
-		return magnitude / 5.0;
-	else if (height < 250)
-		return magnitude / 10.0;
-	else if (height < 450)
-		return magnitude / 20.0;
-	else if (height < 700)
-		return magnitude / 50.0;
-	else if (height < 1300)
-		return magnitude / 100.0;
-	else
-		return magnitude / 200.0;
 }
 
 static void
@@ -285,9 +262,9 @@ drawstate_draw(Drawstate *state,
 	}
 	else {
 		state->kplot->cfg.xinterval =
-			drawstate_pick_xinterval(plot->xmin, plot->xmax, width);
+			drawstate_pick_interval(plot->xmin, plot->xmax, width);
 		state->kplot->cfg.yinterval =
-			drawstate_pick_yinterval(plot->ymin, plot->ymax, height);
+			drawstate_pick_interval(plot->ymin, plot->ymax, height);
 	}
 
 	// and plot
