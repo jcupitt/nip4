@@ -14,8 +14,22 @@
 	scope
 	falsecolour
 
-- the imagewindow title bar for computed images shuld display eg.
+  linking seems not to work ... "scope" fionds the falsecolour tab, but then
+  links to falsecolour in the scope outside that?
+
+- the imagewindow title bar for computed images should display eg.
   A2.reference, not "untitled"
+
+- ^C / ^V copy-paste in mainwindow is very annoying ... only intercept in
+  imagewindow
+
+- we have stray error bar popups on successful workspace load
+
+	from backtracking?
+
+- use "propagate-natural-width" to get better fit of imageview window?
+
+- still getting buffer ownership crashes
 
 - need preferences
 
