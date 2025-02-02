@@ -106,7 +106,6 @@ im_LabS2Lab x = vips_call9 "LabS2Lab" [x] [];
 im_LCh2UCS x = vips_call9 "LCh2CMC" [x] [];
 im_LCh2Lab x = vips_call9 "LCh2Lab" [x] [];
 im_scRGB2XYZ x = vips_call9 "scRGB2XYZ" [x] [];
-im_sRGB2scRGB x = vips_call9 "sRGB2scRGB" [x] [];
 im_scRGB2sRGB x = vips_call9 "scRGB2sRGB" [x] [];
 im_scRGB2XYZ x = vips_call9 "scRGB2XYZ" [x] [];
 im_UCS2LCh x = vips_call9 "CMC2LCh" [x] [];

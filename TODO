@@ -3,10 +3,12 @@
 	scope
 	falsecolour
 
-  linking seems not to work ... "scope" fionds the falsecolour tab, but then
+  linking seems not to work ... "scope" finds the falsecolour tab, but then
   links to falsecolour in the scope outside that?
 
-- trace checkmark save and make sure we're not calling it too often
+- we removed a lot of ws and kitg modified code
+
+	need to put back modified set in eg program.c, ws local defs update
 
 - the imagewindow title bar for computed images should display eg.
   A2.reference, not "untitled"

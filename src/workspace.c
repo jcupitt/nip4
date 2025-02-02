@@ -1109,8 +1109,6 @@ workspace_new_blank(Workspacegroup *wsg)
 
 	iobject_set(IOBJECT(ws), NULL, _("Default empty tab"));
 
-	filemodel_set_modified(FILEMODEL(wsg), TRUE);
-
 	return ws;
 }
 
@@ -1518,7 +1516,6 @@ workspace_local_set(Workspace *ws, const char *txt)
 	VIPS_SETSTR(ws->local_defs, txt);
 	iobject_changed(IOBJECT(ws));
 
-	workspace_set_modified(ws, TRUE);
 	attach_input_string(txt);
 	if (!parse_toplevel(ws->local_kit, 0))
 		return FALSE;

@@ -159,10 +159,10 @@ tool_dispose(GObject *gobject)
 		 */
 	}
 
-	if (tool->kit) {
-		filemodel_set_modified(FILEMODEL(tool->kit), TRUE);
+	if (tool->kit)
+		// don't set kit modified, we could be in parse ... set kit modified in
+		// program window
 		tool->kit = NULL;
-	}
 
 	VIPS_FREEF(toolitem_free, tool->toolitem);
 
@@ -300,7 +300,8 @@ tool_link(Tool *tool, Toolkit *kit, int pos, const char *name)
 	printf("tool_link: %s\n", name);
 #endif /*DEBUG*/
 
-	filemodel_set_modified(FILEMODEL(kit), TRUE);
+	// don't set kit modifed, we could be in load ... kit modified should be
+	// set during tool creation
 	iobject_set(IOBJECT(tool), name, NULL);
 	icontainer_child_add(ICONTAINER(kit), ICONTAINER(tool), pos);
 }
