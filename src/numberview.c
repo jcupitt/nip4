@@ -60,7 +60,7 @@ numberview_scan(View *view)
 
 	if (number->value != value) {
 		number->value = value;
-		classmodel_update(CLASSMODEL(number));
+		classmodel_update_view(CLASSMODEL(number));
 	}
 
 	return VIEW_CLASS(numberview_parent_class)->scan(view);

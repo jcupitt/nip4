@@ -268,22 +268,6 @@ tilecache_build_pyramid(Tilecache *tilecache)
 #endif /*DEBUG*/
 }
 
-/* Everything has changed, eg. page turn and the image geometry has changed.
- */
-static void
-tilecache_source_changed(Tilesource *tilesource, Tilecache *tilecache)
-{
-#ifdef DEBUG
-	printf("tilecache_source_changed:\n");
-#endif /*DEBUG*/
-
-	/* This will junk all tiles.
-	 */
-	tilecache_build_pyramid(tilecache);
-
-	tilecache_changed(tilecache);
-}
-
 /* All tiles need refetching, perhaps after eg. "falsecolour" etc. Mark
  * all tiles invalid and reemit.
  */
@@ -310,6 +294,28 @@ tilecache_source_tiles_changed(Tilesource *tilesource,
 	}
 
 	tilecache_tiles_changed(tilecache);
+}
+
+/* Everything has changed, eg. page turn and the image geometry has changed.
+ */
+static void
+tilecache_source_changed(Tilesource *tilesource, Tilecache *tilecache)
+{
+#ifdef DEBUG
+	printf("tilecache_source_changed:\n");
+#endif /*DEBUG*/
+
+	/* Junk all tiles on geometry change.
+	 */
+	tilecache_build_pyramid(tilecache);
+
+	/* All tiles must be invalidated.
+	 */
+	tilecache_source_tiles_changed(tilesource, tilecache);
+
+	/* All views must update.
+	 */
+	tilecache_changed(tilecache);
 }
 
 static Tile *

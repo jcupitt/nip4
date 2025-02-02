@@ -74,7 +74,7 @@ matrixview_toggle_clicked(GtkWidget *widget, Matrixview *matrixview)
 			break;
 		}
 
-		classmodel_update(CLASSMODEL(matrix));
+		classmodel_update_view(CLASSMODEL(matrix));
 		symbol_recalculate_all();
 	}
 }
@@ -105,7 +105,7 @@ matrixview_slider_changed(Tslider *tslider, Matrixview *matrixview)
 	if (matrix->value.coeff[i] != tslider->svalue) {
 		matrix->value.coeff[i] = tslider->svalue;
 
-		classmodel_update(CLASSMODEL(matrix));
+		classmodel_update_view(CLASSMODEL(matrix));
 		symbol_recalculate_all();
 	}
 }
@@ -355,7 +355,7 @@ matrixview_scan(View *view)
 		}
 
 	if (changed)
-		classmodel_update(CLASSMODEL(matrix));
+		classmodel_update_view(CLASSMODEL(matrix));
 
 	return VIEW_CLASS(matrixview_parent_class)->scan(view);
 }

@@ -6,14 +6,12 @@
   linking seems not to work ... "scope" finds the falsecolour tab, but then
   links to falsecolour in the scope outside that?
 
-- we removed a lot of ws and kitg modified code
-
-	need to put back modified set in eg program.c, ws local defs update
-
 - we removed an error report from leaf recomp since it can happen during
   backtracking
 
 	we probably need to check and report recomp errors for eg. row update
+
+	edit a row's expr, ret, error bar does not pop
 
 - ^C / ^V copy-paste in mainwindow & program window is very annoying ...
   only intercept in imagewindow
@@ -49,6 +47,12 @@
 	mono thumb does not update
 
   though the imagewindow seems to have the page turning, how odd
+
+	view mono as multipage
+	press next page
+	no update!
+
+  is it trying to reload and giving up?
 
 - try:
 

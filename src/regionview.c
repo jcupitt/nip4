@@ -195,7 +195,7 @@ regionview_model_update(Regionview *regionview)
 	*model_area = regionview->our_area;
 
 	if (classmodel) {
-		classmodel_update(classmodel);
+		classmodel_update_view(classmodel);
 
 		symbol_recalculate_all();
 	}

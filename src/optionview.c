@@ -123,7 +123,7 @@ optionview_notify_selected(GObject *self, GParamSpec *pspec, void *user_data)
 	if (option->value != new_value) {
 		option->value = new_value;
 
-		classmodel_update(classmodel);
+		classmodel_update_view(classmodel);
 		symbol_recalculate_all();
 	}
 }

@@ -1206,7 +1206,7 @@ classmodel_update(Classmodel *classmodel)
 {
 	Row *row = HEAPMODEL(classmodel)->row;
 
-	/* Eg. for no symol on load.
+	/* Eg. for no symbol on load.
 	 */
 	if (!row->expr)
 		return;
@@ -1222,6 +1222,21 @@ classmodel_update(Classmodel *classmodel)
 	 */
 	classmodel_set_edited(classmodel, TRUE);
 	expr_dirty(row->expr, link_serial_new());
+}
+
+/* Model has been changed by a view. Mark for recomp, and since this was a
+ * user action from a view, mark the ws as modified.
+ */
+void
+classmodel_update_view(Classmodel *classmodel)
+{
+	Row *row = HEAPMODEL(classmodel)->row;
+
+	classmodel_update(classmodel);
+
+	if (row &&
+		row->expr)
+		workspace_set_modified(row->ws, TRUE);
 }
 
 /* Make a new classmodel subtype (eg. TYPE_PATHNAME) and link it on.

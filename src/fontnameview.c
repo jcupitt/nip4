@@ -97,7 +97,7 @@ fontnameview_desc_notify(GtkWidget *widget,
 	if (desc) {
 		g_autofree char *value = pango_font_description_to_string(desc);
 		VIPS_SETSTR(fontname->value, value);
-		classmodel_update(CLASSMODEL(fontname));
+		classmodel_update_view(CLASSMODEL(fontname));
 		symbol_recalculate_all();
 	}
 }

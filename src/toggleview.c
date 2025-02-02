@@ -56,7 +56,7 @@ toggleview_toggled(GtkWidget *widget, Toggleview *togview)
 
 	if (tog->value != active) {
 		tog->value = active;
-		classmodel_update(classmodel);
+		classmodel_update_view(classmodel);
 		symbol_recalculate_all();
 	}
 }

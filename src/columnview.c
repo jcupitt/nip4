@@ -524,6 +524,8 @@ columnview_activate(GtkEntry *self, gpointer user_data)
 		return;
 	}
 
+	workspace_set_modified(ws, TRUE);
+
 	symbol_recalculate_all();
 
 	set_gentry(GTK_WIDGET(self), NULL);

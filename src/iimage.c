@@ -357,13 +357,6 @@ iimage_replace_imageinfo(iImage *iimage, Imageinfo *ii)
 	image_value_set(&iimage->value, ii);
 	classmodel_update(CLASSMODEL(iimage));
 
-	/*
-	Row *row = HEAPMODEL(iimage)->row;
-	iobject_changed(IOBJECT(iimage));
-	workspace_set_modified(row->ws, TRUE);
-	symbol_dirty_intrans(row->expr->sym, link_serial_new());
-	 */
-
 	return TRUE;
 }
 

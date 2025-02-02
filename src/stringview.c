@@ -59,7 +59,7 @@ stringview_scan(View *view)
 		my_strccpy(value2, text);
 		if (!g_str_equal(string->value, value2)) {
 			VIPS_SETSTR(string->value, value2);
-			classmodel_update(CLASSMODEL(string));
+			classmodel_update_view(CLASSMODEL(string));
 		}
 	}
 

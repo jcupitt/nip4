@@ -98,7 +98,7 @@ pathnameview_select_result(GObject *source_object,
 		g_autofree char *path = g_file_get_path(file);
 
 		VIPS_SETSTR(pathname->value, path);
-		classmodel_update(CLASSMODEL(pathname));
+		classmodel_update_view(CLASSMODEL(pathname));
 		symbol_recalculate_all();
 	}
 }

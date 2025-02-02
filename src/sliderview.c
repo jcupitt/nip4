@@ -109,7 +109,7 @@ sliderview_scan(View *view)
 
 	if (slider->value != value) {
 		slider->value = value;
-		classmodel_update(classmodel);
+		classmodel_update_view(classmodel);
 	}
 
 	return VIEW_CLASS(sliderview_parent_class)->scan(view);
@@ -139,7 +139,7 @@ sliderview_changed(Tslider *tslider, Sliderview *sliderview)
 	if (slider->value != tslider->svalue) {
 		slider->value = tslider->svalue;
 
-		classmodel_update(CLASSMODEL(slider));
+		classmodel_update_view(CLASSMODEL(slider));
 		symbol_recalculate_all();
 	}
 }

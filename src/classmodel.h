@@ -148,6 +148,7 @@ gboolean classmodel_update_members(Classmodel *classmodel, PElement *root);
 GType classmodel_get_type(void);
 
 void classmodel_update(Classmodel *classmodel);
+void classmodel_update_view(Classmodel *classmodel);
 void classmodel_set_edited(Classmodel *classmodel, gboolean edited);
 
 Classmodel *classmodel_new_classmodel(GType type, Rhs *rhs);
