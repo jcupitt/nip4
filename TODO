@@ -20,6 +20,12 @@
 
 - use "propagate-natural-width" to get better fit of imageview window?
 
+	pick an initial scale, aim for max 600px high
+
+	make window with that scale, propogate size
+
+	remove shrink-to-fit
+
 - still getting buffer ownership crashes
 
 - need preferences
@@ -34,15 +40,13 @@
 
 	maybe copy-paste the vipsdisp icon for now
 
-- thumbnails and image windows are still flashing black on update
+- try
 
-	eg. load GIF, A2 = A1 * 1.2
+	load GIF
+	to mono
+	mono thumb does not update
 
-	why do they flash? how odd
-
-  should start to drop frames on GIFs as we slow down, not lock or flicker
-
-- should tilecache work in image tiles, not RGBA tiles?
+  though the imagewindow seems to have the page turning, how odd
 
 - try:
 

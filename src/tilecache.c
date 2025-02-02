@@ -206,8 +206,7 @@ tilecache_build_pyramid(Tilecache *tilecache)
 	if (tilecache->levels &&
 		tilecache->levels[0] &&
 		tilesource->display_width == tilecache->levels[0]->Xsize &&
-		tilesource->display_height == tilecache->levels[0]->Ysize &&
-		tilesource->bands == tilecache->levels[0]->Bands) {
+		tilesource->display_height == tilecache->levels[0]->Ysize) {
 #ifdef DEBUG
 		printf("\tno geometry change, skipping pyr rebuild\n");
 #endif /*DEBUG*/
