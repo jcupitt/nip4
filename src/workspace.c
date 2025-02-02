@@ -47,13 +47,15 @@ static gint workspace_layout_timeout = 0;
 void
 workspace_set_show_error(Workspace *ws, gboolean show_error)
 {
-	ws->show_error = show_error;
 	if (show_error) {
 		VIPS_SETSTR(ws->error_top, error_get_top());
 		VIPS_SETSTR(ws->error_sub, error_get_sub());
 	}
 
-	iobject_changed(IOBJECT(ws));
+	if (ws->show_error != show_error) {
+		ws->show_error = show_error;
+		iobject_changed(IOBJECT(ws));
+	}
 }
 
 static void *
@@ -527,11 +529,12 @@ workspace_add_def(Workspace *ws, const char *str)
 	}
 
 	/* If we're redefining a sym, it might have a row already.
+	 *
+	 * Don't set modified on the ws, we might be here from parse.
 	 */
 	if (!sym->expr->row)
 		(void) row_new(col->scol, sym, &sym->expr->root);
 	symbol_made(sym);
-	workspace_set_modified(ws, TRUE);
 
 	return sym;
 }

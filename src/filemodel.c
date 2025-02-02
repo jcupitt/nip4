@@ -290,9 +290,6 @@ filemodel_real_set_modified(Filemodel *filemodel, gboolean modified)
 			filemodel->filename,
 			bool_to_char(modified));
 
-		if (modified)
-			printf("BANANA\n");
-
 		filemodel->modified = modified;
 
 		iobject_changed(IOBJECT(filemodel));

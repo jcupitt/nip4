@@ -10,15 +10,13 @@
 
 	need to put back modified set in eg program.c, ws local defs update
 
-- the imagewindow title bar for computed images should display eg.
-  A2.reference, not "untitled"
+- we removed an error report from leaf recomp since it can happen during
+  backtracking
+
+	we probably need to check and report recomp errors for eg. row update
 
 - ^C / ^V copy-paste in mainwindow & program window is very annoying ...
   only intercept in imagewindow
-
-- we have stray error bar popups on successful workspace load in lady.ws
-
-	from backtracking?
 
 - use "propagate-natural-width" to get better fit of imageview window?
 
@@ -32,11 +30,6 @@
 
 	other changes to go back?
 
-- try:
-
-	cd ~/GIT/bm-workspaces
-	nip4 bm-workspaces.ws
-
 - nip4 icon in "about" does not display, and needs to be 512x512
 
 	maybe copy-paste the vipsdisp icon for now
@@ -44,6 +37,8 @@
 - thumbnails and image windows are still flashing black on update
 
 	eg. load GIF, A2 = A1 * 1.2
+
+	why do they flash? how odd
 
   should start to drop frames on GIFs as we slow down, not lock or flicker
 

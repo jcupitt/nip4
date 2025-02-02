@@ -582,8 +582,10 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 	Tilesource *new_tilesource =
 		imageui ? imageui_get_tilesource(imageui) : NULL;
 
+	char str[256];
+	VipsBuf buf = VIPS_BUF_STATIC(str);
+
 	VipsImage *image;
-	char *title;
 
 	printf("imagewindow_imageui_set_visible\n");
 
@@ -602,10 +604,17 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 
 	/* Update title and subtitle.
 	 */
-	title = new_tilesource ?
-		(char *) tilesource_get_path(new_tilesource) : NULL;
-	title = (char *) tilesource_get_path(new_tilesource);
-	gtk_label_set_text(GTK_LABEL(win->title), title ? title : "Untitled");
+	const char *title;
+	title = tilesource_get_path(new_tilesource);
+	if (!title) {
+		vips_buf_rewind(&buf);
+		row_qualified_name(HEAPMODEL(win->iimage)->row, &buf);
+		title = vips_buf_all(&buf);
+	}
+	if (!title)
+		title = "Untitled";
+
+	gtk_label_set_text(GTK_LABEL(win->title), title);
 
 	if (new_tilesource &&
 		(image = tilesource_get_base_image(new_tilesource))) {

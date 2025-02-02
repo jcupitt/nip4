@@ -1122,15 +1122,8 @@ symbol_recalculate_leaf(void)
 		 */
 		(void) symbol_recalculate_leaf_sub(sym);
 
-		/* If we found an error, tell everyone.
+		/* We can get errors during backtracking, don't report here.
 		 */
-		Row *row;
-		if (sym->expr &&
-			sym->expr->err &&
-			(row = expr_get_row(sym->expr))) {
-			expr_error_get(sym->expr);
-			workspace_set_show_error(row->ws, TRUE);
-		}
 
 		/* Note a pending GC.
 		 */
