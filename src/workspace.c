@@ -568,6 +568,7 @@ workspace_add_def_recalc(Workspace *ws, const char *str)
 
 	/* Jump to column containing object.
 	 */
+	column_set_open(col, TRUE);
 	column_scrollto(col, MODEL_SCROLL_BOTTOM);
 
 	return sym;

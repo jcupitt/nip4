@@ -45,8 +45,8 @@ void
 column_set_offset(int left_offset)
 {
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("column_set_offset: load offset %d\n", left_offset);
+#endif /*DEBUG*/
 
 	column_left_offset = left_offset;
 }

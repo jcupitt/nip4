@@ -9,8 +9,8 @@ Frame_item = class
 		{
 		////////////////////////////////////////////////////////////////////////////////////
 		Frame_corner_item = class
-			Menuaction "_Frame Corner" 
-			"copies and extends a frame corner, a, to produce a complete frame to fit round a given image, b" 
+			Menuaction "_Frame Corner"
+			"copies and extends a frame corner, a, to produce a complete frame to fit round a given image, b"
 			{
 			prefs = Workspaces.Preferences;
 
@@ -68,10 +68,10 @@ Frame_item = class
 			_result = if (frame == 0) then _pos_im else frame;
 			}
 			}
-		
+
 		////////////////////////////////////////////////////////////////////////////////////
 		Simple_frame_item = class
-			Menuaction "_Simple Frame" 
+			Menuaction "_Simple Frame"
 				"extends or shortens the central sections of a simple frame, a,  to fit round a given image, b"
 			{
 			prefs = Workspaces.Preferences;
@@ -130,10 +130,10 @@ Frame_item = class
 			_result = if (frame == 0) then _pos_im else frame;
 			}
 			}
-		
+
 		////////////////////////////////////////////////////////////////////////////////////
 		Complex_frame_item = class
-			Menuaction "_Complex Frame" 
+			Menuaction "_Complex Frame"
 			"extends or shortens the central sections of a frame a, preserving any central edge details, to fit image b" {
 		prefs = Workspaces.Preferences;
 
@@ -192,8 +192,8 @@ Frame_item = class
 			_result = if (frame == 0) then _pos_im else frame;
 			}
 		}
-	}	
-////////////////////////////////////////////////////////////////////////////////////	
+	}
+////////////////////////////////////////////////////////////////////////////////////
 	Straighten_frame_item = class
 		Menuaction "_Straighten Frame" "uses four points to square up distorted images of frames" {
 		action a = Perspective_item.action a;
@@ -217,7 +217,7 @@ Select_item = class
 	 	"Selection White",
 	 	"Background Black",
 	 	"Background White",
-		"Mask" 
+		"Mask"
 	] 4;
 
 	control_selection mask im no
@@ -239,19 +239,19 @@ Select_item = class
             _result {
             _vislevel = 3;
 
-            control = _control;   
+            control = _control;
 
             _result = control_selection mask im control
                   {
                 	im = x.image;
                 	mask = Image m
                     {
-						rx     
+						rx
 							= x.region_rect, is_Region x
 							= x;
 						b     = image_new im.width im.height 1 0 0 1 0 0 0;
 						w     = image_new rx.nwidth rx.nheight 1 0 0 1 255 0 0;
-						m     = insert_noexpand rx.nleft rx.ntop w b; 
+						m     = insert_noexpand rx.nleft rx.ntop w b;
                      }
                    }
             }
@@ -315,16 +315,16 @@ Select_item = class
 
 	sep1 = Menuseparator;
 
-	Threshold_item = class 
+	Threshold_item = class
 		Menuaction "Thres_hold" "simple image threshold" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
-			t 
+			t
 				= Scale "Threshold" 0 mx (mx / 2)
 			{
-				mx 
+				mx
 					= Image_format.maxval x.format, is_Image x
 					= 255;
 			}
@@ -333,15 +333,15 @@ Select_item = class
 		}
 	}
 
-	Threshold_percent_item = class 
+	Threshold_percent_item = class
 		Menuaction "Per_cent Threshold" "threshold at a percentage of pixels" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
 			t = Scale "Percentage of pixels" 0 100 50;
 
-			_result 
+			_result
 				= map_unary (more (hist_thresh (t.value / 100) x)) x;
 		}
 	}
@@ -350,12 +350,12 @@ Select_item = class
 
 	Segment_item = class
 		Menuaction "_Segment" "break image into disjoint regions" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
 			segments
-				= Expression "Number of disjoint regions" 
+				= Expression "Number of disjoint regions"
 					(map_unary (get_header "n-segments") _result);
 
 			_result = map_unary segment x;
@@ -364,30 +364,30 @@ Select_item = class
 
 	Fill_item = class
 		Menuaction "_Fill" "fill zero pixels with the nearest non-zero" {
-		action x = class 
+		action x = class
 			Image _result {
 			_vislevel = 3;
 
 			distance = Image _distance;
 
-			[_result, _distance] = vips_call "fill_nearest" [x.value] [
+			[_result, _distance] = vips_call9 "fill_nearest" [x.value] [
 				"distance" => true
 			];
 		}
 	}
 
-fill_nearest x 
+fill_nearest x
 	= oo_unary_function nearest_op x, is_class x
-	= near x, is_image x 
+	= near x, is_image x
 	= error (_ "bad arguments to " ++ "fill_nearest")
 {
-	nearest_op = Operator "fill_nearest" 
+	nearest_op = Operator "fill_nearest"
 		fill_nearest Operator_type.COMPOUND_REWRAP false;
 
 	near x
 		= [out, distance]
 	{
-		[out, distance] = vips_call "fill_nearest" [x] [
+		[out, distance] = vips_call9 "fill_nearest" [x] [
 			"distance" => true
 		];
 	}
@@ -403,7 +403,7 @@ fill_nearest x
 ////////////////////////////////////////////////////////////////////////////////////
 
 Perspective_match_item = class
-	Menuaction "_Perspective Match" 
+	Menuaction "_Perspective Match"
 		"rotate, scale and skew one image to match another" {
 	action x y = class
 		_result {
@@ -423,7 +423,7 @@ Perspective_match_item = class
 		ap2 = Mark_relative _a 0.9 0.1;
 		ap3 = Mark_relative _a 0.1 0.9;
 		ap4 = Mark_relative _a 0.9 0.9;
-			
+
 		bp1 = Mark_relative _b 0.1 0.1;
 		bp2 = Mark_relative _b 0.9 0.1;
 		bp3 = Mark_relative _b 0.1 0.9;
@@ -438,21 +438,21 @@ Perspective_match_item = class
 			pl = sort_pts_clockwise [bp1, bp2, bp3, bp4];
 
 			to = [
-				rl?0.left, rl?0.top, 
+				rl?0.left, rl?0.top,
 				rl?1.left, rl?1.top,
-				rl?2.left, rl?2.top, 
+				rl?2.left, rl?2.top,
 				rl?3.left, rl?3.top
 			];
 
 			from = [
-				pl?0.left * f1, pl?0.top * f2, 
+				pl?0.left * f1, pl?0.top * f2,
 				pl?1.left * f1, pl?1.top * f2,
-				pl?2.left * f1, pl?2.top * f2, 
+				pl?2.left * f1, pl?2.top * f2,
 				pl?3.left * f1, pl?3.top * f2
 			];
-			
+
 			trans = perspective_transform to from;
-			
+
 			process a b = transform 1 0 trans b2
 				{
 				b2 = resize Kernel_linear f1 f2 b, (f1 >= 1 && f2 >= 1) || (f1 >= 1 && f2 >= 1)
@@ -486,15 +486,15 @@ Perspective_item = class
 		ap2 = Mark_relative _a 0.9 0.1;
 		ap3 = Mark_relative _a 0.9 0.9;
 		ap4 = Mark_relative _a 0.1 0.9;
-		
+
 		_result = map_unary process x
-			{			
+			{
 			trans = [perspective_transform to from, perspective_transform from to]?(dir.value)
 				{
 				rl = sort_pts_clockwise [ap1, ap2, ap3, ap4];
 				to = [(rl?0).left, (rl?0).top, (rl?1).left, (rl?1).top,
 			    	  (rl?2).left, (rl?2).top, (rl?3).left, (rl?3).top];
-				from=[0, 0, (_a.width - 1), 0, 
+				from=[0, 0, (_a.width - 1), 0,
 					  (_a.width - 1), (_a.height - 1), 0, (_a.height - 1)];
 				}
 

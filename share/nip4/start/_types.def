@@ -788,8 +788,8 @@ Enum value = class
 	things = this.column 1;
 
 	// is a legal name or thing
-	has_name x = this.present 1 x;
-	has_thing x = this.present 0 x;
+	has_name x = this.present 0 x;
+	has_thing x = this.present 1 x;
 
 	// map things to strings and back
 	get_name x = this.lookup 1 0 x;

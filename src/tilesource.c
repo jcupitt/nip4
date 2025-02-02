@@ -1314,8 +1314,13 @@ tilesource_set_image(Tilesource *tilesource, VipsImage *image)
 	tilesource->width = image->Xsize;
 	tilesource->height = vips_image_get_page_height(image);
 	tilesource->bands = image->Bands;
-	tilesource->n_pages = vips_image_get_n_pages(image);
 	tilesource->n_subifds = vips_image_get_n_subifds(image);
+
+	/* vips_image_get_n_pages() is the number of pages in the source file, not
+	 * the number of loaded pages.
+	 */
+	tilesource->n_pages = image->Ysize % tilesource->height == 0 ?
+		image->Ysize / tilesource->height : 1;
 
 	/* No reopening, so have (in effect) all pages open at once.
 	 */
@@ -1712,12 +1717,13 @@ tilesource_new_from_file(const char *filename)
 	g_autoptr(VipsImage) x = tilesource_open(tilesource, 0);
 	vips_error_thaw();
 	if (x) {
-		/* Toilet-roll mode worked. Check sanity of page height,
-		 * n_pages and Ysize too.
+		/* Toilet-roll mode worked. We can update n_pages.
 		 */
-		if (tilesource->n_pages * tilesource->height != x->Ysize ||
-			tilesource->n_pages <= 0 ||
-			tilesource->n_pages > 10000) {
+		if (x->Ysize % tilesource->height == 0) {
+			tilesource->n_pages = x->Ysize / tilesource->height;
+			tilesource->pages_same_size = TRUE;
+		}
+		else {
 #ifdef DEBUG
 			printf("tilesource_new_from_source: bad page layout\n");
 #endif /*DEBUG*/
@@ -1727,10 +1733,6 @@ tilesource_new_from_file(const char *filename)
 			VIPS_FREE(tilesource->delay);
 			tilesource->n_delay = 0;
 		}
-		else
-			/* Everything looks good.
-			 */
-			tilesource->pages_same_size = TRUE;
 	}
 
 	/* Back to plain multipage for the rest of the sniff period. For

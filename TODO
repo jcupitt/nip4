@@ -1,13 +1,5 @@
-- make a tab called "falsecolour", then in that tab try:
-
-	scope
-	falsecolour
-
-  linking seems not to work ... "scope" finds the falsecolour tab, but then
-  links to falsecolour in the scope outside that?
-
 - ^C / ^V copy-paste in mainwindow & program window is very annoying ...
-  only intercept in imagewindow
+  only add shortcuts in imagewindow
 
 - use ^W in mainw for close workspace, ^Q for close application
 
@@ -19,9 +11,11 @@
 
 	remove shrink-to-fit
 
-- still getting buffer ownership crashes
+- still getting buffer ownership assert fails
 
-- need preferences
+- need preferences?
+
+	or just remomve it all
 
 - saveoptions.c should derive from GtkWindow, not GtkDialog
 
@@ -63,27 +57,11 @@
 - investigate behaviour with updated iimage_update_heap() ... there will be
   quite a few cases which now fail (I expect)
 
-- that's paste, now implement copy
-
-	copy in image window
-
-	copy in mainwindow could copy selected image or object?
-
 - save as TIFF, pick a set of options which will fail (eg. deflate + float
   predictor), save, get error, fix options, save again, get:
 
 	(nip4:3658140): VIPS-WARNING **: 12:51:27.408: ../libvips/iofuncs/object.c:1231: VipsForeignSaveTiffFile can only assign 'nickname' once
 	(nip4:3658140): VIPS-WARNING **: 12:51:27.408: ../libvips/iofuncs/object.c:1231: VipsForeignSaveTiffFile can only assign 'description' once
-
-- 1 and 0 should be swapped in Enum class
-
-        // is a legal name or thing
-        has_name x = this.present 1 x;
-        has_thing x = this.present 0 x;
-
-  can we fix this in 8.9? seems to cause problems
-
-  do the fix in v9.0 menus
 
 ## program
 
@@ -151,12 +129,7 @@
 
 ## other
 
-- close column, select column, click Colour > New > Colour, column should pop
-  open since a row has been added to it
-
 - remove the "open" button from the top bar? not very useful
-
-	could be an icon, see vipsdisp
 
 - try:
 
@@ -167,6 +140,8 @@
   edit a cell and hit enter, lose the widgets, same happens in nip2
 
   do we need to define a Matrix_base member in Matrix_gaussian_item.action?
+
+  something for nip4 v9 menus
 
 - put a time delay on row label colour change -- stop the flashing
 

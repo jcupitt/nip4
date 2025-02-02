@@ -17,7 +17,7 @@ to_matrix x
 		= error (_ "bad arguments to " ++ "to_matrix");
 
 	itom i
-		= (im_vips2mask ((double) i)).value, is_image i 
+		= (im_vips2mask ((double) i)).value, is_image i
 		= error (_ "not image");
 }
 
@@ -40,11 +40,11 @@ to_vector x
 		= error (_ "bad arguments to " ++ "to_vector");
 
 	itov i
-		= v, is_image i 
+		= v, is_image i
 		= error (_ "not image")
 	{
 		m = im_vips2mask ((double) i);
-		v 
+		v
 			= m.value?0, m.height == 1
 			= (transpose m.value)?0, m.width == 1
 			= error (_ "image is not 1xN or Nx1");
@@ -59,7 +59,7 @@ to_image x
 	= to_image x.expr, is_Expression x
 	= Image x.value, is_Plot x
 	= x, is_Image x
-	= Image (image_set_type 
+	= Image (image_set_type
 			(Image_type.colour_spaces.lookup 0 1 x.colour_space)
 			(mtoi [x.value])),
 		is_Colour x
@@ -122,17 +122,25 @@ to_colour x
 	to_colour_op = Operator "to_colour" toc Operator_type.COMPOUND false;
 
 	toc x
-		= Colour (colour_space (get_type x)) 
-			(map mean (bandsplit (get_image x))),
+		= Colour (colour_space (get_type x''))
+			(map mean (bandsplit (get_image x''))),
 			has_image x && has_type x
 		= Colour "sRGB" [x, x, x], is_real x	// since Colour can't do mono
 		= Colour "sRGB" x, is_real_list x && is_list_len 3 x
 		= map toc x, is_matrix x
-		= error (_ "bad arguments to " ++ "to_colour");
+		= error (_ "bad arguments to " ++ "to_colour")
+	{
+		x'
+			= x, Image_type.colour_spaces.has_name (get_type x)
+			= colour_transform_to Image_type.sRGB x;
+		x''
+			= extract_bands 0 3 x', get_bands x' > 3
+			= x';
+	}
 
 	colour_space type
 		= table.get_name type, table.has_name type
-		= error (_ "unable to make Colour from " ++ table.get_name type ++ 
+		= error (_ "unable to make Colour from " ++ table.get_name type ++
 			_ " image")
 	{
 		table = Image_type.colour_spaces;
@@ -169,7 +177,7 @@ to_list x
 /* Try to make a group. The outermost list objects become Group()'d.
  */
 to_group x
-	= Group x, is_list x 
+	= Group x, is_list x
 	= Group (map to_group x.value), is_Group x
 	= x;
 
@@ -190,7 +198,7 @@ parse_pint l
 /* Parse an integer, with an optional sign character.
  */
 parse_int l
-	= error (_ "badly formed number"), !is_list_len 2 parts 
+	= error (_ "badly formed number"), !is_list_len 2 parts
 	= sign * n
 {
 	parts = splitpl [member "+-", is_digit] l;
@@ -201,24 +209,24 @@ parse_int l
 		= -1;
 }
 
-/* Parse a float. 
+/* Parse a float.
  *	[+-]?[0-9]*([.][0-9]*)?(e[0-9]+)?
  */
 parse_float l
-	= err, !is_list_len 4 parts 
+	= err, !is_list_len 4 parts
 	= sign * (abs ipart + fpart) * 10 ** exp
 {
 	err = error (_ "badly formed number");
 
 	parts = splitpl [
-		member "+-0123456789", 
+		member "+-0123456789",
 		member ".0123456789",
-		member "eE", 
+		member "eE",
 		member "+-0123456789"
 	] l;
 
 	ipart = parse_int parts?0;
-	sign 
+	sign
 		= 1, ipart >= 0
 		= -1;
 	fpart
@@ -227,7 +235,7 @@ parse_float l
 		= parse_pint (tl parts?1) / 10 ** (len parts?1 - 1);
 	exp
 		= 0, parts?2 == [] && parts?3 == []
-		= err, parts?2 == [] 
+		= err, parts?2 == []
 		= parse_int parts?3;
 
 }
@@ -244,7 +252,7 @@ but it's totally unreadable.
 
  */
 parse_time l
-	= error (_ "badly formed time"), !is_list_len 5 parts 
+	= error (_ "badly formed time"), !is_list_len 5 parts
 	= s + 60 * m + 60 * 60 * h
 {
 	parts = splitpl [is_digit, equal ':', is_digit, equal ':', is_digit] l;
@@ -336,23 +344,23 @@ im_D652D50 xyz
 /* Convert D50 XYZ to Lab.
  */
 im_D50XYZ2Lab xyz
-	= im_XYZ2Lab_temp xyz 
-		D50_whitepoint.value?0 
-		D50_whitepoint.value?1 
+	= im_XYZ2Lab_temp xyz
+		D50_whitepoint.value?0
+		D50_whitepoint.value?1
 		D50_whitepoint.value?2;
 im_D50Lab2XYZ lab
-	= im_Lab2XYZ_temp lab 
-		D50_whitepoint.value?0 
-		D50_whitepoint.value?1 
+	= im_Lab2XYZ_temp lab
+		D50_whitepoint.value?0
+		D50_whitepoint.value?1
 		D50_whitepoint.value?2;
 
 /* ... and mono conversions
  */
-im_sRGB2mono in 
-	= (image_set_type Image_type.B_W @ 
-		clip2fmt (get_header "BandFmt" in) @ 
+im_sRGB2mono in
+	= (image_set_type Image_type.B_W @
+		clip2fmt (get_header "BandFmt" in) @
 			recomb (Matrix [[.3, .6, .1]])) in;
-im_mono2sRGB in 
+im_mono2sRGB in
 	= image_set_type Image_type.sRGB (in ++ in ++ in);
 
 im_sRGB2Lab = im_XYZ2Lab @ im_sRGB2XYZ;
@@ -366,39 +374,27 @@ im_162f x = x / 256;
 im_8216 x = (im_clip2us x) << 8;
 im_f216 x = im_clip2us (x * 256);
 
-im_RGB162GREY16 in 
-	= (image_set_type Image_type.GREY16 @ 
-		clip2fmt (get_header "BandFmt" in) @ 
+im_RGB162GREY16 in
+	= (image_set_type Image_type.GREY16 @
+		clip2fmt (get_header "BandFmt" in) @
 			recomb (Matrix [[.3, .6, .1]])) in;
-im_GREY162RGB16 in 
+im_GREY162RGB16 in
 	= image_set_type Image_type.RGB16 (in ++ in ++ in);
 
 /* The vips8 scRGB functions.
  */
 
 im_sRGB2scRGB in
-	= out
-{
-	[out] = vips_call "sRGB2scRGB" [in] [];
-}
+	= vips_call9 "sRGB2scRGB" [in] [];
 
 im_scRGB2sRGB in
-	= out
-{
-	[out] = vips_call "scRGB2sRGB" [in] [];
-}
+	= vips_call9 "scRGB2sRGB" [in] [];
 
 im_scRGB2XYZ in
-	= out
-{
-	[out] = vips_call "scRGB2XYZ" [in] [];
-}
+	= vips_call9 "scRGB2XYZ" [in] [];
 
 im_XYZ2scRGB in
-	= out
-{
-	[out] = vips_call "XYZ2scRGB" [in] [];
-}
+	= vips_call9 "XYZ2scRGB" [in] [];
 
 /* apply a func to an image ... make it 1 or 3 bands, and reapply other bands
  * on the way out. Except if it's LABPACK.
@@ -413,7 +409,7 @@ colour_apply fn x
 	first
 		= extract_bands 0 3 x, b > 3
 		= extract_bands 0 1 x;
-	tail 
+	tail
 		= extract_bands 3 (b - 3) x, b > 3
 		= extract_bands 1 (b - 1) x;
 	x' = fn first;
@@ -428,15 +424,15 @@ colour_unary fn x
 	= colour_apply fn [x], is_real x
 	= error (_ "bad arguments to " ++ "colour_unary")
 {
-	// COMPOUND_REWRAP ... signal to the colour class to go to image and 
+	// COMPOUND_REWRAP ... signal to the colour class to go to image and
 	// back
-	colour_op = Operator "colour_unary" 
+	colour_op = Operator "colour_unary"
 		colour_object Operator_type.COMPOUND_REWRAP false;
 
 	colour_object x
 		= colour_real_list x, is_real_list x
-		= map colour_real_list x, is_matrix x 
-		= colour_apply fn x, is_image x 
+		= map colour_real_list x, is_matrix x
+		= colour_apply fn x, is_image x
 		= error (_ "bad arguments to " ++ "colour_unary");
 
 	colour_real_list l
@@ -452,16 +448,16 @@ colour_binary name fn x y
 	= fn x y, is_image x && is_image y
 	= error (_ "bad arguments to " ++ name)
 {
-	colour_op = Operator name 
+	colour_op = Operator name
 		colour_object Operator_type.COMPOUND_REWRAP true;
 
 	colour_object x y
 		= fn x y, is_image x && is_image y
 		= colour_real_list fn x y, is_real_list x && is_real_list y
-		= map (colour_real_list fn x) y, is_real_list x && is_matrix y 
-		= map (colour_real_list (converse fn) y) x, 
-			is_matrix x && is_real_list y 
-		= map2 (colour_real_list fn) x y, is_matrix x && is_matrix y 
+		= map (colour_real_list fn x) y, is_real_list x && is_matrix y
+		= map (colour_real_list (converse fn) y) x,
+			is_matrix x && is_real_list y
+		= map2 (colour_real_list fn) x y, is_matrix x && is_matrix y
 		= error (_ "bad arguments to " ++ name);
 
 	colour_real_list fn l1 l2
@@ -488,7 +484,7 @@ _colour_conversion_table = [
 	[B_W, RGB16, image_set_type RGB16 @ im_8216 @ im_mono2sRGB],
 	[B_W, GREY16, image_set_type GREY16 @ im_8216],
 	[B_W, LABQ, im_Lab2LabQ @ im_sRGB2Lab @ im_mono2sRGB @ im_clip],
-	[B_W, LABS, im_LabQ2LabS @ im_Lab2LabQ @ im_sRGB2Lab @ 
+	[B_W, LABS, im_LabQ2LabS @ im_Lab2LabQ @ im_sRGB2Lab @
 		im_mono2sRGB @ im_clip],
 
 	[XYZ, B_W, im_sRGB2mono @ im_XYZ2sRGB @ im_clip2f],
@@ -590,7 +586,7 @@ _colour_conversion_table = [
 	[scRGB, sRGB, im_scRGB2sRGB],
 	[scRGB, scRGB, image_set_type scRGB],
 	[scRGB, RGB16, image_set_type RGB16 @ im_8216 @ im_scRGB2sRGB],
-	[scRGB, GREY16, image_set_type GREY16 @ im_8216 @ im_sRGB2mono @ 
+	[scRGB, GREY16, image_set_type GREY16 @ im_8216 @ im_sRGB2mono @
 		im_scRGB2sRGB],
 	[scRGB, LABQ, im_Lab2LabQ @ im_XYZ2Lab @ im_scRGB2XYZ],
 	[scRGB, LABS, im_Lab2LabS @ im_XYZ2Lab @ im_scRGB2XYZ],
@@ -622,10 +618,10 @@ _colour_conversion_table = [
 	[LABQ, LABQ, image_set_type LABQ],
 	[LABQ, LABS, im_LabQ2LabS],
 
-	[LABS, B_W, im_sRGB2mono @ im_Lab2sRGB @ im_LabQ2Lab @ 
+	[LABS, B_W, im_sRGB2mono @ im_Lab2sRGB @ im_LabQ2Lab @
 		im_LabS2LabQ @ im_clip2s],
 	[LABS, XYZ, im_Lab2XYZ @ im_LabQ2Lab @ im_LabS2LabQ @ im_clip2s],
-	[LABS, YXY, im_XYZ2Yxy @ 
+	[LABS, YXY, im_XYZ2Yxy @
 		im_Lab2XYZ @ im_LabQ2Lab @ im_LabS2LabQ @ im_clip2s],
 	[LABS, LAB, im_LabS2Lab],
 	[LABS, LCH, im_Lab2LCh @ im_LabQ2Lab @ im_LabS2LabQ @ im_clip2s],
@@ -659,7 +655,7 @@ _colour_conversion_table = [
  */
 colour_transform from to in
 	= colour_unary _colour_conversion_table?i?2 in, i >= 0
-	= error (_ "unable to convert " ++ Image_type.type_names.get_name from ++ 
+	= error (_ "unable to convert " ++ Image_type.type_names.get_name from ++
 		_ " to " ++ Image_type.type_names.get_name to)
 {
 	match x = x?0 == from && x?1 == to;
@@ -667,7 +663,7 @@ colour_transform from to in
 }
 
 /* Transform to a colour space, assuming the type field in the input is
- * correct 
+ * correct
  */
 colour_transform_to to in = colour_transform (get_type in) to in;
 
@@ -675,13 +671,13 @@ colour_transform_to to in = colour_transform (get_type in) to in;
  */
 path_separator = expand "$SEP";
 
-/* Form a relative pathname. 
+/* Form a relative pathname.
  * 	path_relative ["home", "john"] == "home/john"
  * 	path_relative [] == ""
  */
 path_relative l = join_sep path_separator l;
 
-/* Form an absolute pathname. 
+/* Form an absolute pathname.
  * 	path_absolute ["home", "john"] == "/home/john"
  * 	path_absolute [] == "/"
  * If the first component looks like 'A:', don't add an initial separator.
@@ -714,7 +710,7 @@ system_search_path
 		= ';';
 }
 
-/* Search $PATH for the first occurence of name, or "". 
+/* Search $PATH for the first occurence of name, or "".
  */
 search_for name
 	= hits?0, hits != []
@@ -726,7 +722,7 @@ search_for name
 	hits = dropwhile (equal []) (map search paths);
 }
 
-/* Search $PATH for the first occurence of name, error on failure. 
+/* Search $PATH for the first occurence of name, error on failure.
  */
 search_for_error name
 	= path, path != ""

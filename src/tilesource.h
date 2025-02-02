@@ -162,6 +162,7 @@ typedef struct _Tilesource {
 	int height;
 	int bands;
 	int n_pages;
+	int page_height;
 	int n_subifds;
 	int *delay;
 	int n_delay;
