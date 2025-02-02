@@ -489,7 +489,8 @@ expr_error_set(Expr *expr)
 		/* If this is the value of a top-level sym, note state
 		 * change on symbol.
 		 */
-		if (is_top(expr->sym) && expr->sym->expr == expr)
+		if (is_top(expr->sym) &&
+			expr->sym->expr == expr)
 			symbol_state_change(expr->sym);
 	}
 

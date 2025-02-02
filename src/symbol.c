@@ -1219,8 +1219,7 @@ symbol_recalculate_all_force(gboolean now)
 	}
 	else if (!symbol_idle_id) {
 #ifdef DEBUG_RECALC
-		printf("symbol_recalculate_all_force: "
-			   "starting bg recalc ...\n");
+		printf("symbol_recalculate_all_force: starting bg recalc ...\n");
 #endif /*DEBUG_RECALC*/
 
 		progress_begin();

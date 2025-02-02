@@ -6,13 +6,6 @@
   linking seems not to work ... "scope" finds the falsecolour tab, but then
   links to falsecolour in the scope outside that?
 
-- we removed an error report from leaf recomp since it can happen during
-  backtracking
-
-	we probably need to check and report recomp errors for eg. row update
-
-	edit a row's expr, ret, error bar does not pop
-
 - ^C / ^V copy-paste in mainwindow & program window is very annoying ...
   only intercept in imagewindow
 
@@ -39,20 +32,6 @@
 - nip4 icon in "about" does not display, and needs to be 512x512
 
 	maybe copy-paste the vipsdisp icon for now
-
-- try
-
-	load GIF
-	to mono
-	mono thumb does not update
-
-  though the imagewindow seems to have the page turning, how odd
-
-	view mono as multipage
-	press next page
-	no update!
-
-  is it trying to reload and giving up?
 
 - try:
 
@@ -81,88 +60,8 @@
 
   do we use these?
 
-- replace from file in imagewindow often fails to update the title bar
-
 - investigate behaviour with updated iimage_update_heap() ... there will be
   quite a few cases which now fail (I expect)
-
-- test other workspaces
-
-	charisma
-
-- need to limit thumbnail drawing
-
-	only update visible thumbnails
-
-	on scroll events, intersect the set of thumbnails in this workspace
-	with the viewport
-
-	imagedisplay should own a tilecache it uses for painting, but the
-	tilecache should only have a weakref to the tilesource it uses to make
-	tiles
-
-	get rid of (and rebuild) tilesources on scroll
-
-	some tilesources are expensive to make? perhaps the operation cache
-	will keep them for us?
-
-
-	- make all thumbnails with no tilesource, so expose will not trigger
-	  computation
-
-	- on scroll events, find visible thumbs and create tilesources
-
-		maybe have a queue and throttle tilesource creation to eg. 1
-		per second?
-
-		need a thing to make and unref tilesources, then set and
-		unset them on the thumbnails that are visible
-
-		workspaceview needs to know when a scroll happens ...
-
-		wsview->vp is a rect with the viewport updated on
-		workspaceview_scroll_update()
-
-		workspaceview needs to keep a list of the iimageview in this
-		workspace, on scroll we walk it looking to any mapped
-		iimageview in the viewport
-
-		iimageview needs to register and unregister with the
-		workspaceview
-
-	- imagedisplay has tilesource set to NULL to stop refresh of that
-	  thumb driving computation
-
-	- we want to keep the sharing of tilesource between thumbnail and
-	  viewer
-
-
-
-  seems to work for thumbnails, but not when they have image view windows open
-
-  if we have a thumbnail and an imageview, which holds the ref to the
-  tilesource?
-
-	iimage should hold a weakref and export iimage_get_tilesource_ref()
-
-		- if the weakref is NULL, make a new tilesource, init
-		  tilesource setings, set the weakref, return it
-
-		- otherwise, ref the weakref and return it
-
-
-	iimageview and imageui should each hold a true ref
-
-	iimageview ref is set NULL when it's out of view
-
-  how do we do updates? eg. iimageview_refresh needs to get a new tilesource
-  and queue a redraw
-
-	iimageview_refresh calls iimage_get_tilesource_ref()
-
-	equal to current tilesource? unref
-
-	different? swap, then queue repaint
 
 - that's paste, now implement copy
 
@@ -171,7 +70,7 @@
 	copy in mainwindow could copy selected image or object?
 
 - save as TIFF, pick a set of options which will fail (eg. deflate + float
-  predictor), savem fix options, save again, get:
+  predictor), save, get error, fix options, save again, get:
 
 	(nip4:3658140): VIPS-WARNING **: 12:51:27.408: ../libvips/iofuncs/object.c:1231: VipsForeignSaveTiffFile can only assign 'nickname' once
 	(nip4:3658140): VIPS-WARNING **: 12:51:27.408: ../libvips/iofuncs/object.c:1231: VipsForeignSaveTiffFile can only assign 'description' once
@@ -223,17 +122,7 @@
 
 - for a click on a computed tool, could scroll to or highlight the text?
 
-- burger menu needs
-
-	- load, save toolkit
-	- new toolkit, new tool
-	- delete toolkit, delete tool
-	- reload all
-	- errors
-
-  more in the titlebar? load?
-
-  find and find all could be in a "uses" pane on the right?
+- find and find all could be in a "uses" pane on the right?
 
 - drag in left to reorder tools and toolkits
 

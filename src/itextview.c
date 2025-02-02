@@ -197,7 +197,7 @@ itextview_activate(Formula *formula, iTextview *itextview)
 	Row *row = HEAPMODEL(itext)->row;
 
 	/* Reset edits on this row and all children. Our (potentially) next
-	 * text will invlidate all of them.
+	 * text will invalidate all of them.
 	 */
 	(void) icontainer_map_all(ICONTAINER(row),
 		(icontainer_map_fn) heapmodel_clear_edited, NULL);

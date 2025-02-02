@@ -650,7 +650,6 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 		gtk_label_set_text(GTK_LABEL(win->subtitle), "");
 
 	if (imageui) {
-		printf("imagewindow_imageui_set_visible: FIXME ... rotate transitions cause a stack overflow? how odd\n");
 		// gtk_stack_set_transition_type(GTK_STACK(win->stack), transition);
 		gtk_stack_set_visible_child(GTK_STACK(win->stack), GTK_WIDGET(imageui));
 
@@ -715,11 +714,6 @@ imagewindow_open_current_file(Imagewindow *win,
 			imagewindow_imageui_add(win, imageui);
 		}
 
-		printf("imagewindow_open_current_file: FIXME ... update the iimage we came from?\n");
-		/* do need something to prevent update loops?
-		 * we emit "changed" for a new imageui, perhaps iimage should just
-		 * listen for that?
-		 */
 		if (win->iimage) {
 			iimage_replace(win->iimage, filename);
 			symbol_recalculate_all_force(FALSE);
@@ -1442,10 +1436,13 @@ imagewindow_get_settings(Imagewindow *win)
 static void
 imagewindow_set_tilesource(Imagewindow *win, Tilesource *tilesource)
 {
-	if (win->imageui)
+	if (win->imageui) {
 		g_object_set(win->imageui,
 			"tilesource", tilesource,
 			NULL);
+		imagewindow_imageui_set_visible(win,
+			win->imageui, GTK_STACK_TRANSITION_TYPE_SLIDE_DOWN);
+	}
 	else {
 		Imageui *imageui = imageui_new(tilesource, win->iimage);
 		if (!imageui) {
@@ -1461,6 +1458,7 @@ imagewindow_set_tilesource(Imagewindow *win, Tilesource *tilesource)
 		imagewindow_imageui_set_visible(win,
 			imageui, GTK_STACK_TRANSITION_TYPE_SLIDE_DOWN);
 	}
+
 }
 
 static void
