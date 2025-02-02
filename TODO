@@ -5,6 +5,12 @@
 	mouse displays coodinates and values in hist plot, not
 		in underlying image
 
+- try:
+
+	nip4 ~/pics/k2.jpg
+
+  ws should not be tagged as modified
+
 - plot to image gets the colours wrong
 
 	we need to add cairo BGRA to vips RGBA
@@ -17,23 +23,15 @@
   linking seems not to work ... "scope" fionds the falsecolour tab, but then
   links to falsecolour in the scope outside that?
 
-- the imagewindow title bar for computed images should display eg.
-
-- recover after crash should display the total size of any backed up image
-  files too
-
 - trace checkmark save and make sure we're not calling it too often
-
-- recover after crash should have a _refresh() method that can be called to
-  rebuild the view
 
 - the imagewindow title bar for computed images should display eg.
   A2.reference, not "untitled"
 
-- ^C / ^V copy-paste in mainwindow is very annoying ... only intercept in
-  imagewindow
+- ^C / ^V copy-paste in mainwindow & program window is very annoying ...
+  only intercept in imagewindow
 
-- we have stray error bar popups on successful workspace load
+- we have stray error bar popups on successful workspace load in lady.ws
 
 	from backtracking?
 

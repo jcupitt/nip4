@@ -245,7 +245,9 @@ struct _Recover {
 
 	Workspaceroot *wsr;
 
+	GtkWidget *location;
 	GtkWidget *table;
+	GtkWidget *used;
 
 	GtkSingleSelection *selection;
 };
@@ -326,9 +328,11 @@ store_add_file(const char *filename, GListStore *store)
 	return NULL;
 }
 
-static GtkSingleSelection *
-recover_build_model(Recover *recover)
+static void
+recover_refresh(Recover *recover)
 {
+	set_glabel(recover->location, "Save files in %s", PATH_TMP);
+
 	GListModel *model = G_LIST_MODEL(g_list_store_new(RECOVERFILE_TYPE));
 	(void) path_map_dir(PATH_TMP, "*.ws",
 		(path_map_fn) store_add_file, model);
@@ -348,7 +352,16 @@ recover_build_model(Recover *recover)
 	gtk_multi_sorter_append(multi, sorter);
 	model = G_LIST_MODEL(gtk_sort_list_model_new(model, GTK_SORTER(multi)));
 
-	return gtk_single_selection_new(model);
+	recover->selection = gtk_single_selection_new(model);
+
+	gtk_column_view_set_model(GTK_COLUMN_VIEW(recover->table),
+		GTK_SELECTION_MODEL(recover->selection));
+
+	char txt[256];
+	VipsBuf msg = VIPS_BUF_STATIC(txt);
+	vips_buf_appendf(&msg, "Total of ");
+	vips_buf_append_size(&msg, directory_size(PATH_TMP));
+	set_glabel(recover->used, "%s", vips_buf_all(&msg));
 }
 
 static void *
@@ -388,11 +401,7 @@ recover_delete_temps_yesno(GtkWindow *parent, void *user_data)
 	Recover *recover = RECOVER(user_data);
 
 	recover_delete_temps();
-
-	recover->selection = recover_build_model(recover);
-
-	gtk_column_view_set_model(GTK_COLUMN_VIEW(recover->table),
-		GTK_SELECTION_MODEL(recover->selection));
+	recover_refresh(recover);
 }
 
 static void
@@ -512,10 +521,7 @@ recover_init(Recover *recover)
 	column = gtk_column_view_column_new("Bytes", factory);
 	gtk_column_view_append_column(GTK_COLUMN_VIEW(recover->table), column);
 
-	recover->selection = recover_build_model(recover);
-
-	gtk_column_view_set_model(GTK_COLUMN_VIEW(recover->table),
-		GTK_SELECTION_MODEL(recover->selection));
+	recover_refresh(recover);
 }
 
 static void
@@ -527,7 +533,9 @@ recover_class_init(RecoverClass *class)
 
 	BIND_RESOURCE("recover.ui");
 
+	BIND_VARIABLE(Recover, location);
 	BIND_VARIABLE(Recover, table);
+	BIND_VARIABLE(Recover, used);
 }
 
 Recover *
