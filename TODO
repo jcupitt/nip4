@@ -5,12 +5,6 @@
 	mouse displays coodinates and values in hist plot, not
 		in underlying image
 
-- try:
-
-	nip4 ~/pics/k2.jpg
-
-  ws should not be tagged as modified
-
 - plot to image gets the colours wrong
 
 	we need to add cairo BGRA to vips RGBA

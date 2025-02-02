@@ -319,8 +319,8 @@ mainwindow_open_definition(Mainwindow *main, const char *filename)
 {
 	if (!mainwindow_load_path(main, filename))
 		return FALSE;
-
 	symbol_recalculate_all();
+	filemodel_set_modified(FILEMODEL(main->wsg), FALSE);
 
 	return TRUE;
 }
