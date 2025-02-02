@@ -18,6 +18,8 @@
 - ^C / ^V copy-paste in mainwindow & program window is very annoying ...
   only intercept in imagewindow
 
+- use ^W in mainw for close workspace, ^Q for close application
+
 - use "propagate-natural-width" to get better fit of imageview window?
 
 	pick an initial scale, aim for max 600px high
