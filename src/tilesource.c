@@ -1918,14 +1918,14 @@ tilesource_get_pixel(Tilesource *tilesource, int image_x, int image_y,
 	 */
 	if (image_x < 0 ||
 		image_y < 0 ||
-		image_x >= tilesource->display->Xsize ||
-		image_y >= tilesource->display->Ysize)
+		image_x >= tilesource->image->Xsize ||
+		image_y >= tilesource->image->Ysize)
 		return FALSE;
 
-	/* The ->display image is cached in a sink screen, so this will be
-	 * reasonably quick, even for things like svg and pdf.
+	/* Fetch from image (not ->display), even though this can be very slow.
+	 * This is run in a bg thread, so speed should not matter too much.
 	 */
-	if (vips_getpoint(tilesource->display, vector, n, image_x, image_y,
+	if (vips_getpoint(tilesource->image, vector, n, image_x, image_y,
 			"unpack_complex", TRUE,
 			NULL))
 		return FALSE;

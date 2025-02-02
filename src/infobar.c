@@ -99,7 +99,7 @@ static const int infobar_label_width[] = {
 static void
 infobar_tilesource_changed(Tilesource *tilesource, Infobar *infobar)
 {
-	VipsImage *image = tilesource->display;
+	VipsImage *image = tilesource->image;
 
 	GSList *p;
 	VipsBandFormat format;
@@ -229,20 +229,17 @@ infobar_get_pixel(void *a, void *b)
 
 // fetch the mouse position pixel and update the screen in a bg thread
 static void
-infobar_update_pixel(Infobar *infobar)
+infobar_update_pixel(Infobar *infobar,
+	Tilesource *tilesource, double image_x, double image_y)
 {
 	if (!infobar->updating) {
 		Imagewindow *win = infobar->win;
 		PixelUpdate *update = g_new0(PixelUpdate, 1);
 
-		double x_image;
-		double y_image;
-
 		update->infobar = infobar;
-		update->tilesource = imagewindow_get_tilesource(win);
-		imagewindow_get_mouse_position(infobar->win, &x_image, &y_image);
-		update->image_x = (int) x_image;
-		update->image_y = (int) y_image;
+		update->tilesource = tilesource;
+		update->image_x = image_x;
+		update->image_y = image_y;
 		infobar->updating = TRUE;
 
 		// must stay valid until we are done
@@ -268,7 +265,10 @@ infobar_status_update(Infobar *infobar)
 	printf("infobar_status_update:\n");
 #endif /*DEBUG*/
 
+	Tilesource *tilesource = imagewindow_get_tilesource(infobar->win);
 	imagewindow_get_mouse_position(infobar->win, &image_x, &image_y);
+	image_x = VIPS_CLIP(0, (int) image_x, tilesource->image->Xsize - 1);
+	image_y = VIPS_CLIP(0, (int) image_y, tilesource->image->Ysize - 1);
 
 	vips_buf_appendf(&buf, "%d", (int) image_x);
 	gtk_label_set_text(GTK_LABEL(infobar->x), vips_buf_all(&buf));
@@ -283,7 +283,7 @@ infobar_status_update(Infobar *infobar)
 	gtk_label_set_text(GTK_LABEL(infobar->mag), vips_buf_all(&buf));
 
 	// queue bg update of pixel value (this must be off the GUI thread)
-	infobar_update_pixel(infobar);
+	infobar_update_pixel(infobar, tilesource, image_x, image_y);
 }
 
 static void
@@ -309,11 +309,9 @@ infobar_imagewindow_changed(Imagewindow *win, Infobar *infobar)
 
 	if ((tilesource = imagewindow_get_tilesource(win))) {
 		g_signal_connect_object(tilesource, "changed",
-			G_CALLBACK(infobar_tilesource_changed),
-			infobar, 0);
+			G_CALLBACK(infobar_tilesource_changed), infobar, 0);
 		g_signal_connect_object(tilesource, "page-changed",
-			G_CALLBACK(infobar_status_changed),
-			infobar, 0);
+			G_CALLBACK(infobar_status_changed), infobar, 0);
 	}
 }
 
@@ -325,12 +323,10 @@ infobar_set_imagewindow(Infobar *infobar, Imagewindow *win)
 	infobar->win = win;
 
 	g_signal_connect_object(win, "changed",
-		G_CALLBACK(infobar_imagewindow_changed),
-		infobar, 0);
+		G_CALLBACK(infobar_imagewindow_changed), infobar, 0);
 
 	g_signal_connect_object(win, "status-changed",
-		G_CALLBACK(infobar_status_changed),
-		infobar, 0);
+		G_CALLBACK(infobar_status_changed), infobar, 0);
 }
 
 static void

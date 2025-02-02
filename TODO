@@ -1,10 +1,3 @@
-- try:
-
-	load ~/pics/x.v
-	open view window
-	mouse displays coodinates and values in hist plot, not
-		in underlying image
-
 - plot to image gets the colours wrong
 
 	we need to add cairo BGRA to vips RGBA
