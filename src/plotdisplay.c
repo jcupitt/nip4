@@ -505,6 +505,36 @@ plotdisplay_gtk_to_data(Plotdisplay *plotdisplay,
 		gtk_x, gtk_y, data_x, data_y);
 }
 
+static void
+premultiplied_bgra2rgba(guint32 *restrict p, int n)
+{
+    int x;
+
+    for (x = 0; x < n; x++) {
+        guint32 bgra = GUINT32_FROM_BE(p[x]);
+        guint8 a = bgra & 0xff;
+
+        guint32 rgba;
+
+        if (a == 0 ||
+            a == 255)
+            rgba =
+                (bgra & 0x00ff00ff) |
+                (bgra & 0x0000ff00) << 16 |
+                (bgra & 0xff000000) >> 16;
+        else
+            /* Undo premultiplication.
+             */
+            rgba =
+                ((255 * ((bgra >> 8) & 0xff) / a) << 24) |
+                ((255 * ((bgra >> 16) & 0xff) / a) << 16) |
+                ((255 * ((bgra >> 24) & 0xff) / a) << 8) |
+                a;
+
+        p[x] = GUINT32_TO_BE(rgba);
+    }
+}
+
 Imageinfo *
 plotdisplay_to_image(Plot *plot, Reduce *rc, int width, int height)
 {
@@ -541,6 +571,11 @@ plotdisplay_to_image(Plot *plot, Reduce *rc, int width, int height)
 	drawstate_build_kplot(&state, plot, FALSE);
 	drawstate_draw(&state, cr, width, height, FALSE, plot);
 	drawstate_free(&state);
+
+	// cairo writes BGRA, we want RGBA
+	for (int y = 0; y < image->Ysize; y++)
+		premultiplied_bgra2rgba((guint32 *) VIPS_IMAGE_ADDR(image, 0, y),
+			image->Xsize);
 
 	Imageinfo *ii;
     if (!(ii = imageinfo_new(main_imageinfogroup, rc->heap, image, NULL)))

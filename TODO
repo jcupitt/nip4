@@ -1,7 +1,3 @@
-- plot to image gets the colours wrong
-
-	we need to add cairo BGRA to vips RGBA
-
 - make a tab called "falsecolour", then in that tab try:
 
 	scope
