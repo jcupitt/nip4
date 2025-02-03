@@ -1,3 +1,15 @@
+- try a flatpak build
+
+	will need a network connection
+
+- not setting ws modified for toolkit menu actions
+
+- try to save and restore image view scale and position
+
+	this failed last time I tried :(
+
+- ^C on a computed animated GIF is only copying the first page
+
 - ^C / ^V copy-paste in mainwindow & program window is very annoying ...
   only add shortcuts in imagewindow
 
@@ -15,7 +27,7 @@
 
 - need preferences?
 
-	or just remomve it all
+	or just remove it all
 
 - saveoptions.c should derive from GtkWindow, not GtkDialog
 
