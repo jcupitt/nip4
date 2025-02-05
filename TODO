@@ -2,6 +2,8 @@
 
 	will need a network connection
 
+	must wrap libgsl
+
 - not setting ws modified for toolkit menu actions
 
 - try to save and restore image view scale and position

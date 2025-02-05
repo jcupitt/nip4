@@ -368,10 +368,12 @@ app_new(gboolean welcome)
 
 	return g_object_new(APP_TYPE,
 		"welcome", welcome,
-		"application-id", APPLICATION_ID,
 		"flags", G_APPLICATION_HANDLES_OPEN,
-		"inactivity-timeout", 3000,
-		"register-session", TRUE,
+		// we usually want each invocation to be a separate instance so they
+		// can't take each opther down
+		// "register-session", TRUE,
+		// "inactivity-timeout", 3000,
+		// "application-id", APPLICATION_ID,
 		NULL);
 }
 

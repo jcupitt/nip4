@@ -1296,7 +1296,7 @@ tilesource_print(Tilesource *tilesource)
 }
 #endif /*DEBUG*/
 
-/* Sniff basic image properties.
+/* Sniff basic properties from an image we can't reopen.
  */
 static int
 tilesource_set_image(Tilesource *tilesource, VipsImage *image)
@@ -1620,6 +1620,10 @@ tilesource_new_from_file(const char *filename)
 	if (tilesource_set_image(tilesource, base))
 		return NULL;
 
+	/* We can reopen this image, so we can use the n_pages in the file.
+	 */
+	tilesource->n_pages = vips_image_get_n_pages(base);
+
 	/* For openslide, we can read out the level structure directly.
 	 */
 	if (vips_image_get_typeof(base, "openslide.level-count")) {
@@ -1695,10 +1699,8 @@ tilesource_new_from_file(const char *filename)
 			VIPS_CLIP(1, n_levels - tile_levels, MAX_LEVELS);
 
 		for (level = 0; level < tilesource->level_count; level++) {
-			tilesource->level_width[level] =
-				tilesource->width / (1 << level);
-			tilesource->level_height[level] =
-				tilesource->height / (1 << level);
+			tilesource->level_width[level] = tilesource->width / (1 << level);
+			tilesource->level_height[level] = tilesource->height / (1 << level);
 		}
 	}
 
