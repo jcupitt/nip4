@@ -293,6 +293,8 @@ recover_bind_item(GtkListItemFactory *factory,
 	GtkWidget *label = gtk_list_item_get_child(item);
 	Recoverfile *file = gtk_list_item_get_item(item);
 
+	g_autofree char *str = NULL;
+
 	GValue value = { 0 };
 	g_object_get_property(G_OBJECT(file), field, &value);
 
@@ -302,14 +304,13 @@ recover_bind_item(GtkListItemFactory *factory,
 		break;
 
 	case G_TYPE_UINT64:
-		g_autofree char *str =
-			g_strdup_printf("%" G_GUINT64_FORMAT, g_value_get_uint64(&value));
+		str = g_strdup_printf("%" G_GUINT64_FORMAT, g_value_get_uint64(&value));
 		gtk_label_set_label(GTK_LABEL(label), str);
 		break;
 
 	default:
-		g_autofree char *txt = g_strdup_value_contents(&value);
-		gtk_label_set_label(GTK_LABEL(label), txt);
+		str = g_strdup_value_contents(&value);
+		gtk_label_set_label(GTK_LABEL(label), str);
 		break;
 	}
 

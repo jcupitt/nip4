@@ -291,6 +291,7 @@ app_open(GApplication *app, GFile **files, int n_files, const char *hint)
 	if (main_option_batch) {
 		Workspacegroup *wsg;
 
+		wsg = NULL;
 		for (int i = 0; i < n_files; i++) {
 			g_autofree char *filename = g_file_get_path(files[i]);
 
