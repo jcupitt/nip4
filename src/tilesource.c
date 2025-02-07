@@ -1296,7 +1296,7 @@ tilesource_print(Tilesource *tilesource)
 }
 #endif /*DEBUG*/
 
-/* Sniff basic properties from an image we can't reopen.
+/* Sniff basic properties from an image.
  */
 static int
 tilesource_set_image(Tilesource *tilesource, VipsImage *image)
@@ -1315,15 +1315,6 @@ tilesource_set_image(Tilesource *tilesource, VipsImage *image)
 	tilesource->height = vips_image_get_page_height(image);
 	tilesource->bands = image->Bands;
 	tilesource->n_subifds = vips_image_get_n_subifds(image);
-
-	/* vips_image_get_n_pages() is the number of pages in the source file, not
-	 * the number of loaded pages.
-	 */
-	tilesource->n_pages = image->Ysize % tilesource->height == 0 ?
-		image->Ysize / tilesource->height : 1;
-
-	/* No reopening, so have (in effect) all pages open at once.
-	 */
 	tilesource->type = TILESOURCE_TYPE_TOILET_ROLL;
 
 	if (vips_image_get_typeof(image, "delay")) {
@@ -1379,6 +1370,11 @@ tilesource_new_from_image(VipsImage *image)
 
 	if (tilesource_set_image(tilesource, image))
 		return NULL;
+
+	/* No reopen, so we get n_pages from the image geometry.
+	 */
+	tilesource->n_pages = image->Ysize % tilesource->height == 0 ?
+		image->Ysize / tilesource->height : 1;
 
 	tilesource->image = image;
 	g_object_ref(image);
@@ -1620,7 +1616,8 @@ tilesource_new_from_file(const char *filename)
 	if (tilesource_set_image(tilesource, base))
 		return NULL;
 
-	/* We can reopen this image, so we can use the n_pages in the file.
+	/* We can reopen this image, so we can use get_n_pages (number of pages in
+	 * the underlying image file).
 	 */
 	tilesource->n_pages = vips_image_get_n_pages(base);
 
