@@ -530,12 +530,32 @@ mainwindow_save_action(GSimpleAction *action,
 }
 
 static void
+mainwindow_close_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	// close this window
+	gtk_window_close(GTK_WINDOW(main));
+}
+
+static void *
+mainwindow_quit_sub(Mainwindow *main)
+{
+	gtk_window_close(GTK_WINDOW(main));
+
+	return NULL;
+}
+
+static void
 mainwindow_quit_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
 	Mainwindow *main = MAINWINDOW(user_data);
 
-	gtk_window_close(GTK_WINDOW(main));
+	// quit application
+	slist_map(mainwindow_all,
+		(SListMapFn) mainwindow_quit_sub, NULL);
 }
 
 static void
@@ -656,7 +676,7 @@ static GActionEntry mainwindow_entries[] = {
 	{ "save", mainwindow_save_action },
 	{ "saveas", mainwindow_saveas_action },
 	{ "recover", mainwindow_recover_action },
-	{ "close", mainwindow_tab_close_current },
+	{ "close", mainwindow_close_action },
 	{ "quit", mainwindow_quit_action },
 	{ "keyboard-duplicate", mainwindow_keyboard_duplicate_action },
 	{ "fullscreen", action_toggle, NULL, "false", mainwindow_fullscreen },

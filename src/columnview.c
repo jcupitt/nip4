@@ -516,7 +516,8 @@ columnview_activate(GtkEntry *self, gpointer user_data)
 
 	Symbol *sym;
 
-	if (!text || strspn(text, WHITESPACE) == strlen(text))
+	if (!text ||
+		strspn(text, WHITESPACE) == strlen(text))
 		return;
 
 	if (!(sym = workspace_add_def_recalc(ws, text))) {
@@ -539,8 +540,6 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
 	Workspace *ws = col->ws;
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-
-	printf("columnview_action: %s\n", name);
 
 	if (g_str_equal(name, "column-edit-caption"))
 		columnview_edit(cview);

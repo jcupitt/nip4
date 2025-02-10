@@ -1,12 +1,8 @@
-- improve the tiff pyr fix ... ugly right now
-
 - try a flatpak build
 
 	will need a network connection
 
 	must wrap libgsl
-
-- not setting ws modified for toolkit menu actions
 
 - try to save and restore image view scale and position
 
@@ -14,10 +10,10 @@
 
 - ^C on a computed animated GIF is only copying the first page
 
+	a limitation of gdk_texture_new_from_bytes()
+
 - ^C / ^V copy-paste in mainwindow & program window is very annoying ...
   only add shortcuts in imagewindow
-
-- use ^W in mainw for close workspace, ^Q for close application
 
 - use "propagate-natural-width" to get better fit of imageview window?
 

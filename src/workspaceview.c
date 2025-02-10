@@ -436,9 +436,11 @@ workspaceview_kitg_activate(Toolkitgroupview *kitgview,
 
 		workspace_clear_error_all();
 
-		if (!workspace_add_action(ws,
+		if (workspace_add_action(ws,
 				toolitem->name, toolitem->action,
 				toolitem->action_sym->expr->compile->nparam))
+			workspace_set_modified(ws, TRUE);
+		else
 			workspace_set_show_error(ws, TRUE);
 	}
 }

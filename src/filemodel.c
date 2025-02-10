@@ -283,12 +283,12 @@ filemodel_real_set_modified(Filemodel *filemodel, gboolean modified)
 {
 	if (filemodel->modified != modified) {
 #ifdef DEBUG
-#endif /*DEBUG*/
 		printf("filemodel_real_set_modified: %s \"%s\" (%s) %s\n",
 			G_OBJECT_TYPE_NAME(filemodel),
 			IOBJECT(filemodel)->name,
 			filemodel->filename,
 			bool_to_char(modified));
+#endif /*DEBUG*/
 
 		filemodel->modified = modified;
 

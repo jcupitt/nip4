@@ -647,7 +647,8 @@ workspacegroup_set_modified(Filemodel *filemodel, gboolean modified)
 {
 	Workspacegroup *wsg = WORKSPACEGROUP(filemodel);
 
-	workspacegroup_checkmark(wsg);
+	if (modified)
+		workspacegroup_checkmark(wsg);
 
 	FILEMODEL_CLASS(workspacegroup_parent_class)->
 		set_modified(filemodel, modified);
