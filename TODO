@@ -17,13 +17,22 @@
 
 - use "propagate-natural-width" to get better fit of imageview window?
 
-	pick an initial scale, aim for max 600px high
+	aim for max 600px on any axis
 
-	make window with that scale, propogate size
+	pick an initial scale
+
+	drawingarea makes itself that size
+
+		we need to implement the sizing machinery, however that works
+
+	propogate size
 
 	remove shrink-to-fit
 
-- still getting buffer ownership assert fails
+  see imagewindow_set_tilesource() and uncomment the call to
+  imageui_set_bestfit() to work on this again
+
+- still getting buffer ownership assert fails with libvips built in debug mode
 
 - need preferences?
 
@@ -37,7 +46,7 @@
 
 - nip4 icon in "about" does not display, and needs to be 512x512
 
-	maybe copy-paste the vipsdisp icon for now
+	how odd
 
 - try:
 
