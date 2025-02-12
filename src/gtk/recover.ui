@@ -5,6 +5,36 @@
     <property name="modal">True</property>
     <property name="default-widget">ok</property>
 
+    <child type="titlebar">
+      <object class="GtkHeaderBar" id="header">
+        <property name="show-title-buttons">false</property>
+
+        <child type="start">
+          <object class="GtkButton">
+            <property name="label" translatable="yes">Cancel</property>
+            <property name="action-name">win.cancel</property>
+          </object>
+        </child>
+
+        <child type="title">
+          <object class="GtkLabel">
+            <attributes>
+              <attribute name="weight" value="bold"/>
+            </attributes>
+            <property name="label">Recover after crash</property>
+          </object>
+        </child>
+
+        <child type="end">
+          <object class="GtkButton" id="ok">
+            <property name="label" translatable="yes">Recover</property>
+            <property name="action-name">win.ok</property>
+          </object>
+        </child>
+
+      </object>
+    </child>
+
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
@@ -46,43 +76,20 @@
         </child>
 
         <child>
-          <object class="GtkLabel" id="used">
-            <property name="hexpand">true</property>
-            <property name="xalign">0.0</property>
-            <property name="margin-start">5</property>
-            <property name="margin-bottom">7</property>
-            <property name="margin-top">5</property>
-
-          </object>
-        </child>
-
-        <child>
-          <object class="GtkActionBar">
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
 
             <child type="start">
               <object class="GtkButton" id="remove">
-                <property name="label" translatable="yes">Delete all backups</property>
+                <property name="label" translatable="yes">Delete all backups ...</property>
                 <property name="action-name">win.delete</property>
               </object>
             </child>
 
-            <child type="end">
-              <object class="GtkBox">
-                <property name="orientation">horizontal</property>
-
-		<child>
-                  <object class="GtkButton">
-                    <property name="label" translatable="yes">Cancel</property>
-                    <property name="action-name">win.cancel</property>
-                  </object>
-	        </child>
-
-		<child>
-                  <object class="GtkButton" id="ok">
-                    <property name="label" translatable="yes">Recover</property>
-                    <property name="action-name">win.ok</property>
-                  </object>
-	        </child>
+            <child>
+              <object class="GtkLabel" id="used">
+                <property name="hexpand">true</property>
+                <property name="xalign">1.0</property>
 
               </object>
             </child>

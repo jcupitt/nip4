@@ -332,7 +332,7 @@ store_add_file(const char *filename, GListStore *store)
 static void
 recover_refresh(Recover *recover)
 {
-	set_glabel(recover->location, "Save files in %s", PATH_TMP);
+	set_glabel(recover->location, "Backups in %s", PATH_TMP);
 
 	GListModel *model = G_LIST_MODEL(g_list_store_new(RECOVERFILE_TYPE));
 	(void) path_map_dir(PATH_TMP, "*.ws",
@@ -414,7 +414,7 @@ recover_delete_action(GSimpleAction *action,
 	alert_yesno(GTK_WINDOW(recover), recover_delete_temps_yesno, recover,
 		_("Wipe the nip4 temp area?"),
 		"%s", _("This will remove all temporary files and backups, and "
-		"cannot be undone."));
+		"cannot be undone"));
 }
 
 static void

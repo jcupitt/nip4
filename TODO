@@ -44,7 +44,9 @@
 
 	other changes to go back?
 
-- nip4 icon in "about" does not display, and needs to be 512x512
+	use recover.c as a model
+
+- nip4 icon in "about" does not display
 
 	how odd
 

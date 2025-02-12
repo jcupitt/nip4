@@ -551,8 +551,6 @@ static void
 mainwindow_quit_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
-	Mainwindow *main = MAINWINDOW(user_data);
-
 	// quit application
 	slist_map(mainwindow_all,
 		(SListMapFn) mainwindow_quit_sub, NULL);
@@ -1047,6 +1045,25 @@ mainwindow_new(App *app, Workspacegroup *wsg)
 			  "if you've used previous versions of %s, you might want "
 			  "to copy files over from your old work area"),
 			save_dir, PACKAGE);
+
+		mainwindow_error(main);
+	}
+
+	double size = directory_size(PATH_TMP);
+	if (size > 10 * 1024 * 1024) {
+		error_top("%s", _("Many files in temp area"));
+
+		char save_dir[FILENAME_MAX];
+		g_strlcpy(save_dir, PATH_TMP, FILENAME_MAX);
+		path_expand(save_dir);
+
+		char txt[256];
+		VipsBuf buf = VIPS_BUF_STATIC(txt);
+		vips_buf_append_size(&buf, size);
+		error_sub(_("The temp area \"%s\" contains %s of files. "
+            "Use \"Recover after crash\" to clean up."),
+            save_dir, vips_buf_all(&buf));
+
 		mainwindow_error(main);
 	}
 
