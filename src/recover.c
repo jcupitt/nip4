@@ -372,7 +372,6 @@ recover_delete_temp(const char *filename)
 
     return NULL;
 }
-
 static void
 recover_delete_temps(void)
 {
@@ -446,7 +445,8 @@ recover_ok_action(GSimpleAction *action,
 
 		Mainwindow *main = mainwindow_new(APP(app), wsg);
 		gtk_window_present(GTK_WINDOW(main));
-		mainwindow_cull();
+		// don't call mainwindow_cull() .... we don't want to remove empty
+		// recovered wses
 		symbol_recalculate_all();
 
 		gtk_window_destroy(GTK_WINDOW(recover));

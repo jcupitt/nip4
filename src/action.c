@@ -1034,6 +1034,7 @@ action_proc_div(Reduce *rc, Compile *compile,
 	else if (PEISIMAGE(a) && PEISIMAGE(b))
 		vo_callva(rc, out, "divide", PEGETIMAGE(a), PEGETIMAGE(b));
 	else if (PEISIMAGE(a) && PEISREAL(b)) {
+
 		g_autoptr(VipsArrayDouble) aa =
 			vips_array_double_newv(1, 1.0 / PEGETREAL(b));
 		g_autoptr(VipsArrayDouble) ab =

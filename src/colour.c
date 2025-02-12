@@ -175,7 +175,8 @@ colour_ii_new(Colour *colour)
 
 	float valuef[3];
 	for (int i = 0; i < 3; i++)
-		valuef[i] = colour->value[i];
+		// make sure we don't write -nan etc.
+		valuef[i] = isnormal(colour->value[i]) ? valuef[i] : 0.0;
 	if (vips_image_write_line(ii->image, 0, (VipsPel *) valuef))
 		return NULL;
 
