@@ -4,20 +4,20 @@
   <id>org.libvips.nip4</id>
   <url type="homepage">https://github.com/jcupitt/nip4</url>
   <content_rating type="oars-1.1" />
-  
+
   <name>nip4</name>
   <summary>Image processing spreadsheet</summary>
   <developer_name>jcupitt</developer_name>
-  
-  <metadata_license>GPL</metadata_license>
-  <project_license>GPL</project_license>
-  
+
+  <metadata_license>MIT</metadata_license>
+  <project_license>GPL-2.0+</project_license>
+
   <recommends>
     <control>pointing</control>
     <control>keyboard</control>
     <control>touch</control>
   </recommends>
-  
+
   <description>
     <p>
 nip4 is a GUI for the libvips image processing library. It's a little
@@ -43,21 +43,11 @@ without a GUI.
     <screenshot type="default">
       <image>https://raw.githubusercontent.com/jcupitt/nip4/master/images/shot1.png</image>
       <caption>Even very large images open quickly</caption>
-    </screenshot> 
+    </screenshot>
 
     <screenshot>
       <image>https://raw.githubusercontent.com/jcupitt/nip4/master/images/shot2.png</image>
       <caption>Visualization tools let you explore technical images</caption>
-    </screenshot> 
-
-    <screenshot>
-      <image>https://raw.githubusercontent.com/jcupitt/nip4/master/images/save-as.png</image>
-      <caption>Save as lets you change image formats, and supports features like image pyramids</caption>
-    </screenshot>
-
-    <screenshot>
-      <image>https://raw.githubusercontent.com/jcupitt/nip4/master/images/shot3.png</image>
-      <caption>Animated images with alpha channels are also supported</caption>
     </screenshot>
 
   </screenshots>
