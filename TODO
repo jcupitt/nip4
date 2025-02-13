@@ -2,7 +2,7 @@
 
 	will need a network connection
 
-	must wrap libgsl
+	probably need imagemagick
 
 - try to save and restore image view scale and position
 

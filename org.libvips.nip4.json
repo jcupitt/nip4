@@ -448,18 +448,12 @@
         {
             "name" : "libgsl",
             "builddir" : true,
-            "buildsystem" : "cmake-ninja",
-            "build-options" : {
-                "config-opts" : [
-                    "-DCMAKE_INSTALL_LIBDIR=lib"
-                ]
-            },
+            "buildsystem" : "autotools",
             "sources" : [
                 {
-                    "type" : "git",
-                    "url" : "https://github.com/ebiggers/libgsl.git",
-                    "tag" : "v1.22",
-                    "commit" : "2335c047e91cac6fd04cb0fd2769380395149f15"
+                    "type" : "archive",
+                    "url" : "https://ftp.snt.utwente.nl/pub/software/gnu/gsl/gsl-2.8.tar.gz",
+                    "sha256" : "6a99eeed15632c6354895b1dd542ed5a855c0f15d9ad1326c6fe2b2c9e423190"
                 }
             ]
         },
