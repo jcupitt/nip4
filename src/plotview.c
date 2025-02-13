@@ -118,7 +118,7 @@ plotview_class_init(PlotviewClass *class)
 	BIND_VARIABLE(Plotview, plotdisplay);
 	BIND_VARIABLE(Plotview, label);
 
-	BIND_CALLBACK(graphicview_click);
+	BIND_CALLBACK(graphicview_pressed);
 
 	gobject_class->dispose = plotview_dispose;
 

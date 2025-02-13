@@ -82,7 +82,7 @@ valueview_class_init(ValueviewClass *class)
 
 	BIND_VARIABLE(Valueview, label);
 
-	BIND_CALLBACK(graphicview_click);
+	BIND_CALLBACK(graphicview_pressed);
 
 	/* Create signals.
 	 */

@@ -1,11 +1,3 @@
-- never connected to button "activate", always to "clicked"
-
-	fix names of signal handlers (sometimes call them _pressed)
-
-- remove use of deprecated GtkInfoBar
-
-	use GtkActionBar instead, see imagewindow
-
 - try a flatpak build
 
 	will need a network connection

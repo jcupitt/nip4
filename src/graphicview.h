@@ -55,6 +55,6 @@ typedef struct _GraphicviewClass {
 	 */
 } GraphicviewClass;
 
-void graphicview_click(GtkGestureClick *gesture,
+void graphicview_pressed(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Graphicview *Graphicview);
 GType graphicview_get_type(void);

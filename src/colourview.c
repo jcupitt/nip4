@@ -95,7 +95,7 @@ colourview_class_init(ColourviewClass *class)
 	BIND_VARIABLE(Colourview, imagedisplay);
 	BIND_VARIABLE(Colourview, label);
 
-	BIND_CALLBACK(graphicview_click);
+	BIND_CALLBACK(graphicview_pressed);
 
 	object_class->dispose = colourview_dispose;
 

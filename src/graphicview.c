@@ -63,7 +63,7 @@ graphicview_rowview(Graphicview *graphicview)
 }
 
 void
-graphicview_click(GtkGestureClick *gesture,
+graphicview_pressed(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Graphicview *graphicview)
 {
 	if (n_press == 1) {

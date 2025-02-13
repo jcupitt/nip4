@@ -576,9 +576,12 @@ save_options_new(GtkWindow *parent_window,
 	VipsImage *image, const char *filename)
 {
 	const char *saver;
-	SaveOptions *options;
+	if (!(saver = vips_foreign_find_save(filename))) {
+		error_vips_all();
+		return NULL;
+	}
 
-	options = g_object_new(SAVE_OPTIONS_TYPE,
+	g_autoptr(SaveOptions) options = g_object_new(SAVE_OPTIONS_TYPE,
 		"transient-for", parent_window,
 		"application", gtk_window_get_application(parent_window),
 		NULL);
@@ -591,6 +594,7 @@ save_options_new(GtkWindow *parent_window,
 
 	if (options->image) {
 		vips_image_set_progress(options->image, TRUE);
+
 		g_signal_connect_object(options->image, "preeval",
 			G_CALLBACK(save_options_preeval), options, 0);
 		g_signal_connect_object(options->image, "eval",
@@ -599,10 +603,8 @@ save_options_new(GtkWindow *parent_window,
 			G_CALLBACK(save_options_posteval), options, 0);
 	}
 
-	if (!(saver = vips_foreign_find_save(filename)))
-		save_options_error(options);
-
-	if (saver && options->image) {
+	if (saver &&
+		options->image) {
 		int row;
 
 		options->save_operation = vips_operation_new(saver);
@@ -616,5 +618,5 @@ save_options_new(GtkWindow *parent_window,
 			save_options_add_options_fn, options, &row);
 	}
 
-	return options;
+	return g_steal_pointer(&options);
 }

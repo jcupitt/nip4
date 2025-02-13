@@ -184,7 +184,7 @@ iimageview_class_init(iImageviewClass *class)
 	BIND_VARIABLE(iImageview, imagedisplay);
 	BIND_VARIABLE(iImageview, label);
 
-	BIND_CALLBACK(graphicview_click);
+	BIND_CALLBACK(graphicview_pressed);
 
 	object_class->dispose = iimageview_dispose;
 

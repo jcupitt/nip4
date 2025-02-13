@@ -6,7 +6,7 @@
     <child>
       <object class="GtkGestureClick">
         <property name="button">1</property>
-        <signal name="pressed" handler="graphicview_click"/>
+        <signal name="pressed" handler="graphicview_pressed"/>
       </object>
     </child>
 

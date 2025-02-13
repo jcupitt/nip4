@@ -199,7 +199,8 @@ error_alert(GtkWidget *parent)
 		vips_error_exit(NULL);
 	}
 
-	GtkRoot *root = gtk_widget_get_root(parent);
+	GtkWindow *win = IS_VIEW(parent) ?
+		view_get_window(VIEW(parent)) : GTK_WINDOW(gtk_widget_get_root(parent));
 
 	GtkAlertDialog *alert;
 
@@ -208,7 +209,7 @@ error_alert(GtkWidget *parent)
 	gtk_alert_dialog_set_detail(alert, error_get_sub());
 	error_clear();
 	gtk_alert_dialog_set_modal(alert, TRUE);
-	gtk_alert_dialog_show(alert, GTK_WINDOW(root));
+	gtk_alert_dialog_show(alert, win);
 }
 
 /* Set an xml property printf() style.
