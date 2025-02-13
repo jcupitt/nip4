@@ -13,6 +13,7 @@
           <object class="GtkButton">
             <property name="label" translatable="yes">Cancel</property>
             <property name="action-name">win.cancel</property>
+
           </object>
         </child>
 
@@ -22,6 +23,7 @@
               <attribute name="weight" value="bold"/>
             </attributes>
             <property name="label">Recover after crash</property>
+
           </object>
         </child>
 
@@ -29,6 +31,10 @@
           <object class="GtkButton" id="ok">
             <property name="label" translatable="yes">Recover</property>
             <property name="action-name">win.ok</property>
+            <style>
+              <class name="suggested-action"/>
+            </style>
+
           </object>
         </child>
 

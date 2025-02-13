@@ -1,4 +1,11 @@
-- doubleclick on file in recover to load?
+
+- saveoptions.c should derive from GtkWindow, not GtkDialog
+
+	paste back into vipsdisp
+
+	other changes to go back?
+
+	use recover.c as a model
 
 - try a flatpak build
 
@@ -39,14 +46,6 @@
 - need preferences?
 
 	or just remove it all
-
-- saveoptions.c should derive from GtkWindow, not GtkDialog
-
-	paste back into vipsdisp
-
-	other changes to go back?
-
-	use recover.c as a model
 
 - nip4 icon in "about" does not display
 

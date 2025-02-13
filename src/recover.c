@@ -57,6 +57,8 @@ typedef struct _RecoverfileClass {
 
 G_DEFINE_TYPE(Recoverfile, recoverfile, G_TYPE_OBJECT);
 
+static GQuark recover_file_quark = 0;
+
 #define RECOVERFILE_TYPE (recoverfile_get_type())
 #define RECOVERFILE(obj) \
 	(G_TYPE_CHECK_INSTANCE_CAST((obj), RECOVERFILE_TYPE, Recoverfile))
@@ -147,6 +149,7 @@ recoverfile_class_init(RecoverfileClass *class)
 			NULL,
 			G_PARAM_READABLE));
 
+	recover_file_quark = g_quark_from_static_string("recover-file-quark");
 }
 
 static void
@@ -259,6 +262,8 @@ struct _RecoverClass {
 
 G_DEFINE_TYPE(Recover, recover, GTK_TYPE_APPLICATION_WINDOW);
 
+static GQuark recover_quark = 0;
+
 static void
 recover_dispose(GObject *object)
 {
@@ -267,6 +272,39 @@ recover_dispose(GObject *object)
 	gtk_widget_dispose_template(GTK_WIDGET(recover), RECOVER_TYPE);
 
 	G_OBJECT_CLASS(recover_parent_class)->dispose(object);
+}
+
+static void
+recover_recover_recoverfile(Recover *recover, Recoverfile *file)
+{
+	Workspacegroup *wsg = workspacegroup_new_from_file(recover->wsr,
+		file->filename, file->filename);
+	if (wsg) {
+		GtkApplication *app = gtk_window_get_application(GTK_WINDOW(recover));
+
+		// try to restore the filename
+		iobject_set(IOBJECT(wsg), file->name, "recovered workspace");
+		g_autofree char *filename = g_strdup_printf("%s.ws", file->name);
+		filemodel_set_filename(FILEMODEL(wsg), filename);
+
+		Mainwindow *main = mainwindow_new(APP(app), wsg);
+		gtk_window_present(GTK_WINDOW(main));
+		mainwindow_cull();
+		symbol_recalculate_all();
+
+		gtk_window_destroy(GTK_WINDOW(recover));
+	}
+}
+
+static void
+recover_pressed(GtkGestureClick *gesture,
+	guint n_press, double x, double y, GtkWidget *label)
+{
+	Recoverfile *file = g_object_get_qdata(G_OBJECT(label), recover_file_quark);
+	Recover *recover = g_object_get_qdata(G_OBJECT(label), recover_quark);
+
+	if (n_press == 2)
+		recover_recover_recoverfile(recover, file);
 }
 
 static void
@@ -282,6 +320,12 @@ recover_setup_item(GtkListItemFactory *factory,
 	else
 		gtk_label_set_xalign(GTK_LABEL(label), 1.0);
 
+	GtkGesture *gesture = gtk_gesture_click_new();
+    g_signal_connect(gesture, "pressed", G_CALLBACK(recover_pressed), label);
+    gtk_event_controller_set_propagation_phase(GTK_EVENT_CONTROLLER(gesture),
+		GTK_PHASE_BUBBLE);
+    gtk_widget_add_controller(label, GTK_EVENT_CONTROLLER(gesture));
+
 	gtk_list_item_set_child(item, label);
 }
 
@@ -292,6 +336,7 @@ recover_bind_item(GtkListItemFactory *factory,
 	const char *field = (const char *) user_data;
 	GtkWidget *label = gtk_list_item_get_child(item);
 	Recoverfile *file = gtk_list_item_get_item(item);
+	Recover *recover = g_object_get_qdata(G_OBJECT(factory), recover_quark);
 
 	g_autofree char *str = NULL;
 
@@ -317,6 +362,9 @@ recover_bind_item(GtkListItemFactory *factory,
 	g_value_unset(&value);
 
 	gtk_widget_set_tooltip_text(label, file->filename);
+
+	g_object_set_qdata(G_OBJECT(label), recover_file_quark, file);
+	g_object_set_qdata(G_OBJECT(label), recover_quark, recover);
 }
 
 static void *
@@ -433,24 +481,7 @@ recover_ok_action(GSimpleAction *action,
 	GObject *item = gtk_single_selection_get_selected_item(recover->selection);
 	Recoverfile *file = RECOVERFILE(item);
 
-	Workspacegroup *wsg = workspacegroup_new_from_file(recover->wsr,
-		file->filename, file->filename);
-	if (wsg) {
-		GtkApplication *app = gtk_window_get_application(GTK_WINDOW(recover));
-
-		// try to restore the filename
-		iobject_set(IOBJECT(wsg), file->name, "recovered workspace");
-		g_autofree char *filename = g_strdup_printf("%s.ws", file->name);
-		filemodel_set_filename(FILEMODEL(wsg), filename);
-
-		Mainwindow *main = mainwindow_new(APP(app), wsg);
-		gtk_window_present(GTK_WINDOW(main));
-		// don't call mainwindow_cull() .... we don't want to remove empty
-		// recovered wses
-		symbol_recalculate_all();
-
-		gtk_window_destroy(GTK_WINDOW(recover));
-	}
+	recover_recover_recoverfile(recover, file);
 }
 
 static GActionEntry recover_entries[] = {
@@ -482,6 +513,7 @@ recover_init(Recover *recover)
 	gtk_widget_init_template(GTK_WIDGET(recover));
 
 	factory = gtk_signal_list_item_factory_new();
+	g_object_set_qdata(G_OBJECT(factory), recover_quark, recover);
 	g_signal_connect(factory, "setup",
 		G_CALLBACK(recover_setup_item), "name");
 	g_signal_connect(factory, "bind",
@@ -491,6 +523,7 @@ recover_init(Recover *recover)
 	gtk_column_view_append_column(GTK_COLUMN_VIEW(recover->table), column);
 
 	factory = gtk_signal_list_item_factory_new();
+	g_object_set_qdata(G_OBJECT(factory), recover_quark, recover);
 	g_signal_connect(factory, "setup",
 		G_CALLBACK(recover_setup_item), "pid");
 	g_signal_connect(factory, "bind",
@@ -499,6 +532,7 @@ recover_init(Recover *recover)
 	gtk_column_view_append_column(GTK_COLUMN_VIEW(recover->table), column);
 
 	factory = gtk_signal_list_item_factory_new();
+	g_object_set_qdata(G_OBJECT(factory), recover_quark, recover);
 	g_signal_connect(factory, "setup",
 		G_CALLBACK(recover_setup_item), "date");
 	g_signal_connect(factory, "bind",
@@ -507,6 +541,7 @@ recover_init(Recover *recover)
 	gtk_column_view_append_column(GTK_COLUMN_VIEW(recover->table), column);
 
 	factory = gtk_signal_list_item_factory_new();
+	g_object_set_qdata(G_OBJECT(factory), recover_quark, recover);
 	g_signal_connect(factory, "setup",
 		G_CALLBACK(recover_setup_item), "time");
 	g_signal_connect(factory, "bind",
@@ -515,6 +550,7 @@ recover_init(Recover *recover)
 	gtk_column_view_append_column(GTK_COLUMN_VIEW(recover->table), column);
 
 	factory = gtk_signal_list_item_factory_new();
+	g_object_set_qdata(G_OBJECT(factory), recover_quark, recover);
 	g_signal_connect(factory, "setup",
 		G_CALLBACK(recover_setup_item), "size");
 	g_signal_connect(factory, "bind",
@@ -537,6 +573,8 @@ recover_class_init(RecoverClass *class)
 	BIND_VARIABLE(Recover, location);
 	BIND_VARIABLE(Recover, table);
 	BIND_VARIABLE(Recover, used);
+
+	recover_quark = g_quark_from_static_string("recover-quark");
 }
 
 Recover *
