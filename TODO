@@ -1,11 +1,7 @@
 
-- saveoptions.c should derive from GtkWindow, not GtkDialog
+- remove use of deprecated GtkInfoBar
 
-	paste back into vipsdisp
-
-	other changes to go back?
-
-	use recover.c as a model
+	use a revealer with a label and button
 
 - try a flatpak build
 

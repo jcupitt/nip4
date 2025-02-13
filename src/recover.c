@@ -485,16 +485,6 @@ recover_ok_action(GSimpleAction *action,
 }
 
 static GActionEntry recover_entries[] = {
-	// FIXME ... ooof
-
-	// { "open", program_open_action },
-
-	// { "new-toolkit", program_new_toolkit_action },
-	// { "new-tool", program_new_tool_action },
-
-	// { "save", program_saveas_action },
-	// { "saveas", program_saveas_action },
-
 	{ "delete", recover_delete_action },
 	{ "cancel", recover_cancel_action },
 	{ "ok", recover_ok_action },

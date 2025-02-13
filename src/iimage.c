@@ -287,25 +287,13 @@ iimage_class_new(Classmodel *classmodel, PElement *fn, PElement *out)
 	return TRUE;
 }
 
-static void
-iimage_graphic_save_response(GtkDialog *dialog,
-	gint response, gpointer user_data)
-{
-	if (response == GTK_RESPONSE_ACCEPT ||
-		response == GTK_RESPONSE_CANCEL)
-		gtk_window_destroy(GTK_WINDOW(dialog));
-
-	// other return codes are intermediate stages of processing and we
-	// should do nothing
-}
-
 static gboolean
 iimage_graphic_save(Classmodel *classmodel,
 	GtkWidget *parent, const char *filename)
 {
 	iImage *iimage = IIMAGE(classmodel);
 	VipsImage *image = iimage->value.ii->image;
-	GtkWindow *window = GTK_WINDOW(gtk_widget_get_root(parent));
+	GtkWindow *window = view_get_window(VIEW(parent));
 
 	if (image) {
 		char buf[FILENAME_MAX];
@@ -319,10 +307,6 @@ iimage_graphic_save(Classmodel *classmodel,
 		SaveOptions *options = save_options_new(window, image, buf);
 		if (!options)
 			return FALSE;
-
-		g_signal_connect_object(options, "response",
-			G_CALLBACK(iimage_graphic_save_response),
-			NULL, 0);
 
 		gtk_window_present(GTK_WINDOW(options));
 	}

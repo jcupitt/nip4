@@ -443,8 +443,6 @@ rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	Workspace *ws = row->ws;
 	const char *name = g_action_get_name(G_ACTION(action));
 
-	printf("rowview_action: %s\n", name);
-
 	if (graphic &&
 		g_str_equal(name, "row-edit"))
 		model_edit(GTK_WIDGET(rview), MODEL(rhs));
@@ -476,8 +474,6 @@ rowview_paste_filename(const char *filename, void *user_data)
 {
 	Rowview *rview = ROWVIEW(user_data);
 	Row *row = ROW(VOBJECT(rview)->iobject);
-
-	printf("rowview_paste_filename:\n");
 
 	// no rhs graphic? we can't paste into it
 	if (!row->child_rhs ||
