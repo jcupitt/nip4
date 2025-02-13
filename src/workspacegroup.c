@@ -615,8 +615,6 @@ workspacegroup_checkmark_timeout(Workspacegroup *wsg)
 		wsg->retain_files[wsg->retain_next] = g_strdup(filename);
 	}
 
-	printf("workspacegroup_checkmark_timeout:\n");
-
 	if (!filemodel_top_save(FILEMODEL(wsg),
 		wsg->retain_files[wsg->retain_next]))
 		return FALSE;

@@ -161,7 +161,7 @@ imagewindow_set_error(Imagewindow *win, const char *message)
 		err[i - 1] = '\0';
 	gtk_label_set_text(GTK_LABEL(win->error_label), err);
 
-	gtk_info_bar_set_revealed(GTK_INFO_BAR(win->error_bar), TRUE);
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(win->error_bar), TRUE);
 }
 
 static void
@@ -187,7 +187,13 @@ imagewindow_error_hide(Imagewindow *win)
 	printf("imagewindow_error_hide:\n");
 #endif /*DEBUG*/
 
-	gtk_info_bar_set_revealed(GTK_INFO_BAR(win->error_bar), FALSE);
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(win->error_bar), FALSE);
+}
+
+static void
+imagewindow_error_clicked(GtkWidget *button, Imagewindow *win)
+{
+	imagewindow_error_hide(win);
 }
 
 /* Manage the set of active views.
@@ -587,8 +593,6 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 
 	VipsImage *image;
 
-	printf("imagewindow_imageui_set_visible\n");
-
 	/* Save the current view settings in case we need to restore them.
 	 */
 	imagewindow_save_view_settings(win, &win->view_settings);
@@ -739,12 +743,6 @@ imagewindow_dispose(GObject *object)
 	VIPS_FREEF(gtk_widget_unparent, win->right_click_menu);
 
 	G_OBJECT_CLASS(imagewindow_parent_class)->dispose(object);
-}
-
-static void
-imagewindow_error_response(GtkWidget *button, int response, Imagewindow *win)
-{
-	imagewindow_error_hide(win);
 }
 
 static GdkTexture *
@@ -1387,7 +1385,7 @@ imagewindow_class_init(ImagewindowClass *class)
 	BIND_VARIABLE(Imagewindow, info_bar);
 
 	BIND_CALLBACK(imagewindow_pressed);
-	BIND_CALLBACK(imagewindow_error_response);
+	BIND_CALLBACK(imagewindow_error_clicked);
 
 	gobject_class->dispose = imagewindow_dispose;
 
