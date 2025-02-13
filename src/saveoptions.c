@@ -89,7 +89,13 @@ save_options_error(SaveOptions *options)
 		err[i - 1] = '\0';
 	gtk_label_set_text(GTK_LABEL(options->error_label), err);
 
-	gtk_info_bar_set_revealed(GTK_INFO_BAR(options->error_bar), TRUE);
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(options->error_bar), TRUE);
+}
+
+static void
+save_options_error_clicked(GtkButton *button, SaveOptions *options)
+{
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(options->error_bar), FALSE);
 }
 
 static void
@@ -364,6 +370,7 @@ save_options_class_init(SaveOptionsClass *class)
 	BIND_VARIABLE(SaveOptions, title);
 
 	BIND_CALLBACK(save_options_cancel_clicked);
+	BIND_CALLBACK(save_options_error_clicked);
 }
 
 /* This function is used by:
