@@ -624,16 +624,16 @@ print_element(int nsp, EType type, void *arg)
 		break;
 
 	case ELEMENT_BINOP:
-		printf("binop \"%s\"", decode_BinOp((BinOp) arg));
+		printf("binop \"%s\"", decode_BinOp((BinOp) GPOINTER_TO_INT(arg)));
 		break;
 
 	case ELEMENT_UNOP:
-		printf("unop \"%s\"", decode_UnOp((UnOp) arg));
+		printf("unop \"%s\"", decode_UnOp((UnOp) GPOINTER_TO_INT(arg)));
 		break;
 
 	case ELEMENT_COMB:
 		printf("combinator \"%s\"",
-			decode_CombinatorType((CombinatorType) arg));
+			decode_CombinatorType((CombinatorType) GPOINTER_TO_INT(arg)));
 		break;
 
 	case ELEMENT_TAG:

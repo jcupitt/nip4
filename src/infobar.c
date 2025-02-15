@@ -233,7 +233,6 @@ infobar_update_pixel(Infobar *infobar,
 	Tilesource *tilesource, double image_x, double image_y)
 {
 	if (!infobar->updating) {
-		Imagewindow *win = infobar->win;
 		PixelUpdate *update = g_new0(PixelUpdate, 1);
 
 		update->infobar = infobar;

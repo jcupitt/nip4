@@ -122,8 +122,6 @@ struct	kplotctx {
 	struct kpair	 dims;
 };
 
-__BEGIN_DECLS
-
 int	 kdata_dep_add(struct kdata *, struct kdata *, ksetfunc);
 int	 kdata_dep_run(struct kdata *, size_t);
 int	 kdata_set(struct kdata *, size_t, double, double);
@@ -152,7 +150,5 @@ void kplot_draw_ctx(struct kplotctx *ctx,
 int kplot_cairo_to_data(struct kplotctx *ctx,
 	double cairo_x, double cairo_y,
 	double *data_x, double *data_y);
-
-__END_DECLS
 
 #endif

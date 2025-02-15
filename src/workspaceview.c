@@ -1082,7 +1082,7 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 		break;
 
 	case WVIEW_SELECT:
-		if (abs(offset_x) > 5 || abs(offset_x) > 5) {
+		if (fabs(offset_x) > 5 || fabs(offset_x) > 5) {
 			wview->state = WVIEW_DRAG;
 
 			if (wview->drag_cview)

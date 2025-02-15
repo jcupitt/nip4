@@ -4,7 +4,7 @@ project( 'nip4', 'c',
   license: 'GPL',
   meson_version: '>=0.64',
   default_options: [
-    'c_std=c11',
+    'c_std=c2x',
     # turn off asserts etc. in release mode
     'b_ndebug=if-release'
   ]
