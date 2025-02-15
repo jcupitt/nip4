@@ -299,7 +299,7 @@ filemodel_real_set_modified(Filemodel *filemodel, gboolean modified)
 static int
 filemodel_xml_save_format_file(const char *filename, xmlDoc *doc)
 {
-	return xmlSaveFormatFile(filename, doc, 1) == -1;
+	return xmlSaveFormatFileEnc(filename, doc, NULL, 1) == -1;
 }
 
 /* Save to filemodel->filename.
