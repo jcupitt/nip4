@@ -259,13 +259,13 @@ main_load_wsg(const char *filename)
 /* NULL log handler. Used to suppress output on win32 without DEBUG_FATAL.
  */
 #ifndef DEBUG_FATAL
-#ifdef OS_WIN32
+#ifdef G_OS_WIN32
 static void
 main_log_null(const char *log_domain, GLogLevelFlags log_level,
     const char *message, void *user_data)
 {
 }
-#endif /*OS_WIN32*/
+#endif /*G_OS_WIN32*/
 #endif /*!DEBUG_FATAL*/
 
 int
