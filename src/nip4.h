@@ -40,6 +40,7 @@
 
 #ifdef G_OS_WIN32
 #include <windows.h>
+#include <winnt.h>
 #endif /*G_OS_WIN32*/
 
 #define APP_PATH "/org/libvips/nip4"
