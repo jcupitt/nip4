@@ -337,7 +337,7 @@ main(int argc, char **argv)
 	vips_leak_set(TRUE);
 	printf("DEBUG on in main.c\n");
 #else /*!DEBUG_FATAL*/
-#ifdef OS_WIN32
+#ifdef G_OS_WIN32
 	/* No logging output ... on win32, log output pops up a very annoying
 	 * console text box.
 	 */
@@ -350,7 +350,7 @@ main(int argc, char **argv)
 	g_log_set_handler(NULL,
 		G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION,
 		main_log_null, NULL);
-#endif /*OS_WIN32*/
+#endif /*G_OS_WIN32*/
 #endif /*DEBUG_FATAL*/
 
 #ifdef DEBUG
@@ -390,7 +390,7 @@ main(int argc, char **argv)
 	 */
 	setenvf("EXEEXT", "%s", EXEEXT);
 
-#ifdef OS_WIN32
+#ifdef G_OS_WIN32
 	{
 		/* No HOME on windows ... make one from HOMEDRIVE and HOMEDIR (via
 		 * glib).
@@ -407,7 +407,7 @@ main(int argc, char **argv)
 		nativeize_path(buf);
 		setenvf("HOME", "%s", buf);
 	}
-#endif /*OS_WIN32*/
+#endif /*G_OS_WIN32*/
 
 #ifdef HAVE_GETRLIMIT
 	/* Make sure we have lots of file descriptors. Some platforms have cur

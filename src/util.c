@@ -2205,7 +2205,7 @@ find_space(const char *name)
 	return sz;
 }
 
-#elif defined OS_WIN32
+#elif defined G_OS_WIN32
 
 double
 find_space(const char *name)
@@ -2495,7 +2495,7 @@ imalloc(VipsImage *im, size_t len)
 const char *
 get_savedir(void)
 {
-#ifdef OS_WIN32
+#ifdef G_OS_WIN32
 
 	/* If APPDATA is not defined, default to HOME, we know that will
 	 * exist (since we make it if necessary in main()).
@@ -2505,7 +2505,7 @@ get_savedir(void)
 	else
 		return "$HOME/." PACKAGE "-" VERSION;
 
-#elif OS_DARWIN
+#elif G_OS_DARWIN
 
 	/* Darwin ... in ~/Library
 	 */
@@ -2517,7 +2517,7 @@ get_savedir(void)
 	 */
 	return "$HOME/." PACKAGE "-" VERSION;
 
-#endif /*OS_WIN32*/
+#endif /*G_OS_WIN32*/
 }
 
 /* Turn an slist into a null-terminated array.
@@ -2744,11 +2744,11 @@ get_gpid(void)
 {
 	GPid gpid;
 
-#ifdef OS_WIN32
+#ifdef G_OS_WIN32
 	gpid = GetCurrentProcessId();
-#else /*!OS_WIN32*/
+#else /*!G_OS_WIN32*/
 	gpid = getpid();
-#endif /*OS_WIN32*/
+#endif /*G_OS_WIN32*/
 
 	return gpid;
 }
