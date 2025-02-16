@@ -38,6 +38,10 @@
 #include <sys/resource.h>
 #endif
 
+#ifdef G_OS_WIN32
+#include <windows.h>
+#endif /*G_OS_WIN32*/
+
 #define APP_PATH "/org/libvips/nip4"
 
 #include <gtk/gtk.h>
