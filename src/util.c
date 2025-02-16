@@ -2745,7 +2745,8 @@ get_gpid(void)
 	GPid gpid;
 
 #ifdef G_OS_WIN32
-	gpid = GetCurrentProcessId();
+	// pid_t is pointer-sized
+	gpid = GINT_TO_POINTER(GetCurrentProcessId());
 #else /*!G_OS_WIN32*/
 	gpid = getpid();
 #endif /*G_OS_WIN32*/
