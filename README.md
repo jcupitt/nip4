@@ -49,10 +49,17 @@ not allowed`, re-enable file transport with:
 git config --global protocol.file.allow always
 ```
 
+You need the latest `flatpak-builder` (the one in deb is not new enough),
+install with:
+
+```
+flatpak install org.flatpak.Builder
+```
+
 Build and try running it:
 
 ```shell
-flatpak-builder --force-clean --user --install build-dir org.libvips.nip4.json
+flatpak run org.flatpak.Builder --force-clean --user --install build-dir org.libvips.nip4.json
 flatpak run org.libvips.nip4 ~/pics/k2.jpg
 ```
 
