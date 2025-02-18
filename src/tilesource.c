@@ -517,8 +517,8 @@ tilesource_n_colour(VipsImage *image)
 	}
 }
 
-/* Build the second half of the image pipeline. This ends with an rgb image we
- * can make textures from.
+/* Build the second half of the image pipeline. This ends with an RGB or RGBA
+ * image we can make textures from.
  */
 static VipsImage *
 tilesource_rgb_image(Tilesource *tilesource, VipsImage *in)
@@ -576,8 +576,7 @@ tilesource_rgb_image(Tilesource *tilesource, VipsImage *in)
 		if (tilesource->scale != 1.0 ||
 			tilesource->offset != 0.0) {
 			if (vips_linear1(image, &x,
-					tilesource->scale, tilesource->offset,
-					NULL))
+					tilesource->scale, tilesource->offset, NULL))
 				return NULL;
 			VIPS_UNREF(image);
 			image = x;
@@ -647,7 +646,7 @@ tilesource_rgb_image(Tilesource *tilesource, VipsImage *in)
 
 	// reattach alpha
 	if (alpha) {
-		if (vips_cast(alpha, &x, image->BandFmt, NULL))
+		if (vips_cast(alpha, &x, image->BandFmt, "shift", TRUE, NULL))
 			return NULL;
 		VIPS_UNREF(alpha);
 		alpha = x;

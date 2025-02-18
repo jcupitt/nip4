@@ -90,8 +90,6 @@
 	it would need to make a model for every element in the group, then
 	display a set of views
 
-- fix 16-bit alpha composite over background
-
 ## ideas
 
 - we have the css_name thing in several _refresh() methods ... should this be
