@@ -783,14 +783,14 @@ workspace_load(Model *model,
 {
 	Workspace *ws = WORKSPACE(model);
 
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 	char *txt;
 
 	g_assert(IS_WORKSPACEGROUP(parent));
 
 	/* "view" is optional, for backwards compatibility.
 	 */
-	if (get_sprop(xnode, "view", buf, FILENAME_MAX)) {
+	if (get_sprop(xnode, "view", buf, VIPS_PATH_MAX)) {
 		WorkspaceMode mode = char_to_workspacemode(buf);
 
 		if ((int) mode >= 0)
@@ -807,7 +807,7 @@ workspace_load(Model *model,
 
 	(void) get_bprop(xnode, "locked", &ws->locked);
 
-	if (get_sprop(xnode, "name", buf, FILENAME_MAX))
+	if (get_sprop(xnode, "name", buf, VIPS_PATH_MAX))
 		VIPS_SETSTR(IOBJECT(ws)->name, buf);
 
 	/* Don't use get_sprop() and avoid a limit on def size.
@@ -974,7 +974,7 @@ workspace_get_version(Workspace *ws, int *major, int *minor)
 gboolean
 workspace_load_compat(Workspace *ws, int major, int minor)
 {
-	char pathname[FILENAME_MAX];
+	char pathname[VIPS_PATH_MAX];
 	GSList *path;
 	int best_major;
 	int best_minor;
@@ -990,7 +990,7 @@ workspace_load_compat(Workspace *ws, int major, int minor)
 		ws->kitg->compat_major = best_major;
 		ws->kitg->compat_minor = best_minor;
 
-		g_snprintf(pathname, FILENAME_MAX,
+		g_snprintf(pathname, VIPS_PATH_MAX,
 			"$VIPSHOME/share/" PACKAGE "/compat/%d.%d", best_major, best_minor);
 		path = path_parse(pathname);
 		if (path_map(path, "*.def",
@@ -1572,7 +1572,7 @@ workspace_selected_duplicate(Workspace *ws)
 {
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
 
-	char filename[FILENAME_MAX];
+	char filename[VIPS_PATH_MAX];
 
 	if (!workspace_selected_any(ws)) {
 		Row *row;
@@ -1675,7 +1675,7 @@ workspace_duplicate(Workspace *ws)
 {
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
 
-	char filename[FILENAME_MAX];
+	char filename[VIPS_PATH_MAX];
 
 	if (!temp_name(filename, IOBJECT(ws)->name, "ws"))
 		return FALSE;

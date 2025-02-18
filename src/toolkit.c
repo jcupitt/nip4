@@ -179,7 +179,7 @@ toolkit_new(Toolkitgroup *kitg, const char *name)
 Toolkit *
 toolkit_new_filename(Toolkitgroup *kitg, const char *filename)
 {
-	char name[FILENAME_MAX];
+	char name[VIPS_PATH_MAX];
 	Toolkit *kit;
 
 	name_from_filename(filename, name);
@@ -234,9 +234,9 @@ toolkit_by_name(Toolkitgroup *kitg, const char *name)
 	Toolkit *kit;
 
 	if (!(kit = toolkit_find(kitg, name))) {
-		char file[FILENAME_MAX];
+		char file[VIPS_PATH_MAX];
 
-		g_snprintf(file, FILENAME_MAX,
+		g_snprintf(file, VIPS_PATH_MAX,
 			"$SAVEDIR" G_DIR_SEPARATOR_S "start" G_DIR_SEPARATOR_S
 			"%s.def",
 			name);

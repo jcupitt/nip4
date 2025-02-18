@@ -28,7 +28,7 @@
 
 #include "nip4.h"
 
-static char prefix_buffer[FILENAME_MAX];
+static char prefix_buffer[VIPS_PATH_MAX];
 static gboolean prefix_valid = FALSE;
 
 /* General stuff.
@@ -119,7 +119,7 @@ static GOptionEntry main_option[] = {
 static void
 set_prefix(const char *prefix)
 {
-	g_strlcpy(prefix_buffer, prefix, FILENAME_MAX);
+	g_strlcpy(prefix_buffer, prefix, VIPS_PATH_MAX);
 	nativeize_path(prefix_buffer);
 	absoluteize_path(prefix_buffer);
 	setenvf("VIPSHOME", "%s", prefix_buffer);
@@ -193,9 +193,9 @@ main_print_main(Symbol *sym)
 
 	/* FIXME ... need Group for this
     if (main_option_output) {
-        char filename[FILENAME_MAX];
+        char filename[VIPS_PATH_MAX];
 
-        g_strlcpy(filename, main_option_output, FILENAME_MAX);
+        g_strlcpy(filename, main_option_output, VIPS_PATH_MAX);
         if (!group_save_item(root, filename))
             main_error_exit(_( "error saving \"%s\""),
                 symbol_name_scope(sym));
@@ -408,14 +408,14 @@ main(int argc, char **argv)
 		 * glib).
 		 */
 		const char *home;
-		char buf[FILENAME_MAX];
+		char buf[VIPS_PATH_MAX];
 
 		if (!(home = g_getenv("HOME")))
 			home = g_get_home_dir();
 
 		/* We need native paths.
 		 */
-		g_strlcpy(buf, home, FILENAME_MAX);
+		g_strlcpy(buf, home, VIPS_PATH_MAX);
 		nativeize_path(buf);
 		setenvf("HOME", "%s", buf);
 	}

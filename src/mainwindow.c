@@ -1032,11 +1032,11 @@ mainwindow_new(App *app, Workspacegroup *wsg)
 	gboolean welcome;
 	g_object_get(app, "welcome", &welcome, NULL);
 	if (welcome) {
-		char save_dir[FILENAME_MAX];
+		char save_dir[VIPS_PATH_MAX];
 		char buf[256];
 
 		g_snprintf(buf, 256, _("Welcome to %s-%s!"), PACKAGE, VERSION);
-		g_strlcpy(save_dir, get_savedir(), FILENAME_MAX);
+		g_strlcpy(save_dir, get_savedir(), VIPS_PATH_MAX);
 		path_expand(save_dir);
 		error_top("%s", buf);
 		error_sub(
@@ -1053,8 +1053,8 @@ mainwindow_new(App *app, Workspacegroup *wsg)
 	if (size > 10 * 1024 * 1024) {
 		error_top("%s", _("Many files in temp area"));
 
-		char save_dir[FILENAME_MAX];
-		g_strlcpy(save_dir, PATH_TMP, FILENAME_MAX);
+		char save_dir[VIPS_PATH_MAX];
+		g_strlcpy(save_dir, PATH_TMP, VIPS_PATH_MAX);
 		path_expand(save_dir);
 
 		char txt[256];

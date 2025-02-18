@@ -567,7 +567,7 @@ imageinfo_new(Imageinfogroup *imageinfogroup,
 
 	managed_link_heap(MANAGED(imageinfo), heap);
 
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 	if (!name) {
 		if (!temp_name(buf, NULL, "v"))
 			/* Will be freed on next GC.
@@ -748,7 +748,7 @@ imageinfo_new_from_texture(Imageinfogroup *imageinfogroup,
 	}
 
 	// we can't have NULL filenames
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 	if (!temp_name(buf, NULL, "tif")) {
 		VIPS_UNREF(image);
 		return NULL;

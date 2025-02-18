@@ -179,7 +179,7 @@ recoverfile_new(const char *filename)
 
 	g_autoptr(Recoverfile) file = g_object_new(RECOVERFILE_TYPE, NULL);
 
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 	expand_variables(filename, buf);
 	file->filename = g_strdup(buf);
 

@@ -797,12 +797,12 @@ vips_buf_appendi(VipsBuf *buf, VipsImage *im)
 gboolean
 vips_buf_appendsc(VipsBuf *buf, gboolean quote, const char *str)
 {
-	char buffer[FILENAME_MAX];
-	char buffer2[FILENAME_MAX];
+	char buffer[VIPS_PATH_MAX];
+	char buffer2[VIPS_PATH_MAX];
 
 	/* /2 to leave a bit of space.
 	 */
-	g_strlcpy(buffer, str, FILENAME_MAX / 2);
+	g_strlcpy(buffer, str, VIPS_PATH_MAX / 2);
 
 	/* FIXME ... possible buffer overflow :-(
 	 */
@@ -1185,7 +1185,7 @@ get_element(VipsRegion *ireg, int x, int y, int b)
 void
 get_image_info(VipsBuf *buf, const char *name)
 {
-	char name2[FILENAME_MAX];
+	char name2[VIPS_PATH_MAX];
 	struct stat st;
 
 	expand_variables(name, name2);
@@ -1242,11 +1242,11 @@ expand_once(char *in, char *out)
 	/* Scan and copy.
 	 */
 	have_substituted = FALSE;
-	for (p = in, q = out; (*q = *p) && (q - out) < FILENAME_MAX; p++, q++)
+	for (p = in, q = out; (*q = *p) && (q - out) < VIPS_PATH_MAX; p++, q++)
 		/* Did we just copy a '$'?
 		 */
 		if (*p == '$') {
-			char vname[FILENAME_MAX];
+			char vname[VIPS_PATH_MAX];
 			char *r;
 			const char *subst;
 			const char *s;
@@ -1256,7 +1256,7 @@ expand_once(char *in, char *out)
 			p++;
 			for (r = vname;
 				 isvariable((int) (*r = *p)) &&
-				 (r - vname) < FILENAME_MAX;
+				 (r - vname) < VIPS_PATH_MAX;
 				 p++, r++)
 				;
 			*r = '\0';
@@ -1270,7 +1270,7 @@ expand_once(char *in, char *out)
 			 */
 			if (subst) {
 				for (s = subst;
-					 (*q = *s) && (q - out) < FILENAME_MAX;
+					 (*q = *s) && (q - out) < VIPS_PATH_MAX;
 					 s++, q++)
 					;
 			}
@@ -1290,7 +1290,7 @@ expand_once(char *in, char *out)
 			 */
 			if (subst) {
 				for (r = subst;
-					 (*q = *r) && (q - out) < FILENAME_MAX;
+					 (*q = *r) && (q - out) < VIPS_PATH_MAX;
 					 r++, q++)
 					;
 			}
@@ -1305,12 +1305,12 @@ expand_once(char *in, char *out)
 }
 
 /* Expand all variables! Don't touch in, assume out[] is at least
- * FILENAME_MAX bytes. in and out must not point to the same place!
+ * VIPS_PATH_MAX bytes. in and out must not point to the same place!
  */
 void
 expand_variables(const char *in, char *out)
 {
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 	char *p1 = (char *) in; /* Discard const, but safe */
 	char *p2 = out;
 
@@ -1374,11 +1374,11 @@ swap_string(char *buffer, const char *from, const char *to)
 
 	while ((p = strstr(buffer, from))) {
 		int off = p - buffer;
-		char buf2[FILENAME_MAX];
+		char buf2[VIPS_PATH_MAX];
 
-		g_strlcpy(buf2, buffer, FILENAME_MAX);
+		g_strlcpy(buf2, buffer, VIPS_PATH_MAX);
 		buf2[off] = '\0';
-		g_snprintf(buffer, FILENAME_MAX,
+		g_snprintf(buffer, VIPS_PATH_MAX,
 			"%s%s%s", buf2, to, buf2 + off + strlen(from));
 	}
 }
@@ -1428,17 +1428,17 @@ canonicalize_path(char *path)
 		strcpy(path, "/");
 }
 
-/* Absoluteize a path. Must be FILENAME_MAX chars available.
+/* Absoluteize a path. Must be VIPS_PATH_MAX chars available.
  */
 void
 absoluteize_path(char *path)
 {
 	if (!is_absolute(path)) {
-		char buf[FILENAME_MAX];
+		char buf[VIPS_PATH_MAX];
 
-		g_strlcpy(buf, path, FILENAME_MAX);
+		g_strlcpy(buf, path, VIPS_PATH_MAX);
 		g_autofree char *cwd = g_get_current_dir();
-		g_snprintf(path, FILENAME_MAX, "%s%s%s", cwd, "/", buf);
+		g_snprintf(path, VIPS_PATH_MAX, "%s%s%s", cwd, "/", buf);
 		canonicalize_path(path);
 	}
 }
@@ -1449,7 +1449,7 @@ absoluteize_path(char *path)
 void *
 callv_string(callv_string_fn fn, const char *arg, void *a, void *b, void *c)
 {
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 
 	expand_variables(arg, buf);
 
@@ -1460,9 +1460,9 @@ void *
 callv_stringva(callv_string_fn fn,
 	const char *fmt, va_list ap, void *a, void *b, void *c)
 {
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 
-	(void) g_vsnprintf(buf, FILENAME_MAX, fmt, ap);
+	(void) g_vsnprintf(buf, VIPS_PATH_MAX, fmt, ap);
 
 	return callv_string(fn, buf, a, b, c);
 }
@@ -1486,7 +1486,7 @@ void *
 callv_string_filename(callv_string_fn fn,
 	const char *filename, void *a, void *b, void *c)
 {
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 
 	expand_variables(filename, buf);
 	nativeize_path(buf);
@@ -1499,9 +1499,9 @@ void *
 callv_string_filenameva(callv_string_fn fn,
 	const char *fmt, va_list ap, void *a, void *b, void *c)
 {
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 
-	g_vsnprintf(buf, FILENAME_MAX, fmt, ap);
+	g_vsnprintf(buf, VIPS_PATH_MAX, fmt, ap);
 
 	return callv_string_filename(fn, buf, a, b, c);
 }
@@ -1525,7 +1525,7 @@ callv_string_filenamef(callv_string_fn fn, const char *fmt, ...)
 int
 calli_string(calli_string_fn fn, const char *arg, void *a, void *b, void *c)
 {
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 
 	expand_variables(arg, buf);
 
@@ -1536,9 +1536,9 @@ int
 calli_stringva(calli_string_fn fn,
 	const char *fmt, va_list ap, void *a, void *b, void *c)
 {
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 
-	(void) g_vsnprintf(buf, FILENAME_MAX, fmt, ap);
+	(void) g_vsnprintf(buf, VIPS_PATH_MAX, fmt, ap);
 
 	return calli_string(fn, buf, a, b, c);
 }
@@ -1562,7 +1562,7 @@ int
 calli_string_filename(calli_string_fn fn,
 	const char *filename, void *a, void *b, void *c)
 {
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 
 	expand_variables(filename, buf);
 	nativeize_path(buf);
@@ -1575,9 +1575,9 @@ int
 calli_string_filenameva(calli_string_fn fn,
 	const char *fmt, va_list ap, void *a, void *b, void *c)
 {
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 
-	g_vsnprintf(buf, FILENAME_MAX, fmt, ap);
+	g_vsnprintf(buf, VIPS_PATH_MAX, fmt, ap);
 
 	return calli_string_filename(fn, buf, a, b, c);
 }
@@ -1612,10 +1612,10 @@ void
 setenvf(const char *name, const char *fmt, ...)
 {
 	va_list ap;
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 
 	va_start(ap, fmt);
-	(void) g_vsnprintf(buf, FILENAME_MAX, fmt, ap);
+	(void) g_vsnprintf(buf, VIPS_PATH_MAX, fmt, ap);
 	va_end(ap);
 
 	g_setenv(name, buf, TRUE);
@@ -1765,7 +1765,7 @@ unlinkf(const char *fmt, ...)
 gboolean
 is_absolute(const char *fname)
 {
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 
 	expand_variables(fname, buf);
 	nativeize_path(buf);
@@ -1784,12 +1784,12 @@ is_absolute(const char *fname)
 gboolean
 filenames_equal(const char *f1, const char *f2)
 {
-	char b1[FILENAME_MAX];
+	char b1[VIPS_PATH_MAX];
 	expand_variables(f1, b1);
 	nativeize_path(b1);
 	absoluteize_path(b1);
 
-	char b2[FILENAME_MAX];
+	char b2[VIPS_PATH_MAX];
 	expand_variables(f2, b2);
 	nativeize_path(b2);
 	absoluteize_path(b2);
@@ -1835,10 +1835,10 @@ iOpenFile *
 ifile_open_read(const char *name, ...)
 {
 	va_list ap;
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 
 	va_start(ap, name);
-	(void) g_vsnprintf(buf, FILENAME_MAX, name, ap);
+	(void) g_vsnprintf(buf, VIPS_PATH_MAX, name, ap);
 	va_end(ap);
 
 	g_autoptr(iOpenFile) of = ifile_build(buf);
@@ -1889,10 +1889,10 @@ iOpenFile *
 ifile_open_write(const char *name, ...)
 {
 	va_list ap;
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 
 	va_start(ap, name);
-	(void) g_vsnprintf(buf, FILENAME_MAX, name, ap);
+	(void) g_vsnprintf(buf, VIPS_PATH_MAX, name, ap);
 	va_end(ap);
 
 	g_autoptr(iOpenFile) of = ifile_build("stdin");
@@ -2214,7 +2214,7 @@ find_space(const char *name)
 	ULARGE_INTEGER total;
 	ULARGE_INTEGER free;
 	double sz;
-	char name2[FILENAME_MAX];
+	char name2[VIPS_PATH_MAX];
 
 	expand_variables(name, name2);
 
@@ -2254,14 +2254,14 @@ temp_name(char *filename, const char *name, const char *type)
 
 	const char *dir;
 	int fd;
-	char buf[FILENAME_MAX];
-	char buf2[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
+	char buf2[VIPS_PATH_MAX];
 
 	dir = PATH_TMP;
 	if (!existsf("%s", dir))
 		dir = G_DIR_SEPARATOR_S;
 
-	g_snprintf(buf2, FILENAME_MAX,
+	g_snprintf(buf2, VIPS_PATH_MAX,
 		"%s/" PACKAGE "-%s-%" G_PID_FORMAT "-%d-XXXXXXX",
 		dir, name ? name : "untitled", get_gpid(), n++);
 	expand_variables(buf2, buf);
@@ -2275,7 +2275,7 @@ temp_name(char *filename, const char *name, const char *type)
 	close(fd);
 	unlinkf("%s", buf);
 
-	g_snprintf(filename, FILENAME_MAX, "%s.%s", buf, type);
+	g_snprintf(filename, VIPS_PATH_MAX, "%s.%s", buf, type);
 
 	return TRUE;
 }
@@ -2362,19 +2362,19 @@ increment_name(char *buf)
 void
 increment_filename(char *filename)
 {
-	char buf[FILENAME_MAX];
-	char suf[FILENAME_MAX];
-	char tail[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
+	char suf[VIPS_PATH_MAX];
+	char tail[VIPS_PATH_MAX];
 	char *p;
 
-	g_strlcpy(buf, filename, FILENAME_MAX);
+	g_strlcpy(buf, filename, VIPS_PATH_MAX);
 
 	/* Save and replace the suffix around an increment_name.
 	 */
 	char *basename = g_path_get_basename(buf);
 	if (!(p = strrchr(basename, '.')))
 		p = basename + strlen(basename);
-	g_strlcpy(suf, p, FILENAME_MAX);
+	g_strlcpy(suf, p, VIPS_PATH_MAX);
 	*p = '\0';
 
 	/* Also save any chars to the right of the number component (if any) of
@@ -2388,7 +2388,7 @@ increment_filename(char *filename)
 	if (p == basename)
 		p = basename + strlen(basename);
 
-	g_strlcpy(tail, p, FILENAME_MAX);
+	g_strlcpy(tail, p, VIPS_PATH_MAX);
 	*p = '\0';
 
 	increment_name(buf);

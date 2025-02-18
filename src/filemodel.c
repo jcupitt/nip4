@@ -179,13 +179,13 @@ void
 filemodel_set_filename(Filemodel *filemodel, const char *filename)
 {
 	if (filemodel->filename != filename) {
-		char buf[FILENAME_MAX];
+		char buf[VIPS_PATH_MAX];
 
 		/* We want to keep the absolute, compact form of the filename
 		 * inside the object so we don't get a dependency on CWD.
 		 */
 		if (filename) {
-			g_strlcpy(buf, filename, FILENAME_MAX);
+			g_strlcpy(buf, filename, VIPS_PATH_MAX);
 			path_compact(buf);
 			filename = buf;
 		}
@@ -624,11 +624,11 @@ filemodel_set_auto_load(Filemodel *filemodel)
 	if (filemodel->filename &&
 		strstr(filemodel->filename, "share/" PACKAGE)) {
 		char *p = strrchr(filemodel->filename, '/');
-		char buf[FILENAME_MAX];
+		char buf[VIPS_PATH_MAX];
 
 		g_assert(p);
 
-		g_snprintf(buf, FILENAME_MAX, "$SAVEDIR/start/%s", p + 1);
+		g_snprintf(buf, VIPS_PATH_MAX, "$SAVEDIR/start/%s", p + 1);
 		filemodel_set_filename(filemodel, buf);
 	}
 }

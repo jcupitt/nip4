@@ -306,7 +306,7 @@ workspacegroup_load_new(Workspacegroup *wsg,
 		int major;
 		int minor;
 
-		if (!get_sprop(xws, "name", name, FILENAME_MAX) ||
+		if (!get_sprop(xws, "name", name, VIPS_PATH_MAX) ||
 			!(ws = workspace_new(wsg, name)))
 			return FALSE;
 
@@ -540,7 +540,7 @@ workspacegroup_top_load(Filemodel *filemodel,
 	Workspacegroup *wsg = WORKSPACEGROUP(filemodel);
 
 	xmlNode *xnode;
-	char name[FILENAME_MAX];
+	char name[VIPS_PATH_MAX];
 
 #ifdef DEBUG
 	printf("workspacegroup_top_load: from %s\n", state->filename);
@@ -553,7 +553,7 @@ workspacegroup_top_load(Filemodel *filemodel,
 	 * The filename field can be missing.
 	 */
 	if ((xnode = get_node(xroot, "Workspace")) &&
-		get_sprop(xnode, "filename", name, FILENAME_MAX)) {
+		get_sprop(xnode, "filename", name, VIPS_PATH_MAX)) {
 		/* The old filename could be non-native, so we must rewrite
 		 * to native form first so g_path_get_dirname() can work.
 		 */
@@ -607,7 +607,7 @@ workspacegroup_checkmark_timeout(Workspacegroup *wsg)
 	/* Do we have a name for this retain file?
 	 */
 	if (!wsg->retain_files[wsg->retain_next]) {
-		char filename[FILENAME_MAX];
+		char filename[VIPS_PATH_MAX];
 
 		if (!temp_name(filename, IOBJECT(wsg)->name, "ws"))
 			return FALSE;
@@ -735,7 +735,7 @@ Workspacegroup *
 workspacegroup_new_filename(Workspaceroot *wsr, const char *filename)
 {
 	Workspacegroup *wsg;
-	char name[FILENAME_MAX];
+	char name[VIPS_PATH_MAX];
 
 	if (!(wsg = workspacegroup_new(wsr)))
 		return NULL;
@@ -771,7 +771,7 @@ workspacegroup_new_from_file(Workspaceroot *wsr,
 	filemodel_set_modified(FILEMODEL(wsg), FALSE);
 
 	if (filename_user) {
-		char name[FILENAME_MAX];
+		char name[VIPS_PATH_MAX];
 
 		name_from_filename(filename_user, name);
 		iobject_set(IOBJECT(wsg), name, NULL);
@@ -788,7 +788,7 @@ Workspacegroup *
 workspacegroup_new_from_openfile(Workspaceroot *wsr, iOpenFile *of)
 {
 	Workspacegroup *wsg;
-	char name[FILENAME_MAX];
+	char name[VIPS_PATH_MAX];
 
 #ifdef DEBUG
 	printf("workspacegroup_new_from_openfile: %s\n", of->fname);
@@ -921,7 +921,7 @@ workspacegroup_duplicate(Workspacegroup *wsg)
 	Workspaceroot *wsr = wsg->wsr;
 
 	Workspacegroup *new_wsg;
-	char filename[FILENAME_MAX];
+	char filename[VIPS_PATH_MAX];
 
 	if (!temp_name(filename, IOBJECT(wsg)->name, "ws") ||
 		!workspacegroup_save_all(wsg, filename))

@@ -296,12 +296,12 @@ iimage_graphic_save(Classmodel *classmodel,
 	GtkWindow *window = view_get_window(VIEW(parent));
 
 	if (image) {
-		char buf[FILENAME_MAX];
+		char buf[VIPS_PATH_MAX];
 
 		/* We don't want $VAR etc. in the filename we pass down to the file
 		 * ops.
 		 */
-		g_strlcpy(buf, filename, FILENAME_MAX);
+		g_strlcpy(buf, filename, VIPS_PATH_MAX);
 		path_expand(buf);
 
 		SaveOptions *options = save_options_new(window, image, buf);

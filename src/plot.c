@@ -448,7 +448,7 @@ plot_graphic_save(Classmodel *classmodel,
 	ImageValue *value = &plot->value;
 
 	if (value->ii) {
-		char buf[FILENAME_MAX];
+		char buf[VIPS_PATH_MAX];
 		expand_variables(filename, buf);
 
 		if (vips_image_write_to_file(value->ii->image, buf, NULL)) {

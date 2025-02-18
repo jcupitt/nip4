@@ -126,8 +126,8 @@ path_rewrite_lookup(const char *old)
 void
 path_rewrite_add(const char *old, const char *new, gboolean lock)
 {
-	char old_buf[FILENAME_MAX + 1];
-	char new_buf[FILENAME_MAX + 1];
+	char old_buf[VIPS_PATH_MAX + 1];
+	char new_buf[VIPS_PATH_MAX + 1];
 
 	Rewrite *rewrite;
 
@@ -143,7 +143,7 @@ path_rewrite_add(const char *old, const char *new, gboolean lock)
 	 *
 	 * If we keep all @old paths in long form we can avoid rewrite loops.
 	 */
-	g_strlcpy(old_buf, old, FILENAME_MAX);
+	g_strlcpy(old_buf, old, VIPS_PATH_MAX);
 	strcat(old_buf, G_DIR_SEPARATOR_S);
 	path_expand(old_buf);
 	old = old_buf;
@@ -152,7 +152,7 @@ path_rewrite_add(const char *old, const char *new, gboolean lock)
 		/* We must keep the new path in short (unexpanded) form,
 		 * obviously.
 		 */
-		g_strlcpy(new_buf, new, FILENAME_MAX);
+		g_strlcpy(new_buf, new, VIPS_PATH_MAX);
 		strcat(new_buf, G_DIR_SEPARATOR_S);
 		new = new_buf;
 	}
@@ -214,7 +214,7 @@ path_rewrite_add(const char *old, const char *new, gboolean lock)
 #endif /*DEBUG_REWRITE*/
 }
 
-/* Rewrite a string using the rewrite list. buf must be FILENAME_MAX
+/* Rewrite a string using the rewrite list. buf must be VIPS_PATH_MAX
  * characters.
  */
 void
@@ -238,7 +238,7 @@ path_rewrite(char *buf)
 				int nlen = strlen(rewrite->new);
 				int blen = strlen(buf);
 
-				if (blen - olen + nlen > FILENAME_MAX - 3)
+				if (blen - olen + nlen > VIPS_PATH_MAX - 3)
 					break;
 
 				memmove(buf + nlen, buf + olen, blen - olen + 1);
@@ -261,16 +261,16 @@ path_rewrite(char *buf)
 void
 path_expand(char *path)
 {
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 
 	expand_variables(path, buf);
 	nativeize_path(buf);
 	absoluteize_path(buf);
 	canonicalize_path(buf);
-	g_strlcpy(path, buf, FILENAME_MAX);
+	g_strlcpy(path, buf, VIPS_PATH_MAX);
 }
 
-/* Rewite a path to compact form. @path must be FILENAME_MAX characters.
+/* Rewite a path to compact form. @path must be VIPS_PATH_MAX characters.
  *
  * Examples:
  *
@@ -294,7 +294,7 @@ path_parse(const char *path)
 	const char *p;
 	const char *e;
 	int len;
-	char name[FILENAME_MAX + 1];
+	char name[VIPS_PATH_MAX + 1];
 
 	for (p = path; *p; p = e) {
 		/* Find the start of the next component, or the NULL
@@ -306,7 +306,7 @@ path_parse(const char *path)
 
 		/* Copy to our buffer, turn to string.
 		 */
-		g_strlcpy(name, p, VIPS_MIN(len, FILENAME_MAX));
+		g_strlcpy(name, p, VIPS_MIN(len, VIPS_PATH_MAX));
 
 		/* Add to path list.
 		 */
@@ -445,14 +445,14 @@ path_search_match(Search *search, const char *dir_name, const char *name)
 	if (g_pattern_match_string(search->wild, name) &&
 		!slist_map(search->previous,
 			(SListMapFn) path_str_eq, (gpointer) name)) {
-		char buf[FILENAME_MAX + 10];
+		char buf[VIPS_PATH_MAX + 10];
 		void *result;
 
 		/* Add to exclusion list.
 		 */
 		search->previous = g_slist_prepend(search->previous, g_strdup(name));
 
-		g_snprintf(buf, FILENAME_MAX, "%s/%s", dir_name, name);
+		g_snprintf(buf, VIPS_PATH_MAX, "%s/%s", dir_name, name);
 
 		path_compact(buf);
 
@@ -473,13 +473,13 @@ path_search_match(Search *search, const char *dir_name, const char *name)
 static void *
 path_scan_dir(const char *dir_name, Search *search)
 {
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 	const char *name;
 	void *result;
 
 	/* Add the pattern offset, if any. It's '.' for no offset.
 	 */
-	g_snprintf(buf, FILENAME_MAX, "%s/%s", dir_name, search->dirname);
+	g_snprintf(buf, VIPS_PATH_MAX, "%s/%s", dir_name, search->dirname);
 
 	g_autoptr(GDir) dir = (GDir *) callv_string_filename(
 		(callv_string_fn) g_dir_open, buf, NULL, NULL, NULL);
@@ -582,7 +582,7 @@ path_find_file(const char *filename)
 void
 path_init(void)
 {
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 
 	path_rewrite_add(get_prefix(), "$VIPSHOME", TRUE);
 	path_rewrite_add(g_get_home_dir(), "$HOME", TRUE);
@@ -604,20 +604,20 @@ path_init(void)
 	path_search_default = path_parse(".");
 	path_tmp_default = g_strdup(".");
 #else  /*!DEBUG_LOCAL*/
-	g_snprintf(buf, FILENAME_MAX,
+	g_snprintf(buf, VIPS_PATH_MAX,
 		"%s/start" G_SEARCHPATH_SEPARATOR_S
 		"$VIPSHOME/share/$PACKAGE/start",
 		get_savedir());
 	path_start_default = path_parse(buf);
 
-	g_snprintf(buf, FILENAME_MAX,
+	g_snprintf(buf, VIPS_PATH_MAX,
 		"%s/data" G_SEARCHPATH_SEPARATOR_S
 		"$VIPSHOME/share/$PACKAGE/data" G_SEARCHPATH_SEPARATOR_S
 		".",
 		get_savedir());
 	path_search_default = path_parse(buf);
 
-	g_snprintf(buf, FILENAME_MAX, "%s/tmp", get_savedir());
+	g_snprintf(buf, VIPS_PATH_MAX, "%s/tmp", get_savedir());
 	path_tmp_default = g_strdup(buf);
 #endif /*DEBUG_LOCAL*/
 

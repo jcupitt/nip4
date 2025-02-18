@@ -441,7 +441,7 @@ apply_image_call(Reduce *rc,
 
 	/* Reattach the mode and load.
 	 */
-	g_snprintf(buf, FILENAME_MAX, "%s%s", fn, mode);
+	g_snprintf(buf, VIPS_PATH_MAX, "%s%s", fn, mode);
 	if (!(ii = imageinfo_new_input(main_imageinfogroup, NULL, heap, buf))) {
 		VIPS_FREE(fn);
 		reduce_throw(rc);
@@ -465,12 +465,12 @@ apply_read_call(Reduce *rc,
 	const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
-	char buf[FILENAME_MAX];
+	char buf[VIPS_PATH_MAX];
 
 	/* Get string.
 	 */
 	PEPOINTRIGHT(arg[0], &rhs);
-	(void) reduce_get_string(rc, &rhs, buf, FILENAME_MAX);
+	(void) reduce_get_string(rc, &rhs, buf, VIPS_PATH_MAX);
 
 	if (!heap_file_new(rc->heap, buf, out))
 		reduce_throw(rc);
@@ -1060,11 +1060,11 @@ static void
 apply_expand_call(Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
-	char txt[FILENAME_MAX];
-	char txt2[FILENAME_MAX];
+	char txt[VIPS_PATH_MAX];
+	char txt2[VIPS_PATH_MAX];
 
 	PEPOINTRIGHT(arg[0], &rhs);
-	(void) reduce_get_string(rc, &rhs, txt, FILENAME_MAX);
+	(void) reduce_get_string(rc, &rhs, txt, VIPS_PATH_MAX);
 	expand_variables(txt, txt2);
 
 	if (!heap_managedstring_new(rc->heap, txt2, out))
@@ -1084,11 +1084,11 @@ apply_name2gtype_call(Reduce *rc, const char *name,
 	HeapNode **arg, PElement *out)
 {
 	PElement rhs;
-	char txt[FILENAME_MAX];
+	char txt[VIPS_PATH_MAX];
 	int gtype;
 
 	PEPOINTRIGHT(arg[0], &rhs);
-	(void) reduce_get_string(rc, &rhs, txt, FILENAME_MAX);
+	(void) reduce_get_string(rc, &rhs, txt, VIPS_PATH_MAX);
 
 	gtype = g_type_from_name(txt);
 
