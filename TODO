@@ -1,9 +1,3 @@
-- try a flatpak build
-
-	will need a network connection
-
-	probably need imagemagick
-
 - try to save and restore image view scale and position
 
 	this failed last time I tried :(
@@ -37,10 +31,6 @@
 - need preferences?
 
 	or just remove it all
-
-- nip4 icon in "about" does not display
-
-	how odd
 
 - try:
 
