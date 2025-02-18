@@ -2,6 +2,10 @@
 
 # set -x
 
+. ./variables.sh
+
+nip4="$top_builddir/src/nip4 --prefix=$top_srcdir"
+
 main_result=0
 
 test_result() {
@@ -24,10 +28,10 @@ test_result_fail() {
 
 # run the test workspaces
 test_workspaces() {
-	for i in @TOP_SRCDIR@/test/workspaces/*.ws; do
+	for i in $top_srcdir/test/workspaces/*.ws; do
 		base=$(basename $i)
 		echo -n "testing $base ... "
-		@TOP_SRCDIR@/src/nip2 --prefix=@TOP_SRCDIR@ --test "$i"
+		$nip4 --test "$i"
 		result=$?
 
 		# test_fail.ws is supposed to fail
@@ -41,17 +45,17 @@ test_workspaces() {
 
 # run the test defs
 test_defs() {
-	for i in @TOP_SRCDIR@/test/workspaces/*.def; do
+	for i in $top_srcdir/test/workspaces/*.def; do
 		base=$(basename $i)
 		echo -n "testing $base ... "
-		@TOP_SRCDIR@/src/nip2 --prefix=@TOP_SRCDIR@ --test $i
+		$nip4 --test $i
 		test_result $?
 	done
 }
 
 # load all the example workspaces too
 test_examples() {
-	for i in @TOP_SRCDIR@/share/nip2/data/examples/*/*.ws; do
+	for i in $top_srcdir/share/nip4/data/examples/*/*.ws; do
 		base=$(basename $i)
 
 		# have to skip these two, they use a non-free plugin
@@ -63,7 +67,7 @@ test_examples() {
 		fi
 
 		echo -n "testing $base ... "
-		@TOP_SRCDIR@/src/nip2 --prefix=@TOP_SRCDIR@ --test $i 
+		$nip4 --test $i
 		test_result $?
 	done
 }
@@ -74,7 +78,7 @@ test_examples
 
 echo "repeating tests with the vectorising system disabled"
 
-export IM_NOVECTOR=1
+export VIPS_NOVECTOR=1
 test_workspaces
 test_defs
 test_examples

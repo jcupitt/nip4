@@ -1,7 +1,5 @@
 - get `test/test_all.sh` working
 
-	need --test and --prefix
-
 	need to run the driver script from meson
 
 - try to save and restore image view scale and position

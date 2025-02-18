@@ -1,4 +1,4 @@
-project( 'nip4', 'c',
+project('nip4', 'c',
   # ie. a major after nip2 8.9 for workspace save file versioning
   version: '9.0.0-11',
   license: 'GPL',
@@ -19,6 +19,8 @@ version_micro = version_parts[2]
 
 prefix_dir = get_option('prefix')
 lib_dir = prefix_dir / get_option('libdir')
+project_source_root = meson.current_source_dir()
+project_build_root = meson.current_build_dir()
 
 pkg = import('pkgconfig')
 gnome = import('gnome')
@@ -108,3 +110,4 @@ meson.add_install_script('meson_post_install.py')
 
 subdir('src')
 subdir('share')
+subdir('test')

@@ -602,6 +602,14 @@ main(int argc, char **argv)
 
 	status = g_application_run(G_APPLICATION(app), argc, argv);
 
+	if (main_option_test) {
+        /* Make sure we've had at least one recomp on everything.
+         */
+        symbol_recalculate_all_force(TRUE);
+        if (expr_error_all)
+            main_error_exit("--test: errors found");
+    }
+
 	/* Junk all symbols. This may remove a bunch of intermediate images
 	 * too.
 	 */
