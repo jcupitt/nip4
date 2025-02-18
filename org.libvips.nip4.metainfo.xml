@@ -20,6 +20,9 @@
 
   <description>
     <p>
+*This is a first alpha release for testing this new
+version of nip. Don't use it for anything serious!*
+
 nip4 is a GUI for the libvips image processing library. It's a little
 like a spreadsheet: you create a set of formula connecting your objects
 together, and on a change nip2 will recalculate. This makes it convenient
@@ -42,17 +45,25 @@ without a GUI.
 
     <screenshot type="default">
       <image>https://raw.githubusercontent.com/jcupitt/nip4/master/images/shot1.png</image>
-      <caption>Even very large images open quickly</caption>
+      <caption>A new interface design</caption>
     </screenshot>
 
     <screenshot>
       <image>https://raw.githubusercontent.com/jcupitt/nip4/master/images/shot2.png</image>
-      <caption>Visualization tools let you explore technical images</caption>
+      <caption>Workspaces from older versions load correcty</caption>
     </screenshot>
 
   </screenshots>
 
   <releases>
+
+    <release version="9.0.0-11" date="2025-02-18">
+      <description>
+        <p>
+          First test release.
+        </p>
+      </description>
+    </release>
 
     <release version="0.1" date="2024-02-04">
       <description>
