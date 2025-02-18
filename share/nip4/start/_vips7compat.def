@@ -383,6 +383,10 @@ im_histspec in ref
 	b = im_histeq ref;
 }
 
+im_hist_indexed value index
+	= vips_call9 "hist_find_indexed" [index, value] [
+	];
+
 im_spcor in1 in2
 	= vips_call9 "spcor" [in1, in2] [
 	];

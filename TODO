@@ -1,6 +1,7 @@
 - get `test/test_all.sh` working
 
-	need to run the driver script from meson
+	big_and_small works but gives different numbers to nip2 for
+	coordinates of small blobs
 
 - try to save and restore image view scale and position
 
