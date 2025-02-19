@@ -301,7 +301,8 @@ app_open(GApplication *app, GFile **files, int n_files, const char *hint)
 				error_alert(NULL);
 		}
 
-		if (wsg) {
+		if (wsg &&
+			main_option_print_main) {
 			Workspace *ws = workspacegroup_get_workspace(wsg);
 			Symbol *sym = compile_lookup(ws->sym->expr->compile, "main");
 

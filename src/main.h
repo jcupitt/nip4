@@ -29,12 +29,13 @@ extern Symbol *main_symbol_root;			/* Root of symtable */
 extern Watchgroup *main_watchgroup;			/* All of the watches */
 extern Imageinfogroup *main_imageinfogroup; /* All of the images */
 
-extern void *main_c_stack_base; /* Base of C stack */
+extern void *main_c_stack_base;				/* Base of C stack */
 
-extern gboolean main_starting; /* In startup */
+extern gboolean main_starting;				/* In startup */
 
-extern gboolean main_option_time_save; /* Time save image ops */
-extern gboolean main_option_profile;   /* Profile calcualtion */
-extern gboolean main_option_i18n;	   /* Output i18n strings */
-extern gboolean main_option_batch;	   /* Running in batch mode */
-extern gboolean main_option_verbose;   /* Verbose output */
+extern gboolean main_option_time_save;		/* Time save image ops */
+extern gboolean main_option_profile;		/* Profile calcualtion */
+extern gboolean main_option_i18n;			/* Output i18n strings */
+extern gboolean main_option_batch;			/* Running in batch mode */
+extern gboolean main_option_verbose;		/* Verbose output */
+extern gboolean main_option_print_main;		/* Print value of "main" on exit */

@@ -60,7 +60,7 @@ gboolean main_option_time_save = FALSE;
 gboolean main_option_profile = FALSE;
 gboolean main_option_i18n = FALSE;
 gboolean main_option_verbose = FALSE;
-static gboolean main_option_print_main = FALSE;
+gboolean main_option_print_main = FALSE;
 static gboolean main_option_version = FALSE;
 static gboolean main_option_test = FALSE;
 static char *main_option_prefix = NULL;
@@ -202,8 +202,7 @@ main_print_main(Symbol *sym)
     }
 	 */
 
-    if (main_option_print_main)
-        graph_value(root);
+	graph_value(root);
 }
 
 /* Make sure a savedir exists. Used to build the "~/.nip2-xx/tmp" etc.

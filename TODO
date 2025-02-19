@@ -1,3 +1,8 @@
+- fix --test
+
+	test_snip.def is failing
+
+	need def load in batch mode
 
 - try to save and restore image view scale and position
 
