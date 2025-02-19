@@ -251,17 +251,36 @@ image2matrix(VipsImage *in, double **values, int *width, int *height)
 		return -1;
 	}
 
-	VipsImage *t;
-	if (vips_cast(in, &t, VIPS_FORMAT_DOUBLE, NULL))
+	VipsImage *x;
+	VipsObject *context = VIPS_OBJECT(vips_image_new());
+	VipsImage **t = (VipsImage **) vips_object_local_array(context, 5);
+
+	if (vips_cast(in, &t[0], VIPS_FORMAT_DOUBLE, NULL)) {
+		VIPS_UNREF(context);
 		return -1;
+	}
+	x = t[0];
+
+	// if we are turning bands into y, we must transpose
+	if (x->Ysize == 1 &&
+		x->Bands > 1) {
+		if (vips_rot90(x, &t[1], NULL) ||
+			vips_bandunfold(t[1], &t[2], NULL) ||
+			vips_flip(t[2], &t[3], VIPS_DIRECTION_HORIZONTAL, NULL) ||
+			vips_rot270(t[3], &t[4], NULL)) {
+			VIPS_UNREF(context);
+			return -1;
+		}
+		x = t[4];
+	}
 
 	void *mem;
 	size_t size;
-	if (!(mem = vips_image_write_to_memory(t, &size))) {
-		VIPS_UNREF(t);
+	if (!(mem = vips_image_write_to_memory(x, &size))) {
+		VIPS_UNREF(context);
 		return -1;
 	}
-	VIPS_UNREF(t);
+	VIPS_UNREF(context);
 
 	*values = (double *) mem;
 
