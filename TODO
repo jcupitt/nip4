@@ -4,6 +4,10 @@
 
 	need def load in batch mode
 
+	runs
+
+		nip4 --test test_snip.def
+
 - try to save and restore image view scale and position
 
 	this failed last time I tried :(
