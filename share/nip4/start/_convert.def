@@ -131,7 +131,7 @@ to_colour x
 		= error (_ "bad arguments to " ++ "to_colour")
 	{
 		x'
-			= x, Image_type.colour_spaces.has_name (get_type x)
+			= x, Image_type.colour_spaces.has_thing (get_type x)
 			= colour_transform_to Image_type.sRGB x;
 		x''
 			= extract_bands 0 3 x', get_bands x' > 3
@@ -139,7 +139,7 @@ to_colour x
 	}
 
 	colour_space type
-		= table.get_name type, table.has_name type
+		= table.get_name type, table.has_thing type
 		= error (_ "unable to make Colour from " ++ table.get_name type ++
 			_ " image")
 	{
