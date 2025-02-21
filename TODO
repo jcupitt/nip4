@@ -1,12 +1,6 @@
-- fix --test
+- open test.ws, edit defs, "main = 12;", process, ws is not marked as modified
 
-	test_snip.def is failing
-
-	need def load in batch mode
-
-	runs
-
-		nip4 --test test_snip.def
+- check all batch mode flags
 
 - try to save and restore image view scale and position
 

@@ -2511,13 +2511,13 @@ get_savedir(void)
 	 */
 	return "$HOME/Library/" PACKAGE "-" VERSION;
 
-#else
+#else /**nix*/
 
 	/* *nix-style system .. .dot file in home area.
 	 */
 	return "$HOME/." PACKAGE "-" VERSION;
 
-#endif /*G_OS_WIN32*/
+#endif
 }
 
 /* Turn an slist into a null-terminated array.

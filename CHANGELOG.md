@@ -6,6 +6,7 @@
 - support `ninja test`
 - fix bands -> height image to matrix conversion
 - fix `to_colour`
+- add `nip4-batch` batch mode interface
 
 ## 9.0.0-10 29025/02/18
 

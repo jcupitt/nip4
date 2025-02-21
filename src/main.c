@@ -1,4 +1,4 @@
-// C startup
+// common C startup shared by gui and batch executables
 
 /*
 
@@ -28,9 +28,6 @@
 
 #include "nip4.h"
 
-static char prefix_buffer[VIPS_PATH_MAX];
-static gboolean prefix_valid = FALSE;
-
 /* General stuff.
  */
 Workspaceroot *main_workspaceroot = NULL;	/* All the workspaces */
@@ -41,82 +38,23 @@ Imageinfogroup *main_imageinfogroup = NULL; /* All of the images */
 
 void *main_c_stack_base = NULL; /* Base of C stack */
 
-gboolean main_starting = TRUE; /* In startup */
-
-static const char *main_argv0 = NULL; /* argv[0] */
-static iOpenFile *main_stdin = NULL;  /* stdin as an iOpenFile */
-
-static char *main_option_script = NULL;
-static char *main_option_expression = NULL;
+/* Other parts of nip4 need these to link, but we don't use them here ... see
+ * main-batch.c
+ */
+gboolean main_option_i18n = FALSE;
 gboolean main_option_batch = FALSE;
-static gboolean main_option_no_load_menus = FALSE;
-static gboolean main_option_no_load_args = FALSE;
-static gboolean main_option_stdin_ws = FALSE;
-static gboolean main_option_stdin_def = FALSE;
-static char *main_option_output = NULL;
-static char **main_option_set = NULL;
-static gboolean main_option_benchmark = FALSE;
 gboolean main_option_time_save = FALSE;
 gboolean main_option_profile = FALSE;
-gboolean main_option_i18n = FALSE;
-gboolean main_option_verbose = FALSE;
-gboolean main_option_print_main = FALSE;
-static gboolean main_option_version = FALSE;
-static gboolean main_option_test = FALSE;
-static char *main_option_prefix = NULL;
+gboolean main_option_no_load_menus = FALSE;
 
-static GOptionEntry main_option[] = {
-	{ "expression", 'e', 0, G_OPTION_ARG_STRING, &main_option_expression,
-		N_("evaluate and print EXPRESSION"),
-		"EXPRESSION" },
-	{ "script", 's', 0, G_OPTION_ARG_FILENAME, &main_option_script,
-		N_("load FILE as a set of definitions"),
-		"FILE" },
-	{ "output", 'o', 0, G_OPTION_ARG_FILENAME, &main_option_output,
-		N_("write value of 'main' to FILE"), "FILE" },
-	{ "batch", 'b', 0, G_OPTION_ARG_NONE, &main_option_batch,
-		N_("run in batch mode"), NULL },
-	{ "set", '=', 0, G_OPTION_ARG_STRING_ARRAY, &main_option_set,
-		N_("set values"), NULL },
-	{ "verbose", 'V', 0, G_OPTION_ARG_NONE, &main_option_verbose,
-		N_("verbose error output"), NULL },
-	{ "no-load-menus", 'm', 0, G_OPTION_ARG_NONE,
-		&main_option_no_load_menus,
-		N_("don't load menu definitions"), NULL },
-	{ "no-load-args", 'a', 0, G_OPTION_ARG_NONE, &main_option_no_load_args,
-		N_("don't try to load command-line arguments"), NULL },
-	{ "stdin-ws", 'w', 0, G_OPTION_ARG_NONE, &main_option_stdin_ws,
-		N_("load stdin as a workspace"), NULL },
-	{ "stdin-def", 'd', 0, G_OPTION_ARG_NONE, &main_option_stdin_def,
-		N_("load stdin as a set of definitions"), NULL },
-	{ "print-main", 'p', 0, G_OPTION_ARG_NONE, &main_option_print_main,
-		N_("print value of 'main' to stdout"),
-		NULL },
-	{ "benchmark", 'c', 0, G_OPTION_ARG_NONE, &main_option_benchmark,
-		N_("start up and shut down"),
-		NULL },
-	{ "time-save", 't', 0, G_OPTION_ARG_NONE, &main_option_time_save,
-		N_("time image save operations"),
-		NULL },
-	{ "profile", 'r', 0, G_OPTION_ARG_NONE, &main_option_profile,
-		N_("profile workspace calculation"),
-		NULL },
-	{ "prefix", 'x', 0, G_OPTION_ARG_FILENAME, &main_option_prefix,
-		N_("start as if installed to PREFIX"), "PREFIX" },
-	{ "i18n", 'i', 0, G_OPTION_ARG_NONE, &main_option_i18n,
-		N_("output strings for internationalisation"),
-		NULL },
-	{ "version", 'v', 0, G_OPTION_ARG_NONE, &main_option_version,
-		N_("print version number"),
-		NULL },
-	{ "test", 'T', 0, G_OPTION_ARG_NONE, &main_option_test,
-		N_("test for errors and quit"), NULL },
-	{ NULL }
-};
+static const char *main_argv0 = NULL; /* argv[0] */
+
+static char prefix_buffer[VIPS_PATH_MAX];
+static gboolean prefix_valid = FALSE;
 
 /* Override the install guess from vips. Handy for testing.
  */
-static void
+void
 set_prefix(const char *prefix)
 {
 	g_strlcpy(prefix_buffer, prefix, VIPS_PATH_MAX);
@@ -147,64 +85,6 @@ get_prefix(void)
 	return prefix_buffer;
 }
 
-/* Print all errors and quit. Batch mode only.
- */
-static void
-main_error_exit(const char *fmt, ...)
-{
-    va_list args;
-
-	va_start(args, fmt);
-	(void) vfprintf(stderr, fmt, args);
-	va_end(args);
-    fprintf(stderr, "\n");
-
-    if (!g_str_equal(error_get_top(), "")) {
-        fprintf(stderr, "%s\n", error_get_top());
-        if (!g_str_equal(error_get_sub(), ""))
-            fprintf(stderr, "%s\n", error_get_sub());
-    }
-
-    if (main_option_verbose) {
-        char txt[MAX_STRSIZE];
-        VipsBuf buf = VIPS_BUF_STATIC(txt);
-
-        slist_map(expr_error_all,
-            (SListMapFn) expr_error_print, &buf);
-        fprintf(stderr, "%s", vips_buf_all(&buf));
-    }
-
-    exit(1);
-}
-
-/* Output a single main.
- */
-void
-main_print_main(Symbol *sym)
-{
-    PElement *root;
-
-	/* Strict reduction of this object, then print.
-	 */
-    root = &sym->expr->root;
-    if (!symbol_recalculate_check(sym) ||
-        !reduce_pelement(reduce_context, reduce_spine_strict, root))
-        main_error_exit(_( "error calculating \"%s\""), symbol_name_scope(sym));
-
-	/* FIXME ... need Group for this
-    if (main_option_output) {
-        char filename[VIPS_PATH_MAX];
-
-        g_strlcpy(filename, main_option_output, VIPS_PATH_MAX);
-        if (!group_save_item(root, filename))
-            main_error_exit(_( "error saving \"%s\""),
-                symbol_name_scope(sym));
-    }
-	 */
-
-	graph_value(root);
-}
-
 /* Make sure a savedir exists. Used to build the "~/.nip2-xx/tmp" etc.
  * directory tree.
  */
@@ -220,13 +100,12 @@ main_mkdir(const char *dir)
 static void *
 main_load_def(const char *filename)
 {
-	g_autofree char *dirname = g_path_get_dirname(filename);
+	g_autofree char *basename = g_path_get_basename(filename);
 
-	Toolkit *kit;
-
+	// in batch mode we often don't load menus
 	if (!main_option_no_load_menus ||
-		dirname[0] == '_') {
-		progress_update_loading(0, dirname);
+		basename[0] == '_' ) {
+		Toolkit *kit;
 
 		if (!(kit = toolkit_new_from_file(main_toolkitgroup, filename)))
 			error_alert(NULL);
@@ -240,11 +119,7 @@ main_load_def(const char *filename)
 static void *
 main_load_wsg(const char *filename)
 {
-	g_autofree char *dirname = g_path_get_dirname(filename);
-
 	Workspacegroup *wsg;
-
-	progress_update_loading(0, dirname);
 
 	if (!(wsg = workspacegroup_new_from_file(main_workspaceroot,
 			  filename, filename)))
@@ -267,12 +142,11 @@ main_log_null(const char *log_domain, GLogLevelFlags log_level,
 #endif /*G_OS_WIN32*/
 #endif /*!DEBUG_FATAL*/
 
-int
-main(int argc, char **argv)
+/* Common startup, shared between gui and batch modes.
+ */
+void
+main_startup(int argc, char **argv)
 {
-	App *app;
-	int status;
-
 	main_argv0 = argv[0];
 	if (VIPS_INIT(argv[0]))
 		vips_error_exit("unable to start libvips");
@@ -280,59 +154,6 @@ main(int argc, char **argv)
 #ifdef DEBUG
 	vips_leak_set(TRUE);
 #endif /*DEBUG*/
-
-	/* Set localised application name.
-	 */
-	g_set_application_name(_(PACKAGE));
-
-	/* On Windows, argv is ascii-only .. use this to get a utf-8 version of
-	 * the args.
-	 */
-#ifdef G_OS_WIN32
-	argv = g_win32_get_command_line();
-#endif /*G_OS_WIN32*/
-
-	GOptionContext *context =
-		g_option_context_new(_("- image processing spreadsheet"));
-	GOptionGroup *main_group = g_option_group_new(NULL, NULL, NULL, NULL, NULL);
-	g_option_group_add_entries(main_group, main_option);
-	vips_add_option_entries(main_group);
-	g_option_group_set_translation_domain(main_group, GETTEXT_PACKAGE);
-	g_option_context_set_main_group(context, main_group);
-
-	GError *error = NULL;
-#ifdef G_OS_WIN32
-	if (!g_option_context_parse_strv(context, &argv, &error))
-#else  /*!G_OS_WIN32*/
-	if (!g_option_context_parse(context, &argc, &argv, &error))
-#endif /*G_OS_WIN32*/
-	{
-		if (error) {
-			fprintf(stderr, "%s\n", error->message);
-			g_error_free(error);
-		}
-
-		vips_error_exit("try \"%s --help\"", g_get_prgname());
-	}
-
-	g_option_context_free(context);
-
-	/* Override the install guess from vips. This won't pick up msg
-	 * cats sadly :( since we have to init i18n before arg parsing. Handy
-	 * for testing without installing.
-	 */
-	if (main_option_prefix)
-		set_prefix(main_option_prefix);
-
-	if (main_option_version) {
-		printf("%s-%s", PACKAGE, VERSION);
-		printf("\n");
-
-		printf(_("linked to vips-%s"), vips_version_string());
-		printf("\n");
-
-		exit(0);
-	}
 
 #ifdef DEBUG_FATAL
 	/* Set masks for debugging ... stop on any problem.
@@ -447,15 +268,7 @@ main(int argc, char **argv)
 		g_warning(_("unable to read max file descriptors"));
 #endif /*HAVE_GETRLIMIT*/
 
-	main_stdin = ifile_open_read_stdin();
-
 	path_init();
-
-	/* First time we've been run? Welcome message.
-	 */
-	gboolean welcome = FALSE;
-	if (!existsf("%s", get_savedir()))
-		welcome = TRUE;
 
 	/* Always make these in case some get deleted.
 	 */
@@ -477,41 +290,6 @@ main(int argc, char **argv)
 
 	main_imageinfogroup = imageinfogroup_new();
 	iobject_ref_sink(IOBJECT(main_imageinfogroup));
-
-    /* First pass at command-line options. Just look at the flags that
-     * imply other flags, don't do any processing yet.
-     */
-    if (main_option_script) {
-        main_option_batch = TRUE;
-        main_option_no_load_menus = TRUE;
-        main_option_no_load_args = TRUE;
-        main_option_print_main = TRUE;
-    }
-
-    if (main_option_test) {
-        main_option_batch = TRUE;
-        main_option_verbose = TRUE;
-    }
-
-    if (main_option_expression) {
-        main_option_batch = TRUE;
-        main_option_no_load_menus = TRUE;
-        main_option_no_load_args = TRUE;
-        main_option_print_main = TRUE;
-    }
-
-    if (main_option_benchmark) {
-        main_option_batch = TRUE;
-        main_option_no_load_menus = FALSE;
-    }
-
-    if (main_option_i18n) {
-        /* Just start up and shutdown, no display. Output constant
-         * i18n strings.
-         */
-        main_option_batch = TRUE;
-        main_option_no_load_menus = FALSE;
-    }
 
 	/* Add builtin toolkit.
 	 */
@@ -551,7 +329,7 @@ main(int argc, char **argv)
 	(void) g_type_class_ref(TOGGLE_TYPE);
 	(void) g_type_class_ref(WORKSPACE_TYPE);
 
-	/* Load up all defs and wses.
+	/* Load up all start defs and wses.
 	 */
 #ifdef DEBUG
 	printf("definitions init\n");
@@ -596,19 +374,11 @@ main(int argc, char **argv)
 	vips_cache_set_max(10000);
 	vips_cache_set_max_mem(1000 * 1024 * 1024);
 	vips_cache_set_max_files(1000);
+}
 
-	app = app_new(welcome);
-
-	status = g_application_run(G_APPLICATION(app), argc, argv);
-
-	if (main_option_test) {
-        /* Make sure we've had at least one recomp on everything.
-         */
-        symbol_recalculate_all_force(TRUE);
-        if (expr_error_all)
-            main_error_exit("--test: errors found");
-    }
-
+void
+main_shutdown(void)
+{
 	/* Junk all symbols. This may remove a bunch of intermediate images
 	 * too.
 	 */
@@ -634,6 +404,4 @@ main(int argc, char **argv)
 	managed_check_all_destroyed();
 	util_check_all_destroyed();
 	view_dump();
-
-	return status;
 }

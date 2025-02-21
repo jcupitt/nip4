@@ -170,9 +170,25 @@ executable('nip4', [
     parse_c,
     lex_c,
     sources,
+    'main-gui.c',
   ],
   dependencies: nip4_deps,
   link_with: kplot_lib,
   win_subsystem: 'windows',
+  install: true,
+)
+
+executable('nip4-batch', [
+    enumtypes,
+    marshal,
+    resources,
+    parse_c,
+    lex_c,
+    sources,
+    'main-batch.c',
+  ],
+  dependencies: nip4_deps,
+  link_with: kplot_lib,
+  win_subsystem: 'console',
   install: true,
 )

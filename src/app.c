@@ -98,12 +98,10 @@ app_init(App *app)
 static void
 app_activate(GApplication *gapp)
 {
-	if (!main_option_batch) {
-		Mainwindow *main;
+	Mainwindow *main;
 
-		main = mainwindow_new(APP(gapp), NULL);
-		gtk_window_present(GTK_WINDOW(main));
-	}
+	main = mainwindow_new(APP(gapp), NULL);
+	gtk_window_present(GTK_WINDOW(main));
 }
 
 static void *
@@ -288,40 +286,16 @@ app_open(GApplication *app, GFile **files, int n_files, const char *hint)
 	printf("app_open:\n");
 #endif /*DEBUG*/
 
-	if (main_option_batch) {
-		Workspacegroup *wsg;
+	Mainwindow *main = mainwindow_new(APP(app), NULL);
 
-		wsg = NULL;
-		for (int i = 0; i < n_files; i++) {
-			g_autofree char *filename = g_file_get_path(files[i]);
+	gtk_window_present(GTK_WINDOW(main));
 
-			wsg = workspacegroup_new_from_file(main_workspaceroot,
-				filename, filename);
-			if (!wsg)
-				error_alert(NULL);
-		}
+	for (int i = 0; i < n_files; i++)
+		mainwindow_open(main, files[i]);
 
-		if (wsg &&
-			main_option_print_main) {
-			Workspace *ws = workspacegroup_get_workspace(wsg);
-			Symbol *sym = compile_lookup(ws->sym->expr->compile, "main");
-
-			if (sym)
-				main_print_main(sym);
-		}
-	}
-	else {
-		Mainwindow *main = mainwindow_new(APP(app), NULL);
-
-		gtk_window_present(GTK_WINDOW(main));
-
-		for (int i = 0; i < n_files; i++)
-			mainwindow_open(main, files[i]);
-
-		if (n_files > 0 &&
-			mainwindow_is_empty(main))
-			gtk_window_destroy(GTK_WINDOW(main));
-	}
+	if (n_files > 0 &&
+		mainwindow_is_empty(main))
+		gtk_window_destroy(GTK_WINDOW(main));
 }
 
 static void
