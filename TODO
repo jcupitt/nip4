@@ -1,14 +1,4 @@
-- expect:
-
-        $ nip2 --test test_snip.def
-        $ echo $?
-        0
-        $ nip2 --test test_snip.def --print-main
-        all tests pass
-
 - open test.ws, edit defs, "main = 12;", process, ws is not marked as modified
-
-- need to find and print "main" after all files have been loaded
 
 - use main_log_add() consistently, print on exit
 

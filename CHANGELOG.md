@@ -7,6 +7,7 @@
 - fix bands -> height image to matrix conversion
 - fix `to_colour`
 - add `nip4-batch` batch mode interface
+- fix tests
 
 ## 9.0.0-10 29025/02/18
 
