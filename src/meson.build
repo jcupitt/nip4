@@ -163,7 +163,7 @@ enumtypes = gnome.mkenums(
   c_template: 'enumtypes.c.in',
 )
 
-executable('nip4', [
+nip4 = executable('nip4', [
     enumtypes,
     marshal,
     resources,
@@ -178,7 +178,7 @@ executable('nip4', [
   install: true,
 )
 
-executable('nip4-batch', [
+nip4_batch = executable('nip4-batch', [
     enumtypes,
     marshal,
     resources,
