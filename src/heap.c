@@ -2648,11 +2648,8 @@ graph_value(PElement *root)
 {
 	Reduce *rc = reduce_context;
 
-	if (!reduce_pelement(rc, reduce_spine_strict, root)) {
-		printf("graph_value: iwindow_alert FIXME\n");
-		// iwindow_alert(NULL, GTK_MESSAGE_ERROR);
-		return;
-	}
+	if (!reduce_pelement(rc, reduce_spine_strict, root))
+		error_alert(NULL);
 
 	heap_clear(reduce_context->heap, FLAG_PRINT);
 	shell_pelement(root);

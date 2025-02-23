@@ -4,7 +4,7 @@
 
 . ./variables.sh
 
-nip4="$top_builddir/src/nip4 --prefix=$top_srcdir"
+nip4="$top_builddir/src/nip4-batch --test --prefix=$top_srcdir"
 
 main_result=0
 

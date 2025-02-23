@@ -100,18 +100,12 @@ main_mkdir(const char *dir)
 static void *
 main_load_def(const char *filename)
 {
-	g_autofree char *basename = g_path_get_basename(filename);
+	Toolkit *kit;
 
-	// in batch mode we often don't load menus
-	if (!main_option_no_load_menus ||
-		basename[0] == '_' ) {
-		Toolkit *kit;
-
-		if (!(kit = toolkit_new_from_file(main_toolkitgroup, filename)))
-			error_alert(NULL);
-		else
-			filemodel_set_auto_load(FILEMODEL(kit));
-	}
+	if (!(kit = toolkit_new_from_file(main_toolkitgroup, filename)))
+		error_alert(NULL);
+	else
+		filemodel_set_auto_load(FILEMODEL(kit));
 
 	return NULL;
 }

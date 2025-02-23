@@ -30,7 +30,7 @@ test_unary op_name fn
 	// image == number can fail due to rounding differences
 	test fname ifmt nfmt x
 		= true, abs (image - number) < 0.001
-		= error (join_sep " " (map print 
+		= error (join_sep " " (map print
 			["unary", fname, op_name, x, "==", image, number]))
 	{
 		image = (to_real @ fn @ ifmt @ to_image) x;
@@ -40,13 +40,13 @@ test_unary op_name fn
 
 test_binary op_name fn
 	= foldr1 logical_and
-		[test fname ifmt nfmt x y :: 
+		[test fname ifmt nfmt x y ::
 			[fname, ifmt, nfmt] <- fmts; x <- numbers; y <- numbers]
 {
 	// image == number can fail due to rounding differences
 	test fname ifmt nfmt x y
 		= true, abs (image - number) < 0.001
-		= error (join_sep " " (map print 
+		= error (join_sep " " (map print
 			["binary", fname, x, op_name, y, "==", image, number]))
 	{
 		image = to_real (fn ((ifmt @ to_image) x) ((ifmt @ to_image) y));
@@ -78,12 +78,11 @@ tests = [
 		= divide a b;
 }
 
-main 
+main
 	= "all tests pass", fail == []
 	= "failed: " ++ join_sep ", " (map print fail_numbers)
 {
 	numbered = zip2 tests [1..];
 	fail = filter (not @ extract 0) numbered;
-	fail_numbers = map (extract 1) failed;
+	fail_numbers = map (extract 1) fail;
 }
-
