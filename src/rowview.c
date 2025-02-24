@@ -279,7 +279,7 @@ rowview_edit(Rowview *rview)
 }
 
 static void
-rowview_click(GtkGestureClick *gesture,
+rowview_pressed(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
@@ -324,9 +324,8 @@ rowview_down_click(GtkGestureClick *gesture, Rowview *rview)
 	workspace_set_modified(row->ws, TRUE);
 }
 
-/*
 static void
-rowview_enter_cb(GtkWidget *widget, Rowview *rview)
+rowview_enter(GtkWidget *widget, Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
 
@@ -334,13 +333,14 @@ rowview_enter_cb(GtkWidget *widget, Rowview *rview)
 }
 
 static void
-rowview_leave_cb(GtkWidget *widget, Rowview *rview)
+rowview_leave(GtkWidget *widget, Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
 
 	row_hide_dependents(row);
 }
 
+/*
 static gboolean
 rowview_focus_cb(GtkWidget *widget, GtkDirectionType dir, Rowview *rview)
 {
@@ -494,13 +494,15 @@ rowview_class_init(RowviewClass *class)
 	BIND_RESOURCE("rowview.ui");
 	BIND_LAYOUT();
 
-	BIND_CALLBACK(rowview_click);
-	BIND_CALLBACK(rowview_up_click);
-	BIND_CALLBACK(rowview_down_click);
-
 	BIND_VARIABLE(Rowview, spin);
 	BIND_VARIABLE(Rowview, frame);
 	BIND_VARIABLE(Rowview, label);
+
+	BIND_CALLBACK(rowview_pressed);
+	BIND_CALLBACK(rowview_up_click);
+	BIND_CALLBACK(rowview_down_click);
+	BIND_CALLBACK(rowview_enter);
+	BIND_CALLBACK(rowview_leave);
 
 	/* Create signals.
 	 */

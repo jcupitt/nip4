@@ -1,5 +1,3 @@
-- add row label colour change for parent/child relationships
-
 - open test.ws, edit defs, "main = 12;", process, ws is not marked as modified
 
 - check all batch mode flags

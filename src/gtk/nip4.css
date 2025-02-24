@@ -2,6 +2,14 @@
   background-color: #5D7555;
 }
 
+.parent_widget {
+  background-color: #1F4151;
+}
+
+.child_widget {
+  background-color: #421F51;
+}
+
 .selected_widget {
   background-color: #83A67F;
 }

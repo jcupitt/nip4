@@ -30,7 +30,14 @@
         <child>
           <object class="GtkGestureClick">
             <property name="button">1</property>
-            <signal name="pressed" handler="rowview_click"/>
+            <signal name="pressed" handler="rowview_pressed"/>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkEventControllerMotion">
+            <signal name="enter" handler="rowview_enter"/>
+            <signal name="leave" handler="rowview_leave"/>
           </object>
         </child>
 

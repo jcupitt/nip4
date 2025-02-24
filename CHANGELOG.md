@@ -9,6 +9,7 @@
 - add `nip4-batch` batch mode interface
 - fix tests
 - remove ^C/^V in mainwindow
+- show parent/child row relationships on hover
 
 ## 9.0.0-10 29025/02/18
 

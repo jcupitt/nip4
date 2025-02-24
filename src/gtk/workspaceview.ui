@@ -94,7 +94,7 @@
                     <child>
                       <object class="GtkGestureClick">
                         <property name="button">1</property>
-                        <signal name="pressed" handler="workspaceview_click"/>
+                        <signal name="pressed" handler="workspaceview_pressed"/>
                       </object>
                     </child>
 

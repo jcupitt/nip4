@@ -862,7 +862,7 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 }
 
 static void
-workspaceview_click(GtkGestureClick *gesture,
+workspaceview_pressed(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Workspaceview *wview)
 {
 	Columnview *cview = workspaceview_find_columnview(wview, x, y);
@@ -1264,7 +1264,7 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_VARIABLE(Workspaceview, fixed);
 	BIND_VARIABLE(Workspaceview, workspacedefs);
 
-	BIND_CALLBACK(workspaceview_click);
+	BIND_CALLBACK(workspaceview_pressed);
 	BIND_CALLBACK(workspaceview_drag_begin);
 	BIND_CALLBACK(workspaceview_drag_update);
 	BIND_CALLBACK(workspaceview_drag_end);
