@@ -34,7 +34,7 @@ static gboolean main_option_test = FALSE;
 static char *main_option_prefix = NULL;
 static gboolean main_option_version = FALSE;
 
-static iOpenFile *main_stdin = NULL;
+//static iOpenFile *main_stdin = NULL;
 static char *main_option_script = NULL;
 static char *main_option_expression = NULL;
 static gboolean main_option_stdin_ws = FALSE;
@@ -54,12 +54,11 @@ static GOptionEntry main_batch_options[] = {
     { "version", 'v', 0, G_OPTION_ARG_NONE, &main_option_version,
         N_("print version number"), NULL },
 
+	// these options need testing and fixing
     { "expression", 'e', 0, G_OPTION_ARG_STRING, &main_option_expression,
-        N_("evaluate and print EXPRESSION"),
-        "EXPRESSION" },
+        N_("evaluate and print EXPRESSION"), "EXPRESSION" },
     { "script", 's', 0, G_OPTION_ARG_FILENAME, &main_option_script,
-        N_("load FILE as a set of definitions"),
-        "FILE" },
+        N_("load FILE as a set of definitions"), "FILE" },
     { "set", '=', 0, G_OPTION_ARG_STRING_ARRAY, &main_option_set,
         N_("set values"), NULL },
     { "verbose", 'V', 0, G_OPTION_ARG_NONE, &main_option_verbose,
@@ -69,8 +68,7 @@ static GOptionEntry main_batch_options[] = {
     { "stdin-def", 'd', 0, G_OPTION_ARG_NONE, &main_option_stdin_def,
         N_("load stdin as a set of definitions"), NULL },
     { "i18n", 'i', 0, G_OPTION_ARG_NONE, &main_option_i18n,
-        N_("output strings for internationalisation"),
-        NULL },
+        N_("output strings for internationalisation"), NULL },
     { NULL }
 };
 
@@ -125,6 +123,9 @@ main_error_exit(const char *fmt, ...)
 
         slist_map(expr_error_all, (SListMapFn) expr_error_print, &buf);
         fprintf(stderr, "%s", vips_buf_all(&buf));
+
+		if (!main_log_is_empty())
+			fprintf(stderr, "%s", main_log_get());
     }
 
     exit(1);

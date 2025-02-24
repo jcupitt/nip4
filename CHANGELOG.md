@@ -8,6 +8,7 @@
 - fix `to_colour`
 - add `nip4-batch` batch mode interface
 - fix tests
+- remove ^C/^V in mainwindow
 
 ## 9.0.0-10 29025/02/18
 

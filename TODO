@@ -1,6 +1,6 @@
-- open test.ws, edit defs, "main = 12;", process, ws is not marked as modified
+- add row label colour change for parent/child relationships
 
-- use main_log_add() consistently, print on exit
+- open test.ws, edit defs, "main = 12;", process, ws is not marked as modified
 
 - check all batch mode flags
 
@@ -11,9 +11,6 @@
 - ^C on a computed animated GIF is only copying the first page
 
 	a limitation of gdk_texture_new_from_bytes()
-
-- ^C / ^V copy-paste in mainwindow & program window is very annoying ...
-  only add shortcuts in imagewindow
 
 - use "propagate-natural-width" to get better fit of imageview window?
 

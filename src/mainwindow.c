@@ -160,35 +160,6 @@ mainwindow_dispose(GObject *object)
 	G_OBJECT_CLASS(mainwindow_parent_class)->dispose(object);
 }
 
-static void
-mainwindow_copy_action(GSimpleAction *action,
-	GVariant *parameter, gpointer user_data)
-{
-	printf("mainwindow_copy_action: FIXME\n");
-
-	/*
-		Mainwindow *main = MAINWINDOW(user_data);
-
-		GdkClipboard *clipboard = gtk_widget_get_clipboard(GTK_WIDGET(win));
-		g_autoptr(GFile) file = tilesource_get_file(tilesource);
-
-		VipsImage *image;
-
-		if (file)
-			gdk_clipboard_set(clipboard, G_TYPE_FILE, file);
-		else if ((image = tilesource_get_base_image(tilesource))) {
-			g_autoptr(GdkTexture) texture = texture_new_from_image(image);
-
-			if (texture)
-				gdk_clipboard_set(clipboard, GDK_TYPE_TEXTURE, texture);
-			else
-				imagewindow_error(win);
-		}
-	}
-
-	 */
-}
-
 static gboolean
 mainwindow_open_workspace(Mainwindow *main, const char *filename)
 {
@@ -236,82 +207,13 @@ mainwindow_load_path(Mainwindow *main, const char *path)
 	return TRUE;
 }
 
+// used byworkspacegroupview.c for filename drop
 gboolean
 mainwindow_paste_filename(const char *filename, void *user_data)
 {
-	return mainwindow_load_path(MAINWINDOW(user_data), filename);
-}
-
-static void
-mainwindow_paste_action_ready(GObject *source_object,
-	GAsyncResult *res, gpointer user_data)
-{
-	GdkClipboard *clipboard = GDK_CLIPBOARD(source_object);
 	Mainwindow *main = MAINWINDOW(user_data);
 
-	const GValue *value;
-	GError *error = NULL;
-	value = gdk_clipboard_read_value_finish(clipboard, res, &error);
-	if (error) {
-		error_top(_("Unable to paste"));
-		error_sub("%s", error->message);
-		g_error_free(error);
-		mainwindow_error(main);
-	}
-	else if (value) {
-		if (!value_to_filename(value, mainwindow_paste_filename, main))
-			mainwindow_error(main);
-		else
-			symbol_recalculate_all();
-	}
-}
-
-/* GTypes we handle in copy/paste and drag/drop paste ... these are in the
- * order we try, so a GFile is preferred to a simple string.
- *
- * gnome file manager pastes as GdkFileList, GFile, gchararray
- * print-screen button pastes as GdkTexture, GdkPixbuf
- *
- * Created in _class_init(), since some of these types are only defined at
- * runtime.
- */
-static GType *mainwindow_supported_types;
-static int mainwindow_n_supported_types;
-
-static void
-mainwindow_paste_action(GSimpleAction *action,
-	GVariant *parameter, gpointer user_data)
-{
-	Mainwindow *main = MAINWINDOW(user_data);
-	GdkClipboard *clipboard = gtk_widget_get_clipboard(GTK_WIDGET(main));
-
-	GdkContentFormats *formats = gdk_clipboard_get_formats(clipboard);
-	gsize n_types;
-	const GType *types = gdk_content_formats_get_gtypes(formats, &n_types);
-
-#ifdef DEBUG
-	printf("clipboard in %lu formats\n", n_types);
-	for (gsize i = 0; i < n_types; i++)
-		printf("%lu - %s\n", i, g_type_name(types[i]));
-#endif /*DEBUG*/
-
-	gboolean handled = FALSE;
-	for (gsize i = 0; i < n_types; i++) {
-		for (int j = 0; j < mainwindow_n_supported_types; j++)
-			if (types[i] == mainwindow_supported_types[j]) {
-				gdk_clipboard_read_value_async(clipboard,
-					mainwindow_supported_types[j],
-					G_PRIORITY_DEFAULT,
-					NULL,
-					mainwindow_paste_action_ready,
-					main);
-				handled = TRUE;
-				break;
-			}
-
-		if (handled)
-			break;
-	}
+	return mainwindow_load_path(main, filename);
 }
 
 static gboolean
@@ -665,8 +567,6 @@ mainwindow_keyboard_duplicate_action(GSimpleAction *action,
 
 static GActionEntry mainwindow_entries[] = {
 	// main window actions
-	{ "copy", mainwindow_copy_action },
-	{ "paste", mainwindow_paste_action },
 
 	{ "open", mainwindow_open_action },
 	{ "merge", mainwindow_merge_action },
@@ -840,19 +740,6 @@ mainwindow_class_init(MainwindowClass *class)
 
 	BIND_CALLBACK(mainwindow_progress_cancel_clicked);
 	BIND_CALLBACK(mainwindow_close_request);
-
-	GType supported_types[] = {
-		GDK_TYPE_FILE_LIST,
-		G_TYPE_FILE,
-		GDK_TYPE_TEXTURE,
-		G_TYPE_STRING,
-	};
-
-	mainwindow_n_supported_types = VIPS_NUMBER(supported_types);
-	mainwindow_supported_types =
-		VIPS_ARRAY(NULL, mainwindow_n_supported_types + 1, GType);
-	for (int i = 0; i < mainwindow_n_supported_types; i++)
-		mainwindow_supported_types[i] = supported_types[i];
 }
 
 static void
