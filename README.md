@@ -15,9 +15,10 @@ can watch pixels change as you adjust your equations.
 Because nip4 uses libvips as the image processing engine, it can handle very
 large images and only needs a little memory. It scales to fairly complex
 workflows: I've used it to develop systems with more than 10,000 cells,
-analyzing images of many tens of gigabytes. It has a batch mode, so you
-can run any image processing system you develop from the command-line and
-without a GUI.
+analyzing images of many tens of gigabytes.
+
+It has a batch mode, so you can run any image processing system you develop
+from the command-line and without a GUI.
 
 [![Screenshot](images/shot1.png)](images/shot1.png)
 
@@ -25,9 +26,66 @@ without a GUI.
 
 https://github.com/user-attachments/assets/6f7bdee1-183c-4554-9701-e0c30e75d58a
 
-## flatpak
+# Installing
 
-Add the `flathub` repo:
+## Windows
+
+There's a zip for each version on the [releases
+page](https://github.com/jcupitt/nip4/releases). Download
+`vips-dev-w64-all-8.16.0-nip4.zip`, unzip somewhere, and run `bin/nip4.exe`.
+
+## macOS
+
+We hope to have a homebrew formula soon.
+
+## Linux-like systems with flatpak
+
+There's a PR to add nip4 to flathub here:
+
+https://github.com/flathub/flathub/pull/6166
+
+Once we get a stable release, nip4 will be added to flathub. You can install
+one of the test releases from that PR with eg.:
+
+```
+flatpak install --user \
+    https://dl.flathub.org/build-repo/165060/org.libvips.nip4.flatpakref
+```
+
+## From source
+
+Download the sources, then build and install with eg.:
+
+```
+cd nip4-x.y.x
+meson setup build --prefix /my/install/prefix
+cd build
+meson compile
+meson test
+meson install
+```
+
+Check the output of `meson setup` carefully.
+
+## From source for Windows
+
+Clone:
+
+https://github.com/libvips/build-win64-mxe
+
+Then see this PR:
+
+https://github.com/libvips/build-win64-mxe/pull/72
+
+Checkout that branch and build with eg.:
+
+```
+./build.sh --with-nip4 all
+```
+
+## Build from source for flathub
+
+Add the `flathub` repo, if you don't already have it:
 
 ```shell
 flatpak remote-add --if-not-exists \

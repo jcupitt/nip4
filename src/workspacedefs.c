@@ -167,6 +167,8 @@ workspacedefs_clicked(GtkWidget *wid, Workspacedefs *workspacedefs)
 		text_view_get_text(GTK_TEXT_VIEW(workspacedefs->text));
 	if (!workspacedefs_set_text(workspacedefs, txt))
 		workspace_set_show_error(workspacedefs->ws, TRUE);
+	else
+		workspace_set_modified(workspacedefs->ws, TRUE);
 }
 
 static void
