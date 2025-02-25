@@ -24,8 +24,8 @@
 /*
 #define DEBUG_VIEWCHILD
 #define DEBUG
- */
 #define DEBUG_LEAK
+ */
 
 /* Time each refresh
 #define DEBUG_TIME
@@ -44,10 +44,10 @@ static GSList *view_resettable = NULL;
 static GSList *all_view_widgets = NULL;
 #endif /*DEBUG_LEAK*/
 
-#ifdef DEBUG_LEAK
 void
 view_dump(void)
 {
+#ifdef DEBUG_LEAK
 	if (all_view_widgets) {
 		printf("view_dump(): %d views\n", g_slist_length(all_view_widgets));
 
@@ -63,8 +63,8 @@ view_dump(void)
 			printf("\n");
 		}
 	}
-}
 #endif /*DEBUG_LEAK*/
+}
 
 void
 view_scannable_register(View *view)
