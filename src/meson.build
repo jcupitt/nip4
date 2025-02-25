@@ -11,12 +11,12 @@ resources = gnome.compile_resources(
 )
 
 # headers for enum scanning
-headers = files (
+headers = files(
   'tilesource.h',
   'tilecache.h',
 )
 
-sources = files (
+sources = files(
   'action.c',
   'app.c',
   'builtin.c',
@@ -178,30 +178,26 @@ enumtypes = gnome.mkenums(
   c_template: 'enumtypes.c.in',
 )
 
-nip4 = executable('nip4', [
-    enumtypes,
-    marshal,
-    resources,
-    parse_c,
-    lex_c,
-    sources,
-    'main-gui.c',
-  ],
+nip4_lib = static_library('nip4',
+  sources: [enumtypes, marshal, resources, parse_c, lex_c, sources],
   dependencies: nip4_deps,
+)
+
+nip4_dep = declare_dependency(
+  dependencies: nip4_deps,
+  link_whole: nip4_lib,
+)
+
+nip4 = executable('nip4',
+  'main-gui.c',
+  dependencies: nip4_dep,
   win_subsystem: 'windows',
   install: true,
 )
 
-nip4_batch = executable('nip4-batch', [
-    enumtypes,
-    marshal,
-    resources,
-    parse_c,
-    lex_c,
-    sources,
-    'main-batch.c',
-  ],
-  dependencies: nip4_deps,
+nip4_batch = executable('nip4-batch',
+  'main-batch.c',
+  dependencies: nip4_dep,
   win_subsystem: 'console',
   install: true,
 )
