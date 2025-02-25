@@ -35,5 +35,10 @@ reallocarray(void *optr, size_t nmemb, size_t size)
 		errno = ENOMEM;
 		return NULL;
 	}
-	return realloc(optr, size * nmemb);
+
+	// some realloc() on some platforms fail with realloc(0)
+	if (optr)
+		return realloc(optr, size * nmemb);
+	else
+		return malloc(size * nmemb);
 }
