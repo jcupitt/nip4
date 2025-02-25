@@ -42,9 +42,9 @@ foreach define: set_defines
   config_h.set_quoted(define[0], define[1])
 endforeach
 
-add_project_arguments('-DHAVE_CONFIG_H', language: 'c')
-# so it can find config.h
-add_project_arguments('-I.', language: 'c')
+# Needed for reallocarray()
+default_source_flag = ['-D_DEFAULT_SOURCE']
+add_project_arguments(default_source_flag, language: 'c')
 
 nip4_deps = [cc.find_library('m')]
 
@@ -56,28 +56,28 @@ config_h.set('MAJOR_VERSION', version_major)
 config_h.set('MINOR_VERSION', version_minor)
 config_h.set('MICRO_VERSION', version_micro)
 
-if cc.has_function('ngettext')
-  config_h.set('ENABLE_NLS', 1)
-  have_bind_textdomain_codeset = cc.has_function('bind_textdomain_codeset')
-else
-  libintl_dep = cc.find_library('intl', required: false)
-  if libintl_dep.found()
-    nip4_deps += libintl_dep
-    config_h.set('ENABLE_NLS', 1)
-    have_bind_textdomain_codeset = cc.has_function('bind_textdomain_codeset', prefix: '#include <libintl.h>', dependencies: libintl_dep)
-  else
-    have_bind_textdomain_codeset = false
-  endif
+libintl_dep = dependency('intl', required: false)
+have_bind_textdomain_codeset = false
+if libintl_dep.found()
+  nip4_deps += libintl_dep
+  config_h.set('ENABLE_NLS', true)
+  have_bind_textdomain_codeset = cc.has_function('bind_textdomain_codeset', prefix: '#include <libintl.h>', dependencies: libintl_dep)
 endif
 config_h.set('HAVE_BIND_TEXTDOMAIN_CODESET', have_bind_textdomain_codeset)
 
 config_h.set('HAVE_SYS_RESOURCE_H', cc.has_header('sys/resource.h'))
 config_h.set('HAVE_GETRLIMIT', cc.has_function('getrlimit'))
-config_h.set('HAVE_REALLOCARRAY', cc.has_function('reallocarray', prefix: '#include <stdlib.h>'))
+config_h.set('HAVE_REALLOCARRAY', cc.has_function('reallocarray', prefix: '#include <stdlib.h>', args: default_source_flag))
 
-configure_file(
+config_file = configure_file(
   output: 'config.h',
   configuration: config_h,
+)
+
+nip4_deps += declare_dependency(
+  sources: config_file,
+  include_directories: include_directories('.'),
+  compile_args: '-DHAVE_CONFIG_H',
 )
 
 # need vips_thread_execute()
