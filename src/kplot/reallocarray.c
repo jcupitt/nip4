@@ -36,9 +36,5 @@ reallocarray(void *optr, size_t nmemb, size_t size)
 		return NULL;
 	}
 
-	// some realloc() on some platforms fail with realloc(0)
-	if (optr)
-		return realloc(optr, size * nmemb);
-	else
-		return malloc(size * nmemb);
+	return realloc(optr, size * nmemb);
 }

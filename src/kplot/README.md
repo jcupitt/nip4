@@ -2,8 +2,7 @@ Copied from:
 
     https://github.com/kristapsdz/kplot
 
-With minimal modifications. That repo hasn't been updated in 8 years, sadly.
-Maybe it'll come alive again.
+With minimal modifications.
 
 
 

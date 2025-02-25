@@ -1,6 +1,3 @@
-# build this first
-subdir('kplot')
-
 marshal = gnome.genmarshal(
   'nip4marshal',
   prefix: 'nip4',
@@ -135,6 +132,24 @@ sources = files (
   'workspaceroot.c',
   'workspaceview.c',
   'workspaceviewlabel.c',
+  'kplot/array.c',
+  'kplot/border.c',
+  'kplot/bucket.c',
+  'kplot/buffer.c',
+  'kplot/colours.c',
+  'kplot/draw.c',
+  'kplot/grid.c',
+  'kplot/hist.c',
+  'kplot/kdata.c',
+  'kplot/kplot.c',
+  'kplot/label.c',
+  'kplot/margin.c',
+  'kplot/mean.c',
+  'kplot/plotctx.c',
+  'kplot/reallocarray.c',
+  'kplot/stddev.c',
+  'kplot/tic.c',
+  'kplot/vector.c',
 )
 
 parse_c = custom_target('parse.c',
@@ -173,7 +188,6 @@ nip4 = executable('nip4', [
     'main-gui.c',
   ],
   dependencies: nip4_deps,
-  link_with: kplot_lib,
   win_subsystem: 'windows',
   install: true,
 )
@@ -188,7 +202,6 @@ nip4_batch = executable('nip4-batch', [
     'main-batch.c',
   ],
   dependencies: nip4_deps,
-  link_with: kplot_lib,
   win_subsystem: 'console',
   install: true,
 )
