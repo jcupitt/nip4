@@ -71,13 +71,9 @@ else
 endif
 config_h.set('HAVE_BIND_TEXTDOMAIN_CODESET', have_bind_textdomain_codeset)
 
-if cc.has_header('sys/resource.h')
-  config_h.set('HAVE_SYS_RESOURCE_H', 1)
-endif
-
-if cc.has_function('getrlimit')
-  config_h.set('HAVE_GETRLIMIT', 1)
-endif
+config_h.set('HAVE_SYS_RESOURCE_H', cc.has_header('sys/resource.h'))
+config_h.set('HAVE_GETRLIMIT', cc.has_function('getrlimit'))
+config_h.set('HAVE_REALLOCARRAY', cc.has_function('reallocarray', prefix: '#include <stdlib.h>'))
 
 configure_file(
   output: 'config.h',
