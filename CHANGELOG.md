@@ -1,5 +1,7 @@
 ## master
 
+- try to fix kplot on win
+
 ## 9.0.1 2025/02/24
 
 - fix Colour display
