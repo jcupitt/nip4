@@ -5,6 +5,8 @@ project('nip4', 'c',
   meson_version: '>=0.64',
   default_options: [
     'c_std=c2x',
+    # do a release (optimised) build by default
+    'buildtype=release',
     # turn off asserts etc. in release mode
     'b_ndebug=if-release'
   ]
