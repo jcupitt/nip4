@@ -156,6 +156,7 @@ app_about_activated(GSimpleAction *action,
 
 	static const char *authors[] = {
 		"jcupitt",
+		"kleisauke",
 		"jpadfield",
 		"angstyloop",
 		"TingPing",
