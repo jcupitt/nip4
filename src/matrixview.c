@@ -205,6 +205,9 @@ matrixview_grid_refresh(Matrixview *matrixview)
 {
 	Matrix *matrix = MATRIX(VOBJECT(matrixview)->iobject);
 
+	Tslider *tslider;
+	const char *label;
+
 	int i;
 	i = 0;
 	for (GSList *p = matrixview->items; p; p = p->next, i++) {
@@ -217,14 +220,13 @@ matrixview_grid_refresh(Matrixview *matrixview)
 			break;
 
 		case MATRIX_DISPLAY_SLIDER:
-			Tslider *tslider = TSLIDER(item);
+			tslider = TSLIDER(item);
 			tslider->value = matrix->value.coeff[i];
 			tslider->svalue = matrix->value.coeff[i];
 			tslider_changed(TSLIDER(item));
 			break;
 
 		case MATRIX_DISPLAY_TOGGLE:
-			const char *label;
 			switch ((int) matrix->value.coeff[i]) {
 			case 0:
 				label = "0";

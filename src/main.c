@@ -47,7 +47,7 @@ gboolean main_option_time_save = FALSE;
 gboolean main_option_profile = FALSE;
 gboolean main_option_no_load_menus = FALSE;
 
-static const char *main_argv0 = NULL; /* argv[0] */
+const char *main_argv0 = NULL; /* argv[0] */
 
 static char prefix_buffer[VIPS_PATH_MAX];
 static gboolean prefix_valid = FALSE;
@@ -70,9 +70,36 @@ const char *
 get_prefix(void)
 {
 	if (!prefix_valid) {
+		g_autofree char *basename = g_path_get_basename(main_argv0);
+		g_autofree char *argv0_path = NULL;
+
 		const char *prefix;
 
-		if (!(prefix = vips_guess_prefix(main_argv0, "VIPSHOME"))) {
+		prefix = vips_guess_prefix(main_argv0, "VIPSHOME");
+
+		if (!prefix ||
+			!existsf("%s/share/nip4", prefix)) {
+			/* The libvips guesser failed to find our install area ... try
+			 * searching the path for our exe name.
+			 *
+			 * This can happen with homebrew, for example, where the
+			 * compile-time libvips prefix will not match the nip4 prefix.
+			 */
+			GSList *path = path_parse(g_getenv("PATH"));
+			argv0_path =
+				(char *) path_map(path, basename, (path_map_fn) g_strdup, NULL);
+			g_slist_free_full(g_steal_pointer(&path), g_free);
+
+			g_autofree char *trailing = g_strjoin("/", "bin", basename, NULL);
+			if (argv0_path &&
+				is_postfix(trailing, argv0_path))
+				argv0_path[strlen(argv0_path) - strlen(trailing)] = '\0';
+
+			prefix = argv0_path;
+		}
+
+		if (!prefix ||
+			!existsf("%s/share/nip4", prefix)) {
 			error_top(_("Unable to find install area"));
 			error_vips();
 

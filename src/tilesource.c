@@ -829,6 +829,7 @@ tilesource_set_property(GObject *object,
 {
 	Tilesource *tilesource = (Tilesource *) object;
 
+	TilesourceMode mode;
 	int i;
 	double d;
 	gboolean b;
@@ -843,7 +844,7 @@ tilesource_set_property(GObject *object,
 
 	switch (prop_id) {
 	case PROP_MODE:
-		TilesourceMode mode = g_value_get_enum(value);
+		mode = g_value_get_enum(value);
 		if (mode >= 0 &&
 			mode < TILESOURCE_MODE_LAST &&
 			tilesource->mode != mode) {

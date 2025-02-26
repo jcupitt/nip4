@@ -1012,7 +1012,6 @@ void
 mainwindow_about(Mainwindow *main, VipsBuf *buf)
 {
 	double sz = find_space(PATH_TMP);
-
 	if (sz < 0)
 		vips_buf_appendf(buf, _("no temp area\n"));
 	else {
