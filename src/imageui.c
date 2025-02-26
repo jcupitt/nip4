@@ -335,6 +335,8 @@ imageui_set_property(GObject *object,
 {
 	Imageui *imageui = (Imageui *) object;
 
+	double zoom;
+
 #ifdef DEBUG_VERBOSE
 	{
 		g_autofree char *str = g_strdup_value_contents(value);
@@ -366,7 +368,7 @@ imageui_set_property(GObject *object,
 	case PROP_ZOOM:
 		/* Scale by the zoom factor (SVG etc. zoom) we picked on load.
 		 */
-		double zoom = g_value_get_double(value);
+		zoom = g_value_get_double(value);
 		zoom /= imageui->tilesource->zoom;
 
 		g_object_set(imageui->imagedisplay,
@@ -396,6 +398,8 @@ imageui_get_property(GObject *object,
 {
 	Imageui *imageui = IMAGEUI(object);
 
+	double zoom;
+
 	switch (prop_id) {
 	case PROP_TILESOURCE:
 		g_value_set_object(value, imageui->tilesource);
@@ -411,8 +415,6 @@ imageui_get_property(GObject *object,
 		break;
 
 	case PROP_ZOOM:
-		double zoom;
-
 		g_object_get(imageui->imagedisplay,
 			"zoom", &zoom,
 			NULL);
@@ -420,9 +422,7 @@ imageui_get_property(GObject *object,
 		/* Scale by the zoom factor (SVG etc. zoom) we picked on load.
 		 */
 		zoom *= imageui->zoom_load;
-
 		g_value_set_double(value, zoom);
-
 		break;
 
 	case PROP_X:
@@ -973,6 +973,9 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 {
 	Imageui *imageui = IMAGEUI(user_data);
 
+	guint modifiers;
+	Regionview *regionview;
+
 #ifdef DEBUG_VERBOSE
 	printf("imageui_drag_begin: start_x = %g, start_y = %g\n",
 		start_x, start_y);
@@ -980,9 +983,8 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 
 	switch (imageui->state) {
 	case IMAGEUI_WAIT:
-		guint modifiers = get_modifiers(GTK_EVENT_CONTROLLER(self));
-		Regionview *regionview =
-			imageui_find_regionview(imageui, start_x, start_y);
+		modifiers = get_modifiers(GTK_EVENT_CONTROLLER(self));
+		regionview = imageui_find_regionview(imageui, start_x, start_y);
 
 		if (regionview) {
 			imageui->state = IMAGEUI_SELECT;

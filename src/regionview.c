@@ -669,11 +669,13 @@ regionview_hit(Regionview *regionview, int x, int y)
 
 	/* Edge resize.
 	 */
+	VipsRect inner;
+	VipsRect outer;
 	switch (regionview->type) {
 	case REGIONVIEW_REGION:
 	case REGIONVIEW_AREA:
-		VipsRect inner = regionview->frame;
-		VipsRect outer = inner;
+		inner = regionview->frame;
+		outer = inner;
 		vips_rect_marginadjust(&outer, margin);
 		vips_rect_marginadjust(&inner, -margin);
 
