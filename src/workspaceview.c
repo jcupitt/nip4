@@ -1009,6 +1009,9 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 {
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
 
+	Columnview *title;
+	Columnview *cview;
+
 #ifdef DEBUG_VERBOSE
 	printf("workspaceview_drag_begin: %g x %g\n", start_x, start_y);
 #endif /*DEBUG_VERBOSE*/
@@ -1017,13 +1020,11 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 	case WVIEW_WAIT:
 		/* Search for a column titlebar we could be hitting.
 		 */
-		Columnview *title = workspaceview_find_columnview_title(wview,
-			start_x, start_y);
+		title = workspaceview_find_columnview_title(wview, start_x, start_y);
 
 		/* Search for a click on any part of a columnview.
 		 */
-		Columnview *cview = workspaceview_find_columnview(wview,
-			start_x, start_y);
+		cview = workspaceview_find_columnview(wview, start_x, start_y);
 
 		if (title) {
 			wview->drag_cview = title;
