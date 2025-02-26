@@ -27,6 +27,7 @@ extern Watchgroup *main_watchgroup;
 extern Imageinfogroup *main_imageinfogroup;
 
 extern void *main_c_stack_base;
+extern const char *main_argv0;
 
 extern gboolean main_option_time_save;
 extern gboolean main_option_profile;

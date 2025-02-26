@@ -47,7 +47,7 @@ gboolean main_option_time_save = FALSE;
 gboolean main_option_profile = FALSE;
 gboolean main_option_no_load_menus = FALSE;
 
-static const char *main_argv0 = NULL; /* argv[0] */
+const char *main_argv0 = NULL; /* argv[0] */
 
 static char prefix_buffer[VIPS_PATH_MAX];
 static gboolean prefix_valid = FALSE;

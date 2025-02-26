@@ -4,6 +4,7 @@
 
 - fix kplot on win
 - build polishing
+- more debug info in "about"
 
 ## 9.0.1 2025/02/24
 

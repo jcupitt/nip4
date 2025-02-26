@@ -1011,8 +1011,12 @@ mainwindow_size_images(VipsObject *object, size_t *size)
 void
 mainwindow_about(Mainwindow *main, VipsBuf *buf)
 {
-	double sz = find_space(PATH_TMP);
+	vips_buf_appendf(buf, _("argv0 = %s\n"), main_argv0);
+	vips_buf_appendf(buf, _("prefix = %s\n"), get_prefix());
+	vips_buf_appendf(buf, _("VIPSHOME = %s\n"), g_getenv("VIPSHOME"));
+	vips_buf_appendf(buf, "\n");
 
+	double sz = find_space(PATH_TMP);
 	if (sz < 0)
 		vips_buf_appendf(buf, _("no temp area\n"));
 	else {
