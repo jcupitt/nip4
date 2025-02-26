@@ -155,9 +155,11 @@ ientry_set_property(GObject *object,
 {
 	iEntry *ientry = (iEntry *) object;
 
+	const char *text;
+
 	switch (prop_id) {
 	case PROP_TEXT:
-		const char *text = g_value_get_string(value);
+		text = g_value_get_string(value);
 		if (text &&
 			!g_str_equal(text, ientry->text)) {
 			VIPS_SETSTR(ientry->text, text);
