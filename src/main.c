@@ -94,7 +94,7 @@ get_prefix(void)
 
 			g_autofree char *trailing = g_strjoin("/", "bin", basename, NULL);
 			if (argv0_path &&
-				is_postfix(argv0_path, trailing))
+				is_postfix(trailing, argv0_path))
 				argv0_path[strlen(argv0_path) - strlen(trailing)] = '\0';
 
 			prefix = argv0_path;
