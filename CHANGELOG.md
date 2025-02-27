@@ -1,10 +1,10 @@
 ## master
 
-## 9.0.1-4 2025/02/25
+## 9.0.1-4 2025/02/27
 
 - fix kplot on win
+- fix macOS startup
 - build polishing
-- more debug info in "about"
 
 ## 9.0.1 2025/02/24
 
