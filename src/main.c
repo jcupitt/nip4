@@ -70,9 +70,31 @@ const char *
 get_prefix(void)
 {
 	if (!prefix_valid) {
+		g_autofree char *basename = g_path_get_basename(main_argv0);
+		g_autofree char *pathname = path_find_file(basename);
+
 		const char *prefix;
 
-		if (!(prefix = vips_guess_prefix(main_argv0, "VIPSHOME"))) {
+		prefix = vips_guess_prefix(main_argv0, "VIPSHOME");
+
+		if (!prefix ||
+			!existsf("%s/share/nip4", prefix)) {
+			/* the libvips guesser failed to find our install area ... try
+			 * using the path to our executable
+			 *
+			 * This can happon with homebrew, for example, where the
+			 * compile-time libvips prefix will not match the nip4 prefix
+			 */
+			g_autofree char *trailing = g_strjoin("/", "bin", basename, NULL);
+			if (pathname &&
+				is_postfix(pathname, trailing))
+				pathname[strlen(pathname) - strlen(trailing)] = '\0';
+
+			prefix = pathname;
+		}
+
+		if (!prefix ||
+			!existsf("%s/share/nip4", prefix)) {
 			error_top(_("Unable to find install area"));
 			error_vips();
 
