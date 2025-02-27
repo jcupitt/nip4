@@ -71,7 +71,7 @@ get_prefix(void)
 {
 	if (!prefix_valid) {
 		g_autofree char *basename = g_path_get_basename(main_argv0);
-		g_autofree char *pathname = path_find_file(basename);
+		g_autofree char *argv0_path = NULL;
 
 		const char *prefix;
 
@@ -79,18 +79,25 @@ get_prefix(void)
 
 		if (!prefix ||
 			!existsf("%s/share/nip4", prefix)) {
-			/* the libvips guesser failed to find our install area ... try
-			 * using the path to our executable
-			 *
-			 * This can happon with homebrew, for example, where the
-			 * compile-time libvips prefix will not match the nip4 prefix
-			 */
-			g_autofree char *trailing = g_strjoin("/", "bin", basename, NULL);
-			if (pathname &&
-				is_postfix(pathname, trailing))
-				pathname[strlen(pathname) - strlen(trailing)] = '\0';
+			printf("getting prefix from PATH\n");
 
-			prefix = pathname;
+			/* The libvips guesser failed to find our install area ... try
+			 * searching the path for our exe name.
+			 *
+			 * This can happen with homebrew, for example, where the
+			 * compile-time libvips prefix will not match the nip4 prefix.
+			 */
+			GSList *path = path_parse(g_getenv("PATH"));
+			argv0_path =
+				(char *) path_map(path, basename, (path_map_fn) g_strdup, NULL);
+			g_slist_free_full(g_steal_pointer(&path), g_free);
+
+			g_autofree char *trailing = g_strjoin("/", "bin", basename, NULL);
+			if (argv0_path &&
+				is_postfix(argv0_path, trailing))
+				argv0_path[strlen(argv0_path) - strlen(trailing)] = '\0';
+
+			prefix = argv0_path;
 		}
 
 		if (!prefix ||
