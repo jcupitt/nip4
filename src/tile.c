@@ -146,7 +146,7 @@ tile_get_texture(Tile *tile)
 	 *
 	 *	2. Wrap a pixbuf around that copy.
 	 *
-	 *	3. Tag it as a texture that may need upload tyo the GPU.
+	 *	3. Tag it as a texture that may need upload to the GPU.
 	 */
 	if (!tile->texture) {
 		VIPS_FREE(tile->data_copy);
@@ -169,6 +169,8 @@ tile_get_texture(Tile *tile)
 			NULL, NULL);
 
 		tile->texture = gdk_texture_new_for_pixbuf(tile->pixbuf);
+		printf("tile_get_texture: setting texture for tile %d x %d\n",
+			tile->region->valid.left, tile->region->valid.top);
 	}
 
 	return tile->texture;

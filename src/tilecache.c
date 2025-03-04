@@ -30,10 +30,10 @@
 #include "nip4.h"
 
 /*
+ */
 #define DEBUG_RENDER_TIME
 #define DEBUG_VERBOSE
 #define DEBUG
- */
 
 enum {
 	/* Properties.
@@ -778,6 +778,13 @@ tilecache_compute_visibility(Tilecache *tilecache,
 	 */
 	tilecache_tiles_for_rect(tilecache, viewport, z, &touches);
 
+#ifdef DEBUG_VERBOSE
+	printf("viewport in level0 coordinates: left = %d, top = %d, "
+			   "width = %d, height = %d\n",
+			touches.left, touches.top,
+			touches.width, touches.height);
+#endif /*DEBUG_VERBOSE*/
+
 	/* Search for the highest res tile for every position in the
 	 * viewport.
 	 */
@@ -799,9 +806,7 @@ tilecache_compute_visibility(Tilecache *tilecache,
 			Tile *tile = TILE(p->data);
 
 			if (tile->time < start_time)
-				tilecache->free[i] =
-					g_slist_prepend(tilecache->free[i],
-						tile);
+				tilecache->free[i] = g_slist_prepend(tilecache->free[i], tile);
 		}
 	}
 
