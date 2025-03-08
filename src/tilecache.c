@@ -30,10 +30,10 @@
 #include "nip4.h"
 
 /*
- */
 #define DEBUG_RENDER_TIME
 #define DEBUG_VERBOSE
 #define DEBUG
+ */
 
 enum {
 	/* Properties.

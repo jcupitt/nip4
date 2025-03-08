@@ -1,7 +1,3 @@
-- investigate tile recomp for test.ws, are we optimal now?
-
-
-
 - very long formula (eg. Group [G1, G2, etc]) are not truncated
 
 - check all batch mode flags
