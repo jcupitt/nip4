@@ -62,7 +62,7 @@ enum {
 	SIG_POSTEVAL,
 	SIG_CHANGED,
 	SIG_TILES_CHANGED,
-	SIG_AREA_CHANGED,
+	SIG_COLLECT,
 	SIG_PAGE_CHANGED,
 
 	SIG_LAST
@@ -111,10 +111,9 @@ tilesource_tiles_changed(Tilesource *tilesource)
 }
 
 static void
-tilesource_area_changed(Tilesource *tilesource, VipsRect *dirty, int z)
+tilesource_collect(Tilesource *tilesource, VipsRect *dirty, int z)
 {
-	g_signal_emit(tilesource,
-		tilesource_signals[SIG_AREA_CHANGED], 0, dirty, z);
+	g_signal_emit(tilesource, tilesource_signals[SIG_COLLECT], 0, dirty, z);
 }
 
 static void
@@ -230,7 +229,7 @@ tilesource_render_notify_idle(void *user_data)
 	 * pipeline.
 	 */
 	if (update->image == tilesource->display)
-		tilesource_area_changed(tilesource, &update->rect, update->z);
+		tilesource_collect(tilesource, &update->rect, update->z);
 
 	/* The update that's just for this one event needs freeing.
 	 */
@@ -253,9 +252,13 @@ tilesource_render_notify(VipsImage *image, VipsRect *rect, void *client)
 	 */
 	TilesourceUpdate *new_update = g_new(TilesourceUpdate, 1);
 
+	/* From image cods to level0 cods.
+	 */
 	*new_update = *update;
-	new_update->rect = *rect;
-	new_update->z = update->z;
+	new_update->rect.left = rect->left << update->z;
+	new_update->rect.top = rect->top << update->z;
+	new_update->rect.width = rect->width << update->z;
+	new_update->rect.height = rect->height << update->z;
 
 	g_idle_add(tilesource_render_notify_idle, new_update);
 }
@@ -1237,10 +1240,10 @@ tilesource_class_init(TilesourceClass *class)
 		g_cclosure_marshal_VOID__VOID,
 		G_TYPE_NONE, 0);
 
-	tilesource_signals[SIG_AREA_CHANGED] = g_signal_new("area-changed",
+	tilesource_signals[SIG_COLLECT] = g_signal_new("collect",
 		G_TYPE_FROM_CLASS(class),
 		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET(TilesourceClass, area_changed),
+		G_STRUCT_OFFSET(TilesourceClass, collect),
 		NULL, NULL,
 		nip4_VOID__POINTER_INT,
 		G_TYPE_NONE, 2,
@@ -1821,11 +1824,15 @@ tilesource_background_load(Tilesource *tilesource)
 		tilesource, NULL);
 }
 
+/* Request a tile from the pipeline. The tile might be already there (in
+ * cache), and we are all done, or it might need to be computed and collected
+ * later.
+ */
 int
-tilesource_fill_tile(Tilesource *tilesource, Tile *tile)
+tilesource_request_tile(Tilesource *tilesource, Tile *tile)
 {
 #ifdef DEBUG_VERBOSE
-	printf("tilesource_fill_tile: %d x %d\n",
+	printf("tilesource_request_tile: %d x %d\n",
 		tile->region->valid.left, tile->region->valid.top);
 #endif /*DEBUG_VERBOSE*/
 
@@ -1850,8 +1857,10 @@ tilesource_fill_tile(Tilesource *tilesource, Tile *tile)
 	printf("  valid = %d\n", tile->valid);
 #endif /*DEBUG_VERBOSE*/
 
-	/* We must always prepare the region, even if we know it's blank,
-	 * since this will trigger the background render.
+	/* If the tile is not in cache, we must fetch to trigger a bg recomp.
+	 *
+	 * If it is in cache, we also fetch the pixels and set a texture ready
+	 * for the cache.
 	 */
 	if (vips_region_prepare_to(tilesource->rgb_region, tile->region,
 			&tile->region->valid,
@@ -1863,6 +1872,46 @@ tilesource_fill_tile(Tilesource *tilesource, Tile *tile)
 	 * this now since the data in the region may change later.
 	 */
 	if (tile->valid) {
+		tile_free_texture(tile);
+		tile_get_texture(tile);
+	}
+
+	return 0;
+}
+
+/* Try to collect a computed tile.
+ */
+int
+tilesource_collect_tile(Tilesource *tilesource, Tile *tile)
+{
+#ifdef DEBUG_VERBOSE
+	printf("tilesource_collect_tile: %d x %d\n",
+		tile->region->valid.left, tile->region->valid.top);
+#endif /*DEBUG_VERBOSE*/
+
+	if (vips_region_prepare(tilesource->mask_region, &tile->region->valid))
+		return -1;
+
+	/* tile is within a single tile, so we only need to test the first byte
+	 * of the mask.
+	 */
+	tile->valid = VIPS_REGION_ADDR(tilesource->mask_region,
+		tile->region->valid.left, tile->region->valid.top)[0];
+
+#ifdef DEBUG_VERBOSE
+	printf("  valid = %d\n", tile->valid);
+#endif /*DEBUG_VERBOSE*/
+
+	/* Only read out the tile if it's valid. We don't want to trigger another
+	 * compute.
+	 */
+	if (tile->valid) {
+		if (vips_region_prepare_to(tilesource->rgb_region, tile->region,
+				&tile->region->valid,
+				tile->region->valid.left,
+				tile->region->valid.top))
+			return -1;
+
 		tile_free_texture(tile);
 		tile_get_texture(tile);
 	}

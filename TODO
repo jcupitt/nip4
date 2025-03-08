@@ -1,17 +1,8 @@
-- nip4 ~/pics/a1.bmp, free rotate, open imagewindow, drag slider
+- investigate tile recomp for test.ws, are we optimal now?
 
-	updates often hitch badly, what's it doing?
 
-	perhaps it's not discarding out of date updates quickly enough?
 
-	test nip2 on the same task
-
-		always seems to be making useful pixels
-
-  in nip4, drag alisder a lot, end on -61, open image view window, never
-  updates
-
-	you need to press 1, wait for update, then press 0 to see anything
+- very long formula (eg. Group [G1, G2, etc]) are not truncated
 
 - check all batch mode flags
 

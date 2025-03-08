@@ -94,7 +94,7 @@ tilecache_dispose(GObject *object)
 
 	FREESID(tilecache->tilesource_changed_sid, tilecache->tilesource);
 	FREESID(tilecache->tilesource_tiles_changed_sid, tilecache->tilesource);
-	FREESID(tilecache->tilesource_area_changed_sid, tilecache->tilesource);
+	FREESID(tilecache->tilesource_collect_sid, tilecache->tilesource);
 	VIPS_UNREF(tilecache->tilesource);
 	VIPS_UNREF(tilecache->background_texture);
 
@@ -334,11 +334,11 @@ tilecache_find(Tilecache *tilecache, VipsRect *tile_rect, int z)
 	return NULL;
 }
 
-/* Fetch a single tile. If we have this tile already, refresh if there are new
+/* Request a single tile. If we have this tile already, refresh if there are new
  * pixels available.
  */
 static void
-tilecache_get(Tilecache *tilecache, VipsRect *tile_rect, int z)
+tilecache_request(Tilecache *tilecache, VipsRect *tile_rect, int z)
 {
 	Tile *tile;
 
@@ -356,29 +356,30 @@ tilecache_get(Tilecache *tilecache, VipsRect *tile_rect, int z)
 	}
 
 	if (!tile->valid) {
-		/* The tile might have no pixels, or might need refreshing
-		 * because the bg render has finished with it.
-		 */
 #ifdef DEBUG_VERBOSE
-		printf("tilecache_get: fetching left = %d, top = %d, "
+		printf("tilecache_request: fetching left = %d, top = %d, "
 			   "width = %d, height = %d, z = %d\n",
 			tile_rect->left, tile_rect->top,
 			tile_rect->width, tile_rect->height,
 			z);
 #endif /*DEBUG_VERBOSE*/
 
-		tilesource_fill_tile(tilecache->tilesource, tile);
+		tilesource_request_tile(tilecache->tilesource, tile);
 	}
 }
 
-/* Fetch the tiles in an area.
+/* Request tiles from an area. If they are not in cache, they will be computed
+ * in the bg and delivered via _collect().
  *
  * render processes tiles in FIFO order, so we need to add in reverse order
  * of processing. We want repaint to happen in a spiral from the centre out,
  * so we have to add in a spiral from the outside in.
+ *
+ * We must be careful not to change tilesource if we have all these tiles
+ * already (very common for thumbnails, for example).
  */
 static void
-tilecache_fetch_area(Tilecache *tilecache, VipsRect *viewport, int z)
+tilecache_request_area(Tilecache *tilecache, VipsRect *viewport, int z)
 {
 	int size0 = TILE_SIZE << z;
 
@@ -412,7 +413,7 @@ tilecache_fetch_area(Tilecache *tilecache, VipsRect *viewport, int z)
 		for (x = left; x < right; x += size0) {
 			tile_rect.left = x;
 			tile_rect.top = top;
-			tilecache_get(tilecache, &tile_rect, z);
+			tilecache_request(tilecache, &tile_rect, z);
 		}
 
 		top += size0;
@@ -425,7 +426,7 @@ tilecache_fetch_area(Tilecache *tilecache, VipsRect *viewport, int z)
 		for (x = left; x < right; x += size0) {
 			tile_rect.left = x;
 			tile_rect.top = bottom - size0;
-			tilecache_get(tilecache, &tile_rect, z);
+			tilecache_request(tilecache, &tile_rect, z);
 		}
 
 		bottom -= size0;
@@ -438,7 +439,7 @@ tilecache_fetch_area(Tilecache *tilecache, VipsRect *viewport, int z)
 		for (y = top; y < bottom; y += size0) {
 			tile_rect.left = left;
 			tile_rect.top = y;
-			tilecache_get(tilecache, &tile_rect, z);
+			tilecache_request(tilecache, &tile_rect, z);
 		}
 
 		left += size0;
@@ -451,7 +452,7 @@ tilecache_fetch_area(Tilecache *tilecache, VipsRect *viewport, int z)
 		for (y = top; y < bottom; y += size0) {
 			tile_rect.left = right - size0;
 			tile_rect.top = y;
-			tilecache_get(tilecache, &tile_rect, z);
+			tilecache_request(tilecache, &tile_rect, z);
 		}
 
 		right -= size0;
@@ -461,25 +462,27 @@ tilecache_fetch_area(Tilecache *tilecache, VipsRect *viewport, int z)
 	}
 }
 
-/* The bg render thread says some tiles have fresh pixels.
+/* A new tile is available from the bg render and must be collected.
  */
 static void
-tilecache_source_area_changed(Tilesource *tilesource,
+tilecache_source_collect(Tilesource *tilesource,
 	VipsRect *dirty, int z, Tilecache *tilecache)
 {
 #ifdef DEBUG_VERBOSE
-	printf("tilecache_source_area_changed: left = %d, top = %d, "
+	printf("tilecache_source_collect: left = %d, top = %d, "
 		   "width = %d, height = %d, z = %d\n",
 		dirty->left, dirty->top,
 		dirty->width, dirty->height, z);
 #endif /*DEBUG_VERBOSE*/
 
-	/* Immediately fetch the updated tile. If we wait for snapshot, the
-	 * animation page may have changed.
-	 */
-	tilecache_fetch_area(tilecache, dirty, z);
+	Tile *tile = tilecache_find(tilecache, dirty, z);
+	if (tile &&
+		!tile->valid) {
+		tilesource_collect_tile(tilecache->tilesource, tile);
 
-	tilecache_area_changed(tilecache, dirty, z);
+		// things displaying us will need to redraw
+		tilecache_area_changed(tilecache, dirty, z);
+	}
 }
 
 static void
@@ -487,7 +490,7 @@ tilecache_set_tilesource(Tilecache *tilecache, Tilesource *tilesource)
 {
 	FREESID(tilecache->tilesource_changed_sid, tilecache->tilesource);
 	FREESID(tilecache->tilesource_tiles_changed_sid, tilecache->tilesource);
-	FREESID(tilecache->tilesource_area_changed_sid, tilecache->tilesource);
+	FREESID(tilecache->tilesource_collect_sid, tilecache->tilesource);
 	VIPS_UNREF(tilecache->tilesource);
 
 	tilecache->tilesource = tilesource;
@@ -503,9 +506,9 @@ tilecache_set_tilesource(Tilecache *tilecache, Tilesource *tilesource)
 		tilecache->tilesource_tiles_changed_sid =
 			g_signal_connect(tilesource, "tiles-changed",
 				G_CALLBACK(tilecache_source_tiles_changed), tilecache);
-		tilecache->tilesource_area_changed_sid =
-			g_signal_connect(tilesource, "area-changed",
-				G_CALLBACK(tilecache_source_area_changed), tilecache);
+		tilecache->tilesource_collect_sid =
+			g_signal_connect(tilesource, "collect",
+				G_CALLBACK(tilecache_source_collect), tilecache);
 
 		/* Any tiles must be invalidated.
 		 */
@@ -946,7 +949,7 @@ tilecache_snapshot(Tilecache *tilecache, GtkSnapshot *snapshot,
 	/* Fetch any tiles we are missing, update any tiles we have that have
 	 * been flagged as having pixels ready for fetching.
 	 */
-	tilecache_fetch_area(tilecache, &viewport, z);
+	tilecache_request_area(tilecache, &viewport, z);
 
 	/* Find the set of visible tiles, sorted back to front.
 	 *

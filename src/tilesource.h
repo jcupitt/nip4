@@ -258,10 +258,10 @@ typedef struct _TilesourceClass {
 	 */
 	void (*tiles_changed)(Tilesource *tilesource);
 
-	/* A set of tiles on a certain level have new pixels now that a
-	 * background render has completed.
+	/* A tile has been computed by a bg worker and must be collected from the
+	 * end of the pipeline.
 	 */
-	void (*area_changed)(Tilesource *tilesource, VipsRect *area, int z);
+	void (*collect)(Tilesource *tilesource, VipsRect *area, int z);
 
 	/* The page has changed. Just for updating the page number display.
 	 */
@@ -280,7 +280,8 @@ gboolean tilesource_has_imageinfo(Tilesource *tilesource, Imageinfo *ii);
 
 void tilesource_background_load(Tilesource *tilesource);
 
-int tilesource_fill_tile(Tilesource *tilesource, Tile *tile);
+int tilesource_request_tile(Tilesource *tilesource, Tile *tile);
+int tilesource_collect_tile(Tilesource *tilesource, Tile *tile);
 
 const char *tilesource_get_path(Tilesource *tilesource);
 GFile *tilesource_get_file(Tilesource *tilesource);

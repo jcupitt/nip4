@@ -87,11 +87,11 @@ typedef struct _Tilecache {
 	 */
 	GdkTexture *background_texture;
 
-	/* The signals we watcgh tilesource with.
+	/* The signals we watch tilesource with.
 	 */
 	guint tilesource_changed_sid;
 	guint tilesource_tiles_changed_sid;
-	guint tilesource_area_changed_sid;
+	guint tilesource_collect_sid;
 
 } Tilecache;
 
