@@ -1,4 +1,8 @@
-- very long formula (eg. Group [G1, G2, etc]) are not truncated
+- row reset doesn't always work
+
+	try joanne's workspace ... need to be able to reset the image pair
+
+  and editing a row doesn't always "take"
 
 - check all batch mode flags
 
@@ -183,10 +187,6 @@
   now ZF expressions which use x will stop working, eg.:
 
 	[x * 2 :: x <- [1..]]
-
-- row reset doesn't always work
-
-  and editing a row doesn't always "take"
 
 - syntax error in startup .def stops nip4 loading
 

@@ -46,7 +46,7 @@ void
 set_glabel1(GtkWidget *label, const char *fmt, ...)
 {
 	va_list ap;
-	char txt[1000];
+	char txt[80];
 	VipsBuf buf = VIPS_BUF_STATIC(txt);
 
 	va_start(ap, fmt);
