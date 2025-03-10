@@ -25,6 +25,8 @@
 
 	what stops replace from file on a dirty row?
 
+	see rowview_action(), there's no rhs->graphic
+
 - try a win build again now we have some fixes for font stuff
 
 
