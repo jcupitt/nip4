@@ -174,6 +174,17 @@ heapmodel_real_update_heap(Heapmodel *heapmodel)
 static void *
 heapmodel_real_clear_edited(Heapmodel *heapmodel)
 {
+#ifdef DEBUG
+#endif /*DEBUG*/
+		{
+			HeapmodelClass *heapmodel_class = HEAPMODEL_GET_CLASS(heapmodel);
+
+			printf("heapmodel_real_clear_edited: %s::",
+				G_OBJECT_CLASS_NAME(heapmodel_class));
+			row_name_print(heapmodel->row);
+			printf("\n");
+		}
+
 	return NULL;
 }
 

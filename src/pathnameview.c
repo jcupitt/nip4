@@ -1,4 +1,4 @@
-/* run the display for an arrow in a workspace
+/* run the display for a file chooser in a workspace
  */
 
 /*
@@ -35,6 +35,18 @@
 
 G_DEFINE_TYPE(Pathnameview, pathnameview, GRAPHICVIEW_TYPE)
 
+/* GTypes we handle in copy/paste and drag/drop paste ... these are in the
+ * order we try, so a GFile is preferred to a simple string.
+ *
+ * gnome file manager pastes as GdkFileList, GFile, gchararray
+ * print-screen button pastes as GdkTexture, GdkPixbuf
+ *
+ * Created in _class_init(), since some of these types are only defined at
+ * runtime.
+ */
+static GType *pathnameview_supported_types;
+static int pathnameview_n_supported_types;
+
 static void
 pathnameview_dispose(GObject *object)
 {
@@ -66,7 +78,7 @@ static void
 pathnameview_refresh(vObject *vobject)
 {
 	Pathnameview *pathnameview = PATHNAMEVIEW(vobject);
-	Pathname *pathname = PATHNAME(VOBJECT(vobject)->iobject);
+	Pathname *pathname = PATHNAME(VOBJECT(pathnameview)->iobject);
 
 #ifdef DEBUG
 	printf("pathnameview_refresh: ");
@@ -115,7 +127,10 @@ pathnameview_clicked(GtkWidget *widget, Pathnameview *pathnameview)
 	gtk_file_dialog_set_modal(dialog, TRUE);
 
 	if (pathname->value) {
-		g_autoptr(GFile) file = g_file_new_for_path(pathname->value);
+		char name[VIPS_PATH_MAX];
+
+		expand_variables(pathname->value, name);
+		g_autoptr(GFile) file = g_file_new_for_path(name);
 		gtk_file_dialog_set_initial_file(dialog, file);
 	}
 	else {
@@ -149,12 +164,55 @@ pathnameview_class_init(PathnameviewClass *class)
 	vobject_class->refresh = pathnameview_refresh;
 
 	view_class->link = pathnameview_link;
+
+	// the gtypes we support ... anything we can turn into a path
+	GType supported_types[] = {
+		G_TYPE_FILE,
+		G_TYPE_STRING,
+	};
+
+	pathnameview_n_supported_types = VIPS_NUMBER(supported_types);
+	pathnameview_supported_types =
+		VIPS_ARRAY(NULL, pathnameview_n_supported_types + 1, GType);
+	for (int i = 0; i < pathnameview_n_supported_types; i++)
+		pathnameview_supported_types[i] = supported_types[i];
+}
+
+static gboolean
+pathnameview_paste_filename(const char *filename, void *user_data)
+{
+	Pathnameview *pathnameview = PATHNAMEVIEW(user_data);
+	Pathname *pathname = PATHNAME(VOBJECT(pathnameview)->iobject);
+
+	VIPS_SETSTR(pathname->value, filename);
+	classmodel_update_view(CLASSMODEL(pathname));
+	symbol_recalculate_all();
+
+	return TRUE;
+}
+
+static gboolean
+pathnameview_dnd_drop(GtkDropTarget *target,
+	const GValue *value, double x, double y, gpointer user_data)
+{
+	Pathnameview *pathnameview = PATHNAMEVIEW(user_data);
+
+	return value_to_filename(value, pathnameview_paste_filename, pathnameview);
 }
 
 static void
 pathnameview_init(Pathnameview *pathnameview)
 {
 	gtk_widget_init_template(GTK_WIDGET(pathnameview));
+
+	GtkEventController *controller = GTK_EVENT_CONTROLLER(
+		gtk_drop_target_new(G_TYPE_INVALID, GDK_ACTION_COPY));
+	gtk_drop_target_set_gtypes(GTK_DROP_TARGET(controller),
+		pathnameview_supported_types,
+		pathnameview_n_supported_types);
+	g_signal_connect(controller, "drop",
+		G_CALLBACK(pathnameview_dnd_drop), pathnameview);
+	gtk_widget_add_controller(GTK_WIDGET(pathnameview), controller);
 }
 
 View *

@@ -804,8 +804,6 @@ imagewindow_paste_filename(const char *filename, void *user_data)
 {
 	Imagewindow *win = IMAGEWINDOW(user_data);
 
-	printf("imagewindow_paste_filename:\n");
-
 	imagewindow_files_set(win, &filename, 1);
 	imagewindow_open_current_file(win, GTK_STACK_TRANSITION_TYPE_ROTATE_LEFT);
 
@@ -1271,8 +1269,6 @@ imagewindow_dnd_drop(GtkDropTarget *target,
 	const GValue *value, double x, double y, gpointer user_data)
 {
 	Imagewindow *win = IMAGEWINDOW(user_data);
-
-	printf("imagewindow_dnd_drop: %g x %g\n", x, y);
 
 	return value_to_filename(value, imagewindow_paste_filename, win);
 }

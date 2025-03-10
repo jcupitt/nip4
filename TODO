@@ -2,7 +2,33 @@
 
 	try joanne's workspace ... need to be able to reset the image pair
 
-  and editing a row doesn't always "take"
+	rowview_reset_menu() just runs model_clear_edited() on every sub-row
+
+	in turn runs heapmodel_clear_edited()
+
+  image replace from file usually won't reset properly since it rewrites the
+  formula and there's nothing to reset
+
+- could use file chooser widget in bm-workspaces, what would it look like?
+
+- ^V in an imagewindow swaps the image without rewriting the formula, could
+  we do something like that for replace from file?
+
+	no, the result wouldn't be saved
+
+- try
+
+	nip4 ~/lady-orig.ws
+
+  open A2, find A2.targets.image, right-click, replace from file, no file
+  dialog appears
+
+	what stops replace from file on a dirty row?
+
+- try a win build again now we have some fixes for font stuff
+
+
+
 
 - check all batch mode flags
 
