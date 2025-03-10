@@ -1066,7 +1066,7 @@ class_get_member_int(PElement *instance, const char *name, int *out)
 	if (!class_get_member_check(instance, name, "real",
 			(ClassGetFn) heap_get_real, &d))
 		return FALSE;
-	*out = VIPS_RINT(d);
+	*out = rint(d);
 
 	return TRUE;
 }

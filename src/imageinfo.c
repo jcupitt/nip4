@@ -922,7 +922,7 @@ imageinfo_set_rgb(Imageinfo *imageinfo, double rgb[3])
 	 */
 	VipsPel value8[3];
 	for (int i = 0; i < 3; i++)
-		value8[i] = VIPS_RINT(rgb[i]);
+		value8[i] = rint(rgb[i]);
 	vips_image_init_fields(in->image, 1, 1, 3,
 		VIPS_FORMAT_UCHAR, VIPS_CODING_NONE,
 		VIPS_INTERPRETATION_sRGB, 1.0, 1.0);

@@ -270,9 +270,9 @@ colour_edit(GtkWidget *parent, Model *model)
 	double rgb[3];
 	colour_get_rgb(colour, rgb);
 	GdkRGBA initial_color = {
-		.red = VIPS_RINT(rgb[0] / 255.0),
-		.green = VIPS_RINT(rgb[1] / 255.0),
-		.blue = VIPS_RINT(rgb[2] / 255.0),
+		.red = rint(rgb[0] / 255.0),
+		.green = rint(rgb[1] / 255.0),
+		.blue = rint(rgb[2] / 255.0),
 		.alpha = 1.0
 	};
 

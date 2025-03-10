@@ -162,11 +162,13 @@ workspaceview_tick(GtkWidget *widget, GdkFrameClock *frame_clock,
 		wview->row_shadow_elapsed += dt;
 
 		// 0-1 progress in animation
-		double duration = wview->should_animate ? workspaceview_animation_duration : wview->row_shadow_elapsed;
-		double t = VIPS_CLIP(0, ease_out_cubic(wview->row_shadow_elapsed / duration), 1);
+		double duration = wview->should_animate ?
+			workspaceview_animation_duration : wview->row_shadow_elapsed;
+		double t = VIPS_CLIP(0,
+			ease_out_cubic(wview->row_shadow_elapsed / duration), 1);
 
 		workspaceview_set_row_shadow_height(wview,
-			VIPS_RINT(t * wview->max_row_shadow_height));
+			rint(t * wview->max_row_shadow_height));
 
 		if (t != 1.0)
 			finished = FALSE;
@@ -1106,8 +1108,8 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 
 			// don't let x/y go -ve (layout hates it)
 			columnview_animate_to(wview->drag_cview,
-				VIPS_CLIP(0, VIPS_RINT(obj_x), wview->width - w),
-				VIPS_CLIP(0, VIPS_RINT(obj_y), wview->height - h));
+				VIPS_CLIP(0, rint(obj_x), wview->width - w),
+				VIPS_CLIP(0, rint(obj_y), wview->height - h));
 
 			// top, since we want the titlebar to be visible
 			view_scrollto(VIEW(wview->drag_cview), MODEL_SCROLL_TOP);

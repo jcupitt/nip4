@@ -132,7 +132,7 @@ plotwindow_motion(GtkEventControllerMotion *self,
 	double data_x, data_y;
 	if (plotdisplay_gtk_to_data(plotdisplay, x, y, &data_x, &data_y)) {
 		Plot *plot = plotwindow->plot;
-		int index = VIPS_RINT(data_x);
+		int index = rint(data_x);
 
 		set_glabel(plotwindow->x, "%9.1f", data_x);
 		set_glabel(plotwindow->y, "%9.1f", data_y);
