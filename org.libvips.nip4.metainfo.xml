@@ -58,6 +58,15 @@ from the command-line and without a GUI.
 
   <releases>
 
+    <release version="9.0.2" date="2025-03-11">
+      <description>
+        <p>
+          Image windows are faster and more reliable, file chooser widgets
+          support drag and drop, long formula truncate correctly.
+        </p>
+      </description>
+    </release>
+
     <release version="9.0.1" date="2025-02-24">
       <description>
         <p>
