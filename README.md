@@ -32,7 +32,7 @@ https://github.com/user-attachments/assets/6f7bdee1-183c-4554-9701-e0c30e75d58a
 
 There's a zip for each version on the [releases
 page](https://github.com/jcupitt/nip4/releases). Download
-`vips-dev-w64-all-8.16.0-nip4.zip`, unzip somewhere, and run `bin/nip4.exe`.
+`nip4-9.0.2-2.zip`, unzip somewhere, and run `bin/nip4.exe`.
 
 ## macOS
 
