@@ -28,10 +28,10 @@
  */
 
 /*
+ */
 #define DEBUG_VERBOSE
 #define DEBUG
 #define DEBUG_MAKE
- */
 
 #include "nip4.h"
 

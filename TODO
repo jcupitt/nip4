@@ -1,3 +1,214 @@
+- image / new, then ^V a screenshot in, save as png, crash with
+
+(nip4:1072716): GLib-GObject-CRITICAL **: 12:25:04.347: invalid cast from 'Imagewindow' to 'View'
+
+
+- try
+
+    nip4 ~/test.ws
+
+  open imagewindow, often does not paint correctlyo
+
+    seems to be a race
+
+  trace of failed repaint
+
+	looks like an unexpected thumbnail repaint is coming in half-way
+	though the main window repaint, causing the pipeline to rebuild, and
+	making the rest of the level0 tiles to be discarded
+
+	why does the thumbnail repaint cause a request? you'd think that would
+	just be served from cache
+
+
+
+row_deselect: FIXME ... call matrix_deselect()
+tilecache_init:
+tilecache_build_pyramid:
+	 2 pyr levels
+	 0) 512 x 512
+	 1) 256 x 256
+tilecache_source_tiles_changed:
+tilesource_background_load_worker: starting ...
+tilesource_set_property: ACTIVE = FALSE
+tilesource_set_property: VISIBLE = TRUE
+tilesource_background_load_worker: ... done
+tilesource_set_property: FALSECOLOUR = FALSE
+tilesource_set_property: LOG = FALSE
+tilesource_set_property: ICC = FALSE
+tilesource_set_property: MODE = ((TilesourceMode) TILESOURCE_MODE_MULTIPAGE)
+tilesource_background_load_worker: starting ...
+tilesource_background_load_worker: ... done
+
+tilecache_snapshot: scale = 1, x = 0, y = 0
+  paint_rect left = 550, top = 461, width = 0, height = 0
+tilecache_request: fetching left = 0, top = 0, width = 256, height = 256, z = 0
+tilesource_request_tile: 0 x 0
+  valid = 255
+tilecache_compute_visibility: z = 0
+viewport in level0 coordinates: left = 0, top = 0, width = 256, height = 256
+  level 0, 1 tiles, 1 visible, 0 free
+  level 1, 0 tiles, 0 visible, 0 free
+  level 0 tiles:
+    @ 0 x 0, 256 x 256, valid = 255, visible = 1, texture = 0x5d34010b1210
+  level 1 tiles:
+tilecache_snapshot: 3.573 ms
+
+tilesource_background_load_done_cb: ... unreffing
+tilesource_set_property: LOADED = TRUE
+tilesource_set_property: VISIBLE = TRUE
+tilesource_update_display:
+tilesource_update_rgb:
+tilecache_source_changed:
+tilecache_build_pyramid:
+	no geometry change, skipping pyr rebuild
+tilecache_source_tiles_changed:
+tilecache_source_changed:
+tilecache_build_pyramid:
+	no geometry change, skipping pyr rebuild
+tilecache_source_tiles_changed:
+tilesource_set_property: FALSECOLOUR = FALSE
+tilesource_set_property: LOG = FALSE
+tilesource_set_property: ICC = FALSE
+tilesource_set_property: MODE = ((TilesourceMode) TILESOURCE_MODE_MULTIPAGE)
+tilesource_background_load_done_cb: ... unreffing
+tilesource_set_property: LOADED = TRUE
+tilesource_set_property: VISIBLE = TRUE
+tilesource_update_display:
+tilesource_update_rgb:
+tilecache_source_changed:
+tilecache_build_pyramid:
+	no geometry change, skipping pyr rebuild
+tilecache_source_tiles_changed:
+tilecache_source_changed:
+tilecache_build_pyramid:
+	no geometry change, skipping pyr rebuild
+tilecache_source_tiles_changed:
+tilesource_set_property: FALSECOLOUR = FALSE
+tilesource_set_property: LOG = FALSE
+tilesource_set_property: ICC = FALSE
+tilesource_set_property: MODE = ((TilesourceMode) TILESOURCE_MODE_MULTIPAGE)
+
+tilecache_snapshot: scale = 1.80273, x = 0, y = 0
+  paint_rect left = 88, top = 0, width = 923, height = 923
+tilecache_request: fetching left = 0, top = 0, width = 256, height = 256, z = 0
+tilesource_request_tile: 0 x 0
+  valid = 0
+tilecache_request: fetching left = 256, top = 0, width = 256, height = 256, z = 0
+tilesource_request_tile: 256 x 0
+  valid = 0
+tilecache_request: fetching left = 0, top = 256, width = 256, height = 256, z = 0
+tilesource_request_tile: 0 x 256
+  valid = 0
+tilecache_request: fetching left = 256, top = 256, width = 256, height = 256, z = 0
+tilesource_request_tile: 256 x 256
+  valid = 0
+tilecache_compute_visibility: z = 0
+viewport in level0 coordinates: left = 0, top = 0, width = 512, height = 512
+  level 0, 4 tiles, 1 visible, 3 free
+  level 1, 0 tiles, 0 visible, 0 free
+  level 0 tiles:
+    @ 256 x 256, 256 x 256, valid = 0, visible = 0, texture = (nil)
+    @ 0 x 256, 256 x 256, valid = 0, visible = 0, texture = (nil)
+    @ 256 x 0, 256 x 256, valid = 0, visible = 0, texture = (nil)
+    @ 0 x 0, 256 x 256, valid = 0, visible = 1, texture = 0x5d34010b1210
+  level 1 tiles:
+tilecache_snapshot: 13.936 ms
+
+tilecache_snapshot: scale = 0.125, x = 0, y = 0
+  paint_rect left = 143, top = 0, width = 64, height = 64
+tilecache_request: fetching left = 0, top = 0, width = 512, height = 512, z = 1
+tilesource_request_tile: 0 x 0
+tilesource_update_display:
+tilesource_update_rgb:
+  valid = 0
+tilecache_compute_visibility: z = 1
+viewport in level0 coordinates: left = 0, top = 0, width = 512, height = 512
+  level 0, 0 tiles, 0 visible, 0 free
+  level 1, 1 tiles, 1 visible, 0 free
+  level 0 tiles:
+  level 1 tiles:
+    @ 0 x 0, 512 x 512, valid = 0, visible = 1, texture = 0x5d33ffc65320
+tilecache_snapshot: 4.511 ms
+
+tilecache_source_collect: left = 0, top = 0, width = 512, height = 512, z = 1
+tilesource_collect_tile: 0 x 0
+  valid = 255
+tilecache_source_collect: left = 0, top = 0, width = 512, height = 512, z = 1
+
+tilecache_snapshot: scale = 0.125, x = 0, y = 0
+  paint_rect left = 143, top = 0, width = 64, height = 64
+tilecache_compute_visibility: z = 1
+viewport in level0 coordinates: left = 0, top = 0, width = 512, height = 512
+  level 0, 0 tiles, 0 visible, 0 free
+  level 1, 1 tiles, 1 visible, 0 free
+  level 0 tiles:
+  level 1 tiles:
+    @ 0 x 0, 512 x 512, valid = 255, visible = 1, texture = 0x5d33fe3ec960
+tilecache_snapshot: 0.027 ms
+
+tilecache_snapshot: scale = 1.80273, x = 0, y = 0
+  paint_rect left = 88, top = 0, width = 923, height = 923
+tilecache_request: fetching left = 0, top = 0, width = 256, height = 256, z = 0
+tilesource_request_tile: 0 x 0
+tilesource_update_display:
+tilesource_update_rgb:
+  valid = 0
+tilecache_request: fetching left = 256, top = 0, width = 256, height = 256, z = 0
+tilesource_request_tile: 256 x 0
+  valid = 0
+tilecache_request: fetching left = 0, top = 256, width = 256, height = 256, z = 0
+tilesource_request_tile: 0 x 256
+  valid = 0
+tilecache_request: fetching left = 256, top = 256, width = 256, height = 256, z = 0
+tilesource_request_tile: 256 x 256
+  valid = 0
+tilecache_compute_visibility: z = 0
+viewport in level0 coordinates: left = 0, top = 0, width = 512, height = 512
+  level 0, 4 tiles, 1 visible, 3 free
+  level 1, 0 tiles, 0 visible, 0 free
+  level 0 tiles:
+    @ 256 x 256, 256 x 256, valid = 0, visible = 0, texture = (nil)
+    @ 0 x 256, 256 x 256, valid = 0, visible = 0, texture = (nil)
+    @ 256 x 0, 256 x 256, valid = 0, visible = 0, texture = (nil)
+    @ 0 x 0, 256 x 256, valid = 0, visible = 1, texture = 0x5d34010b1210
+  level 1 tiles:
+tilecache_snapshot: 14.875 ms
+
+
+
+
+
+
+
+# menu redesign
+
+- remove unused widgets
+
+- try:
+
+	Matrix_build_item.Matrix_laplacian_item.action
+
+	Matrix_build_item.Matrix_gaussian_item.action
+
+  edit a cell and hit enter, lose the widgets, same happens in nip2
+
+  do we need to define a Matrix_base member in Matrix_gaussian_item.action?
+
+- SDFs (sdf, clamp, maxpair, minpair)
+
+- magic kernel
+
+- use vips_addalpha() operation
+
+- remove use of cache (it's tilecache only now)
+
+- prewitt and scharr edge detectors
+
+
+
+
+
 - row reset doesn't always work
 
 	try joanne's workspace ... need to be able to reset the image pair
@@ -26,11 +237,6 @@
 	what stops replace from file on a dirty row?
 
 	see rowview_action(), there's no rhs->graphic
-
-- try a win build again now we have some fixes for font stuff
-
-
-
 
 - check all batch mode flags
 
@@ -64,25 +270,6 @@
 - need preferences?
 
 	or just remove it all
-
-- try:
-
-	cd ~/hammersmith/data/demo3
-	nip4 main4a.ws blood4a.ws image4a.ws patlak4a.ws
-
-	$ time nip4 --benchmark main4a.ws blood4a.ws image4a.ws patlak4a.ws
-	real	1m40.949s
-	user	41m2.885s
-	sys	0m27.297s
-
-  put those four tabs into one ws and run:
-
-	$ time nip4 --benchmark all.ws
-	real	17m24.971s
-	user	18m12.380s
-	sys	0m16.356s
-
-  W T F
 
 - iimage.h has:
 
@@ -166,18 +353,6 @@
 ## other
 
 - remove the "open" button from the top bar? not very useful
-
-- try:
-
-	Matrix_build_item.Matrix_laplacian_item.action
-
-	Matrix_build_item.Matrix_gaussian_item.action
-
-  edit a cell and hit enter, lose the widgets, same happens in nip2
-
-  do we need to define a Matrix_base member in Matrix_gaussian_item.action?
-
-  something for nip4 v9 menus
 
 - put a time delay on row label colour change -- stop the flashing
 

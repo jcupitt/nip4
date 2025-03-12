@@ -6,6 +6,10 @@ I'm hoping this will be mostly working in early 2025.
 This is a reworking of [nip2](https://github.com/libvips/nip2) for the gtk4
 UI toolkit and the vips8 image processing library.
 
+There's a news post on libvips.org with an introduction:
+
+https://www.libvips.org/2025/03/12/nip4-for-nip2-users.html
+
 nip4 is a spreadsheet-like interface to the [libvips image processing
 library](https://libvips.github.io/libvips). You create a set of formula
 connecting your objects together, and on a change nip4 will recalculate.

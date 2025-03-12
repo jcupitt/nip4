@@ -175,7 +175,6 @@ static void *
 heapmodel_real_clear_edited(Heapmodel *heapmodel)
 {
 #ifdef DEBUG
-#endif /*DEBUG*/
 		{
 			HeapmodelClass *heapmodel_class = HEAPMODEL_GET_CLASS(heapmodel);
 
@@ -184,6 +183,7 @@ heapmodel_real_clear_edited(Heapmodel *heapmodel)
 			row_name_print(heapmodel->row);
 			printf("\n");
 		}
+#endif /*DEBUG*/
 
 	return NULL;
 }
