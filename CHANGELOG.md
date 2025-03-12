@@ -1,5 +1,11 @@
 ## master
 
+## 9.0.2 2025/03/10
+
+- improve image repaint
+- improve file chooser
+- better windows build
+
 ## 9.0.1-5 2025/02/27
 
 - fix kplot on win
