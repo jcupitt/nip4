@@ -1,5 +1,7 @@
 ## master
 
+- fix save-as
+
 ## 9.0.2 2025/03/10
 
 - improve image repaint
