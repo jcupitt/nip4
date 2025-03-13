@@ -93,6 +93,7 @@ tilecache_dispose(GObject *object)
 #endif /*DEBUG*/
 
 	FREESID(tilecache->tilesource_changed_sid, tilecache->tilesource);
+	FREESID(tilecache->tilesource_loaded_sid, tilecache->tilesource);
 	FREESID(tilecache->tilesource_tiles_changed_sid, tilecache->tilesource);
 	FREESID(tilecache->tilesource_collect_sid, tilecache->tilesource);
 	VIPS_UNREF(tilecache->tilesource);
@@ -278,7 +279,7 @@ tilecache_source_tiles_changed(Tilesource *tilesource,
 	int i;
 
 #ifdef DEBUG
-	printf("tilecache_source_tiles_changed:\n");
+	printf("tilecache_source_tiles_changed: %p\n", tilecache);
 #endif /*DEBUG*/
 
 	for (i = 0; i < tilecache->n_levels; i++) {
@@ -314,6 +315,21 @@ tilecache_source_changed(Tilesource *tilesource, Tilecache *tilecache)
 	tilecache_source_tiles_changed(tilesource, tilecache);
 
 	/* All views must update.
+	 */
+	tilecache_changed(tilecache);
+}
+
+/* background load is done ... no pixels have changed, but we should repaint
+ * in casewe have any missing tiles.
+ */
+static void
+tilecache_source_loaded(Tilesource *tilesource, Tilecache *tilecache)
+{
+#ifdef DEBUG
+	printf("tilecache_source_loaded:\n");
+#endif /*DEBUG*/
+
+	/* Repaint to trigger a request (if necessary).
 	 */
 	tilecache_changed(tilecache);
 }
@@ -489,6 +505,7 @@ static void
 tilecache_set_tilesource(Tilecache *tilecache, Tilesource *tilesource)
 {
 	FREESID(tilecache->tilesource_changed_sid, tilecache->tilesource);
+	FREESID(tilecache->tilesource_loaded_sid, tilecache->tilesource);
 	FREESID(tilecache->tilesource_tiles_changed_sid, tilecache->tilesource);
 	FREESID(tilecache->tilesource_collect_sid, tilecache->tilesource);
 	VIPS_UNREF(tilecache->tilesource);
@@ -503,6 +520,9 @@ tilecache_set_tilesource(Tilecache *tilecache, Tilesource *tilesource)
 		tilecache->tilesource_changed_sid =
 			g_signal_connect(tilesource, "changed",
 				G_CALLBACK(tilecache_source_changed), tilecache);
+		tilecache->tilesource_loaded_sid =
+			g_signal_connect(tilesource, "loaded",
+				G_CALLBACK(tilecache_source_loaded), tilecache);
 		tilecache->tilesource_tiles_changed_sid =
 			g_signal_connect(tilesource, "tiles-changed",
 				G_CALLBACK(tilecache_source_tiles_changed), tilecache);
@@ -917,8 +937,8 @@ tilecache_snapshot(Tilecache *tilecache, GtkSnapshot *snapshot,
 	}
 
 #ifdef DEBUG
-	printf("tilecache_snapshot: scale = %g, x = %g, y = %g\n",
-		scale, x, y);
+	printf("tilecache_snapshot: %p scale = %g, x = %g, y = %g\n",
+		tilecache, scale, x, y);
 #endif /*DEBUG*/
 
 #ifdef DEBUG_VERBOSE
@@ -928,6 +948,11 @@ tilecache_snapshot(Tilecache *tilecache, GtkSnapshot *snapshot,
 		paint_rect->width, paint_rect->height);
 #endif /*DEBUG_VERBOSE*/
 
+#ifdef DEBUG_VERBOSE
+	printf("tilecache_snapshot: %p tiles are:\n", tilecache);
+	tilecache_print(tilecache);
+#endif /*DEBUG_VERBOSE*/
+
 	/* Pick a pyramid layer. For enlarging, we leave the z at 0
 	 * (the highest res layer).
 	 */
@@ -935,9 +960,7 @@ tilecache_snapshot(Tilecache *tilecache, GtkSnapshot *snapshot,
 		scale == 0)
 		z = 0;
 	else
-		z = VIPS_CLIP(0,
-			log(1.0 / scale) / log(2.0),
-			tilecache->n_levels - 1);
+		z = VIPS_CLIP(0, log(1.0 / scale) / log(2.0), tilecache->n_levels - 1);
 
 	/* paint_rect in level0 coordinates.
 	 */

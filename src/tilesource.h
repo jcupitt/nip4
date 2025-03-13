@@ -267,6 +267,12 @@ typedef struct _TilesourceClass {
 	 */
 	void (*page_changed)(Tilesource *tilesource);
 
+	/* The image has loaded and you can fetch pixels (ie. you should repaint,
+	 * but don't invalidate any cache, since the pixels will not have changed
+	 * since last time).
+	 */
+	void (*loaded)(Tilesource *tilesource);
+
 } TilesourceClass;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(Tilesource, g_object_unref)

@@ -28,10 +28,10 @@
  */
 
 /*
- */
 #define DEBUG_VERBOSE
 #define DEBUG
 #define DEBUG_MAKE
+ */
 
 #include "nip4.h"
 
@@ -64,6 +64,7 @@ enum {
 	SIG_TILES_CHANGED,
 	SIG_COLLECT,
 	SIG_PAGE_CHANGED,
+	SIG_LOADED,
 
 	SIG_LAST
 };
@@ -120,6 +121,12 @@ static void
 tilesource_page_changed(Tilesource *tilesource)
 {
 	g_signal_emit(tilesource, tilesource_signals[SIG_PAGE_CHANGED], 0);
+}
+
+static void
+tilesource_loaded(Tilesource *tilesource)
+{
+	g_signal_emit(tilesource, tilesource_signals[SIG_LOADED], 0);
 }
 
 typedef struct _TilesourceUpdate {
@@ -279,8 +286,7 @@ tilesource_display_image(Tilesource *tilesource, VipsImage **mask_out)
 		/* There's a pyramid ... compute the size of image we need,
 		 * then find the layer which is one larger.
 		 */
-		int required_width =
-			tilesource->display_width >> tilesource->current_z;
+		int required_width = tilesource->width >> tilesource->current_z;
 
 		int i;
 		int level;
@@ -417,10 +423,8 @@ tilesource_display_image(Tilesource *tilesource, VipsImage **mask_out)
          * some layer other than the base one. Calculate the
          * subsample as (current_width / required_width).
          */
-        int width =
-            VIPS_MAX(1, tilesource->display_width >> tilesource->current_z);
-        int height =
-            VIPS_MAX(1, tilesource->display_height >> tilesource->current_z);
+        int width = VIPS_MAX(1, tilesource->width >> tilesource->current_z);
+        int height = VIPS_MAX(1, tilesource->height >> tilesource->current_z);
         int xfac = image->Xsize / width;
         int yfac = image->Ysize / height;
 
@@ -1082,7 +1086,7 @@ tilesource_background_load_done_idle(void *user_data)
 		"visible", TRUE,
 		NULL);
 	tilesource_update_display(tilesource);
-	tilesource_changed(tilesource);
+	tilesource_loaded(tilesource);
 
 	/* Drop the ref that kept this tilesource alive during load, see
 	 * tilesource_background_load().
@@ -1254,6 +1258,14 @@ tilesource_class_init(TilesourceClass *class)
 		G_TYPE_FROM_CLASS(class),
 		G_SIGNAL_RUN_LAST,
 		G_STRUCT_OFFSET(TilesourceClass, page_changed),
+		NULL, NULL,
+		g_cclosure_marshal_VOID__VOID,
+		G_TYPE_NONE, 0);
+
+	tilesource_signals[SIG_LOADED] = g_signal_new("loaded",
+		G_TYPE_FROM_CLASS(class),
+		G_SIGNAL_RUN_LAST,
+		G_STRUCT_OFFSET(TilesourceClass, loaded),
 		NULL, NULL,
 		g_cclosure_marshal_VOID__VOID,
 		G_TYPE_NONE, 0);
