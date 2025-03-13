@@ -293,7 +293,7 @@ iimage_graphic_save(Classmodel *classmodel,
 {
 	iImage *iimage = IIMAGE(classmodel);
 	VipsImage *image = iimage->value.ii->image;
-	GtkWindow *window = view_get_window(VIEW(parent));
+	GtkWindow *window = GTK_WINDOW(gtk_widget_get_root(parent));
 
 	if (image) {
 		char buf[VIPS_PATH_MAX];

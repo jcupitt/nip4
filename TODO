@@ -1,8 +1,3 @@
-- image / new, then ^V a screenshot in, save as png, crash with
-
-(nip4:1072716): GLib-GObject-CRITICAL **: 12:25:04.347: invalid cast from 'Imagewindow' to 'View'
-
-
 - try
 
     nip4 ~/test.ws

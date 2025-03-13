@@ -380,7 +380,7 @@ store_add_file(const char *filename, GListStore *store)
 static void
 recover_refresh(Recover *recover)
 {
-	set_glabel(recover->location, "Backups in %s", PATH_TMP);
+	set_glabel(recover->location, "Backups in %s:", PATH_TMP);
 
 	GListModel *model = G_LIST_MODEL(g_list_store_new(RECOVERFILE_TYPE));
 	(void) path_map_dir(PATH_TMP, "*.ws",
