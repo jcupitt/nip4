@@ -274,6 +274,9 @@ drawstate_draw(Drawstate *state,
 static void
 drawstate_init(Drawstate *state)
 {
+	state->kccfg = NULL;
+	state->kplot = NULL;
+
 	// minimal config for thumbnail draw
 	kplotcfg_defaults(&state->kcfg_thumbnail);
 	state->kcfg_thumbnail.xinterval = 0;
@@ -293,8 +296,6 @@ drawstate_init(Drawstate *state)
 	state->kcfg_window.clrs = plotdisplay_series_ccfg;
 	state->kcfg_window.ticlabelfont = plotdisplay_tic_font;
 	state->kcfg_window.axislabelfont = plotdisplay_axis_font;
-
-	state->kplot = NULL;
 }
 
 static void

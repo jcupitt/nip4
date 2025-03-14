@@ -1,3 +1,10 @@
+valgrind!
+
+==1537060== Conditional jump or move depends on uninitialised value(s)
+==1537060==    at 0x1978B5: drawstate_free (plotdisplay.c:183)
+==1537060==    by 0x198C01: plotdisplay_to_image (plotdisplay.c:573)
+==1537060==    by 0x14038D: apply_graph_export_image_call (builtin.c:521)
+
 # menu redesign
 
 - remove unused widgets
