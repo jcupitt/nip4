@@ -53,8 +53,6 @@ iimage_dispose(GObject *gobject)
 		(SListMapFn) classmodel_iimage_unlink, iimage);
 	g_assert(!iimage->classmodels);
 
-	WEAKREF_SET(iimage->tilesource, NULL);
-
 	G_OBJECT_CLASS(iimage_parent_class)->dispose(gobject);
 }
 
@@ -416,44 +414,10 @@ iimage_init(iImage *iimage)
 	iobject_set(IOBJECT(iimage), CLASS_IMAGE, NULL);
 }
 
-static void
-iimage_tilesource_tiles_changed(Tilesource *tilesource, iImage *iimage)
+void
+iimage_update_from_tilesource(iImage *iimage, Tilesource *tilesource)
 {
 	iimage->scale = tilesource->scale;
 	iimage->offset = tilesource->offset;
 	iimage->falsecolour = tilesource->falsecolour;
-}
-
-/* Return a new reference to the tilesource for this iimage. Make a new
- * tilesource if there's none.
- */
-Tilesource *
-iimage_get_tilesource_ref(iImage *iimage)
-{
-	Imageinfo *ii = iimage->value.ii;
-
-	if (iimage->tilesource &&
-		tilesource_has_imageinfo(iimage->tilesource, ii))
-		// there's a tilesource, and it's for the image we hold
-		return g_object_ref(iimage->tilesource);
-	else if (ii) {
-		// no tilesource, or it's out of date ... make a new one
-		Tilesource *tilesource = tilesource_new_from_imageinfo(ii);
-
-		g_object_set(tilesource,
-			"active", TRUE,
-			"scale", iimage->scale,
-			"offset", iimage->offset,
-			"falsecolour", iimage->falsecolour,
-			NULL);
-
-		WEAKREF_SET(iimage->tilesource, tilesource);
-
-		g_signal_connect_object(tilesource, "tiles-changed",
-			G_CALLBACK(iimage_tilesource_tiles_changed), iimage, 0);
-
-		return tilesource;
-	}
-	else
-		return NULL;
 }

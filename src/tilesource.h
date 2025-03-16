@@ -237,6 +237,10 @@ typedef struct _Tilesource {
 	int load_error;
 	char *load_message;
 
+	/* Render priority ... lower for thumbnails.
+	 */
+	int priority;
+
 } Tilesource;
 
 typedef struct _TilesourceClass {
@@ -282,6 +286,7 @@ GType tilesource_get_type(void);
 Tilesource *tilesource_new_from_file(const char *filename);
 Tilesource *tilesource_new_from_image(VipsImage *image);
 Tilesource *tilesource_new_from_imageinfo(Imageinfo *ii);
+Tilesource *tilesource_new_from_iimage(iImage *iimage, int priority);
 gboolean tilesource_has_imageinfo(Tilesource *tilesource, Imageinfo *ii);
 
 void tilesource_background_load(Tilesource *tilesource);

@@ -1,9 +1,14 @@
-valgrind!
+- we seem to be making a lot of iimageview during demo load?
 
-==1537060== Conditional jump or move depends on uninitialised value(s)
-==1537060==    at 0x1978B5: drawstate_free (plotdisplay.c:183)
-==1537060==    by 0x198C01: plotdisplay_to_image (plotdisplay.c:573)
-==1537060==    by 0x14038D: apply_graph_export_image_call (builtin.c:521)
+- we are not always refreshing thumbnails after load completes
+
+- shrink as well as expand tiles in tilecache_snapshot
+
+- iimage_update_from_tilesource() needs to make all iimageview refresh
+
+- long formula should truncate with an ellipsis
+
+- are we autosizing the sinkscreen threadpool? we shouldn't
 
 # menu redesign
 

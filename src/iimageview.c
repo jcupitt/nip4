@@ -145,24 +145,34 @@ iimageview_refresh(vObject *vobject)
 	iimageview_compute_visibility(iimageview);
 
 	if (iimageview->enable) {
-		Tilesource *current_tilesource;
-		g_object_get(iimageview->imagedisplay,
-			"tilesource", &current_tilesource,
-			NULL);
-		Tilesource *new_tilesource = iimage_get_tilesource_ref(iimage);
-
-		if (current_tilesource != new_tilesource) {
+		if (!iimage->value.ii)
 			g_object_set(iimageview->imagedisplay,
-				"bestfit", TRUE,
-				"tilesource", new_tilesource,
+				"tilesource", NULL,
+				NULL);
+		else {
+			Tilesource *current_tilesource;
+			g_object_get(iimageview->imagedisplay,
+				"tilesource", &current_tilesource,
 				NULL);
 
-			// set the image loading, if necessary
-			tilesource_background_load(new_tilesource);
-		}
+			if (current_tilesource &&
+				current_tilesource->image != iimage->value.ii->image) {
+				Tilesource *new_tilesource =
+					tilesource_new_from_iimage(iimage, -1000);
 
-		VIPS_UNREF(current_tilesource);
-		VIPS_UNREF(new_tilesource);
+				g_object_set(iimageview->imagedisplay,
+					"bestfit", TRUE,
+					"tilesource", new_tilesource,
+					NULL);
+
+				// set the image loading, if necessary
+				tilesource_background_load(new_tilesource);
+
+				VIPS_UNREF(new_tilesource);
+			}
+
+			VIPS_UNREF(current_tilesource);
+		}
 	}
 
 	if (iimageview->label)

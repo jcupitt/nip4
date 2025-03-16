@@ -1462,7 +1462,7 @@ imagewindow_iimage_changed(iImage *iimage, Imagewindow *win)
 	printf("imagewindow_iimage_changed:\n");
 #endif /*DEBUG*/
 
-	Tilesource *tilesource = iimage_get_tilesource_ref(iimage);
+	Tilesource *tilesource = tilesource_new_from_iimage(iimage, 0);
 	imagewindow_set_tilesource(win, tilesource);
 	tilesource_background_load(tilesource);
 	VIPS_UNREF(tilesource);

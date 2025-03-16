@@ -1,9 +1,12 @@
 ## master
 
+- revise image repaint
+
 ## 9.0.3 2025/03/13
 
 - fix save-as
 - revise image repaint (again)
+- fix a crash in graph export
 
 ## 9.0.2 2025/03/10
 

@@ -54,6 +54,7 @@ enum {
 	PROP_ACTIVE,
 	PROP_LOADED,
 	PROP_VISIBLE,
+	PROP_PRIORITY,
 
 	/* Signals.
 	 */
@@ -452,7 +453,7 @@ tilesource_display_image(Tilesource *tilesource, VipsImage **mask_out)
 		x = vips_image_new();
 		mask = vips_image_new();
 		if (vips_sink_screen(image, x, mask,
-				TILE_SIZE, TILE_SIZE, MAX_TILES, 0,
+				TILE_SIZE, TILE_SIZE, MAX_TILES, tilesource->priority,
 				tilesource_render_notify, update)) {
 			VIPS_UNREF(x);
 			VIPS_UNREF(mask);
@@ -779,6 +780,10 @@ tilesource_property_name(guint prop_id)
 		return "VISIBLE";
 		break;
 
+	case PROP_PRIORITY:
+		return "PRIORITY";
+		break;
+
 	default:
 		return "<unknown>";
 	}
@@ -970,6 +975,12 @@ tilesource_set_property(GObject *object,
 			tilesource->visible = b;
 		break;
 
+	case PROP_PRIORITY:
+		i = g_value_get_int(value);
+		if (tilesource->priority != i)
+			tilesource->priority = i;
+		break;
+
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
 		break;
@@ -1021,6 +1032,10 @@ tilesource_get_property(GObject *object,
 
 	case PROP_VISIBLE:
 		g_value_set_boolean(value, tilesource->visible);
+		break;
+
+	case PROP_PRIORITY:
+		g_value_set_int(value, tilesource->priority);
 		break;
 
 	default:
@@ -1199,6 +1214,13 @@ tilesource_class_init(TilesourceClass *class)
 			_("visible"),
 			_("Image is currently visible"),
 			FALSE,
+			G_PARAM_READWRITE));
+
+	g_object_class_install_property(gobject_class, PROP_PRIORITY,
+		g_param_spec_int("priority",
+			_("priority"),
+			_("Render priority"),
+			-1000, 1000, 0,
 			G_PARAM_READWRITE));
 
 	tilesource_signals[SIG_PREEVAL] = g_signal_new("preeval",
@@ -1414,6 +1436,22 @@ tilesource_new_from_imageinfo(Imageinfo *ii)
 			NULL, NULL, NULL);
 	else
 		return tilesource_new_from_image(ii->image);
+}
+
+Tilesource *
+tilesource_new_from_iimage(iImage *iimage, int priority)
+{
+	Tilesource *tilesource = tilesource_new_from_imageinfo(iimage->value.ii);
+
+	g_object_set(tilesource,
+		"active", TRUE,
+		"scale", iimage->scale,
+		"offset", iimage->offset,
+		"falsecolour", iimage->falsecolour,
+		"priority", priority,
+		NULL);
+
+	return tilesource;
 }
 
 gboolean

@@ -75,11 +75,6 @@ struct _iImage {
 	/* Private ... build iobject caption here.
 	 */
 	VipsBuf caption_buffer;
-
-	// the tilesource for the ImageValue ... a weakref which gets dupped and
-	// given out to any viewers (iimageview, imageui) by
-	// iimage_get_tilesource_ref()
-	Tilesource *tilesource;
 };
 
 typedef struct _iImageClass {
@@ -92,4 +87,4 @@ typedef struct _iImageClass {
 GType iimage_get_type(void);
 gboolean iimage_replace(iImage *iimage, const char *filename);
 gboolean iimage_replace_imageinfo(iImage *iimage, Imageinfo *ii);
-Tilesource *iimage_get_tilesource_ref(iImage *iimage);
+void iimage_update_from_tilesource(iImage *iimage, Tilesource *tilesource);
