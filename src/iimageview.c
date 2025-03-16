@@ -133,8 +133,8 @@ iimageview_refresh(vObject *vobject)
 	Tilesource *tilesource;
 
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("iimageview_refresh:\n");
+#endif /*DEBUG*/
 
 	// on the first refresh, register with the enclosing workspaceview
 	if (iimageview->first) {
@@ -146,45 +146,46 @@ iimageview_refresh(vObject *vobject)
 
 	iimageview_compute_visibility(iimageview);
 
-	if (iimageview->enable) {
-		if (!iimage->value.ii)
+	if (!iimageview->enable ||
+		!iimage->value.ii)
+		g_object_set(iimageview->imagedisplay,
+			"tilesource", NULL,
+			NULL);
+	else if (iimageview->enable) {
+		g_object_get(iimageview->imagedisplay,
+			"tilesource", &tilesource,
+			NULL);
+
+		if (!tilesource ||
+			(tilesource->image != iimage->value.ii->image)) {
+			Tilesource *new_tilesource =
+				tilesource_new_from_iimage(iimage, -1000);
+
 			g_object_set(iimageview->imagedisplay,
-				"tilesource", NULL,
-				NULL);
-		else {
-			g_object_get(iimageview->imagedisplay,
-				"tilesource", &tilesource,
+				"bestfit", TRUE,
+				"tilesource", new_tilesource,
 				NULL);
 
-			if (!tilesource ||
-				(tilesource->image != iimage->value.ii->image)) {
-				Tilesource *new_tilesource =
-					tilesource_new_from_iimage(iimage, -1000);
+			// set the image loading, if necessary
+			tilesource_background_load(new_tilesource);
 
-				g_object_set(iimageview->imagedisplay,
-					"bestfit", TRUE,
-					"tilesource", new_tilesource,
-					NULL);
-
-				// set the image loading, if necessary
-				tilesource_background_load(new_tilesource);
-
-				VIPS_UNREF(new_tilesource);
-			}
-
-			VIPS_UNREF(tilesource);
+			VIPS_UNREF(new_tilesource);
 		}
+
+		VIPS_UNREF(tilesource);
 	}
 
 	g_object_get(iimageview->imagedisplay,
 		"tilesource", &tilesource,
 		NULL);
-	if (tilesource)
+	if (tilesource) {
 		g_object_set(tilesource,
 			"scale", iimage->scale,
 			"offset", iimage->offset,
 			"falsecolour", iimage->falsecolour,
 			NULL);
+		VIPS_UNREF(tilesource);
+	}
 
 	if (iimageview->label)
 		set_glabel(iimageview->label, "%s", IOBJECT(iimage)->caption);

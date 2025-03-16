@@ -6,12 +6,6 @@
 - "reset" in display bar resets the position of scale/offset widgets, but does
   not reset the menu items (eg. tick on falsecolour)
 
-- can we make tilesource on demand in iimageview_refresh?
-
-	might speed up workspace load
-
-- we are not always refreshing thumbnails after load completes
-
 - shrink as well as expand tiles in tilecache_snapshot
 
 - long formula should truncate with an ellipsis
