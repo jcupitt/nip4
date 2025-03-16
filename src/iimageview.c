@@ -130,9 +130,11 @@ iimageview_refresh(vObject *vobject)
 	iImageview *iimageview = IIMAGEVIEW(vobject);
 	iImage *iimage = IIMAGE(vobject->iobject);
 
+	Tilesource *tilesource;
+
 #ifdef DEBUG
-	printf("iimageview_refresh:\n");
 #endif /*DEBUG*/
+	printf("iimageview_refresh:\n");
 
 	// on the first refresh, register with the enclosing workspaceview
 	if (iimageview->first) {
@@ -150,13 +152,12 @@ iimageview_refresh(vObject *vobject)
 				"tilesource", NULL,
 				NULL);
 		else {
-			Tilesource *current_tilesource;
 			g_object_get(iimageview->imagedisplay,
-				"tilesource", &current_tilesource,
+				"tilesource", &tilesource,
 				NULL);
 
-			if (current_tilesource &&
-				current_tilesource->image != iimage->value.ii->image) {
+			if (!tilesource ||
+				(tilesource->image != iimage->value.ii->image)) {
 				Tilesource *new_tilesource =
 					tilesource_new_from_iimage(iimage, -1000);
 
@@ -171,9 +172,19 @@ iimageview_refresh(vObject *vobject)
 				VIPS_UNREF(new_tilesource);
 			}
 
-			VIPS_UNREF(current_tilesource);
+			VIPS_UNREF(tilesource);
 		}
 	}
+
+	g_object_get(iimageview->imagedisplay,
+		"tilesource", &tilesource,
+		NULL);
+	if (tilesource)
+		g_object_set(tilesource,
+			"scale", iimage->scale,
+			"offset", iimage->offset,
+			"falsecolour", iimage->falsecolour,
+			NULL);
 
 	if (iimageview->label)
 		set_glabel(iimageview->label, "%s", IOBJECT(iimage)->caption);

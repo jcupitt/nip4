@@ -420,4 +420,6 @@ iimage_update_from_tilesource(iImage *iimage, Tilesource *tilesource)
 	iimage->scale = tilesource->scale;
 	iimage->offset = tilesource->offset;
 	iimage->falsecolour = tilesource->falsecolour;
+
+	iobject_changed(IOBJECT(iimage));
 }

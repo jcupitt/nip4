@@ -736,11 +736,11 @@ imagewindow_dispose(GObject *object)
 	printf("imagewindow_dispose:\n");
 #endif /*DEBUG*/
 
-	imagewindow_files_free(win);
-
 	FREESID(win->iimage_changed_sid, win->iimage);
 	FREESID(win->iimage_destroy_sid, win->iimage);
 	VIPS_FREEF(gtk_widget_unparent, win->right_click_menu);
+
+	imagewindow_files_free(win);
 
 	G_OBJECT_CLASS(imagewindow_parent_class)->dispose(object);
 }

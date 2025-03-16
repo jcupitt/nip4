@@ -1,14 +1,24 @@
-- we seem to be making a lot of iimageview during demo load?
+- we save and restore scale/offset/falsecolour on imagewindow popup and
+  popdown
+
+	add log, etc.
+
+- "reset" in display bar resets the position of scale/offset widgets, but does
+  not reset the menu items (eg. tick on falsecolour)
+
+- can we make tilesource on demand in iimageview_refresh?
+
+	might speed up workspace load
 
 - we are not always refreshing thumbnails after load completes
 
 - shrink as well as expand tiles in tilecache_snapshot
 
-- iimage_update_from_tilesource() needs to make all iimageview refresh
-
 - long formula should truncate with an ellipsis
 
-- are we autosizing the sinkscreen threadpool? we shouldn't
+- are we autosizing the sinkscreen threadpool?
+
+	maybe we shouldn't? or maybe it's a good thing?
 
 # menu redesign
 
