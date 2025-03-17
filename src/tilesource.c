@@ -1448,6 +1448,8 @@ tilesource_new_from_iimage(iImage *iimage, int priority)
 		"scale", iimage->scale,
 		"offset", iimage->offset,
 		"falsecolour", iimage->falsecolour,
+		"log", iimage->log,
+		"icc", iimage->icc,
 		"priority", priority,
 		NULL);
 

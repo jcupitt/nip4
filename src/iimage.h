@@ -71,6 +71,8 @@ struct _iImage {
 	double scale;
 	double offset;
 	gboolean falsecolour;
+	gboolean log;
+	gboolean icc;
 
 	/* Private ... build iobject caption here.
 	 */

@@ -183,6 +183,8 @@ iimageview_refresh(vObject *vobject)
 			"scale", iimage->scale,
 			"offset", iimage->offset,
 			"falsecolour", iimage->falsecolour,
+			"log", iimage->log,
+			"icc", iimage->icc,
 			NULL);
 		VIPS_UNREF(tilesource);
 	}

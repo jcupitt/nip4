@@ -1,18 +1,12 @@
-- we save and restore scale/offset/falsecolour on imagewindow popup and
-  popdown
-
-	add log, etc.
-
 - "reset" in display bar resets the position of scale/offset widgets, but does
   not reset the menu items (eg. tick on falsecolour)
 
+	I forget how menu items are linked to actions, reread this
+
+	gaction bound to a gsetting? do we need to add to the settings
+	schema?
+
 - shrink as well as expand tiles in tilecache_snapshot
-
-- long formula should truncate with an ellipsis
-
-- are we autosizing the sinkscreen threadpool?
-
-	maybe we shouldn't? or maybe it's a good thing?
 
 # menu redesign
 

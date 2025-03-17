@@ -408,6 +408,8 @@ iimage_init(iImage *iimage)
 	iimage->scale = 0.0;
 	iimage->offset = 0.0;
 	iimage->falsecolour = FALSE;
+	iimage->log = FALSE;
+	iimage->icc = FALSE;
 
 	vips_buf_init_dynamic(&iimage->caption_buffer, MAX_LINELENGTH);
 

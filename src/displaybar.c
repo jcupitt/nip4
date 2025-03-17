@@ -176,13 +176,11 @@ displaybar_set_property(GObject *object,
 
 	switch (prop_id) {
 	case PROP_IMAGEWINDOW:
-		displaybar_set_imagewindow(displaybar,
-			g_value_get_object(value));
+		displaybar_set_imagewindow(displaybar, g_value_get_object(value));
 		break;
 
 	case PROP_REVEALED:
-		gtk_action_bar_set_revealed(
-			GTK_ACTION_BAR(displaybar->action_bar),
+		gtk_action_bar_set_revealed(GTK_ACTION_BAR(displaybar->action_bar),
 			g_value_get_boolean(value));
 		break;
 
