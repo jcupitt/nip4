@@ -184,6 +184,7 @@ nip4_lib = static_library('nip4',
 )
 
 nip4_dep = declare_dependency(
+  sources: enumtypes[1],
   dependencies: nip4_deps,
   link_whole: nip4_lib,
 )
