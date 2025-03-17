@@ -1432,8 +1432,6 @@ workspace_selected_group(Workspace *ws)
 static Row *
 workspace_test_error(Row *row, Workspace *ws, int *found)
 {
-	g_assert(row->err);
-
 	/* Found next?
 	 */
 	if (*found)
