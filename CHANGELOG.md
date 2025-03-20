@@ -1,6 +1,9 @@
 ## master
 
+## 9.0.4 2025/03/20
+
 - revise image repaint
+- more robust workspace load
 
 ## 9.0.3 2025/03/13
 
