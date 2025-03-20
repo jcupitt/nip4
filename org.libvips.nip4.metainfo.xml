@@ -58,6 +58,15 @@ from the command-line and without a GUI.
 
   <releases>
 
+    <release version="9.0.4" date="2025-03-20">
+      <description>
+        <p>
+          Image windows are faster and more reliable, workspace load is more
+          robust, fixed a bug in save-as, fixed a bug in graph export.
+        </p>
+      </description>
+    </release>
+
     <release version="9.0.2" date="2025-03-11">
       <description>
         <p>
