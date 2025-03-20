@@ -307,46 +307,48 @@ row_error_set(Row *row)
 void
 row_error_clear(Row *row)
 {
-	workspace_error_sanity(row->ws);
+	Workspace *ws = row->ws;
 
-	if (row->err) {
-		Workspace *ws = row->ws;
+	if (ws) {
+		workspace_error_sanity(row->ws);
 
-		ws->errors = g_slist_remove(ws->errors, row);
-		row->err = FALSE;
+		if (row->err) {
+			ws->errors = g_slist_remove(ws->errors, row);
+			row->err = FALSE;
 
-		iobject_changed(IOBJECT(row));
+			iobject_changed(IOBJECT(row));
 
 #ifdef DEBUG_ERROR
-		printf("row_error_clear: ");
-		row_name_print(row);
-		printf("\n");
+			printf("row_error_clear: ");
+			row_name_print(row);
+			printf("\n");
 #endif /*DEBUG_ERROR*/
 
-		/* Mark our text modified to make sure we reparse and compile.
-		 * The code may contain pointers to dead symbols if we were in
-		 * error because they were undefined.
-		 */
-		if (row->child_rhs &&
-			row->child_rhs->itext)
-			heapmodel_set_modified(HEAPMODEL(row->child_rhs->itext), TRUE);
+			/* Mark our text modified to make sure we reparse and compile.
+			 * The code may contain pointers to dead symbols if we were in
+			 * error because they were undefined.
+			 */
+			if (row->child_rhs &&
+				row->child_rhs->itext)
+				heapmodel_set_modified(HEAPMODEL(row->child_rhs->itext), TRUE);
 
-		/* All errors gone? Ws changed too.
-		 */
-		if (!ws->errors)
-			iobject_changed(IOBJECT(ws));
+			/* All errors gone? Ws changed too.
+			 */
+			if (!ws->errors)
+				iobject_changed(IOBJECT(ws));
 
-		/* Is this a local row? Clear the top row error as well, in
-		 * case it's in error because of us.
-		 */
-		if (row != row->top_row &&
-			row->top_row->expr) {
-			expr_error_clear(row->top_row->expr);
-			row_dirty_set(row->top_row, TRUE);
+			/* Is this a local row? Clear the top row error as well, in
+			 * case it's in error because of us.
+			 */
+			if (row != row->top_row &&
+				row->top_row->expr) {
+				expr_error_clear(row->top_row->expr);
+				row_dirty_set(row->top_row, TRUE);
+			}
 		}
-	}
 
-	workspace_error_sanity(row->ws);
+		workspace_error_sanity(row->ws);
+	}
 }
 
 /* Break a dependency.
