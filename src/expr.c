@@ -257,11 +257,9 @@ expr_strip(Expr *expr)
 
 	/* Break top links we're part of.
 	 */
-	if (slist_map(expr->static_links,
-			(SListMapFn) link_expr_destroy, NULL))
+	if (slist_map(expr->static_links, (SListMapFn) link_expr_destroy, NULL))
 		return expr;
-	if (slist_map(expr->dynamic_links,
-			(SListMapFn) link_expr_destroy, NULL))
+	if (slist_map(expr->dynamic_links, (SListMapFn) link_expr_destroy, NULL))
 		return expr;
 	g_assert(!expr->static_links);
 	g_assert(!expr->dynamic_links);
@@ -460,21 +458,25 @@ expr_error_set(Expr *expr)
 #ifdef DEBUG_ERROR
 		printf("expr_error_set: error in ");
 		symbol_name_print(expr->sym);
-		printf(": %s %s\n", error_get_top(), error_get_sub());
+		printf(": top=\"%s\" sub=\"%s\"\n", error_get_top(), error_get_sub());
 #endif /*DEBUG_ERROR*/
+
+		g_assert(strlen(error_get_top()) > 0);
+		g_assert(strlen(error_get_sub()) > 0);
 
 		VIPS_SETSTR(expr->error_sub, error_get_sub());
 
-		// add " in A1" etc. to the top error
-		if (expr->row) {
-			char txt[MAX_LINELENGTH];
-			VipsBuf buf = VIPS_BUF_STATIC(txt);
+		char txt[MAX_LINELENGTH];
+		VipsBuf buf = VIPS_BUF_STATIC(txt);
 
+		// add " in A1" etc. to the top error
+		vips_buf_appends(&buf, error_get_top());
+		if (expr->row) {
+			vips_buf_appends(&buf, " in ");
 			row_qualified_name(expr->row, &buf);
-			error_top(_("%s in %s"), error_get_top(), vips_buf_all(&buf));
 		}
 
-		VIPS_SETSTR(expr->error_top, error_get_top());
+		VIPS_SETSTR(expr->error_top, vips_buf_all(&buf));
 
 		/* Zap the value of the expr ... it may contain pointers to
 		 * dead stuff.
@@ -525,12 +527,14 @@ expr_error_clear(Expr *expr)
 		printf("\n");
 #endif /*DEBUG_ERROR*/
 
-		expr->err = FALSE;
 		expr_error_all = g_slist_remove(expr_error_all, expr);
 		if (expr->row)
 			row_error_clear(expr->row);
 
-		if (is_top(expr->sym) && expr->sym->expr == expr)
+		expr->err = FALSE;
+
+		if (is_top(expr->sym) &&
+			expr->sym->expr == expr)
 			symbol_state_change(expr->sym);
 	}
 }

@@ -173,6 +173,8 @@ void workspace_selected_remove_yesno(Workspace *ws, GtkWindow *parent);
 gboolean workspace_selected_ungroup(Workspace *ws);
 gboolean workspace_selected_group(Workspace *ws);
 
+void workspace_error_sanity(Workspace *ws);
+
 gboolean workspace_next_error(Workspace *ws);
 
 void workspace_set_mode(Workspace *ws, WorkspaceMode mode);

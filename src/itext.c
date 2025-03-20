@@ -125,10 +125,11 @@ itext_add_string(PElement *base, VipsBuf *buf)
 			return base;
 	}
 
-	/* Buffer full? Abort string print.
+	/* Buffer full? Abort string print, though it's not an error (return
+	 * NULL).
 	 */
 	if (buf->full)
-		return base;
+		return NULL;
 
 	return NULL;
 }
@@ -335,8 +336,7 @@ itext_add_element(VipsBuf *buf, PElement *base,
 		vips_buf_appends(buf, "'");
 	}
 	else if (PEISCOMPLEX(base)) {
-		itext_add_complex(PEGETREALPART(base), PEGETIMAGPART(base),
-			buf);
+		itext_add_complex(PEGETREALPART(base), PEGETIMAGPART(base), buf);
 	}
 	else if (PEISMANAGEDSTRING(base)) {
 		Managedstring *managedstring = PEGETMANAGEDSTRING(base);
@@ -596,10 +596,13 @@ itext_update_model(Heapmodel *heapmodel)
 
 	/* If this is a non-edited row, update the source.
 	 */
-	if (!itext->edited || row == row->top_row) {
+	if (!itext->edited ||
+		row == row->top_row) {
 		const char *new_formula;
 
-		if (expr && expr->compile && expr->compile->rhstext)
+		if (expr &&
+			expr->compile &&
+			expr->compile->rhstext)
 			new_formula = expr->compile->rhstext;
 		else
 			new_formula = vips_buf_all(&itext->decompile);

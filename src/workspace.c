@@ -1429,9 +1429,37 @@ workspace_selected_group(Workspace *ws)
 	return TRUE;
 }
 
+void
+workspace_error_sanity(Workspace *ws)
+{
+#ifdef DEBUG
+	if (ws->errors) {
+		g_assert(!ws->last_error || ws->last_error->err);
+		g_assert(!ws->last_error || g_slist_find(ws->errors, ws->last_error));
+
+		GSList *p;
+		for (p = ws->errors; p; p = p->next) {
+			Row *row = ROW(p->data);
+
+			g_assert(row->top_row);
+			g_assert(row->top_row->expr);
+
+			g_assert(row->err);
+			g_assert(row->expr);
+			g_assert(strlen(row->expr->error_top) > 0);
+			g_assert(strlen(row->expr->error_sub) > 0);
+		}
+	}
+	else
+		g_assert(ws->last_error == NULL);
+#endif /*DEBUG*/
+}
+
 static Row *
 workspace_test_error(Row *row, Workspace *ws, int *found)
 {
+	g_assert(row->err);
+
 	/* Found next?
 	 */
 	if (*found)
@@ -1452,11 +1480,14 @@ workspace_test_error(Row *row, Workspace *ws, int *found)
 gboolean
 workspace_next_error(Workspace *ws)
 {
+	workspace_error_sanity(ws);
+
 	int found;
 
 	if (!ws->errors) {
 		error_top(_("No errors in tab"));
-		error_sub("%s", _("there are no errors (that I can see) in this tab"));
+		error_sub("%s",
+			_("there are no errors (that I can see) in this tab"));
 		return FALSE;
 	}
 
@@ -1483,6 +1514,8 @@ workspace_next_error(Workspace *ws)
 
 	error_top("%s", ws->last_error->expr->error_top);
 	error_sub("%s", ws->last_error->expr->error_sub);
+
+	workspace_error_sanity(ws);
 
 	return TRUE;
 }

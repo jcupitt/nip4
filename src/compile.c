@@ -1758,6 +1758,9 @@ compile_check(Compile *compile)
 void
 compile_error_set(Compile *compile)
 {
+	g_assert(strlen(error_get_top()) > 0);
+	g_assert(strlen(error_get_sub()) > 0);
+
 	(void) slist_map(compile->exprs, (SListMapFn) expr_error_set, NULL);
 }
 

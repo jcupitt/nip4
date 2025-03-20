@@ -254,6 +254,8 @@ row_dirty_set(Row *row, gboolean clear_error)
 void
 row_error_set(Row *row)
 {
+	workspace_error_sanity(row->ws);
+
 	if (!row->err) {
 		Workspace *ws = row->ws;
 		gboolean was_clear = ws->errors == NULL;
@@ -295,6 +297,8 @@ row_error_set(Row *row)
 			expr_error_set(row->top_row->expr);
 		}
 	}
+
+	workspace_error_sanity(row->ws);
 }
 
 /* Clear error state ... called from expr_error_clear() ... don't call this
@@ -303,7 +307,9 @@ row_error_set(Row *row)
 void
 row_error_clear(Row *row)
 {
-	if (row->err && row->ws) {
+	workspace_error_sanity(row->ws);
+
+	if (row->err) {
 		Workspace *ws = row->ws;
 
 		ws->errors = g_slist_remove(ws->errors, row);
@@ -321,9 +327,9 @@ row_error_clear(Row *row)
 		 * The code may contain pointers to dead symbols if we were in
 		 * error because they were undefined.
 		 */
-		if (row->child_rhs && row->child_rhs->itext)
-			heapmodel_set_modified(
-				HEAPMODEL(row->child_rhs->itext), TRUE);
+		if (row->child_rhs &&
+			row->child_rhs->itext)
+			heapmodel_set_modified(HEAPMODEL(row->child_rhs->itext), TRUE);
 
 		/* All errors gone? Ws changed too.
 		 */
@@ -333,11 +339,14 @@ row_error_clear(Row *row)
 		/* Is this a local row? Clear the top row error as well, in
 		 * case it's in error because of us.
 		 */
-		if (row != row->top_row && row->top_row->expr) {
+		if (row != row->top_row &&
+			row->top_row->expr) {
 			expr_error_clear(row->top_row->expr);
 			row_dirty_set(row->top_row, TRUE);
 		}
 	}
+
+	workspace_error_sanity(row->ws);
 }
 
 /* Break a dependency.
@@ -387,9 +396,11 @@ row_dispose(GObject *gobject)
 
 	/* Reset state. Also see row_parent_remove().
 	 */
-	row_hide_dependents(row);
 	if (row->expr)
 		expr_error_clear(row->expr);
+
+	row_hide_dependents(row);
+
 	if (col &&
 		col->last_select == row)
 		col->last_select = NULL;
@@ -1571,6 +1582,8 @@ row_recomp_row(Row *row)
 static void
 row_recomp_all(Row *top_row)
 {
+	workspace_error_sanity(top_row->ws);
+
 	/* Rebuild all dirty rows.
 	 */
 	while (!top_row->err && top_row->recomp) {
@@ -1608,6 +1621,8 @@ row_recomp_all(Row *top_row)
 		pgraph(&top_row->expr->root);
 #endif /*DEBUG*/
 	}
+
+	workspace_error_sanity(top_row->ws);
 }
 
 static GSList *
