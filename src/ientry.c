@@ -150,21 +150,32 @@ ientry_get_property(GObject *object,
 }
 
 static void
+ientry_set_text(iEntry *ientry, const char *text)
+{
+	GtkEntryBuffer *buffer = gtk_entry_get_buffer(GTK_ENTRY(ientry->entry));
+
+	g_signal_handlers_block_matched(G_OBJECT(buffer),
+		G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, ientry);
+
+	if (text &&
+		!g_str_equal(text, ientry->text)) {
+		gtk_entry_buffer_set_text(buffer, text, -1);
+		VIPS_SETSTR(ientry->text, text);
+	}
+
+	g_signal_handlers_unblock_matched(G_OBJECT(buffer),
+		G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, ientry);
+}
+
+static void
 ientry_set_property(GObject *object,
 	guint prop_id, const GValue *value, GParamSpec *pspec)
 {
 	iEntry *ientry = (iEntry *) object;
 
-	const char *text;
-
 	switch (prop_id) {
 	case PROP_TEXT:
-		text = g_value_get_string(value);
-		if (text &&
-			!g_str_equal(text, ientry->text)) {
-			VIPS_SETSTR(ientry->text, text);
-			gtk_editable_set_text(GTK_EDITABLE(ientry->entry), text);
-		}
+		ientry_set_text(ientry, g_value_get_string(value));
 		break;
 
 	case PROP_WIDTH_CHARS:

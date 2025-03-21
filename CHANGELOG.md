@@ -1,5 +1,7 @@
 ## master
 
+- better change handling in ientry improves matrixview behaviour
+
 ## 9.0.4 2025/03/20
 
 - revise image repaint
