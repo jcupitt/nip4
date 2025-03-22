@@ -100,9 +100,9 @@ matrixview_slider_changed(Tslider *tslider, Matrixview *matrixview)
 
 	g_assert(pos >= 0);
 
-	/* Install value.
+	/* Install value. Ignore changes due to rounding.
 	 */
-	if (matrix->value.coeff[i] != tslider->svalue) {
+	if (fabs(matrix->value.coeff[i] - tslider->svalue) > 0.0001) {
 		matrix->value.coeff[i] = tslider->svalue;
 
 		classmodel_update_view(CLASSMODEL(matrix));

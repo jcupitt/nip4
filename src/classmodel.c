@@ -1230,10 +1230,9 @@ classmodel_update(Classmodel *classmodel)
 void
 classmodel_update_view(Classmodel *classmodel)
 {
-	Row *row = HEAPMODEL(classmodel)->row;
-
 	classmodel_update(classmodel);
 
+	Row *row = HEAPMODEL(classmodel)->row;
 	if (row &&
 		row->expr)
 		workspace_set_modified(row->ws, TRUE);
