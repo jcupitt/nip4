@@ -563,7 +563,7 @@ row_child_add(iContainer *parent, iContainer *child, int pos)
 	row->child_rhs = row_get_rhs(row);
 }
 
-static Subcolumn *
+Subcolumn *
 row_get_subcolumn(Row *row)
 {
 	return SUBCOLUMN(ICONTAINER(row)->parent);
@@ -607,7 +607,6 @@ row_parent_add(iContainer *child)
 
 	/* Update our context.
 	 */
-	row->scol = row_get_subcolumn(row);
 	row->ws = row_get_workspace(row);
 	row->top_row = row_get_root(row);
 }
@@ -623,7 +622,6 @@ row_parent_remove(iContainer *child)
 	row_deselect(row);
 	workspace_queue_layout(row->ws);
 
-	row->scol = NULL;
 	row->ws = NULL;
 	row->top_row = NULL;
 
@@ -785,6 +783,8 @@ row_set_to_save(Row *row)
 	Row *enclosing;
 
 	if (!row->to_save) {
+		Subcolumn *scol = row_get_subcolumn(row);
+
 		row->to_save = TRUE;
 
 		/* All peers must be saved. When we reload, we want to keep
@@ -792,7 +792,7 @@ row_set_to_save(Row *row)
 		 * the front of the row list on reload, since they'll be made
 		 * first.
 		 */
-		icontainer_map(ICONTAINER(row->scol),
+		icontainer_map(ICONTAINER(scol),
 			(icontainer_map_fn) row_set_to_save, NULL, NULL);
 
 		/* All rows back up to the top level must also be saved.
@@ -984,7 +984,6 @@ row_init(Row *row)
 	printf("row_init:\n");
 #endif /*DEBUG*/
 
-	row->scol = NULL;
 	row->child_rhs = NULL;
 	row->ws = NULL;
 	row->top_row = NULL;
@@ -1177,6 +1176,8 @@ row_link_build2(Expr *expr, Row *row)
 static void *
 row_link_build(Row *row)
 {
+	Subcolumn *scol = row_get_subcolumn(row);
+
 #ifdef DEBUG_LINK
 	printf("row_link_build: ");
 	row_name_print(row);
@@ -1185,7 +1186,7 @@ row_link_build(Row *row)
 
 	/* Build new recomp list. Only for class displays.
 	 */
-	if (!row->scol->is_top && row->expr &&
+	if (!scol->is_top && row->expr &&
 		row_link_build2(row->expr, row))
 		return row;
 
@@ -1502,11 +1503,11 @@ row_regenerate(Row *row)
 				 * local classes); the enclosing one should
 				 * be the same as the most enclosing this.
 				 */
-				Row *this = row->scol->this;
+				Subcolumn *scol = row_get_subcolumn(row);
+				Row *this = scol->this;
 				gboolean res;
 
-				res = reduce_regenerate_member(expr,
-					&this->expr->root, root);
+				res = reduce_regenerate_member(expr, &this->expr->root, root);
 				expr_new_value(expr);
 
 				if (!res)
@@ -1528,6 +1529,7 @@ static gboolean
 row_recomp_row(Row *row)
 {
 	Rhs *rhs = row->child_rhs;
+	Subcolumn *scol = row_get_subcolumn(row);
 
 #ifdef DEBUG
 	printf("row_recomp_row: ");
@@ -1553,7 +1555,7 @@ row_recomp_row(Row *row)
 	/* We're about to zap the graph: make sure this tree of rows has a
 	 * private copy.
 	 */
-	if (!subcolumn_make_private(row->scol))
+	if (!subcolumn_make_private(scol))
 		return FALSE;
 
 	/* Regenerate from the expr.
@@ -1873,8 +1875,9 @@ row_select_extend(Row *row)
 	/* Range select if there was a previous selection, and it was in the
 	 * same subcolumn.
 	 */
-	if (last_select && row->scol == last_select->scol) {
-		Subcolumn *scol = row->scol;
+	if (last_select &&
+		row_get_subcolumn(row) == row_get_subcolumn(last_select)) {
+		Subcolumn *scol = row_get_subcolumn(row);
 		GSList *rows = ICONTAINER(scol)->children;
 		int pos = g_slist_index(rows, row);
 		int pos_last = g_slist_index(rows, last_select);

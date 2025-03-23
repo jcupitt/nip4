@@ -2112,9 +2112,11 @@ reduce_regenerate_member(Expr *expr, PElement *ths, PElement *out)
 	 */
 	if (is_super(expr->compile->sym)) {
 		Compile *parent = compile_get_parent(expr->compile);
+		Subcolumn *scol = row_get_subcolumn(expr->row);
+
 		PElement instance;
 
-		PEPOINTE(&instance, &expr->row->scol->base);
+		PEPOINTE(&instance, &scol->base);
 
 		if (!class_new_super(heap, parent, ths, &instance))
 			return FALSE;

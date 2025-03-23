@@ -431,8 +431,9 @@ icontainer_current(iContainer *parent, iContainer *child)
 
 #ifdef DEBUG
 	printf("icontainer_current: (child %p)\n", child);
-	printf("\tchild: %s \"%s\"\n",
-		G_OBJECT_TYPE_NAME(child), IOBJECT(child)->name);
+	if (child)
+		printf("\tchild: %s \"%s\"\n",
+			G_OBJECT_TYPE_NAME(child), IOBJECT(child)->name);
 #endif /*DEBUG*/
 
 #ifdef DEBUG_SANITY

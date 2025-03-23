@@ -2,6 +2,7 @@
 
 - better change handling in ientry improves matrixview behaviour
 - better subrow finding fixes replace from file in nested columns
+- fix a crash on row access after row drag between columns
 
 ## 9.0.4 2025/03/20
 
