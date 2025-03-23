@@ -655,14 +655,24 @@ columnview_rowview_hit(View *view, void *a, void *b)
 	if (!gtk_widget_compute_bounds(rview->frame, GTK_WIDGET(sview), &bounds))
 		return NULL;
 
-	if (sview_point->y > bounds.origin.y &&
-		sview_point->y < bounds.origin.y + bounds.size.height)
+	if (sview_point->x > bounds.origin.x &&
+		sview_point->y > bounds.origin.y &&
+		sview_point->y < bounds.origin.y + bounds.size.height) {
+		if (rview->rhsview &&
+			rview->rhsview->scol) {
+			View *sub;
+			if ((sub = view_map(rview->rhsview->scol,
+				columnview_rowview_hit, sview_point, sview)))
+				return sub;
+		}
+
 		return rview;
+	}
 
 	return NULL;
 }
 
-/* Find the columnview for a point.
+/* Find the rowview for a point.
  */
 Rowview *
 columnview_find_rowview(Columnview *cview, int x, int y)

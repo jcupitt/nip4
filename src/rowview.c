@@ -87,12 +87,13 @@ rowview_attach(Rowview *rview, GtkWidget *child, int x)
 	GtkWidget *parent = gtk_widget_get_parent(child);
 	if (parent) {
 		if (IS_ROWVIEW(parent)) {
-			// if the parent is the rview, this is the first _attach of a
-			// template child and it will have a single ref, held by
-			// rview
-			//
-			// add an extra ref (dropped in _dispose) to keep the child alive
-			// across any later reparenting during row drag
+			/* If the parent is the rview, this is the first _attach of a
+			 * template child and it will have a single ref, held by
+			 * rview.
+			 *
+			 * Add an extra ref (dropped in _dispose) to keep the child alive
+			 * across any later reparenting during row drag.
+			 */
 			gtk_widget_unparent(child);
 			g_object_ref(child);
 		}
@@ -437,28 +438,24 @@ static void
 rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 {
 	Rowview *rview = ROWVIEW(view);
-	View *graphic = rview->rhsview->graphic;
 	Row *row = ROW(VOBJECT(rview)->iobject);
-	Rhs *rhs = row->child_rhs;
+	Model *graphic = row->child_rhs->graphic;
 	Workspace *ws = row->ws;
 	const char *name = g_action_get_name(G_ACTION(action));
 
-	if (graphic &&
-		g_str_equal(name, "row-edit"))
-		model_edit(GTK_WIDGET(rview), MODEL(rhs));
+	if (g_str_equal(name, "row-edit") && graphic)
+		model_edit(GTK_WIDGET(rview), MODEL(graphic));
 	else if (g_str_equal(name, "row-duplicate"))
 		rowview_duplicate(rview);
-	else if (g_str_equal(name, "row-saveas") &&
-		rhs->graphic)
-		classmodel_graphic_save(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
+	else if (g_str_equal(name, "row-saveas") && graphic)
+		classmodel_graphic_save(CLASSMODEL(graphic), GTK_WIDGET(rview));
 	else if (g_str_equal(name, "row-delete")) {
 		if (workspace_selected_num(ws) < 2)
 			row_select(row);
 		workspace_selected_remove_yesno(ws, view_get_window(VIEW(rview)));
 	}
-	else if (g_str_equal(name, "row-replace") &&
-		rhs->graphic)
-		classmodel_graphic_replace(CLASSMODEL(rhs->graphic), GTK_WIDGET(rview));
+	else if (g_str_equal(name, "row-replace") && graphic)
+		classmodel_graphic_replace(CLASSMODEL(graphic), GTK_WIDGET(rview));
 	else if (g_str_equal(name, "row-group"))
 		rowview_group(rview);
 	else if (g_str_equal(name, "row-ungroup"))
@@ -579,4 +576,17 @@ gboolean
 rowview_get_visible(Rowview *rview)
 {
 	return rview->visible;
+}
+
+Rowview *
+rowview_get_top(Rowview *rview)
+{
+	View *enclosing = VIEW(rview)->parent->parent;
+
+	if (IS_COLUMNVIEW(enclosing))
+		// rview in a subcolumnview in a columnview, so a top-level rowview
+		return rview;
+	else
+		// rview in a subcolumnview in a rhsview, so a nested rowview
+		return rowview_get_top(RHSVIEW(enclosing)->rview);
 }

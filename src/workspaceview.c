@@ -1035,15 +1035,17 @@ workspaceview_drag_begin(GtkEventControllerMotion *self,
 			wview->obj_y = cview->y;
 		}
 		else if (cview) {
-			Rowview *rview = columnview_find_rowview(cview, start_x, start_y);
+			Rowview *local = columnview_find_rowview(cview, start_x, start_y);
 
-			if (rview) {
+			if (local) {
+				Rowview *top = rowview_get_top(local);
+
 				graphene_rect_t bounds;
-				if (!gtk_widget_compute_bounds(GTK_WIDGET(rview->frame),
+				if (!gtk_widget_compute_bounds(GTK_WIDGET(top->frame),
 						wview->fixed, &bounds))
 					return;
 
-				wview->drag_rview = rview;
+				wview->drag_rview = top;
 				wview->state = WVIEW_SELECT;
 				wview->obj_x = bounds.origin.x;
 				wview->obj_y = bounds.origin.y;
@@ -1125,16 +1127,18 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 
 				if (cview) {
 					// row we are over
-					Rowview *rview = columnview_find_rowview(cview,
+					Rowview *local = columnview_find_rowview(cview,
 						mouse_x, mouse_y);
 
-					if (rview) {
+					if (local) {
+						Rowview *top = rowview_get_top(local);
+
 						graphene_rect_t bounds;
-						if (!gtk_widget_compute_bounds(GTK_WIDGET(rview->frame),
+						if (!gtk_widget_compute_bounds(GTK_WIDGET(top->frame),
 								wview->fixed, &bounds))
 							return;
 
-						Row *row = ROW(VOBJECT(rview)->iobject);
+						Row *row = ROW(VOBJECT(top)->iobject);
 						int pos = 2 * ICONTAINER(row)->pos + 1;
 						if (mouse_y > bounds.origin.y + bounds.size.height / 2)
 							workspaceview_move_row_shadow(wview,

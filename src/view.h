@@ -107,7 +107,7 @@ typedef struct _ViewClass {
 	void (*scrollto)(View *, ModelScrollPosition);
 	void (*layout)(View *);
 
-	/* A GAction in the enclosing window.
+	/* A GAction on this view.
 	 */
 	void (*action)(GSimpleAction *action, GVariant *parameter, View *view);
 } ViewClass;

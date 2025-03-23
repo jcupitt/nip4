@@ -45,7 +45,6 @@ struct _Rowview {
 	gboolean visible; /* Currently visible */
 	int rnum;		  /* Row of subcolumn we are in */
 
-	GtkWidget *top;	  /* Enclosing box for our widgets */
 	GtkWidget *spin;  /* Class display open/close widgets */
 	GtkWidget *frame; /* Row name box */
 	GtkWidget *label; /* Row label */
@@ -76,3 +75,4 @@ View *rowview_new(void);
 void rowview_get_position(Rowview *rview, int *x, int *y, int *w, int *h);
 void rowview_set_visible(Rowview *rview, gboolean visible);
 gboolean rowview_get_visible(Rowview *rview);
+Rowview *rowview_get_top(Rowview *rview);

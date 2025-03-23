@@ -1,3 +1,10 @@
+- try
+
+	nip4 ~/lady_orig.ws
+	drag A2 into column I
+	press V (down) on A2, segv
+
+
 - "reset" in display bar resets the position of scale/offset widgets, but does
   not reset the menu items (eg. tick on falsecolour)
 
@@ -32,38 +39,13 @@
 
 - prewitt and scharr edge detectors
 
+- puts lots of stuff into Image > New eg xyz, sdf etc.
+
+- can we improve Group[]?
 
 
-
-
-- row reset doesn't always work
-
-	try joanne's workspace ... need to be able to reset the image pair
-
-	rowview_reset_menu() just runs model_clear_edited() on every sub-row
-
-	in turn runs heapmodel_clear_edited()
-
-  image replace from file usually won't reset properly since it rewrites the
-  formula and there's nothing to reset
 
 - could use file chooser widget in bm-workspaces, what would it look like?
-
-- ^V in an imagewindow swaps the image without rewriting the formula, could
-  we do something like that for replace from file?
-
-	no, the result wouldn't be saved
-
-- try
-
-	nip4 ~/lady-orig.ws
-
-  open A2, find A2.targets.image, right-click, replace from file, no file
-  dialog appears
-
-	what stops replace from file on a dirty row?
-
-	see rowview_action(), there's no rhs->graphic
 
 - check all batch mode flags
 
