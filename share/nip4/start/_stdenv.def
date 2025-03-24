@@ -2593,3 +2593,5 @@ sobel x
 
 	sobel_im x = vips_call9 "sobel" [x] [];
 }
+
+

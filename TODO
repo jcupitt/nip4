@@ -1,3 +1,8 @@
+- scale and convolution matrix seem to have the same change detection issues
+  we've had before
+
+
+
 - "reset" in display bar resets the position of scale/offset widgets, but does
   not reset the menu items (eg. tick on falsecolour)
 
@@ -6,11 +11,9 @@
 	gaction bound to a gsetting? do we need to add to the settings
 	schema?
 
-- shrink as well as expand tiles in tilecache_snapshot
-
 # menu redesign
 
-- remove unused widgets
+- implement Menuseparator?
 
 - try:
 
@@ -22,7 +25,11 @@
 
   do we need to define a Matrix_base member in Matrix_gaussian_item.action?
 
-- SDFs (sdf, clamp, maxpair, minpair)
+- add "smooth" option to union/intersection/difference
+
+	see https://iquilezles.org/articles/distfunctions/
+
+  translate, rotate etc?
 
 - magic kernel
 
