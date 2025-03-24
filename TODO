@@ -1,7 +1,9 @@
 - scale and convolution matrix seem to have the same change detection issues
   we've had before
 
+	unable to reproduce?
 
+- load ws, change, ^Q, select "save" in popup, error
 
 - "reset" in display bar resets the position of scale/offset widgets, but does
   not reset the menu items (eg. tick on falsecolour)
@@ -11,9 +13,22 @@
 	gaction bound to a gsetting? do we need to add to the settings
 	schema?
 
+  likewise, load ws with locked tab, rightclick menu on locked tab does not
+  have tick selected
+
 # menu redesign
 
 - implement Menuseparator?
+
+- add
+
+	crop = extract_area;
+	minpair
+	maxpair
+	clamp
+	sdf
+
+  to stdenv
 
 - try:
 
@@ -30,6 +45,8 @@
 	see https://iquilezles.org/articles/distfunctions/
 
   translate, rotate etc?
+
+- Grey ramp, checkerboard, grid CIELAB slice -> Test Images
 
 - magic kernel
 
