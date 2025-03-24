@@ -508,8 +508,6 @@ regionview_draw_line(Regionview *regionview,
 		gtk_snapshot_append_stroke(snapshot, path, stroke, &regionview_shadow);
 		gsk_stroke_free(stroke);
 	}
-	else
-		printf("regionview_draw_line: clipped\n");
 }
 
 static void

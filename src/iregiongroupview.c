@@ -55,7 +55,8 @@ iregiongroupview_get_classmodel(iRegiongroupview *iregiongroupview)
 static void *
 iregiongroupview_unref(Regionview *regionview)
 {
-	imageui_remove_regionview(regionview->imageui, regionview);
+	if (regionview->imageui)
+		imageui_remove_regionview(regionview->imageui, regionview);
 
 	return NULL;
 }
