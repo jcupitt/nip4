@@ -301,8 +301,8 @@
             "sources" : [
                 {
                     "type" : "archive",
-                    "url" : "https://github.com/libvips/libvips/releases/download/v8.17.0-test2/vips-8.17.0-test3.tar.xz",
-                    "sha256" : "63588482781d75824f9d1681120108ccb1edbf21dd52338aa115174fc963e888"
+                    "url" : "https://github.com/libvips/libvips/releases/download/v8.17.0-test2/vips-8.17.0-test4.tar.xz",
+                    "sha256" : "0f45f0342a1471fed72dc560fa63d9086299fd57bb6d36bc9bbfff5d130858ca"
                 }
             ]
         },
