@@ -58,6 +58,16 @@ from the command-line and without a GUI.
 
   <releases>
 
+    <release version="9.0.5" date="2025-03-20">
+      <description>
+        <p>
+          Image windows are faster and more reliable, matrix recalculation
+          is more robust, fixed a crash after row drag, fixed replace from
+          file in sub-rows, started revising menus.
+        </p>
+      </description>
+    </release>
+
     <release version="9.0.4" date="2025-03-20">
       <description>
         <p>
