@@ -36,24 +36,30 @@ https://github.com/user-attachments/assets/6f7bdee1-183c-4554-9701-e0c30e75d58a
 
 There's a zip for each version on the [releases
 page](https://github.com/jcupitt/nip4/releases). Download
-`nip4-9.0.2-2.zip`, unzip somewhere, and run `bin/nip4.exe`.
+`nip4-x86_64-9.0.5.zip`, unzip somewhere, and run `bin/nip4.exe`.
 
 ## macOS
 
-We hope to have a homebrew formula soon.
+There's a PR to add nip4 to homebrew here:
+
+https://github.com/Homebrew/homebrew-core/pull/209123
+
+Once nip4 gets to 100 stars on gitghub it should get merged. Until then,
+you can install from that, with a little trickery.
 
 ## Linux-like systems with flatpak
 
-There's a PR to add nip4 to flathub here:
+Add flathub to your set of repositories:
 
-https://github.com/flathub/flathub/pull/6166
-
-Once we get a stable release, nip4 will be added to flathub. You can install
-one of the test releases from that PR with eg.:
-
+```shell
+flatpak remote-add --if-not-exists \
+  flathub https://flathub.org/repo/flathub.flatpakrepo
 ```
-flatpak install --user \
-    https://dl.flathub.org/build-repo/165060/org.libvips.nip4.flatpakref
+
+Then install nip4 with:
+
+```shell
+flatpak install org.libvips.nip4
 ```
 
 ## From source
