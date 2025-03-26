@@ -1,9 +1,6 @@
-- scale and convolution matrix seem to have the same change detection issues
-  we've had before
-
-	unable to reproduce?
-
 - load ws, change, ^Q, select "save" in popup, error
+
+	need to expand variables like $HOME
 
 - "reset" in display bar resets the position of scale/offset widgets, but does
   not reset the menu items (eg. tick on falsecolour)
@@ -16,13 +13,31 @@
   likewise, load ws with locked tab, rightclick menu on locked tab does not
   have tick selected
 
+- change "Merge into ..."
+
+	split to "Merge from file ..." and "Merge column >" with a
+	pullright listing all columns
+
+	Same for merge in tab menu, except "Merge tab >"
+
+	Just does save/load for you
+
 # menu redesign
 
 - implement Menuseparator?
 
+	we've implemented #separator
+
+- add something to find unresolved symbols
+
+- get rid of im_copy_set etc.
+
+	add copy_set to stdenv, and that uses vips_call9
+
+- rename Image_type as Image_interpretation
+
 - add
 
-	crop = extract_area;
 	minpair
 	maxpair
 	clamp
@@ -40,11 +55,11 @@
 
   do we need to define a Matrix_base member in Matrix_gaussian_item.action?
 
-- add "smooth" option to union/intersection/difference
+- add "smooth" option to union/intersection/difference?
 
 	see https://iquilezles.org/articles/distfunctions/
 
-  translate, rotate etc?
+  translate, rotate etc? need xyz for that
 
 - Grey ramp, checkerboard, grid CIELAB slice -> Test Images
 

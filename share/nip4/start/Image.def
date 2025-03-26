@@ -1,16 +1,16 @@
 Image_new_item = class Menupullright "_New" "make new things" {
 	Image_black_item = class Menuaction "_Image" "make a new image" {
 		format_names = [
-			"8-bit unsigned int - UCHAR", 		// 0
-			"8-bit signed int - CHAR", 			// 1
-			"16-bit unsigned int - USHORT", 	// 2
-			"16-bit signed int - SHORT", 		// 3
-			"32-bit unsigned int - UINT", 		// 4
-			"32-bit signed int - INT", 			// 5
-			"32-bit float - FLOAT", 			// 6
-			"64-bit complex - COMPLEX", 		// 7
-			"64-bit float - DOUBLE", 			// 8
-			"128-bit complex - DPCOMPLEX" 		// 9
+			"8-bit unsigned int - UCHAR",		// 0
+			"8-bit signed int - CHAR",			// 1
+			"16-bit unsigned int - USHORT",		// 2
+			"16-bit signed int - SHORT",		// 3
+			"32-bit unsigned int - UINT",		// 4
+			"32-bit signed int - INT",			// 5
+			"32-bit float - FLOAT",				// 6
+			"64-bit complex - COMPLEX",			// 7
+			"64-bit float - DOUBLE",			// 8
+			"128-bit complex - DPCOMPLEX"		// 9
 		];
 
 		action = class
@@ -227,92 +227,6 @@ Image_new_item = class Menupullright "_New" "make new things" {
 
 	}
 
-	Grey_item = class
-		Menuaction "Grey _Ramp" "make a smooth grey ramp" {
-		action = class
-			_result {
-			_vislevel = 3;
-
-			nwidth = Expression "Image width (pixels)" 64;
-			nheight = Expression "Image height (pixels)" 64;
-			orientation = Option "Orientation" [
-				"Horizontal",
-				"Vertical"
-			] 0;
-			foption = Option "Format" ["8 bit", "float"] 0;
-
-			_result
-				= Image im
-			{
-				gen
-					= im_grey, foption == 0
-					= im_fgrey;
-				w = to_real nwidth;
-				h = to_real nheight;
-				im
-					= gen w h, orientation == 0
-					= rot90 (gen h w);
-			}
-		}
-	}
-
-	Checkerboard_item = class
-		Menuaction "_Checkerboard" "make a checkerboard image" {
-		action = class
-			_result {
-			_vislevel = 3;
-
-			nwidth = Expression "Image width (pixels)" 64;
-			nheight = Expression "Image height (pixels)" 64;
-			hpsize = Expression "Horizontal patch size" 8;
-			vpsize = Expression "Vertical patch size" 8;
-			hpoffset = Expression "Horizontal patch offset" 0;
-			vpoffset = Expression "Vertical patch offset" 0;
-
-			_result
-				= Image (xstripes ^ ystripes)
-			{
-				pixels = make_xy nwidth nheight;
-				xpixels = pixels?0 + to_real hpoffset;
-				ypixels = pixels?1 + to_real vpoffset;
-
-				make_stripe pix swidth = pix % (swidth * 2) >= swidth;
-
-				xstripes = make_stripe xpixels (to_real hpsize);
-				ystripes = make_stripe ypixels (to_real vpsize);
-			}
-		}
-	}
-
-	Grid_item = class
-		Menuaction "Gri_d" "make a grid" {
-		action = class
-			_result {
-			_vislevel = 3;
-
-			nwidth = Expression "Image width (pixels)" 64;
-			nheight = Expression "Image height (pixels)" 64;
-			hspace = Expression "Horizontal line spacing" 8;
-			vspace = Expression "Vertical line spacing" 8;
-			thick = Expression "Line thickness" 1;
-			hoff = Expression "Horizontal grid offset" 4;
-			voff = Expression "Vertical grid offset" 4;
-
-			_result
-				= Image (xstripes | ystripes)
-			{
-				pixels = make_xy nwidth nheight;
-				xpixels = pixels?0 + to_real hoff;
-				ypixels = pixels?1 + to_real voff;
-
-				make_stripe pix swidth = pix % swidth < to_real thick;
-
-				xstripes = make_stripe xpixels (to_real hspace);
-				ystripes = make_stripe ypixels (to_real vspace);
-			}
-		}
-	}
-
 	Text_item = class
 		Menuaction "_Text" "make a bitmap of some text" {
 		action = class
@@ -355,19 +269,6 @@ Image_new_item = class Menupullright "_New" "make new things" {
 
 				out = vips_call9 "text" [text.value] options;
 			}
-		}
-	}
-
-	New_CIELAB_slice_item = class
-		Menuaction "CIELAB _Slice" "make a slice through CIELAB space" {
-		action = class
-			_result {
-			_vislevel = 3;
-
-			nsize = Expression "Image size (pixels)" 64;
-			L = Scale "L value" 0 100 50;
-
-			_result = Image (lab_slice (to_real nsize) L.value);
 		}
 	}
 
@@ -648,6 +549,105 @@ Image_new_item = class Menupullright "_New" "make new things" {
 			}
 		}
 
+		Grey_item = class
+			Menuaction "Grey _Ramp" "make a smooth grey ramp" {
+			action = class
+				_result {
+				_vislevel = 3;
+
+				nwidth = Expression "Image width (pixels)" 64;
+				nheight = Expression "Image height (pixels)" 64;
+				orientation = Option "Orientation" [
+					"Horizontal",
+					"Vertical"
+				] 0;
+				foption = Option "Format" ["8 bit", "float"] 0;
+
+				_result
+					= Image im
+				{
+					gen
+						= im_grey, foption == 0
+						= im_fgrey;
+					w = to_real nwidth;
+					h = to_real nheight;
+					im
+						= gen w h, orientation == 0
+						= rot90 (gen h w);
+				}
+			}
+		}
+
+		Checkerboard_item = class
+			Menuaction "_Checkerboard" "make a checkerboard image" {
+			action = class
+				_result {
+				_vislevel = 3;
+
+				nwidth = Expression "Image width (pixels)" 64;
+				nheight = Expression "Image height (pixels)" 64;
+				hpsize = Expression "Horizontal patch size" 8;
+				vpsize = Expression "Vertical patch size" 8;
+				hpoffset = Expression "Horizontal patch offset" 0;
+				vpoffset = Expression "Vertical patch offset" 0;
+
+				_result
+					= Image (xstripes ^ ystripes)
+				{
+					pixels = make_xy nwidth nheight;
+					xpixels = pixels?0 + to_real hpoffset;
+					ypixels = pixels?1 + to_real vpoffset;
+
+					make_stripe pix swidth = pix % (swidth * 2) >= swidth;
+
+					xstripes = make_stripe xpixels (to_real hpsize);
+					ystripes = make_stripe ypixels (to_real vpsize);
+				}
+			}
+		}
+
+		Grid_item = class
+			Menuaction "Gri_d" "make a grid" {
+			action = class
+				_result {
+				_vislevel = 3;
+
+				nwidth = Expression "Image width (pixels)" 64;
+				nheight = Expression "Image height (pixels)" 64;
+				hspace = Expression "Horizontal line spacing" 8;
+				vspace = Expression "Vertical line spacing" 8;
+				thick = Expression "Line thickness" 1;
+				hoff = Expression "Horizontal grid offset" 4;
+				voff = Expression "Vertical grid offset" 4;
+
+				_result
+					= Image (xstripes | ystripes)
+				{
+					pixels = make_xy nwidth nheight;
+					xpixels = pixels?0 + to_real hoff;
+					ypixels = pixels?1 + to_real voff;
+
+					make_stripe pix swidth = pix % swidth < to_real thick;
+
+					xstripes = make_stripe xpixels (to_real hspace);
+					ystripes = make_stripe ypixels (to_real vspace);
+				}
+			}
+		}
+
+		New_CIELAB_slice_item = class
+			Menuaction "CIELAB _Slice" "make a slice through CIELAB space" {
+			action = class
+				_result {
+				_vislevel = 3;
+
+				nsize = Expression "Image size (pixels)" 64;
+				L = Scale "L value" 0 100 50;
+
+				_result = Image (lab_slice (to_real nsize) L.value);
+			}
+		}
+
 		CRT_test_chart_item = class
 			Menuaction "CRT _Phosphor Chart"
 				"make an image for measuring phosphor colours" {
@@ -799,7 +799,7 @@ Image_new_item = class Menupullright "_New" "make new things" {
 			action image = scope.VGuide image 0.5;
 		}
 
-    	sep1 = Menuseparator;
+		sep1 = Menuseparator;
 
 		Move_item = class
 			Menuaction "From Region"
@@ -835,7 +835,7 @@ Image_convert_to_image_item = class
 }
 
 Image_number_format_item = class
-	Menupullright "_Format" "convert numeric format" {
+	Menupullright "Numeric Format" "convert numeric format" {
 
 	U8_item = class
 		Menuaction "_8 bit unsigned" "convert to unsigned 8 bit [0, 255]" {
@@ -1011,7 +1011,7 @@ Image_header_item = class
 			action x = get_field "coding" x;
 		}
 
-    	sep1 = Menuseparator;
+		sep1 = Menuseparator;
 
 		Custom_item = class
 			Menuaction "C_ustom" "get any header field" {
@@ -1103,8 +1103,8 @@ Image_header_item = class
 			nxoff = Expression "Xoffset" (get_prop has_xoffset get_xoffset 0 x);
 			nyoff = Expression "Yoffset" (get_prop has_yoffset get_yoffset 0 x);
 
-			type_option
-				= Option_enum "Image type" Image_type.type_names
+			interpretation
+				= Option_enum "Interpretation" Image_type.type_names
 					(Image_type.type_names.get_name type)
 			{
 				type
@@ -1116,7 +1116,7 @@ Image_header_item = class
 				= map_unary process x
 			{
 				process image
-					= Image (im_copy_set image.value type_option.value_thing
+					= Image (im_copy_set image.value interpretation.value_thing
 						(to_real nxres) (to_real nyres)
 						(to_real nxoff) (to_real nyoff));
 			}
@@ -1237,7 +1237,7 @@ Image_transform_item = class
 		Menupullright "Ro_tate" "rotate image" {
 		Fixed_item = class
 			Menupullright "_Fixed" "clockwise rotation by fixed angles" {
-	        rotate_widget default x = class
+			rotate_widget default x = class
 				_result {
 				_vislevel = 3;
 
@@ -1430,13 +1430,13 @@ Image_transform_item = class
 				) 4;
 				custom_width = Expression "Custom width" 1000;
 				custom_height = Expression "Custom height" 1000;
-			    size = Option "Page size" [
+				size = Option "Page size" [
 					"Full page", "Half page", "Quarter page"
 				] 0;
 				kernel = Kernel_picker Kernel_type.LINEAR;
 
-			 	_result
-				 	= map_unary process x
+				_result
+					= map_unary process x
 				{
 					xdiv = [1, 2, 2]?size;
 					ydiv = [1, 1, 2]?size;
