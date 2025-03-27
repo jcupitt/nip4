@@ -2597,14 +2597,12 @@ sobel x
 }
 
 minpair a b
-	= oo_binary'_function minpair_op a b, is_class a
-	= oo_binary_function minpair_op a b, is_class b
-	= minpair_im a b, is_image a && is_image b
+	= oo_binary_function minpair_op a b, is_class a
+	= oo_binary'_function minpair_op a b, is_class b
 	= a, a < b
 	= b
 {
-	minpair_op = Operator "minpair"
-		minpair Operator_type.ARITHMETIC false;
+	minpair_op = Operator "minpair" minpair Operator_type.ARITHMETIC false;
 
 	minpair_im a b = vips_call9 "minpair" [get_image a, get_image b] [];
 }
