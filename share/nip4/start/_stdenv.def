@@ -2599,6 +2599,7 @@ sobel x
 minpair a b
 	= oo_binary_function minpair_op a b, is_class a
 	= oo_binary'_function minpair_op a b, is_class b
+	= minpair_im a b, has_image a && has_image b
 	= a, a < b
 	= b
 {
@@ -2610,6 +2611,7 @@ minpair a b
 maxpair a b
 	= oo_binary_function maxpair_op a b, is_class a
 	= oo_binary'_function maxpair_op a b, is_class b
+	= maxpair_im a b, has_image a && has_image b
 	= a, a > b
 	= b
 {
@@ -2617,4 +2619,52 @@ maxpair a b
 
 	maxpair_im a b = vips_call9 "maxpair" [get_image a, get_image b] [];
 }
+
+clamp min max x
+	= oo_unary_function clamp_op x, is_class x
+	= clamp_im min max x, has_image x
+	= max, x > max
+	= min, x < min
+	= x
+{
+	clamp_op = Operator "clamp" (clamp min max) Operator_type.ARITHMETIC false;
+
+	clamp_im min max x = vips_call9 "clamp" [get_image x] [
+		$min => to_real min,
+		$max => to_real max
+	];
+}
+
+linear a b x
+	= oo_unary_function linear_op x, is_class x
+	= linear_im a b x, has_image x
+	= a * x + b
+{
+	linear_op
+		= Operator "linear" (linear a b) Operator_type.ARITHMETIC false;
+
+	linear_im a b x = vips_call9 "linear"
+		[get_image x, to_real a, to_real b] [];
+}
+
+linearu a b x
+	= oo_unary_function linearu_op x, is_class x
+	= linearu_im a b x, has_image x
+	= (int) (a * x + b)
+{
+	linearu_op
+		= Operator "linearu" (linearu a b) Operator_type.ARITHMETIC false;
+
+	linearu_im a b x = vips_call9 "linear"
+		[get_image x, to_real a, to_real b]
+		[$uchar => true];
+}
+
+sdf width height shape options
+	= Image (vips_call9 "sdf"
+		[to_real width, to_real height, to_real shape] options);
+
+
+
+
 

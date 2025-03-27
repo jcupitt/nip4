@@ -51,7 +51,7 @@ Image_new_item = class Menupullright "_New" "make new things" {
 		New_item = class
 			Menuaction "New" "construct signed distance fields" {
 			action = class
-				Image _result {
+				_result {
 				_vislevel = 3;
 
 				width = Expression "Image width (pixels)" 256;
@@ -67,9 +67,8 @@ Image_new_item = class Menupullright "_New" "make new things" {
 				b = Matrix [[3 * width.expr / 4, 3 * height.expr / 4]];
 				corners = Matrix [[10, 10, 10, 10]];
 
-				_result = vips_call9 "sdf"
-					[width.expr, height.expr, shape.value]
-					[$r => radius.value,
+				_result = sdf width height shape
+					[$r => to_real radius,
 					 $a => a.value?0,
 					 $b => b.value?0,
 					 $corners => corners.value?0];
@@ -79,36 +78,24 @@ Image_new_item = class Menupullright "_New" "make new things" {
 		Union_item = class
 			Menuaction "Union" "union of two SDFs" {
 			action x y = class
-				Image _result {
-				_result = minpair x y
-				{
-					minpair x y = vips_call9 "minpair"
-						[get_image x, get_image y] [];
-				}
+				_result {
+				_result = minpair x y;
 			}
 		}
 
 		Intersection_item = class
 			Menuaction "Intersection" "imtersection of two SDFs" {
 			action x y = class
-				Image _result {
-				_result = maxpair x y
-				{
-					maxpair x y = vips_call9 "maxpair"
-						[get_image x, get_image y] [];
-				}
+				_result {
+				_result = maxpair x y;
 			}
 		}
 
 		Difference_item = class
 			Menuaction "Difference" "difference of two SDFs" {
 			action x y = class
-				Image _result {
-				_result = maxpair (-x) y
-				{
-					maxpair x y = vips_call9 "maxpair"
-						[get_image x, get_image y] [];
-				}
+				_result {
+				_result = maxpair (-x) y;
 			}
 		}
 
@@ -127,20 +114,14 @@ Image_new_item = class Menupullright "_New" "make new things" {
 		Render_item = class
 			Menuaction "Render" "render as an image" {
 			action x = class
-				Image _result {
+				_result {
 				_vislevel = 3;
 
 				antialias = Toggle "Antialias" true;
 
 				_result
-					= linearu (-255) 255 (clamp x), antialias
-					= clamp x < 0.5
-				{
-					clamp x = vips_call9 "clamp" [get_image x] [];
-					linearu a b x = vips_call9 "linear" [get_image x, a, b] [
-						$uchar => true
-					];
-				}
+					= linearu (-255) 255 (clamp 0 1 x), antialias
+					= clamp 0 1 x < 0.5;
 			}
 		}
 	}
