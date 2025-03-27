@@ -2605,6 +2605,8 @@ minpair a b
 {
 	minpair_op = Operator "minpair" minpair Operator_type.ARITHMETIC false;
 
+	minpair_value a b = if a < b then a else b;
+
 	minpair_im a b = vips_call9 "minpair" [get_image a, get_image b] [];
 }
 
@@ -2663,8 +2665,4 @@ linearu a b x
 sdf width height shape options
 	= Image (vips_call9 "sdf"
 		[to_real width, to_real height, to_real shape] options);
-
-
-
-
 

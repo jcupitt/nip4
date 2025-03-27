@@ -1,3 +1,24 @@
+- try:
+
+	minpair image constant
+
+  fails with
+
+	error in binary if_then_else
+	left = <256x256 uchar, 1 band, b-w 0x55a4921d3ed0>
+	right = [<256x256 float, 1 band, b-w 0x55a4918a6d60>, 12]
+	called from "minpair"
+
+  try:
+
+	if_then_else (A11 < 12).value [A11.value, 12]
+
+  also fails (works for Image though)
+
+	because constant expansion is done by the Image class
+
+  we'll need to do constant expansion in minpair
+
 - load ws, change, ^Q, select "save" in popup, error
 
 	need to expand variables like $HOME
@@ -35,6 +56,8 @@
 	add copy_set to stdenv, and that uses vips_call9
 
 - rename Image_type as Image_interpretation
+
+	also image.type should be image.interpretation
 
 - add
 
