@@ -2607,3 +2607,14 @@ minpair a b
 	minpair_im a b = vips_call9 "minpair" [get_image a, get_image b] [];
 }
 
+maxpair a b
+	= oo_binary_function maxpair_op a b, is_class a
+	= oo_binary'_function maxpair_op a b, is_class b
+	= a, a > b
+	= b
+{
+	maxpair_op = Operator "maxpair" maxpair Operator_type.ARITHMETIC false;
+
+	maxpair_im a b = vips_call9 "maxpair" [get_image a, get_image b] [];
+}
+
