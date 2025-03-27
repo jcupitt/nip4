@@ -985,8 +985,6 @@ extract_area x y w h obj
 	crop im x y w h = vips_call9 "crop" [im, x, y, w, h] [];
 }
 
-crop = extract_area;
-
 extract_band b obj = subscript obj b;
 
 extract_row y obj
@@ -2595,17 +2593,3 @@ sobel x
 
 	sobel_im x = vips_call9 "sobel" [x] [];
 }
-
-minpair a b
-	= oo_binary'_function minpair_op a b, is_class a
-	= oo_binary_function minpair_op a b, is_class b
-	= minpair_im a b, is_image a && is_image b
-	= a, a < b
-	= b
-{
-	minpair_op = Operator "minpair"
-		minpair Operator_type.ARITHMETIC false;
-
-	minpair_im a b = vips_call9 "minpair" [get_image a, get_image b] [];
-}
-
