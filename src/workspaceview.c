@@ -1210,11 +1210,8 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 
 			Subcolumn *old_scol = SUBCOLUMN(VOBJECT(wview->old_sview)->iobject);
 			Column *old_col = COLUMN(ICONTAINER(old_scol)->parent);
-			if (icontainer_get_n_children(ICONTAINER(old_scol)) == 0) {
-				printf("workspaceview_drag_end: destroying column %s\n",
-					IOBJECT(old_col)->name);
+			if (icontainer_get_n_children(ICONTAINER(old_scol)) == 0)
 				iobject_destroy(IOBJECT(old_col));
-			}
 
 			workspaceview_unfloat(wview);
 			workspace_queue_layout(ws);

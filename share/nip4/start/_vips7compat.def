@@ -671,5 +671,11 @@ im_segment test
                 $segments => true
 	];
 
+im_transform in params ipol wrap
+	= vips_call9 "quadratic" [in, params] [
+                $interopolate => ipol
+        ];
+
+
 // add a lot more!
 

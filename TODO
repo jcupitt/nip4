@@ -34,6 +34,9 @@
 
 	add copy_set to stdenv, and that uses vips_call9
 
+- perspective distort could have an "interpoplate" option (always bilinear
+  right now)
+
 - rename Image_type as Image_interpretation
 
 - add
