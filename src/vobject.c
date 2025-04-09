@@ -158,7 +158,7 @@ vobject_refresh_queue(vObject *vobject)
 		queue_add(vobject_dirty, vobject);
 
 		VIPS_FREEF(g_source_remove, vobject_refresh_timeout);
-		vobject_refresh_timeout = g_timeout_add(20,
+		vobject_refresh_timeout = g_timeout_add(1,
 			(GSourceFunc) vobject_refresh_timeout_cb, NULL);
 	}
 
