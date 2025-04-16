@@ -1,5 +1,13 @@
 ## master
 
+## 9.0.6 2025/04/16
+
+- fix perspective distort
+- fix "save" in save-n-quit
+- fix a crash when running with libvips 8.16
+
+## 9.0.5 2025/03/26
+
 - better change handling in ientry improves matrixview behaviour
 - better subrow finding fixes replace from file in nested columns
 - fix a crash on row access after row drag between columns
