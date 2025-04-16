@@ -316,6 +316,9 @@ main_print_ws(Workspace *ws, gboolean *found)
 int
 main(int argc, char **argv)
 {
+	if (VIPS_INIT(argv[0]))
+		vips_error_exit("unable to start libvips");
+
     main_option_batch = TRUE;
 	main_option_no_load_menus = TRUE;
 
