@@ -40,12 +40,15 @@ page](https://github.com/jcupitt/nip4/releases). Download
 
 ## macOS
 
-There's a PR to add nip4 to homebrew here:
+nip4 is in [homebrew](https://brew.sh/), so just:
 
-https://github.com/Homebrew/homebrew-core/pull/209123
+```
+brew install nip4
+```
 
-Once nip4 gets to 100 stars on gitghub it should get merged. Until then,
-you can install from that, with a little trickery.
+The not-yet-released libvips 8.17 has some performance improvements
+that help nip4 image rendering a lot. Until 8.17 is released, experts can
+patch their homebrew install for a good speedup.
 
 ## Linux-like systems with flatpak
 
