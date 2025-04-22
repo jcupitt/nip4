@@ -23,6 +23,8 @@
 
 	need to expand variables like $HOME
 
+- fix scRGB with alpha
+
 - "reset" in display bar resets the position of scale/offset widgets, but does
   not reset the menu items (eg. tick on falsecolour)
 
@@ -54,6 +56,9 @@
 - get rid of im_copy_set etc.
 
 	add copy_set to stdenv, and that uses vips_call9
+
+- perspective distort could have an "interpoplate" option (always bilinear
+  right now)
 
 - rename Image_type as Image_interpretation
 

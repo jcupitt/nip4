@@ -169,8 +169,6 @@ void
 main_startup(int argc, char **argv)
 {
 	main_argv0 = argv[0];
-	if (VIPS_INIT(argv[0]))
-		vips_error_exit("unable to start libvips");
 
 #ifdef DEBUG
 	vips_leak_set(TRUE);

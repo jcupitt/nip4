@@ -698,8 +698,10 @@ filemodel_saveas(GtkWindow *parent, Filemodel *filemodel,
 	g_object_set_data(G_OBJECT(dialog), "nip4-b", b);
 
 	if (filemodel->filename) {
-		g_autoptr(GFile) file = g_file_new_for_path(filemodel->filename);
+		char filename[VIPS_PATH_MAX];
 
+		expand_variables(filemodel->filename, filename);
+		g_autoptr(GFile) file = g_file_new_for_path(filename);
 		if (file)
 			gtk_file_dialog_set_initial_file(dialog, file);
 	}
@@ -726,7 +728,7 @@ filemodel_save_before_close_cb(GObject *source_object,
 	switch (choice) {
 	case 0:
 		// close without saving ... tag as unmodified, and move on
-		// "next" is reponsible for doing the gtk_window_close()
+		// "next" is responsible for doing the gtk_window_close()
 		filemodel_set_modified(filemodel, FALSE);
 		next(parent, filemodel, a, b);
 		break;
@@ -767,7 +769,7 @@ filemodel_save_before_close(Filemodel *filemodel,
 			tname, filemodel->filename);
 	else
 		detail = g_strdup_printf("%s has been modified. "
-								 "Do you want to save your chages?",
+								 "Do you want to save your changes?",
 			tname);
 
 	const char *labels[] = { "Close without saving", "Cancel", "Save", NULL };

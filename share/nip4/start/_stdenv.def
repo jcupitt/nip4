@@ -985,8 +985,6 @@ extract_area x y w h obj
 	crop im x y w h = vips_call9 "crop" [im, x, y, w, h] [];
 }
 
-crop = extract_area;
-
 extract_band b obj = subscript obj b;
 
 extract_row y obj

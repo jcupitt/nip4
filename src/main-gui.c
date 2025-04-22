@@ -39,6 +39,9 @@ static GOptionEntry main_gui_options[] = {
 int
 main(int argc, char **argv)
 {
+	if (VIPS_INIT(argv[0]))
+		vips_error_exit("unable to start libvips");
+
 	/* First time we've been run? Show a welcome message. We must do this
 	 * before main_startup().
 	 */
