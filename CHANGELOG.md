@@ -1,7 +1,10 @@
 ## master
 
+## 9.0.8 2025/04/23
+
 - fix ctrl/shift detect on windows
 - add menu pin button
+- improve scRGBA display
 
 ## 9.0.6 2025/04/16
 
