@@ -279,17 +279,6 @@ get_dpi(void)
 	return 72;
 }
 
-guint
-get_modifiers(GtkEventController *controller)
-{
-	GdkDevice *mouse_device =
-		gtk_event_controller_get_current_event_device(controller);
-	GdkSeat *seat = gdk_device_get_seat(mouse_device);
-	GdkDevice *keyboard_device = gdk_seat_get_keyboard(seat);
-
-	return gdk_device_get_modifier_state(keyboard_device);
-}
-
 static void
 alert_yesno_cb(GObject *source_object,
 	GAsyncResult *result, gpointer user_data)

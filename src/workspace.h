@@ -103,6 +103,14 @@ struct _Workspace {
 	 */
 	gboolean needs_layout;
 	gboolean in_dispose;
+
+	/* We need to detect ctrl-click and shift-click for row toggle select and
+	 * extend select.
+	 *
+	 * Windows doesn't seem to support device polling, so we record ctrl and
+	 * shift state here in the keyboard handler.
+	 */
+	guint modifiers;
 };
 
 typedef struct _WorkspaceClass {

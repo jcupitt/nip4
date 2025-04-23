@@ -69,9 +69,9 @@ graphicview_pressed(GtkGestureClick *gesture,
 	if (n_press == 1) {
 		Rowview *rowview = graphicview_rowview(graphicview);
 		Row *row = ROW(VOBJECT(rowview)->iobject);
-		guint state = get_modifiers(GTK_EVENT_CONTROLLER(gesture));
+	    Workspace *ws = row->ws;
 
-		row_select_modifier(row, state);
+		row_select_modifier(row, ws->modifiers);
 	}
 	else {
 		Model *model = MODEL(VOBJECT(graphicview)->iobject);

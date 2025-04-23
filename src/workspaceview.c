@@ -440,8 +440,10 @@ workspaceview_kitg_activate(Toolkitgroupview *kitgview,
 
 		if (workspace_add_action(ws,
 				toolitem->name, toolitem->action,
-				toolitem->action_sym->expr->compile->nparam))
+				toolitem->action_sym->expr->compile->nparam)) {
 			workspace_set_modified(ws, TRUE);
+			toolkitgroupview_home(kitgview);
+		}
 		else
 			workspace_set_show_error(ws, TRUE);
 	}
@@ -1247,6 +1249,69 @@ workspaceview_error_close_clicked(GtkButton *button, void *user_data)
 	workspace_set_show_error(ws, FALSE);
 }
 
+static gboolean
+workspaceview_key_pressed(GtkEventControllerKey *self,
+	guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+{
+	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+	gboolean handled;
+
+#ifdef DEBUG_VERBOSE
+	printf("workspaceview_key_pressed: keyval = %d, state = %d\n",
+		keyval, state);
+#endif /*DEBUG_VERBOSE*/
+
+	handled = FALSE;
+
+	switch (keyval) {
+	case GDK_KEY_Control_L:
+	case GDK_KEY_Control_R:
+		ws->modifiers |= GDK_CONTROL_MASK;
+		break;
+
+	case GDK_KEY_Shift_L:
+	case GDK_KEY_Shift_R:
+		ws->modifiers |= GDK_SHIFT_MASK;
+		break;
+
+	default:
+		break;
+	}
+
+	return handled;
+}
+
+static gboolean
+workspaceview_key_released(GtkEventControllerKey *self,
+	guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+{
+	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+	gboolean handled;
+
+	handled = FALSE;
+
+	switch (keyval) {
+	case GDK_KEY_Control_L:
+	case GDK_KEY_Control_R:
+		ws->modifiers &= ~GDK_CONTROL_MASK;
+		break;
+
+	case GDK_KEY_Shift_L:
+	case GDK_KEY_Shift_R:
+		ws->modifiers &= ~GDK_SHIFT_MASK;
+		break;
+
+	default:
+		break;
+	}
+
+	return handled;
+}
+
 static void
 workspaceview_class_init(WorkspaceviewClass *class)
 {
@@ -1273,6 +1338,8 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_CALLBACK(workspaceview_drag_update);
 	BIND_CALLBACK(workspaceview_drag_end);
 	BIND_CALLBACK(workspaceview_error_close_clicked);
+	BIND_CALLBACK(workspaceview_key_pressed);
+	BIND_CALLBACK(workspaceview_key_released);
 
 	object_class->dispose = workspaceview_dispose;
 
