@@ -1,6 +1,7 @@
 ## master
 
 - fix ctrl/shift detect on windows
+- add menu pin button
 
 ## 9.0.6 2025/04/16
 

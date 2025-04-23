@@ -1,12 +1,3 @@
-- toolkit menu: return to home by default, have a temp "pin in place" toggle
-  at the top right to stop it
-
-        - pin in place disables if you click "back"
-
-- ctrl-drag / ctrl-click to make region / mark does not work on windows
-
-- fix scRGB with alpha
-
 - "reset" in display bar resets the position of scale/offset widgets, but does
   not reset the menu items (eg. tick on falsecolour)
 
@@ -33,6 +24,8 @@
 
 	we've implemented #separator
 
+- the nip4 menus need reworking to use max_alpha 255 for scrgb
+
 - add something to find unresolved symbols
 
 - get rid of im_copy_set etc.
@@ -43,15 +36,6 @@
   right now)
 
 - rename Image_type as Image_interpretation
-
-- add
-
-	minpair
-	maxpair
-	clamp
-	sdf
-
-  to stdenv
 
 - try:
 

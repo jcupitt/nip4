@@ -654,7 +654,18 @@ tilesource_rgb_image(Tilesource *tilesource, VipsImage *in)
 
 	// reattach alpha
 	if (alpha) {
-		if (vips_cast(alpha, &x, image->BandFmt, "shift", TRUE, NULL))
+		double max_alpha_before = vips_interpretation_max_alpha(alpha->Type);
+		double max_alpha_after = vips_interpretation_max_alpha(image->Type);
+
+		if (max_alpha_before != max_alpha_after) {
+			if (vips_linear1(alpha, &x,
+				max_alpha_after / max_alpha_before, 0.0, NULL))
+				return NULL;
+			VIPS_UNREF(alpha);
+			alpha = x;
+		}
+
+		if (vips_cast(alpha, &x, image->BandFmt, NULL))
 			return NULL;
 		VIPS_UNREF(alpha);
 		alpha = x;
