@@ -128,6 +128,15 @@ struct _Imageui {
 	gint64 last_frame_time;
 
 	gboolean should_animate;
+
+	/* We need to detect ctrl-click and shift-click for region create and
+	 * resize.
+	 *
+	 * Windows doesn't seem to support device polling, so we record ctrl and
+	 * shift state here in the keyboard handler.
+	 */
+	guint modifiers;
+
 };
 
 G_DEFINE_TYPE(Imageui, imageui, GTK_TYPE_WIDGET);
@@ -820,6 +829,16 @@ imageui_key_pressed(GtkEventControllerKey *self,
 	handled = FALSE;
 
 	switch (keyval) {
+	case GDK_KEY_Control_L:
+	case GDK_KEY_Control_R:
+		imageui->modifiers |= GDK_CONTROL_MASK;
+		break;
+
+	case GDK_KEY_Shift_L:
+	case GDK_KEY_Shift_R:
+		imageui->modifiers |= GDK_SHIFT_MASK;
+		break;
+
 	case GDK_KEY_plus:
 		imageui_magin(imageui);
 		handled = TRUE;
@@ -940,6 +959,16 @@ imageui_key_released(GtkEventControllerKey *self,
 	handled = FALSE;
 
 	switch (keyval) {
+	case GDK_KEY_Control_L:
+	case GDK_KEY_Control_R:
+		imageui->modifiers &= ~GDK_CONTROL_MASK;
+		break;
+
+	case GDK_KEY_Shift_L:
+	case GDK_KEY_Shift_R:
+		imageui->modifiers &= ~GDK_SHIFT_MASK;
+		break;
+
 	case GDK_KEY_i:
 	case GDK_KEY_o:
 		imageui->zoom_rate = 1.0;
@@ -977,7 +1006,6 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 {
 	Imageui *imageui = IMAGEUI(user_data);
 
-	guint modifiers;
 	Regionview *regionview;
 
 #ifdef DEBUG_VERBOSE
@@ -987,7 +1015,6 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 
 	switch (imageui->state) {
 	case IMAGEUI_WAIT:
-		modifiers = get_modifiers(GTK_EVENT_CONTROLLER(self));
 		regionview = imageui_find_regionview(imageui, start_x, start_y);
 
 		if (regionview) {
@@ -997,7 +1024,7 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 			g_object_ref(regionview);
 			regionview->start_area = regionview->our_area;
 		}
-		else if (modifiers & GDK_CONTROL_MASK) {
+		else if (imageui->modifiers & GDK_CONTROL_MASK) {
 			imageui->state = IMAGEUI_CREATE;
 			double left;
 			double top;
@@ -1039,7 +1066,6 @@ imageui_drag_update(GtkEventControllerMotion *self,
 {
 	Imageui *imageui = IMAGEUI(user_data);
 	double zoom = imageui_get_zoom(imageui);
-	guint modifiers = get_modifiers(GTK_EVENT_CONTROLLER(self));
 
 #ifdef DEBUG_VERBOSE
 	printf("imageui_drag_update: offset_x = %g, offset_y = %g\n",
@@ -1054,7 +1080,7 @@ imageui_drag_update(GtkEventControllerMotion *self,
 		break;
 
 	case IMAGEUI_SELECT:
-		regionview_resize(imageui->grabbed, modifiers,
+		regionview_resize(imageui->grabbed, imageui->modifiers,
 			imageui->tilesource->display_width,
 			imageui->tilesource->display_height,
 			offset_x / zoom,
@@ -1065,7 +1091,7 @@ imageui_drag_update(GtkEventControllerMotion *self,
 		break;
 
 	case IMAGEUI_CREATE:
-		regionview_resize(imageui->floating, modifiers,
+		regionview_resize(imageui->floating, imageui->modifiers,
 			imageui->tilesource->display_width,
 			imageui->tilesource->display_height,
 			offset_x / zoom,

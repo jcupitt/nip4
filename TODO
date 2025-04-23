@@ -1,3 +1,10 @@
+- toolkit menu: return to home by default, have a temp "pin in place" toggle
+  at the top right to stop it
+
+        - pin in place disables if you click "back"
+
+- ctrl-drag / ctrl-click to make region / mark does not work on windows
+
 - fix scRGB with alpha
 
 - "reset" in display bar resets the position of scale/offset widgets, but does

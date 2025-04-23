@@ -109,6 +109,15 @@
                       </object>
                     </child>
 
+                    <child>
+                      <object class="GtkEventControllerKey">
+                        <signal name="key-pressed"
+                                handler="workspaceview_key_pressed"/>
+                        <signal name="key-released"
+                                handler="workspaceview_key_released"/>
+                      </object>
+                    </child>
+
                   </object>
                 </child>
 

@@ -1,5 +1,7 @@
 ## master
 
+- fix ctrl/shift detect on windows
+
 ## 9.0.6 2025/04/16
 
 - fix perspective distort

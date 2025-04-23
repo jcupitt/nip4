@@ -284,6 +284,7 @@ rowview_pressed(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
+	Workspace *ws = row->ws;
 
 	if (n_press == 1) {
 		if (row->err &&
@@ -292,10 +293,7 @@ rowview_pressed(GtkGestureClick *gesture,
 			// click on a row with an error displays the error
 			workspace_set_show_error(row->ws, TRUE);
 
-		// select handling ... do this for rows with errors too
-		guint state = get_modifiers(GTK_EVENT_CONTROLLER(gesture));
-
-		row_select_modifier(row, state);
+		row_select_modifier(row, ws->modifiers);
 	}
 	else
 		rowview_edit(rview);
