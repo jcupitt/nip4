@@ -328,7 +328,8 @@ toolkitgroupview_get_property(GObject *object,
  */
 
 static void
-toolkitgroupview_add_kit(Toolkitgroupview *kitgview, GListStore *store, Toolkit *kit)
+toolkitgroupview_add_kit(Toolkitgroupview *kitgview,
+	GListStore *store, Toolkit *kit)
 {
 	if (kit &&
 		(kitgview->show_all || MODEL(kit)->display) &&
@@ -337,7 +338,8 @@ toolkitgroupview_add_kit(Toolkitgroupview *kitgview, GListStore *store, Toolkit 
 }
 
 static void
-toolkitgroupview_add_tool(Toolkitgroupview *kitgview, GListStore *store, Tool *tool)
+toolkitgroupview_add_tool(Toolkitgroupview *kitgview,
+	GListStore *store, Tool *tool)
 {
 	if (tool &&
 		(kitgview->show_all || MODEL(tool)->display) &&
@@ -346,7 +348,8 @@ toolkitgroupview_add_tool(Toolkitgroupview *kitgview, GListStore *store, Tool *t
 }
 
 static void
-toolkitgroupview_add_toolitem(Toolkitgroupview *kitgview, GListStore *store, Toolitem *toolitem)
+toolkitgroupview_add_toolitem(Toolkitgroupview *kitgview,
+	GListStore *store, Toolitem *toolitem)
 {
 	if (toolitem &&
 		(kitgview->show_all || MODEL(toolitem->tool)->display) &&
@@ -452,11 +455,14 @@ toolkitgroupview_browse_clicked(GtkWidget *button,
 
 		gtk_stack_set_visible_child_name(GTK_STACK(kitgview->stack), name);
 		gtk_stack_remove(GTK_STACK(kitgview->stack), last_page);
+		kitgview->pinned = FALSE;
 	}
 	else {
 		if (node->kit ||
-			(node->toolitem && node->toolitem->is_pullright))
+			(node->toolitem && node->toolitem->is_pullright)) {
 			toolkitgroupview_build_browse_page(kitgview, node);
+			kitgview->pinned = FALSE;
+		}
 
 		// activate after moving to the new page so listeners can get the new
 		// page name
@@ -465,15 +471,26 @@ toolkitgroupview_browse_clicked(GtkWidget *button,
 }
 
 static void
+toolkitgroupview_pin_togggled(GtkCheckButton *check_button,
+	Toolkitgroupview *kitgview)
+{
+	kitgview->pinned = gtk_check_button_get_active(check_button);
+}
+
+static void
 toolkitgroupview_setup_browse_item(GtkListItemFactory *factory,
 	GtkListItem *item, Toolkitgroupview *kitgview)
 {
+	// enclosing box, so we can have the pin me up tick on the right
+	GtkWidget *enclosing = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+
 	GtkWidget *button = gtk_button_new();
 	gtk_button_set_has_frame(GTK_BUTTON(button), FALSE);
 	gtk_widget_add_css_class(button, "toolkitgroupview-item");
 	g_object_set_qdata(G_OBJECT(button), toolkitgroupview_quark, kitgview);
 	g_signal_connect(button, "clicked",
 		G_CALLBACK(toolkitgroupview_browse_clicked), kitgview);
+	gtk_box_append(GTK_BOX(enclosing), button);
 
 	GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 	gtk_button_set_child(GTK_BUTTON(button), box);
@@ -492,16 +509,25 @@ toolkitgroupview_setup_browse_item(GtkListItemFactory *factory,
 	gtk_image_set_from_icon_name(GTK_IMAGE(right), "go-next-symbolic");
 	gtk_box_append(GTK_BOX(box), right);
 
-	gtk_list_item_set_child(item, button);
+	GtkWidget *pin = gtk_check_button_new();
+	g_signal_connect(pin, "toggled",
+		G_CALLBACK(toolkitgroupview_pin_togggled), kitgview);
+	set_tooltip(pin, "Pin menu in place");
+	gtk_box_append(GTK_BOX(enclosing), pin);
+
+	gtk_list_item_set_child(item, enclosing);
 }
 
 static void
 toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 	GtkListItem *item, Toolkitgroupview *kitgview)
 {
-	GtkWidget *button = gtk_list_item_get_child(item);
+	GtkWidget *enclosing = gtk_list_item_get_child(item);
 	Node *node = gtk_list_item_get_item(item);
 	Node *parent = g_object_get_qdata(G_OBJECT(factory), node_quark);
+
+	GtkWidget *button = gtk_widget_get_first_child(enclosing);
+	GtkWidget *pin = gtk_widget_get_next_sibling(button);
 
 	GtkWidget *box = gtk_button_get_child(GTK_BUTTON(button));
 	GtkWidget *left = gtk_widget_get_first_child(box);
@@ -517,6 +543,7 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 		gtk_list_item_get_position(item) == 0) {
 		gtk_widget_set_visible(left, TRUE);
 		gtk_widget_set_visible(right, FALSE);
+		gtk_widget_set_visible(pin, TRUE);
 		gtk_label_set_xalign(GTK_LABEL(label), 0.5);
 		g_object_set_qdata(G_OBJECT(button), node_quark, parent);
 	}
@@ -525,6 +552,7 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 		gtk_widget_set_visible(right,
 			node->kit ||
 			(node->toolitem && node->toolitem->is_pullright));
+		gtk_widget_set_visible(pin, FALSE);
 
 		if (node->toolitem)
 			set_tooltip(button, node->toolitem->help);
@@ -999,3 +1027,13 @@ toolkitgroupview_new(void)
 	return VIEW(kitgview);
 }
 
+void
+toolkitgroupview_home(Toolkitgroupview *kitgview)
+{
+	if (!kitgview->pinned) {
+		GtkWidget *stack = kitgview->stack;
+		GtkWidget *root_page = gtk_widget_get_first_child(stack);
+
+		gtk_stack_set_visible_child(GTK_STACK(stack), root_page);
+	}
+}

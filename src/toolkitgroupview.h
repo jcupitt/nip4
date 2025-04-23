@@ -65,6 +65,8 @@ struct _Toolkitgroupview {
 	GtkWidget *search_entry;
 	GtkWidget *scrolled_window;
 	GtkWidget *list_view;
+
+	gboolean pinned;
 };
 
 typedef struct _ToolkitgroupviewClass {
@@ -74,3 +76,4 @@ typedef struct _ToolkitgroupviewClass {
 
 GType toolkitgroupview_get_type(void);
 View *toolkitgroupview_new(void);
+void toolkitgroupview_home(Toolkitgroupview *kitgview);

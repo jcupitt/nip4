@@ -440,8 +440,10 @@ workspaceview_kitg_activate(Toolkitgroupview *kitgview,
 
 		if (workspace_add_action(ws,
 				toolitem->name, toolitem->action,
-				toolitem->action_sym->expr->compile->nparam))
+				toolitem->action_sym->expr->compile->nparam)) {
 			workspace_set_modified(ws, TRUE);
+			toolkitgroupview_home(kitgview);
+		}
 		else
 			workspace_set_show_error(ws, TRUE);
 	}
