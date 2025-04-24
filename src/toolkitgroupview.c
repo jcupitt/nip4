@@ -455,26 +455,23 @@ toolkitgroupview_browse_clicked(GtkWidget *button,
 
 		gtk_stack_set_visible_child_name(GTK_STACK(kitgview->stack), name);
 		gtk_stack_remove(GTK_STACK(kitgview->stack), last_page);
-		kitgview->pinned = FALSE;
+		kitgview->pin = NULL;
 	}
 	else {
 		if (node->kit ||
 			(node->toolitem && node->toolitem->is_pullright)) {
+			// go right ... make sure we clear the pin widget first
+			if (kitgview->pin)
+				gtk_check_button_set_active(GTK_CHECK_BUTTON(kitgview->pin),
+					FALSE);
+			kitgview->pin = NULL;
 			toolkitgroupview_build_browse_page(kitgview, node);
-			kitgview->pinned = FALSE;
 		}
 
 		// activate after moving to the new page so listeners can get the new
 		// page name
 		toolkitgroupview_activate(kitgview, node->toolitem, node->tool);
 	}
-}
-
-static void
-toolkitgroupview_pin_togggled(GtkCheckButton *check_button,
-	Toolkitgroupview *kitgview)
-{
-	kitgview->pinned = gtk_check_button_get_active(check_button);
 }
 
 static void
@@ -510,8 +507,6 @@ toolkitgroupview_setup_browse_item(GtkListItemFactory *factory,
 	gtk_box_append(GTK_BOX(box), right);
 
 	GtkWidget *pin = gtk_check_button_new();
-	g_signal_connect(pin, "toggled",
-		G_CALLBACK(toolkitgroupview_pin_togggled), kitgview);
 	set_tooltip(pin, "Pin menu in place");
 	gtk_box_append(GTK_BOX(enclosing), pin);
 
@@ -546,6 +541,9 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 		gtk_widget_set_visible(pin, TRUE);
 		gtk_label_set_xalign(GTK_LABEL(label), 0.5);
 		g_object_set_qdata(G_OBJECT(button), node_quark, parent);
+
+		// remember the widget so we can test and set the state
+		kitgview->pin = pin;
 	}
 	else {
 		gtk_label_set_xalign(GTK_LABEL(label), 0.0);
@@ -591,6 +589,9 @@ toolkitgroupview_build_browse_page(Toolkitgroupview *kitgview, Node *this)
 	const char *name = node_get_name(this);
 
 	GtkWidget *scrolled_window = gtk_scrolled_window_new();
+	// no scrollbars ... they obstruct useful widgets
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
+		GTK_POLICY_EXTERNAL, GTK_POLICY_EXTERNAL);
 	gtk_stack_add_named(GTK_STACK(kitgview->stack), scrolled_window, name);
 	kitgview->page_names = g_slist_append(kitgview->page_names, g_strdup(name));
 
@@ -1030,7 +1031,8 @@ toolkitgroupview_new(void)
 void
 toolkitgroupview_home(Toolkitgroupview *kitgview)
 {
-	if (!kitgview->pinned) {
+	if (!kitgview->pin ||
+		!gtk_check_button_get_active(GTK_CHECK_BUTTON(kitgview->pin))) {
 		GtkWidget *stack = kitgview->stack;
 		GtkWidget *root_page = gtk_widget_get_first_child(stack);
 
