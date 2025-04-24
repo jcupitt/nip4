@@ -1,5 +1,7 @@
 ## master
 
+- fix "gtk_window_get_application: assertion 'GTK_IS_WINDOW (window)' failed"
+
 ## 9.0.8 2025/04/23
 
 - fix ctrl/shift detect on windows
