@@ -66,7 +66,8 @@ struct _Toolkitgroupview {
 	GtkWidget *scrolled_window;
 	GtkWidget *list_view;
 
-	gboolean pinned;
+	// the last pin widget we bound
+	GtkWidget *pin;
 };
 
 typedef struct _ToolkitgroupviewClass {

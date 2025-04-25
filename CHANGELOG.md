@@ -5,6 +5,7 @@
 - fix ctrl/shift detect on windows
 - add menu pin button
 - improve scRGBA display
+- fix "gtk_window_get_application: assertion 'GTK_IS_WINDOW (window)' failed"
 
 ## 9.0.6 2025/04/16
 

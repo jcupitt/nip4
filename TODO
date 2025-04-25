@@ -25,6 +25,10 @@
 
   we'll need to do constant expansion in minpair
 
+- use GtkWindow* everywhere for "parent"
+
+	eg. classmodel_graphic_replace() etc
+
 - "reset" in display bar resets the position of scale/offset widgets, but does
   not reset the menu items (eg. tick on falsecolour)
 

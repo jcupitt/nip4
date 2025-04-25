@@ -69,6 +69,7 @@
                   <object class="GtkScrolledWindow" id="scrolled_window">
                     <property name="hexpand">false</property>
                     <property name="vexpand">true</property>
+                    <property name="vscrollbar-policy">external</property>
                     <property name="propagate-natural-width">true</property>
 
                   </object>

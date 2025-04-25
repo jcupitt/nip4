@@ -436,6 +436,7 @@ static void
 rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 {
 	Rowview *rview = ROWVIEW(view);
+	GtkWindow *window = view_get_window(VIEW(rview));
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	Model *graphic = row->child_rhs->graphic;
 	Workspace *ws = row->ws;
@@ -446,14 +447,14 @@ rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	else if (g_str_equal(name, "row-duplicate"))
 		rowview_duplicate(rview);
 	else if (g_str_equal(name, "row-saveas") && graphic)
-		classmodel_graphic_save(CLASSMODEL(graphic), GTK_WIDGET(rview));
+		classmodel_graphic_save(CLASSMODEL(graphic), GTK_WIDGET(window));
 	else if (g_str_equal(name, "row-delete")) {
 		if (workspace_selected_num(ws) < 2)
 			row_select(row);
-		workspace_selected_remove_yesno(ws, view_get_window(VIEW(rview)));
+		workspace_selected_remove_yesno(ws, window);
 	}
 	else if (g_str_equal(name, "row-replace") && graphic)
-		classmodel_graphic_replace(CLASSMODEL(graphic), GTK_WIDGET(rview));
+		classmodel_graphic_replace(CLASSMODEL(graphic), GTK_WIDGET(window));
 	else if (g_str_equal(name, "row-group"))
 		rowview_group(rview);
 	else if (g_str_equal(name, "row-ungroup"))
