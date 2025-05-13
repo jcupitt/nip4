@@ -365,12 +365,12 @@ model_register_loadable(ModelClass *model_class)
 }
 
 void
-model_edit(GtkWidget *parent, Model *model)
+model_edit(Model *model, GtkWindow *window)
 {
 	ModelClass *model_class = MODEL_GET_CLASS(model);
 
 	if (model_class->edit)
-		model_class->edit(parent, model);
+		model_class->edit(model, window);
 }
 
 void
@@ -706,7 +706,7 @@ model_init(Model *model)
 }
 
 static void
-model_check_destroy_yesno(GtkWindow *parent, void *user_data)
+model_check_destroy_yesno(GtkWindow *window, void *user_data)
 {
 	Model *model = MODEL(user_data);
 
@@ -715,7 +715,7 @@ model_check_destroy_yesno(GtkWindow *parent, void *user_data)
 }
 
 void
-model_check_destroy(GtkWindow *parent, Model *model)
+model_check_destroy(GtkWindow *window, Model *model)
 {
 	char txt[30];
 	VipsBuf buf = VIPS_BUF_STATIC(txt);
@@ -728,7 +728,7 @@ model_check_destroy(GtkWindow *parent, Model *model)
 	else
 		name = IOBJECT(model)->name;
 
-	alert_yesno(parent, model_check_destroy_yesno, model,
+	alert_yesno(window, model_check_destroy_yesno, model,
 		_("Are you sure?"),
 		_("Are you sure you want to delete %s \"%s\"?"),
 		IOBJECT_GET_CLASS_NAME(model), name);

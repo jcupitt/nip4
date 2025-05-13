@@ -163,7 +163,7 @@ Imageinfo *imageinfo_new_from_texture(Imageinfogroup *imageinfogroup,
 	Heap *heap, GdkTexture *texture);
 gboolean imageinfo_is_from_file(Imageinfo *imageinfo);
 Imageinfo *imageinfo_new_input(Imageinfogroup *imageinfogroup,
-	GtkWidget *parent, Heap *heap, const char *name);
+	GtkWindow *window, Heap *heap, const char *name);
 
 void imageinfo_get_rgb(Imageinfo *imageinfo, double rgb[3]);
 void imageinfo_set_rgb(Imageinfo *imageinfo, double rgb[3]);

@@ -82,7 +82,7 @@ void iregion_instance_destroy(iRegionInstance *instance);
 void iregion_instance_init(iRegionInstance *instance, Classmodel *classmodel);
 gboolean iregion_instance_update(iRegionInstance *instance, PElement *root);
 
-void iregion_edit(GtkWidget *parent, Model *model);
+void iregion_edit(GtkWindow *window, Model *model);
 void iregion_parent_add(iContainer *child);
 xmlNode *iregion_save(Model *model, xmlNode *xnode);
 gboolean iregion_load(Model *model,

@@ -122,23 +122,23 @@ classmodel_graphic_save_cb(GObject *source_object,
 	Classmodel *classmodel = CLASSMODEL(user_data);
 	ClassmodelClass *class = CLASSMODEL_GET_CLASS(classmodel);
 	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-	GtkWidget *parent = g_object_get_data(G_OBJECT(dialog), "nip4-parent");
+	GtkWindow *window = g_object_get_data(G_OBJECT(dialog), "nip4-window");
 
 	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
 	if (file) {
 		g_autofree char *filename = g_file_get_path(file);
 
-		if (class->graphic_save(classmodel, parent, filename)) {
+		if (class->graphic_save(classmodel, window, filename)) {
 			VIPS_SETSTR(classmodel->filename, filename);
 			iobject_changed(IOBJECT(classmodel));
 		}
 		else
-			error_alert(parent);
+			error_alert(window);
 	}
 }
 
 void
-classmodel_graphic_save(Classmodel *classmodel, GtkWidget *parent)
+classmodel_graphic_save(Classmodel *classmodel, GtkWindow *window)
 {
 	ClassmodelClass *class = CLASSMODEL_GET_CLASS(classmodel);
 
@@ -146,7 +146,7 @@ classmodel_graphic_save(Classmodel *classmodel, GtkWidget *parent)
 		error_top(_("Not implemented"));
 		error_sub(_("_%s() method not implemented for %s"),
 			"graphic_save", IOBJECT_GET_CLASS_NAME(classmodel));
-		error_alert(parent);
+		error_alert(window);
 		return;
 	}
 
@@ -170,24 +170,22 @@ classmodel_graphic_save(Classmodel *classmodel, GtkWidget *parent)
 			gtk_file_dialog_set_initial_file(dialog, file);
 	}
 
-	g_object_set_data(G_OBJECT(dialog), "nip4-parent", parent);
+	g_object_set_data(G_OBJECT(dialog), "nip4-window", window);
 
-	gtk_file_dialog_save(dialog,
-		GTK_WINDOW(gtk_widget_get_root(parent)),
-		NULL,
+	gtk_file_dialog_save(dialog, window, NULL,
 		classmodel_graphic_save_cb, classmodel);
 }
 
 gboolean
 classmodel_graphic_replace_filename(Classmodel *classmodel,
-	GtkWidget *parent, const char *filename)
+	GtkWindow *window, const char *filename)
 {
 	ClassmodelClass *class = CLASSMODEL_GET_CLASS(classmodel);
 
 	if (!class->graphic_replace)
 		return TRUE;
 
-	if (!class->graphic_replace(classmodel, parent, filename))
+	if (!class->graphic_replace(classmodel, window, filename))
 		return FALSE;
 
 	g_object_ref(G_OBJECT(classmodel));
@@ -207,19 +205,19 @@ classmodel_graphic_replace_cb(GObject *source_object,
 {
 	Classmodel *classmodel = CLASSMODEL(user_data);
 	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-	GtkWidget *parent = g_object_get_data(G_OBJECT(dialog), "nip4-parent");
+	GtkWindow *window = g_object_get_data(G_OBJECT(dialog), "nip4-window");
 
 	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
 	if (file) {
 		g_autofree char *filename = g_file_get_path(file);
 
-		if (!classmodel_graphic_replace_filename(classmodel, parent, filename))
-			error_alert(parent);
+		if (!classmodel_graphic_replace_filename(classmodel, window, filename))
+			error_alert(window);
 	}
 }
 
 void
-classmodel_graphic_replace(Classmodel *classmodel, GtkWidget *parent)
+classmodel_graphic_replace(Classmodel *classmodel, GtkWindow *window)
 {
 	ClassmodelClass *class = CLASSMODEL_GET_CLASS(classmodel);
 
@@ -228,7 +226,7 @@ classmodel_graphic_replace(Classmodel *classmodel, GtkWidget *parent)
 		error_sub(_("_%s() method not implemented for %s"),
 			"graphic_replace",
 			IOBJECT_GET_CLASS_NAME(classmodel));
-		error_alert(parent);
+		error_alert(window);
 		return;
 	}
 
@@ -252,11 +250,9 @@ classmodel_graphic_replace(Classmodel *classmodel, GtkWidget *parent)
 			gtk_file_dialog_set_initial_file(dialog, file);
 	}
 
-	g_object_set_data(G_OBJECT(dialog), "nip4-parent", parent);
+	g_object_set_data(G_OBJECT(dialog), "nip4-window", window);
 
-	gtk_file_dialog_open(dialog,
-		GTK_WINDOW(gtk_widget_get_root(parent)),
-		NULL,
+	gtk_file_dialog_open(dialog, window, NULL,
 		classmodel_graphic_replace_cb, classmodel);
 }
 
@@ -851,7 +847,8 @@ classmodel_load(Model *model,
 			classmodel_set_edited(CLASSMODEL(model), TRUE);
 	}
 
-	return MODEL_CLASS(classmodel_parent_class)->load(model, state, parent, xthis);
+	return MODEL_CLASS(classmodel_parent_class)->
+		load(model, state, parent, xthis);
 }
 
 static gboolean

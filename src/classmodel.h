@@ -121,8 +121,8 @@ typedef struct _ClassmodelClass {
 
 	/* Save and replace graphic displays ... eg. image/matrix.
 	 */
-	gboolean (*graphic_save)(Classmodel *, GtkWidget *, const char *);
-	gboolean (*graphic_replace)(Classmodel *, GtkWidget *, const char *);
+	gboolean (*graphic_save)(Classmodel *, GtkWindow *, const char *);
+	gboolean (*graphic_replace)(Classmodel *, GtkWindow *, const char *);
 
 	ClassmodelMember *members;
 	int n_members;
@@ -135,10 +135,10 @@ void image_value_set(ImageValue *image, Imageinfo *ii);
 void image_value_caption(ImageValue *value, VipsBuf *buf);
 
 void *classmodel_get_instance(Classmodel *classmodel);
-void classmodel_graphic_save(Classmodel *classmodel, GtkWidget *parent);
+void classmodel_graphic_save(Classmodel *classmodel, GtkWindow *window);
 gboolean classmodel_graphic_replace_filename(Classmodel *classmodel,
-	GtkWidget *parent, const char *filename);
-void classmodel_graphic_replace(Classmodel *classmodel, GtkWidget *parent);
+	GtkWindow *window, const char *filename);
+void classmodel_graphic_replace(Classmodel *classmodel, GtkWindow *window);
 
 void *classmodel_iimage_unlink(Classmodel *classmodel, iImage *iimage);
 void classmodel_iimage_update(Classmodel *classmodel, Imageinfo *ii);

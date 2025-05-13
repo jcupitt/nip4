@@ -125,10 +125,9 @@ iimage_view_new(Model *model, View *parent)
 }
 
 static void
-iimage_edit(GtkWidget *parent, Model *model)
+iimage_edit(Model *model, GtkWindow *window)
 {
 	iImage *iimage = IIMAGE(model);
-	GtkWindow *window = GTK_WINDOW(gtk_widget_get_root(parent));
 	GtkApplication *app = gtk_window_get_application(window);
 	Imagewindow *win = imagewindow_new(APP(app));
 
@@ -287,11 +286,10 @@ iimage_class_new(Classmodel *classmodel, PElement *fn, PElement *out)
 
 static gboolean
 iimage_graphic_save(Classmodel *classmodel,
-	GtkWidget *parent, const char *filename)
+	GtkWindow *window, const char *filename)
 {
 	iImage *iimage = IIMAGE(classmodel);
 	VipsImage *image = iimage->value.ii->image;
-	GtkWindow *window = GTK_WINDOW(gtk_widget_get_root(parent));
 
 	if (image) {
 		char buf[VIPS_PATH_MAX];
@@ -343,8 +341,8 @@ iimage_replace_imageinfo(iImage *iimage, Imageinfo *ii)
 }
 
 static gboolean
-iimage_graphic_replace(Classmodel *classmodel,
-	GtkWidget *parent, const char *filename)
+iimage_graphic_replace(Classmodel *classmodel, GtkWindow *window,
+	const char *filename)
 {
 	return iimage_replace(IIMAGE(classmodel), filename);
 }

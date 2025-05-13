@@ -67,7 +67,7 @@ void error_vips(void);
 void error_vips_all(void);
 const char *error_get_top(void);
 const char *error_get_sub(void);
-void error_alert(GtkWidget *parent);
+void error_alert(GtkWindow *window);
 
 gboolean set_prop(xmlNode *xnode, const char *name, const char *fmt, ...)
 	__attribute__((format(printf, 3, 4)));

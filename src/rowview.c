@@ -272,9 +272,10 @@ rowview_edit(Rowview *rview)
 	Row *row = ROW(VOBJECT(rview)->iobject);
 	Model *graphic = row->child_rhs->graphic;
 	Subcolumnview *sview = SUBCOLUMNVIEW(VIEW(rview)->parent);
+	GtkWindow *window = view_get_window(VIEW(sview));
 
 	if (graphic)
-		model_edit(GTK_WIDGET(sview), graphic);
+		model_edit(graphic, window);
 
 	return TRUE;
 }
@@ -443,18 +444,18 @@ rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	const char *name = g_action_get_name(G_ACTION(action));
 
 	if (g_str_equal(name, "row-edit") && graphic)
-		model_edit(GTK_WIDGET(rview), MODEL(graphic));
+		model_edit(MODEL(graphic), window);
 	else if (g_str_equal(name, "row-duplicate"))
 		rowview_duplicate(rview);
 	else if (g_str_equal(name, "row-saveas") && graphic)
-		classmodel_graphic_save(CLASSMODEL(graphic), GTK_WIDGET(window));
+		classmodel_graphic_save(CLASSMODEL(graphic), window);
 	else if (g_str_equal(name, "row-delete")) {
 		if (workspace_selected_num(ws) < 2)
 			row_select(row);
 		workspace_selected_remove_yesno(ws, window);
 	}
 	else if (g_str_equal(name, "row-replace") && graphic)
-		classmodel_graphic_replace(CLASSMODEL(graphic), GTK_WIDGET(window));
+		classmodel_graphic_replace(CLASSMODEL(graphic), window);
 	else if (g_str_equal(name, "row-group"))
 		rowview_group(rview);
 	else if (g_str_equal(name, "row-ungroup"))
