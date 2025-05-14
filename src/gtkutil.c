@@ -284,18 +284,18 @@ alert_yesno_cb(GObject *source_object,
 	GAsyncResult *result, gpointer user_data)
 {
 	GtkAlertDialog *alert = GTK_ALERT_DIALOG(source_object);
-	GtkWindow *parent = g_object_get_data(G_OBJECT(alert), "nip4-parent");
+	GtkWindow *window = g_object_get_data(G_OBJECT(alert), "nip4-window");
 	Yesno yesno = g_object_get_data(G_OBJECT(alert), "nip4-yesno");
 	int choice = gtk_alert_dialog_choose_finish(alert, result, NULL);
 
 	if (choice == 1)
-		yesno(parent, user_data);
+		yesno(window, user_data);
 }
 
 /* Ask before doing something.
  */
 void
-alert_yesno(GtkWindow *parent, Yesno yesno, void *user_data,
+alert_yesno(GtkWindow *window, Yesno yesno, void *user_data,
 	const char *message, const char *format, ...)
 {
 	va_list ap;
@@ -311,9 +311,9 @@ alert_yesno(GtkWindow *parent, Yesno yesno, void *user_data,
 	gtk_alert_dialog_set_detail(alert, buf);
 	gtk_alert_dialog_set_buttons(alert, labels);
 	gtk_alert_dialog_set_modal(alert, TRUE);
-	g_object_set_data(G_OBJECT(alert), "nip4-parent", parent);
+	g_object_set_data(G_OBJECT(alert), "nip4-window", window);
 	g_object_set_data(G_OBJECT(alert), "nip4-yesno", yesno);
-	gtk_alert_dialog_choose(alert, parent, NULL, alert_yesno_cb, user_data);
+	gtk_alert_dialog_choose(alert, window, NULL, alert_yesno_cb, user_data);
 }
 
 char *

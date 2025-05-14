@@ -696,7 +696,7 @@ mainwindow_close_request_idle(void *user_data)
 }
 
 static void
-mainwindow_close_request_next(GtkWindow *parent,
+mainwindow_close_request_next(GtkWindow *window,
 	Filemodel *filemodel, void *a, void *b)
 {
 	Mainwindow *main = MAINWINDOW(a);

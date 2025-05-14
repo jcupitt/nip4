@@ -928,7 +928,7 @@ imagewindow_replace_action(GSimpleAction *action,
 	Imagewindow *win = IMAGEWINDOW(user_data);
 
 	if (win->iimage)
-		classmodel_graphic_replace(CLASSMODEL(win->iimage), GTK_WIDGET(win));
+		classmodel_graphic_replace(CLASSMODEL(win->iimage), GTK_WINDOW(win));
 }
 
 static void
@@ -938,7 +938,7 @@ imagewindow_saveas_action(GSimpleAction *action,
 	Imagewindow *win = IMAGEWINDOW(user_data);
 
 	if (win->iimage)
-		classmodel_graphic_save(CLASSMODEL(win->iimage), GTK_WIDGET(win));
+		classmodel_graphic_save(CLASSMODEL(win->iimage), GTK_WINDOW(win));
 }
 
 static void

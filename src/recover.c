@@ -444,7 +444,7 @@ recover_delete_temps(void)
 }
 
 static void
-recover_delete_temps_yesno(GtkWindow *parent, void *user_data)
+recover_delete_temps_yesno(GtkWindow *window, void *user_data)
 {
 	Recover *recover = RECOVER(user_data);
 

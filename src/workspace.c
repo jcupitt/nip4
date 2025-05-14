@@ -1277,7 +1277,7 @@ workspace_selected_remove(Workspace *ws)
 }
 
 static void
-workspace_selected_remove_yesno_cb(GtkWindow *parent, gpointer user_data)
+workspace_selected_remove_yesno_cb(GtkWindow *window, gpointer user_data)
 {
 	Workspace *ws = WORKSPACE(user_data);
 
@@ -1289,7 +1289,7 @@ workspace_selected_remove_yesno_cb(GtkWindow *parent, gpointer user_data)
  * bother.
  */
 void
-workspace_selected_remove_yesno(Workspace *ws, GtkWindow *parent)
+workspace_selected_remove_yesno(Workspace *ws, GtkWindow *window)
 {
 	if (workspace_selected_num(ws) == 1) {
 		if (!workspace_selected_remove(ws))
@@ -1300,7 +1300,7 @@ workspace_selected_remove_yesno(Workspace *ws, GtkWindow *parent)
 		VipsBuf buf = VIPS_BUF_STATIC(txt);
 
 		workspace_selected_names(ws, &buf, ", ");
-		alert_yesno(parent,
+		alert_yesno(window,
 			workspace_selected_remove_yesno_cb, ws,
 			_("Are you sure?"),
 			_("Are you sure you want to delete rows %s?"),

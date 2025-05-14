@@ -260,7 +260,7 @@ colour_edit_choose_rgba(GObject *source_object,
 }
 
 static void
-colour_edit(GtkWidget *parent, Model *model)
+colour_edit(Model *model, GtkWindow *window)
 {
 	Colour *colour = COLOUR(model);
 
@@ -276,7 +276,7 @@ colour_edit(GtkWidget *parent, Model *model)
 		.alpha = 1.0
 	};
 
-	gtk_color_dialog_choose_rgba(dialog, view_get_window(VIEW(parent)),
+	gtk_color_dialog_choose_rgba(dialog, window,
 		&initial_color, NULL, colour_edit_choose_rgba, colour);
 }
 

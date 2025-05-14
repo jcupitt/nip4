@@ -86,7 +86,8 @@ imageinfogroup_child_add(iContainer *parent, iContainer *child, int pos)
 	g_hash_table_insert(imageinfogroup->filename_hash,
 		(gpointer) name, (gpointer) hits);
 
-	ICONTAINER_CLASS(imageinfogroup_parent_class)->child_add(parent, child, pos);
+	ICONTAINER_CLASS(imageinfogroup_parent_class)->
+		child_add(parent, child, pos);
 }
 
 static void
@@ -637,7 +638,7 @@ typedef struct _ImageinfoOpen {
 	Imageinfogroup *imageinfogroup;
 	Heap *heap;
 	const char *filename;
-	GtkWidget *parent;
+	GtkWindow *window;
 } ImageinfoOpen;
 
 /* Open for read ... returns a non-heap pointer, destroy if it goes in the
@@ -820,7 +821,7 @@ imageinfo_attach_check(Imageinfo *imageinfo)
 /* Open a filename for input. The filename can have an embedded mode.
  */
 Imageinfo *
-imageinfo_new_input(Imageinfogroup *imageinfogroup, GtkWidget *parent,
+imageinfo_new_input(Imageinfogroup *imageinfogroup, GtkWindow *window,
 	Heap *heap, const char *name)
 {
 	Imageinfo *imageinfo;
@@ -840,7 +841,7 @@ imageinfo_new_input(Imageinfogroup *imageinfogroup, GtkWidget *parent,
 	open.imageinfogroup = imageinfogroup;
 	open.heap = heap;
 	open.filename = name;
-	open.parent = parent;
+	open.window = window;
 
 	if (!(imageinfo = (Imageinfo *) callv_string_filename(
 			  (callv_string_fn) imageinfo_open_image_input,

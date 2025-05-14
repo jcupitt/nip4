@@ -89,12 +89,12 @@ rhs_view_new(Model *model, View *parent)
 }
 
 static void
-rhs_edit(GtkWidget *parent, Model *model)
+rhs_edit(Model *model, GtkWindow *window)
 {
 	Rhs *rhs = RHS(model);
 
 	if (rhs->graphic)
-		model_edit(parent, rhs->graphic);
+		model_edit(rhs->graphic, window);
 }
 
 static gboolean

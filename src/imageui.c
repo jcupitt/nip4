@@ -1155,8 +1155,12 @@ imageui_region_new(Imageui *imageui, RegionviewType type, VipsRect *rect)
 			g_assert_not_reached();
 		}
 
-		if (!(sym = workspace_add_def_recalc(row->ws, vips_buf_all(&buf))))
-			error_alert(GTK_WIDGET(imageui));
+		if (!(sym = workspace_add_def_recalc(row->ws, vips_buf_all(&buf)))) {
+			GtkWindow *window =
+				GTK_WINDOW(gtk_widget_get_root(GTK_WIDGET(imageui)));
+
+			error_alert(window);
+		}
 
 		workspace_deselect_all(row->ws);
 	}

@@ -75,8 +75,10 @@ graphicview_pressed(GtkGestureClick *gesture,
 	}
 	else {
 		Model *model = MODEL(VOBJECT(graphicview)->iobject);
+		GtkWindow *window =
+			GTK_WINDOW(gtk_widget_get_root(GTK_WIDGET(graphicview)));
 
-		model_edit(GTK_WIDGET(graphicview), model);
+		model_edit(model, window);
 	}
 }
 

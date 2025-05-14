@@ -271,10 +271,9 @@ plot_view_new(Model *model, View *parent)
 }
 
 static void
-plot_edit(GtkWidget *parent, Model *model)
+plot_edit(Model *model, GtkWindow *window)
 {
 	Plot *plot = PLOT(model);
-	GtkWindow *window = GTK_WINDOW(gtk_widget_get_root(parent));
 	GtkApplication *app = gtk_window_get_application(window);
 	Plotwindow *win = plotwindow_new(APP(app));
 
@@ -303,8 +302,7 @@ plot_save(Model *model, xmlNode *xnode)
 }
 
 static gboolean
-plot_load(Model *model,
-	ModelLoadState *state, Model *parent, xmlNode *xnode)
+plot_load(Model *model, ModelLoadState *state, Model *parent, xmlNode *xnode)
 {
 	Plot *plot = PLOT(model);
 
@@ -442,7 +440,7 @@ plot_reset(Classmodel *classmodel)
 
 static gboolean
 plot_graphic_save(Classmodel *classmodel,
-	GtkWidget *parent, const char *filename)
+	GtkWindow *window, const char *filename)
 {
 	Plot *plot = PLOT(classmodel);
 	ImageValue *value = &plot->value;

@@ -655,7 +655,7 @@ filemodel_saveas_sub(GObject *source_object,
 	GAsyncResult *res, void *data)
 {
 	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-	GtkWindow *parent = g_object_get_data(G_OBJECT(dialog), "nip4-parent");
+	GtkWindow *window = g_object_get_data(G_OBJECT(dialog), "nip4-window");
 	Filemodel *filemodel =
 		g_object_get_data(G_OBJECT(dialog), "nip4-filemodel");
 	FilemodelSaveasResult next =
@@ -670,17 +670,17 @@ filemodel_saveas_sub(GObject *source_object,
 		g_autofree char *filename = g_file_get_path(file);
 
 		if (!filemodel_top_save(filemodel, filename))
-			error(parent, filemodel, a, b);
+			error(window, filemodel, a, b);
 		else {
 			filemodel_set_filename(filemodel, filename);
 			filemodel_set_modified(filemodel, FALSE);
-			next(parent, filemodel, a, b);
+			next(window, filemodel, a, b);
 		}
 	}
 }
 
 static void
-filemodel_saveas(GtkWindow *parent, Filemodel *filemodel,
+filemodel_saveas(GtkWindow *window, Filemodel *filemodel,
 	FilemodelSaveasResult next,
 	FilemodelSaveasResult error, void *a, void *b)
 {
@@ -690,7 +690,7 @@ filemodel_saveas(GtkWindow *parent, Filemodel *filemodel,
 	GtkFileDialog *dialog = gtk_file_dialog_new();
 	gtk_file_dialog_set_title(dialog, title);
 	gtk_file_dialog_set_modal(dialog, TRUE);
-	g_object_set_data(G_OBJECT(dialog), "nip4-parent", parent);
+	g_object_set_data(G_OBJECT(dialog), "nip4-window", window);
 	g_object_set_data(G_OBJECT(dialog), "nip4-filemodel", filemodel);
 	g_object_set_data(G_OBJECT(dialog), "nip4-next", next);
 	g_object_set_data(G_OBJECT(dialog), "nip4-error", error);
@@ -706,7 +706,7 @@ filemodel_saveas(GtkWindow *parent, Filemodel *filemodel,
 			gtk_file_dialog_set_initial_file(dialog, file);
 	}
 
-	gtk_file_dialog_save(dialog, parent, NULL,
+	gtk_file_dialog_save(dialog, window, NULL,
 		filemodel_saveas_sub, NULL);
 }
 
@@ -715,7 +715,7 @@ filemodel_save_before_close_cb(GObject *source_object,
 	GAsyncResult *result, void *data)
 {
 	GtkAlertDialog *alert = GTK_ALERT_DIALOG(source_object);
-	GtkWindow *parent = g_object_get_data(G_OBJECT(alert), "nip4-parent");
+	GtkWindow *window = g_object_get_data(G_OBJECT(alert), "nip4-window");
 	Filemodel *filemodel = g_object_get_data(G_OBJECT(alert), "nip4-filemodel");
 	FilemodelSaveasResult next =
 		g_object_get_data(G_OBJECT(alert), "nip4-next");
@@ -730,12 +730,12 @@ filemodel_save_before_close_cb(GObject *source_object,
 		// close without saving ... tag as unmodified, and move on
 		// "next" is responsible for doing the gtk_window_close()
 		filemodel_set_modified(filemodel, FALSE);
-		next(parent, filemodel, a, b);
+		next(window, filemodel, a, b);
 		break;
 
 	case 2:
 		// save then move on
-		filemodel_saveas(parent, filemodel, next, error, a, b);
+		filemodel_saveas(window, filemodel, next, error, a, b);
 		break;
 
 	default:
@@ -745,10 +745,10 @@ filemodel_save_before_close_cb(GObject *source_object,
 }
 
 static void
-filemodel_save_before_close_error(GtkWindow *parent,
+filemodel_save_before_close_error(GtkWindow *window,
 	Filemodel *filemodel, void *a, void *b)
 {
-	Mainwindow *main = MAINWINDOW(parent);
+	Mainwindow *main = MAINWINDOW(window);
 
 	mainwindow_error(main);
 }
@@ -757,7 +757,7 @@ void
 filemodel_save_before_close(Filemodel *filemodel,
 	FilemodelSaveasResult next, void *a, void *b)
 {
-	GtkWindow *parent = filemodel_get_window_hint(filemodel);
+	GtkWindow *window = filemodel_get_window_hint(filemodel);
 	const char *tname = IOBJECT_GET_CLASS_NAME(filemodel);
 
 	g_autofree char *message = g_strdup_printf("%s has been modified", tname);
@@ -778,7 +778,7 @@ filemodel_save_before_close(Filemodel *filemodel,
 	gtk_alert_dialog_set_detail(alert, detail);
 	gtk_alert_dialog_set_buttons(alert, labels);
 	gtk_alert_dialog_set_modal(alert, TRUE);
-	g_object_set_data(G_OBJECT(alert), "nip4-parent", parent);
+	g_object_set_data(G_OBJECT(alert), "nip4-window", window);
 	g_object_set_data(G_OBJECT(alert), "nip4-filemodel", filemodel);
 	g_object_set_data(G_OBJECT(alert), "nip4-next", next);
 	g_object_set_data(G_OBJECT(alert), "nip4-error",
@@ -786,7 +786,7 @@ filemodel_save_before_close(Filemodel *filemodel,
 	g_object_set_data(G_OBJECT(alert), "nip4-a", a);
 	g_object_set_data(G_OBJECT(alert), "nip4-b", b);
 
-	gtk_alert_dialog_choose(alert, parent, NULL,
+	gtk_alert_dialog_choose(alert, window, NULL,
 		filemodel_save_before_close_cb, NULL);
 }
 
@@ -812,23 +812,23 @@ filemodel_close_registered_next_reply_idle(void *user_data)
 }
 
 static void
-filemodel_close_registered_next(GtkWindow *parent,
+filemodel_close_registered_next(GtkWindow *window,
 	Filemodel *filemodel, void *a, void *b);
 
 static void
-filemodel_close_registered_next_reply(GtkWindow *parent,
+filemodel_close_registered_next_reply(GtkWindow *window,
 	Filemodel *filemodel, void *a, void *b)
 {
 	/* We can't close immediately, the alert is still being shown
 	 * and must detach. Close the window back in idle.
 	 */
-	g_idle_add(filemodel_close_registered_next_reply_idle, parent);
+	g_idle_add(filemodel_close_registered_next_reply_idle, window);
 
 	filemodel_close_registered_next(NULL, NULL, a, b);
 }
 
 static void
-filemodel_close_registered_next(GtkWindow *parent,
+filemodel_close_registered_next(GtkWindow *window,
 	Filemodel *filemodel, void *a, void *b)
 {
 	SListMapFn callback = (SListMapFn) a;

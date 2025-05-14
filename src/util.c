@@ -190,17 +190,14 @@ error_get_sub(void)
 }
 
 void
-error_alert(GtkWidget *parent)
+error_alert(GtkWindow *window)
 {
-	if (!parent) {
+	if (!window) {
 		// just bail out in batch mode
 		printf("Error: %s\n", error_get_top());
 		printf("\t%s\n", error_get_sub());
 		vips_error_exit(NULL);
 	}
-
-	GtkWindow *win = IS_VIEW(parent) ?
-		view_get_window(VIEW(parent)) : GTK_WINDOW(gtk_widget_get_root(parent));
 
 	GtkAlertDialog *alert;
 
@@ -209,7 +206,7 @@ error_alert(GtkWidget *parent)
 	gtk_alert_dialog_set_detail(alert, error_get_sub());
 	error_clear();
 	gtk_alert_dialog_set_modal(alert, TRUE);
-	gtk_alert_dialog_show(alert, win);
+	gtk_alert_dialog_show(alert, window);
 }
 
 /* Set an xml property printf() style.
