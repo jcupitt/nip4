@@ -1018,6 +1018,13 @@ tilecache_snapshot(Tilecache *tilecache, GtkSnapshot *snapshot,
 			graphene_rect_t bounds;
 
 #if GTK_CHECK_VERSION(4, 10, 0)
+			/* If we are zooming in beyond 1:1, we want nearest so we don't
+			 * blur the image. For zooming out, we want trilinear to get
+			 * mipmaps and antialiasing.
+			 */
+			GskScalingFilter filter = scale > 1.0 ?
+				GSK_SCALING_FILTER_NEAREST : GSK_SCALING_FILTER_TRILINEAR;
+
 			// add a margin along the right and bottom to prevent black seams
 			// at tile joins
 			bounds.origin.x = tile->bounds.left * scale - x + paint_rect->left;
@@ -1026,9 +1033,7 @@ tilecache_snapshot(Tilecache *tilecache, GtkSnapshot *snapshot,
 			bounds.size.height = tile->bounds.height * scale + 2;
 
 			gtk_snapshot_append_scaled_texture(snapshot,
-				tile_get_texture(tile),
-				GSK_SCALING_FILTER_NEAREST,
-				&bounds);
+				tile_get_texture(tile), filter, &bounds);
 #else
 			bounds.origin.x = tile->bounds.left * scale - x + paint_rect->left;
 			bounds.origin.y = tile->bounds.top * scale - y + paint_rect->top;
