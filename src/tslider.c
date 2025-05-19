@@ -155,7 +155,9 @@ tslider_real_changed(Tslider *tslider)
 		tslider->last_from = tslider->from;
 	}
 
-	if (!DEQ(tslider->svalue, tslider->last_svalue))
+	// we can get nan here during init
+	if (!isnan(tslider->svalue) &&
+		!DEQ(tslider->svalue, tslider->last_svalue))
 		gtk_adjustment_set_value(adj, tslider->svalue);
 
 	g_signal_handlers_unblock_matched(G_OBJECT(adj),
