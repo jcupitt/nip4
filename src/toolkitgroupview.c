@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -840,6 +840,8 @@ toolkitgroupview_refresh(vObject *vobject)
 	printf("toolkitgroupview_refresh:\n");
 #endif /*DEBUG*/
 
+	kitgview->pin = NULL;
+
 	// remove all stack pages except the first
 	GtkWidget *stack = kitgview->stack;
 	GtkWidget *root_page = gtk_widget_get_first_child(stack);
@@ -1039,15 +1041,10 @@ toolkitgroupview_home(Toolkitgroupview *kitgview)
 {
 	if (!kitgview->pin ||
 		!gtk_check_button_get_active(GTK_CHECK_BUTTON(kitgview->pin))) {
-		GtkWidget *stack = kitgview->stack;
-		GtkWidget *root_page = gtk_widget_get_first_child(stack);
-
-		gtk_stack_set_visible_child(GTK_STACK(stack), root_page);
-
-		GtkWidget *child;
-		while ((child = gtk_widget_get_next_sibling(root_page)))
-			gtk_stack_remove(GTK_STACK(stack), child);
-
-		kitgview->pin = NULL;
+		// back to just the "root" page
+		if (kitgview->page_names)
+			g_slist_free_full(g_steal_pointer(&kitgview->page_names->next),
+				g_free);
+		vobject_refresh_queue(VOBJECT(kitgview));
 	}
 }
