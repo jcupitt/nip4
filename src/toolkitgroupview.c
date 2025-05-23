@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -588,6 +588,10 @@ toolkitgroupview_build_browse_page(Toolkitgroupview *kitgview, Node *this)
 {
 	const char *name = node_get_name(this);
 
+#ifdef DEBUG
+	printf("toolkitgroupview_build_browse_page: adding page %s\n", name);
+#endif /*DEBUG*/
+
 	GtkWidget *scrolled_window = gtk_scrolled_window_new();
 	// no scrollbars ... they obstruct useful widgets
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
@@ -844,6 +848,8 @@ toolkitgroupview_refresh(vObject *vobject)
 
 		while ((child = gtk_widget_get_next_sibling(root_page)))
 			gtk_stack_remove(GTK_STACK(stack), child);
+
+		kitgview->pin = NULL;
 	}
 	gtk_stack_set_visible_child(GTK_STACK(kitgview->stack), root_page);
 
@@ -1037,5 +1043,11 @@ toolkitgroupview_home(Toolkitgroupview *kitgview)
 		GtkWidget *root_page = gtk_widget_get_first_child(stack);
 
 		gtk_stack_set_visible_child(GTK_STACK(stack), root_page);
+
+		GtkWidget *child;
+		while ((child = gtk_widget_get_next_sibling(root_page)))
+			gtk_stack_remove(GTK_STACK(stack), child);
+
+		kitgview->pin = NULL;
 	}
 }
