@@ -1,6 +1,8 @@
-- all the region stuff should be in a Region menu
+- try making two regions, intersect, drag one of the inputs
 
-	add union, intersection, etc.
+	gets slower and slower ... are we not freeing old region structs?
+
+	imageui->regionviews does not go crazy
 
 - maxpos, then create mark from coordinate should be two clicks
 
@@ -24,10 +26,6 @@
 	because constant expansion is done by the Image class
 
   we'll need to do constant expansion in minpair
-
-- use GtkWindow* everywhere for "parent"
-
-	eg. classmodel_graphic_replace() etc
 
 - the "new tab" icon is still broken in the windows build
 

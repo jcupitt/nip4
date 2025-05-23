@@ -46,85 +46,10 @@ Image_new_item = class Menupullright "_New" "make new things" {
 		}
 	}
 
-	SDF_images_item = class
-		Menupullright "SDF" "make and combine signed distance fields" {
-		New_item = class
-			Menuaction "New" "construct signed distance fields" {
-			action = class
-				_result {
-				_vislevel = 3;
-
-				width = Expression "Image width (pixels)" 256;
-				height = Expression "Image height (pixels)" 256;
-				shape = Option "Shape" [
-					"Circle",
-					"Box",
-					"Rounded box",
-					"Line"
-				] 0;
-				radius = Scale "Radius" 0 100 75;
-				a = Matrix [[width.expr / 2, height.expr / 2]];
-				b = Matrix [[3 * width.expr / 4, 3 * height.expr / 4]];
-				corners = Matrix [[10, 10, 10, 10]];
-
-				_result = sdf width height shape
-					[$r => to_real radius,
-					 $a => a.value?0,
-					 $b => b.value?0,
-					 $corners => corners.value?0];
-			}
-		}
-
-		Union_item = class
-			Menuaction "Union" "union of two SDFs" {
-			action x y = class
-				_result {
-				_result = minpair x y;
-			}
-		}
-
-		Intersection_item = class
-			Menuaction "Intersection" "imtersection of two SDFs" {
-			action x y = class
-				_result {
-				_result = maxpair x y;
-			}
-		}
-
-		Difference_item = class
-			Menuaction "Difference" "difference of two SDFs" {
-			action x y = class
-				_result {
-				_result = maxpair (-x) y;
-			}
-		}
-
-		Annular_item = class
-			Menuaction "Annular" "make annular" {
-			action x = class
-				_result {
-				_vislevel = 3;
-
-				width = Scale "Width" 0 100 50;
-
-				_result = abs x - width;
-			}
-		}
-
-		Render_item = class
-			Menuaction "Render" "render as an image" {
-			action x = class
-				_result {
-				_vislevel = 3;
-
-				antialias = Toggle "Antialias" true;
-
-				_result
-					= linearu (-255) 255 (clamp 0 1 x), antialias
-					= clamp 0 1 x < 0.5;
-			}
-		}
-	}
+	SDF_item = class
+		Menuaction "SDF" "construct signed distance fields" {
+		action = Image_SDF_item.New_item.action;
+    }
 
 	Xy_item = class
 		Menuaction "_XY Image"
@@ -1940,6 +1865,86 @@ Image_alpha_item = class
 					 $premultiplied => premultiplied.value
 					];
 			}
+		}
+	}
+}
+
+Image_SDF_item = class
+	Menupullright "SDF" "make and combine signed distance fields" {
+	New_item = class
+		Menuaction "New" "construct signed distance fields" {
+		action = class
+			_result {
+			_vislevel = 3;
+
+			width = Expression "Image width (pixels)" 256;
+			height = Expression "Image height (pixels)" 256;
+			shape = Option "Shape" [
+				"Circle",
+				"Box",
+				"Rounded box",
+				"Line"
+			] 0;
+			radius = Scale "Radius" 0 100 75;
+			a = Matrix [[width.expr / 2, height.expr / 2]];
+			b = Matrix [[3 * width.expr / 4, 3 * height.expr / 4]];
+			corners = Matrix [[10, 10, 10, 10]];
+
+			_result = sdf width height shape
+				[$r => to_real radius,
+				 $a => a.value?0,
+				 $b => b.value?0,
+				 $corners => corners.value?0];
+		}
+	}
+
+	Union_item = class
+		Menuaction "Union" "union of two SDFs" {
+		action x y = class
+			_result {
+			_result = minpair x y;
+		}
+	}
+
+	Intersection_item = class
+		Menuaction "Intersection" "imtersection of two SDFs" {
+		action x y = class
+			_result {
+			_result = maxpair x y;
+		}
+	}
+
+	Difference_item = class
+		Menuaction "Difference" "difference of two SDFs" {
+		action x y = class
+			_result {
+			_result = maxpair (-x) y;
+		}
+	}
+
+	Annular_item = class
+		Menuaction "Annular" "make annular" {
+		action x = class
+			_result {
+			_vislevel = 3;
+
+			width = Scale "Width" 0 100 50;
+
+			_result = abs x - width;
+		}
+	}
+
+	Render_item = class
+		Menuaction "Render" "render as an image" {
+		action x = class
+			_result {
+			_vislevel = 3;
+
+			antialias = Toggle "Antialias" true;
+
+			_result
+				= linearu (-255) 255 (clamp 0 1 x), antialias
+				= clamp 0 1 x < 0.5;
 		}
 	}
 }

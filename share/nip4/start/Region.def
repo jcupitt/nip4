@@ -1,0 +1,100 @@
+Region_new_item = class
+	Menupullright "New" "mark regions on an image" {
+	Region_item = class
+		Menuaction "Region" "mark a rectangular region" {
+		action x =
+			Region x (x.width / 4) (x.height / 4) (x.width / 2) (x.height / 2);
+	}
+
+	Arrow_item = class
+		Menuaction "Arrow" "mark an arrow" {
+		action x =
+			Arrow x (x.width / 4) (x.height / 4) (x.width / 2) (x.height / 2);
+	}
+
+	Mark_item = class
+		Menuaction "Mark" "mark a point" {
+		action x = Mark x (x.width / 2) (x.height / 2);
+	}
+
+	HGuide_item = class
+		Menuaction "Horizontal guide" "mark a horizontal guide" {
+		action x = HGuide x (x.height / 2);
+	}
+
+	VGuide_item = class
+		Menuaction "Vertical guide" "mark a vertical guide" {
+		action x = VGuide x (x.width / 2);
+	}
+}
+
+#separator
+
+Region_union_item = class
+	Menuaction "Union" "bounding box of two regions" {
+	action x y
+		= error "two regions must be on the same image", x.image !== y.image
+		= Region x.image union.left union.top union.width union.height
+	{
+		xr = Rect x.left x.top x.width x.height;
+		yr = Rect y.left y.top y.width y.height;
+		union = xr.union yr;
+	}
+}
+
+Region_intersection_item = class
+	Menuaction "Intersection" "smallest common rect of two regions" {
+	action x y
+		= error "two regions must be on the same image", x.image !== y.image
+		= Region x.image inter.left inter.top inter.width inter.height
+	{
+		xr = Rect x.left x.top x.width x.height;
+		yr = Rect y.left y.top y.width y.height;
+		inter = xr.intersect yr;
+	}
+}
+
+Region_margin_adjust_item = class
+	Menuaction "Adjust margin" "add or remove a margin from a region" {
+	action x y
+		= Region x.image r.left r.top r.width r.height
+	{
+		xr = Rect x.left x.top x.width x.height;
+		r = xr.margin_adjust (get_real y);
+	}
+}
+
+#separator
+
+Region_length_item = class
+	Menuaction "Length" "diagonal size of a region" {
+	action x = abs x;
+}
+
+Region_contains_item = class
+	Menuaction "Contains" "test if one region contains another" {
+	action x y
+		= error "two regions must be on the same image", x.image !== y.image
+		= xr.includes_rect yr
+	{
+		xr = Rect x.left x.top x.width x.height;
+		yr = Rect y.left y.top y.width y.height;
+	}
+}
+
+Region_equal_item = class
+	Menuaction "Equal" "test if two regions are equal" {
+	action x y
+		= error "two regions must be on the same image", x.image !== y.image
+		= xr == yr
+	{
+		xr = Rect x.left x.top x.width x.height;
+		yr = Rect y.left y.top y.width y.height;
+	}
+}
+
+Region_empty_item = class
+	Menuaction "Empty" "test if a region is empty" {
+	action x = x.width == 0 || x.height == 0;
+}
+
