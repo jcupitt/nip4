@@ -54,17 +54,23 @@ Region_intersection_item = class
 	}
 }
 
+#separator
+
 Region_margin_adjust_item = class
 	Menuaction "Adjust margin" "add or remove a margin from a region" {
-	action x y
-		= Region x.image r.left r.top r.width r.height
-	{
-		xr = Rect x.left x.top x.width x.height;
-		r = xr.margin_adjust (get_real y);
+	action x = class
+		_result {
+		_vislevel = 3;
+
+		margin = Scale "Margin" (-100) (100) 10;
+
+		_result = Region x.image r.left r.top r.width r.height
+		{
+			xr = Rect x.left x.top x.width x.height;
+			r = xr.margin_adjust (get_real margin);
+		}
 	}
 }
-
-#separator
 
 Region_length_item = class
 	Menuaction "Length" "diagonal size of a region" {
