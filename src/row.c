@@ -219,15 +219,21 @@ row_dirty_set_single(Row *row, gboolean clear_error)
 static void *
 row_dirty_set_sub(Model *model, gboolean clear_error)
 {
-	if (IS_ROW(model)) {
-		Row *row = ROW(model);
-		Rhs *rhs = row->child_rhs;
+	Row *row;
+	Rhs *rhs;
 
-		g_assert(!rhs || IS_RHS(rhs));
-
-		if (rhs && rhs->itext && ITEXT(rhs->itext)->edited)
+	// child_rhs can be garbage during recomp :(
+	if (IS_ROW(model) &&
+		(row = ROW(model)) &&
+		row->child_rhs &&
+		IS_RHS(row->child_rhs) &&
+		(rhs = row->child_rhs)) {
+		if (rhs &&
+			rhs->itext &&
+			ITEXT(rhs->itext)->edited)
 			row_dirty_set_single(row, clear_error);
-		else if (rhs && rhs->graphic &&
+		else if (rhs &&
+			rhs->graphic &&
 			CLASSMODEL(rhs->graphic)->edited)
 			row_dirty_set_single(row, clear_error);
 	}
