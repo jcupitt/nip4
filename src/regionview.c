@@ -96,7 +96,8 @@ regionview_get_model(Regionview *regionview)
 	return model_area;
 }
 
-/* Type we display for each of the classes. Order is important!
+/* Type we display for each of the classes. Order is important! Most derived
+ * classes first.
  */
 typedef struct {
 	const char *name;
@@ -106,7 +107,9 @@ typedef struct {
 static RegionviewDisplay regionview_display_table[] = {
 	{ CLASS_MARK, REGIONVIEW_MARK },
 	{ CLASS_REGION, REGIONVIEW_REGION },
-	{ CLASS_ARROW, REGIONVIEW_ARROW }
+	{ CLASS_HGUIDE, REGIONVIEW_HGUIDE },
+	{ CLASS_VGUIDE, REGIONVIEW_VGUIDE },
+	{ CLASS_ARROW, REGIONVIEW_ARROW },
 };
 
 /* Look at the class we are drawing, set the display type.
@@ -117,7 +120,8 @@ regionview_set_type(Regionview *regionview, PElement *root)
 	gboolean result;
 	int i;
 
-	if (heap_is_class(root, &result) && result)
+	if (heap_is_class(root, &result) &&
+		result)
 		for (i = 0; i < VIPS_NUMBER(regionview_display_table); i++) {
 			const char *name = regionview_display_table[i].name;
 
@@ -541,6 +545,31 @@ regionview_draw_arrow(Regionview *regionview, GtkSnapshot *snapshot)
 	regionview_draw_line(regionview, snapshot, &regionview->frame);
 }
 
+static void
+regionview_draw_guide(Regionview *regionview, GtkSnapshot *snapshot)
+{
+	Imageui *imageui = regionview->imageui;
+	double zoom = imageui_get_zoom(imageui);
+
+	// two points to mark
+	double left;
+	double top;
+	imageui_image_to_gtk(imageui,
+		regionview->draw_area.left, regionview->draw_area.top, &left, &top);
+	regionview->frame.left = left;
+	regionview->frame.top = top;
+	regionview->frame.width = regionview->draw_area.width * zoom;
+	regionview->frame.height = regionview->draw_area.height * zoom;
+
+	regionview_draw_init_region_label(regionview);
+
+	regionview_draw_label_shadow(regionview, snapshot);
+
+	regionview_draw_label(regionview, snapshot);
+
+	regionview_draw_line(regionview, snapshot, &regionview->frame);
+}
+
 // called from imageui for "snapshot" on imagedisplay
 void
 regionview_draw(Regionview *regionview, GtkSnapshot *snapshot)
@@ -563,9 +592,15 @@ regionview_draw(Regionview *regionview, GtkSnapshot *snapshot)
 		regionview_draw_arrow(regionview, snapshot);
 		break;
 
+	case REGIONVIEW_HGUIDE:
+		regionview_draw_guide(regionview, snapshot);
+		break;
+
+	case REGIONVIEW_VGUIDE:
+		regionview_draw_guide(regionview, snapshot);
+		break;
+
 		/*
-	REGIONVIEW_HGUIDE,			// width == image width, height == 0
-	REGIONVIEW_VGUIDE,			// width == 0, height == image height
 	REGIONVIEW_LINE,			// floating dashed line for paintbox
 	REGIONVIEW_BOX				// floating dashed box for paintbox
 		 */
@@ -661,6 +696,14 @@ regionview_hit(Regionview *regionview, int x, int y)
 
 		break;
 
+	case REGIONVIEW_HGUIDE:
+	case REGIONVIEW_VGUIDE:
+		corner = regionview->frame;
+		vips_rect_marginadjust(&corner, 10);
+		if (vips_rect_includespoint(&corner, x, y))
+			return REGIONVIEW_RESIZE_MOVE;
+		break;
+
 	default:
 		g_assert_not_reached();
 	}
@@ -693,6 +736,8 @@ regionview_hit(Regionview *regionview, int x, int y)
 
 	case REGIONVIEW_MARK:
 	case REGIONVIEW_ARROW:
+	case REGIONVIEW_HGUIDE:
+	case REGIONVIEW_VGUIDE:
 		break;
 
 	default:
@@ -763,6 +808,8 @@ regionview_resize(Regionview *regionview, guint modifiers,
 	switch (regionview->type) {
 	case REGIONVIEW_REGION:
 	case REGIONVIEW_MARK:
+	case REGIONVIEW_HGUIDE:
+	case REGIONVIEW_VGUIDE:
 		switch (regionview->resize) {
 		case REGIONVIEW_RESIZE_MOVE:
 			our_area->left =

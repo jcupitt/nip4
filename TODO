@@ -1,8 +1,8 @@
+- row range select seems to have broken
+
 - could right-click on a region label pop up the rowview menu?
 
-- drag on HGuide / VGuide? I think nip2 had this
-
-	and don't show crosses on ends
+- put region snap back?
 
 - maxpos, then create mark from coordinate should be two clicks
 
