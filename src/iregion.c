@@ -201,8 +201,7 @@ iregion_save(Model *model, xmlNode *xnode)
 	 */
 	gpointer parent_class = PARENT_CLASS_DYNAMIC(model);
 
-	iRegionInstance *instance =
-		classmodel_get_instance(CLASSMODEL(model));
+	iRegionInstance *instance = classmodel_get_instance(CLASSMODEL(model));
 
 	xmlNode *xthis;
 

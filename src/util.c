@@ -493,12 +493,11 @@ slist_equal(GSList *l1, GSList *l2)
 void *
 slist_map(GSList *list, SListMapFn fn, gpointer a)
 {
-	GSList *i;
 	void *result;
 
 	g_autoptr(GSList) copy = g_slist_copy(list);
 	result = NULL;
-	for (i = copy; i && !(result = fn(i->data, a)); i = i->next)
+	for (GSList *p = copy; p && !(result = fn(p->data, a)); p = p->next)
 		;
 
 	return result;

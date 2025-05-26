@@ -987,7 +987,7 @@ imageui_key_released(GtkEventControllerKey *self,
 
 // (x, y) in gtk cods
 static Regionview *
-imageui_find_regionview(Imageui *imageui, int x, int y)
+imageui_pick_regionview(Imageui *imageui, int x, int y)
 {
 	for (GSList *p = imageui->regionviews; p; p = p->next) {
 		Regionview *regionview = REGIONVIEW(p->data);
@@ -1015,7 +1015,7 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 
 	switch (imageui->state) {
 	case IMAGEUI_WAIT:
-		regionview = imageui_find_regionview(imageui, start_x, start_y);
+		regionview = imageui_pick_regionview(imageui, start_x, start_y);
 
 		if (regionview) {
 			imageui->state = IMAGEUI_SELECT;
@@ -1221,7 +1221,7 @@ imageui_set_cursor(Imageui *imageui)
 
 		Regionview *regionview;
 
-		if ((regionview = imageui_find_regionview(imageui, x, y)))
+		if ((regionview = imageui_pick_regionview(imageui, x, y)))
 			resize = regionview_hit(regionview, x, y);
 	}
 

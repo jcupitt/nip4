@@ -1351,14 +1351,13 @@ static void
 imagewindow_pressed(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Imagewindow *win)
 {
-	gtk_popover_set_pointing_to(GTK_POPOVER(win->right_click_menu),
+	Imageui *imageui = win->imageui;
+	GtkWidget *menu = win->right_click_menu;
+
+	gtk_popover_set_pointing_to(GTK_POPOVER(menu),
 		&(const GdkRectangle){ x, y, 1, 1 });
 
-	/* This produces a lot of warnings :( not sure why. I tried calling
-	 * gtk_popover_present() in realize to force allocation, but it didn't
-	 * help.
-	 */
-	gtk_popover_popup(GTK_POPOVER(win->right_click_menu));
+	gtk_popover_popup(GTK_POPOVER(menu));
 }
 
 static void
