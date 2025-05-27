@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
+
   <menu id="imagewindow-menu">
     <section>
       <attribute name="display-hint">horizontal-buttons</attribute>
@@ -108,6 +109,29 @@
       <item>
         <attribute name='label' translatable='yes'>Close</attribute>
         <attribute name='action'>win.close</attribute>
+      </item>
+    </section>
+  </menu>
+
+  <menu id="imagewindow-region-menu">
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Duplicate</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Reset</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Save as ...</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Delete</attribute>
       </item>
     </section>
   </menu>
@@ -264,5 +288,12 @@
 
       </object>
     </child>
+
+    <child>
+      <object class="GtkPopoverMenu" id="region_menu">
+        <property name="menu-model">imagewindow-region-menu</property>
+      </object>
+    </child>
+
   </template>
 </interface>

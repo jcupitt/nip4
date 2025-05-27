@@ -53,6 +53,7 @@ double imageui_get_scale(Imageui *imageui);
 void imageui_get_mouse_position(Imageui *imageui,
 	double *image_x, double *image_y);
 
+Regionview *imageui_pick_regionview(Imageui *imageui, int x, int y);
 double imageui_get_zoom(Imageui *imageui);
 void imageui_bestfit(Imageui *imageui);
 void imageui_magin(Imageui *imageui);

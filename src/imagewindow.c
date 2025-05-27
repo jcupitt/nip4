@@ -108,6 +108,7 @@ struct _Imagewindow {
 	GtkWidget *properties;
 	GtkWidget *display_bar;
 	GtkWidget *info_bar;
+	GtkWidget *region_menu;
 
 	/* The set of active images in the stack right now. These are not
 	 * references.
@@ -117,6 +118,10 @@ struct _Imagewindow {
 	/* Keep recent view setting here on image change.
 	 */
 	ViewSettings view_settings;
+
+	/* Set on menu popup on a regionview.
+	 */
+	View *action_view;
 
 	GSettings *settings;
 };
@@ -1352,7 +1357,18 @@ imagewindow_pressed(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Imagewindow *win)
 {
 	Imageui *imageui = win->imageui;
-	GtkWidget *menu = win->right_click_menu;
+
+	GtkWidget *menu;
+	Regionview *regionview;
+
+	menu = NULL;
+	if (imageui &&
+		(regionview = imageui_pick_regionview(imageui, x, y))) {
+		menu = win->region_menu;
+		win->action_view = VIEW(regionview);
+	}
+	else
+		menu = win->right_click_menu;
 
 	gtk_popover_set_pointing_to(GTK_POPOVER(menu),
 		&(const GdkRectangle){ x, y, 1, 1 });
@@ -1378,6 +1394,7 @@ imagewindow_class_init(ImagewindowClass *class)
 	BIND_VARIABLE(Imagewindow, properties);
 	BIND_VARIABLE(Imagewindow, display_bar);
 	BIND_VARIABLE(Imagewindow, info_bar);
+	BIND_VARIABLE(Imagewindow, region_menu);
 
 	BIND_CALLBACK(imagewindow_pressed);
 	BIND_CALLBACK(imagewindow_error_clicked);

@@ -136,7 +136,6 @@ struct _Imageui {
 	 * shift state here in the keyboard handler.
 	 */
 	guint modifiers;
-
 };
 
 G_DEFINE_TYPE(Imageui, imageui, GTK_TYPE_WIDGET);
@@ -986,7 +985,7 @@ imageui_key_released(GtkEventControllerKey *self,
 }
 
 // (x, y) in gtk cods
-static Regionview *
+Regionview *
 imageui_pick_regionview(Imageui *imageui, int x, int y)
 {
 	for (GSList *p = imageui->regionviews; p; p = p->next) {

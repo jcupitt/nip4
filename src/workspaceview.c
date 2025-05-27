@@ -1259,9 +1259,9 @@ workspaceview_key_pressed(GtkEventControllerKey *self,
 	gboolean handled;
 
 #ifdef DEBUG_VERBOSE
+#endif /*DEBUG_VERBOSE*/
 	printf("workspaceview_key_pressed: keyval = %d, state = %d\n",
 		keyval, state);
-#endif /*DEBUG_VERBOSE*/
 
 	handled = FALSE;
 
@@ -1291,6 +1291,11 @@ workspaceview_key_released(GtkEventControllerKey *self,
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
 	gboolean handled;
+
+#ifdef DEBUG_VERBOSE
+#endif /*DEBUG_VERBOSE*/
+	printf("workspaceview_key_released: keyval = %d, state = %d\n",
+		keyval, state);
 
 	handled = FALSE;
 
