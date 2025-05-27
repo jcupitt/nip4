@@ -1216,6 +1216,45 @@ imagewindow_properties(GSimpleAction *action,
 	g_simple_action_set_state(action, state);
 }
 
+static void
+imagewindow_region_action(GSimpleAction *action,
+	GVariant *state, gpointer user_data)
+{
+	Imagewindow *win = IMAGEWINDOW(user_data);
+
+	if (win->action_view &&
+		IS_REGIONVIEW(win->action_view)) {
+		const char *name = g_action_get_name(G_ACTION(action));
+		Regionview *regionview = REGIONVIEW(win->action_view);
+		Row *row = HEAPMODEL(regionview->classmodel)->row;
+		Workspace *ws = row->ws;
+
+		if (g_str_equal(name, "region-duplicate")) {
+			row_select(row);
+			if (!workspace_selected_duplicate(ws))
+				workspace_set_show_error(row->ws, TRUE);
+			workspace_deselect_all(ws);
+
+			symbol_recalculate_all();
+		}
+		else if (g_str_equal(name, "region-reset")) {
+			(void) icontainer_map_all(ICONTAINER(row),
+				(icontainer_map_fn) model_clear_edited, NULL);
+
+			symbol_recalculate_all();
+		}
+		else if (g_str_equal(name, "region-saveas")) {
+			Model *graphic = row->child_rhs->graphic;
+
+			classmodel_graphic_save(CLASSMODEL(graphic), GTK_WINDOW(win));
+		}
+		else if (g_str_equal(name, "region-delete"))
+			IDESTROY(row->sym);
+
+		win->action_view = NULL;
+	}
+}
+
 static GActionEntry imagewindow_entries[] = {
 	{ "copy", imagewindow_copy_action },
 	{ "paste", imagewindow_paste_action },
@@ -1250,6 +1289,12 @@ static GActionEntry imagewindow_entries[] = {
 		imagewindow_background },
 
 	{ "reset", imagewindow_reset },
+
+	{ "region-duplicate", imagewindow_region_action },
+	{ "region-reset", imagewindow_region_action },
+	{ "region-saveas", imagewindow_region_action },
+	{ "region-delete", imagewindow_region_action },
+
 };
 
 static void
@@ -1367,8 +1412,10 @@ imagewindow_pressed(GtkGestureClick *gesture,
 		menu = win->region_menu;
 		win->action_view = VIEW(regionview);
 	}
-	else
+	else {
 		menu = win->right_click_menu;
+		win->action_view = NULL;
+	}
 
 	gtk_popover_set_pointing_to(GTK_POPOVER(menu),
 		&(const GdkRectangle){ x, y, 1, 1 });

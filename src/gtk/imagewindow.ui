@@ -117,21 +117,25 @@
     <section>
       <item>
         <attribute name='label' translatable='yes'>Duplicate</attribute>
+        <attribute name="action">win.region-duplicate</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>Reset</attribute>
+        <attribute name="action">win.region-reset</attribute>
       </item>
     </section>
 
     <section>
       <item>
         <attribute name='label' translatable='yes'>Save as ...</attribute>
+        <attribute name="action">win.region-saveas</attribute>
       </item>
     </section>
 
     <section>
       <item>
         <attribute name='label' translatable='yes'>Delete</attribute>
+        <attribute name="action">win.region-delete</attribute>
       </item>
     </section>
   </menu>
@@ -273,6 +277,12 @@
               </object>
             </child>
 
+            <child>
+              <object class="GtkPopoverMenu" id="region_menu">
+                <property name="menu-model">imagewindow-region-menu</property>
+              </object>
+            </child>
+
           </object>
         </child>
 
@@ -286,12 +296,6 @@
           </object>
         </child>
 
-      </object>
-    </child>
-
-    <child>
-      <object class="GtkPopoverMenu" id="region_menu">
-        <property name="menu-model">imagewindow-region-menu</property>
       </object>
     </child>
 

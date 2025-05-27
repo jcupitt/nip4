@@ -5,12 +5,6 @@
 	the keyboard focus is somewhere else, and left-click on rowview
 	buttons or on workspace background does not grab the focus
 
-- could right-click on a region label pop up the rowview menu?
-
-	difficult with the structure we have now
-
-	have a custom menu and reimplement actions there
-
 - put region snap back?
 
 - maxpos, then create mark from coordinate should be two clicks
