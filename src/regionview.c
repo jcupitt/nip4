@@ -774,12 +774,22 @@ regionview_resize(Regionview *regionview, guint modifiers,
 		imageui_snap_rect(imageui, our_area, our_area);
 		break;
 
-	case REGIONVIEW_RESIZE_RIGHT:
+	case REGIONVIEW_RESIZE_TOPLEFT:
+		our_area->left = x + start_area->left;
+		our_area->top = y + start_area->top;
+		break;
+
+	case REGIONVIEW_RESIZE_TOP:
+		our_area->top = y + start_area->top;
+		break;
+
+	case REGIONVIEW_RESIZE_TOPRIGHT:
+		our_area->top = y + start_area->top;
 		our_area->width = x + VIPS_RECT_RIGHT(start_area) - start_area->left;
 		break;
 
-	case REGIONVIEW_RESIZE_BOTTOM:
-		our_area->height = y + VIPS_RECT_BOTTOM(start_area) - start_area->top;
+	case REGIONVIEW_RESIZE_RIGHT:
+		our_area->width = x + VIPS_RECT_RIGHT(start_area) - start_area->left;
 		break;
 
 	case REGIONVIEW_RESIZE_BOTTOMRIGHT:
@@ -787,17 +797,17 @@ regionview_resize(Regionview *regionview, guint modifiers,
 		our_area->height = y + VIPS_RECT_BOTTOM(start_area) - start_area->top;
 		break;
 
+	case REGIONVIEW_RESIZE_BOTTOM:
+		our_area->height = y + VIPS_RECT_BOTTOM(start_area) - start_area->top;
+		break;
+
+	case REGIONVIEW_RESIZE_BOTTOMLEFT:
+		our_area->left = x + start_area->left;
+		our_area->height = y + VIPS_RECT_BOTTOM(start_area) - start_area->top;
+		break;
+
 	case REGIONVIEW_RESIZE_LEFT:
 		our_area->left = x + start_area->left;
-		break;
-
-	case REGIONVIEW_RESIZE_TOP:
-		our_area->top = y + start_area->top;
-		break;
-
-	case REGIONVIEW_RESIZE_TOPLEFT:
-		our_area->left = x + start_area->left;
-		our_area->top = y + start_area->top;
 		break;
 
 	default:
@@ -838,6 +848,22 @@ regionview_resize(Regionview *regionview, guint modifiers,
 				VIPS_CLIP(0, our_area->top, VIPS_RECT_BOTTOM(start_area) - 1);
 			our_area->width = VIPS_RECT_RIGHT(start_area) - our_area->left;
 			our_area->height = VIPS_RECT_BOTTOM(start_area) - our_area->top;
+			break;
+
+		case REGIONVIEW_RESIZE_TOPRIGHT:
+			our_area->top =
+				VIPS_CLIP(0, our_area->top, VIPS_RECT_BOTTOM(start_area) - 1);
+			our_area->width =
+				VIPS_CLIP(1, our_area->width, width - start_area->left);
+			our_area->height = VIPS_RECT_BOTTOM(start_area) - our_area->top;
+			break;
+
+		case REGIONVIEW_RESIZE_BOTTOMLEFT:
+			our_area->left =
+				VIPS_CLIP(0, our_area->left, VIPS_RECT_RIGHT(start_area) - 1);
+			our_area->height =
+				VIPS_CLIP(1, our_area->height, height - start_area->top);
+			our_area->width = VIPS_RECT_RIGHT(start_area) - our_area->left;
 			break;
 
 		default:
