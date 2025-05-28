@@ -145,6 +145,13 @@
     <property name="default-width">1100</property>
     <property name="default-height">1000</property>
 
+    <child>
+      <object class="GtkEventControllerKey">
+        <signal name="key-pressed" handler="imagewindow_key_pressed"/>
+        <signal name="key-released" handler="imagewindow_key_released"/>
+      </object>
+    </child>
+
     <child type="titlebar">
       <object class="GtkHeaderBar" id="header">
 

@@ -124,6 +124,14 @@ struct _Imagewindow {
 	View *action_view;
 
 	GSettings *settings;
+
+	/* We need to detect ctrl-click and shift-click for region create and
+	 * resize.
+	 *
+	 * Windows doesn't seem to support device polling, so we record ctrl and
+	 * shift state here in a keyboard handler.
+	 */
+	guint modifiers;
 };
 
 G_DEFINE_TYPE(Imagewindow, imagewindow, GTK_TYPE_APPLICATION_WINDOW);
@@ -1423,6 +1431,60 @@ imagewindow_pressed(GtkGestureClick *gesture,
 	gtk_popover_popup(GTK_POPOVER(menu));
 }
 
+static gboolean
+imagewindow_key_pressed(GtkEventControllerKey *self,
+	guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+{
+	Imagewindow *win = IMAGEWINDOW(user_data);
+
+	switch (keyval) {
+	case GDK_KEY_Control_L:
+	case GDK_KEY_Control_R:
+		win->modifiers |= GDK_CONTROL_MASK;
+		break;
+
+	case GDK_KEY_Shift_L:
+	case GDK_KEY_Shift_R:
+		win->modifiers |= GDK_SHIFT_MASK;
+		break;
+
+	default:
+		break;
+	}
+
+	return FALSE;
+}
+
+static gboolean
+imagewindow_key_released(GtkEventControllerKey *self,
+	guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+{
+	Imagewindow *win = IMAGEWINDOW(user_data);
+
+	switch (keyval) {
+	case GDK_KEY_Control_L:
+	case GDK_KEY_Control_R:
+		win->modifiers &= ~GDK_CONTROL_MASK;
+		break;
+
+	case GDK_KEY_Shift_L:
+	case GDK_KEY_Shift_R:
+		win->modifiers &= ~GDK_SHIFT_MASK;
+		break;
+
+	default:
+		break;
+	}
+
+	return FALSE;
+}
+
+guint
+imagewindow_get_modifiers(Imagewindow *win)
+{
+	return win->modifiers;
+}
+
 static void
 imagewindow_class_init(ImagewindowClass *class)
 {
@@ -1445,6 +1507,8 @@ imagewindow_class_init(ImagewindowClass *class)
 
 	BIND_CALLBACK(imagewindow_pressed);
 	BIND_CALLBACK(imagewindow_error_clicked);
+	BIND_CALLBACK(imagewindow_key_pressed);
+	BIND_CALLBACK(imagewindow_key_released);
 
 	gobject_class->dispose = imagewindow_dispose;
 

@@ -84,6 +84,13 @@
     <property name="default-height">800</property>
     <signal name="close-request" handler="mainwindow_close_request"/>
 
+    <child>
+      <object class="GtkEventControllerKey">
+        <signal name="key-pressed" handler="mainwindow_key_pressed"/>
+        <signal name="key-released" handler="mainwindow_key_released"/>
+      </object>
+    </child>
+
     <child type="titlebar">
       <object class="GtkHeaderBar" id="header">
 

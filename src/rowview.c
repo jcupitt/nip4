@@ -285,7 +285,7 @@ rowview_pressed(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
-	Workspace *ws = row->ws;
+	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(rview)));
 
 	if (n_press == 1) {
 		if (row->err &&
@@ -294,7 +294,7 @@ rowview_pressed(GtkGestureClick *gesture,
 			// click on a row with an error displays the error
 			workspace_set_show_error(row->ws, TRUE);
 
-		row_select_modifier(row, ws->modifiers);
+		row_select_modifier(row, mainwindow_get_modifiers(main));
 	}
 	else
 		rowview_edit(rview);
