@@ -763,6 +763,7 @@ void
 regionview_resize(Regionview *regionview, guint modifiers,
 	int width, int height, int x, int y)
 {
+	Imageui *imageui = regionview->imageui;
 	VipsRect *our_area = &regionview->our_area;
 	VipsRect *start_area = &regionview->start_area;
 
@@ -770,6 +771,7 @@ regionview_resize(Regionview *regionview, guint modifiers,
 	case REGIONVIEW_RESIZE_MOVE:
 		our_area->left = x + start_area->left;
 		our_area->top = y + start_area->top;
+		imageui_snap_rect(imageui, our_area, our_area);
 		break;
 
 	case REGIONVIEW_RESIZE_RIGHT:
@@ -869,6 +871,7 @@ regionview_resize(Regionview *regionview, guint modifiers,
 	default:
 		break;
 	}
+
 }
 
 static void

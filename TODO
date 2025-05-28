@@ -5,8 +5,6 @@
 	the keyboard focus is somewhere else, and left-click on rowview
 	buttons or on workspace background does not grab the focus
 
-- put region snap back?
-
 - maxpos, then create mark from coordinate should be two clicks
 
 - try:

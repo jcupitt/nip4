@@ -46,6 +46,10 @@
  */
 #define ZOOM_DURATION (0.5)
 
+/* Snap if closer than this.
+ */
+const int imageui_snap_threshold = 10;
+
 /* Drag state machine.
  */
 typedef enum {
@@ -482,6 +486,145 @@ imageui_get_position(Imageui *imageui,
 #ifdef DEBUG_VERBOSE
 	printf("imageui_get_position: %d %d %d %d\n", *left, *top, *width, *height);
 #endif /*DEBUG_VERBOSE*/
+}
+
+/* Track this during a snap.
+ */
+typedef struct {
+	Imageui *imageui;
+
+	int x;			/* Start point */
+	int y;
+	int off_x;		/* Current snap offset */
+	int off_y;
+	int best_x;		/* 'Closeness' of best snap so far */
+	int best_y;
+} ImageuiSnap;
+
+static void *
+imageui_snap_sub(Regionview *regionview, ImageuiSnap *snap, gboolean *snapped)
+{
+	Imageui *imageui = snap->imageui;
+
+	/* Only static h/v guides.
+	 */
+	if (regionview->type != REGIONVIEW_HGUIDE &&
+		regionview->type != REGIONVIEW_VGUIDE)
+		return NULL;
+
+	if (regionview->type == REGIONVIEW_HGUIDE) {
+		int y = regionview->our_area.top;
+		int score = abs(y - snap->y);
+
+		if (score < snap->best_y) {
+			snap->off_y = y - snap->y;
+			snap->best_y = score;
+			*snapped = TRUE;
+		}
+	}
+	else {
+		int x = regionview->our_area.left;
+		int score = abs(x - snap->x);
+
+		if (score < snap->best_x) {
+			snap->off_x = x - snap->x;
+			snap->best_x = score;
+			*snapped = TRUE;
+		}
+	}
+
+	return NULL;
+}
+
+static gboolean
+imageui_snap(Imageui *imageui, ImageuiSnap *snap)
+{
+	gboolean snapped;
+
+	// scale the snap threshold by the zoom factor
+	snap->imageui = imageui;
+	snap->off_x = 0;
+	snap->off_y = 0;
+	snap->best_x =
+		VIPS_MAX(1, imageui_snap_threshold / imageui_get_zoom(imageui));
+	snap->best_y =
+		VIPS_MAX(1, imageui_snap_threshold / imageui_get_zoom(imageui));
+
+	snapped = FALSE;
+	slist_map2(imageui->regionviews,
+		(SListMap2Fn) imageui_snap_sub, snap, &snapped);
+
+	return snapped;
+}
+
+gboolean
+imageui_snap_point(Imageui *imageui, int x, int y, int *sx, int *sy)
+{
+	ImageuiSnap snap;
+	gboolean snapped;
+
+	snap.x = x;
+	snap.y = y;
+	snapped = imageui_snap(imageui, &snap);
+
+	*sx = x + snap.off_x;
+	*sy = y + snap.off_y;
+
+	return snapped;
+}
+
+gboolean
+imageui_snap_rect(Imageui *imageui, VipsRect *in, VipsRect *out)
+{
+	/* Snap the corners plus the edge centres, take the best score.
+	 */
+	ImageuiSnap snap[8];
+	snap[0].x = in->left;
+	snap[0].y = in->top;
+	snap[1].x = in->left + in->width;
+	snap[1].y = in->top;
+	snap[2].x = in->left + in->width;
+	snap[2].y = in->top + in->height;
+	snap[3].x = in->left;
+	snap[3].y = in->top + in->height;
+	snap[4].x = in->left + in->width / 2;
+	snap[4].y = in->top;
+	snap[5].x = in->left + in->width;
+	snap[5].y = in->top + in->height / 2;
+	snap[6].x = in->left + in->width / 2;
+	snap[6].y = in->top + in->height;
+	snap[7].x = in->left;
+	snap[7].y = in->top + in->height / 2;
+
+	gboolean snapped;
+	snapped = FALSE;
+	for (int i = 0; i < 8; i++)
+		snapped |= imageui_snap(imageui, &snap[i]);
+
+	int best;
+	int best_score;
+	best = 0;
+	best_score = snap[0].best_x;
+	for (int i = 1; i < 7; i++)
+		if (snap[i].best_x < best_score) {
+			best = i;
+			best_score = snap[i].best_x;
+		}
+	out->left = in->left + snap[best].off_x;
+
+	best = 0;
+	best_score = snap[0].best_y;
+	for (int i = 1; i < 7; i++)
+		if (snap[i].best_y < best_score) {
+			best = i;
+			best_score = snap[i].best_y;
+		}
+	out->top = in->top + snap[best].off_y;
+
+	out->width = in->width;
+	out->height = in->height;
+
+	return snapped;
 }
 
 static void
@@ -1300,8 +1443,8 @@ imageui_init(Imageui *imageui)
 		G_CALLBACK(imageui_overlay_snapshot), imageui, 0);
 
 	/* Uncomment to test our animation disable
-	g_object_set( gtk_widget_get_settings( GTK_WIDGET( win ) ),
-		"gtk-enable-animations", FALSE, NULL );
+	g_object_set(gtk_widget_get_settings(GTK_WIDGET(win)),
+		"gtk-enable-animations", FALSE, NULL);
 	 */
 
 	// read the gtk animation setting preference
@@ -1445,4 +1588,42 @@ imageui_gtk_to_image(Imageui *imageui,
 {
 	imagedisplay_gtk_to_image(IMAGEDISPLAY(imageui->imagedisplay),
 		x_gtk, y_gtk, x_image, y_image);
+}
+
+void
+imageui_image_to_gtk_rect(Imageui *imageui, VipsRect *in, VipsRect *out)
+{
+	VipsRect rect;
+	double x_gtk;
+	double y_gtk;
+
+	imageui_image_to_gtk(imageui, in->left, in->top, &x_gtk, &y_gtk);
+	rect.left = x_gtk;
+	rect.top = y_gtk;
+
+	imageui_image_to_gtk(imageui,
+		VIPS_RECT_RIGHT(in), VIPS_RECT_BOTTOM(in), &x_gtk, &y_gtk);
+	rect.width = ceil(x_gtk) - rect.left;
+	rect.height = ceil(y_gtk) - rect.top;
+
+	*out = rect;
+}
+
+void
+imageui_gtk_to_image_rect(Imageui *imageui, VipsRect *in, VipsRect *out)
+{
+	VipsRect rect;
+	double x_image;
+	double y_image;
+
+	imageui_gtk_to_image(imageui, in->left, in->top, &x_image, &y_image);
+	rect.left = x_image;
+	rect.top = y_image;
+
+	imageui_gtk_to_image(imageui,
+		VIPS_RECT_RIGHT(in), VIPS_RECT_BOTTOM(in), &x_image, &y_image);
+	rect.width = ceil(x_image) - rect.left;
+	rect.height = ceil(y_image) - rect.top;
+
+	*out = rect;
 }
