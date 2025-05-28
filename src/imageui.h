@@ -54,7 +54,7 @@ void imageui_get_mouse_position(Imageui *imageui,
 	double *image_x, double *image_y);
 
 gboolean imageui_snap_point(Imageui *imageui, int x, int y, int *sx, int *sy);
-gboolean imageui_snap_rect( Imageui *imageui, Rect *in, Rect *out );
+gboolean imageui_snap_rect(Imageui *imageui, VipsRect *in, VipsRect *out);
 
 Regionview *imageui_pick_regionview(Imageui *imageui, int x, int y);
 double imageui_get_zoom(Imageui *imageui);
