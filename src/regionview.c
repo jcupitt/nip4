@@ -767,11 +767,11 @@ regionview_resize(Regionview *regionview, guint modifiers,
 	VipsRect *our_area = &regionview->our_area;
 	VipsRect *start_area = &regionview->start_area;
 
+	// move dependent edges
 	switch (regionview->resize) {
 	case REGIONVIEW_RESIZE_MOVE:
 		our_area->left = x + start_area->left;
 		our_area->top = y + start_area->top;
-		imageui_snap_rect(imageui, our_area, our_area);
 		break;
 
 	case REGIONVIEW_RESIZE_TOPLEFT:
@@ -814,9 +814,56 @@ regionview_resize(Regionview *regionview, guint modifiers,
 		break;
 	}
 
+	// apply any snapping
+	int right;
+	int bottom;
+	switch (regionview->resize) {
+	case REGIONVIEW_RESIZE_MOVE:
+		imageui_snap_rect(imageui, our_area, our_area);
+		break;
+
+	case REGIONVIEW_RESIZE_LEFT:
+	case REGIONVIEW_RESIZE_TOPLEFT:
+	case REGIONVIEW_RESIZE_TOP:
+		imageui_snap_point(imageui,
+			our_area->left, our_area->top, &our_area->left, &our_area->top);
+		break;
+
+	case REGIONVIEW_RESIZE_RIGHT:
+	case REGIONVIEW_RESIZE_BOTTOMRIGHT:
+	case REGIONVIEW_RESIZE_BOTTOM:
+		right = VIPS_RECT_RIGHT(our_area);
+		bottom = VIPS_RECT_BOTTOM(our_area);
+		imageui_snap_point(imageui,
+			right, bottom, &right, &bottom);
+		our_area->width = right - our_area->left;
+		our_area->height = bottom - our_area->top;
+		break;
+
+	case REGIONVIEW_RESIZE_TOPRIGHT:
+		right = VIPS_RECT_RIGHT(our_area);
+		imageui_snap_point(imageui,
+			right, our_area->top, &right, &our_area->top);
+		our_area->width = right - our_area->left;
+		break;
+
+	case REGIONVIEW_RESIZE_BOTTOMLEFT:
+		bottom = VIPS_RECT_BOTTOM(our_area);
+		imageui_snap_point(imageui,
+			our_area->left, bottom, &our_area->left, &bottom);
+		our_area->height = bottom - our_area->top;
+
+		break;
+
+	default:
+		break;
+	}
+
+
 	if (!regionview->frozen)
 		regionview_pick_type(regionview);
 
+	// constrain
 	switch (regionview->type) {
 	case REGIONVIEW_REGION:
 	case REGIONVIEW_MARK:
@@ -897,7 +944,6 @@ regionview_resize(Regionview *regionview, guint modifiers,
 	default:
 		break;
 	}
-
 }
 
 static void

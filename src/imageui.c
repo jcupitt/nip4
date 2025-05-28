@@ -504,8 +504,6 @@ typedef struct {
 static void *
 imageui_snap_sub(Regionview *regionview, ImageuiSnap *snap, gboolean *snapped)
 {
-	Imageui *imageui = snap->imageui;
-
 	/* Only static h/v guides.
 	 */
 	if (regionview->type != REGIONVIEW_HGUIDE &&

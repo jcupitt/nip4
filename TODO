@@ -1,7 +1,3 @@
-- add snap for region resize and arrow end move
-
-- during region move or resze, the cursor changes back to a pointer
-
 - row range select breaks after "duplicate"
 
 	shift and ctrl click stop affecting select
