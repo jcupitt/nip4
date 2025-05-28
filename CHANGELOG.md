@@ -1,5 +1,14 @@
 ## master
 
+## 9.0.9 2025/05/28
+
+- fix select modifier handling
+- add region resize and drag snap
+- add hguide and vguide regions
+- improve menu homing
+- improve antialias on zoom out
+- add region context menu
+
 ## 9.0.8 2025/04/23
 
 - fix ctrl/shift detect on windows
