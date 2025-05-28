@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
+
   <menu id="imagewindow-menu">
     <section>
       <attribute name="display-hint">horizontal-buttons</attribute>
@@ -112,10 +113,44 @@
     </section>
   </menu>
 
+  <menu id="imagewindow-region-menu">
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Duplicate</attribute>
+        <attribute name="action">win.region-duplicate</attribute>
+      </item>
+      <item>
+        <attribute name='label' translatable='yes'>Reset</attribute>
+        <attribute name="action">win.region-reset</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Save as ...</attribute>
+        <attribute name="action">win.region-saveas</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
+        <attribute name='label' translatable='yes'>Delete</attribute>
+        <attribute name="action">win.region-delete</attribute>
+      </item>
+    </section>
+  </menu>
+
   <template class="Imagewindow" parent="GtkApplicationWindow">
     <property name="title" translatable="yes">Image window</property>
     <property name="default-width">1100</property>
     <property name="default-height">1000</property>
+
+    <child>
+      <object class="GtkEventControllerKey">
+        <signal name="key-pressed" handler="imagewindow_key_pressed"/>
+        <signal name="key-released" handler="imagewindow_key_released"/>
+      </object>
+    </child>
 
     <child type="titlebar">
       <object class="GtkHeaderBar" id="header">
@@ -249,6 +284,12 @@
               </object>
             </child>
 
+            <child>
+              <object class="GtkPopoverMenu" id="region_menu">
+                <property name="menu-model">imagewindow-region-menu</property>
+              </object>
+            </child>
+
           </object>
         </child>
 
@@ -264,5 +305,6 @@
 
       </object>
     </child>
+
   </template>
 </interface>

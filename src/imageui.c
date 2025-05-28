@@ -46,6 +46,10 @@
  */
 #define ZOOM_DURATION (0.5)
 
+/* Snap if closer than this.
+ */
+const int imageui_snap_threshold = 10;
+
 /* Drag state machine.
  */
 typedef enum {
@@ -128,14 +132,6 @@ struct _Imageui {
 	gint64 last_frame_time;
 
 	gboolean should_animate;
-
-	/* We need to detect ctrl-click and shift-click for region create and
-	 * resize.
-	 *
-	 * Windows doesn't seem to support device polling, so we record ctrl and
-	 * shift state here in the keyboard handler.
-	 */
-	guint modifiers;
 
 };
 
@@ -485,6 +481,143 @@ imageui_get_position(Imageui *imageui,
 #endif /*DEBUG_VERBOSE*/
 }
 
+/* Track this during a snap.
+ */
+typedef struct {
+	Imageui *imageui;
+
+	int x;			/* Start point */
+	int y;
+	int off_x;		/* Current snap offset */
+	int off_y;
+	int best_x;		/* 'Closeness' of best snap so far */
+	int best_y;
+} ImageuiSnap;
+
+static void *
+imageui_snap_sub(Regionview *regionview, ImageuiSnap *snap, gboolean *snapped)
+{
+	/* Only static h/v guides.
+	 */
+	if (regionview->type != REGIONVIEW_HGUIDE &&
+		regionview->type != REGIONVIEW_VGUIDE)
+		return NULL;
+
+	if (regionview->type == REGIONVIEW_HGUIDE) {
+		int y = regionview->our_area.top;
+		int score = abs(y - snap->y);
+
+		if (score < snap->best_y) {
+			snap->off_y = y - snap->y;
+			snap->best_y = score;
+			*snapped = TRUE;
+		}
+	}
+	else {
+		int x = regionview->our_area.left;
+		int score = abs(x - snap->x);
+
+		if (score < snap->best_x) {
+			snap->off_x = x - snap->x;
+			snap->best_x = score;
+			*snapped = TRUE;
+		}
+	}
+
+	return NULL;
+}
+
+static gboolean
+imageui_snap(Imageui *imageui, ImageuiSnap *snap)
+{
+	gboolean snapped;
+
+	// scale the snap threshold by the zoom factor
+	snap->imageui = imageui;
+	snap->off_x = 0;
+	snap->off_y = 0;
+	snap->best_x =
+		VIPS_MAX(1, imageui_snap_threshold / imageui_get_zoom(imageui));
+	snap->best_y =
+		VIPS_MAX(1, imageui_snap_threshold / imageui_get_zoom(imageui));
+
+	snapped = FALSE;
+	slist_map2(imageui->regionviews,
+		(SListMap2Fn) imageui_snap_sub, snap, &snapped);
+
+	return snapped;
+}
+
+gboolean
+imageui_snap_point(Imageui *imageui, int x, int y, int *sx, int *sy)
+{
+	ImageuiSnap snap;
+	gboolean snapped;
+
+	snap.x = x;
+	snap.y = y;
+	snapped = imageui_snap(imageui, &snap);
+
+	*sx = x + snap.off_x;
+	*sy = y + snap.off_y;
+
+	return snapped;
+}
+
+gboolean
+imageui_snap_rect(Imageui *imageui, VipsRect *in, VipsRect *out)
+{
+	/* Snap the corners plus the edge centres, take the best score.
+	 */
+	ImageuiSnap snap[8];
+	snap[0].x = in->left;
+	snap[0].y = in->top;
+	snap[1].x = in->left + in->width;
+	snap[1].y = in->top;
+	snap[2].x = in->left + in->width;
+	snap[2].y = in->top + in->height;
+	snap[3].x = in->left;
+	snap[3].y = in->top + in->height;
+	snap[4].x = in->left + in->width / 2;
+	snap[4].y = in->top;
+	snap[5].x = in->left + in->width;
+	snap[5].y = in->top + in->height / 2;
+	snap[6].x = in->left + in->width / 2;
+	snap[6].y = in->top + in->height;
+	snap[7].x = in->left;
+	snap[7].y = in->top + in->height / 2;
+
+	gboolean snapped;
+	snapped = FALSE;
+	for (int i = 0; i < 8; i++)
+		snapped |= imageui_snap(imageui, &snap[i]);
+
+	int best;
+	int best_score;
+	best = 0;
+	best_score = snap[0].best_x;
+	for (int i = 1; i < 7; i++)
+		if (snap[i].best_x < best_score) {
+			best = i;
+			best_score = snap[i].best_x;
+		}
+	out->left = in->left + snap[best].off_x;
+
+	best = 0;
+	best_score = snap[0].best_y;
+	for (int i = 1; i < 7; i++)
+		if (snap[i].best_y < best_score) {
+			best = i;
+			best_score = snap[i].best_y;
+		}
+	out->top = in->top + snap[best].off_y;
+
+	out->width = in->width;
+	out->height = in->height;
+
+	return snapped;
+}
+
 static void
 imageui_set_position(Imageui *imageui, double x, double y)
 {
@@ -829,16 +962,6 @@ imageui_key_pressed(GtkEventControllerKey *self,
 	handled = FALSE;
 
 	switch (keyval) {
-	case GDK_KEY_Control_L:
-	case GDK_KEY_Control_R:
-		imageui->modifiers |= GDK_CONTROL_MASK;
-		break;
-
-	case GDK_KEY_Shift_L:
-	case GDK_KEY_Shift_R:
-		imageui->modifiers |= GDK_SHIFT_MASK;
-		break;
-
 	case GDK_KEY_plus:
 		imageui_magin(imageui);
 		handled = TRUE;
@@ -959,16 +1082,6 @@ imageui_key_released(GtkEventControllerKey *self,
 	handled = FALSE;
 
 	switch (keyval) {
-	case GDK_KEY_Control_L:
-	case GDK_KEY_Control_R:
-		imageui->modifiers &= ~GDK_CONTROL_MASK;
-		break;
-
-	case GDK_KEY_Shift_L:
-	case GDK_KEY_Shift_R:
-		imageui->modifiers &= ~GDK_SHIFT_MASK;
-		break;
-
 	case GDK_KEY_i:
 	case GDK_KEY_o:
 		imageui->zoom_rate = 1.0;
@@ -986,8 +1099,8 @@ imageui_key_released(GtkEventControllerKey *self,
 }
 
 // (x, y) in gtk cods
-static Regionview *
-imageui_find_regionview(Imageui *imageui, int x, int y)
+Regionview *
+imageui_pick_regionview(Imageui *imageui, int x, int y)
 {
 	for (GSList *p = imageui->regionviews; p; p = p->next) {
 		Regionview *regionview = REGIONVIEW(p->data);
@@ -1005,6 +1118,7 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 	gdouble start_x, gdouble start_y, gpointer user_data)
 {
 	Imageui *imageui = IMAGEUI(user_data);
+	Imagewindow *win = IMAGEWINDOW(gtk_widget_get_root(GTK_WIDGET(imageui)));
 
 	Regionview *regionview;
 
@@ -1015,7 +1129,7 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 
 	switch (imageui->state) {
 	case IMAGEUI_WAIT:
-		regionview = imageui_find_regionview(imageui, start_x, start_y);
+		regionview = imageui_pick_regionview(imageui, start_x, start_y);
 
 		if (regionview) {
 			imageui->state = IMAGEUI_SELECT;
@@ -1024,7 +1138,7 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 			g_object_ref(regionview);
 			regionview->start_area = regionview->our_area;
 		}
-		else if (imageui->modifiers & GDK_CONTROL_MASK) {
+		else if (imagewindow_get_modifiers(win) & GDK_CONTROL_MASK) {
 			imageui->state = IMAGEUI_CREATE;
 			double left;
 			double top;
@@ -1066,6 +1180,7 @@ imageui_drag_update(GtkEventControllerMotion *self,
 {
 	Imageui *imageui = IMAGEUI(user_data);
 	double zoom = imageui_get_zoom(imageui);
+	Imagewindow *win = IMAGEWINDOW(gtk_widget_get_root(GTK_WIDGET(imageui)));
 
 #ifdef DEBUG_VERBOSE
 	printf("imageui_drag_update: offset_x = %g, offset_y = %g\n",
@@ -1080,7 +1195,7 @@ imageui_drag_update(GtkEventControllerMotion *self,
 		break;
 
 	case IMAGEUI_SELECT:
-		regionview_resize(imageui->grabbed, imageui->modifiers,
+		regionview_resize(imageui->grabbed, imagewindow_get_modifiers(win),
 			imageui->tilesource->display_width,
 			imageui->tilesource->display_height,
 			offset_x / zoom,
@@ -1091,7 +1206,7 @@ imageui_drag_update(GtkEventControllerMotion *self,
 		break;
 
 	case IMAGEUI_CREATE:
-		regionview_resize(imageui->floating, imageui->modifiers,
+		regionview_resize(imageui->floating, imagewindow_get_modifiers(win),
 			imageui->tilesource->display_width,
 			imageui->tilesource->display_height,
 			offset_x / zoom,
@@ -1221,7 +1336,7 @@ imageui_set_cursor(Imageui *imageui)
 
 		Regionview *regionview;
 
-		if ((regionview = imageui_find_regionview(imageui, x, y)))
+		if ((regionview = imageui_pick_regionview(imageui, x, y)))
 			resize = regionview_hit(regionview, x, y);
 	}
 
@@ -1301,8 +1416,8 @@ imageui_init(Imageui *imageui)
 		G_CALLBACK(imageui_overlay_snapshot), imageui, 0);
 
 	/* Uncomment to test our animation disable
-	g_object_set( gtk_widget_get_settings( GTK_WIDGET( win ) ),
-		"gtk-enable-animations", FALSE, NULL );
+	g_object_set(gtk_widget_get_settings(GTK_WIDGET(win)),
+		"gtk-enable-animations", FALSE, NULL);
 	 */
 
 	// read the gtk animation setting preference
@@ -1446,4 +1561,42 @@ imageui_gtk_to_image(Imageui *imageui,
 {
 	imagedisplay_gtk_to_image(IMAGEDISPLAY(imageui->imagedisplay),
 		x_gtk, y_gtk, x_image, y_image);
+}
+
+void
+imageui_image_to_gtk_rect(Imageui *imageui, VipsRect *in, VipsRect *out)
+{
+	VipsRect rect;
+	double x_gtk;
+	double y_gtk;
+
+	imageui_image_to_gtk(imageui, in->left, in->top, &x_gtk, &y_gtk);
+	rect.left = x_gtk;
+	rect.top = y_gtk;
+
+	imageui_image_to_gtk(imageui,
+		VIPS_RECT_RIGHT(in), VIPS_RECT_BOTTOM(in), &x_gtk, &y_gtk);
+	rect.width = ceil(x_gtk) - rect.left;
+	rect.height = ceil(y_gtk) - rect.top;
+
+	*out = rect;
+}
+
+void
+imageui_gtk_to_image_rect(Imageui *imageui, VipsRect *in, VipsRect *out)
+{
+	VipsRect rect;
+	double x_image;
+	double y_image;
+
+	imageui_gtk_to_image(imageui, in->left, in->top, &x_image, &y_image);
+	rect.left = x_image;
+	rect.top = y_image;
+
+	imageui_gtk_to_image(imageui,
+		VIPS_RECT_RIGHT(in), VIPS_RECT_BOTTOM(in), &x_image, &y_image);
+	rect.width = ceil(x_image) - rect.left;
+	rect.height = ceil(y_image) - rect.top;
+
+	*out = rect;
 }

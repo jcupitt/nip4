@@ -66,19 +66,18 @@ void
 graphicview_pressed(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Graphicview *graphicview)
 {
+	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(graphicview)));
+
 	if (n_press == 1) {
 		Rowview *rowview = graphicview_rowview(graphicview);
 		Row *row = ROW(VOBJECT(rowview)->iobject);
-	    Workspace *ws = row->ws;
 
-		row_select_modifier(row, ws->modifiers);
+		row_select_modifier(row, mainwindow_get_modifiers(main));
 	}
 	else {
 		Model *model = MODEL(VOBJECT(graphicview)->iobject);
-		GtkWindow *window =
-			GTK_WINDOW(gtk_widget_get_root(GTK_WIDGET(graphicview)));
 
-		model_edit(model, window);
+		model_edit(model, GTK_WINDOW(main));
 	}
 }
 

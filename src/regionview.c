@@ -96,7 +96,8 @@ regionview_get_model(Regionview *regionview)
 	return model_area;
 }
 
-/* Type we display for each of the classes. Order is important!
+/* Type we display for each of the classes. Order is important! Most derived
+ * classes first.
  */
 typedef struct {
 	const char *name;
@@ -106,7 +107,9 @@ typedef struct {
 static RegionviewDisplay regionview_display_table[] = {
 	{ CLASS_MARK, REGIONVIEW_MARK },
 	{ CLASS_REGION, REGIONVIEW_REGION },
-	{ CLASS_ARROW, REGIONVIEW_ARROW }
+	{ CLASS_HGUIDE, REGIONVIEW_HGUIDE },
+	{ CLASS_VGUIDE, REGIONVIEW_VGUIDE },
+	{ CLASS_ARROW, REGIONVIEW_ARROW },
 };
 
 /* Look at the class we are drawing, set the display type.
@@ -117,7 +120,8 @@ regionview_set_type(Regionview *regionview, PElement *root)
 	gboolean result;
 	int i;
 
-	if (heap_is_class(root, &result) && result)
+	if (heap_is_class(root, &result) &&
+		result)
 		for (i = 0; i < VIPS_NUMBER(regionview_display_table); i++) {
 			const char *name = regionview_display_table[i].name;
 
@@ -541,6 +545,31 @@ regionview_draw_arrow(Regionview *regionview, GtkSnapshot *snapshot)
 	regionview_draw_line(regionview, snapshot, &regionview->frame);
 }
 
+static void
+regionview_draw_guide(Regionview *regionview, GtkSnapshot *snapshot)
+{
+	Imageui *imageui = regionview->imageui;
+	double zoom = imageui_get_zoom(imageui);
+
+	// two points to mark
+	double left;
+	double top;
+	imageui_image_to_gtk(imageui,
+		regionview->draw_area.left, regionview->draw_area.top, &left, &top);
+	regionview->frame.left = left;
+	regionview->frame.top = top;
+	regionview->frame.width = regionview->draw_area.width * zoom;
+	regionview->frame.height = regionview->draw_area.height * zoom;
+
+	regionview_draw_init_region_label(regionview);
+
+	regionview_draw_label_shadow(regionview, snapshot);
+
+	regionview_draw_label(regionview, snapshot);
+
+	regionview_draw_line(regionview, snapshot, &regionview->frame);
+}
+
 // called from imageui for "snapshot" on imagedisplay
 void
 regionview_draw(Regionview *regionview, GtkSnapshot *snapshot)
@@ -563,9 +592,15 @@ regionview_draw(Regionview *regionview, GtkSnapshot *snapshot)
 		regionview_draw_arrow(regionview, snapshot);
 		break;
 
+	case REGIONVIEW_HGUIDE:
+		regionview_draw_guide(regionview, snapshot);
+		break;
+
+	case REGIONVIEW_VGUIDE:
+		regionview_draw_guide(regionview, snapshot);
+		break;
+
 		/*
-	REGIONVIEW_HGUIDE,			// width == image width, height == 0
-	REGIONVIEW_VGUIDE,			// width == 0, height == image height
 	REGIONVIEW_LINE,			// floating dashed line for paintbox
 	REGIONVIEW_BOX				// floating dashed box for paintbox
 		 */
@@ -661,6 +696,14 @@ regionview_hit(Regionview *regionview, int x, int y)
 
 		break;
 
+	case REGIONVIEW_HGUIDE:
+	case REGIONVIEW_VGUIDE:
+		corner = regionview->frame;
+		vips_rect_marginadjust(&corner, 10);
+		if (vips_rect_includespoint(&corner, x, y))
+			return REGIONVIEW_RESIZE_MOVE;
+		break;
+
 	default:
 		g_assert_not_reached();
 	}
@@ -693,6 +736,8 @@ regionview_hit(Regionview *regionview, int x, int y)
 
 	case REGIONVIEW_MARK:
 	case REGIONVIEW_ARROW:
+	case REGIONVIEW_HGUIDE:
+	case REGIONVIEW_VGUIDE:
 		break;
 
 	default:
@@ -718,33 +763,14 @@ void
 regionview_resize(Regionview *regionview, guint modifiers,
 	int width, int height, int x, int y)
 {
+	Imageui *imageui = regionview->imageui;
 	VipsRect *our_area = &regionview->our_area;
 	VipsRect *start_area = &regionview->start_area;
 
+	// move dependent edges
 	switch (regionview->resize) {
 	case REGIONVIEW_RESIZE_MOVE:
 		our_area->left = x + start_area->left;
-		our_area->top = y + start_area->top;
-		break;
-
-	case REGIONVIEW_RESIZE_RIGHT:
-		our_area->width = x + VIPS_RECT_RIGHT(start_area) - start_area->left;
-		break;
-
-	case REGIONVIEW_RESIZE_BOTTOM:
-		our_area->height = y + VIPS_RECT_BOTTOM(start_area) - start_area->top;
-		break;
-
-	case REGIONVIEW_RESIZE_BOTTOMRIGHT:
-		our_area->width = x + VIPS_RECT_RIGHT(start_area) - start_area->left;
-		our_area->height = y + VIPS_RECT_BOTTOM(start_area) - start_area->top;
-		break;
-
-	case REGIONVIEW_RESIZE_LEFT:
-		our_area->left = x + start_area->left;
-		break;
-
-	case REGIONVIEW_RESIZE_TOP:
 		our_area->top = y + start_area->top;
 		break;
 
@@ -753,16 +779,96 @@ regionview_resize(Regionview *regionview, guint modifiers,
 		our_area->top = y + start_area->top;
 		break;
 
+	case REGIONVIEW_RESIZE_TOP:
+		our_area->top = y + start_area->top;
+		break;
+
+	case REGIONVIEW_RESIZE_TOPRIGHT:
+		our_area->top = y + start_area->top;
+		our_area->width = x + VIPS_RECT_RIGHT(start_area) - start_area->left;
+		break;
+
+	case REGIONVIEW_RESIZE_RIGHT:
+		our_area->width = x + VIPS_RECT_RIGHT(start_area) - start_area->left;
+		break;
+
+	case REGIONVIEW_RESIZE_BOTTOMRIGHT:
+		our_area->width = x + VIPS_RECT_RIGHT(start_area) - start_area->left;
+		our_area->height = y + VIPS_RECT_BOTTOM(start_area) - start_area->top;
+		break;
+
+	case REGIONVIEW_RESIZE_BOTTOM:
+		our_area->height = y + VIPS_RECT_BOTTOM(start_area) - start_area->top;
+		break;
+
+	case REGIONVIEW_RESIZE_BOTTOMLEFT:
+		our_area->left = x + start_area->left;
+		our_area->height = y + VIPS_RECT_BOTTOM(start_area) - start_area->top;
+		break;
+
+	case REGIONVIEW_RESIZE_LEFT:
+		our_area->left = x + start_area->left;
+		break;
+
 	default:
 		break;
 	}
 
+	// apply any snapping
+	int right;
+	int bottom;
+	switch (regionview->resize) {
+	case REGIONVIEW_RESIZE_MOVE:
+		imageui_snap_rect(imageui, our_area, our_area);
+		break;
+
+	case REGIONVIEW_RESIZE_LEFT:
+	case REGIONVIEW_RESIZE_TOPLEFT:
+	case REGIONVIEW_RESIZE_TOP:
+		imageui_snap_point(imageui,
+			our_area->left, our_area->top, &our_area->left, &our_area->top);
+		break;
+
+	case REGIONVIEW_RESIZE_RIGHT:
+	case REGIONVIEW_RESIZE_BOTTOMRIGHT:
+	case REGIONVIEW_RESIZE_BOTTOM:
+		right = VIPS_RECT_RIGHT(our_area);
+		bottom = VIPS_RECT_BOTTOM(our_area);
+		imageui_snap_point(imageui,
+			right, bottom, &right, &bottom);
+		our_area->width = right - our_area->left;
+		our_area->height = bottom - our_area->top;
+		break;
+
+	case REGIONVIEW_RESIZE_TOPRIGHT:
+		right = VIPS_RECT_RIGHT(our_area);
+		imageui_snap_point(imageui,
+			right, our_area->top, &right, &our_area->top);
+		our_area->width = right - our_area->left;
+		break;
+
+	case REGIONVIEW_RESIZE_BOTTOMLEFT:
+		bottom = VIPS_RECT_BOTTOM(our_area);
+		imageui_snap_point(imageui,
+			our_area->left, bottom, &our_area->left, &bottom);
+		our_area->height = bottom - our_area->top;
+
+		break;
+
+	default:
+		break;
+	}
+
+
 	if (!regionview->frozen)
 		regionview_pick_type(regionview);
 
+	// constrain
 	switch (regionview->type) {
 	case REGIONVIEW_REGION:
 	case REGIONVIEW_MARK:
+	case REGIONVIEW_HGUIDE:
+	case REGIONVIEW_VGUIDE:
 		switch (regionview->resize) {
 		case REGIONVIEW_RESIZE_MOVE:
 			our_area->left =
@@ -789,6 +895,22 @@ regionview_resize(Regionview *regionview, guint modifiers,
 				VIPS_CLIP(0, our_area->top, VIPS_RECT_BOTTOM(start_area) - 1);
 			our_area->width = VIPS_RECT_RIGHT(start_area) - our_area->left;
 			our_area->height = VIPS_RECT_BOTTOM(start_area) - our_area->top;
+			break;
+
+		case REGIONVIEW_RESIZE_TOPRIGHT:
+			our_area->top =
+				VIPS_CLIP(0, our_area->top, VIPS_RECT_BOTTOM(start_area) - 1);
+			our_area->width =
+				VIPS_CLIP(1, our_area->width, width - start_area->left);
+			our_area->height = VIPS_RECT_BOTTOM(start_area) - our_area->top;
+			break;
+
+		case REGIONVIEW_RESIZE_BOTTOMLEFT:
+			our_area->left =
+				VIPS_CLIP(0, our_area->left, VIPS_RECT_RIGHT(start_area) - 1);
+			our_area->height =
+				VIPS_CLIP(1, our_area->height, height - start_area->top);
+			our_area->width = VIPS_RECT_RIGHT(start_area) - our_area->left;
 			break;
 
 		default:

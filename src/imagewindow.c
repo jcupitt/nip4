@@ -108,6 +108,7 @@ struct _Imagewindow {
 	GtkWidget *properties;
 	GtkWidget *display_bar;
 	GtkWidget *info_bar;
+	GtkWidget *region_menu;
 
 	/* The set of active images in the stack right now. These are not
 	 * references.
@@ -118,7 +119,19 @@ struct _Imagewindow {
 	 */
 	ViewSettings view_settings;
 
+	/* Set on menu popup on a regionview.
+	 */
+	View *action_view;
+
 	GSettings *settings;
+
+	/* We need to detect ctrl-click and shift-click for region create and
+	 * resize.
+	 *
+	 * Windows doesn't seem to support device polling, so we record ctrl and
+	 * shift state here in a keyboard handler.
+	 */
+	guint modifiers;
 };
 
 G_DEFINE_TYPE(Imagewindow, imagewindow, GTK_TYPE_APPLICATION_WINDOW);
@@ -1211,6 +1224,45 @@ imagewindow_properties(GSimpleAction *action,
 	g_simple_action_set_state(action, state);
 }
 
+static void
+imagewindow_region_action(GSimpleAction *action,
+	GVariant *state, gpointer user_data)
+{
+	Imagewindow *win = IMAGEWINDOW(user_data);
+
+	if (win->action_view &&
+		IS_REGIONVIEW(win->action_view)) {
+		const char *name = g_action_get_name(G_ACTION(action));
+		Regionview *regionview = REGIONVIEW(win->action_view);
+		Row *row = HEAPMODEL(regionview->classmodel)->row;
+		Workspace *ws = row->ws;
+
+		if (g_str_equal(name, "region-duplicate")) {
+			row_select(row);
+			if (!workspace_selected_duplicate(ws))
+				workspace_set_show_error(row->ws, TRUE);
+			workspace_deselect_all(ws);
+
+			symbol_recalculate_all();
+		}
+		else if (g_str_equal(name, "region-reset")) {
+			(void) icontainer_map_all(ICONTAINER(row),
+				(icontainer_map_fn) model_clear_edited, NULL);
+
+			symbol_recalculate_all();
+		}
+		else if (g_str_equal(name, "region-saveas")) {
+			Model *graphic = row->child_rhs->graphic;
+
+			classmodel_graphic_save(CLASSMODEL(graphic), GTK_WINDOW(win));
+		}
+		else if (g_str_equal(name, "region-delete"))
+			IDESTROY(row->sym);
+
+		win->action_view = NULL;
+	}
+}
+
 static GActionEntry imagewindow_entries[] = {
 	{ "copy", imagewindow_copy_action },
 	{ "paste", imagewindow_paste_action },
@@ -1245,6 +1297,12 @@ static GActionEntry imagewindow_entries[] = {
 		imagewindow_background },
 
 	{ "reset", imagewindow_reset },
+
+	{ "region-duplicate", imagewindow_region_action },
+	{ "region-reset", imagewindow_region_action },
+	{ "region-saveas", imagewindow_region_action },
+	{ "region-delete", imagewindow_region_action },
+
 };
 
 static void
@@ -1351,14 +1409,80 @@ static void
 imagewindow_pressed(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Imagewindow *win)
 {
-	gtk_popover_set_pointing_to(GTK_POPOVER(win->right_click_menu),
+	Imageui *imageui = win->imageui;
+
+	GtkWidget *menu;
+	Regionview *regionview;
+
+	menu = NULL;
+	if (imageui &&
+		(regionview = imageui_pick_regionview(imageui, x, y))) {
+		menu = win->region_menu;
+		win->action_view = VIEW(regionview);
+	}
+	else {
+		menu = win->right_click_menu;
+		win->action_view = NULL;
+	}
+
+	gtk_popover_set_pointing_to(GTK_POPOVER(menu),
 		&(const GdkRectangle){ x, y, 1, 1 });
 
-	/* This produces a lot of warnings :( not sure why. I tried calling
-	 * gtk_popover_present() in realize to force allocation, but it didn't
-	 * help.
-	 */
-	gtk_popover_popup(GTK_POPOVER(win->right_click_menu));
+	gtk_popover_popup(GTK_POPOVER(menu));
+}
+
+static gboolean
+imagewindow_key_pressed(GtkEventControllerKey *self,
+	guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+{
+	Imagewindow *win = IMAGEWINDOW(user_data);
+
+	switch (keyval) {
+	case GDK_KEY_Control_L:
+	case GDK_KEY_Control_R:
+		win->modifiers |= GDK_CONTROL_MASK;
+		break;
+
+	case GDK_KEY_Shift_L:
+	case GDK_KEY_Shift_R:
+		win->modifiers |= GDK_SHIFT_MASK;
+		break;
+
+	default:
+		break;
+	}
+
+	return FALSE;
+}
+
+static gboolean
+imagewindow_key_released(GtkEventControllerKey *self,
+	guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+{
+	Imagewindow *win = IMAGEWINDOW(user_data);
+
+	switch (keyval) {
+	case GDK_KEY_Control_L:
+	case GDK_KEY_Control_R:
+		win->modifiers &= ~GDK_CONTROL_MASK;
+		break;
+
+	case GDK_KEY_Shift_L:
+	case GDK_KEY_Shift_R:
+		win->modifiers &= ~GDK_SHIFT_MASK;
+		break;
+
+	default:
+		break;
+	}
+
+	return FALSE;
+}
+
+guint
+imagewindow_get_modifiers(Imagewindow *win)
+{
+	return win->modifiers;
 }
 
 static void
@@ -1379,9 +1503,12 @@ imagewindow_class_init(ImagewindowClass *class)
 	BIND_VARIABLE(Imagewindow, properties);
 	BIND_VARIABLE(Imagewindow, display_bar);
 	BIND_VARIABLE(Imagewindow, info_bar);
+	BIND_VARIABLE(Imagewindow, region_menu);
 
 	BIND_CALLBACK(imagewindow_pressed);
 	BIND_CALLBACK(imagewindow_error_clicked);
+	BIND_CALLBACK(imagewindow_key_pressed);
+	BIND_CALLBACK(imagewindow_key_released);
 
 	gobject_class->dispose = imagewindow_dispose;
 

@@ -52,7 +52,7 @@ iregiongroup_update_model(Heapmodel *heapmodel)
 	if (heapmodel->row->sym)
 		model_display(MODEL(heapmodel),
 			!is_super(heapmodel->row->sym) &&
-				!is_this(heapmodel->row->sym));
+			!is_this(heapmodel->row->sym));
 
 	return NULL;
 }
@@ -94,8 +94,7 @@ iregiongroup_new(Classmodel *classmodel)
 
 	iregiongroup = IREGIONGROUP(g_object_new(IREGIONGROUP_TYPE, NULL));
 
-	icontainer_child_add(ICONTAINER(classmodel),
-		ICONTAINER(iregiongroup), -1);
+	icontainer_child_add(ICONTAINER(classmodel), ICONTAINER(iregiongroup), -1);
 
 #ifdef DEBUG
 	printf("iregiongroup_new: ");

@@ -1,16 +1,3 @@
-- drag on A7 in ~/pics/test.ws, crash
-
-	row.c:226:row_dirty_set_sub: assertion failed: (!rhs || IS_RHS(rhs))
-
-  rhs is a non-NULL dead pointer :(
-
-  it's row->child_rhs, where row is "margin", the slider in A7o
-
-  adjust margin needs to override the region drag member so that it recreates
-  itself .... OR nip4 needs to not crash when margin unexpectedly disappears
-
-  does nip2 handle this case? what about the matrix generastor with a slider?
-
 - maxpos, then create mark from coordinate should be two clicks
 
 - try:
