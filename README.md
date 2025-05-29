@@ -86,14 +86,10 @@ Clone:
 
 https://github.com/libvips/build-win64-mxe
 
-Then see this PR:
-
-https://github.com/libvips/build-win64-mxe/pull/72
-
-Checkout that branch and build with eg.:
+Build with eg.:
 
 ```
-./build.sh --with-nip4 all
+$ ./build.sh --target x86_64-w64-mingw32.shared --nightly nip4
 ```
 
 ## Build from source for flathub
