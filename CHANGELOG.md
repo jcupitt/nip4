@@ -4,7 +4,7 @@
 
 - fix select modifier handling
 - add region resize and drag snap
-- add hguide and vguide regions
+- add hguide and vguide, plus a gesture for creation
 - improve menu homing
 - improve antialias on zoom out
 - add region context menu

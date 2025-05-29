@@ -278,6 +278,28 @@ regionview_draw_init_region_label(Regionview *regionview)
 		2 * regionview_label_margin;
 }
 
+static void
+regionview_draw_init_guide_label(Regionview *regionview)
+{
+	if (regionview->draw_type == REGIONVIEW_HGUIDE) {
+		regionview->label.left = regionview->frame.left;
+		regionview->label.top = regionview->frame.top
+			- 2 * regionview_label_margin
+			- regionview->ink_rect.height
+			- regionview_line_width;
+	}
+	else {
+		regionview->label.left = regionview->frame.left
+			+ regionview_line_width;
+		regionview->label.top = regionview->frame.top;
+	}
+
+	regionview->label.width = regionview->ink_rect.width +
+		2 * regionview_label_margin;
+	regionview->label.height = regionview->ink_rect.height +
+		2 * regionview_label_margin;
+}
+
 /* gsk clips the case where the region is completely off screen, but does
  * NOT clip if we are within the rect. This will cause terrible
  * performance and even crashes with large zooms.
@@ -549,19 +571,24 @@ static void
 regionview_draw_guide(Regionview *regionview, GtkSnapshot *snapshot)
 {
 	Imageui *imageui = regionview->imageui;
-	double zoom = imageui_get_zoom(imageui);
+	Tilesource *tilesource = imageui_get_tilesource(imageui);
 
-	// two points to mark
-	double left;
-	double top;
-	imageui_image_to_gtk(imageui,
-		regionview->draw_area.left, regionview->draw_area.top, &left, &top);
-	regionview->frame.left = left;
-	regionview->frame.top = top;
-	regionview->frame.width = regionview->draw_area.width * zoom;
-	regionview->frame.height = regionview->draw_area.height * zoom;
+	// the full width or height of the image
+	if (regionview->draw_type == REGIONVIEW_HGUIDE) {
+		regionview->frame.left = 0;
+		regionview->frame.top = VIPS_RECT_BOTTOM(&regionview->draw_area);
+		regionview->frame.width = tilesource->display_width;
+		regionview->frame.height = 0;
+	}
+	else {
+		regionview->frame.left = VIPS_RECT_RIGHT(&regionview->draw_area);
+		regionview->frame.top = 0;
+		regionview->frame.width = 0;
+		regionview->frame.height = tilesource->display_height;
+	}
+	imageui_image_to_gtk_rect(imageui, &regionview->frame, &regionview->frame);
 
-	regionview_draw_init_region_label(regionview);
+	regionview_draw_init_guide_label(regionview);
 
 	regionview_draw_label_shadow(regionview, snapshot);
 
@@ -750,11 +777,18 @@ regionview_hit(Regionview *regionview, int x, int y)
 static void
 regionview_pick_type(Regionview *regionview)
 {
-	if (abs(regionview->our_area.width) < 10)
+	if (abs(regionview->our_area.width) < 10 &&
+		abs(regionview->our_area.height) < 10)
 		regionview->type = REGIONVIEW_MARK;
 	else if (regionview->our_area.width > 0 &&
 		regionview->our_area.height > 0)
 		regionview->type = REGIONVIEW_REGION;
+	else if (regionview->our_area.width < 0 &&
+		regionview->our_area.height > 0)
+		regionview->type = REGIONVIEW_HGUIDE;
+	else if (regionview->our_area.width > 0 &&
+		regionview->our_area.height < 0)
+		regionview->type = REGIONVIEW_VGUIDE;
 	else
 		regionview->type = REGIONVIEW_ARROW;
 }
@@ -858,7 +892,6 @@ regionview_resize(Regionview *regionview, guint modifiers,
 	default:
 		break;
 	}
-
 
 	if (!regionview->frozen)
 		regionview_pick_type(regionview);

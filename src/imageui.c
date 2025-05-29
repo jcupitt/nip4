@@ -1266,6 +1266,18 @@ imageui_region_new(Imageui *imageui, RegionviewType type, VipsRect *rect)
 			vips_buf_appendd(&buf, rect->height);
 			break;
 
+		case REGIONVIEW_HGUIDE:
+			vips_buf_appendf(&buf, "%s ", CLASS_HGUIDE);
+			row_qualified_name(row, &buf);
+			vips_buf_appendd(&buf, VIPS_RECT_BOTTOM(rect));
+			break;
+
+		case REGIONVIEW_VGUIDE:
+			vips_buf_appendf(&buf, "%s ", CLASS_VGUIDE);
+			row_qualified_name(row, &buf);
+			vips_buf_appendd(&buf, VIPS_RECT_RIGHT(rect));
+			break;
+
 		default:
 			g_assert_not_reached();
 		}
