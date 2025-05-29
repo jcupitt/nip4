@@ -86,14 +86,10 @@ Clone:
 
 https://github.com/libvips/build-win64-mxe
 
-Then see this PR:
-
-https://github.com/libvips/build-win64-mxe/pull/72
-
-Checkout that branch and build with eg.:
+Build with eg.:
 
 ```
-./build.sh --with-nip4 all
+$ ./build.sh --target x86_64-w64-mingw32.shared --nightly nip4
 ```
 
 ## Build from source for flathub
@@ -108,8 +104,8 @@ flatpak remote-add --if-not-exists \
 Install the gtk4 SDK and runtime:
 
 ```shell
-flatpak install org.gnome.Sdk//47
-flatpak install org.gnome.Platform//47
+flatpak install org.gnome.Sdk//48
+flatpak install org.gnome.Platform//48
 ```
 
 Allow file. Recent security changes to git will cause submodule checkout

@@ -1806,16 +1806,6 @@ row_deselect(Row *row)
 	ws->selected = g_slist_remove(ws->selected, row);
 	row->selected = FALSE;
 
-	/* Hack: if this is a matrix with selected cells, deselect the matrix
-	 * sellection too. We should really have a row method for this I
-	 * guess :-( See also workspace_selected_names_sub().
-	if (row->child_rhs && row->child_rhs->graphic &&
-		IS_MATRIX(row->child_rhs->graphic) &&
-		MATRIX(row->child_rhs->graphic)->selected)
-		matrix_deselect(MATRIX(row->child_rhs->graphic));
-	 */
-	printf("row_deselect: FIXME ... call matrix_deselect()\n");
-
 	iobject_changed(IOBJECT(row));
 	iobject_changed(IOBJECT(ws));
 
