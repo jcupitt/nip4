@@ -98,7 +98,7 @@ typedef enum _TilesourceType {
  *
  * PAGES_AS_BANDS
  *
- *	Just like toilet roll, exccept that we chop the image into pages and
+ *	Just like toilet roll, except that we chop the image into pages and
  *	bandjoin them all. Handy for OME-TIFF, which has a one-band image
  *	in each page.
  */

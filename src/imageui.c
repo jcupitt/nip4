@@ -116,10 +116,10 @@ struct _Imageui {
 
 	/* Region manipulation.
 	 */
-	Regionview *grabbed; /* Currently grabbed */
-	int window_left;	 /* Window position at start of scroll */
+	Regionview *grabbed;	/* Currently grabbed */
+	int window_left;		/* Window position at start of scroll */
 	int window_top;
-	int start_x; /* Mouse position at start of scroll */
+	int start_x;			/* Mouse position at start of scroll */
 	int start_y;
 
 	/* We use a floating regionview (no symbol) during eg. region create.
