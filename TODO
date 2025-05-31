@@ -1,4 +1,29 @@
+- nip4 ~/pics/nipguide.pdf, set "toilet roll", does not display correctly
+
+- nip4 ~/pics/S000_t000002_V000_R0000_X000_Y000_C02_I1_D0_P00101.tif, set
+  "multipage", does not display correctly
+
+- alt-L and R for a while, coredump
+
 - maxpos, then create mark from coordinate should be two clicks
+
+- put cfitsio back in the flatpak build
+
+        {
+            "name" : "cfitsio",
+            "builddir" : true,
+            "buildsystem" : "autotools",
+            "sources" : [
+                {
+                    "type" : "archive",
+                    "url" : "https://heasarc.gsfc.nasa.gov/FTP/software/fitsio/c/cfitsio-4.5.0.tar.gz",
+                    "sha256" : "e4854fc3365c1462e493aa586bfaa2f3d0bb8c20b75a524955db64c27427ce09"
+                }
+            ],
+            "cleanup" : [
+                "/bin"
+            ]
+        },
 
 - try:
 
