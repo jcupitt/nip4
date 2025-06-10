@@ -1,4 +1,5 @@
-- nip4 ~/pics/nipguide.pdf, set "toilet roll", does not display correctly
+- nip4 ~/pics/nipguide.pdf, set "toilet roll", then set "multipage", height is
+  wrong
 
 - nip4 ~/pics/S000_t000002_V000_R0000_X000_Y000_C02_I1_D0_P00101.tif, set
   "multipage", does not display correctly

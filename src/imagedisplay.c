@@ -30,9 +30,9 @@
 #include "nip4.h"
 
 /*
+ */
 #define DEBUG_VERBOSE
 #define DEBUG
- */
 
 // the focus colour we paint
 // FIXME ... we should somehow get this from the theme, I'm not sure how
@@ -353,11 +353,13 @@ imagedisplay_tilecache_changed(Tilecache *tilecache,
 	Imagedisplay *imagedisplay)
 {
 #ifdef DEBUG
-	printf("imagedisplay_tilecache_changed:\n");
+	printf("imagedisplay_tilecache_changed: %d x %d\n",
+		tilecache->tilesource->level_width[0],
+		tilecache->tilesource->level_height[0]);
 #endif /*DEBUG*/
 
-	imagedisplay->image_rect.width = tilecache->tilesource->display_width;
-	imagedisplay->image_rect.height = tilecache->tilesource->display_height;
+	imagedisplay->image_rect.width = tilecache->tilesource->level_width[0];
+	imagedisplay->image_rect.height = tilecache->tilesource->level_height[0];
 	imagedisplay_layout(imagedisplay);
 
 	gtk_widget_queue_draw(GTK_WIDGET(imagedisplay));

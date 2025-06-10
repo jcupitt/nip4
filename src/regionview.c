@@ -577,14 +577,14 @@ regionview_draw_guide(Regionview *regionview, GtkSnapshot *snapshot)
 	if (regionview->draw_type == REGIONVIEW_HGUIDE) {
 		regionview->frame.left = 0;
 		regionview->frame.top = VIPS_RECT_BOTTOM(&regionview->draw_area);
-		regionview->frame.width = tilesource->display_width;
+		regionview->frame.width = tilesource->level_width[0];
 		regionview->frame.height = 0;
 	}
 	else {
 		regionview->frame.left = VIPS_RECT_RIGHT(&regionview->draw_area);
 		regionview->frame.top = 0;
 		regionview->frame.width = 0;
-		regionview->frame.height = tilesource->display_height;
+		regionview->frame.height = tilesource->level_height[0];
 	}
 	imageui_image_to_gtk_rect(imageui, &regionview->frame, &regionview->frame);
 

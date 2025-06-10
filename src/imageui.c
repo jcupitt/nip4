@@ -813,9 +813,9 @@ imageui_bestfit(Imageui *imageui)
 	int widget_height = gtk_widget_get_height(imageui->scrolled_window);
 
 	double hzoom = (double) widget_width /
-		imageui->tilesource->display_width;
+		imageui->tilesource->level_width[0];
 	double vzoom = (double) widget_height /
-		imageui->tilesource->display_height;
+		imageui->tilesource->level_height[0];
 	double zoom = VIPS_MIN(hzoom, vzoom);
 
 	imageui_zoom_to_eased(imageui, zoom * imageui->tilesource->zoom);
@@ -1196,10 +1196,9 @@ imageui_drag_update(GtkEventControllerMotion *self,
 
 	case IMAGEUI_SELECT:
 		regionview_resize(imageui->grabbed, imagewindow_get_modifiers(win),
-			imageui->tilesource->display_width,
-			imageui->tilesource->display_height,
-			offset_x / zoom,
-			offset_y / zoom);
+			imageui->tilesource->level_width[0],
+			imageui->tilesource->level_height[0],
+			offset_x / zoom, offset_y / zoom);
 
 		regionview_model_update(imageui->grabbed);
 
@@ -1207,10 +1206,9 @@ imageui_drag_update(GtkEventControllerMotion *self,
 
 	case IMAGEUI_CREATE:
 		regionview_resize(imageui->floating, imagewindow_get_modifiers(win),
-			imageui->tilesource->display_width,
-			imageui->tilesource->display_height,
-			offset_x / zoom,
-			offset_y / zoom);
+			imageui->tilesource->level_width[0],
+			imageui->tilesource->level_height[0],
+			offset_x / zoom, offset_y / zoom);
 
 		// fine to do an immediate redraw, since we don't rely on calc for
 		// position
