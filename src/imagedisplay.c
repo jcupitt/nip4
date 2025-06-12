@@ -30,9 +30,9 @@
 #include "nip4.h"
 
 /*
- */
 #define DEBUG_VERBOSE
 #define DEBUG
+ */
 
 // the focus colour we paint
 // FIXME ... we should somehow get this from the theme, I'm not sure how
@@ -649,6 +649,8 @@ imagedisplay_snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
 	printf("imagedisplay_snapshot:\n");
 #endif /*DEBUG*/
 
+	GTK_WIDGET_CLASS(imagedisplay_parent_class)->snapshot(widget, snapshot);
+
 	/* Clip to the widget area, or we may paint over the display control
 	 * bar.
 	 */
@@ -670,7 +672,6 @@ imagedisplay_snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
 
 	/* It's unclear how to do this :( maybe we're supposed to get the base
 	 * widget class to do it? Draw it ourselves for now.
-	 */
 	if (gtk_widget_has_focus(widget)) {
 		GskRoundedRect outline;
 
@@ -687,6 +688,7 @@ imagedisplay_snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
 			(float[4]){ 2, 2, 2, 2 },
 			(GdkRGBA[4]){ BORDER, BORDER, BORDER, BORDER });
 	}
+	 */
 }
 
 static void

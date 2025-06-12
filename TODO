@@ -1,8 +1,35 @@
-- nip4 ~/pics/nipguide.pdf, set "toilet roll", then set "multipage", height is
-  wrong
+- try:
 
-- nip4 ~/pics/S000_t000002_V000_R0000_X000_Y000_C02_I1_D0_P00101.tif, set
-  "multipage", does not display correctly
+	nip4 k2.jpg
+	alt-R
+	segv in infobar_status_update()
+
+
+- try:
+
+	nip4 ~/pics/S000_t000002_V000_R0000_X000_Y000_C02_I1_D0_P00101.tif
+
+  incredibly slow, in fact does not draw at all, and it's not clear why
+
+  this takes under 2s to draw the image:
+
+image = pyvips.Image.new_from_file(sys.argv[1], n=-1);
+
+	page_width = image.width
+	page_height = image.get("page-height")
+
+	pages = [image.crop(0, y * page_height, page_width, page_height)
+		 for y in range(3)]
+
+	rgb = pages[0].bandjoin(pages[1:])
+
+	rgb = rgb.copy(interpretation="rgb16")
+
+	rgb.write_to_file(sys.argv[2])
+
+
+
+
 
 - alt-L and R for a while, coredump
 

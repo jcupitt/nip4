@@ -28,10 +28,10 @@
  */
 
 /*
- */
 #define DEBUG_VERBOSE
 #define DEBUG
 #define DEBUG_MAKE
+ */
 
 #include "nip4.h"
 
@@ -2071,33 +2071,6 @@ VipsImage *
 tilesource_get_base_image(Tilesource *tilesource)
 {
 	return tilesource->base;
-}
-
-gboolean
-tilesource_get_pixel(Tilesource *tilesource, int image_x, int image_y,
-	double **vector, int *n)
-{
-	if (!tilesource->loaded ||
-		!tilesource->image)
-		return FALSE;
-
-	/* Block outside the image.
-	 */
-	if (image_x < 0 ||
-		image_y < 0 ||
-		image_x >= tilesource->image->Xsize ||
-		image_y >= tilesource->image->Ysize)
-		return FALSE;
-
-	/* Fetch from image (not ->display), even though this can be very slow.
-	 * This is run in a bg thread, so speed should not matter too much.
-	 */
-	if (vips_getpoint(tilesource->image, vector, n, image_x, image_y,
-			"unpack_complex", TRUE,
-			NULL))
-		return FALSE;
-
-	return TRUE;
 }
 
 void

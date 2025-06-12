@@ -319,8 +319,6 @@ GFile *tilesource_get_file(Tilesource *tilesource);
 
 VipsImage *tilesource_get_image(Tilesource *tilesource);
 VipsImage *tilesource_get_base_image(Tilesource *tilesource);
-gboolean tilesource_get_pixel(Tilesource *tilesource,
-	int image_x, int image_y, double **vector, int *n);
 Tilesource *tilesource_duplicate(Tilesource *tilesource);
 void tilesource_changed(Tilesource *tilesource);
 
