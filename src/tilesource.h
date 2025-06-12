@@ -179,8 +179,9 @@ typedef struct _Tilesource {
 	 */
 	gboolean all_mono;
 
-	/* For pyramidal formats, we need to read out the size of each level.
-	 * Largest level first. level_count == 1 means not a pyramidal image.
+	/* The pyramid structure in the file. This isn't the same as the pyr of
+	 * the image being displayed -- OME-TIFFs can be multipage and pyr, for
+	 * example.
 	 */
 	int level_count;
 	int level_width[MAX_LEVELS];
@@ -224,6 +225,13 @@ typedef struct _Tilesource {
 	VipsImage *mask;
 	VipsRegion *image_region;
 	VipsRegion *mask_region;
+
+	/* The size of the level0 image in the current view mode. This is not the
+	 * same as level_width[0], since eg. we might be looking at one page of a
+	 * larger image.
+	 */
+	int image_width;
+	int image_height;
 
 	/* @image converted to rgb for painting.
 	 */

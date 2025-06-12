@@ -189,10 +189,8 @@ tilesource_open(Tilesource *tilesource, int level)
 				"n", n,
 				NULL);
 	}
-	else if (vips_isprefix("jp2k", tilesource->loader) ||
-		vips_isprefix("pdf", tilesource->loader)) {
-		/* These formats only have "page", or have pages that can vary in
-		 * size, making "n" not always useful.
+	else if (vips_isprefix("jp2k", tilesource->loader)) {
+		/* These formats only have "page", no "n".
 		 */
 		if (all_pages)
 			image = NULL;
@@ -201,6 +199,17 @@ tilesource_open(Tilesource *tilesource, int level)
 				"page", level,
 				NULL);
 	}
+	else if (vips_isprefix("pdf", tilesource->loader)) {
+		/* Pages can vary in size, so "n" won't always work.
+		 *
+		 * FIXME ... we should support scale too, see SVG.
+		 */
+		image = vips_image_new_from_file(tilesource->filename,
+			"page", page,
+			"n", n,
+			NULL);
+	}
+
 	else if (vips_isprefix("webp", tilesource->loader) ||
 		vips_isprefix("jxl", tilesource->loader) ||
 		vips_isprefix("gif", tilesource->loader)) {
@@ -278,30 +287,35 @@ tilesource_render_notify(VipsImage *image, VipsRect *rect, void *client)
  * This ends in the sink_screen which will issue any repaints.
  */
 static VipsImage *
-tilesource_image(Tilesource *tilesource, VipsImage **mask_out)
+tilesource_image(Tilesource *tilesource, VipsImage **mask_out, int current_z)
 {
 	VipsImage *x;
 	VipsImage *mask;
 
 	g_assert(mask_out);
 
+#ifdef DEBUG
+	printf("tilesource_image: current_z = %d\n", current_z);
+#endif /*DEBUG*/
+
 	g_autoptr(VipsImage) image = NULL;
 
 	/* Open the image with any shrink-on-load tricks.
 	 */
-
 	if (tilesource->type == TILESOURCE_TYPE_IMAGE) {
 		/* We are displaying a VipsImage* and there's no reopen possible.
 		 */
 		image = tilesource->base;
 		g_object_ref(image);
+
+		tilesource->image_width = image->Xsize;
+		tilesource->image_height = image->Ysize;
 	}
 	else if (tilesource->level_count > 1) {
 		/* There's a pyr, load the best level. This will open all pages, if
 		 * possible.
 		 */
-		int required_width =
-			tilesource->level_width[0] >> tilesource->current_z;
+		int required_width = tilesource->level_width[0] >> current_z;
 
 		int i;
 		int level;
@@ -311,26 +325,41 @@ tilesource_image(Tilesource *tilesource, VipsImage **mask_out)
 				break;
 		level = VIPS_CLIP(0, i - 1, tilesource->level_count - 1);
 
-#ifdef DEBUG
-		printf("tilesource_image: loading level %d\n", level);
-#endif /*DEBUG*/
-
 		if (!(image = tilesource_open(tilesource, level)))
 			return NULL;
+
+		tilesource->image_width = tilesource->level_width[0];
+		tilesource->image_height = tilesource->level_height[0];
+
+#ifdef DEBUG
+		printf("\tloading level %d\n", level);
+		printf("\t(image->Xsize = %d, image->Ysize = %d)\n",
+			image->Xsize, image->Ysize);
+#endif /*DEBUG*/
 	}
 	else {
 		/* A non-pyramidal image from a file.
 		 */
-#ifdef DEBUG
-		printf("tilesource_image: loading page %d\n",
-			tilesource->page);
-#endif /*DEBUG*/
 
 		// will open all pages, or tilesource->page if this is a multipage
 		// image whose pages vary in size
 		if (!(image = tilesource_open(tilesource, 0)))
 			return NULL;
+
+		tilesource->image_width = image->Xsize;
+		tilesource->image_height = image->Ysize;
+
+#ifdef DEBUG
+		printf("\tloading page %d\n", tilesource->page);
+		printf("\t(image->Xsize = %d, image->Ysize = %d)\n",
+			image->Xsize, image->Ysize);
+#endif /*DEBUG*/
 	}
+
+#ifdef DEBUG
+	printf("\timage_width = %d\n", tilesource->image_width);
+	printf("\timage_height = %d\n", tilesource->image_height);
+#endif /*DEBUG*/
 
 	/* If we have a toilet roll source and we are displaying multipage or
 	 * animated, crop out the page we want.
@@ -341,31 +370,39 @@ tilesource_image(Tilesource *tilesource, VipsImage **mask_out)
 	if (tilesource->type == TILESOURCE_TYPE_TOILET_ROLL &&
 		(tilesource->mode == TILESOURCE_MODE_MULTIPAGE ||
 		 tilesource->mode == TILESOURCE_MODE_ANIMATED)) {
-		int page_width = image->Xsize;
+		// loaders will adjust page_height for shrink-on-load, so we can just
+		// use that
 		int page_height = vips_image_get_page_height(image);
 
 		VipsImage *x;
 
 		if (vips_crop(image, &x,
 				0, tilesource->page * page_height,
-				page_width, page_height, NULL))
+				image->Xsize, page_height, NULL))
 			return NULL;
 		VIPS_UNREF(image);
 		image = x;
+
+		// only showing one page now
+		tilesource->image_height /= tilesource->n_pages;
+
+#ifdef DEBUG
+		printf("\tcropping page %d\n", tilesource->page);
+		printf("\t(image->Xsize = %d, image->Ysize = %d)\n",
+			image->Xsize, image->Ysize);
+#endif /*DEBUG*/
 	}
 
 	/* In pages-as-bands mode, crop out all pages and join band-wise.
-	 *
-	 * We need to crop using the page size on image, since it might
-	 * have been shrunk by shrink-on-load above ^^
 	 */
 	if (tilesource->type == TILESOURCE_TYPE_TOILET_ROLL &&
 		tilesource->mode == TILESOURCE_MODE_PAGES_AS_BANDS) {
-		int page_width = image->Xsize;
+		// loaders will adjust page_height for shrink-on-load, so we can just
+		// use that
 		int page_height = vips_image_get_page_height(image);
-		// not too many pages or we can have terrible performance problems
-		// more than 3 for the info bar
-		int n_pages = VIPS_MIN(10, tilesource->n_pages);
+
+		// there's probably no alpha, so just go to rgb or mono
+		int n_pages = tilesource->n_pages >= 3 ? 3 : 1;
 
 		g_autoptr(VipsObject) context = VIPS_OBJECT(vips_image_new());
 		VipsImage **t = (VipsImage **)
@@ -373,7 +410,7 @@ tilesource_image(Tilesource *tilesource, VipsImage **mask_out)
 
 		for (int page = 0; page < n_pages; page++)
 			if (vips_crop(image, &t[page],
-					0, page * page_height, page_width, page_height,
+					0, page * page_height, image->Xsize, page_height,
 					NULL))
 				return NULL;
 		VipsImage *x;
@@ -385,12 +422,32 @@ tilesource_image(Tilesource *tilesource, VipsImage **mask_out)
 		/* Pick an interpretation ... one of the RGB types, if we
 		 * can.
 		 */
-		if (image->Bands < 3)
-			image->Type = image->BandFmt == VIPS_FORMAT_USHORT ?
-				VIPS_INTERPRETATION_GREY16 : VIPS_INTERPRETATION_B_W;
-		else
-			image->Type = image->BandFmt == VIPS_FORMAT_USHORT ?
-				VIPS_INTERPRETATION_RGB16 : VIPS_INTERPRETATION_sRGB;
+		switch (image->BandFmt) {
+		case VIPS_FORMAT_USHORT:
+			image->Type = image->Bands == 3 ?
+				VIPS_INTERPRETATION_RGB16 : VIPS_INTERPRETATION_GREY16;
+			break;
+
+		case VIPS_FORMAT_FLOAT:
+			// quite common for OME-TIFF
+			image->Type = image->Bands == 3 ?
+				VIPS_INTERPRETATION_scRGB : VIPS_INTERPRETATION_B_W;
+			break;
+
+		default:
+			image->Type = image->Bands == 3 ?
+				VIPS_INTERPRETATION_sRGB : VIPS_INTERPRETATION_B_W;
+			break;
+		}
+
+		// only showing one page now
+		tilesource->image_height /= tilesource->n_pages;
+
+#ifdef DEBUG
+		printf("\tjoining n_pages %d\n", n_pages);
+		printf("\t(image->Xsize = %d, image->Ysize = %d)\n",
+			image->Xsize, image->Ysize);
+#endif /*DEBUG*/
 	}
 
 	/* Histogram type ... plot the histogram.
@@ -410,6 +467,8 @@ tilesource_image(Tilesource *tilesource, VipsImage **mask_out)
 
 		image = t[3];
 		g_object_ref(image);
+
+		tilesource->image_height = image->Ysize;
 	}
 
 	/* This has to be before the sink_screen since we need to find the image
@@ -428,15 +487,13 @@ tilesource_image(Tilesource *tilesource, VipsImage **mask_out)
 		image = x;
 	}
 
-	if (tilesource->current_z > 0) {
+	if (current_z > 0) {
         /* We may have already zoomed out a bit because we've loaded
          * some layer other than the base one. Calculate the
          * subsample as (current_width / required_width).
          */
-        int width =
-			VIPS_MAX(1, tilesource->level_width[0] >> tilesource->current_z);
-        int height =
-			VIPS_MAX(1, tilesource->level_height[0] >> tilesource->current_z);
+        int width = VIPS_MAX(1, tilesource->image_width >> current_z);
+        int height = VIPS_MAX(1, tilesource->image_height >> current_z);
         int xfac = VIPS_MAX(1, image->Xsize / width);
         int yfac = VIPS_MAX(1, image->Ysize / height);
 
@@ -459,7 +516,7 @@ tilesource_image(Tilesource *tilesource, VipsImage **mask_out)
 		 */
 		TilesourceUpdate *update = VIPS_NEW(image, TilesourceUpdate);
 		update->tilesource = tilesource;
-		update->z = tilesource->current_z;
+		update->z = current_z;
 
 		x = vips_image_new();
 		mask = vips_image_new();
@@ -477,6 +534,13 @@ tilesource_image(Tilesource *tilesource, VipsImage **mask_out)
 
 		*mask_out = mask;
 	}
+
+#ifdef DEBUG
+	printf("\timage_width = %d\n", tilesource->image_width);
+	printf("\timage_height = %d\n", tilesource->image_height);
+	printf("\timage->Xsize = %d\n", image->Xsize);
+	printf("\timage->Ysize = %d\n", image->Ysize);
+#endif /*DEBUG*/
 
 	return g_steal_pointer(&image);
 }
@@ -737,7 +801,7 @@ tilesource_update_image(Tilesource *tilesource)
 		!tilesource->base)
 		return 0;
 
-	if (!(image = tilesource_image(tilesource, &mask))) {
+	if (!(image = tilesource_image(tilesource, &mask, tilesource->current_z))) {
 #ifdef DEBUG
 		printf("tilesource_update_image: build failed\n");
 #endif /*DEBUG*/
@@ -1334,27 +1398,29 @@ tilesource_print(Tilesource *tilesource)
 	int i;
 
 	printf("tilesource: %p\n", tilesource);
+	printf("\ttype = %s\n",
+		vips_enum_nick(TILESOURCE_TYPE_TYPE, tilesource->type));
 	printf("\tloader = %s\n", tilesource->loader);
 	printf("\tn_pages = %d\n", tilesource->n_pages);
+	printf("\tpage_height = %d\n", tilesource->page_height);
 	printf("\tn_subifds = %d\n", tilesource->n_subifds);
+	printf("\tdelay = %p\n", tilesource->delay);
+	printf("\tn_delay = %d\n", tilesource->n_delay);
+
 	printf("\tsubifd_pyramid = %d\n", tilesource->subifd_pyramid);
 	printf("\tpage_pyramid = %d\n", tilesource->page_pyramid);
-	printf("\tlevel_count = %d\n", tilesource->level_count);
+	printf("\tpages_same_size = %d\n", tilesource->pages_same_size);
+	printf("\tall_mono = %d\n", tilesource->all_mono);
 
+	printf("\tlevel_count = %d\n", tilesource->level_count);
 	for (i = 0; i < tilesource->level_count; i++)
 		printf("\t%2d) %d x %d\n",
 			i,
 			tilesource->level_width[i],
 			tilesource->level_height[i]);
 
-	printf("\tpages_same_size = %d\n", tilesource->pages_same_size);
-	printf("\tall_mono = %d\n", tilesource->all_mono);
-	printf("\ttype = %s\n",
-		vips_enum_nick(TILESOURCE_TYPE_TYPE, tilesource->type));
 	printf("\tmode = %s\n",
 		vips_enum_nick(TILESOURCE_MODE_TYPE, tilesource->mode));
-	printf("\tdelay = %p\n", tilesource->delay);
-	printf("\tn_delay = %d\n", tilesource->n_delay);
 }
 #endif /*DEBUG*/
 
@@ -1432,11 +1498,15 @@ tilesource_new_from_image(VipsImage *image)
 	tilesource->level_width[0] = image->Xsize;;
 	tilesource->level_height[0] = image->Ysize;;
 
-	/* No reopen, so we get n_pages from the image geometry.
+	/* Sanity-check and set up the page geometry.
 	 */
-	int page_height = vips_image_get_page_height(image);
-	tilesource->n_pages = image->Ysize % page_height == 0 ?
-		image->Ysize / page_height : 1;
+	tilesource->page_height = vips_image_get_page_height(image);
+	if (image->Ysize % tilesource->page_height == 0)
+		tilesource->n_pages = image->Ysize / tilesource->page_height;
+	else {
+		tilesource->page_height = image->Ysize;
+		tilesource->n_pages = 1;
+	}
 
 	tilesource_default_mode(tilesource);
 
@@ -1493,22 +1563,23 @@ tilesource_has_imageinfo(Tilesource *tilesource, Imageinfo *ii)
 static void
 tilesource_get_pyramid_subifd(Tilesource *tilesource)
 {
+	int i;
+
 #ifdef DEBUG
 	printf("tilesource_get_pyramid_subifd:\n");
 #endif /*DEBUG*/
 
-	for (int i = 0; i < tilesource->n_subifds; i++) {
+	for (i = 0; i < tilesource->n_subifds; i++) {
 		int expected_level_width;
 		int expected_level_height;
 
-		/* Just bail out if there are too many levels.
-		 */
 		if (i >= MAX_LEVELS)
 			break;
 
 		g_autoptr(VipsImage) level = tilesource_open(tilesource, i);
 		if (!level)
-			return;
+			// some OMEs have strange tile sizes for some levels, ignore them
+			break;
 		tilesource->level_width[i] = level->Xsize;
 		tilesource->level_height[i] = level->Ysize;
 
@@ -1531,7 +1602,7 @@ tilesource_get_pyramid_subifd(Tilesource *tilesource)
 	/* Tag as a subifd pyramid.
 	 */
 	tilesource->subifd_pyramid = TRUE;
-	tilesource->level_count = tilesource->n_subifds;
+	tilesource->level_count = i;
 }
 
 /* Detect a pyramid made of pages following a roughly /2 shrink. Can be eg.
@@ -1674,10 +1745,7 @@ tilesource_new_from_file(const char *filename)
 	if (!plain)
 		return NULL;
 
-	/* We can reopen this image, so we can use get_n_pages (number of pages in
-	 * the underlying image file).
-	 */
-	tilesource->n_pages = vips_image_get_n_pages(plain);
+	tilesource->n_subifds = vips_image_get_n_subifds(plain);
 
 	/* For openslide, we can read out the level structure directly.
 	 */
@@ -1774,9 +1842,9 @@ tilesource_new_from_file(const char *filename)
 	if (x) {
 		/* Toilet-roll mode worked. We can update n_pages.
 		 */
-		int page_height = vips_image_get_page_height(x);
-		if (x->Ysize % page_height == 0) {
-			tilesource->n_pages = x->Ysize / page_height;
+		tilesource->page_height = vips_image_get_page_height(x);
+		if (x->Ysize % tilesource->page_height == 0) {
+			tilesource->n_pages = x->Ysize / tilesource->page_height;
 			tilesource->pages_same_size = TRUE;
 		}
 		else {
@@ -1789,13 +1857,6 @@ tilesource_new_from_file(const char *filename)
 			tilesource->n_delay = 0;
 		}
 	}
-
-	/* Back to plain multipage for the rest of the sniff period. For
-	 * example, subifd pyramid needs single page opening.
-	 *
-	 * We reset this at the end.
-	 */
-	tilesource->type = TILESOURCE_TYPE_MULTIPAGE;
 
 	/* Are all pages the same size and format, and also all mono (one
 	 * band)? We can display pages-as-bands.
@@ -1848,6 +1909,13 @@ tilesource_new_from_file(const char *filename)
 		tilesource->level_count = 1;
 		tilesource->level_width[0] = base->Xsize;;
 		tilesource->level_height[0] = base->Ysize;;
+	}
+
+	/* Default page geometry if we've not found any other way to set it.
+	 */
+	if (tilesource->n_pages == 0) {
+		tilesource->n_pages = 1;
+		tilesource->page_height = tilesource->level_height[0];
 	}
 
 	tilesource_default_mode(tilesource);

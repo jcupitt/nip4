@@ -202,8 +202,8 @@ tilecache_build_pyramid(Tilecache *tilecache)
 	 */
 	if (tilecache->levels &&
 		tilecache->levels[0] &&
-		tilesource->level_width[0] == tilecache->levels[0]->Xsize &&
-		tilesource->level_height[0] == tilecache->levels[0]->Ysize) {
+		tilesource->image_width == tilecache->levels[0]->Xsize &&
+		tilesource->image_height == tilecache->levels[0]->Ysize) {
 #ifdef DEBUG
 		printf("\tno geometry change, skipping pyr rebuild\n");
 #endif /*DEBUG*/
@@ -216,8 +216,8 @@ tilecache_build_pyramid(Tilecache *tilecache)
 	 * need to handle very lopsided images, like LUTs and multi-page images,
 	 * do we must shrink both dimensions.
 	 */
-	level_width = tilesource->level_width[0];
-	level_height = tilesource->level_height[0];
+	level_width = tilesource->image_width;
+	level_height = tilesource->image_height;
 	n_levels = 1;
 	for (;;) {
 		if (level_width <= TILE_SIZE &&
@@ -232,8 +232,8 @@ tilecache_build_pyramid(Tilecache *tilecache)
 	tilecache->n_levels = n_levels;
 
 	tilecache->levels = VIPS_ARRAY(NULL, n_levels, VipsImage *);
-	level_width = tilesource->level_width[0];
-	level_height = tilesource->level_height[0];
+	level_width = tilesource->image_width;
+	level_height = tilesource->image_height;
 	for (int i = 0; i < n_levels; i++) {
 		tilecache->levels[i] = vips_image_new();
 

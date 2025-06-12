@@ -354,12 +354,12 @@ imagedisplay_tilecache_changed(Tilecache *tilecache,
 {
 #ifdef DEBUG
 	printf("imagedisplay_tilecache_changed: %d x %d\n",
-		tilecache->tilesource->level_width[0],
-		tilecache->tilesource->level_height[0]);
+		tilecache->tilesource->image_width,
+		tilecache->tilesource->image_height);
 #endif /*DEBUG*/
 
-	imagedisplay->image_rect.width = tilecache->tilesource->level_width[0];
-	imagedisplay->image_rect.height = tilecache->tilesource->level_height[0];
+	imagedisplay->image_rect.width = tilecache->tilesource->image_width;
+	imagedisplay->image_rect.height = tilecache->tilesource->image_height;
 	imagedisplay_layout(imagedisplay);
 
 	gtk_widget_queue_draw(GTK_WIDGET(imagedisplay));
