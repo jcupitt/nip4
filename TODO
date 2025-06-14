@@ -1,40 +1,37 @@
 - try:
 
-	nip4 k2.jpg
-	alt-R
-	segv in infobar_status_update()
-
-
-- try:
-
 	nip4 ~/pics/S000_t000002_V000_R0000_X000_Y000_C02_I1_D0_P00101.tif
 
-  incredibly slow, in fact does not draw at all, and it's not clear why
+	switch to multipage, go to page 72, enable falsecolour, set scale 6,
+	close window
 
-  this takes under 2s to draw the image:
+  thumbnail gets falsecolour and scale, but not multipage or page number
 
-image = pyvips.Image.new_from_file(sys.argv[1], n=-1);
+- "reset" in display bar resets the position of scale/offset widgets, but does
+  not reset the menu items (eg. tick on falsecolour)
 
-	page_width = image.width
-	page_height = image.get("page-height")
+	I forget how menu items are linked to actions, reread this
 
-	pages = [image.crop(0, y * page_height, page_width, page_height)
-		 for y in range(3)]
+	gaction bound to a gsetting? do we need to add to the settings
+	schema?
 
-	rgb = pages[0].bandjoin(pages[1:])
+  likewise, load ws with locked tab, rightclick menu on locked tab does not
+  have tick selected
 
-	rgb = rgb.copy(interpretation="rgb16")
+- the "new tab" icon is still broken in the windows build
 
-	rgb.write_to_file(sys.argv[2])
+- change "Merge into ..."
 
+	split to "Merge from file ..." and "Merge column >" with a
+	pullright listing all columns
 
+	Same for merge in tab menu, except "Merge tab >"
 
+	Just does save/load for you
 
-
-- alt-L and R for a while, coredump
+# menu redesign
 
 - maxpos, then create mark from coordinate should be two clicks
-
 
 - try:
 
@@ -56,30 +53,6 @@ image = pyvips.Image.new_from_file(sys.argv[1], n=-1);
 	because constant expansion is done by the Image class
 
   we'll need to do constant expansion in minpair
-
-- the "new tab" icon is still broken in the windows build
-
-- "reset" in display bar resets the position of scale/offset widgets, but does
-  not reset the menu items (eg. tick on falsecolour)
-
-	I forget how menu items are linked to actions, reread this
-
-	gaction bound to a gsetting? do we need to add to the settings
-	schema?
-
-  likewise, load ws with locked tab, rightclick menu on locked tab does not
-  have tick selected
-
-- change "Merge into ..."
-
-	split to "Merge from file ..." and "Merge column >" with a
-	pullright listing all columns
-
-	Same for merge in tab menu, except "Merge tab >"
-
-	Just does save/load for you
-
-# menu redesign
 
 - implement Menuseparator?
 

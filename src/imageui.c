@@ -888,21 +888,30 @@ imageui_scale(Imageui *imageui)
 	VipsImage *image;
 
 	if ((image = tilesource_get_image(imageui->tilesource))) {
-		double image_zoom;
+		/* Get the view rect in level0 coordinates.
+		 */
+		double image_zoom = imageui_get_zoom(imageui);
 		int left, top, width, height;
-		double scale, offset;
-
-		image_zoom = imageui_get_zoom(imageui);
 		imageui_get_position(imageui, &left, &top, &width, &height);
+
 		left /= image_zoom;
 		top /= image_zoom;
 		width /= image_zoom;
 		height /= image_zoom;
 
+		/* image is scaled down by current_z, so we must scale the rect by
+		 * that.
+		 */
+		left /= 1 << imageui->tilesource->current_z;
+		top /= 1 << imageui->tilesource->current_z;
+		width /= 1 << imageui->tilesource->current_z;
+		height /= 1 << imageui->tilesource->current_z;
+
 		/* FIXME ... this will be incredibly slow, esp. for large
 		 * images. Instead, it would be better to just search the
 		 * cached tiles we have.
 		 */
+		double scale, offset;
 		if (imageui_find_scale(image,
 				left, top, width, height, &scale, &offset))
 			return FALSE;
