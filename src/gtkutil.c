@@ -194,6 +194,62 @@ copy_state(GtkWidget *to, GtkWidget *from, const char *name)
 		change_state(to, name, state);
 }
 
+void
+set_state_bool(GtkWidget *to, const char *name, gboolean value)
+{
+	GVariant *state = g_variant_new_boolean(value);
+
+	change_state(to, name, state);
+}
+
+void
+set_state_double(GtkWidget *to, const char *name, double value)
+{
+	GVariant *state = g_variant_new_double(value);
+
+	change_state(to, name, state);
+}
+
+void
+set_state_int(GtkWidget *to, const char *name, int value)
+{
+	GVariant *state = g_variant_new_int32(value);
+
+	change_state(to, name, state);
+}
+
+void
+set_state_enum(GtkWidget *to, const char *name, const char *value)
+{
+	GVariant *state = g_variant_new_string(value);
+
+	change_state(to, name, state);
+}
+
+gboolean
+get_state_bool(GtkWidget *from, const char *name)
+{
+	g_autoptr(GVariant) state = get_state(from, name);
+
+	return g_variant_get_boolean(state);
+}
+
+double
+get_state_double(GtkWidget *from, const char *name)
+{
+	g_autoptr(GVariant) state = get_state(from, name);
+
+	return g_variant_get_double(state);
+}
+
+int
+get_state_int(GtkWidget *from, const char *name)
+{
+	g_autoptr(GVariant) state = get_state(from, name);
+
+	return g_variant_get_int32(state);
+}
+
 /* A 'safe' way to run a few events.
  */
 void

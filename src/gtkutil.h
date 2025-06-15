@@ -73,6 +73,15 @@ void set_state(GtkWidget *to, GSettings *settings, const char *name);
 GVariant *get_state(GtkWidget *widget, const char *name);
 void copy_state(GtkWidget *to, GtkWidget *from, const char *name);
 
+void set_state_bool(GtkWidget *to, const char *name, gboolean value);
+void set_state_double(GtkWidget *to, const char *name, double value);
+void set_state_int(GtkWidget *to, const char *name, int value);
+void set_state_enum(GtkWidget *to, const char *name, const char *value);
+
+gboolean get_state_bool(GtkWidget *from, const char *name);
+double get_state_double(GtkWidget *from, const char *name);
+int get_state_int(GtkWidget *from, const char *name);
+
 void process_events(void);
 
 void block_scroll(GtkWidget *widget);

@@ -7,15 +7,7 @@
 
   thumbnail gets falsecolour and scale, but not multipage or page number
 
-- "reset" in display bar resets the position of scale/offset widgets, but does
-  not reset the menu items (eg. tick on falsecolour)
-
-	I forget how menu items are linked to actions, reread this
-
-	gaction bound to a gsetting? do we need to add to the settings
-	schema?
-
-  likewise, load ws with locked tab, rightclick menu on locked tab does not
+- load ws with locked tab, rightclick menu on locked tab does not
   have tick selected
 
 - the "new tab" icon is still broken in the windows build
