@@ -68,11 +68,13 @@ struct _iImage {
 
 	/* Bar settings we remember.
 	 */
+	TilesourceMode mode;
 	double scale;
 	double offset;
 	gboolean falsecolour;
 	gboolean log;
 	gboolean icc;
+	int page;
 
 	/* Private ... build iobject caption here.
 	 */

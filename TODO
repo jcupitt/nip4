@@ -1,12 +1,3 @@
-- try:
-
-	nip4 ~/pics/S000_t000002_V000_R0000_X000_Y000_C02_I1_D0_P00101.tif
-
-	switch to multipage, go to page 72, enable falsecolour, set scale 6,
-	close window
-
-  thumbnail gets falsecolour and scale, but not multipage or page number
-
 - load ws with locked tab, rightclick menu on locked tab does not
   have tick selected
 

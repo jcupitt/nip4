@@ -179,10 +179,17 @@ iimageview_refresh(vObject *vobject)
 		"tilesource", &tilesource,
 		NULL);
 	if (tilesource) {
+		// we can have an unset mode
+		if (iimage->mode != TILESOURCE_MODE_UNSET)
+			g_object_set(tilesource,
+				"mode", iimage->mode,
+				NULL);
+
 		g_object_set(tilesource,
 			"scale", iimage->scale,
 			"offset", iimage->offset,
 			"falsecolour", iimage->falsecolour,
+			"page", iimage->page,
 			"log", iimage->log,
 			"icc", iimage->icc,
 			NULL);

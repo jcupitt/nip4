@@ -30,8 +30,8 @@
 /*
 #define DEBUG_VERBOSE
 #define DEBUG_MAKE
- */
 #define DEBUG
+ */
 
 #include "nip4.h"
 
@@ -1540,8 +1540,14 @@ tilesource_new_from_iimage(iImage *iimage, int priority)
 		"falsecolour", iimage->falsecolour,
 		"log", iimage->log,
 		"icc", iimage->icc,
+		"page", iimage->page,
 		"priority", priority,
 		NULL);
+
+	if (iimage->mode != TILESOURCE_MODE_UNSET)
+		g_object_set(tilesource,
+			"mode", iimage->mode,
+			NULL);
 
 	return tilesource;
 }

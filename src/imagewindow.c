@@ -57,7 +57,7 @@ typedef struct _Active {
 typedef struct _ViewSettings {
 	gboolean valid;
 
-	// we don't save "mode", that's an image property, not a view property
+	TilesourceMode mode;
 	double scale;
 	double offset;
 	int page;
@@ -471,6 +471,7 @@ imagewindow_save_view_settings(Imagewindow *win, ViewSettings *view_settings)
 	}
 
 	g_object_get(tilesource,
+		"mode", &view_settings->mode,
 		"scale", &view_settings->scale,
 		"offset", &view_settings->offset,
 		"page", &view_settings->page,
@@ -502,6 +503,7 @@ imagewindow_restore_view_settings(Imagewindow *win,
 
 	if (tilesource)
 		g_object_set(tilesource,
+			"mode", view_settings->mode,
 			"scale", view_settings->scale,
 			"offset", view_settings->offset,
 			"page", view_settings->page,

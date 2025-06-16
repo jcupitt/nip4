@@ -150,16 +150,17 @@ iimage_save(Model *model, xmlNode *xnode)
 	if (!set_iprop(xthis, "image_left", iimage->image_left) ||
 		!set_iprop(xthis, "image_top", iimage->image_top) ||
 		!set_iprop(xthis, "image_mag", iimage->image_mag) ||
-		!set_sprop(xthis, "show_status",
-			bool_to_char(iimage->show_status)) ||
-		!set_sprop(xthis, "show_paintbox",
-			bool_to_char(iimage->show_paintbox)) ||
-		!set_sprop(xthis, "show_convert",
-			bool_to_char(iimage->show_convert)) ||
+		!set_sprop(xthis, "show_status", bool_to_char(iimage->show_status)) ||
+		!set_sprop(xthis, "show_convert", bool_to_char(iimage->show_convert)) ||
 		!set_dprop(xthis, "scale", iimage->scale) ||
 		!set_dprop(xthis, "offset", iimage->offset) ||
-		!set_sprop(xthis, "falsecolour",
-			bool_to_char(iimage->falsecolour)))
+		!set_iprop(xthis, "page", iimage->page) ||
+		!set_sprop(xthis, "falsecolour", bool_to_char(iimage->falsecolour)))
+		return NULL;
+
+	if (iimage->mode != TILESOURCE_MODE_UNSET &&
+		!set_sprop(xthis, "mode",
+			vips_enum_nick(TILESOURCE_MODE_TYPE, iimage->mode)))
 		return NULL;
 
 	return xthis;
@@ -181,7 +182,12 @@ iimage_load(Model *model,
 	(void) get_bprop(xnode, "show_convert", &iimage->show_convert);
 	(void) get_dprop(xnode, "scale", &iimage->scale);
 	(void) get_dprop(xnode, "offset", &iimage->offset);
+	(void) get_iprop(xnode, "page", &iimage->page);
 	(void) get_bprop(xnode, "falsecolour", &iimage->falsecolour);
+
+	char mode[64];
+	if (get_sprop(xnode, "mode", mode, sizeof(mode)))
+		iimage->mode = vips_enum_from_nick("nip4", TILESOURCE_MODE_TYPE, mode);
 
 	return MODEL_CLASS(iimage_parent_class)->load(model, state, parent, xnode);
 }
@@ -403,11 +409,13 @@ iimage_init(iImage *iimage)
 	iimage->show_paintbox = FALSE;
 	iimage->show_convert = FALSE;
 
+	iimage->mode = TILESOURCE_MODE_UNSET;
 	iimage->scale = 0.0;
 	iimage->offset = 0.0;
 	iimage->falsecolour = FALSE;
 	iimage->log = FALSE;
 	iimage->icc = FALSE;
+	iimage->page = 0;
 
 	vips_buf_init_dynamic(&iimage->caption_buffer, MAX_LINELENGTH);
 
@@ -420,6 +428,8 @@ iimage_update_from_tilesource(iImage *iimage, Tilesource *tilesource)
 	iimage->scale = tilesource->scale;
 	iimage->offset = tilesource->offset;
 	iimage->falsecolour = tilesource->falsecolour;
+	iimage->page = tilesource->page;
+	iimage->mode = tilesource->mode;
 
 	iobject_changed(IOBJECT(iimage));
 }

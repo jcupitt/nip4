@@ -76,6 +76,10 @@ typedef enum _TilesourceType {
 
 /* The modes of image display we support.
  *
+ * UNSET
+ *
+ *  No saved value (should be set by sniffing the image).
+ *
  * TOILET_ROLL
  *
  *	Just show the whole image (no crop). Page control disabled. Reload on
@@ -109,6 +113,7 @@ typedef enum _TilesourceType {
  *	in each page.
  */
 typedef enum _TilesourceMode {
+	TILESOURCE_MODE_UNSET,
 	TILESOURCE_MODE_TOILET_ROLL,
 	TILESOURCE_MODE_MULTIPAGE,
 	TILESOURCE_MODE_ANIMATED,

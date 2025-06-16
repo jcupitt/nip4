@@ -1,5 +1,9 @@
 ## master
 
+- refactor of tilesource improves OME_TIFF modes
+- fix menu state init
+- save and restore more view settings
+
 ## 9.0.9 2025/05/28
 
 - fix select modifier handling
