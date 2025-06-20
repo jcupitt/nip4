@@ -1,6 +1,8 @@
 - load ws with locked tab, rightclick menu on locked tab does not
   have tick selected
 
+	a bit tricky to fix
+
 - the "new tab" icon is still broken in the windows build
 
 - change "Merge into ..."
@@ -11,6 +13,8 @@
 	Same for merge in tab menu, except "Merge tab >"
 
 	Just does save/load for you
+
+	how would we do a dynamic pullright menu?:n mes
 
 # menu redesign
 

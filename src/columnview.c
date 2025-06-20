@@ -566,7 +566,36 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		workspace_queue_layout(ws);
 		symbol_recalculate_all();
 	}
-	else if (g_str_equal(name, "column-merge"))
+	else if (g_str_equal(name, "column-merge") &&
+		parameter) {
+		Column *from =
+			workspace_column_find(ws, g_variant_get_string(parameter, NULL));
+		char filename[VIPS_PATH_MAX];
+
+		if (!temp_name(filename, IOBJECT(from)->name, "ws")) {
+			workspace_set_show_error(ws, TRUE);
+			return;
+		}
+
+		workspace_deselect_all(ws);
+		column_select_symbols(from);
+		if (!workspacegroup_save_selected(wsg, filename)) {
+			workspace_set_show_error(ws, TRUE);
+			return;
+		}
+
+		workspace_column_select(ws, col);
+		if (!workspacegroup_merge_rows(wsg, filename)) {
+			workspace_set_show_error(ws, TRUE);
+			return;
+		}
+
+		unlinkf("%s", filename);
+
+		workspace_deselect_all(ws);
+		symbol_recalculate_all();
+	}
+	else if (g_str_equal(name, "column-merge-file"))
 		columnview_merge(cview);
 	else if (g_str_equal(name, "column-saveas"))
 		columnview_saveas(cview);

@@ -45,6 +45,8 @@ struct _Workspacegroupview {
 	GtkWidget *workspace_menu;
 	GtkWidget *column_menu;
 	GtkWidget *row_menu;
+
+	GMenu *workspacegroup_column_menu;
 };
 
 typedef struct _WorkspacegroupviewClass {

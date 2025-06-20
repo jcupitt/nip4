@@ -610,7 +610,9 @@ static GActionEntry mainwindow_entries[] = {
 	{ "column-edit-caption", mainwindow_view_action },
 	{ "column-select-all", mainwindow_view_action },
 	{ "column-duplicate", mainwindow_view_action },
-	{ "column-merge", mainwindow_view_action },
+	// takes a string param with the name of the column to merge
+	{ "column-merge", mainwindow_view_action, "s" },
+	{ "column-merge-file", mainwindow_view_action },
 	{ "column-saveas", mainwindow_view_action },
 	{ "column-delete", mainwindow_view_action },
 
