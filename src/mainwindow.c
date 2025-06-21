@@ -594,7 +594,9 @@ static GActionEntry mainwindow_entries[] = {
 	{ "tab-rename", mainwindow_view_action },
 	{ "tab-select-all", mainwindow_view_action },
 	{ "tab-duplicate", mainwindow_view_action },
-	{ "tab-merge", mainwindow_view_action },
+	// takes name of tab to merge as a param
+	{ "tab-merge", mainwindow_view_action, "s" },
+	{ "tab-merge-file", mainwindow_view_action },
 	{ "tab-saveas", mainwindow_view_action },
 	{ "tab-lock", action_toggle, NULL, "false", mainwindow_view_action },
 	{ "tab-delete", mainwindow_view_action },

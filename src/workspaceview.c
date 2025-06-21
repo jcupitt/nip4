@@ -824,6 +824,14 @@ workspaceview_merge(Workspaceview *wview)
 		&workspaceview_merge_sub, wview);
 }
 
+static void *
+workspaceview_find_workspace(Workspace *ws, void *a)
+{
+	const char *name = (const char *) a;
+
+	return g_str_equal(IOBJECT(ws)->name, name) ? ws : NULL;
+}
+
 static void
 workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 {
@@ -849,7 +857,36 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	}
 	else if (g_str_equal(name, "tab-duplicate"))
 		workspace_duplicate(ws);
-	else if (g_str_equal(name, "tab-merge"))
+	else if (g_str_equal(name, "tab-merge") &&
+		parameter) {
+		Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+		Workspace *from = workspacegroup_map(wsg,
+			workspaceview_find_workspace,
+			(void *) g_variant_get_string(parameter, NULL), NULL);
+		char filename[VIPS_PATH_MAX];
+
+		if (!temp_name(filename, IOBJECT(from)->name, "ws")) {
+			workspace_set_show_error(ws, TRUE);
+			return;
+		}
+
+		icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
+		if (!workspacegroup_save_current(wsg, filename)) {
+			workspace_set_show_error(ws, TRUE);
+			return;
+		}
+
+		if (!workspace_merge_file(ws, filename)) {
+			workspace_set_show_error(ws, TRUE);
+			return;
+		}
+
+		unlinkf("%s", filename);
+
+		workspace_deselect_all(ws);
+		symbol_recalculate_all();
+	}
+	else if (g_str_equal(name, "tab-merge-file"))
 		workspaceview_merge(wview);
 	else if (g_str_equal(name, "tab-saveas"))
 		workspaceview_saveas(wview);

@@ -3,6 +3,7 @@
 - refactor of tilesource improves OME_TIFF modes
 - fix menu state init
 - save and restore more view settings
+- add "Merge column" and "Merge tab" submenus
 
 ## 9.0.9 2025/05/28
 

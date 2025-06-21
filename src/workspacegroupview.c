@@ -228,7 +228,6 @@ workspacegroupview_background_menu(GtkGestureClick *gesture,
 		g_menu_remove(column_menu, 1);
 		g_menu_insert_submenu(column_menu, 1, "Merge column",
 			G_MENU_MODEL(columns));
-
 	}
 	else if ((rview = workspacegroupview_pick_rowview(wsgview, x, y))) {
 		mainwindow_set_action_view(VIEW(rview));
