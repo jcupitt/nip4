@@ -48,7 +48,7 @@
 
 static iObjectClass *parent_class = NULL;
 
-static GSList *heap_all = NULL;
+static int n_heap = 0;
 
 /* Call a function, passing in a "safe" PElement ... ie. the PElement points
  * at a fresh element which will be safe from the GC.
@@ -199,7 +199,8 @@ heap_sanity(Heap *heap)
 void
 heap_check_all_destroyed(void)
 {
-	slist_map(heap_all, (SListMapFn) iobject_dump, NULL);
+	if (n_heap > 0)
+		printf("unfreed heap!! n_heap = %d\n", n_heap);
 }
 
 /* Free a HeapBlock.
@@ -269,7 +270,7 @@ heap_finalize(GObject *gobject)
 
 	VIPS_FREEF(g_hash_table_destroy, heap->mtable);
 
-	heap_all = g_slist_remove(heap_all, heap);
+	n_heap -= 1;
 
 	G_OBJECT_CLASS(parent_class)->finalize(gobject);
 }
@@ -406,7 +407,7 @@ heap_init(Heap *heap)
 
 	heap->flush = FALSE;
 
-	heap_all = g_slist_prepend(heap_all, heap);
+	n_heap += 1;
 }
 
 GType

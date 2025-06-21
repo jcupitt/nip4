@@ -262,8 +262,11 @@ process_events(void)
 
 	/* Block too much recursion. 0 is from the top-level, 1 is from a
 	 * callback, we don't want any more than that.
+	 *
+	 * No need to process in batch mode.
 	 */
-	if (g_main_depth() < 2) {
+	if (!main_option_batch &&
+		g_main_depth() < 2) {
 		int n;
 
 		for (n = 0; n < max_events &&
