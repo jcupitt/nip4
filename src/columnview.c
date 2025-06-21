@@ -568,10 +568,13 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	}
 	else if (g_str_equal(name, "column-merge") &&
 		parameter) {
-		Column *from =
-			workspace_column_find(ws, g_variant_get_string(parameter, NULL));
-		char filename[VIPS_PATH_MAX];
+		const char *from_name = g_variant_get_string(parameter, NULL);
+		Column *from = workspace_column_find(ws, from_name);
 
+		if (!(from = workspace_column_find(ws, from_name)))
+			return;
+
+		char filename[VIPS_PATH_MAX];
 		if (!temp_name(filename, IOBJECT(from)->name, "ws")) {
 			workspace_set_show_error(ws, TRUE);
 			return;

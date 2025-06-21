@@ -1,15 +1,11 @@
-- merge tab should not work when locked
-
-- scroll to view current column after tab merge
-
-- merge actions should be more robust
-
 - load ws with locked tab, rightclick menu on locked tab does not
   have tick selected
 
   two tabs, lock one, menu on other also shows lock
 
 	a bit tricky to fix
+
+    maybe we are forced to have a separate menu for each tab?
 
 - the "new tab" icon is still broken in the windows build
 

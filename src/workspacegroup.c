@@ -87,6 +87,21 @@ workspacegroup_map(Workspacegroup *wsg, workspace_map_fn fn, void *a, void *b)
 }
 
 static void *
+workspacegroup_find_workspace_sub(Workspace *ws, void *a)
+{
+	const char *name = (const char *) a;
+
+	return g_str_equal(IOBJECT(ws)->name, name) ? ws : NULL;
+}
+
+Workspace *
+workspacegroup_find_workspace(Workspacegroup *wsg, const char *name)
+{
+	return WORKSPACE(workspacegroup_map(wsg,
+		workspacegroup_find_workspace_sub, (void *) name, NULL));
+}
+
+static void *
 workspacegroup_is_empty_sub(Workspace *ws, gboolean *empty)
 {
 	if (!workspace_is_empty(ws)) {

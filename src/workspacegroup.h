@@ -105,6 +105,7 @@ Workspace *workspacegroup_map(Workspacegroup *wsg,
 
 GType workspacegroup_get_type(void);
 
+Workspace *workspacegroup_find_workspace(Workspacegroup *wsg, const char *name);
 gboolean workspacegroup_is_empty(Workspacegroup *wsg);
 
 Workspacegroup *workspacegroup_new(Workspaceroot *wsr);
