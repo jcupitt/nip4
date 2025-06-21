@@ -9,6 +9,12 @@
 
 - the "new tab" icon is still broken in the windows build
 
+- we are missing a program icon too, do we need to make
+
+	hicolor/apps/48x48/org.libvips.nip4.png
+	hicolor/apps/256x256/org.libvips.nip4.png
+	hicolor/apps/512x512/org.libvips.nip4.png
+
 # menu redesign
 
 - maxpos, then create mark from coordinate should be two clicks
