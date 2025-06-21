@@ -942,11 +942,11 @@ symbol_recalculate_sub(Symbol *sym)
 	gboolean result = TRUE;
 
 #ifdef DEBUG_TIME
-	static GTimer *timer = NULL;
+    static GTimer *timer = NULL;
 
-	if (!timer)
-		timer = g_timer_new();
-	g_timer_reset(timer);
+    if (!timer)
+        timer = g_timer_new();
+    g_timer_reset(timer);
 #endif /*DEBUG_TIME*/
 
 	g_assert(is_value(sym));
@@ -972,9 +972,9 @@ symbol_recalculate_sub(Symbol *sym)
 	}
 
 #ifdef DEBUG_TIME
-	printf("symbol_recalculate_sub: ");
-	symbol_name_scope_print(sym);
-	printf(" %g\n", g_timer_elapsed(timer, NULL));
+    printf("symbol_recalculate_sub: ");
+    symbol_name_scope_print(sym);
+    printf(" %g\n", g_timer_elapsed(timer, NULL));
 #endif /*DEBUG_TIME*/
 
 	return result;
@@ -1009,7 +1009,8 @@ symbol_get_last_calc(void)
  */
 static gboolean symbol_running = FALSE;
 
-/* Recalc a symbol ... with error checks.
+/* Recalc a symbol with error checks. This can succeed, stop with a timeout,
+ * or fail with an error.
  */
 static void *
 symbol_recalculate_leaf_sub(Symbol *sym)
@@ -1034,6 +1035,7 @@ symbol_recalculate_leaf_sub(Symbol *sym)
 
 		return sym;
 	}
+
 	if (!sym->dirty)
 		return NULL;
 	if (!is_value(sym)) {
@@ -1045,14 +1047,19 @@ symbol_recalculate_leaf_sub(Symbol *sym)
 
 	reduce_context->heap->filled = FALSE;
 	symbol_running = TRUE;
-	progress_begin();
 	symbol_note_calc_name(sym);
-	if (!symbol_recalculate_sub(sym) ||
+	progress_begin();
+
+	// false for error, true for success or timeout
+	gboolean result = symbol_recalculate_sub(sym);
+
+	symbol_running = FALSE;
+	progress_end();
+
+	if (!result ||
 		reduce_context->heap->filled) {
 		if (sym->expr)
 			expr_error_set(sym->expr);
-		symbol_running = FALSE;
-		progress_end();
 
 #ifdef DEBUG_RECALC
 		if (sym->expr)
@@ -1063,11 +1070,9 @@ symbol_recalculate_leaf_sub(Symbol *sym)
 
 		return sym;
 	}
-	symbol_running = FALSE;
-	progress_end();
 
-	/* Have we discovered any dirty children? If not, we've cleaned this
-	 * sym.
+	/* Any dirty children? If not, we've cleaned this sym and it can come
+	 * off the leaf set.
 	 */
 	if (!sym->ndirtychildren) {
 		symbol_dirty_clear(sym);
@@ -1124,11 +1129,11 @@ symbol_recalculate_leaf(void)
 		/* We can get errors during backtracking, don't report here.
 		 */
 
-		/* Note a pending GC.
+		/* Queue a GC.
 		 */
 		(void) heap_gc_request(reduce_context->heap);
 
-		/* We have recalculated a symbol.
+		/* We have made some progress.
 		 */
 		recalculated = TRUE;
 	}
@@ -1143,10 +1148,6 @@ static gint symbol_idle_id = 0;
 static gboolean
 symbol_recalculate_idle(void *user_data)
 {
-	static GTimer *timer = NULL;
-
-	gboolean run_again;
-
 #ifdef DEBUG_RECALC
 	printf("symbol_recalculate_idle:\n");
 #endif /*DEBUG_RECALC*/
@@ -1158,34 +1159,22 @@ symbol_recalculate_idle(void *user_data)
 		 */
 		return TRUE;
 
-	if (!timer)
-		timer = g_timer_new();
+	if (mainwindow_auto_recalc)
+		while (symbol_recalculate_leaf())
+			;
 
-	g_timer_reset(timer);
-
-	run_again = TRUE;
-
-	if (!mainwindow_auto_recalc)
-		/* Auto-calc has been turned off during a recomp.
-		 */
-		run_again = FALSE;
-	else
-		while (g_timer_elapsed(timer, NULL) < 0.1)
-			if (!symbol_recalculate_leaf()) {
-				run_again = FALSE;
-				break;
-			}
-
-	if (!run_again) {
+	if (!symbol_leaf_next()) {
 #ifdef DEBUG_RECALC
 		printf("symbol_recalculate_idle: bg recalc done\n");
 #endif /*DEBUG_RECALC*/
 
 		symbol_idle_id = 0;
 		progress_end();
-	}
 
-	return run_again;
+		return FALSE;
+	}
+	else
+		return TRUE;
 }
 
 /* Recalculate ... either nudge the idle recomp, or in batch mode, do a recomp

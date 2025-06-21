@@ -1182,6 +1182,14 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 }
 
 static void
+imageui_regionview_update(Imageui *imageui, Regionview *regionview)
+{
+	regionview->draw_area = regionview->our_area;
+	regionview->draw_type = regionview->type;
+	imageui_queue_draw(imageui);
+}
+
+static void
 imageui_drag_update(GtkEventControllerMotion *self,
 	gdouble offset_x, gdouble offset_y, gpointer user_data)
 {
@@ -1206,6 +1214,13 @@ imageui_drag_update(GtkEventControllerMotion *self,
 			imageui->tilesource->image_width, imageui->tilesource->image_height,
 			offset_x / zoom, offset_y / zoom);
 
+		/* Refresh immediately .. gives immediate feedback during drag in large
+		 * workspaces, especially on windows.
+		 */
+		imageui_regionview_update(imageui, imageui->grabbed);
+
+		/* And nudge background recomp.
+		 */
 		regionview_model_update(imageui->grabbed);
 
 		break;
@@ -1214,13 +1229,7 @@ imageui_drag_update(GtkEventControllerMotion *self,
 		regionview_resize(imageui->floating, imagewindow_get_modifiers(win),
 			imageui->tilesource->image_width, imageui->tilesource->image_height,
 			offset_x / zoom, offset_y / zoom);
-
-		// fine to do an immediate redraw, since we don't rely on calc for
-		// position
-		imageui->floating->draw_area = imageui->floating->our_area;
-		imageui->floating->draw_type = imageui->floating->type;
-		imageui_queue_draw(imageui);
-
+		imageui_regionview_update(imageui, imageui->floating);
 		break;
 
 	case IMAGEUI_SCROLL:
@@ -1312,6 +1321,7 @@ imageui_drag_end(GtkEventControllerMotion *self,
 		break;
 
 	case IMAGEUI_SELECT:
+		regionview_model_update(imageui->grabbed);
 		VIPS_UNREF(imageui->grabbed);
 		break;
 

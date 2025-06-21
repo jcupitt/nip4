@@ -200,7 +200,6 @@ regionview_model_update(Regionview *regionview)
 
 	if (classmodel) {
 		classmodel_update_view(classmodel);
-
 		symbol_recalculate_all();
 	}
 
