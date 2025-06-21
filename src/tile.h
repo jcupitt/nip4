@@ -68,16 +68,14 @@ typedef struct _Tile {
 	 */
 	gboolean valid;
 
-	/* Pixels going out to the scene graph.
-	 *
-	 * pixbuf and texture won't make a copy of the data, so we must make a
-	 * copy ourselves, in case a later fetch from the same region produces
-	 * invalid data.
-	 */
-	VipsPel *data_copy;
-	GdkPixbuf *pixbuf;
-	GdkTexture *texture;
-
+    /* Pixels going out to the scene graph.
+     *
+     * bytes and texture won't make a copy of the data, so we must make a
+     * copy ourselves, in case a later fetch from the same region produces
+     * invalid data.
+     */
+    GBytes *bytes;
+    GdkTexture *texture;
 } Tile;
 
 typedef struct _TileClass {
