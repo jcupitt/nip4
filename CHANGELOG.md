@@ -1,10 +1,13 @@
 ## master
 
+## 9.0.10 2025/06/22
+
 - refactor of tilesource improves OME_TIFF modes
 - fix menu state init
 - save and restore more view settings
 - add "Merge column" and "Merge tab" submenus
 - update interface during recomp, update regions during drag
+- various small bugfixes
 
 ## 9.0.9 2025/05/28
 

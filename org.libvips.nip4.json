@@ -55,6 +55,7 @@
             "buildsystem" : "cmake-ninja",
             "build-options" : {
                 "config-opts" : [
+                    "-DCMAKE_INSTALL_LIBDIR=lib",
                     "-DBUILD_TESTING=OFF",
                     "-DHWY_ENABLE_CONTRIB=OFF",
                     "-DHWY_ENABLE_EXAMPLES=OFF",
@@ -65,8 +66,7 @@
                 {
                     "type" : "git",
                     "url" : "https://github.com/google/highway.git",
-                    "tag" : "1.2.0",
-                    "commit" : "457c891775a7397bdb0376bb1031e6e027af1c48"
+                    "tag" : "1.2.0"
                 }
             ]
         },
@@ -75,16 +75,61 @@
             "name" : "libdeflate",
             "builddir" : true,
             "buildsystem" : "cmake-ninja",
+            "build-options" : {
+                "config-opts" : [
+                    "-DCMAKE_INSTALL_LIBDIR=lib"
+                ]
+            },
             "sources" : [
                 {
                     "type" : "git",
                     "url" : "https://github.com/ebiggers/libdeflate.git",
-                    "tag" : "v1.22",
-                    "commit" : "2335c047e91cac6fd04cb0fd2769380395149f15"
+                    "tag" : "v1.24"
                 }
-            ],
-            "cleanup" : [
-                "/bin"
+            ]
+        },
+
+        {
+            "name" : "libjxl",
+            "builddir" : true,
+            "buildsystem" : "cmake-ninja",
+            "build-options" : {
+                "config-opts" : [
+                    "-DCMAKE_INSTALL_LIBDIR=lib",
+                    "-DBUILD_TESTING=OFF",
+                    "-DJPEGXL_ENABLE_SKCMS=off",
+                    "-DJPEGXL_ENABLE_DOXYGEN=off",
+                    "-DJPEGXL_ENABLE_EXAMPLES=off",
+                    "-DJPEGXL_ENABLE_JNI=off",
+                    "-DJPEGXL_ENABLE_MANPAGES=off",
+                    "-DJPEGXL_ENABLE_OPENEXR=off",
+                    "-DJPEGXL_ENABLE_TOOLS=off"
+                ]
+            },
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/libjxl/libjxl.git",
+                    "tag" : "v0.11.1"
+                }
+            ]
+        },
+
+        {
+            "name" : "openjpeg",
+            "builddir" : true,
+            "buildsystem" : "cmake-ninja",
+            "build-options" : {
+                "config-opts" : [
+                    "-DCMAKE_INSTALL_LIBDIR=lib"
+                ]
+            },
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/uclouvain/openjpeg.git",
+                    "tag" : "v2.5.3"
+                }
             ]
         },
 
@@ -93,6 +138,9 @@
             "builddir" : true,
             "buildsystem" : "cmake-ninja",
             "build-options" : {
+                "config-opts" : [
+                    "-DCMAKE_INSTALL_LIBDIR=lib"
+                ],
                 "arch" : {
                     "aarch64" : {
                         "config-opts" : [
@@ -105,8 +153,7 @@
                 {
                     "type" : "git",
                     "url" : "https://github.com/ImageOptim/libimagequant.git",
-                    "tag" : "2.15.1",
-                    "commit" : "2cf79d535d86daeb9983e5d037fc544b4354f3b1"
+                    "tag" : "2.15.1"
                 }
             ]
         },
@@ -115,12 +162,34 @@
             "name" : "libspng",
             "builddir" : true,
             "buildsystem" : "cmake-ninja",
+            "build-options" : {
+                "config-opts" : [
+                    "-DCMAKE_INSTALL_LIBDIR=lib"
+                ]
+            },
             "sources" : [
                 {
                     "type" : "git",
                     "url" : "https://github.com/randy408/libspng.git",
-                    "tag" : "v0.7.4",
-                    "commit" : "fb768002d4288590083a476af628e51c3f1d47cd"
+                    "tag" : "v0.7.4"
+                }
+            ]
+        },
+
+        {
+            "name" : "libarchive",
+            "builddir" : true,
+            "buildsystem" : "cmake-ninja",
+            "build-options" : {
+                "config-opts" : [
+                    "-DCMAKE_INSTALL_LIBDIR=lib"
+                ]
+            },
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/libarchive/libarchive.git",
+                    "tag" : "v3.8.1"
                 }
             ]
         },
@@ -129,6 +198,11 @@
             "name" : "poppler-data",
             "builddir" : true,
             "buildsystem" : "cmake-ninja",
+            "build-options" : {
+                "config-opts" : [
+                    "-DCMAKE_INSTALL_LIBDIR=lib"
+                ]
+            },
             "sources" : [
                 {
                     "type" : "archive",
@@ -144,6 +218,7 @@
             "builddir" : true,
             "buildsystem" : "cmake-ninja",
             "config-opts" : [
+                    "-DCMAKE_INSTALL_LIBDIR=lib",
                     "-DBUILD_CPP_TESTS=OFF",
                     "-DBUILD_GTK_TESTS=OFF",
                     "-DBUILD_MANUAL_TESTS=OFF",
@@ -163,9 +238,9 @@
             "sources" : [
                 {
                     "type" : "archive",
-                    "url" : "https://poppler.freedesktop.org/poppler-24.10.0.tar.xz",
+                    "url" : "https://poppler.freedesktop.org/poppler-25.06.0.tar.xz",
 
-                    "sha256" : "58ed1849810f04a10b37c7ff6f3e411845c8a57d731d599d0045acc7a7fff09d"
+                    "sha256" : "8199532d38984fab46dbd0020ec9c40f20e928e33e9b4cc6043572603a821d83"
                 }
             ]
         },
@@ -174,12 +249,16 @@
             "name" : "imath",
             "builddir" : true,
             "buildsystem" : "cmake-ninja",
+            "build-options" : {
+                "config-opts" : [
+                    "-DCMAKE_INSTALL_LIBDIR=lib"
+                ]
+            },
             "sources" : [
                 {
                     "type" : "git",
                     "url" : "https://github.com/AcademySoftwareFoundation/Imath.git",
-                    "tag" : "v3.1.12",
-                    "commit" : "c0396a055a01bc537d32f435aee11a9b7ed6f0b5"
+                    "tag" : "v3.1.12"
                 }
             ]
         },
@@ -188,16 +267,17 @@
             "name" : "openexr",
             "builddir" : true,
             "buildsystem" : "cmake-ninja",
+            "build-options" : {
+                "config-opts" : [
+                    "-DCMAKE_INSTALL_LIBDIR=lib"
+                ]
+            },
             "sources" : [
                 {
                     "type" : "git",
                     "url" : "https://github.com/AcademySoftwareFoundation/openexr.git",
-                    "tag" : "v3.3.1",
-                    "commit" : "f723c3940fff287c0a26b425b90a8e764823bfd4"
+                    "tag" : "v3.3.1"
                 }
-            ],
-            "cleanup" : [
-                "/bin"
             ]
         },
 
@@ -222,18 +302,15 @@
             "buildsystem" : "meson",
             "config-opts" : [
                 "--buildtype=release",
+                "--libdir=lib",
                 "-Dtests=false"
             ],
             "sources" : [
                 {
                     "type" : "git",
                     "url" : "https://github.com/ImagingDataCommons/libdicom.git",
-                    "tag" : "v1.1.0",
-                    "commit" : "60f291dea0fd464e34d693b1ad55c46f9f2ee69a"
+                    "tag" : "v1.2.0"
                 }
-            ],
-            "cleanup" : [
-                "/bin"
             ]
         },
 
@@ -242,6 +319,7 @@
             "builddir" : true,
             "buildsystem" : "meson",
             "config-opts" : [
+                "--libdir=lib",
                 "--buildtype=release"
             ],
             "sources" : [
@@ -250,9 +328,19 @@
                     "url" : "https://github.com/openslide/openslide/releases/download/v4.0.0/openslide-4.0.0.tar.xz",
                     "sha256" : "cc227c44316abb65fb28f1c967706eb7254f91dbfab31e9ae6a48db6cf4ae562"
                 }
-            ],
-            "cleanup" : [
-                "/bin"
+            ]
+        },
+
+        {
+            "name" : "cfitsio",
+            "builddir" : true,
+            "buildsystem" : "autotools",
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/HEASARC/cfitsio.git",
+                    "tag" : "cfitsio-4.6.2"
+                }
             ]
         },
 
@@ -260,6 +348,7 @@
             "name" : "cgif",
             "buildsystem" : "meson",
             "config-opts" : [
+                "--libdir=lib",
                 "--buildtype=release"
             ],
             "builddir" : true,
@@ -267,8 +356,7 @@
                 {
                     "type" : "git",
                     "url" : "https://github.com/dloebl/cgif.git",
-                    "tag" : "v0.4.1",
-                    "commit" : "025ac5e56ea35be1d4c02d014e6d26e2eb9ccfa9"
+                    "tag" : "v0.5.0"
                 }
             ]
         },
@@ -278,15 +366,16 @@
             "builddir" : true,
             "buildsystem" : "meson",
             "config-opts" : [
+                "--libdir=lib",
                 "--buildtype=release",
                 "-Ddeprecated=false",
                 "-Dmodules=disabled"
             ],
             "sources" : [
                 {
-                    "type" : "archive",
-                    "url" : "https://github.com/libvips/libvips/releases/download/v8.17.0-test4/vips-8.17.0-test4.tar.xz",
-                    "sha256" : "0f45f0342a1471fed72dc560fa63d9086299fd57bb6d36bc9bbfff5d130858ca"
+                    "type" : "git",
+                    "url" : "https://github.com/libvips/libvips.git",
+                    "tag" : "v8.17.0"
                 }
             ]
         },
@@ -318,7 +407,7 @@
                 {
                     "type" : "git",
                     "url" : "https://github.com/jcupitt/nip4.git",
-                    "tag" : "v9.0.9-2"
+                    "tag" : "v9.0.10"
                 }
             ]
         }
