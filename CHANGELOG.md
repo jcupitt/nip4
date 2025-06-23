@@ -7,6 +7,7 @@
 - save and restore more view settings
 - add "Merge column" and "Merge tab" submenus
 - update interface during recomp, update regions during drag
+- better detection of absolute filenames on windows
 - various small bugfixes
 
 ## 9.0.9 2025/05/28

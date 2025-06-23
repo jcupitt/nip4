@@ -1772,10 +1772,12 @@ is_absolute(const char *fname)
 	 *
 	 * We should probably look out for whitespace.
 	 */
-	return buf[0] == '/' || (buf[0] != '\0' && buf[1] == ':');
+	return buf[0] == '/' ||
+		buf[0] == '\\' ||
+		(buf[0] != '\0' && buf[1] == ':');
 }
 
-/* Are two filenames pointng at the same file? Expand, absoluteize, nativise.
+/* Are two filenames pointing at the same file? Expand, absoluteize, nativise.
  */
 gboolean
 filenames_equal(const char *f1, const char *f2)
