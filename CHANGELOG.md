@@ -1,6 +1,7 @@
 ## master
 
 - fix path for Widget_pathname_item.action [MvGulik]
+- add more draw compat definitions [MvGulik]
 
 ## 9.0.10 2025/06/22
 

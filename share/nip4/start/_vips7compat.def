@@ -666,6 +666,14 @@ im_draw_flood in start_x start_y ink
                 $equal => false
         ];
 
+im_draw_line image x1 y1 x2 y2 ink
+        = vips_call9 "draw_line" [image, ink, x1, y1, x2, y2] [];
+
+im_draw_circle image cx cy radius fill ink
+        = vips_call9 "draw_circle" [image, ink, cx, cy, radius] [
+                $fill => fill != 0
+        ];
+
 im_segment test
         = vips_call9 "labelregions" [test] [
                 $segments => true
