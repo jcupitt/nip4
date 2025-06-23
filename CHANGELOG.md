@@ -1,5 +1,7 @@
 ## master
 
+- fix path for Widget_pathname_item.action [MvGulik]
+
 ## 9.0.10 2025/06/22
 
 - refactor of tilesource improves OME_TIFF modes
