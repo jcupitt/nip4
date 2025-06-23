@@ -1,5 +1,18 @@
 ## master
 
+- fix path for Widget_pathname_item.action [MvGulik]
+- add more draw compat definitions [MvGulik]
+
+## 9.0.10 2025/06/22
+
+- refactor of tilesource improves OME_TIFF modes
+- fix menu state init
+- save and restore more view settings
+- add "Merge column" and "Merge tab" submenus
+- update interface during recomp, update regions during drag
+- better detection of absolute filenames on windows
+- various small bugfixes
+
 ## 9.0.9 2025/05/28
 
 - fix select modifier handling

@@ -1102,6 +1102,9 @@ reduce_spine(Reduce *rc, PElement *out)
 reduce_start:
 	reduce_total_recomputations += 1;
 	if ((reduce_total_recomputations % 100000) == 0) {
+		// helps keep the interface live
+		process_events();
+
 		if (progress_update_expr(reduce_current_expr)) {
 			error_top(_("Cancelled"));
 			error_sub(_("evaluation cancelled"));

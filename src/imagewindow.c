@@ -57,7 +57,7 @@ typedef struct _Active {
 typedef struct _ViewSettings {
 	gboolean valid;
 
-	// we don't save "mode", that's an image property, not a view property
+	TilesourceMode mode;
 	double scale;
 	double offset;
 	int page;
@@ -440,12 +440,17 @@ imagewindow_reset_view(Imagewindow *win)
 	printf("imagewindow_reset_view:\n");
 
 	if (tilesource) {
+		set_state_bool(GTK_WIDGET(win), "falsecolour", FALSE);
+		set_state_bool(GTK_WIDGET(win), "log", FALSE);
+		set_state_bool(GTK_WIDGET(win), "icc", FALSE);
+		set_state_bool(GTK_WIDGET(win), "preserve", FALSE);
+		set_state_enum(GTK_WIDGET(win), "mode", "multipage");
+		set_state_enum(GTK_WIDGET(win), "background", "checkerboard");
+
 		g_object_set(tilesource,
-			"falsecolour", FALSE,
-			"log", FALSE,
-			"icc", FALSE,
 			"scale", 1.0,
 			"offset", 0.0,
+			"page", 0,
 			NULL);
 	}
 }
@@ -466,6 +471,7 @@ imagewindow_save_view_settings(Imagewindow *win, ViewSettings *view_settings)
 	}
 
 	g_object_get(tilesource,
+		"mode", &view_settings->mode,
 		"scale", &view_settings->scale,
 		"offset", &view_settings->offset,
 		"page", &view_settings->page,
@@ -497,6 +503,7 @@ imagewindow_restore_view_settings(Imagewindow *win,
 
 	if (tilesource)
 		g_object_set(tilesource,
+			"mode", view_settings->mode,
 			"scale", view_settings->scale,
 			"offset", view_settings->offset,
 			"page", view_settings->page,
@@ -1398,7 +1405,6 @@ imagewindow_init(Imagewindow *win)
 	set_state(GTK_WIDGET(win), win->settings, "properties");
 	set_state(GTK_WIDGET(win), win->settings, "control");
 	set_state(GTK_WIDGET(win), win->settings, "info");
-	set_state(GTK_WIDGET(win), win->settings, "background");
 
 	// some kind of gtk bug? hexpand on properties can't be set from .ui or in
 	// properties.c, but must be set after adding to a parent

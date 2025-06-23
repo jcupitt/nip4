@@ -116,10 +116,10 @@ struct _Imageui {
 
 	/* Region manipulation.
 	 */
-	Regionview *grabbed; /* Currently grabbed */
-	int window_left;	 /* Window position at start of scroll */
+	Regionview *grabbed;	/* Currently grabbed */
+	int window_left;		/* Window position at start of scroll */
 	int window_top;
-	int start_x; /* Mouse position at start of scroll */
+	int start_x;			/* Mouse position at start of scroll */
 	int start_y;
 
 	/* We use a floating regionview (no symbol) during eg. region create.
@@ -812,10 +812,8 @@ imageui_bestfit(Imageui *imageui)
 	int widget_width = gtk_widget_get_width(imageui->scrolled_window);
 	int widget_height = gtk_widget_get_height(imageui->scrolled_window);
 
-	double hzoom = (double) widget_width /
-		imageui->tilesource->display_width;
-	double vzoom = (double) widget_height /
-		imageui->tilesource->display_height;
+	double hzoom = (double) widget_width / imageui->tilesource->image_width;
+	double vzoom = (double) widget_height / imageui->tilesource->image_height;
 	double zoom = VIPS_MIN(hzoom, vzoom);
 
 	imageui_zoom_to_eased(imageui, zoom * imageui->tilesource->zoom);
@@ -890,21 +888,30 @@ imageui_scale(Imageui *imageui)
 	VipsImage *image;
 
 	if ((image = tilesource_get_image(imageui->tilesource))) {
-		double image_zoom;
+		/* Get the view rect in level0 coordinates.
+		 */
+		double image_zoom = imageui_get_zoom(imageui);
 		int left, top, width, height;
-		double scale, offset;
-
-		image_zoom = imageui_get_zoom(imageui);
 		imageui_get_position(imageui, &left, &top, &width, &height);
+
 		left /= image_zoom;
 		top /= image_zoom;
 		width /= image_zoom;
 		height /= image_zoom;
 
+		/* image is scaled down by current_z, so we must scale the rect by
+		 * that.
+		 */
+		left /= 1 << imageui->tilesource->current_z;
+		top /= 1 << imageui->tilesource->current_z;
+		width /= 1 << imageui->tilesource->current_z;
+		height /= 1 << imageui->tilesource->current_z;
+
 		/* FIXME ... this will be incredibly slow, esp. for large
 		 * images. Instead, it would be better to just search the
 		 * cached tiles we have.
 		 */
+		double scale, offset;
 		if (imageui_find_scale(image,
 				left, top, width, height, &scale, &offset))
 			return FALSE;
@@ -1175,6 +1182,14 @@ imageui_drag_begin(GtkEventControllerMotion *self,
 }
 
 static void
+imageui_regionview_update(Imageui *imageui, Regionview *regionview)
+{
+	regionview->draw_area = regionview->our_area;
+	regionview->draw_type = regionview->type;
+	imageui_queue_draw(imageui);
+}
+
+static void
 imageui_drag_update(GtkEventControllerMotion *self,
 	gdouble offset_x, gdouble offset_y, gpointer user_data)
 {
@@ -1196,28 +1211,25 @@ imageui_drag_update(GtkEventControllerMotion *self,
 
 	case IMAGEUI_SELECT:
 		regionview_resize(imageui->grabbed, imagewindow_get_modifiers(win),
-			imageui->tilesource->display_width,
-			imageui->tilesource->display_height,
-			offset_x / zoom,
-			offset_y / zoom);
+			imageui->tilesource->image_width, imageui->tilesource->image_height,
+			offset_x / zoom, offset_y / zoom);
 
+		/* Refresh immediately .. gives immediate feedback during drag in large
+		 * workspaces, especially on windows.
+		 */
+		imageui_regionview_update(imageui, imageui->grabbed);
+
+		/* And nudge background recomp.
+		 */
 		regionview_model_update(imageui->grabbed);
 
 		break;
 
 	case IMAGEUI_CREATE:
 		regionview_resize(imageui->floating, imagewindow_get_modifiers(win),
-			imageui->tilesource->display_width,
-			imageui->tilesource->display_height,
-			offset_x / zoom,
-			offset_y / zoom);
-
-		// fine to do an immediate redraw, since we don't rely on calc for
-		// position
-		imageui->floating->draw_area = imageui->floating->our_area;
-		imageui->floating->draw_type = imageui->floating->type;
-		imageui_queue_draw(imageui);
-
+			imageui->tilesource->image_width, imageui->tilesource->image_height,
+			offset_x / zoom, offset_y / zoom);
+		imageui_regionview_update(imageui, imageui->floating);
 		break;
 
 	case IMAGEUI_SCROLL:
@@ -1309,6 +1321,7 @@ imageui_drag_end(GtkEventControllerMotion *self,
 		break;
 
 	case IMAGEUI_SELECT:
+		regionview_model_update(imageui->grabbed);
 		VIPS_UNREF(imageui->grabbed);
 		break;
 

@@ -833,23 +833,60 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 	const char *name = g_action_get_name(G_ACTION(action));
 
-	if (g_str_equal(name, "column-new"))
+	if (g_str_equal(name, "column-new") &&
+		!ws->locked)
 		workspace_column_new(ws);
 	else if (g_str_equal(name, "next-error"))
 		workspace_set_show_error(ws, workspace_next_error(ws));
-	else if (g_str_equal(name, "program"))
+	else if (g_str_equal(name, "program") &&
+		!ws->locked)
 		program_new(app, ws->kitg);
-	else if (g_str_equal(name, "tab-rename"))
+	else if (g_str_equal(name, "tab-rename") &&
+		!ws->locked)
 		g_object_set(wview->label,
 			"edit", TRUE,
 			NULL);
-	else if (g_str_equal(name, "tab-select-all")) {
-		if (!ws->locked)
-			workspace_select_all(ws);
-	}
+	else if (g_str_equal(name, "tab-select-all") &&
+		!ws->locked)
+		workspace_select_all(ws);
 	else if (g_str_equal(name, "tab-duplicate"))
 		workspace_duplicate(ws);
-	else if (g_str_equal(name, "tab-merge"))
+	else if (g_str_equal(name, "tab-merge") &&
+		parameter &&
+		!ws->locked) {
+		const char *from_name = g_variant_get_string(parameter, NULL);
+		Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+
+		Workspace *from;
+
+		if (!(from = workspacegroup_find_workspace(wsg, from_name)))
+			return;
+
+		char filename[VIPS_PATH_MAX];
+		if (!temp_name(filename, IOBJECT(from)->name, "ws")) {
+			workspace_set_show_error(ws, TRUE);
+			return;
+		}
+
+		icontainer_current(ICONTAINER(wsg), ICONTAINER(from));
+		if (!workspacegroup_save_current(wsg, filename)) {
+			workspace_set_show_error(ws, TRUE);
+			return;
+		}
+
+		icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
+		if (!workspace_merge_file(ws, filename)) {
+			workspace_set_show_error(ws, TRUE);
+			return;
+		}
+
+		unlinkf("%s", filename);
+
+		workspace_deselect_all(ws);
+		symbol_recalculate_all();
+	}
+	else if (g_str_equal(name, "tab-merge-file") &&
+		!ws->locked)
 		workspaceview_merge(wview);
 	else if (g_str_equal(name, "tab-saveas"))
 		workspaceview_saveas(wview);
@@ -859,10 +896,9 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		GVariant *locked = g_variant_new_boolean(ws->locked);
 		g_simple_action_set_state(action, locked);
 	}
-	else if (g_str_equal(name, "tab-delete")) {
-		if (!ws->locked)
-			model_check_destroy(view_get_window(VIEW(wview)), MODEL(ws));
-	}
+	else if (g_str_equal(name, "tab-delete") &&
+		!ws->locked)
+		model_check_destroy(view_get_window(VIEW(wview)), MODEL(ws));
 }
 
 static void

@@ -267,6 +267,18 @@ displaybar_offset_value_changed(Tslider *slider, Displaybar *displaybar)
 			NULL);
 }
 
+// handy for debugging menu actions, see gtk/displaybar.ui
+static void
+displaybar_test_clicked(GtkButton *test, Displaybar *displaybar)
+{
+	Tilesource *tilesource = displaybar->tilesource;
+
+	if (tilesource)
+		g_object_set(tilesource,
+			"mode", TILESOURCE_MODE_TOILET_ROLL,
+			NULL);
+}
+
 static void
 displaybar_init(Displaybar *displaybar)
 {
@@ -319,6 +331,7 @@ displaybar_class_init(DisplaybarClass *class)
 	BIND_CALLBACK(displaybar_page_value_changed);
 	BIND_CALLBACK(displaybar_scale_value_changed);
 	BIND_CALLBACK(displaybar_offset_value_changed);
+	BIND_CALLBACK(displaybar_test_clicked);
 
 	gobject_class->dispose = displaybar_dispose;
 	gobject_class->set_property = displaybar_set_property;

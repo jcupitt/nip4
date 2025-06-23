@@ -49,6 +49,7 @@ struct _Workspaceviewlabel {
 	GtkWidget *lock;
 	GtkWidget *error;
 	GtkWidget *right_click_menu;
+	GMenu *workspaceviewlabel_menu;
 
 	/* State.
 	 */
@@ -137,10 +138,34 @@ workspaceviewlabel_init(Workspaceviewlabel *wviewlabel)
 	gtk_widget_init_template(GTK_WIDGET(wviewlabel));
 }
 
+static void *
+workspaceviewlabel_add_tab_item(Workspace *ws, void *user_data)
+{
+	GMenu *tabs = G_MENU(user_data);
+
+	GMenuItem *item = g_menu_item_new(IOBJECT(ws)->name, NULL);
+	GVariant *target = g_variant_new_string(IOBJECT(ws)->name);
+	g_menu_item_set_action_and_target_value(item, "win.tab-merge", target);
+	g_menu_append_item(tabs, item);
+
+	return NULL;
+}
+
 static void
 workspaceviewlabel_menu(GtkGestureClick *gesture,
 	guint n_press, double x, double y, Workspaceviewlabel *wviewlabel)
 {
+	Workspaceview *wview = wviewlabel->wview;
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+
+	// generate the dynamic tab submenu
+	GMenu *tabs = g_menu_new();
+	workspacegroup_map(wsg, workspaceviewlabel_add_tab_item, tabs, NULL);
+	GMenu *tab_menu = wviewlabel->workspaceviewlabel_menu;
+	g_menu_remove(tab_menu, 1);
+	g_menu_insert_submenu(tab_menu, 1, "Merge tab", G_MENU_MODEL(tabs));
+
 	mainwindow_set_action_view(VIEW(wviewlabel->wview));
 
 	gtk_popover_set_pointing_to(GTK_POPOVER(wviewlabel->right_click_menu),
@@ -213,6 +238,7 @@ workspaceviewlabel_class_init(WorkspaceviewlabelClass *class)
 	BIND_VARIABLE(Workspaceviewlabel, lock);
 	BIND_VARIABLE(Workspaceviewlabel, error);
 	BIND_VARIABLE(Workspaceviewlabel, right_click_menu);
+	BIND_VARIABLE(Workspaceviewlabel, workspaceviewlabel_menu);
 
 	BIND_CALLBACK(workspaceviewlabel_menu);
 	BIND_CALLBACK(workspaceviewlabel_pressed);

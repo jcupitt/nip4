@@ -188,6 +188,19 @@ workspacegroupview_pick_rowview(Workspacegroupview *wsgview,
 	return columnview_find_rowview(cview, x, y);
 }
 
+static void *
+workspacegroupview_add_column_item(Column *col, void *user_data)
+{
+	GMenu *columns = G_MENU(user_data);
+
+	GMenuItem *item = g_menu_item_new(IOBJECT(col)->name, NULL);
+	GVariant *target = g_variant_new_string(IOBJECT(col)->name);
+	g_menu_item_set_action_and_target_value(item, "win.column-merge", target);
+	g_menu_append_item(columns, item);
+
+	return NULL;
+}
+
 static void
 workspacegroupview_background_menu(GtkGestureClick *gesture,
 	guint n_press, double x, double y, void *user_data)
@@ -207,6 +220,14 @@ workspacegroupview_background_menu(GtkGestureClick *gesture,
 	if ((cview = workspacegroupview_pick_columnview_title(wsgview, x, y))) {
 		mainwindow_set_action_view(VIEW(cview));
 		menu = wsgview->column_menu;
+
+		// generate the dynamic column submenu
+		GMenu *columns = g_menu_new();
+		workspace_map_column(ws, workspacegroupview_add_column_item, columns);
+		GMenu *column_menu = wsgview->workspacegroup_column_menu;
+		g_menu_remove(column_menu, 1);
+		g_menu_insert_submenu(column_menu, 1, "Merge column",
+			G_MENU_MODEL(columns));
 	}
 	else if ((rview = workspacegroupview_pick_rowview(wsgview, x, y))) {
 		mainwindow_set_action_view(VIEW(rview));
@@ -236,6 +257,7 @@ workspacegroupview_class_init(WorkspacegroupviewClass *class)
 	BIND_VARIABLE(Workspacegroupview, notebook);
 	BIND_VARIABLE(Workspacegroupview, workspace_menu);
 	BIND_VARIABLE(Workspacegroupview, column_menu);
+	BIND_VARIABLE(Workspacegroupview, workspacegroup_column_menu);
 	BIND_VARIABLE(Workspacegroupview, row_menu);
 
 	BIND_CALLBACK(workspacegroupview_new_tab_clicked);

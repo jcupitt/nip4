@@ -1596,7 +1596,8 @@ row_recomp_all(Row *top_row)
 
 	/* Rebuild all dirty rows.
 	 */
-	while (!top_row->err && top_row->recomp) {
+	while (!top_row->err &&
+		top_row->recomp) {
 		Row *dirty_row = ROW(top_row->recomp->data);
 
 #ifdef DEBUG_ROW
@@ -1630,6 +1631,10 @@ row_recomp_all(Row *top_row)
 		printf("row_recomp_all: after row recomp, top value now ");
 		pgraph(&top_row->expr->root);
 #endif /*DEBUG*/
+
+		/* So we don't stall updates for too long.
+		 */
+		process_events();
 	}
 
 	workspace_error_sanity(top_row->ws);
@@ -1685,7 +1690,7 @@ row_recomp(Row *row)
 	 */
 	row_recomp_all(top_row);
 
-	/* Our workspace may have been closed in a callback: bail out.
+	/* Our workspace may have been closed in a callback.
 	 */
 	if (!top_row->sym)
 		return;
@@ -1740,7 +1745,7 @@ row_recomp(Row *row)
 		 */
 		row_recomp_all(top_row);
 
-		/* Our workspace may have been closed in a callback: bail out.
+		/* Our workspace may have been closed in a callback.
 		 */
 		if (!top_row->sym)
 			return;

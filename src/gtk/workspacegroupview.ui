@@ -91,7 +91,7 @@
     </section>
   </menu>
 
-  <menu id="workspacegroup-column-menu">
+  <menu id="workspacegroup_column_menu">
     <section>
       <item>
         <attribute name='label' translatable='yes'>Edit caption</attribute>
@@ -105,9 +105,21 @@
         <attribute name='label' translatable='yes'>Duplicate</attribute>
         <attribute name='action'>win.column-duplicate</attribute>
       </item>
+    </section>
+
+    <!-- the thing at this position is replaced dynamically by
+	 workspacegroupview_background_menu() with the column merge menu
+      -->
+    <section>
+      <submenu>
+        <attribute name='label' translatable='yes'>placeholder1</attribute>
+      </submenu>
+    </section>
+
+    <section>
       <item>
-        <attribute name='label' translatable='yes'>Merge into ...</attribute>
-        <attribute name='action'>win.column-merge</attribute>
+        <attribute name='label' translatable='yes'>Merge from file ...</attribute>
+        <attribute name='action'>win.column-merge-file</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>Save as ...</attribute>
@@ -157,7 +169,7 @@
 
     <child>
       <object class="GtkPopoverMenu" id="column_menu">
-        <property name="menu-model">workspacegroup-column-menu</property>
+        <property name="menu-model">workspacegroup_column_menu</property>
       </object>
     </child>
 

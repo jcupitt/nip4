@@ -1,3 +1,22 @@
+- load ws with locked tab, rightclick menu on locked tab does not
+  have tick selected
+
+  two tabs, lock one, menu on other also shows lock
+
+	a bit tricky to fix
+
+    maybe we are forced to have a separate menu for each tab?
+
+- the "new tab" icon is still broken in the windows build
+
+- we are missing a program icon too, do we need to make
+
+	hicolor/apps/48x48/org.libvips.nip4.png
+	hicolor/apps/256x256/org.libvips.nip4.png
+	hicolor/apps/512x512/org.libvips.nip4.png
+
+# menu redesign
+
 - maxpos, then create mark from coordinate should be two clicks
 
 - try:
@@ -20,30 +39,6 @@
 	because constant expansion is done by the Image class
 
   we'll need to do constant expansion in minpair
-
-- the "new tab" icon is still broken in the windows build
-
-- "reset" in display bar resets the position of scale/offset widgets, but does
-  not reset the menu items (eg. tick on falsecolour)
-
-	I forget how menu items are linked to actions, reread this
-
-	gaction bound to a gsetting? do we need to add to the settings
-	schema?
-
-  likewise, load ws with locked tab, rightclick menu on locked tab does not
-  have tick selected
-
-- change "Merge into ..."
-
-	split to "Merge from file ..." and "Merge column >" with a
-	pullright listing all columns
-
-	Same for merge in tab menu, except "Merge tab >"
-
-	Just does save/load for you
-
-# menu redesign
 
 - implement Menuseparator?
 

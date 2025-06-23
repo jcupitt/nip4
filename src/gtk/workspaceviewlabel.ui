@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
 
-  <menu id="workspaceviewlabel-menu">
+  <menu id="workspaceviewlabel_menu">
     <section>
       <item>
         <attribute name='label' translatable='yes'>Rename</attribute>
@@ -15,9 +15,21 @@
         <attribute name='label' translatable='yes'>Duplicate</attribute>
         <attribute name='action'>win.tab-duplicate</attribute>
       </item>
+    </section>
+
+    <!-- the thing at this position is replaced dynamically by
+	 workspaceviewlabel_menu() with the tab merge menu
+      -->
+    <section>
+      <submenu>
+        <attribute name='label' translatable='yes'>placeholder1</attribute>
+      </submenu>
+    </section>
+
+    <section>
       <item>
-        <attribute name='label' translatable='yes'>Merge into ...</attribute>
-        <attribute name='action'>win.tab-merge</attribute>
+        <attribute name='label' translatable='yes'>Merge from file ...</attribute>
+        <attribute name='action'>win.tab-merge-file</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>Save as ...</attribute>
@@ -57,7 +69,7 @@
 
                 <child>
                   <object class="GtkPopoverMenu" id="right_click_menu">
-                    <property name="menu-model">workspaceviewlabel-menu</property>
+                    <property name="menu-model">workspaceviewlabel_menu</property>
                   </object>
                 </child>
 
