@@ -215,7 +215,7 @@ mainwindow_load_path(Mainwindow *main, const char *path)
 	return TRUE;
 }
 
-// used byworkspacegroupview.c for filename drop
+// used by workspacegroupview.c for filename drop
 gboolean
 mainwindow_paste_filename(const char *filename, void *user_data)
 {
@@ -292,6 +292,20 @@ mainwindow_open_action(GSimpleAction *action,
 	if (load_folder)
 		gtk_file_dialog_set_initial_folder(dialog, load_folder);
 
+	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+	GtkFileFilter *filter;
+
+	filter = imageinfo_filter_new("VipsForeignSave");
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	filter = workspacegroup_filter_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
+	g_object_unref(filters);
+
 	gtk_file_dialog_open(dialog, GTK_WINDOW(main), NULL,
 		mainwindow_open_result, main);
 }
@@ -366,7 +380,11 @@ mainwindow_saveas_sub(GObject *source_object,
 	if (file) {
 		mainwindow_set_save_folder(main, file);
 
-		g_autofree char *filename = g_file_get_path(file);
+		g_autofree char *path = g_file_get_path(file);
+
+		// make sure we have a ".ws" suffix
+		char filename[VIPS_PATH_MAX];
+		change_suffix(path, filename, ".ws", (const char*[]){ ".ws" }, 1);
 
 		if (workspacegroup_save_all(main->wsg, filename)) {
 			filemodel_set_modified(FILEMODEL(main->wsg), FALSE);
@@ -387,6 +405,15 @@ mainwindow_saveas(Mainwindow *main)
 	GFile *save_folder = mainwindow_get_save_folder(main);
 	if (save_folder)
 		gtk_file_dialog_set_initial_folder(dialog, save_folder);
+
+	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+
+	GtkFileFilter *filter = workspacegroup_filter_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
+	g_object_unref(filters);
 
 	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
 		&mainwindow_saveas_sub, main);

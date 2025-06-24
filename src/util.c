@@ -1072,7 +1072,7 @@ findrightmost(const char *a, const char *b)
  */
 void
 change_suffix(const char *name, char *out,
-	const char *new, const char **olds, int nolds)
+	const char *new, const char *olds[], int nolds)
 {
 	char *p;
 	int i;

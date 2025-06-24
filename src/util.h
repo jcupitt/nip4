@@ -156,7 +156,7 @@ const char *my_strrspn(const char *p, const char *spn);
 const char *my_strrcspn(const char *p, const char *spn);
 const char *findrightmost(const char *a, const char *b);
 void change_suffix(const char *name, char *out,
-	const char *new, const char **olds, int nolds);
+	const char *new, const char *olds[], int nolds);
 char *trim_nonalpha(char *text);
 char *trim_white(char *text);
 

@@ -954,3 +954,14 @@ workspacegroup_duplicate(Workspacegroup *wsg)
 
 	return new_wsg;
 }
+
+GtkFileFilter *
+workspacegroup_filter_new(void)
+{
+	GtkFileFilter *filter = gtk_file_filter_new();
+
+	gtk_file_filter_set_name(filter, "nip4 workspaces");
+	gtk_file_filter_add_suffix(filter, "ws");
+
+	return filter;
+}

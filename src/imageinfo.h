@@ -168,3 +168,5 @@ Imageinfo *imageinfo_new_input(Imageinfogroup *imageinfogroup,
 void imageinfo_get_rgb(Imageinfo *imageinfo, double rgb[3]);
 void imageinfo_set_rgb(Imageinfo *imageinfo, double rgb[3]);
 void imageinfo_to_text(Imageinfo *imageinfo, VipsBuf *buf);
+
+GtkFileFilter *imageinfo_filter_new(const char *base_class);
