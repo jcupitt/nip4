@@ -67,7 +67,18 @@ im_matmul in1 in2 = im_vips2mask (vips_call9 "matrixmultiply" [in1, in2] []);
 im_abs x = vips_call9 "abs" [x] [];
 im_sign x = vips_call9 "sign" [x] [];
 im_rint x = vips_call9 "round" [x, "rint"] [];
-
+im_expntra_vec im vec = vips_call9 "math2_const" [im, "wop", vec] [];
+im_powtra_vec im vec = vips_call9 "math2_const" [im, "pow", vec] [];
+im_remainderconst_vec im vec = vips_call9 "remainder_const" [im, vec] [];
+im_andimage_vec im vec = vips_call9 "boolean_const" [im, "and", vec] [];
+im_orimage_vec im vec = vips_call9 "boolean_const" [im, "or", vec] [];
+im_eorimage_vec im vec = vips_call9 "boolean_const" [im, "eor", vec] [];
+im_equal_vec im vec = vips_call9 "relational_const" [im, "equal", vec] [];
+im_notequal_vec im vec = vips_call9 "relational_const" [im, "noteq", vec] [];
+im_less_vec im vec = vips_call9 "relational_const" [im, "less", vec] [];
+im_lesseq_vec im vec = vips_call9 "relational_const" [im, "lesseq", vec] [];
+im_more_vec im vec = vips_call9 "relational_const" [im, "more", vec] [];
+im_moreeq_vec im vec = vips_call9 "relational_const" [im, "moreeq", vec] [];
 im_notequal_vec in vec = vips_call9 "relational_const" [in, "noteq", vec] [];
 
 im_maxpos in =
