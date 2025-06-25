@@ -7,8 +7,6 @@
 
 	or a member? a classmodel can be a matrix or an image
 
-	file dialog filters need an "all files" option
-
 - load ws with locked tab, rightclick menu on locked tab does not
   have tick selected
 

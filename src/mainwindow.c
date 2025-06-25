@@ -277,6 +277,17 @@ mainwindow_open_result(GObject *source_object,
 		mainwindow_open(main, file);
 }
 
+GtkFileFilter *
+mainwindow_filter_all_new(void)
+{
+	GtkFileFilter *filter = gtk_file_filter_new();
+
+	gtk_file_filter_set_name(filter, "all");
+	gtk_file_filter_add_pattern(filter, "*");
+
+	return filter;
+}
+
 static void
 mainwindow_open_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
@@ -300,6 +311,10 @@ mainwindow_open_action(GSimpleAction *action,
 	g_object_unref(filter);
 
 	filter = workspacegroup_filter_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	filter = mainwindow_filter_all_new();
 	g_list_store_append(filters, G_OBJECT(filter));
 	g_object_unref(filter);
 
@@ -409,6 +424,10 @@ mainwindow_saveas(Mainwindow *main)
 	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
 
 	GtkFileFilter *filter = workspacegroup_filter_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	filter = mainwindow_filter_all_new();
 	g_list_store_append(filters, G_OBJECT(filter));
 	g_object_unref(filter);
 

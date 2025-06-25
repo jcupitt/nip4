@@ -43,6 +43,7 @@ void mainwindow_set_load_folder(Mainwindow *main, GFile *save_folder);
 GFile *mainwindow_get_load_folder(Mainwindow *main);
 void mainwindow_error(Mainwindow *main);
 
+GtkFileFilter *mainwindow_filter_all_new(void);
 void mainwindow_open(Mainwindow *main, GFile *file);
 Mainwindow *mainwindow_new(App *app, Workspacegroup *wsg);
 void mainwindow_set_wsg(Mainwindow *main, Workspacegroup *wsg);

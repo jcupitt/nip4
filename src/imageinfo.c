@@ -1118,7 +1118,7 @@ imageinfo_filter_new(const char *base_class)
 {
 	GtkFileFilter *filter = gtk_file_filter_new();
 
-	gtk_file_filter_set_name(filter, "libvips-supported image files");
+	gtk_file_filter_set_name(filter, "libvips-supported images");
 	vips_foreign_map(base_class, imageinfo_filter_add, filter, NULL);
 
 	return filter;
