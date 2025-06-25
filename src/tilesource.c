@@ -819,11 +819,15 @@ tilesource_update_image(Tilesource *tilesource)
 	VIPS_UNREF(tilesource->mask_region);
 
 	tilesource->image = image;
-	tilesource->mask = mask;
 	tilesource->image_region = vips_region_new(tilesource->image);
 	vips__region_no_ownership(tilesource->image_region);
-	tilesource->mask_region = vips_region_new(mask);
-	vips__region_no_ownership(tilesource->mask_region);
+
+	// can be NULL for synchronous images
+	if (mask) {
+		tilesource->mask = mask;
+		tilesource->mask_region = vips_region_new(mask);
+		vips__region_no_ownership(tilesource->mask_region);
+	}
 
 	// update downstream as well
 	if (tilesource_update_rgb(tilesource))
@@ -1498,6 +1502,10 @@ tilesource_new_from_image(VipsImage *image)
 	tilesource->level_width[0] = image->Xsize;;
 	tilesource->level_height[0] = image->Ysize;;
 
+	/* Always loaded.
+	 */
+	tilesource->loaded = TRUE;
+
 	/* Sanity-check and set up the page geometry.
 	 */
 	tilesource->page_height = vips_image_get_page_height(image);
@@ -2089,6 +2097,9 @@ tilesource_set_synchronous(Tilesource *tilesource, gboolean synchronous)
 #endif /*DEBUG*/
 
 		tilesource->synchronous = synchronous;
-		tilesource_update_rgb(tilesource);
+
+		// need to rebuild everything, since the sink_screen is at the end of
+		// the first stage
+		tilesource_update_image(tilesource);
 	}
 }

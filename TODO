@@ -1,5 +1,3 @@
-- doubleclick on Colour widget segv
-
 - load ws with locked tab, rightclick menu on locked tab does not
   have tick selected
 
