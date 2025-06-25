@@ -1,11 +1,4 @@
-- imagewindow, replace, no filename filter
-
-	calls classmodel_graphic_replace(), so that needs to know the set of
-	filters for this classmodel
-
-	needs to be a class member?
-
-	or a member? a classmodel can be a matrix or an image
+- doubleclick on Colour widget segv
 
 - load ws with locked tab, rightclick menu on locked tab does not
   have tick selected
@@ -23,10 +16,6 @@
 	hicolor/apps/48x48/org.libvips.nip4.png
 	hicolor/apps/256x256/org.libvips.nip4.png
 	hicolor/apps/512x512/org.libvips.nip4.png
-
-- check space in tmp on startup and warn if over eg. 10mb
-
-	mainwindow_new() seems to have code for this, but it's not showing up?
 
 # menu redesign
 

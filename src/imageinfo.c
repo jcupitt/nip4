@@ -1114,12 +1114,23 @@ imageinfo_filter_add(void *a, void *b, void *c)
 }
 
 GtkFileFilter *
-imageinfo_filter_new(const char *base_class)
+imageinfo_filter_save_new(void)
 {
 	GtkFileFilter *filter = gtk_file_filter_new();
 
 	gtk_file_filter_set_name(filter, "libvips-supported images");
-	vips_foreign_map(base_class, imageinfo_filter_add, filter, NULL);
+	vips_foreign_map("VipsForeignSave", imageinfo_filter_add, filter, NULL);
+
+	return filter;
+}
+
+GtkFileFilter *
+imageinfo_filter_load_new(void)
+{
+	GtkFileFilter *filter = gtk_file_filter_new();
+
+	gtk_file_filter_set_name(filter, "libvips-supported images");
+	vips_foreign_map("VipsForeignLoad", imageinfo_filter_add, filter, NULL);
 
 	return filter;
 }

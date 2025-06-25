@@ -119,10 +119,13 @@ typedef struct _ClassmodelClass {
 	gboolean (*class_get)(Classmodel *, PElement *root);
 	gboolean (*class_new)(Classmodel *, PElement *fn, PElement *out);
 
-	/* Save and replace graphic displays ... eg. image/matrix.
+	/* Save and replace graphic displays ... eg. image/matrix. graphic_filter
+	 * optionally makes a gtkfilter for this type of object.
 	 */
 	gboolean (*graphic_save)(Classmodel *, GtkWindow *, const char *);
+	GtkFileFilter *(*graphic_filter_save)(void);
 	gboolean (*graphic_replace)(Classmodel *, GtkWindow *, const char *);
+	GtkFileFilter *(*graphic_filter_replace)(void);
 
 	ClassmodelMember *members;
 	int n_members;

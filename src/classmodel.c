@@ -172,6 +172,23 @@ classmodel_graphic_save(Classmodel *classmodel, GtkWindow *window)
 
 	g_object_set_data(G_OBJECT(dialog), "nip4-window", window);
 
+	if (class->graphic_filter_save) {
+		GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+
+		GtkFileFilter *filter;
+
+		filter = class->graphic_filter_save();
+		g_list_store_append(filters, G_OBJECT(filter));
+		g_object_unref(filter);
+
+		filter = mainwindow_filter_all_new();
+		g_list_store_append(filters, G_OBJECT(filter));
+		g_object_unref(filter);
+
+		gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
+		g_object_unref(filters);
+	}
+
 	gtk_file_dialog_save(dialog, window, NULL,
 		classmodel_graphic_save_cb, classmodel);
 }
@@ -251,6 +268,23 @@ classmodel_graphic_replace(Classmodel *classmodel, GtkWindow *window)
 	}
 
 	g_object_set_data(G_OBJECT(dialog), "nip4-window", window);
+
+	if (class->graphic_filter_replace) {
+		GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+
+		GtkFileFilter *filter;
+
+		filter = class->graphic_filter_replace();
+		g_list_store_append(filters, G_OBJECT(filter));
+		g_object_unref(filter);
+
+		filter = mainwindow_filter_all_new();
+		g_list_store_append(filters, G_OBJECT(filter));
+		g_object_unref(filter);
+
+		gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
+		g_object_unref(filters);
+	}
 
 	gtk_file_dialog_open(dialog, window, NULL,
 		classmodel_graphic_replace_cb, classmodel);

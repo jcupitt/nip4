@@ -11,6 +11,9 @@
 	<child>
           <object class="GtkActionBar" id="error_bar">
             <property name="revealed">false</property>
+	    <style>
+	      <class name="error_widget"/>
+	    </style>
 
             <child type="center">
               <object class="GtkBox">
@@ -49,6 +52,56 @@
                 <property name="valign">center</property>
                 <signal name="clicked"
                     handler="workspaceview_error_close_clicked"/>
+              </object>
+            </child>
+
+          </object>
+        </child>
+
+	<child>
+          <object class="GtkActionBar" id="alert_bar">
+            <property name="revealed">false</property>
+	    <style>
+	      <class name="alert_widget"/>
+	    </style>
+
+            <child type="center">
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="hexpand">true</property>
+                <property name="spacing">15</property>
+
+                <child>
+                  <object class="GtkLabel" id="alert_top">
+                    <property name="ellipsize">middle</property>
+                    <property name="selectable">true</property>
+                    <property name="can-focus">false</property>
+                    <style>
+                      <class name="error_top"/>
+                    </style>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel" id="alert_sub">
+                    <property name="ellipsize">middle</property>
+                    <property name="selectable">true</property>
+                    <property name="can-focus">false</property>
+                    <style>
+                      <class name="error_sub"/>
+                    </style>
+                  </object>
+                </child>
+
+              </object>
+            </child>
+
+            <child type="end">
+              <object class="GtkButton">
+                <property name="label">OK</property>
+                <property name="valign">center</property>
+                <signal name="clicked"
+                    handler="workspaceview_alert_close_clicked"/>
               </object>
             </child>
 

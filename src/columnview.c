@@ -97,7 +97,7 @@ columnview_merge_sub(GObject *source_object,
 		g_autofree char *filename = g_file_get_path(file);
 
 		if (!workspacegroup_merge_rows(wsg, filename))
-			workspace_set_show_error(ws, TRUE);
+			workspace_show_error(ws);
 		symbol_recalculate_all();
 	}
 }
@@ -147,7 +147,7 @@ columnview_saveas_sub(GObject *source_object,
 		workspace_deselect_all(ws);
 		column_select_symbols(col);
 		if (!workspacegroup_save_selected(wsg, filename))
-			workspace_set_show_error(ws, TRUE);
+			workspace_show_error(ws);
 	}
 }
 
@@ -521,7 +521,7 @@ columnview_activate(GtkEntry *self, gpointer user_data)
 		return;
 
 	if (!(sym = workspace_add_def_recalc(ws, text))) {
-		workspace_set_show_error(ws, TRUE);
+		workspace_show_error(ws);
 		return;
 	}
 
@@ -559,7 +559,7 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		column_select_symbols(col);
 		workspace_column_select(ws, new_col);
 		if (!workspace_selected_duplicate(ws))
-			workspace_set_show_error(ws, TRUE);
+			workspace_show_error(ws);
 
 		filemodel_set_modified(FILEMODEL(wsg), TRUE);
 		workspace_deselect_all(ws);
@@ -576,20 +576,20 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 
 		char filename[VIPS_PATH_MAX];
 		if (!temp_name(filename, IOBJECT(from)->name, "ws")) {
-			workspace_set_show_error(ws, TRUE);
+			workspace_show_error(ws);
 			return;
 		}
 
 		workspace_deselect_all(ws);
 		column_select_symbols(from);
 		if (!workspacegroup_save_selected(wsg, filename)) {
-			workspace_set_show_error(ws, TRUE);
+			workspace_show_error(ws);
 			return;
 		}
 
 		workspace_column_select(ws, col);
 		if (!workspacegroup_merge_rows(wsg, filename)) {
-			workspace_set_show_error(ws, TRUE);
+			workspace_show_error(ws);
 			return;
 		}
 

@@ -147,7 +147,7 @@ mainwindow_get_workspace(Mainwindow *main)
 void
 mainwindow_error(Mainwindow *main)
 {
-	workspace_set_show_error(mainwindow_get_workspace(main), TRUE);
+	workspace_show_error(mainwindow_get_workspace(main));
 }
 
 static void
@@ -306,7 +306,7 @@ mainwindow_open_action(GSimpleAction *action,
 	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
 	GtkFileFilter *filter;
 
-	filter = imageinfo_filter_new("VipsForeignSave");
+	filter = imageinfo_filter_save_new();
 	g_list_store_append(filters, G_OBJECT(filter));
 	g_object_unref(filter);
 
@@ -423,7 +423,9 @@ mainwindow_saveas(Mainwindow *main)
 
 	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
 
-	GtkFileFilter *filter = workspacegroup_filter_new();
+	GtkFileFilter *filter;
+
+	filter = workspacegroup_filter_new();
 	g_list_store_append(filters, G_OBJECT(filter));
 	g_object_unref(filter);
 
@@ -612,7 +614,7 @@ mainwindow_keyboard_duplicate_action(GSimpleAction *action,
 	Workspace *ws;
 	if ((ws = WORKSPACE(ICONTAINER(main->wsg)->current))) {
 		if (!workspace_selected_duplicate(ws))
-			workspace_set_show_error(ws, TRUE);
+			workspace_show_error(ws);
 
 		workspace_deselect_all(ws);
 		symbol_recalculate_all();
@@ -1047,12 +1049,12 @@ mainwindow_new(App *app, Workspacegroup *wsg)
 			  "to copy files over from your old work area"),
 			save_dir, PACKAGE);
 
-		mainwindow_error(main);
+		workspace_show_alert(mainwindow_get_workspace(main));
 	}
 
 	double size = directory_size(PATH_TMP);
 	if (size > 10 * 1024 * 1024) {
-		error_top("%s", _("Many files in temp area"));
+		error_top("%s", _("Many files in temporary area"));
 
 		char save_dir[VIPS_PATH_MAX];
 		g_strlcpy(save_dir, PATH_TMP, VIPS_PATH_MAX);
@@ -1061,11 +1063,11 @@ mainwindow_new(App *app, Workspacegroup *wsg)
 		char txt[256];
 		VipsBuf buf = VIPS_BUF_STATIC(txt);
 		vips_buf_append_size(&buf, size);
-		error_sub(_("The temp area \"%s\" contains %s of files. "
+		error_sub(_("The temporary area \"%s\" contains %s of files. "
             "Use \"Recover after crash\" to clean up."),
             save_dir, vips_buf_all(&buf));
 
-		mainwindow_error(main);
+		workspace_show_alert(mainwindow_get_workspace(main));
 	}
 
 	return main;
@@ -1089,8 +1091,7 @@ mainwindow_cull_timeout(gpointer user_data)
 {
 	mainwindow_cull_timeout_id = 0;
 
-	slist_map(mainwindow_all,
-		(SListMapFn) mainwindow_cull_sub, NULL);
+	slist_map(mainwindow_all, (SListMapFn) mainwindow_cull_sub, NULL);
 
 	return FALSE;
 }

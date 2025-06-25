@@ -83,6 +83,12 @@ struct _Workspace {
 	char *error_top;
 	char *error_sub;
 
+	/* Set if the view should display alert_top and alert_sub.
+	 */
+	gboolean show_alert;
+	char *alert_top;
+	char *alert_sub;
+
 	VipsRect area;		 /* Rect enclosing the set of columns */
 	VipsRect vp;		 /* Viewport hint ... set by views */
 
@@ -112,8 +118,12 @@ typedef struct _WorkspaceClass {
 	 */
 } WorkspaceClass;
 
-void workspace_set_show_error(Workspace *ws, gboolean show_error);
+void workspace_set_error(Workspace *ws, gboolean show_error);
+void workspace_show_error(Workspace *ws);
 void workspace_clear_error_all(void);
+
+void workspace_set_alert(Workspace *ws, gboolean show_alert);
+void workspace_show_alert(Workspace *ws);
 
 void workspace_queue_layout(Workspace *ws);
 
