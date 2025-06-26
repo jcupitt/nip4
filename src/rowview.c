@@ -292,7 +292,7 @@ rowview_pressed(GtkGestureClick *gesture,
 			row->sym &&
 			!symbol_recalculate_check(row->sym))
 			// click on a row with an error displays the error
-			workspace_set_show_error(row->ws, TRUE);
+			workspace_show_error(row->ws);
 
 		row_select_modifier(row, mainwindow_get_modifiers(main));
 	}
@@ -363,14 +363,14 @@ rowview_duplicate(Rowview *rview)
 	if (row->top_row != row) {
 		error_top("%s", _("Can't duplicate"));
 		error_sub("%s", _("you can only duplicate top level rows"));
-		workspace_set_show_error(row->ws, TRUE);
+		workspace_show_error(ws);
 		return;
 	}
 
 	if (workspace_selected_num(ws) < 2)
 		row_select(row);
 	if (!workspace_selected_duplicate(ws))
-		workspace_set_show_error(row->ws, TRUE);
+		workspace_show_error(ws);
 	workspace_deselect_all(ws);
 
 	symbol_recalculate_all();
@@ -384,7 +384,7 @@ rowview_group(Rowview *rview)
 	if (workspace_selected_num(row->ws) < 2)
 		row_select(row);
 	if (!workspace_selected_group(row->ws))
-		workspace_set_show_error(row->ws, TRUE);
+		workspace_show_error(row->ws);
 	workspace_deselect_all(row->ws);
 
 	symbol_recalculate_all();
@@ -398,7 +398,7 @@ rowview_ungroup(Rowview *rview)
 	if (workspace_selected_num(row->ws) < 2)
 		row_select(row);
 	if (!workspace_selected_ungroup(row->ws))
-		workspace_set_show_error(row->ws, TRUE);
+		workspace_show_error(row->ws);
 	workspace_deselect_all(row->ws);
 
 	symbol_recalculate_all();
@@ -415,12 +415,12 @@ rowview_recalc(Rowview *rview)
 	if (workspace_selected_num(row->ws) < 2)
 		row_select(row);
 	if (!workspace_selected_recalc(row->ws))
-		workspace_set_show_error(row->ws, TRUE);
+		workspace_show_error(row->ws);
 	workspace_deselect_all(row->ws);
 
 	if (row->sym &&
 		!symbol_recalculate_check(row->sym))
-		workspace_set_show_error(row->ws, TRUE);
+		workspace_show_error(row->ws);
 }
 
 static void

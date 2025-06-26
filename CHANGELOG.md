@@ -2,6 +2,9 @@
 
 - fix path for Widget_pathname_item.action [MvGulik]
 - add more draw compat definitions [MvGulik]
+- better error / alert system
+- filters on file dialogs
+- fix a segv in Colour widget edit action
 
 ## 9.0.10 2025/06/22
 

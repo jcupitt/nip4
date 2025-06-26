@@ -674,26 +674,6 @@ imagedisplay_snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
 	imagedisplay_overlay_snapshot(imagedisplay, snapshot);
 
 	gtk_snapshot_pop(snapshot);
-
-	/* It's unclear how to do this :( maybe we're supposed to get the base
-	 * widget class to do it? Draw it ourselves for now.
-	if (gtk_widget_has_focus(widget)) {
-		GskRoundedRect outline;
-
-		gsk_rounded_rect_init_from_rect(&outline,
-			&GRAPHENE_RECT_INIT(
-				3,
-				3,
-				gtk_widget_get_width(widget) - 6,
-				gtk_widget_get_height(widget) - 6),
-			5);
-
-		gtk_snapshot_append_border(snapshot,
-			&outline,
-			(float[4]){ 2, 2, 2, 2 },
-			(GdkRGBA[4]){ BORDER, BORDER, BORDER, BORDER });
-	}
-	 */
 }
 
 static void
@@ -863,6 +843,8 @@ imagedisplay_class_init(ImagedisplayClass *class)
 		g_cclosure_marshal_VOID__OBJECT,
 		G_TYPE_NONE, 1,
 		GTK_TYPE_SNAPSHOT);
+
+	gtk_widget_class_set_css_name(widget_class, "imagedisplay");
 }
 
 Imagedisplay *

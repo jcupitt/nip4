@@ -1097,3 +1097,40 @@ imageinfo_to_text(Imageinfo *imageinfo, VipsBuf *buf)
 		}
 	}
 }
+
+static void *
+imageinfo_filter_add(void *a, void *b, void *c)
+{
+	VipsForeignClass *class = (VipsForeignClass *) a;
+	GtkFileFilter *filter = GTK_FILE_FILTER(b);
+
+    if (!G_TYPE_IS_ABSTRACT(G_TYPE_FROM_CLASS(class)) &&
+        class->suffs)
+		for (int i = 0; class->suffs[i]; i++)
+			// +1 to skip the "." that libvips uses
+			gtk_file_filter_add_suffix(filter, class->suffs[i] + 1);
+
+	return NULL;
+}
+
+GtkFileFilter *
+imageinfo_filter_save_new(void)
+{
+	GtkFileFilter *filter = gtk_file_filter_new();
+
+	gtk_file_filter_set_name(filter, "libvips-supported images");
+	vips_foreign_map("VipsForeignSave", imageinfo_filter_add, filter, NULL);
+
+	return filter;
+}
+
+GtkFileFilter *
+imageinfo_filter_load_new(void)
+{
+	GtkFileFilter *filter = gtk_file_filter_new();
+
+	gtk_file_filter_set_name(filter, "libvips-supported images");
+	vips_foreign_map("VipsForeignLoad", imageinfo_filter_add, filter, NULL);
+
+	return filter;
+}

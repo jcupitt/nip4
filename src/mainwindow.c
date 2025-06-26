@@ -147,7 +147,7 @@ mainwindow_get_workspace(Mainwindow *main)
 void
 mainwindow_error(Mainwindow *main)
 {
-	workspace_set_show_error(mainwindow_get_workspace(main), TRUE);
+	workspace_show_error(mainwindow_get_workspace(main));
 }
 
 static void
@@ -215,7 +215,7 @@ mainwindow_load_path(Mainwindow *main, const char *path)
 	return TRUE;
 }
 
-// used byworkspacegroupview.c for filename drop
+// used by workspacegroupview.c for filename drop
 gboolean
 mainwindow_paste_filename(const char *filename, void *user_data)
 {
@@ -277,6 +277,17 @@ mainwindow_open_result(GObject *source_object,
 		mainwindow_open(main, file);
 }
 
+GtkFileFilter *
+mainwindow_filter_all_new(void)
+{
+	GtkFileFilter *filter = gtk_file_filter_new();
+
+	gtk_file_filter_set_name(filter, "all");
+	gtk_file_filter_add_pattern(filter, "*");
+
+	return filter;
+}
+
 static void
 mainwindow_open_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
@@ -291,6 +302,24 @@ mainwindow_open_action(GSimpleAction *action,
 	GFile *load_folder = mainwindow_get_load_folder(main);
 	if (load_folder)
 		gtk_file_dialog_set_initial_folder(dialog, load_folder);
+
+	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+	GtkFileFilter *filter;
+
+	filter = imageinfo_filter_save_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	filter = workspacegroup_filter_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	filter = mainwindow_filter_all_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
+	g_object_unref(filters);
 
 	gtk_file_dialog_open(dialog, GTK_WINDOW(main), NULL,
 		mainwindow_open_result, main);
@@ -366,7 +395,11 @@ mainwindow_saveas_sub(GObject *source_object,
 	if (file) {
 		mainwindow_set_save_folder(main, file);
 
-		g_autofree char *filename = g_file_get_path(file);
+		g_autofree char *path = g_file_get_path(file);
+
+		// make sure we have a ".ws" suffix
+		char filename[VIPS_PATH_MAX];
+		change_suffix(path, filename, ".ws", (const char*[]){ ".ws" }, 1);
 
 		if (workspacegroup_save_all(main->wsg, filename)) {
 			filemodel_set_modified(FILEMODEL(main->wsg), FALSE);
@@ -387,6 +420,21 @@ mainwindow_saveas(Mainwindow *main)
 	GFile *save_folder = mainwindow_get_save_folder(main);
 	if (save_folder)
 		gtk_file_dialog_set_initial_folder(dialog, save_folder);
+
+	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+
+	GtkFileFilter *filter;
+
+	filter = workspacegroup_filter_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	filter = mainwindow_filter_all_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
+	g_object_unref(filters);
 
 	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
 		&mainwindow_saveas_sub, main);
@@ -566,7 +614,7 @@ mainwindow_keyboard_duplicate_action(GSimpleAction *action,
 	Workspace *ws;
 	if ((ws = WORKSPACE(ICONTAINER(main->wsg)->current))) {
 		if (!workspace_selected_duplicate(ws))
-			workspace_set_show_error(ws, TRUE);
+			workspace_show_error(ws);
 
 		workspace_deselect_all(ws);
 		symbol_recalculate_all();
@@ -1001,12 +1049,12 @@ mainwindow_new(App *app, Workspacegroup *wsg)
 			  "to copy files over from your old work area"),
 			save_dir, PACKAGE);
 
-		mainwindow_error(main);
+		workspace_show_alert(mainwindow_get_workspace(main));
 	}
 
 	double size = directory_size(PATH_TMP);
 	if (size > 10 * 1024 * 1024) {
-		error_top("%s", _("Many files in temp area"));
+		error_top("%s", _("Many files in temporary area"));
 
 		char save_dir[VIPS_PATH_MAX];
 		g_strlcpy(save_dir, PATH_TMP, VIPS_PATH_MAX);
@@ -1015,11 +1063,11 @@ mainwindow_new(App *app, Workspacegroup *wsg)
 		char txt[256];
 		VipsBuf buf = VIPS_BUF_STATIC(txt);
 		vips_buf_append_size(&buf, size);
-		error_sub(_("The temp area \"%s\" contains %s of files. "
+		error_sub(_("The temporary area \"%s\" contains %s of files. "
             "Use \"Recover after crash\" to clean up."),
             save_dir, vips_buf_all(&buf));
 
-		mainwindow_error(main);
+		workspace_show_alert(mainwindow_get_workspace(main));
 	}
 
 	return main;
@@ -1043,8 +1091,7 @@ mainwindow_cull_timeout(gpointer user_data)
 {
 	mainwindow_cull_timeout_id = 0;
 
-	slist_map(mainwindow_all,
-		(SListMapFn) mainwindow_cull_sub, NULL);
+	slist_map(mainwindow_all, (SListMapFn) mainwindow_cull_sub, NULL);
 
 	return FALSE;
 }

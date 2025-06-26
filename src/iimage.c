@@ -385,7 +385,9 @@ iimage_class_init(iImageClass *class)
 	classmodel_class->class_new = iimage_class_new;
 
 	classmodel_class->graphic_save = iimage_graphic_save;
+	classmodel_class->graphic_filter_save = imageinfo_filter_save_new;
 	classmodel_class->graphic_replace = iimage_graphic_replace;
+	classmodel_class->graphic_filter_replace = imageinfo_filter_load_new;
 
 	/* Static init.
 	 */

@@ -45,7 +45,7 @@ static gint workspace_layout_timeout = 0;
 /* Ask views to display or hide their error message.
  */
 void
-workspace_set_show_error(Workspace *ws, gboolean show_error)
+workspace_set_error(Workspace *ws, gboolean show_error)
 {
 	if (show_error) {
 		VIPS_SETSTR(ws->error_top, error_get_top());
@@ -58,10 +58,18 @@ workspace_set_show_error(Workspace *ws, gboolean show_error)
 	}
 }
 
+/* Display an error message.
+ */
+void
+workspace_show_error(Workspace *ws)
+{
+	workspace_set_error(ws, TRUE);
+}
+
 static void *
 workspace_clear_error(Workspace *ws)
 {
-	workspace_set_show_error(ws, FALSE);
+	workspace_set_error(ws, FALSE);
 
 	return NULL;
 }
@@ -70,6 +78,30 @@ void
 workspace_clear_error_all(void)
 {
 	slist_map(workspace_all, (SListMapFn) workspace_clear_error, NULL);
+}
+
+/* Ask views to display or hide their alert message.
+ */
+void
+workspace_set_alert(Workspace *ws, gboolean show_alert)
+{
+	if (show_alert) {
+		VIPS_SETSTR(ws->alert_top, error_get_top());
+		VIPS_SETSTR(ws->alert_sub, error_get_sub());
+	}
+
+	if (ws->show_alert != show_alert) {
+		ws->show_alert = show_alert;
+		iobject_changed(IOBJECT(ws));
+	}
+}
+
+/* Display an alert message.
+ */
+void
+workspace_show_alert(Workspace *ws)
+{
+	workspace_set_alert(ws, TRUE);
 }
 
 static void
@@ -1282,7 +1314,7 @@ workspace_selected_remove_yesno_cb(GtkWindow *window, gpointer user_data)
 	Workspace *ws = WORKSPACE(user_data);
 
 	if (!workspace_selected_remove(ws))
-		workspace_set_show_error(ws, TRUE);
+		workspace_show_error(ws);
 }
 
 /* Ask before removing selected. If there's only one row selected, don't
@@ -1293,7 +1325,7 @@ workspace_selected_remove_yesno(Workspace *ws, GtkWindow *window)
 {
 	if (workspace_selected_num(ws) == 1) {
 		if (!workspace_selected_remove(ws))
-			workspace_set_show_error(ws, TRUE);
+			workspace_show_error(ws);
 	}
 	else if (workspace_selected_num(ws) > 1) {
 		char txt[30];

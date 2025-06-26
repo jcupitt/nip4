@@ -22,6 +22,10 @@
   background-color: #4f3e22;
 }
 
+.alert_widget {
+  background-color: #454555;
+}
+
 .centre_widget label {
   font-weight: bold;
   font-size: large;
@@ -89,3 +93,20 @@
   margin-right: 4px;
 }
 
+/* This draws a focus rect that fades in nicely, but I can't get it to fade
+ * out again after a while :(
+ *
+ * It's too visually distracting, so comment it out.
+ *
+imagedisplay {
+  transition: outline-offset 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-radius: 7px;
+  outline: 2px solid transparent;
+  outline-offset: 4px;
+}
+
+imagedisplay:focus {
+  outline-color: @theme_selected_bg_color;
+  outline-offset: -3px;
+}
+ */

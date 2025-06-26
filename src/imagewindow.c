@@ -1247,7 +1247,7 @@ imagewindow_region_action(GSimpleAction *action,
 		if (g_str_equal(name, "region-duplicate")) {
 			row_select(row);
 			if (!workspace_selected_duplicate(ws))
-				workspace_set_show_error(row->ws, TRUE);
+				workspace_show_error(ws);
 			workspace_deselect_all(ws);
 
 			symbol_recalculate_all();

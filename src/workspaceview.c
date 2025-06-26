@@ -445,7 +445,7 @@ workspaceview_kitg_activate(Toolkitgroupview *kitgview,
 			toolkitgroupview_home(kitgview);
 		}
 		else
-			workspace_set_show_error(ws, TRUE);
+			workspace_show_error(ws);
 	}
 }
 
@@ -546,6 +546,14 @@ workspaceview_refresh(vObject *vobject)
 	if (ws->show_error) {
 		set_glabel(wview->error_top, ws->error_top);
 		set_glabel(wview->error_sub, ws->error_sub);
+	}
+
+	// show or hide the alert bar
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(wview->alert_bar),
+		ws->show_alert);
+	if (ws->show_alert) {
+		set_glabel(wview->alert_top, ws->alert_top);
+		set_glabel(wview->alert_sub, ws->alert_sub);
 	}
 
 	// columnviews change appearance based on workspace settings like locked,
@@ -753,7 +761,7 @@ workspaceview_saveas_sub(GObject *source_object,
 
 		icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 		if (!workspacegroup_save_current(wsg, filename))
-			workspace_set_show_error(ws, TRUE);
+			workspace_show_error(ws);
 	}
 }
 
@@ -797,7 +805,7 @@ workspaceview_merge_sub(GObject *source_object,
 		g_autofree char *filename = g_file_get_path(file);
 
 		if (!workspace_merge_file(ws, filename))
-			workspace_set_show_error(ws, TRUE);
+			workspace_show_error(ws);
 	}
 }
 
@@ -837,7 +845,7 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		!ws->locked)
 		workspace_column_new(ws);
 	else if (g_str_equal(name, "next-error"))
-		workspace_set_show_error(ws, workspace_next_error(ws));
+		workspace_set_error(ws, workspace_next_error(ws));
 	else if (g_str_equal(name, "program") &&
 		!ws->locked)
 		program_new(app, ws->kitg);
@@ -864,19 +872,19 @@ workspaceview_action(GSimpleAction *action, GVariant *parameter, View *view)
 
 		char filename[VIPS_PATH_MAX];
 		if (!temp_name(filename, IOBJECT(from)->name, "ws")) {
-			workspace_set_show_error(ws, TRUE);
+			workspace_show_error(ws);
 			return;
 		}
 
 		icontainer_current(ICONTAINER(wsg), ICONTAINER(from));
 		if (!workspacegroup_save_current(wsg, filename)) {
-			workspace_set_show_error(ws, TRUE);
+			workspace_show_error(ws);
 			return;
 		}
 
 		icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 		if (!workspace_merge_file(ws, filename)) {
-			workspace_set_show_error(ws, TRUE);
+			workspace_show_error(ws);
 			return;
 		}
 
@@ -1282,7 +1290,16 @@ workspaceview_error_close_clicked(GtkButton *button, void *user_data)
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
 
-	workspace_set_show_error(ws, FALSE);
+	workspace_set_error(ws, FALSE);
+}
+
+static void
+workspaceview_alert_close_clicked(GtkButton *button, void *user_data)
+{
+	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+	workspace_set_alert(ws, FALSE);
 }
 
 static void
@@ -1299,6 +1316,9 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_VARIABLE(Workspaceview, error_bar);
 	BIND_VARIABLE(Workspaceview, error_top);
 	BIND_VARIABLE(Workspaceview, error_sub);
+	BIND_VARIABLE(Workspaceview, alert_bar);
+	BIND_VARIABLE(Workspaceview, alert_top);
+	BIND_VARIABLE(Workspaceview, alert_sub);
 	BIND_VARIABLE(Workspaceview, left);
 	BIND_VARIABLE(Workspaceview, right);
 	BIND_VARIABLE(Workspaceview, kitgview);
@@ -1311,6 +1331,7 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_CALLBACK(workspaceview_drag_update);
 	BIND_CALLBACK(workspaceview_drag_end);
 	BIND_CALLBACK(workspaceview_error_close_clicked);
+	BIND_CALLBACK(workspaceview_alert_close_clicked);
 
 	object_class->dispose = workspaceview_dispose;
 

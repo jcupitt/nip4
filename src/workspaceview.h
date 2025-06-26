@@ -55,6 +55,9 @@ struct _Workspaceview {
 	GtkWidget *error_bar;
 	GtkWidget *error_top;
 	GtkWidget *error_sub;
+	GtkWidget *alert_bar;
+	GtkWidget *alert_top;
+	GtkWidget *alert_sub;
 	GtkWidget *left;
 	GtkWidget *right;
 	GtkWidget *kitgview;

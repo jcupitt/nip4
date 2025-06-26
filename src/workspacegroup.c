@@ -446,7 +446,7 @@ workspacegroup_load_columns(Workspacegroup *wsg,
 		error_sub(_("file \"%s\" needs version %d.%d, merging "
 					"into this tab may cause compatibility problems"),
 			state->filename, xml_major, xml_minor);
-		workspace_set_show_error(ws, TRUE);
+		workspace_show_error(ws);
 	}
 
 	/* Search all the columns we will load for their names and add rename
@@ -510,7 +510,7 @@ workspacegroup_load_rows(Workspacegroup *wsg,
 		error_sub(_("file \"%s\" needs version %d.%d, merging "
 					"into this tab may cause compatibility problems"),
 			state->filename, xml_major, xml_minor);
-		workspace_set_show_error(ws, TRUE);
+		workspace_show_error(ws);
 	}
 
 	FOR_ALL_XML(xroot, xws, "Workspace"){
@@ -953,4 +953,15 @@ workspacegroup_duplicate(Workspacegroup *wsg)
 	filemodel_set_modified(FILEMODEL(new_wsg), FILEMODEL(wsg)->modified);
 
 	return new_wsg;
+}
+
+GtkFileFilter *
+workspacegroup_filter_new(void)
+{
+	GtkFileFilter *filter = gtk_file_filter_new();
+
+	gtk_file_filter_set_name(filter, "nip4 workspaces");
+	gtk_file_filter_add_suffix(filter, "ws");
+
+	return filter;
 }
