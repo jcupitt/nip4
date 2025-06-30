@@ -4,6 +4,12 @@
 
 	can be given eg. "$HOME/pics/k2.jpg"
 
+- need to update thumbnail on imagewindow close
+
+- need to
+
+- have a ref leak on imagewindow open / close
+
 
 - load ws with locked tab, rightclick menu on locked tab does not
   have tick selected

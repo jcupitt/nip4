@@ -248,9 +248,6 @@ imagewindow_active_touch(Imagewindow *win, Active *active)
 static void
 imagewindow_active_remove(Imagewindow *win, Active *active)
 {
-	Tilesource *tilesource = imageui_get_tilesource(active->imageui);
-	printf("gtk_stack_remove: %s\n", tilesource->filename);
-
 	gtk_stack_remove(GTK_STACK(win->stack), GTK_WIDGET(active->imageui));
 
 	if (active->imageui == win->imageui)
@@ -598,8 +595,6 @@ imagewindow_imageui_add(Imagewindow *win, Imageui *imageui)
 		G_CALLBACK(imagewindow_tilesource_changed), win, 0);
 	g_signal_connect_object(imageui, "changed",
 		G_CALLBACK(imagewindow_imageui_changed), win, 0);
-
-	printf("gtk_stack_add_child: %s\n", tilesource->filename);
 
 	gtk_stack_add_child(GTK_STACK(win->stack), GTK_WIDGET(imageui));
 
