@@ -93,6 +93,7 @@ struct _Imagewindow {
 	char **files;
 	int n_files;
 	int current_file;
+	char *dirname;
 	gboolean preserve;
 
 	/* Widgets.
@@ -124,6 +125,10 @@ struct _Imagewindow {
 	View *action_view;
 
 	GSettings *settings;
+
+	/* Next transition hint.
+	 */
+	GtkStackTransitionType transition;
 
 	/* We need to detect ctrl-click and shift-click for region create and
 	 * resize.
@@ -157,6 +162,8 @@ static guint imagewindow_signals[SIG_LAST] = { 0 };
  */
 static GType *imagewindow_supported_types;
 static int imagewindow_n_supported_types;
+
+static const int imagewindow_max_active = 3;
 
 static void
 imagewindow_set_error(Imagewindow *win, const char *message)
@@ -274,7 +281,7 @@ imagewindow_active_add(Imagewindow *win, Imageui *imageui)
 
 	imagewindow_active_touch(win, active);
 
-	while (g_slist_length(win->active) > 3) {
+	while (g_slist_length(win->active) > imagewindow_max_active) {
 		Active *oldest;
 
 		oldest = NULL;
@@ -296,9 +303,8 @@ imagewindow_active_add(Imagewindow *win, Imageui *imageui)
 static void
 imagewindow_files_free(Imagewindow *win)
 {
-	imagewindow_active_remove_all(win);
-
 	VIPS_FREEF(g_strfreev, win->files);
+	VIPS_FREE(win->dirname);
 	win->n_files = 0;
 	win->current_file = 0;
 }
@@ -344,7 +350,15 @@ imagewindow_files_set_path(Imagewindow *win, const char *path)
 	printf("imagewindow_files_set_path:\n");
 #endif /*DEBUG*/
 
-	g_autoptr(GDir) dir = g_dir_open(dirname, 0, &error);
+	// same dir as last time? do nothing
+	if (win->dirname &&
+		g_str_equal(dirname, win->dirname))
+		return;
+
+	imagewindow_files_free(win);
+
+	win->dirname = g_steal_pointer(&dirname);
+	g_autoptr(GDir) dir = g_dir_open(win->dirname, 0, &error);
 	if (!dir) {
 		imagewindow_gerror(win, &error);
 		return;
@@ -356,7 +370,7 @@ imagewindow_files_set_path(Imagewindow *win, const char *path)
 	files = g_slist_prepend(files, g_strdup(path));
 
 	while ((filename = g_dir_read_name(dir))) {
-		g_autofree char *path = g_build_path("/", dirname, filename, NULL);
+		g_autofree char *path = g_build_path("/", win->dirname, filename, NULL);
 		g_autoptr(GFile) this_file = g_file_new_for_path(path);
 
 		// - never add the the passed-in filename (we add it above)
@@ -387,11 +401,11 @@ imagewindow_files_set_path(Imagewindow *win, const char *path)
 static void
 imagewindow_files_set(Imagewindow *win, const char **files, int n_files)
 {
-	imagewindow_files_free(win);
-
 	if (n_files == 1)
 		imagewindow_files_set_path(win, files[0]);
 	else if (n_files > 1) {
+		imagewindow_files_free(win);
+
 		win->n_files = n_files;
 		win->files = VIPS_ARRAY(NULL, n_files + 1, char *);
 		for (int i = 0; i < win->n_files; i++)
@@ -436,8 +450,6 @@ static void
 imagewindow_reset_view(Imagewindow *win)
 {
 	Tilesource *tilesource = imagewindow_get_tilesource(win);
-
-	printf("imagewindow_reset_view:\n");
 
 	if (tilesource) {
 		set_state_bool(GTK_WIDGET(win), "falsecolour", FALSE);
@@ -674,7 +686,7 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 		gtk_label_set_text(GTK_LABEL(win->subtitle), "");
 
 	if (imageui) {
-		// gtk_stack_set_transition_type(GTK_STACK(win->stack), transition);
+		gtk_stack_set_transition_type(GTK_STACK(win->stack), transition);
 		gtk_stack_set_visible_child(GTK_STACK(win->stack), GTK_WIDGET(imageui));
 
 		/* Enable the control settings, if the displaycontrolbar is on.
@@ -696,55 +708,6 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 
 	// update the menus
 	imagewindow_tilesource_changed(new_tilesource, win);
-}
-
-static void
-imagewindow_open_current_file(Imagewindow *win,
-	GtkStackTransitionType transition)
-{
-	imagewindow_error_hide(win);
-
-	if (!win->files)
-		imagewindow_imageui_set_visible(win, NULL, transition);
-	else {
-		char *filename = win->files[win->current_file];
-
-		Imageui *imageui;
-		Active *active;
-
-#ifdef DEBUG
-		printf("imagewindow_open_current_file: %s:\n", filename);
-#endif /*DEBUG*/
-
-		imageui = NULL;
-		if ((active = imagewindow_active_lookup_by_filename(win, filename)))
-			// reselect old image
-			imageui = active->imageui;
-		else {
-			// new image
-			g_autoptr(Tilesource) tilesource =
-				tilesource_new_from_file(filename);
-			if (!tilesource) {
-				imagewindow_error(win);
-				return;
-			}
-
-			imageui = imageui_new(tilesource, win->iimage);
-			if (!imageui) {
-				imagewindow_error(win);
-				return;
-			}
-
-			imagewindow_imageui_add(win, imageui);
-		}
-
-		if (win->iimage) {
-			iimage_replace(win->iimage, filename);
-			symbol_recalculate_all_force(FALSE);
-		}
-
-		imagewindow_imageui_set_visible(win, imageui, transition);
-	}
 }
 
 static void
@@ -824,8 +787,9 @@ imagewindow_paste_filename(const char *filename, void *user_data)
 {
 	Imagewindow *win = IMAGEWINDOW(user_data);
 
-	imagewindow_files_set(win, &filename, 1);
-	imagewindow_open_current_file(win, GTK_STACK_TRANSITION_TYPE_ROTATE_LEFT);
+	win->transition = GTK_STACK_TRANSITION_TYPE_SLIDE_DOWN;
+	iimage_replace(win->iimage, filename);
+	symbol_recalculate_all();
 
 	return TRUE;
 }
@@ -1046,9 +1010,10 @@ imagewindow_next_image(GSimpleAction *action,
 		return;
 
 	if (win->n_files > 0) {
+		win->transition = GTK_STACK_TRANSITION_TYPE_SLIDE_LEFT;
 		win->current_file = (win->current_file + 1) % win->n_files;
-		imagewindow_open_current_file(win,
-			GTK_STACK_TRANSITION_TYPE_ROTATE_LEFT);
+		iimage_replace(win->iimage, win->files[win->current_file]);
+		symbol_recalculate_all();
 	}
 }
 
@@ -1064,10 +1029,11 @@ imagewindow_prev_image(GSimpleAction *action,
 		return;
 
 	if (win->n_files > 0) {
-		win->current_file = (win->current_file + win->n_files - 1) %
-			win->n_files;
-		imagewindow_open_current_file(win,
-			GTK_STACK_TRANSITION_TYPE_ROTATE_RIGHT);
+		win->transition = GTK_STACK_TRANSITION_TYPE_SLIDE_RIGHT;
+		win->current_file =
+			(win->current_file + win->n_files - 1) % win->n_files;
+		iimage_replace(win->iimage, win->files[win->current_file]);
+		symbol_recalculate_all();
 	}
 }
 
@@ -1348,6 +1314,7 @@ imagewindow_init(Imagewindow *win)
 #endif /*DEBUG*/
 
 	win->settings = g_settings_new(APPLICATION_ID);
+	win->transition = GTK_STACK_TRANSITION_TYPE_SLIDE_DOWN;
 
 	gtk_widget_init_template(GTK_WIDGET(win));
 
@@ -1561,44 +1528,61 @@ imagewindow_get_settings(Imagewindow *win)
 }
 
 static void
-imagewindow_set_tilesource(Imagewindow *win, Tilesource *tilesource)
-{
-	if (win->imageui) {
-		g_object_set(win->imageui,
-			"tilesource", tilesource,
-			NULL);
-		imagewindow_imageui_set_visible(win,
-			win->imageui, GTK_STACK_TRANSITION_TYPE_SLIDE_DOWN);
-	}
-	else {
-		Imageui *imageui = imageui_new(tilesource, win->iimage);
-		if (!imageui) {
-			imagewindow_error(win);
-			return;
-		}
-
-		imagewindow_files_free(win);
-		if (tilesource->filename)
-			imagewindow_files_set(win,
-				(const char **) &tilesource->filename, 1);
-		imagewindow_imageui_add(win, imageui);
-		imagewindow_imageui_set_visible(win,
-			imageui, GTK_STACK_TRANSITION_TYPE_SLIDE_DOWN);
-	}
-
-}
-
-static void
 imagewindow_iimage_changed(iImage *iimage, Imagewindow *win)
 {
 #ifdef DEBUG
 	printf("imagewindow_iimage_changed:\n");
 #endif /*DEBUG*/
 
-	Tilesource *tilesource = tilesource_new_from_iimage(iimage, 0);
-	imagewindow_set_tilesource(win, tilesource);
-	tilesource_background_load(tilesource);
-	VIPS_UNREF(tilesource);
+	Imageinfo *imageinfo = iimage->value.ii;
+	if (!imageinfo)
+		return;
+
+	// Are we viewing a file? We can look it up in the set of active views
+	if (imageinfo_is_from_file(imageinfo)) {
+		const char *filename = IOBJECT(imageinfo)->name;
+
+		Active *active;
+		Imageui *imageui;
+
+		if ((active = imagewindow_active_lookup_by_filename(win, filename))) {
+			imagewindow_active_touch(win, active);
+			imageui = active->imageui;
+		}
+		else {
+			// new file image
+			g_autoptr(Tilesource) tilesource =
+				tilesource_new_from_file(filename);
+			if (!tilesource) {
+				imagewindow_error(win);
+				return;
+			}
+
+			imageui = imageui_new(tilesource, iimage);
+			if (!imageui) {
+				imagewindow_error(win);
+				return;
+			}
+
+			imagewindow_imageui_add(win, imageui);
+		}
+
+		imagewindow_files_set(win, &filename, 1);
+
+		imagewindow_imageui_set_visible(win, imageui, win->transition);
+	}
+	else {
+		// not a file ... clear the file list and just display the single
+		// image
+		imagewindow_files_free(win);
+
+		g_autoptr(Tilesource) tilesource =
+			tilesource_new_from_iimage(iimage, 0);
+		g_object_set(win->imageui,
+			"tilesource", tilesource,
+			NULL);
+		tilesource_background_load(tilesource);
+	}
 }
 
 static void

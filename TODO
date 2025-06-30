@@ -1,3 +1,11 @@
+- do rescan on "refresh" button click
+
+- check ^V of textures and filenames
+
+- grey/ungrey next/prev on empty file list
+
+
+
 - load ws with locked tab, rightclick menu on locked tab does not
   have tick selected
 
