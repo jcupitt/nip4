@@ -1535,12 +1535,13 @@ imagewindow_iimage_changed(iImage *iimage, Imagewindow *win)
 		return;
 
 	if (imageinfo_is_from_file(imageinfo)) {
-		// look up the filename in the set of active views
-		const char *filename = IOBJECT(imageinfo)->name;
+		char filename[VIPS_PATH_MAX];
 
 		Active *active;
 		Imageui *imageui;
 
+		// look up the filename in the set of active views
+		expand_variables(IOBJECT(imageinfo)->name, filename);
 		if ((active = imagewindow_active_lookup_by_filename(win, filename))) {
 			imagewindow_active_touch(win, active);
 			imageui = active->imageui;
@@ -1563,7 +1564,8 @@ imagewindow_iimage_changed(iImage *iimage, Imagewindow *win)
 			imagewindow_imageui_add(win, imageui);
 		}
 
-		imagewindow_files_set(win, &filename, 1);
+		const char *filenames = filename;
+		imagewindow_files_set(win, &filenames, 1);
 
 		imagewindow_imageui_set_visible(win, imageui, win->transition);
 	}

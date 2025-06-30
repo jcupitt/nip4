@@ -1,14 +1,14 @@
 - force rescan and reload on "refresh" button click
 
-- need to expand env vars in imagewindow filenames
-
-	can be given eg. "$HOME/pics/k2.jpg"
-
 - need to update thumbnail on imagewindow close
 
-- need to
+- need to relayout, shrink on load etc. on reuse of imageui in
+  iimage_changed
 
 - have a ref leak on imagewindow open / close
+
+
+
 
 
 - load ws with locked tab, rightclick menu on locked tab does not
