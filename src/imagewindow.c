@@ -99,6 +99,9 @@ struct _Imagewindow {
 	/* Widgets.
 	 */
 	GtkWidget *right_click_menu;
+	GtkWidget *prev;
+	GtkWidget *next;
+	GtkWidget *refresh;
 	GtkWidget *title;
 	GtkWidget *subtitle;
 	GtkWidget *gears;
@@ -245,6 +248,9 @@ imagewindow_active_touch(Imagewindow *win, Active *active)
 static void
 imagewindow_active_remove(Imagewindow *win, Active *active)
 {
+	Tilesource *tilesource = imageui_get_tilesource(active->imageui);
+	printf("gtk_stack_remove: %s\n", tilesource->filename);
+
 	gtk_stack_remove(GTK_STACK(win->stack), GTK_WIDGET(active->imageui));
 
 	if (active->imageui == win->imageui)
@@ -255,16 +261,6 @@ imagewindow_active_remove(Imagewindow *win, Active *active)
 	win->active = g_slist_remove(win->active, active);
 
 	g_free(active);
-}
-
-static void
-imagewindow_active_remove_all(Imagewindow *win)
-{
-	while (win->active) {
-		Active *active = (Active *) win->active->data;
-
-		imagewindow_active_remove(win, active);
-	}
 }
 
 static void
@@ -602,6 +598,8 @@ imagewindow_imageui_add(Imagewindow *win, Imageui *imageui)
 		G_CALLBACK(imagewindow_tilesource_changed), win, 0);
 	g_signal_connect_object(imageui, "changed",
 		G_CALLBACK(imagewindow_imageui_changed), win, 0);
+
+	printf("gtk_stack_add_child: %s\n", tilesource->filename);
 
 	gtk_stack_add_child(GTK_STACK(win->stack), GTK_WIDGET(imageui));
 
@@ -1466,6 +1464,9 @@ imagewindow_class_init(ImagewindowClass *class)
 	BIND_RESOURCE("imagewindow.ui");
 
 	BIND_VARIABLE(Imagewindow, right_click_menu);
+	BIND_VARIABLE(Imagewindow, prev);
+	BIND_VARIABLE(Imagewindow, next);
+	BIND_VARIABLE(Imagewindow, refresh);
 	BIND_VARIABLE(Imagewindow, title);
 	BIND_VARIABLE(Imagewindow, subtitle);
 	BIND_VARIABLE(Imagewindow, gears);
@@ -1538,8 +1539,8 @@ imagewindow_iimage_changed(iImage *iimage, Imagewindow *win)
 	if (!imageinfo)
 		return;
 
-	// Are we viewing a file? We can look it up in the set of active views
 	if (imageinfo_is_from_file(imageinfo)) {
+		// look up the filename in the set of active views
 		const char *filename = IOBJECT(imageinfo)->name;
 
 		Active *active;
@@ -1572,17 +1573,33 @@ imagewindow_iimage_changed(iImage *iimage, Imagewindow *win)
 		imagewindow_imageui_set_visible(win, imageui, win->transition);
 	}
 	else {
-		// not a file ... clear the file list and just display the single
-		// image
-		imagewindow_files_free(win);
-
+		// not a file ... just display the single image
 		g_autoptr(Tilesource) tilesource =
 			tilesource_new_from_iimage(iimage, 0);
-		g_object_set(win->imageui,
-			"tilesource", tilesource,
-			NULL);
-		tilesource_background_load(tilesource);
+
+		if (win->imageui)
+			g_object_set(win->imageui,
+				"tilesource", tilesource,
+				NULL);
+		else {
+			Imageui *imageui = imageui_new(tilesource, iimage);
+			if (!imageui) {
+				imagewindow_error(win);
+				return;
+			}
+
+			imagewindow_imageui_add(win, imageui);
+
+			imagewindow_imageui_set_visible(win,
+				imageui, GTK_STACK_TRANSITION_TYPE_NONE);
+		}
+
+		imagewindow_files_free(win);
 	}
+
+	gtk_widget_set_sensitive(win->prev, win->n_files > 1);
+	gtk_widget_set_sensitive(win->next, win->n_files > 1);
+	gtk_widget_set_sensitive(win->refresh, win->n_files > 0);
 }
 
 static void

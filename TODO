@@ -1,9 +1,8 @@
-- do rescan on "refresh" button click
+- force rescan and reload on "refresh" button click
 
-- check ^V of textures and filenames
+- need to expand env vars in imagewindow filenames
 
-- grey/ungrey next/prev on empty file list
-
+	can be given eg. "$HOME/pics/k2.jpg"
 
 
 - load ws with locked tab, rightclick menu on locked tab does not
