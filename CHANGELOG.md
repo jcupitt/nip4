@@ -5,6 +5,8 @@
 - better error / alert system
 - filters on file dialogs
 - fix a segv in Colour widget edit action
+- much better next/prev/refresh in imagewindow
+- much better imagewindow focus indicator
 
 ## 9.0.10 2025/06/22
 
