@@ -1,11 +1,12 @@
-- force rescan and reload on "refresh" button click
+- have a ref leak on imagewindow open / close
 
-- need to update thumbnail on imagewindow close
+- force rescan and reload on "refresh" button click
 
 - need to relayout, shrink on load etc. on reuse of imageui in
   iimage_changed
 
-- have a ref leak on imagewindow open / close
+- can we keep the tile cache in some way on tilesopurce change? it'd stop
+  flickering on eg free rotate
 
 
 

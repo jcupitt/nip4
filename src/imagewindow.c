@@ -716,6 +716,13 @@ imagewindow_dispose(GObject *object)
 	FREESID(win->iimage_destroy_sid, win->iimage);
 	VIPS_FREEF(gtk_widget_unparent, win->right_click_menu);
 
+	/* Sendn our settings back to the iimage we came from.
+	 */
+	if (win->imageui) {
+		Tilesource *tilesource = imageui_get_tilesource(win->imageui);
+		iimage_update_from_tilesource(win->iimage, tilesource);
+	}
+
 	imagewindow_files_free(win);
 
 	G_OBJECT_CLASS(imagewindow_parent_class)->dispose(object);
