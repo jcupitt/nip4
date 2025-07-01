@@ -524,9 +524,9 @@ tilecache_set_tilesource(Tilecache *tilecache, Tilesource *tilesource)
 			g_signal_connect(tilesource, "collect",
 				G_CALLBACK(tilecache_source_collect), tilecache);
 
-		/* Any tiles must be invalidated.
+		/* Everything has potentially changed, including the image size.
 		 */
-		tilecache_source_tiles_changed(tilesource, tilecache);
+		tilecache_source_changed(tilesource, tilecache);
 	}
 }
 

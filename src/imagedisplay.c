@@ -353,9 +353,8 @@ imagedisplay_tilecache_changed(Tilecache *tilecache,
 	Imagedisplay *imagedisplay)
 {
 #ifdef DEBUG
-	printf("imagedisplay_tilecache_changed: %d x %d\n",
-		tilecache->tilesource->image_width,
-		tilecache->tilesource->image_height);
+	printf("imagedisplay_tilecache_changed: imagedisplay = %p\n",
+		imagedisplay);
 #endif /*DEBUG*/
 
 	imagedisplay->image_rect.width = tilecache->tilesource->image_width;
@@ -527,8 +526,7 @@ imagedisplay_set_property(GObject *object,
 		break;
 
 	case PROP_TILESOURCE:
-		imagedisplay_set_tilesource(imagedisplay,
-			g_value_get_object(value));
+		imagedisplay_set_tilesource(imagedisplay, g_value_get_object(value));
 		break;
 
 	case PROP_BESTFIT:
