@@ -392,10 +392,16 @@ imagewindow_files_set_path(Imagewindow *win, const char *path)
 }
 
 static void
-imagewindow_files_set(Imagewindow *win, const char **files, int n_files)
+imagewindow_files_set(Imagewindow *win,
+	const char **files, int n_files, gboolean force)
 {
-	if (n_files == 1)
+	if (n_files == 1) {
+		// on a forced update, make sure we regenerate everything
+		if (force)
+			imagewindow_files_free(win);
+
 		imagewindow_files_set_path(win, files[0]);
+	}
 	else if (n_files > 1) {
 		imagewindow_files_free(win);
 
@@ -907,7 +913,7 @@ imagewindow_reload_action(GSimpleAction *action,
 		const char *path = tilesource_get_path(tilesource);
 
 		if (path)
-			imagewindow_files_set(win, &path, 1);
+			imagewindow_files_set(win, &path, 1, TRUE);
 	}
 }
 
@@ -1578,7 +1584,7 @@ imagewindow_iimage_changed(iImage *iimage, Imagewindow *win)
 		}
 
 		const char *filenames = filename;
-		imagewindow_files_set(win, &filenames, 1);
+		imagewindow_files_set(win, &filenames, 1, FALSE);
 
 		imagewindow_imageui_set_visible(win, imageui, win->transition);
 	}
