@@ -723,6 +723,12 @@ imagewindow_dispose(GObject *object)
 		iimage_update_from_tilesource(win->iimage, tilesource);
 	}
 
+	while (win->active) {
+		Active *active = (Active *) win->active->data;
+
+		imagewindow_active_remove(win, active);
+	}
+
 	imagewindow_files_free(win);
 
 	G_OBJECT_CLASS(imagewindow_parent_class)->dispose(object);
