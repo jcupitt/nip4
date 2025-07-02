@@ -1,3 +1,6 @@
+- can see very old textures sometimes
+
+- strange juddering? double repaints for some reason
 
 - load ws with locked tab, rightclick menu on locked tab does not
   have tick selected
