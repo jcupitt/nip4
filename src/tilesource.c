@@ -1981,17 +1981,21 @@ tilesource_request_tile(Tilesource *tilesource, Tile *tile)
 		tilesource_update_image(tilesource);
 	}
 
-	if (vips_region_prepare(tilesource->mask_region, &tile->region->valid))
-		return -1;
-
-	/* tile is within a single tile, so we only need to test the first byte
-	 * of the mask.
+	/* Clip the tile against the size of this level.
 	 */
-	tile->valid = VIPS_REGION_ADDR(tilesource->mask_region,
-		tile->region->valid.left, tile->region->valid.top)[0];
+	VipsRect image = { 0, 0,
+		tilesource->image->Xsize, tilesource->image->Ysize };
+	VipsRect hit;
+	vips_rect_intersectrect(&tile->bounds, &image, &hit);
 
+	/* Is this tile in the libvips cache?
+	 */
+	if (vips_region_prepare(tilesource->mask_region, &hit))
+		return -1;
+	gboolean valid =
+		VIPS_REGION_ADDR(tilesource->mask_region, hit.left, hit.top)[0];
 #ifdef DEBUG_VERBOSE
-	printf("  valid = %d\n", tile->valid);
+	printf("  valid = %d\n", valid);
 #endif /*DEBUG_VERBOSE*/
 
 	/* If the tile is not in cache, we must fetch to trigger a bg recomp.
@@ -1999,19 +2003,13 @@ tilesource_request_tile(Tilesource *tilesource, Tile *tile)
 	 * If it is in cache, we also fetch the pixels and set a texture ready
 	 * for the cache.
 	 */
-	if (vips_region_prepare_to(tilesource->rgb_region, tile->region,
-			&tile->region->valid,
-			tile->region->valid.left,
-			tile->region->valid.top))
+	if (vips_region_prepare(tilesource->rgb_region, &hit))
 		return -1;
 
-	/* Do we have new, valid pixels? Update the texture. We need to do
-	 * this now since the data in the region may change later.
+	/* Do we have new, valid pixels? Update the texture.
 	 */
-	if (tile->valid) {
-		tile_free_texture(tile);
-		tile_get_texture(tile);
-	}
+	if (valid)
+		tile_set_texture(tile, tilesource->rgb_region);
 
 	return 0;
 }
@@ -2026,15 +2024,19 @@ tilesource_collect_tile(Tilesource *tilesource, Tile *tile)
 		tile->region->valid.left, tile->region->valid.top);
 #endif /*DEBUG_VERBOSE*/
 
-	if (vips_region_prepare(tilesource->mask_region, &tile->region->valid))
-		return -1;
-
-	/* tile is within a single tile, so we only need to test the first byte
-	 * of the mask.
+	/* Clip the tile against the size of this level.
 	 */
-	tile->valid = VIPS_REGION_ADDR(tilesource->mask_region,
-		tile->region->valid.left, tile->region->valid.top)[0];
+	VipsRect image = { 0, 0,
+		tilesource->image->Xsize, tilesource->image->Ysize };
+	VipsRect hit;
+	vips_rect_intersectrect(&tile->bounds, &image, &hit);
 
+	/* Is this tile in the libvips cache?
+	 */
+	if (vips_region_prepare(tilesource->mask_region, &hit))
+		return -1;
+	gboolean valid =
+		VIPS_REGION_ADDR(tilesource->mask_region, hit.left, hit.top)[0];
 #ifdef DEBUG_VERBOSE
 	printf("  valid = %d\n", tile->valid);
 #endif /*DEBUG_VERBOSE*/
@@ -2042,15 +2044,11 @@ tilesource_collect_tile(Tilesource *tilesource, Tile *tile)
 	/* Only read out the tile if it's valid. We don't want to trigger another
 	 * compute.
 	 */
-	if (tile->valid) {
-		if (vips_region_prepare_to(tilesource->rgb_region, tile->region,
-				&tile->region->valid,
-				tile->region->valid.left,
-				tile->region->valid.top))
+	if (valid) {
+		if (vips_region_prepare(tilesource->rgb_region, &hit))
 			return -1;
 
-		tile_free_texture(tile);
-		tile_get_texture(tile);
+		tile_set_texture(tile, tilesource->rgb_region);
 	}
 
 	return 0;

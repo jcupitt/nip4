@@ -663,7 +663,7 @@ imagedisplay_snapshot(GtkWidget *widget, GtkSnapshot *snapshot)
 	paint.size.height = imagedisplay->paint_rect.height;
 
 	if (imagedisplay->tilecache &&
-		imagedisplay->tilecache->tiles)
+		imagedisplay->tilecache->n_levels > 0)
 		tilecache_snapshot(imagedisplay->tilecache, snapshot,
 			imagedisplay->scale, imagedisplay->x, imagedisplay->y,
 			&paint, imagedisplay->debug);
@@ -862,7 +862,7 @@ imagedisplay_new(Tilesource *tilesource)
 }
 
 /* image	level0 image coordinates ... this is the coordinate space we
- *		pass down to tilecache
+ *			pass down to tilecache
  *
  * gtk		screen cods, so the coordinates we use to render tiles
  */
