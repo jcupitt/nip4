@@ -6,42 +6,7 @@
 
 	maybe when zoom starts we should purge all invalid textures?
 
-- load a large image, rotate
-
-	CPU load doesn't go over 220%
-
-		because there are only a few tiles in the thumbnail
-
-		dunnt about image view windows though, they should
-		use all cores, seems to get stuck on 170%
-
-		are we shrinking the threadpool too much? maybe that
-		path is missing the right locks, or has too many
-		worker locks?
-
-	free rotate a bit, CPU takes a very long time to go back to 0
-
-	thumbnail takes many minutes to update, typically 150% cpu
-
-	do we have a large queue of pending renders?
-
-		^Q during this period shows 10,000 regions
-
-	EVENTUALLY falls to zero, but it takes an age
-
-	show peak threadpool size on exit?
-
-	we are making 128x128 pixel thumbnail tiles, each of which depends on
-	a 10gb image
-
-	looks like the thumbnail takes maybe 1 - 2s to generate, so we are
-	having many thumbnail tile renders backing up
-
-		need to kill out of date vips_sink_screen() more quickly
-
-		perhaps subsample could test kill in it's pixel loop?
-
-		maybe other slow loops need this too? shrink? conv?
+- do we paint tile outside in or inside out?
 
 - strange juddering? double repaints for some reason
 
@@ -49,6 +14,7 @@
 
 - replace image with a large jpg, don't get a progress bar on load
 
+- double click on theumbnail, thumbnail jumps down and right for one frame
 
 
 
