@@ -187,6 +187,7 @@ tilecache_rebuild_pyramid(Tilecache *tilecache)
 
 		tilecache->level_width[n_levels] = level_width;
 		tilecache->level_height[n_levels] = level_height;
+		n_levels += 1;
 
 		if (level_width < TILE_SIZE &&
 			level_height < TILE_SIZE)
@@ -194,8 +195,6 @@ tilecache_rebuild_pyramid(Tilecache *tilecache)
 
 		level_width = VIPS_MAX(1, level_width >> 1);
 		level_height = VIPS_MAX(1, level_height >> 1);
-
-		n_levels += 1;
 	}
 
 	for (int i = n_levels; i < MAX_LEVELS; i++)
