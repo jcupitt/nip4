@@ -1,20 +1,12 @@
-- can see very old textures sometimes
+- get judder with rotate and images smaller than the window
 
-	happens on zoom after update
+	seem to draw on update, then draw again on relayout
 
-	maybe when zoom starts we should purge all invalid textures?
+	skip the first draw?
 
-- do we paint tile outside in or inside out?
+- show zoomed out tiles too
 
-- strange juddering? double repaints for some reason
-
-	happens when image is smaller than window on one or both axes
-
-- replace image with a large jpg, don't get a progress bar on load
-
-- double click on thumbnail, thumbnail jumps down and right for one frame
-
-
+	should stop some more flicker
 
 - load ws with locked tab, rightclick menu on locked tab does not
   have tick selected

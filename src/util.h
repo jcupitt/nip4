@@ -251,6 +251,7 @@ char *ifile_read_buffer(iOpenFile *of, char *buffer, size_t len);
 int ifile_getc(iOpenFile *of);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(iOpenFile, ifile_close);
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(VipsRect, g_free);
 
 double directory_size(const char *dirname);
 

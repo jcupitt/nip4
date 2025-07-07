@@ -247,6 +247,17 @@ tilecache_source_changed(Tilesource *tilesource, Tilecache *tilecache)
 	 */
 	tilecache_source_tiles_changed(tilesource, tilecache);
 
+	/* Remove all invisible tiles. They could show up later and cause flicker.
+	 */
+	for (int i = 0; i < tilecache->n_levels; i++)
+		while (tilecache->free[i]) {
+			g_autoptr(Tile) tile = TILE(tilecache->free[i]->data);
+
+			tilecache->tiles[i] = g_slist_remove(tilecache->tiles[i], tile);
+			tilecache->visible[i] = g_slist_remove(tilecache->visible[i], tile);
+			tilecache->free[i] = g_slist_remove(tilecache->free[i], tile);
+		}
+
 	/* All views must update.
 	 */
 	tilecache_changed(tilecache);
@@ -339,10 +350,6 @@ tilecache_tiles_for_rect(Tilecache *tilecache, VipsRect *rect, int z,
 /* Request tiles from an area. If they are not in cache, they will be computed
  * in the bg and delivered via _collect().
  *
- * render processes tiles in FIFO order, so we need to add in reverse order
- * of processing. We want repaint to happen in a spiral from the centre out,
- * so we have to add in a spiral from the outside in.
- *
  * We must be careful not to change tilesource if we have all these tiles
  * already (very common for thumbnails, for example).
  */
@@ -365,6 +372,11 @@ tilecache_request_area(Tilecache *tilecache, VipsRect *rect, int z)
 	int right = VIPS_RECT_RIGHT(&touches);
 	int bottom = VIPS_RECT_BOTTOM(&touches);
 
+	/* Build the set of rects to generate here. We need to issue these in
+	 * reverse order to get the screen to update from the centre out.
+	 */
+	g_autoslist(VipsRect) rects = NULL;
+
 	/* Do the four edges, then step in. Loop until the centre is empty.
 	 */
 	for (;;) {
@@ -383,7 +395,7 @@ tilecache_request_area(Tilecache *tilecache, VipsRect *rect, int z)
 		for (x = left; x < right; x += size0) {
 			tile_rect.left = x;
 			tile_rect.top = top;
-			tilecache_request(tilecache, &tile_rect, z);
+			rects = g_slist_prepend(rects, vips_rect_dup(&tile_rect));
 		}
 
 		top += size0;
@@ -396,7 +408,7 @@ tilecache_request_area(Tilecache *tilecache, VipsRect *rect, int z)
 		for (x = left; x < right; x += size0) {
 			tile_rect.left = x;
 			tile_rect.top = bottom - size0;
-			tilecache_request(tilecache, &tile_rect, z);
+			rects = g_slist_prepend(rects, vips_rect_dup(&tile_rect));
 		}
 
 		bottom -= size0;
@@ -409,7 +421,7 @@ tilecache_request_area(Tilecache *tilecache, VipsRect *rect, int z)
 		for (y = top; y < bottom; y += size0) {
 			tile_rect.left = left;
 			tile_rect.top = y;
-			tilecache_request(tilecache, &tile_rect, z);
+			rects = g_slist_prepend(rects, vips_rect_dup(&tile_rect));
 		}
 
 		left += size0;
@@ -422,13 +434,20 @@ tilecache_request_area(Tilecache *tilecache, VipsRect *rect, int z)
 		for (y = top; y < bottom; y += size0) {
 			tile_rect.left = right - size0;
 			tile_rect.top = y;
-			tilecache_request(tilecache, &tile_rect, z);
+			rects = g_slist_prepend(rects, vips_rect_dup(&tile_rect));
 		}
 
 		right -= size0;
 		if (right - left <= 0 ||
 			bottom - top <= 0)
 			break;
+	}
+
+	rects = g_slist_reverse(rects);
+	for (GSList *p = rects; p; p = p->next) {
+		VipsRect *tile = (VipsRect *) p->data;
+
+		tilecache_request(tilecache, tile, z);
 	}
 }
 
