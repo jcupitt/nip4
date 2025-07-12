@@ -31,8 +31,22 @@
 
 /*
 #define DEBUG_VERBOSE
-#define DEBUG
  */
+#define DEBUG
+
+typedef struct _ViewSettings {
+	gboolean valid;
+
+	TilesourceMode mode;
+	double scale;
+	double offset;
+	int page;
+	gboolean falsecolour;
+	gboolean log;
+	gboolean icc;
+	gboolean active;
+	TilecacheBackground background;
+} ViewSettings;
 
 struct _Displaybar {
 	GtkWidget parent_instance;
@@ -57,6 +71,14 @@ struct _Displaybar {
 	guint changed_sid;
 	guint tiles_changed_sid;
 	guint page_changed_sid;
+
+	/* Keep view settings on new image.
+	 */
+	gboolean preserve;
+
+	/* Save and restore view settings here.
+	 */
+	ViewSettings view_settings;
 };
 
 G_DEFINE_TYPE(Displaybar, displaybar, GTK_TYPE_WIDGET);
@@ -64,9 +86,80 @@ G_DEFINE_TYPE(Displaybar, displaybar, GTK_TYPE_WIDGET);
 enum {
 	PROP_IMAGEWINDOW = 1,
 	PROP_REVEALED,
+	PROP_PRESERVE,
 
 	SIG_LAST
 };
+
+/* Save and restore view settings.
+ */
+
+static void
+displaybar_save_view_settings(Displaybar *displaybar)
+{
+	Tilesource *tilesource = displaybar->tilesource;
+	Imageui *imageui = imagewindow_get_imageui(displaybar->win);
+	ViewSettings *view_settings = &displaybar->view_settings;
+
+	if (!tilesource ||
+		!imageui) {
+		view_settings->valid = FALSE;
+		return;
+	}
+
+#ifdef DEBUG
+	printf("displaybar_save_view_settings:\n");
+#endif /*DEBUG*/
+
+	g_object_get(tilesource,
+		"mode", &view_settings->mode,
+		"scale", &view_settings->scale,
+		"offset", &view_settings->offset,
+		"page", &view_settings->page,
+		"falsecolour", &view_settings->falsecolour,
+		"log", &view_settings->log,
+		"icc", &view_settings->icc,
+		"active", &view_settings->active,
+		NULL);
+
+	g_object_get(imageui,
+		"background", &view_settings->background,
+		NULL);
+
+	view_settings->valid = TRUE;
+}
+
+static void
+displaybar_apply_view_settings(Displaybar *displaybar)
+{
+	Tilesource *tilesource = displaybar->tilesource;
+	Imageui *imageui = imagewindow_get_imageui(displaybar->win);
+	ViewSettings *view_settings = &displaybar->view_settings;
+
+	if (!view_settings->valid)
+		return;
+
+#ifdef DEBUG
+	printf("displaybar_apply_view_settings:\n");
+#endif /*DEBUG*/
+
+	if (tilesource)
+		g_object_set(tilesource,
+			"mode", view_settings->mode,
+			"scale", view_settings->scale,
+			"offset", view_settings->offset,
+			"page", view_settings->page,
+			"falsecolour", view_settings->falsecolour,
+			"log", view_settings->log,
+			"icc", view_settings->icc,
+			"active", view_settings->active,
+			NULL);
+
+	if (imageui)
+		g_object_set(imageui,
+			"background", view_settings->background,
+			NULL);
+}
 
 static void
 displaybar_tilesource_changed(Tilesource *tilesource, Displaybar *displaybar)
@@ -92,19 +185,23 @@ displaybar_tilesource_changed(Tilesource *tilesource, Displaybar *displaybar)
 	gtk_widget_set_sensitive(displaybar->page,
 		tilesource->n_pages > 1 &&
 			tilesource->mode == TILESOURCE_MODE_MULTIPAGE);
+
+	displaybar_save_view_settings(displaybar);
 }
 
 static void
 displaybar_page_changed(Tilesource *tilesource, Displaybar *displaybar)
 {
 #ifdef DEBUG
-	printf("displaybar_page_changed:\n");
+	printf("dm1Gisplaybar_page_changed:\n");
 #endif /*DEBUG*/
 
 	g_assert(tilesource == displaybar->tilesource);
 
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(displaybar->page),
 		tilesource->page);
+
+	displaybar_save_view_settings(displaybar);
 }
 
 static void
@@ -119,7 +216,47 @@ displaybar_disconnect(Displaybar *displaybar)
 	}
 }
 
-/* Imagewindow has a new tilesource.
+/* Imagewindow has a new image, eg. after < > in titlebar.
+ */
+static void
+displaybar_imagewindow_new_image(Imagewindow *win, Displaybar *displaybar)
+{
+#ifdef DEBUG
+	printf("displaybar_imagewindow_new_image:\n");
+#endif /*DEBUG*/
+
+	displaybar_disconnect(displaybar);
+
+	Tilesource *new_tilesource = imagewindow_get_tilesource(win);
+	if (new_tilesource) {
+		/* Set new source.
+		 */
+		displaybar->changed_sid = g_signal_connect(new_tilesource,
+			"changed",
+			G_CALLBACK(displaybar_tilesource_changed), displaybar);
+		displaybar->tiles_changed_sid = g_signal_connect(new_tilesource,
+			"tiles-changed",
+			G_CALLBACK(displaybar_tilesource_changed), displaybar);
+		displaybar->page_changed_sid = g_signal_connect(new_tilesource,
+			"page-changed",
+			G_CALLBACK(displaybar_page_changed), displaybar);
+
+		displaybar->tilesource = new_tilesource;
+		g_object_ref(new_tilesource);
+
+		if (displaybar->preserve)
+			displaybar_apply_view_settings(displaybar);
+		else {
+			/* Init displaybar from new source.
+			 */
+			displaybar_tilesource_changed(new_tilesource, displaybar);
+			displaybar_page_changed(new_tilesource, displaybar);
+		}
+	}
+}
+
+/* Imagewindow has changed the image eg. after a recalc. There's a new
+ * tilesource.
  */
 static void
 displaybar_imagewindow_changed(Imagewindow *win, Displaybar *displaybar)
@@ -147,10 +284,7 @@ displaybar_imagewindow_changed(Imagewindow *win, Displaybar *displaybar)
 		displaybar->tilesource = new_tilesource;
 		g_object_ref(new_tilesource);
 
-		/* Init from new source.
-		 */
-		displaybar_tilesource_changed(new_tilesource, displaybar);
-		displaybar_page_changed(new_tilesource, displaybar);
+		displaybar_apply_view_settings(displaybar);
 	}
 }
 
@@ -162,10 +296,11 @@ displaybar_set_imagewindow(Displaybar *displaybar, Imagewindow *win)
 	displaybar->win = win;
 
 	g_signal_connect_object(win, "changed",
-		G_CALLBACK(displaybar_imagewindow_changed),
-		displaybar, 0);
+		G_CALLBACK(displaybar_imagewindow_changed), displaybar, 0);
+	g_signal_connect_object(win, "new-image",
+		G_CALLBACK(displaybar_imagewindow_new_image), displaybar, 0);
 
-	displaybar_imagewindow_changed(win, displaybar);
+	displaybar_imagewindow_new_image(win, displaybar);
 }
 
 static void
@@ -182,6 +317,10 @@ displaybar_set_property(GObject *object,
 	case PROP_REVEALED:
 		gtk_action_bar_set_revealed(GTK_ACTION_BAR(displaybar->action_bar),
 			g_value_get_boolean(value));
+		break;
+
+	case PROP_PRESERVE:
+		displaybar->preserve = g_value_get_boolean(value);
 		break;
 
 	default:
@@ -204,6 +343,10 @@ displaybar_get_property(GObject *object,
 
 	case PROP_REVEALED:
 		g_value_set_boolean(value, gtk_action_bar_get_revealed(action_bar));
+		break;
+
+	case PROP_PRESERVE:
+		g_value_set_boolean(value, displaybar->preserve);
 		break;
 
 	default:
@@ -350,6 +493,14 @@ displaybar_class_init(DisplaybarClass *class)
 			_("Show the display control bar"),
 			FALSE,
 			G_PARAM_READWRITE));
+
+	g_object_class_install_property(gobject_class, PROP_PRESERVE,
+		g_param_spec_boolean("preserve",
+			_("preserve"),
+			_("Preserve view settings on new image"),
+			FALSE,
+			G_PARAM_READWRITE));
+
 }
 
 Displaybar *

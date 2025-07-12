@@ -54,25 +54,6 @@ typedef struct _Active {
 	int timestamp;
 } Active;
 
-typedef struct _ViewSettings {
-	gboolean valid;
-
-	TilesourceMode mode;
-	double scale;
-	double offset;
-	int page;
-	gboolean falsecolour;
-	gboolean log;
-	gboolean icc;
-	gboolean active;
-
-	TilecacheBackground background;
-	double zoom;
-	double x;
-	double y;
-
-} ViewSettings;
-
 struct _Imagewindow {
 	GtkApplicationWindow parent;
 
@@ -94,7 +75,6 @@ struct _Imagewindow {
 	int n_files;
 	int current_file;
 	char *dirname;
-	gboolean preserve;
 
 	/* Widgets.
 	 */
@@ -110,7 +90,7 @@ struct _Imagewindow {
 	GtkWidget *main_box;
 	GtkWidget *stack;
 	GtkWidget *properties;
-	GtkWidget *display_bar;
+	GtkWidget *displaybar;
 	GtkWidget *info_bar;
 	GtkWidget *region_menu;
 
@@ -118,10 +98,6 @@ struct _Imagewindow {
 	 * references.
 	 */
 	GSList *active;
-
-	/* Keep recent view setting here on image change.
-	 */
-	ViewSettings view_settings;
 
 	/* Set on menu popup on a regionview.
 	 */
@@ -147,7 +123,8 @@ G_DEFINE_TYPE(Imagewindow, imagewindow, GTK_TYPE_APPLICATION_WINDOW);
 /* Our signals.
  */
 enum {
-	SIG_CHANGED,		/* A new imageui and tilesource */
+	SIG_CHANGED,		/* The image has updated within the same imageui */
+	SIG_NEW_IMAGE,		/* Completely new image */
 	SIG_STATUS_CHANGED, /* New mouse position */
 	SIG_LAST
 };
@@ -445,6 +422,12 @@ imagewindow_get_tilesource(Imagewindow *win)
 	return win->imageui ? imageui_get_tilesource(win->imageui) : NULL;
 }
 
+Imageui *
+imagewindow_get_imageui(Imagewindow *win)
+{
+	return win->imageui;
+}
+
 static void
 imagewindow_reset_view(Imagewindow *win)
 {
@@ -466,78 +449,6 @@ imagewindow_reset_view(Imagewindow *win)
 	}
 }
 
-/* Save and restore view setttings.
- */
-
-static void
-imagewindow_save_view_settings(Imagewindow *win, ViewSettings *view_settings)
-{
-	Tilesource *tilesource = imagewindow_get_tilesource(win);
-	Imageui *imageui = win->imageui;
-
-	if (!tilesource ||
-		!imageui) {
-		view_settings->valid = FALSE;
-		return;
-	}
-
-	g_object_get(tilesource,
-		"mode", &view_settings->mode,
-		"scale", &view_settings->scale,
-		"offset", &view_settings->offset,
-		"page", &view_settings->page,
-		"falsecolour", &view_settings->falsecolour,
-		"log", &view_settings->log,
-		"icc", &view_settings->icc,
-		"active", &view_settings->active,
-		NULL);
-
-	g_object_get(imageui,
-		"background", &view_settings->background,
-		"zoom", &view_settings->zoom,
-		"x", &view_settings->x,
-		"y", &view_settings->y,
-		NULL);
-
-	view_settings->valid = TRUE;
-}
-
-static void
-imagewindow_restore_view_settings(Imagewindow *win,
-	ViewSettings *view_settings)
-{
-	Tilesource *tilesource = imagewindow_get_tilesource(win);
-	Imageui *imageui = win->imageui;
-
-	if (!view_settings->valid)
-		return;
-
-	if (tilesource)
-		g_object_set(tilesource,
-			"mode", view_settings->mode,
-			"scale", view_settings->scale,
-			"offset", view_settings->offset,
-			"page", view_settings->page,
-			"falsecolour", view_settings->falsecolour,
-			"log", view_settings->log,
-			"icc", view_settings->icc,
-			"active", view_settings->active,
-			NULL);
-
-	if (imageui) {
-		g_object_set(imageui,
-			"background", view_settings->background,
-			"zoom", view_settings->zoom,
-			NULL);
-
-		// must set zoom before xy
-		g_object_set(imageui,
-			"x", view_settings->x,
-			"y", view_settings->y,
-			NULL);
-	}
-}
-
 static void
 imagewindow_tilesource_changed(Tilesource *tilesource, Imagewindow *win)
 {
@@ -548,27 +459,21 @@ imagewindow_tilesource_changed(Tilesource *tilesource, Imagewindow *win)
 	if (tilesource->load_error)
 		imagewindow_set_error(win, tilesource->load_message);
 
-	if (win->preserve)
-		// change the display to match our window settings
-		imagewindow_restore_view_settings(win, &win->view_settings);
-	else {
-		// update win settings from new tile source
-		GVariant *state;
+	// update win settings from new tile source
+	GVariant *state;
 
-		state = g_variant_new_boolean(tilesource->falsecolour);
-		change_state(GTK_WIDGET(win), "falsecolour", state);
+	state = g_variant_new_boolean(tilesource->falsecolour);
+	change_state(GTK_WIDGET(win), "falsecolour", state);
 
-		state = g_variant_new_boolean(tilesource->log);
-		change_state(GTK_WIDGET(win), "log", state);
+	state = g_variant_new_boolean(tilesource->log);
+	change_state(GTK_WIDGET(win), "log", state);
 
-		state = g_variant_new_boolean(tilesource->icc);
-		change_state(GTK_WIDGET(win), "icc", state);
+	state = g_variant_new_boolean(tilesource->icc);
+	change_state(GTK_WIDGET(win), "icc", state);
 
-		const char *name =
-			vips_enum_nick(TILESOURCE_MODE_TYPE, tilesource->mode);
-		state = g_variant_new_string(name);
-		change_state(GTK_WIDGET(win), "mode", state);
-	}
+	const char *name = vips_enum_nick(TILESOURCE_MODE_TYPE, tilesource->mode);
+	state = g_variant_new_string(name);
+	change_state(GTK_WIDGET(win), "mode", state);
 }
 
 static void
@@ -581,6 +486,12 @@ static void
 imagewindow_changed(Imagewindow *win)
 {
 	g_signal_emit(win, imagewindow_signals[SIG_CHANGED], 0);
+}
+
+static void
+imagewindow_new_image(Imagewindow *win)
+{
+	g_signal_emit(win, imagewindow_signals[SIG_NEW_IMAGE], 0);
 }
 
 static void
@@ -624,9 +535,7 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 
 	VipsImage *image;
 
-	/* Save the current view settings in case we need to restore them.
-	 */
-	imagewindow_save_view_settings(win, &win->view_settings);
+	printf("imagewindow_imageui_set_visible:\n");
 
 	if (old_tilesource)
 		g_object_set(old_tilesource,
@@ -699,11 +608,16 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 			NULL);
 	}
 
-	// not a ref, so we can just overwrite it
-	win->imageui = imageui;
+	if (win->imageui != imageui) {
+		// not a ref, so we can just overwrite it
+		win->imageui = imageui;
 
-	// tell everyone there's a new imageui
-	imagewindow_changed(win);
+		// tell everyone there's a new imageui
+		imagewindow_new_image(win);
+	}
+	else
+		// the same image, just updated
+		imagewindow_changed(win);
 
 	// update the menus
 	imagewindow_tilesource_changed(new_tilesource, win);
@@ -966,7 +880,7 @@ imagewindow_control(GSimpleAction *action,
 	Imagewindow *win = IMAGEWINDOW(user_data);
 	Tilesource *tilesource = imagewindow_get_tilesource(win);
 
-	g_object_set(win->display_bar,
+	g_object_set(win->displaybar,
 		"revealed", g_variant_get_boolean(state),
 		NULL);
 
@@ -1142,7 +1056,9 @@ imagewindow_preserve(GSimpleAction *action,
 {
 	Imagewindow *win = IMAGEWINDOW(user_data);
 
-	win->preserve = g_variant_get_boolean(state);
+	g_object_set(win->displaybar,
+		"preserve", g_variant_get_boolean(state),
+		NULL);
 
 	g_simple_action_set_state(action, state);
 }
@@ -1330,7 +1246,7 @@ imagewindow_init(Imagewindow *win)
 
 	gtk_widget_init_template(GTK_WIDGET(win));
 
-	g_object_set(win->display_bar,
+	g_object_set(win->displaybar,
 		"image-window", win,
 		NULL);
 	g_object_set(win->info_bar,
@@ -1350,7 +1266,7 @@ imagewindow_init(Imagewindow *win)
 	gtk_widget_add_controller(win->properties, controller);
 
 	g_settings_bind(win->settings, "control",
-		G_OBJECT(win->display_bar),
+		G_OBJECT(win->displaybar),
 		"revealed",
 		G_SETTINGS_BIND_DEFAULT);
 
@@ -1489,7 +1405,7 @@ imagewindow_class_init(ImagewindowClass *class)
 	BIND_VARIABLE(Imagewindow, main_box);
 	BIND_VARIABLE(Imagewindow, stack);
 	BIND_VARIABLE(Imagewindow, properties);
-	BIND_VARIABLE(Imagewindow, display_bar);
+	BIND_VARIABLE(Imagewindow, displaybar);
 	BIND_VARIABLE(Imagewindow, info_bar);
 	BIND_VARIABLE(Imagewindow, region_menu);
 
@@ -1509,6 +1425,14 @@ imagewindow_class_init(ImagewindowClass *class)
 		G_TYPE_NONE, 0);
 
 	imagewindow_signals[SIG_CHANGED] = g_signal_new("changed",
+		G_TYPE_FROM_CLASS(class),
+		G_SIGNAL_RUN_LAST,
+		0,
+		NULL, NULL,
+		g_cclosure_marshal_VOID__VOID,
+		G_TYPE_NONE, 0);
+
+	imagewindow_signals[SIG_NEW_IMAGE] = g_signal_new("new-image",
 		G_TYPE_FROM_CLASS(class),
 		G_SIGNAL_RUN_LAST,
 		0,
@@ -1593,10 +1517,14 @@ imagewindow_iimage_changed(iImage *iimage, Imagewindow *win)
 		g_autoptr(Tilesource) tilesource =
 			tilesource_new_from_iimage(iimage, 0);
 
-		if (win->imageui)
+		if (win->imageui) {
 			g_object_set(win->imageui,
 				"tilesource", tilesource,
 				NULL);
+
+			imagewindow_imageui_set_visible(win,
+				win->imageui, GTK_STACK_TRANSITION_TYPE_NONE);
+		}
 		else {
 			Imageui *imageui = imageui_new(tilesource, iimage);
 			if (!imageui) {

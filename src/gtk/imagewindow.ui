@@ -294,7 +294,7 @@
         </child>
 
         <child>
-          <object class="Displaybar" id="display_bar">
+          <object class="Displaybar" id="displaybar">
           </object>
         </child>
 

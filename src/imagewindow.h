@@ -54,6 +54,7 @@ Tilesource *imagewindow_get_tilesource(Imagewindow *win);
 GtkWidget *imagewindow_get_main_box(Imagewindow *win);
 GSettings *imagewindow_get_settings(Imagewindow *win);
 guint imagewindow_get_modifiers(Imagewindow *win);
+Imageui *imagewindow_get_imageui(Imagewindow *win);
 
 void imagewindow_set_iimage(Imagewindow *win, iImage *iimage);
 
