@@ -1,15 +1,15 @@
-- test save / restore of "background"
-
-
-
-
-
-
 - seeing unfixable dirty rows sometimes
 
 	happened in a row containing a region as a subobject
 
 	are we updating a row while it's also being computed? can this race?
+
+	we should modify the model and queue a scan and recomp, but not update
+	the heap or mark the row dirty
+
+
+
+
 
 - get judder with rotate and images smaller than the window
 

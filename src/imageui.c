@@ -372,6 +372,7 @@ imageui_set_property(GObject *object,
 	case PROP_BACKGROUND:
 		g_object_set_property(G_OBJECT(imageui->imagedisplay),
 			"background", value);
+		imageui_changed(imageui);
 		break;
 
 	case PROP_ZOOM:

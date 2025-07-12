@@ -59,6 +59,10 @@ struct _Displaybar {
 	 */
 	Tilesource *tilesource;
 
+	/* Not a ref ... the imageui win is displaying.
+	 */
+	Imageui *imageui;
+
 	GtkWidget *action_bar;
 	GtkWidget *gears;
 	GtkWidget *page;
@@ -71,6 +75,7 @@ struct _Displaybar {
 	guint changed_sid;
 	guint tiles_changed_sid;
 	guint page_changed_sid;
+	guint imageui_changed_sid;
 
 	/* Keep view settings on new image.
 	 */
@@ -98,67 +103,63 @@ static void
 displaybar_save_view_settings(Displaybar *displaybar)
 {
 	Tilesource *tilesource = displaybar->tilesource;
-	Imageui *imageui = imagewindow_get_imageui(displaybar->win);
+	Imageui *imageui = displaybar->imageui;
 	ViewSettings *view_settings = &displaybar->view_settings;
 
-	if (!tilesource ||
-		!imageui) {
-		view_settings->valid = FALSE;
-		return;
-	}
-
+	if (tilesource &&
+		imageui) {
 #ifdef DEBUG
-	printf("displaybar_save_view_settings:\n");
+		printf("displaybar_save_view_settings:\n");
 #endif /*DEBUG*/
 
-	g_object_get(tilesource,
-		"mode", &view_settings->mode,
-		"scale", &view_settings->scale,
-		"offset", &view_settings->offset,
-		"page", &view_settings->page,
-		"falsecolour", &view_settings->falsecolour,
-		"log", &view_settings->log,
-		"icc", &view_settings->icc,
-		"active", &view_settings->active,
-		NULL);
+		g_object_get(tilesource,
+			"mode", &view_settings->mode,
+			"scale", &view_settings->scale,
+			"offset", &view_settings->offset,
+			"page", &view_settings->page,
+			"falsecolour", &view_settings->falsecolour,
+			"log", &view_settings->log,
+			"icc", &view_settings->icc,
+			"active", &view_settings->active,
+			NULL);
 
-	g_object_get(imageui,
-		"background", &view_settings->background,
-		NULL);
+		g_object_get(imageui,
+			"background", &view_settings->background,
+			NULL);
 
-	view_settings->valid = TRUE;
+		view_settings->valid = TRUE;
+	}
 }
 
 static void
 displaybar_apply_view_settings(Displaybar *displaybar)
 {
-	Tilesource *tilesource = displaybar->tilesource;
-	Imageui *imageui = imagewindow_get_imageui(displaybar->win);
 	ViewSettings *view_settings = &displaybar->view_settings;
 
-	if (!view_settings->valid)
-		return;
-
+	if (view_settings->valid) {
 #ifdef DEBUG
-	printf("displaybar_apply_view_settings:\n");
+		printf("displaybar_apply_view_settings:\n");
 #endif /*DEBUG*/
 
-	if (tilesource)
-		g_object_set(tilesource,
-			"mode", view_settings->mode,
-			"scale", view_settings->scale,
-			"offset", view_settings->offset,
-			"page", view_settings->page,
-			"falsecolour", view_settings->falsecolour,
-			"log", view_settings->log,
-			"icc", view_settings->icc,
-			"active", view_settings->active,
-			NULL);
+		Tilesource *tilesource = displaybar->tilesource;
+		if (tilesource)
+			g_object_set(tilesource,
+				"mode", view_settings->mode,
+				"scale", view_settings->scale,
+				"offset", view_settings->offset,
+				"page", view_settings->page,
+				"falsecolour", view_settings->falsecolour,
+				"log", view_settings->log,
+				"icc", view_settings->icc,
+				"active", view_settings->active,
+				NULL);
 
-	if (imageui)
-		g_object_set(imageui,
-			"background", view_settings->background,
-			NULL);
+		Imageui *imageui = displaybar->imageui;
+		if (imageui)
+			g_object_set(imageui,
+				"background", view_settings->background,
+				NULL);
+	}
 }
 
 static void
@@ -168,38 +169,54 @@ displaybar_tilesource_changed(Tilesource *tilesource, Displaybar *displaybar)
 	printf("displaybar_tilesource_changed:\n");
 #endif /*DEBUG*/
 
-	g_assert(tilesource == displaybar->tilesource);
+	if (tilesource) {
+		g_assert(tilesource == displaybar->tilesource);
 
-	if (TSLIDER(displaybar->scale)->value != tilesource->scale) {
-		TSLIDER(displaybar->scale)->value = tilesource->scale;
-		tslider_changed(TSLIDER(displaybar->scale));
+		if (TSLIDER(displaybar->scale)->value != tilesource->scale) {
+			TSLIDER(displaybar->scale)->value = tilesource->scale;
+			tslider_changed(TSLIDER(displaybar->scale));
+		}
+
+		if (TSLIDER(displaybar->offset)->value != tilesource->offset) {
+			TSLIDER(displaybar->offset)->value = tilesource->offset;
+			tslider_changed(TSLIDER(displaybar->offset));
+		}
+
+		gtk_spin_button_set_range(GTK_SPIN_BUTTON(displaybar->page),
+			0, tilesource->n_pages - 1);
+		gtk_widget_set_sensitive(displaybar->page,
+			tilesource->n_pages > 1 &&
+				tilesource->mode == TILESOURCE_MODE_MULTIPAGE);
+
+		displaybar_save_view_settings(displaybar);
 	}
-
-	if (TSLIDER(displaybar->offset)->value != tilesource->offset) {
-		TSLIDER(displaybar->offset)->value = tilesource->offset;
-		tslider_changed(TSLIDER(displaybar->offset));
-	}
-
-	gtk_spin_button_set_range(GTK_SPIN_BUTTON(displaybar->page),
-		0, tilesource->n_pages - 1);
-	gtk_widget_set_sensitive(displaybar->page,
-		tilesource->n_pages > 1 &&
-			tilesource->mode == TILESOURCE_MODE_MULTIPAGE);
-
-	displaybar_save_view_settings(displaybar);
 }
 
 static void
 displaybar_page_changed(Tilesource *tilesource, Displaybar *displaybar)
 {
 #ifdef DEBUG
-	printf("dm1Gisplaybar_page_changed:\n");
+	printf("displaybar_page_changed:\n");
 #endif /*DEBUG*/
 
-	g_assert(tilesource == displaybar->tilesource);
+	if (tilesource) {
+		g_assert(tilesource == displaybar->tilesource);
 
-	gtk_spin_button_set_value(GTK_SPIN_BUTTON(displaybar->page),
-		tilesource->page);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(displaybar->page),
+			tilesource->page);
+
+		displaybar_save_view_settings(displaybar);
+	}
+}
+
+static void
+displaybar_imageui_changed(Imageui *imageui, Displaybar *displaybar)
+{
+#ifdef DEBUG
+	printf("displaybar_imageui_changed:\n");
+#endif /*DEBUG*/
+
+	g_assert(imageui == displaybar->imageui);
 
 	displaybar_save_view_settings(displaybar);
 }
@@ -214,6 +231,42 @@ displaybar_disconnect(Displaybar *displaybar)
 
 		VIPS_UNREF(displaybar->tilesource);
 	}
+
+	if (displaybar->imageui) {
+		FREESID(displaybar->imageui_changed_sid, displaybar->imageui);
+		displaybar->imageui = NULL;
+	}
+}
+
+static void
+displaybar_set_tilesource(Displaybar *displaybar, Tilesource *new_tilesource)
+{
+	if (new_tilesource) {
+		displaybar->changed_sid = g_signal_connect(new_tilesource,
+			"changed",
+			G_CALLBACK(displaybar_tilesource_changed), displaybar);
+		displaybar->tiles_changed_sid = g_signal_connect(new_tilesource,
+			"tiles-changed",
+			G_CALLBACK(displaybar_tilesource_changed), displaybar);
+		displaybar->page_changed_sid = g_signal_connect(new_tilesource,
+			"page-changed",
+			G_CALLBACK(displaybar_page_changed), displaybar);
+
+		displaybar->tilesource = new_tilesource;
+		g_object_ref(new_tilesource);
+	}
+}
+
+static void
+displaybar_set_imageui(Displaybar *displaybar)
+{
+	Imageui *imageui = imagewindow_get_imageui(displaybar->win);
+
+	displaybar->imageui = imageui;
+	if (imageui)
+		displaybar->imageui_changed_sid = g_signal_connect(imageui,
+			"changed",
+			G_CALLBACK(displaybar_imageui_changed), displaybar);
 }
 
 /* Imagewindow has a new image, eg. after < > in titlebar.
@@ -227,31 +280,16 @@ displaybar_imagewindow_new_image(Imagewindow *win, Displaybar *displaybar)
 
 	displaybar_disconnect(displaybar);
 
-	Tilesource *new_tilesource = imagewindow_get_tilesource(win);
-	if (new_tilesource) {
-		/* Set new source.
+	displaybar_set_tilesource(displaybar, imagewindow_get_tilesource(win));
+	displaybar_set_imageui(displaybar);
+
+	if (displaybar->preserve)
+		displaybar_apply_view_settings(displaybar);
+	else {
+		/* Init displaybar from new source.
 		 */
-		displaybar->changed_sid = g_signal_connect(new_tilesource,
-			"changed",
-			G_CALLBACK(displaybar_tilesource_changed), displaybar);
-		displaybar->tiles_changed_sid = g_signal_connect(new_tilesource,
-			"tiles-changed",
-			G_CALLBACK(displaybar_tilesource_changed), displaybar);
-		displaybar->page_changed_sid = g_signal_connect(new_tilesource,
-			"page-changed",
-			G_CALLBACK(displaybar_page_changed), displaybar);
-
-		displaybar->tilesource = new_tilesource;
-		g_object_ref(new_tilesource);
-
-		if (displaybar->preserve)
-			displaybar_apply_view_settings(displaybar);
-		else {
-			/* Init displaybar from new source.
-			 */
-			displaybar_tilesource_changed(new_tilesource, displaybar);
-			displaybar_page_changed(new_tilesource, displaybar);
-		}
+		displaybar_tilesource_changed(displaybar->tilesource, displaybar);
+		displaybar_page_changed(displaybar->tilesource, displaybar);
 	}
 }
 
@@ -267,25 +305,10 @@ displaybar_imagewindow_changed(Imagewindow *win, Displaybar *displaybar)
 
 	displaybar_disconnect(displaybar);
 
-	Tilesource *new_tilesource = imagewindow_get_tilesource(win);
-	if (new_tilesource) {
-		/* Set new source.
-		 */
-		displaybar->changed_sid = g_signal_connect(new_tilesource,
-			"changed",
-			G_CALLBACK(displaybar_tilesource_changed), displaybar);
-		displaybar->tiles_changed_sid = g_signal_connect(new_tilesource,
-			"tiles-changed",
-			G_CALLBACK(displaybar_tilesource_changed), displaybar);
-		displaybar->page_changed_sid = g_signal_connect(new_tilesource,
-			"page-changed",
-			G_CALLBACK(displaybar_page_changed), displaybar);
+	displaybar_set_tilesource(displaybar, imagewindow_get_tilesource(win));
+	displaybar_set_imageui(displaybar);
 
-		displaybar->tilesource = new_tilesource;
-		g_object_ref(new_tilesource);
-
-		displaybar_apply_view_settings(displaybar);
-	}
+	displaybar_apply_view_settings(displaybar);
 }
 
 static void
