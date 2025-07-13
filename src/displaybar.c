@@ -31,8 +31,8 @@
 
 /*
 #define DEBUG_VERBOSE
- */
 #define DEBUG
+ */
 
 typedef struct _ViewSettings {
 	gboolean valid;

@@ -535,8 +535,6 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 
 	VipsImage *image;
 
-	printf("imagewindow_imageui_set_visible:\n");
-
 	if (old_tilesource)
 		g_object_set(old_tilesource,
 			"visible", FALSE,
@@ -621,6 +619,14 @@ imagewindow_imageui_set_visible(Imagewindow *win,
 
 	// update the menus
 	imagewindow_tilesource_changed(new_tilesource, win);
+
+	TilecacheBackground background;
+	g_object_get(win->imageui,
+		"background", &background,
+		NULL);
+	const char *name = vips_enum_nick(TILECACHE_BACKGROUND_TYPE, background);
+	GVariant *state = g_variant_new_string(name);
+	change_state(GTK_WIDGET(win), "background", state);
 }
 
 static void
