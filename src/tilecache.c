@@ -518,7 +518,7 @@ tilecache_set_property(GObject *object,
 
 	switch (prop_id) {
 	case PROP_BACKGROUND:
-		i = g_value_get_int(value);
+		i = g_value_get_enum(value);
 		if (i >= 0 &&
 			i < TILECACHE_BACKGROUND_LAST &&
 			tilecache->background != i) {
@@ -548,7 +548,7 @@ tilecache_get_property(GObject *object,
 
 	switch (prop_id) {
 	case PROP_BACKGROUND:
-		g_value_set_int(value, tilecache->background);
+		g_value_set_enum(value, tilecache->background);
 		break;
 
 	case PROP_TILESOURCE:
@@ -571,10 +571,10 @@ tilecache_class_init(TilecacheClass *class)
 	gobject_class->get_property = tilecache_get_property;
 
 	g_object_class_install_property(gobject_class, PROP_BACKGROUND,
-		g_param_spec_int("background",
+		g_param_spec_enum("background",
 			_("Background"),
 			_("Background mode"),
-			0, TILECACHE_BACKGROUND_LAST - 1,
+			TILECACHE_BACKGROUND_TYPE,
 			TILECACHE_BACKGROUND_CHECKERBOARD,
 			G_PARAM_READWRITE));
 
