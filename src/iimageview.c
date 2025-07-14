@@ -64,6 +64,10 @@ iimageview_apply_view_settings(iImageview *iimageview)
 	ViewSettings *view_settings = &iimage->view_settings;
 
 	if (view_settings->valid) {
+		g_object_set(G_OBJECT(iimageview->imagedisplay),
+			"background", view_settings->background,
+			NULL);
+
 		Tilesource *tilesource;
 		g_object_get(iimageview->imagedisplay,
 			"tilesource", &tilesource,

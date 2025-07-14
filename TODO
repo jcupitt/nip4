@@ -1,7 +1,3 @@
-- background is not being applied to thumbnail on imagewindow close
-
-	not applied to imagerwindow on reopoen
-
 
 - seeing unfixable dirty rows sometimes
 
@@ -12,6 +8,10 @@
 	we should modify the model and queue a scan and recomp, but not update
 	the heap or mark the row dirty
 
+	exactly what variables are crashing into each opther when we mark the
+	row dirty during row recomp? can we fix this?
+
+		much easier than reworking region into a scan model
 
 
 
