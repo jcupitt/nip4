@@ -194,10 +194,6 @@ static void
 imageui_set_iimage(Imageui *imageui, iImage *iimage)
 {
 	if (imageui->iimage) {
-		// update thumbnail from our sliders
-		if (imageui->tilesource)
-			iimage_update_from_tilesource(imageui->iimage, imageui->tilesource);
-
 		imageui->iimage->views =
 			g_slist_remove(imageui->iimage->views, imageui);
 		imageui->iimage = NULL;

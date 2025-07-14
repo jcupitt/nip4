@@ -57,6 +57,33 @@ iimageview_dispose(GObject *object)
 	G_OBJECT_CLASS(iimageview_parent_class)->dispose(object);
 }
 
+static void
+iimageview_apply_view_settings(iImageview *iimageview)
+{
+	iImage *iimage = IIMAGE(VOBJECT(iimageview)->iobject);
+	ViewSettings *view_settings = &iimage->view_settings;
+
+	if (view_settings->valid) {
+		Tilesource *tilesource;
+		g_object_get(iimageview->imagedisplay,
+			"tilesource", &tilesource,
+			NULL);
+
+		if (tilesource)
+			g_object_set(tilesource,
+				"mode", view_settings->mode,
+				"scale", view_settings->scale,
+				"offset", view_settings->offset,
+				"falsecolour", view_settings->falsecolour,
+				"page", view_settings->page,
+				"log", view_settings->log,
+				"icc", view_settings->icc,
+				NULL);
+
+		VIPS_UNREF(tilesource);
+	}
+}
+
 void
 iimageview_compute_visibility(iImageview *iimageview)
 {
@@ -175,26 +202,8 @@ iimageview_refresh(vObject *vobject)
 		VIPS_UNREF(tilesource);
 	}
 
-	g_object_get(iimageview->imagedisplay,
-		"tilesource", &tilesource,
-		NULL);
-	if (tilesource) {
-		// we can have an unset mode
-		if (iimage->mode != TILESOURCE_MODE_UNSET)
-			g_object_set(tilesource,
-				"mode", iimage->mode,
-				NULL);
-
-		g_object_set(tilesource,
-			"scale", iimage->scale,
-			"offset", iimage->offset,
-			"falsecolour", iimage->falsecolour,
-			"page", iimage->page,
-			"log", iimage->log,
-			"icc", iimage->icc,
-			NULL);
-		VIPS_UNREF(tilesource);
-	}
+	// apply view settings from iimage
+	iimageview_apply_view_settings(iimageview);
 
 	if (iimageview->label)
 		set_glabel(iimageview->label, "%s", IOBJECT(iimage)->caption);

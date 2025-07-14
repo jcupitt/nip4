@@ -66,15 +66,9 @@ struct _iImage {
 	gboolean show_paintbox;
 	gboolean show_convert;
 
-	/* Bar settings we remember.
+	/* Bar settings we apply.
 	 */
-	TilesourceMode mode;
-	double scale;
-	double offset;
-	gboolean falsecolour;
-	gboolean log;
-	gboolean icc;
-	int page;
+	ViewSettings view_settings;
 
 	/* Private ... build iobject caption here.
 	 */
@@ -91,4 +85,4 @@ typedef struct _iImageClass {
 GType iimage_get_type(void);
 gboolean iimage_replace(iImage *iimage, const char *filename);
 gboolean iimage_replace_imageinfo(iImage *iimage, Imageinfo *ii);
-void iimage_update_from_tilesource(iImage *iimage, Tilesource *tilesource);
+void iimage_update_view_settings(iImage *iimage, ViewSettings *view_settings);

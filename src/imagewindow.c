@@ -642,12 +642,8 @@ imagewindow_dispose(GObject *object)
 	FREESID(win->iimage_destroy_sid, win->iimage);
 	VIPS_FREEF(gtk_widget_unparent, win->right_click_menu);
 
-	/* Sendn our settings back to the iimage we came from.
-	 */
-	if (win->imageui) {
-		Tilesource *tilesource = imageui_get_tilesource(win->imageui);
-		iimage_update_from_tilesource(win->iimage, tilesource);
-	}
+	iimage_update_view_settings(win->iimage,
+		displaybar_get_view_settings(DISPLAYBAR(win->displaybar)));
 
 	while (win->active) {
 		Active *active = (Active *) win->active->data;
@@ -1582,4 +1578,7 @@ imagewindow_set_iimage(Imagewindow *win, iImage *iimage)
 		G_CALLBACK(imagewindow_iimage_destroy), win);
 
 	iobject_changed(IOBJECT(iimage));
+
+	displaybar_set_view_settings(DISPLAYBAR(win->displaybar),
+		&iimage->view_settings);
 }

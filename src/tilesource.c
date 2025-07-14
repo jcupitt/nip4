@@ -1543,18 +1543,18 @@ tilesource_new_from_iimage(iImage *iimage, int priority)
 
 	g_object_set(tilesource,
 		"active", TRUE,
-		"scale", iimage->scale,
-		"offset", iimage->offset,
-		"falsecolour", iimage->falsecolour,
-		"log", iimage->log,
-		"icc", iimage->icc,
-		"page", iimage->page,
+		"scale", iimage->view_settings.scale,
+		"offset", iimage->view_settings.offset,
+		"falsecolour", iimage->view_settings.falsecolour,
+		"log", iimage->view_settings.log,
+		"icc", iimage->view_settings.icc,
+		"page", iimage->view_settings.page,
 		"priority", priority,
 		NULL);
 
-	if (iimage->mode != TILESOURCE_MODE_UNSET)
+	if (iimage->view_settings.mode != TILESOURCE_MODE_UNSET)
 		g_object_set(tilesource,
-			"mode", iimage->mode,
+			"mode", iimage->view_settings.mode,
 			NULL);
 
 	return tilesource;

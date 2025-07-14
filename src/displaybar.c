@@ -34,20 +34,6 @@
 #define DEBUG
  */
 
-typedef struct _ViewSettings {
-	gboolean valid;
-
-	TilesourceMode mode;
-	double scale;
-	double offset;
-	int page;
-	gboolean falsecolour;
-	gboolean log;
-	gboolean icc;
-	gboolean active;
-	TilecacheBackground background;
-} ViewSettings;
-
 struct _Displaybar {
 	GtkWidget parent_instance;
 
@@ -314,6 +300,10 @@ displaybar_imagewindow_changed(Imagewindow *win, Displaybar *displaybar)
 static void
 displaybar_set_imagewindow(Displaybar *displaybar, Imagewindow *win)
 {
+#ifdef DEBUG
+	printf("displaybar_set_imagewindow:\n");
+#endif /*DEBUG*/
+
 	/* No need to ref ... win holds a ref to us.
 	 */
 	displaybar->win = win;
@@ -387,8 +377,7 @@ displaybar_dispose(GObject *object)
 	printf("displaybar_dispose:\n");
 #endif /*DEBUG*/
 
-	displaybar_disconnect(displaybar);
-
+	VIPS_UNREF(displaybar->tilesource);
 	VIPS_FREEF(gtk_widget_unparent, displaybar->action_bar);
 
 	G_OBJECT_CLASS(displaybar_parent_class)->dispose(object);
@@ -541,3 +530,19 @@ displaybar_new(Imagewindow *win)
 
 	return displaybar;
 }
+
+ViewSettings *
+displaybar_get_view_settings(Displaybar *displaybar)
+{
+	return &displaybar->view_settings;
+}
+
+void
+displaybar_set_view_settings(Displaybar *displaybar,
+	ViewSettings *view_settings)
+{
+	displaybar->view_settings = *view_settings;
+	displaybar_apply_view_settings(displaybar);
+}
+
+

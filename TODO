@@ -1,3 +1,8 @@
+- background is not being applied to thumbnail on imagewindow close
+
+	not applied to imagerwindow on reopoen
+
+
 - seeing unfixable dirty rows sometimes
 
 	happened in a row containing a region as a subobject
