@@ -11,6 +11,7 @@
 - matching changes in libvips 8.18 improve render speed and improve
   cancellation of out of date renders
 - better sync of view settings between imagewindow and thumbnail
+- better row dirty marking stops subrows getting stuck in large workspaces
 
 ## 9.0.10 2025/06/22
 

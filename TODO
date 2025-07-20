@@ -1,3 +1,11 @@
+- try:
+
+	Hist > New > Identity
+	Image A1.value
+
+  infobar shows (x, y), not just x, and value does not display
+
+
 - get judder with rotate and images smaller than the window
 
 	draw on update, then draw again on relayout

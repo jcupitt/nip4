@@ -93,13 +93,18 @@ static const int infobar_label_width[] = {
 	10, /* double complex */
 };
 
-/* Tilesource has a new image. We need a new number of band elements and
- * dimensions.
+/* We have a new image to display -- rebuild widgets.
  */
 static void
-infobar_tilesource_changed(Tilesource *tilesource, Infobar *infobar)
+infobar_new_image(Infobar *infobar)
 {
-	VipsImage *image = tilesource->image;
+	Tilesource *tilesource;
+	if (!(tilesource = imagewindow_get_tilesource(infobar->win)))
+		return;
+
+	VipsImage *image;
+	if (!(image = tilesource_get_base_image(tilesource)))
+		return;
 
 	GSList *p;
 	VipsBandFormat format;
@@ -110,7 +115,7 @@ infobar_tilesource_changed(Tilesource *tilesource, Infobar *infobar)
 	int i;
 
 #ifdef DEBUG
-	printf("infobar_tilesource_changed:\n");
+	printf("infobar_new_image:\n");
 #endif /*DEBUG*/
 
 	/* Remove all existing children of infobar->values.
@@ -251,7 +256,7 @@ infobar_update_pixel(Infobar *infobar,
 
 		PixelUpdate *update = g_new0(PixelUpdate, 1);
 		update->infobar = infobar;
-		update->image = tilesource->image;
+		update->image = tilesource_get_base_image(tilesource);
 
 		/* Currently in level0 image coordinates ... we will fetch from
 		 * tilesource->image, the current pyr layer.
@@ -305,32 +310,27 @@ infobar_status_update(Infobar *infobar)
 }
 
 static void
-infobar_status_changed(Imagewindow *win, Infobar *infobar)
+infobar_imagewindow_status_changed(Imagewindow *win, Infobar *infobar)
 {
 	if (!gtk_action_bar_get_revealed(GTK_ACTION_BAR(infobar->action_bar)) ||
 		!imagewindow_get_tilesource(infobar->win))
 		return;
 
 #ifdef DEBUG
-	printf("infobar_status_changed:\n");
+	printf("infobar_imagewindow_status_changed:\n");
 #endif /*DEBUG*/
 
 	infobar_status_update(infobar);
 }
 
-/* Imagewindow has a new tilesource.
- */
 static void
-infobar_imagewindow_changed(Imagewindow *win, Infobar *infobar)
+infobar_imagewindow_new_image(Imagewindow *win, Infobar *infobar)
 {
-	Tilesource *tilesource;
+#ifdef DEBUG
+	printf("infobar_imagewindow_new_image:\n");
+#endif /*DEBUG*/
 
-	if ((tilesource = imagewindow_get_tilesource(win))) {
-		g_signal_connect_object(tilesource, "changed",
-			G_CALLBACK(infobar_tilesource_changed), infobar, 0);
-		g_signal_connect_object(tilesource, "page-changed",
-			G_CALLBACK(infobar_status_changed), infobar, 0);
-	}
+	infobar_new_image(infobar);
 }
 
 static void
@@ -340,11 +340,10 @@ infobar_set_imagewindow(Infobar *infobar, Imagewindow *win)
 	 */
 	infobar->win = win;
 
-	g_signal_connect_object(win, "changed",
-		G_CALLBACK(infobar_imagewindow_changed), infobar, 0);
-
 	g_signal_connect_object(win, "status-changed",
-		G_CALLBACK(infobar_status_changed), infobar, 0);
+		G_CALLBACK(infobar_imagewindow_status_changed), infobar, 0);
+	g_signal_connect_object(win, "new-image",
+		G_CALLBACK(infobar_imagewindow_new_image), infobar, 0);
 }
 
 static void

@@ -359,6 +359,7 @@ imageui_set_property(GObject *object,
 		imageui->tilesource = TILESOURCE(g_value_get_object(value));
 		if (imageui->tilesource)
 			imageui->zoom_load = imageui->tilesource->zoom;
+
 		break;
 
 	case PROP_IIMAGE:
@@ -380,6 +381,7 @@ imageui_set_property(GObject *object,
 		g_object_set(imageui->imagedisplay,
 			"zoom", zoom,
 			NULL);
+
 		break;
 
 	case PROP_X:
