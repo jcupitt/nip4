@@ -1270,8 +1270,6 @@ classmodel_update_view(Classmodel *classmodel)
 	if (row &&
 		row->expr)
 		workspace_set_modified(row->ws, TRUE);
-
-	symbol_recalculate_all();
 }
 
 static void *
