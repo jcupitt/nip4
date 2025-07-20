@@ -227,20 +227,15 @@ infobar_get_pixel(void *a, void *b)
 	PixelUpdate *update = (PixelUpdate *) a;
 	VipsImage *image = update->image;
 
-	/* Block outside the image.
+	/* Clip (x, y) to the image dimensions. It might be a histogram, for
+	 * example.
 	 */
-	if (update->image_x >= 0 &&
-		update->image_y >= 0 &&
-		update->image_x < image->Xsize &&
-		update->image_y < image->Ysize)
-		/* Fetch from image, even though this can be very slow.
-		 * This is run in a bg thread, so speed should not matter too much.
-		 */
-		update->result = !vips_getpoint(image,
-				&update->vector, &update->n,
-				update->image_x, update->image_y,
-				"unpack_complex", TRUE,
-				NULL);
+	update->result = !vips_getpoint(image,
+			&update->vector, &update->n,
+			VIPS_CLIP(0, update->image_x, image->Xsize - 1),
+			VIPS_CLIP(0, update->image_y, image->Ysize - 1),
+			"unpack_complex", TRUE,
+			NULL);
 
 	g_idle_add(infobar_update_pixel_idle, update);
 }
@@ -250,24 +245,32 @@ static void
 infobar_update_pixel(Infobar *infobar,
 	Tilesource *tilesource, double image_x, double image_y)
 {
+	/* We need to fetch pixels from base for histograms, from image
+	 * otherwise.
+	 */
+	VipsImage *base = tilesource_get_base_image(tilesource);
+	VipsImage *image = tilesource_get_image(tilesource);
+	VipsImage *selected = base->Type == VIPS_INTERPRETATION_HISTOGRAM ?
+		base : image;
+
 	if (!infobar->updating &&
-		tilesource->image) {
+		selected) {
 		infobar->updating = TRUE;
 
 		PixelUpdate *update = g_new0(PixelUpdate, 1);
 		update->infobar = infobar;
-		update->image = tilesource_get_base_image(tilesource);
-
-		/* Currently in level0 image coordinates ... we will fetch from
-		 * tilesource->image, the current pyr layer.
-		 */
-		int factor = tilesource->image_width / tilesource->image->Xsize;
-		update->image_x = image_x / factor;
-		update->image_y = image_y / factor;
+		update->image = selected;
 
 		// must stay valid until we are done
 		g_object_ref(update->infobar);
 		g_object_ref(update->image);
+
+		/* Currently in level0 image coordinates ... we need to scale for the
+		 * selected image.
+		 */
+		int factor = tilesource->image_width / update->image->Xsize;
+		update->image_x = image_x / factor;
+		update->image_y = image_y / factor;
 
 		if (vips_thread_execute("pixel", infobar_get_pixel, update))
 			// if we can't run a bg task, we must free the update
