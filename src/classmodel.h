@@ -153,5 +153,6 @@ GType classmodel_get_type(void);
 void classmodel_update(Classmodel *classmodel);
 void classmodel_update_view(Classmodel *classmodel);
 void classmodel_set_edited(Classmodel *classmodel, gboolean edited);
+void classmodel_dirty_updated(void);
 
 Classmodel *classmodel_new_classmodel(GType type, Rhs *rhs);

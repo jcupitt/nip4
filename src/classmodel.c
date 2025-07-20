@@ -33,7 +33,12 @@
 #define DEBUG
  */
 
-G_DEFINE_TYPE(Classmodel, classmodel, HEAPMODEL_TYPE)
+G_DEFINE_TYPE(Classmodel, classmodel, HEAPMODEL_TYPE);
+
+/* All the classmodel that have been updated ... recomp needs to mark these
+ * dirty before pickng the next row.
+ */
+static GSList *classmodel_updated = NULL;
 
 void
 image_value_init(ImageValue *image, Classmodel *classmodel)
@@ -601,6 +606,8 @@ classmodel_dispose(GObject *gobject)
 	slist_map(classmodel->iimages,
 		(SListMapFn) classmodel_iimage_unlink_rev, classmodel);
 	VIPS_FREE(classmodel->filename);
+
+	classmodel_updated = g_slist_remove(classmodel_updated, classmodel);
 
 	G_OBJECT_CLASS(classmodel_parent_class)->dispose(gobject);
 }
@@ -1217,11 +1224,6 @@ classmodel_set_edited(Classmodel *classmodel, gboolean edited)
 
 		classmodel->edited = edited;
 		iobject_changed(IOBJECT(classmodel));
-
-		if (HEAPMODEL(classmodel)->row &&
-			HEAPMODEL(classmodel)->row->expr)
-			expr_dirty(HEAPMODEL(classmodel)->row->expr,
-				link_serial_new());
 	}
 
 	/* Mark eds for application.
@@ -1252,7 +1254,8 @@ classmodel_update(Classmodel *classmodel)
 	 * modified, we might be in parse.
 	 */
 	classmodel_set_edited(classmodel, TRUE);
-	expr_dirty(row->expr, link_serial_new());
+
+	classmodel_updated = g_slist_prepend(classmodel_updated, classmodel);
 }
 
 /* Model has been changed by a view. Mark for recomp, and since this was a
@@ -1267,6 +1270,28 @@ classmodel_update_view(Classmodel *classmodel)
 	if (row &&
 		row->expr)
 		workspace_set_modified(row->ws, TRUE);
+
+	symbol_recalculate_all();
+}
+
+static void *
+classmodel_dirty_updated_sub(void *a, void *b)
+{
+	Classmodel *classmodel = CLASSMODEL(a);
+	Row *row = HEAPMODEL(classmodel)->row;
+
+	if (row &&
+		row->expr)
+		expr_dirty(row->expr, link_serial_new());
+
+	return NULL;
+}
+
+void
+classmodel_dirty_updated(void)
+{
+	slist_map(classmodel_updated, classmodel_dirty_updated_sub, NULL);
+	VIPS_FREEF(g_slist_free, classmodel_updated);
 }
 
 /* Make a new classmodel subtype (eg. TYPE_PATHNAME) and link it on.

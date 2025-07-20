@@ -1217,8 +1217,8 @@ imageui_drag_update(GtkEventControllerMotion *self,
 		imageui_regionview_update(imageui, imageui->grabbed);
 
 		/* And nudge background recomp.
-		 */
 		regionview_model_update(imageui->grabbed);
+		 */
 
 		break;
 

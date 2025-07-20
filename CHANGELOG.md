@@ -7,6 +7,10 @@
 - fix a segv in Colour widget edit action
 - much better next/prev/refresh in imagewindow
 - much better imagewindow focus indicator
+- new tilecache flickers less and is faster
+- matching changes in libvips 8.18 improve render speed and improve
+  cancellation of out of date renders
+- better sync of view settings between imagewindow and thumbnail
 
 ## 9.0.10 2025/06/22
 
