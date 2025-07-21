@@ -540,11 +540,18 @@ tilesource_log(VipsImage *image)
 
 	VipsImage *x;
 
-	if (vips_pow_const1(image, &t[0], power, NULL) ||
-		vips_linear1(t[0], &t[1], 1.0, 1.0, NULL) ||
-		vips_log10(t[1], &t[2], NULL) ||
+	// force complex images to real
+	if (vips_band_format_iscomplex(image->BandFmt)) {
+		if (vips_abs(image, &t[0], NULL))
+			return NULL;
+		image = t[0];
+	}
+
+	if (vips_pow_const1(image, &t[1], power, NULL) ||
+		vips_linear1(t[1], &t[2], 1.0, 1.0, NULL) ||
+		vips_log10(t[2], &t[3], NULL) ||
 		// add 0.5 to get round to nearest
-		vips_linear1(t[2], &x, scale, 0.5, NULL)) {
+		vips_linear1(t[3], &x, scale, 0.5, NULL)) {
 		return NULL;
 	}
 	image = x;

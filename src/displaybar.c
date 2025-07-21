@@ -430,7 +430,8 @@ displaybar_test_clicked(GtkButton *test, Displaybar *displaybar)
 
 	if (tilesource)
 		g_object_set(tilesource,
-			"mode", TILESOURCE_MODE_TOILET_ROLL,
+			//"mode", TILESOURCE_MODE_TOILET_ROLL,
+			"log", TRUE,
 			NULL);
 }
 
