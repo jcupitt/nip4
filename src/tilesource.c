@@ -471,22 +471,6 @@ tilesource_image(Tilesource *tilesource, VipsImage **mask_out, int current_z)
 		tilesource->image_height = image->Ysize;
 	}
 
-	/* This has to be before the sink_screen since we need to find the image
-	 * maximum .... this sounds bad, but FFTs are image at a time anyway, so
-	 * the pipeline should be short.
-	 */
-	if (image->Type == VIPS_INTERPRETATION_FOURIER) {
-		if (vips_abs(image, &x, NULL))
-			return NULL;
-		VIPS_UNREF(image);
-		image = x;
-
-		if (vips_scale(image, &x, "log", TRUE, NULL))
-			return NULL;
-		VIPS_UNREF(image);
-		image = x;
-	}
-
 	if (current_z > 0) {
         /* We may have already zoomed out a bit because we've loaded
          * some layer other than the base one. Calculate the
@@ -660,6 +644,22 @@ tilesource_rgb(Tilesource *tilesource, VipsImage *in)
 			tilesource->offset != 0.0) {
 			if (vips_linear1(image, &x,
 					tilesource->scale, tilesource->offset, NULL))
+				return NULL;
+			VIPS_UNREF(image);
+			image = x;
+		}
+	}
+
+	/* Complex -> real.
+	 */
+	if (vips_band_format_iscomplex(image->BandFmt)) {
+		if (vips_abs(image, &x, NULL))
+			return NULL;
+		VIPS_UNREF(image);
+		image = x;
+
+		if (image->Type == VIPS_INTERPRETATION_FOURIER) {
+			if (!(x = tilesource_log(image)))
 				return NULL;
 			VIPS_UNREF(image);
 			image = x;
