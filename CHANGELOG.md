@@ -1,5 +1,9 @@
 ## master
 
+- better power of two detection in openslideload
+
+## 9.0.11 2025/07/21
+
 - fix path for Widget_pathname_item.action [MvGulik]
 - add more draw compat definitions [MvGulik]
 - better error / alert system
