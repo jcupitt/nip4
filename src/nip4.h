@@ -130,11 +130,6 @@
  */
 #define MAX_LINELENGTH (120)
 
-/* We use various gtk4 features (GtkInfoBar, GtkDialog) which are going away
- * in gtk5.
- */
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-
 // various forward typdefs
 
 typedef struct _BuiltinInfo BuiltinInfo;

@@ -71,6 +71,10 @@ config_h.set('HAVE_SYS_RESOURCE_H', cc.has_header('sys/resource.h'))
 config_h.set('HAVE_GETRLIMIT', cc.has_function('getrlimit'))
 config_h.set('HAVE_REALLOCARRAY', cc.has_function('reallocarray', prefix: '#include <stdlib.h>', args: default_source_flag))
 
+gtk_dep = dependency('gtk4', version: '>=4.14')
+# use this to fix tile alignment, not yet merged
+config_h.set('HAVE_GTK_SNAPSHOT_SET_SNAP', cc.has_header_symbol('gtk.h', 'gtk_snapshot_set_snap', dependencies : gtk_dep))
+
 config_file = configure_file(
   output: 'config.h',
   configuration: config_h,
@@ -84,7 +88,7 @@ nip4_deps += declare_dependency(
 
 # need vips_thread_execute()
 nip4_deps += dependency('vips', version: '>=8.16')
-nip4_deps += dependency('gtk4', version: '>=4.14')
+nip4_deps += gtk_dep
 nip4_deps += dependency('gsl')
 nip4_deps += dependency('libxml-2.0')
 
