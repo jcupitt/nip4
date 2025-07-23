@@ -1,8 +1,5 @@
 - build with libraw support
 
-- "merge column" in tab menu should show column captions
-
-
 - get judder with rotate and images smaller than the window
 
 	draw on update, then draw again on relayout
