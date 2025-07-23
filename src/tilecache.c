@@ -947,12 +947,12 @@ tilecache_snapshot(Tilecache *tilecache, GtkSnapshot *snapshot,
 			bounds.size.width = tile->bounds0.width * scale;
 			bounds.size.height = tile->bounds0.height * scale;
 
-#ifdef HAVE_GTK_SNAPSHOT_SET_SNAP
+#ifndef HAVE_GTK_SNAPSHOT_SET_SNAP
 			/* Without set snap, we have to hide tile edges by expanding the
 			 * tile.
 			 */
 			bounds.size.width += 1;
-			bounds.size.height = += 1;
+			bounds.size.height += 1;
 #endif /*HAVE_GTK_SNAPSHOT_SET_SNAP*/
 
 			gtk_snapshot_append_scaled_texture(snapshot,
