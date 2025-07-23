@@ -26,6 +26,7 @@
 	These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
 
  */
+
 #include "nip4.h"
 
 /*

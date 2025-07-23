@@ -38,6 +38,18 @@
 #include <sys/resource.h>
 #endif
 
+#ifdef HAVE_SYS_STATVFS_H
+#include <sys/statvfs.h>
+#endif
+
+#ifdef HAVE_SYS_VFS_H
+#include <sys/vfs.h>
+#endif
+
+#ifdef HAVE_SYS_MOUNT_H
+#include <sys/mount.h>
+#endif
+
 #define APP_PATH "/org/libvips/nip4"
 
 #include <gtk/gtk.h>
