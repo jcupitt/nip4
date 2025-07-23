@@ -68,12 +68,15 @@ endif
 config_h.set('HAVE_BIND_TEXTDOMAIN_CODESET', have_bind_textdomain_codeset)
 
 config_h.set('HAVE_SYS_RESOURCE_H', cc.has_header('sys/resource.h'))
+config_h.set('HAVE_SYS_STATVFS_H', cc.has_header('sys/statvfs.h'))
+config_h.set('HAVE_SYS_VFS_H', cc.has_header('sys/vfs.h'))
+config_h.set('HAVE_SYS_MOUNT_H', cc.has_header('sys/mount.h'))
 config_h.set('HAVE_GETRLIMIT', cc.has_function('getrlimit'))
 config_h.set('HAVE_REALLOCARRAY', cc.has_function('reallocarray', prefix: '#include <stdlib.h>', args: default_source_flag))
 
 gtk_dep = dependency('gtk4', version: '>=4.14')
 # use this to fix tile alignment, not yet merged
-config_h.set('HAVE_GTK_SNAPSHOT_SET_SNAP', cc.has_header_symbol('gtk.h', 'gtk_snapshot_set_snap', dependencies : gtk_dep))
+config_h.set('HAVE_GTK_SNAPSHOT_SET_SNAP', cc.has_function('gtk_snapshot_set_snap', prefix: '#include <gtk/gtk.h>', dependencies: gtk_dep))
 
 config_file = configure_file(
   output: 'config.h',
