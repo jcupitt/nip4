@@ -442,7 +442,7 @@ path_str_eq(const char *s1, const char *s2)
 static void *
 path_search_match(Search *search, const char *dir_name, const char *name)
 {
-	if (g_pattern_match_string(search->wild, name) &&
+	if (g_pattern_spec_match_string(search->wild, name) &&
 		!slist_map(search->previous,
 			(SListMapFn) path_str_eq, (gpointer) name)) {
 		char buf[VIPS_PATH_MAX + 10];
