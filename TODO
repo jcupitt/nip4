@@ -1,3 +1,17 @@
+- build with libraw support
+
+- get judder with rotate and images smaller than the window
+
+	draw on update, then draw again on relayout
+
+	hard to fix
+
+- show zoomed out tiles too
+
+	should stop some more flicker
+
+	seems tricky for some reason?
+
 - load ws with locked tab, rightclick menu on locked tab does not
   have tick selected
 
@@ -5,7 +19,7 @@
 
 	a bit tricky to fix
 
-    maybe we are forced to have a separate menu for each tab?
+  maybe we are forced to have a separate menu for each tab?
 
 - the "new tab" icon is still broken in the windows build
 

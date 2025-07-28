@@ -1103,6 +1103,10 @@ symbol_recalculate_leaf(void)
 
 	recalculated = FALSE;
 
+	/* Mark any classmodels dirty that have updates ready.
+	 */
+	classmodel_dirty_updated();
+
 #ifdef DEBUG
 	printf("symbol_recalculate_leaves: Leaf set: ");
 	slist_map(symbol_leaf_set, (SListMapFn) dump_tiny, NULL);

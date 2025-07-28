@@ -36,7 +36,7 @@ https://github.com/user-attachments/assets/6f7bdee1-183c-4554-9701-e0c30e75d58a
 
 There's a zip for each version on the [releases
 page](https://github.com/jcupitt/nip4/releases). Download
-`nip4-x86_64-9.0.5.zip`, unzip somewhere, and run `bin/nip4.exe`.
+`nip4-x86_64-9.0.11.zip`, unzip somewhere, and run `bin/nip4.exe`.
 
 ## macOS
 
@@ -46,8 +46,8 @@ nip4 is in [homebrew](https://brew.sh/), so just:
 brew install nip4
 ```
 
-The not-yet-released libvips 8.17 has some performance improvements
-that help nip4 image rendering a lot. Until 8.17 is released, experts can
+The not-yet-released libvips 8.18 has some performance improvements
+that help nip4 image rendering a lot. Until 8.18 is released, experts can
 patch their homebrew install for a good speedup.
 
 ## Linux-like systems with flatpak

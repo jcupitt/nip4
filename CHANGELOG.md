@@ -1,10 +1,22 @@
 ## master
 
+- better power of two detection in openslideload
+- fix tile edges with gtk_snapshot_set_snap() [kleisauke]
+
+## 9.0.11 2025/07/21
+
 - fix path for Widget_pathname_item.action [MvGulik]
 - add more draw compat definitions [MvGulik]
 - better error / alert system
 - filters on file dialogs
 - fix a segv in Colour widget edit action
+- much better next/prev/refresh in imagewindow
+- much better imagewindow focus indicator
+- new tilecache flickers less and is faster
+- matching changes in libvips 8.18 improve render speed and improve
+  cancellation of out of date renders
+- better sync of view settings between imagewindow and thumbnail
+- better row dirty marking stops subrows getting stuck in large workspaces
 
 ## 9.0.10 2025/06/22
 

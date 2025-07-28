@@ -1126,6 +1126,10 @@ mainwindow_size_images(VipsObject *object, size_t *size)
 void
 mainwindow_about(Mainwindow *main, VipsBuf *buf)
 {
+	vips_buf_appendf(buf, "%s %d.%d.%d\n",
+		_("linked to libvips"),
+		vips_version(0), vips_version(1), vips_version(2));
+
 	double sz = find_space(PATH_TMP);
 	if (sz < 0)
 		vips_buf_appendf(buf, _("no temp area\n"));

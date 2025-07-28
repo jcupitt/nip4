@@ -471,22 +471,6 @@ tilesource_image(Tilesource *tilesource, VipsImage **mask_out, int current_z)
 		tilesource->image_height = image->Ysize;
 	}
 
-	/* This has to be before the sink_screen since we need to find the image
-	 * maximum .... this sounds bad, but FFTs are image at a time anyway, so
-	 * the pipeline should be short.
-	 */
-	if (image->Type == VIPS_INTERPRETATION_FOURIER) {
-		if (vips_abs(image, &x, NULL))
-			return NULL;
-		VIPS_UNREF(image);
-		image = x;
-
-		if (vips_scale(image, &x, "log", TRUE, NULL))
-			return NULL;
-		VIPS_UNREF(image);
-		image = x;
-	}
-
 	if (current_z > 0) {
         /* We may have already zoomed out a bit because we've loaded
          * some layer other than the base one. Calculate the
@@ -556,11 +540,18 @@ tilesource_log(VipsImage *image)
 
 	VipsImage *x;
 
-	if (vips_pow_const1(image, &t[0], power, NULL) ||
-		vips_linear1(t[0], &t[1], 1.0, 1.0, NULL) ||
-		vips_log10(t[1], &t[2], NULL) ||
+	// force complex images to real
+	if (vips_band_format_iscomplex(image->BandFmt)) {
+		if (vips_abs(image, &t[0], NULL))
+			return NULL;
+		image = t[0];
+	}
+
+	if (vips_pow_const1(image, &t[1], power, NULL) ||
+		vips_linear1(t[1], &t[2], 1.0, 1.0, NULL) ||
+		vips_log10(t[2], &t[3], NULL) ||
 		// add 0.5 to get round to nearest
-		vips_linear1(t[2], &x, scale, 0.5, NULL)) {
+		vips_linear1(t[3], &x, scale, 0.5, NULL)) {
 		return NULL;
 	}
 	image = x;
@@ -660,6 +651,22 @@ tilesource_rgb(Tilesource *tilesource, VipsImage *in)
 			tilesource->offset != 0.0) {
 			if (vips_linear1(image, &x,
 					tilesource->scale, tilesource->offset, NULL))
+				return NULL;
+			VIPS_UNREF(image);
+			image = x;
+		}
+	}
+
+	/* Complex -> real.
+	 */
+	if (vips_band_format_iscomplex(image->BandFmt)) {
+		if (vips_abs(image, &x, NULL))
+			return NULL;
+		VIPS_UNREF(image);
+		image = x;
+
+		if (image->Type == VIPS_INTERPRETATION_FOURIER) {
+			if (!(x = tilesource_log(image)))
 				return NULL;
 			VIPS_UNREF(image);
 			image = x;
@@ -1543,18 +1550,18 @@ tilesource_new_from_iimage(iImage *iimage, int priority)
 
 	g_object_set(tilesource,
 		"active", TRUE,
-		"scale", iimage->scale,
-		"offset", iimage->offset,
-		"falsecolour", iimage->falsecolour,
-		"log", iimage->log,
-		"icc", iimage->icc,
-		"page", iimage->page,
+		"scale", iimage->view_settings.scale,
+		"offset", iimage->view_settings.offset,
+		"falsecolour", iimage->view_settings.falsecolour,
+		"log", iimage->view_settings.log,
+		"icc", iimage->view_settings.icc,
+		"page", iimage->view_settings.page,
 		"priority", priority,
 		NULL);
 
-	if (iimage->mode != TILESOURCE_MODE_UNSET)
+	if (iimage->view_settings.mode != TILESOURCE_MODE_UNSET)
 		g_object_set(tilesource,
-			"mode", iimage->mode,
+			"mode", iimage->view_settings.mode,
 			NULL);
 
 	return tilesource;
@@ -1793,7 +1800,7 @@ tilesource_new_from_file(const char *filename)
 				tilesource->level_width[level];
 			double power = log(downsample) / log(2);
 
-			if (fabs(power - floor(power)) > 0.01) {
+			if (fabs(power - rint(power)) > 0.01) {
 				// too far away from a power of two, ignore any remaining
 				// frames
 				tilesource->level_count = level;
@@ -1981,17 +1988,21 @@ tilesource_request_tile(Tilesource *tilesource, Tile *tile)
 		tilesource_update_image(tilesource);
 	}
 
-	if (vips_region_prepare(tilesource->mask_region, &tile->region->valid))
-		return -1;
-
-	/* tile is within a single tile, so we only need to test the first byte
-	 * of the mask.
+	/* Clip the tile against the size of this level.
 	 */
-	tile->valid = VIPS_REGION_ADDR(tilesource->mask_region,
-		tile->region->valid.left, tile->region->valid.top)[0];
+	VipsRect image = { 0, 0,
+		tilesource->image->Xsize, tilesource->image->Ysize };
+	VipsRect hit;
+	vips_rect_intersectrect(&tile->bounds, &image, &hit);
 
+	/* Is this tile in the libvips cache?
+	 */
+	if (vips_region_prepare(tilesource->mask_region, &hit))
+		return -1;
+	gboolean valid =
+		VIPS_REGION_ADDR(tilesource->mask_region, hit.left, hit.top)[0];
 #ifdef DEBUG_VERBOSE
-	printf("  valid = %d\n", tile->valid);
+	printf("  valid = %d\n", valid);
 #endif /*DEBUG_VERBOSE*/
 
 	/* If the tile is not in cache, we must fetch to trigger a bg recomp.
@@ -1999,19 +2010,13 @@ tilesource_request_tile(Tilesource *tilesource, Tile *tile)
 	 * If it is in cache, we also fetch the pixels and set a texture ready
 	 * for the cache.
 	 */
-	if (vips_region_prepare_to(tilesource->rgb_region, tile->region,
-			&tile->region->valid,
-			tile->region->valid.left,
-			tile->region->valid.top))
+	if (vips_region_prepare(tilesource->rgb_region, &hit))
 		return -1;
 
-	/* Do we have new, valid pixels? Update the texture. We need to do
-	 * this now since the data in the region may change later.
+	/* Do we have new, valid pixels? Update the texture.
 	 */
-	if (tile->valid) {
-		tile_free_texture(tile);
-		tile_get_texture(tile);
-	}
+	if (valid)
+		tile_set_texture(tile, tilesource->rgb_region);
 
 	return 0;
 }
@@ -2026,15 +2031,19 @@ tilesource_collect_tile(Tilesource *tilesource, Tile *tile)
 		tile->region->valid.left, tile->region->valid.top);
 #endif /*DEBUG_VERBOSE*/
 
-	if (vips_region_prepare(tilesource->mask_region, &tile->region->valid))
-		return -1;
-
-	/* tile is within a single tile, so we only need to test the first byte
-	 * of the mask.
+	/* Clip the tile against the size of this level.
 	 */
-	tile->valid = VIPS_REGION_ADDR(tilesource->mask_region,
-		tile->region->valid.left, tile->region->valid.top)[0];
+	VipsRect image = { 0, 0,
+		tilesource->image->Xsize, tilesource->image->Ysize };
+	VipsRect hit;
+	vips_rect_intersectrect(&tile->bounds, &image, &hit);
 
+	/* Is this tile in the libvips cache?
+	 */
+	if (vips_region_prepare(tilesource->mask_region, &hit))
+		return -1;
+	gboolean valid =
+		VIPS_REGION_ADDR(tilesource->mask_region, hit.left, hit.top)[0];
 #ifdef DEBUG_VERBOSE
 	printf("  valid = %d\n", tile->valid);
 #endif /*DEBUG_VERBOSE*/
@@ -2042,15 +2051,11 @@ tilesource_collect_tile(Tilesource *tilesource, Tile *tile)
 	/* Only read out the tile if it's valid. We don't want to trigger another
 	 * compute.
 	 */
-	if (tile->valid) {
-		if (vips_region_prepare_to(tilesource->rgb_region, tile->region,
-				&tile->region->valid,
-				tile->region->valid.left,
-				tile->region->valid.top))
+	if (valid) {
+		if (vips_region_prepare(tilesource->rgb_region, &hit))
 			return -1;
 
-		tile_free_texture(tile);
-		tile_get_texture(tile);
+		tile_set_texture(tile, tilesource->rgb_region);
 	}
 
 	return 0;

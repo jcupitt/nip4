@@ -194,10 +194,6 @@ static void
 imageui_set_iimage(Imageui *imageui, iImage *iimage)
 {
 	if (imageui->iimage) {
-		// update thumbnail from our sliders
-		if (imageui->tilesource)
-			iimage_update_from_tilesource(imageui->iimage, imageui->tilesource);
-
 		imageui->iimage->views =
 			g_slist_remove(imageui->iimage->views, imageui);
 		imageui->iimage = NULL;
@@ -363,6 +359,7 @@ imageui_set_property(GObject *object,
 		imageui->tilesource = TILESOURCE(g_value_get_object(value));
 		if (imageui->tilesource)
 			imageui->zoom_load = imageui->tilesource->zoom;
+
 		break;
 
 	case PROP_IIMAGE:
@@ -372,6 +369,7 @@ imageui_set_property(GObject *object,
 	case PROP_BACKGROUND:
 		g_object_set_property(G_OBJECT(imageui->imagedisplay),
 			"background", value);
+		imageui_changed(imageui);
 		break;
 
 	case PROP_ZOOM:
@@ -383,6 +381,7 @@ imageui_set_property(GObject *object,
 		g_object_set(imageui->imagedisplay,
 			"zoom", zoom,
 			NULL);
+
 		break;
 
 	case PROP_X:

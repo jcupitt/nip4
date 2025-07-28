@@ -1,6 +1,6 @@
 project('nip4', 'c',
   # ie. a major after nip2 8.9 for workspace save file versioning
-  version: '9.0.11',
+  version: '9.0.12',
   license: 'GPL',
   meson_version: '>=0.64',
   default_options: [
@@ -68,8 +68,15 @@ endif
 config_h.set('HAVE_BIND_TEXTDOMAIN_CODESET', have_bind_textdomain_codeset)
 
 config_h.set('HAVE_SYS_RESOURCE_H', cc.has_header('sys/resource.h'))
+config_h.set('HAVE_SYS_STATVFS_H', cc.has_header('sys/statvfs.h'))
+config_h.set('HAVE_SYS_VFS_H', cc.has_header('sys/vfs.h'))
+config_h.set('HAVE_SYS_MOUNT_H', cc.has_header('sys/mount.h'))
 config_h.set('HAVE_GETRLIMIT', cc.has_function('getrlimit'))
 config_h.set('HAVE_REALLOCARRAY', cc.has_function('reallocarray', prefix: '#include <stdlib.h>', args: default_source_flag))
+
+gtk_dep = dependency('gtk4', version: '>=4.14')
+# use this to fix tile alignment, not yet merged
+config_h.set('HAVE_GTK_SNAPSHOT_SET_SNAP', cc.has_function('gtk_snapshot_set_snap', prefix: '#include <gtk/gtk.h>', dependencies: gtk_dep))
 
 config_file = configure_file(
   output: 'config.h',
@@ -84,7 +91,7 @@ nip4_deps += declare_dependency(
 
 # need vips_thread_execute()
 nip4_deps += dependency('vips', version: '>=8.16')
-nip4_deps += dependency('gtk4', version: '>=4.14')
+nip4_deps += gtk_dep
 nip4_deps += dependency('gsl')
 nip4_deps += dependency('libxml-2.0')
 

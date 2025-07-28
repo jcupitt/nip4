@@ -38,6 +38,18 @@
 #include <sys/resource.h>
 #endif
 
+#ifdef HAVE_SYS_STATVFS_H
+#include <sys/statvfs.h>
+#endif
+
+#ifdef HAVE_SYS_VFS_H
+#include <sys/vfs.h>
+#endif
+
+#ifdef HAVE_SYS_MOUNT_H
+#include <sys/mount.h>
+#endif
+
 #define APP_PATH "/org/libvips/nip4"
 
 #include <gtk/gtk.h>
@@ -130,11 +142,6 @@
  */
 #define MAX_LINELENGTH (120)
 
-/* We use various gtk4 features (GtkInfoBar, GtkDialog) which are going away
- * in gtk5.
- */
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-
 // various forward typdefs
 
 typedef struct _BuiltinInfo BuiltinInfo;
@@ -206,6 +213,7 @@ typedef struct _Workspace Workspace;
 #include "tile.h"
 #include "app.h"
 #include "enumtypes.h"
+#include "gtkutil.h"
 #include "tilesource.h"
 #include "tilecache.h"
 #include "imagedisplay.h"
@@ -226,7 +234,6 @@ typedef struct _Workspace Workspace;
 #include "path.h"
 #include "parser.h"
 #include "tree.h"
-#include "gtkutil.h"
 #include "predicate.h"
 #include "nip4marshal.h"
 #include "mainwindow.h"

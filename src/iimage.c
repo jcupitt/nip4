@@ -151,16 +151,17 @@ iimage_save(Model *model, xmlNode *xnode)
 		!set_iprop(xthis, "image_top", iimage->image_top) ||
 		!set_iprop(xthis, "image_mag", iimage->image_mag) ||
 		!set_sprop(xthis, "show_status", bool_to_char(iimage->show_status)) ||
-		!set_sprop(xthis, "show_convert", bool_to_char(iimage->show_convert)) ||
-		!set_dprop(xthis, "scale", iimage->scale) ||
-		!set_dprop(xthis, "offset", iimage->offset) ||
-		!set_iprop(xthis, "page", iimage->page) ||
-		!set_sprop(xthis, "falsecolour", bool_to_char(iimage->falsecolour)))
+		!set_sprop(xthis, "show_convert", bool_to_char(iimage->show_convert)))
 		return NULL;
 
-	if (iimage->mode != TILESOURCE_MODE_UNSET &&
-		!set_sprop(xthis, "mode",
-			vips_enum_nick(TILESOURCE_MODE_TYPE, iimage->mode)))
+	if (iimage->view_settings.valid &&
+		 (!set_dprop(xthis, "scale", iimage->view_settings.scale) ||
+		  !set_dprop(xthis, "offset", iimage->view_settings.offset) ||
+		  !set_iprop(xthis, "page", iimage->view_settings.page) ||
+		  !set_sprop(xthis, "falsecolour",
+			bool_to_char(iimage->view_settings.falsecolour)) ||
+		  !set_sprop(xthis, "mode",
+			vips_enum_nick(TILESOURCE_MODE_TYPE, iimage->view_settings.mode))))
 		return NULL;
 
 	return xthis;
@@ -180,14 +181,17 @@ iimage_load(Model *model,
 	(void) get_bprop(xnode, "show_status", &iimage->show_status);
 	(void) get_bprop(xnode, "show_paintbox", &iimage->show_paintbox);
 	(void) get_bprop(xnode, "show_convert", &iimage->show_convert);
-	(void) get_dprop(xnode, "scale", &iimage->scale);
-	(void) get_dprop(xnode, "offset", &iimage->offset);
-	(void) get_iprop(xnode, "page", &iimage->page);
-	(void) get_bprop(xnode, "falsecolour", &iimage->falsecolour);
 
 	char mode[64];
-	if (get_sprop(xnode, "mode", mode, sizeof(mode)))
-		iimage->mode = vips_enum_from_nick("nip4", TILESOURCE_MODE_TYPE, mode);
+	if (get_dprop(xnode, "scale", &iimage->view_settings.scale) &&
+		get_dprop(xnode, "offset", &iimage->view_settings.offset) &&
+		get_iprop(xnode, "page", &iimage->view_settings.page) &&
+		get_bprop(xnode, "falsecolour", &iimage->view_settings.falsecolour) &&
+		get_sprop(xnode, "mode", mode, sizeof(mode))) {
+		iimage->view_settings.mode =
+			vips_enum_from_nick("nip4", TILESOURCE_MODE_TYPE, mode);
+		iimage->view_settings.valid = TRUE;
+	}
 
 	return MODEL_CLASS(iimage_parent_class)->load(model, state, parent, xnode);
 }
@@ -411,27 +415,14 @@ iimage_init(iImage *iimage)
 	iimage->show_paintbox = FALSE;
 	iimage->show_convert = FALSE;
 
-	iimage->mode = TILESOURCE_MODE_UNSET;
-	iimage->scale = 0.0;
-	iimage->offset = 0.0;
-	iimage->falsecolour = FALSE;
-	iimage->log = FALSE;
-	iimage->icc = FALSE;
-	iimage->page = 0;
-
 	vips_buf_init_dynamic(&iimage->caption_buffer, MAX_LINELENGTH);
 
 	iobject_set(IOBJECT(iimage), CLASS_IMAGE, NULL);
 }
 
 void
-iimage_update_from_tilesource(iImage *iimage, Tilesource *tilesource)
+iimage_update_view_settings(iImage *iimage, ViewSettings *view_settings)
 {
-	iimage->scale = tilesource->scale;
-	iimage->offset = tilesource->offset;
-	iimage->falsecolour = tilesource->falsecolour;
-	iimage->page = tilesource->page;
-	iimage->mode = tilesource->mode;
-
+	iimage->view_settings = *view_settings;
 	iobject_changed(IOBJECT(iimage));
 }
