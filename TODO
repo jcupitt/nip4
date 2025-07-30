@@ -1,4 +1,12 @@
-- build with libraw support
+
+- try:
+
+	load DICOM
+	image / petterns / text
+
+  crash!
+
+  new classmodel_class_member_new() code
 
 - get judder with rotate and images smaller than the window
 
