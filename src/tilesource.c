@@ -30,8 +30,8 @@
 /*
 #define DEBUG_VERBOSE
 #define DEBUG_MAKE
-#define DEBUG
  */
+#define DEBUG
 
 #include "nip4.h"
 
@@ -1448,8 +1448,6 @@ tilesource_set_base(Tilesource *tilesource, VipsImage *base)
 	tilesource->base = base;
 	g_object_ref(tilesource->base);
 
-	tilesource->n_subifds = vips_image_get_n_subifds(base);
-
 	if (vips_image_get_typeof(base, "delay")) {
 		int *delay;
 		int n_delay;
@@ -1767,6 +1765,7 @@ tilesource_new_from_file(const char *filename)
 		return NULL;
 
 	tilesource->n_subifds = vips_image_get_n_subifds(plain);
+	tilesource->n_pages = vips_image_get_n_pages(plain);
 
 	/* For openslide, we can read out the level structure directly.
 	 */
