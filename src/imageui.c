@@ -144,6 +144,7 @@ enum {
 	PROP_ZOOM,
 	PROP_X,
 	PROP_Y,
+	PROP_PIXEL_SIZE,
 
 	PROP_LAST
 };
@@ -328,6 +329,10 @@ imageui_property_name(guint prop_id)
 		return "Y";
 		break;
 
+	case PROP_PIXEL_SIZE:
+		return "PIXEL_SIZE";
+		break;
+
 	default:
 		return "<unknown>";
 	}
@@ -394,6 +399,11 @@ imageui_set_property(GObject *object,
 			"y", value);
 		break;
 
+	case PROP_PIXEL_SIZE:
+		g_object_set_property(G_OBJECT(imageui->imagedisplay),
+			"pixel-size", value);
+		break;
+
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
 		break;
@@ -441,6 +451,11 @@ imageui_get_property(GObject *object,
 		g_object_get_property(G_OBJECT(imageui->imagedisplay), "y", value);
 		break;
 
+	case PROP_PIXEL_SIZE:
+		g_object_get_property(G_OBJECT(imageui->imagedisplay),
+			"pixel-size", value);
+		break;
+
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
 		break;
@@ -453,6 +468,18 @@ imageui_get_property(GObject *object,
 			imageui_property_name(prop_id), str);
 	}
 #endif /*DEBUG_VERBOSE*/
+}
+
+static double
+imageui_get_pixel_size(Imageui *imageui)
+{
+   double pixel_size;
+
+   g_object_get(imageui,
+	   "pixel-size", &pixel_size,
+	   NULL);
+
+   return pixel_size;
 }
 
 Tilesource *
@@ -833,7 +860,7 @@ imageui_magout(Imageui *imageui)
 void
 imageui_oneone(Imageui *imageui)
 {
-	imageui_zoom_to_eased(imageui, 1.0);
+	imageui_zoom_to_eased(imageui, imageui_get_pixel_size(imageui));
 }
 
 static void
@@ -1067,7 +1094,8 @@ imageui_key_pressed(GtkEventControllerKey *self,
 				if (state & GDK_CONTROL_MASK)
 					zoom = 1.0 / zoom;
 
-				imageui_zoom_to_eased(imageui, zoom);
+				imageui_zoom_to_eased(imageui,
+					zoom * imageui_get_pixel_size(imageui));
 
 				handled = TRUE;
 				break;
@@ -1516,6 +1544,13 @@ imageui_class_init(ImageuiClass *class)
 			_("y"),
 			_("Vertical position of viewport"),
 			-VIPS_MAX_COORD, VIPS_MAX_COORD, 0,
+			G_PARAM_READWRITE));
+
+	g_object_class_install_property(gobject_class, PROP_PIXEL_SIZE,
+		g_param_spec_double("pixel_size",
+			_("Pixel size"),
+			_("Size of hardware display pixels in gtk coordinates"),
+			0.0, 10.0, 0.0,
 			G_PARAM_READWRITE));
 
 	imageui_signals[SIG_CHANGED] = g_signal_new("changed",

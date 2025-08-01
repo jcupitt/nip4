@@ -835,10 +835,26 @@ tilecache_draw_bounds(GtkSnapshot *snapshot,
 	}
 }
 
+#ifndef HAVE_GTK_SNAPSHOT_SET_SNAP
+static void
+tilecache_snap_rect(graphene_rect_t *bounds)
+{
+       double left = rint(bounds->origin.x);
+       double top = rint(bounds->origin.y);
+       double right = rint(bounds->origin.x + bounds->size.width);
+       double bottom = rint(bounds->origin.y + bounds->size.height);
+
+       bounds->origin.x = left;
+       bounds->origin.y = top;
+       bounds->size.width = right - left;
+       bounds->size.height = bottom - top;
+}
+#endif /*!HAVE_GTK_SNAPSHOT_SET_SNAP*/
+
 /* Scale is how much the level0 image has been scaled, x/y is the position of
- * the top-left corner of the paint_rect area in the scaled image.
+ * the top-left corner of @paint in the scaled image.
  *
- * paint_rect is the pixel area in gtk coordinates that we paint in the widget.
+ * @paint is the pixel area in gtk coordinates that we paint in the widget.
  *
  * Set debug to draw tile boundaries for debugging.
  */
@@ -914,6 +930,9 @@ tilecache_snapshot(Tilecache *tilecache, GtkSnapshot *snapshot,
 	/* Paint the backdrop.
 	 */
 	graphene_rect_t backdrop = *paint;
+#ifndef HAVE_GTK_SNAPSHOT_SET_SNAP
+	tilecache_snap_rect(&backdrop);
+#endif /*!HAVE_GTK_SNAPSHOT_SET_SNAP*/
 	gtk_snapshot_push_repeat(snapshot, &backdrop, NULL);
 
 	backdrop.origin.x = 0;
@@ -936,7 +955,7 @@ tilecache_snapshot(Tilecache *tilecache, GtkSnapshot *snapshot,
 			 * blur the image. For zooming out, we want trilinear to get
 			 * mipmaps and antialiasing.
 			 */
-			GskScalingFilter filter = scale > 1.0 ?
+			GskScalingFilter filter = scale >= 1.0 ?
 				GSK_SCALING_FILTER_NEAREST : GSK_SCALING_FILTER_TRILINEAR;
 
 			graphene_rect_t bounds;
@@ -947,13 +966,8 @@ tilecache_snapshot(Tilecache *tilecache, GtkSnapshot *snapshot,
 			bounds.size.height = tile->bounds0.height * scale;
 
 #ifndef HAVE_GTK_SNAPSHOT_SET_SNAP
-			/* Without set snap, we have to hide tile edges by expanding the
-			 * tile.
-			 */
-			bounds.size.width += 1;
-			bounds.size.height += 1;
+			tilecache_snap_rect(&bounds);
 #endif /*!HAVE_GTK_SNAPSHOT_SET_SNAP*/
-
 			gtk_snapshot_append_scaled_texture(snapshot,
 				tile_get_texture(tile), filter, &bounds);
 
