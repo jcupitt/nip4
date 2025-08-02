@@ -10,6 +10,15 @@ resources = gnome.compile_resources(
   source_dir: 'gtk',
 )
 
+# compile in an icon for a windows exe
+if host_machine.system() == 'windows'
+  windows = import('windows')
+  resources += windows.compile_resources(
+      'nip4.rc',
+      depend_files: 'nip4.ico',
+  )
+endif
+
 # headers for enum scanning
 headers = files(
   'tilesource.h',

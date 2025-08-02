@@ -1,12 +1,12 @@
-
 - try:
 
-	load DICOM
-	image / petterns / text
+	image / patterns / text
+	A1.font has no caption
 
-  crash!
+  tries to look up Workspaces.Preferences.PAINTBOX_FONT, not computed yet,
+  backtracks?
 
-  new classmodel_class_member_new() code
+  Workspaces.Preferences.PAINTBOX_FONT evals to "Sans 12"
 
 - get judder with rotate and images smaller than the window
 
@@ -36,6 +36,8 @@
 	hicolor/apps/48x48/org.libvips.nip4.png
 	hicolor/apps/256x256/org.libvips.nip4.png
 	hicolor/apps/512x512/org.libvips.nip4.png
+
+  works for flatpak
 
 # menu redesign
 

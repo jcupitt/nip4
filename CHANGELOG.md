@@ -4,6 +4,7 @@
 - fix tile edges with gtk_snapshot_set_snap() [kleisauke]
 - better fallback if gtk snap is not there
 - high-dpi support
+- icon for windows exe
 
 ## 9.0.11 2025/07/21
 
