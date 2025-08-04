@@ -1,7 +1,9 @@
 - try:
 
-	image / patterns / text
-	A1.font has no caption
+	Image_file "/home/john/pics/openslide/dicom/hologic/09181039999158_20241203_114159_fixed/09181039999158_20241203_114159_00.dcm"
+	Pattern_images_item.Text_item.action
+
+  "font"£ gets jno caption
 
   tries to look up Workspaces.Preferences.PAINTBOX_FONT, not computed yet,
   backtracks?
