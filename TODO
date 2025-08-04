@@ -8,6 +8,22 @@
 
   Workspaces.Preferences.PAINTBOX_FONT evals to "Sans 12"
 
+  setting
+
+	A2 = Workspaces.Preferences.PAINTBOX_FONT
+
+  and then using Text makes it all work correctly
+
+  hypothesis:
+
+	eval of A2 = Pattern_images_item.Text_item.action
+	hits dirty Workspaces.Preferences.PAINTBOX_FONT symbol, stops A2 comp
+	computes Workspaces.Preferences.PAINTBOX_FONT
+	does not restart A2 correctly
+
+
+
+
 - get judder with rotate and images smaller than the window
 
 	draw on update, then draw again on relayout
