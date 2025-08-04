@@ -1064,12 +1064,11 @@ gboolean
 heap_string_new(Heap *heap, const char *str, PElement *out)
 {
 	PElement list = *out;
-	const int n = strlen(str);
-	int i;
 
 	heap_list_init(&list);
 
-	for (i = 0; i < n; i++) {
+	const int n = strlen(str);
+	for (int i = 0; i < n; i++) {
 		PElement t;
 
 		if (!heap_list_add(heap, &list, &t))
@@ -1088,7 +1087,8 @@ heap_managedstring_new(Heap *heap, const char *str, PElement *out)
 {
 	Managedstring *managedstring;
 
-	if (strcmp(str, "") == 0) {
+	if (!str ||
+		g_str_equal(str, "")) {
 		PEPUTP(out, ELEMENT_ELIST, NULL);
 	}
 	else {
