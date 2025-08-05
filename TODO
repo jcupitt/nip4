@@ -1,3 +1,10 @@
+- Image_region_item in Image.def region constructors don't work well
+
+	remove them?
+
+	or reuse the working _new funcs in Region.def
+
+
 
 - get judder with rotate and images smaller than the window
 

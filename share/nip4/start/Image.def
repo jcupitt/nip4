@@ -638,8 +638,8 @@ Image_new_item = class Menupullright "_New" "make new things" {
 		}
 
 		Colour_atlas_item = class
-		Menuaction "_Colour Atlas"
-			"make a grid of patches grouped around a colour" {
+            Menuaction "_Colour Atlas"
+                "make a grid of patches grouped around a colour" {
 			action = class
 				_result {
 				_vislevel = 3;
@@ -1876,8 +1876,10 @@ Image_SDF_item = class
 			_result {
 			_vislevel = 3;
 
-			width = Expression "Image width (pixels)" 256;
-			height = Expression "Image height (pixels)" 256;
+            # musn't override width and height in the superclass, we need
+            # different names
+			across = Expression "Image width (pixels)" 256;
+			down = Expression "Image height (pixels)" 256;
 			shape = Option "Shape" [
 				"Circle",
 				"Box",
@@ -1885,11 +1887,11 @@ Image_SDF_item = class
 				"Line"
 			] 0;
 			radius = Scale "Radius" 0 100 75;
-			a = Matrix [[width.expr / 2, height.expr / 2]];
-			b = Matrix [[3 * width.expr / 4, 3 * height.expr / 4]];
+			a = Matrix [[across.expr / 2, down.expr / 2]];
+			b = Matrix [[3 * across.expr / 4, 3 * down.expr / 4]];
 			corners = Matrix [[10, 10, 10, 10]];
 
-			_result = sdf width height shape
+			_result = sdf across down shape
 				[$r => to_real radius,
 				 $a => a.value?0,
 				 $b => b.value?0,
