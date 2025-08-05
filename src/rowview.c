@@ -377,20 +377,6 @@ rowview_duplicate(Rowview *rview)
 }
 
 static void
-rowview_group(Rowview *rview)
-{
-	Row *row = ROW(VOBJECT(rview)->iobject);
-
-	if (workspace_selected_num(row->ws) < 2)
-		row_select(row);
-	if (!workspace_selected_group(row->ws))
-		workspace_show_error(row->ws);
-	workspace_deselect_all(row->ws);
-
-	symbol_recalculate_all();
-}
-
-static void
 rowview_ungroup(Rowview *rview)
 {
 	Row *row = ROW(VOBJECT(rview)->iobject);
@@ -456,8 +442,6 @@ rowview_action(GSimpleAction *action, GVariant *parameter, View *view)
 	}
 	else if (g_str_equal(name, "row-replace") && graphic)
 		classmodel_graphic_replace(CLASSMODEL(graphic), window);
-	else if (g_str_equal(name, "row-group"))
-		rowview_group(rview);
 	else if (g_str_equal(name, "row-ungroup"))
 		rowview_ungroup(rview);
 	else if (g_str_equal(name, "row-recalc"))

@@ -229,6 +229,7 @@ app_startup(GApplication *app)
 		{ "win.fullscreen", { "F11", NULL } },
 		{ "win.properties", { "<Alt>Return", NULL } },
 		{ "win.keyboard-duplicate", { "<Primary>d", NULL } },
+		{ "win.keyboard-group-selected", { "<Primary>g", NULL } },
 	};
 
 	// all our private application settings

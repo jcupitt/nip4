@@ -52,7 +52,7 @@ fontname_dispose(GObject *gobject)
 static View *
 fontname_view_new(Model *model, View *parent)
 {
-	return (fontnameview_new());
+	return fontnameview_new();
 }
 
 static void *
@@ -63,9 +63,9 @@ fontname_update_model(Heapmodel *heapmodel)
 #endif /*DEBUG*/
 
 	if (HEAPMODEL_CLASS(fontname_parent_class)->update_model(heapmodel))
-		return (heapmodel);
+		return heapmodel;
 
-	return (NULL);
+	return NULL;
 }
 
 /* Members of fontname we automate.

@@ -4,6 +4,11 @@
 - fix tile edges with gtk_snapshot_set_snap() [kleisauke]
 - better fallback if gtk snap is not there
 - high-dpi support
+- icon for windows exe
+- fix Fontname creation
+- add ^G to group selected rows
+- add "Group selected" to column menu
+- toolkitgroupview is more compact
 
 ## 9.0.11 2025/07/21
 

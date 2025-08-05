@@ -442,8 +442,7 @@ toolkitgroupview_browse_clicked(GtkWidget *button,
 		// remove the last item from the page_names list ... we know we are
 		// at least one deep in the menu
 		g_assert(kitgview->page_names->next);
-		char *last_name =
-			(char *) g_slist_last(kitgview->page_names)->data;
+		char *last_name = (char *) g_slist_last(kitgview->page_names)->data;
 		kitgview->page_names = g_slist_remove(kitgview->page_names, last_name);
 		g_free(last_name);
 

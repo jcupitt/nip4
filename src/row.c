@@ -1762,9 +1762,9 @@ row_recomp(Row *row)
 	 * containing errors can have bad pointers in, so careful.
 	 */
 	if (!top_row->err &&
-		icontainer_map_all(ICONTAINER(top_row),
+	   	icontainer_map_all(ICONTAINER(top_row),
 			(icontainer_map_fn) heapmodel_update_model, NULL))
-		expr_error_set(top_row->expr);
+			expr_error_set(top_row->expr);
 
 	if (main_option_profile) {
 		char txt[100];

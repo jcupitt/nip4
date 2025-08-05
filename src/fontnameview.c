@@ -96,9 +96,12 @@ fontnameview_desc_notify(GtkWidget *widget,
 	g_object_get(fontnameview->button, "font-desc", &desc, NULL);
 	if (desc) {
 		g_autofree char *value = pango_font_description_to_string(desc);
-		VIPS_SETSTR(fontname->value, value);
-		classmodel_update_view(CLASSMODEL(fontname));
-		symbol_recalculate_all();
+
+		if (!g_str_equal(fontname->value, value)) {
+			VIPS_SETSTR(fontname->value, value);
+			classmodel_update_view(CLASSMODEL(fontname));
+			symbol_recalculate_all();
+		}
 	}
 }
 

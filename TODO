@@ -1,13 +1,4 @@
 
-- try:
-
-	load DICOM
-	image / petterns / text
-
-  crash!
-
-  new classmodel_class_member_new() code
-
 - get judder with rotate and images smaller than the window
 
 	draw on update, then draw again on relayout
@@ -36,6 +27,8 @@
 	hicolor/apps/48x48/org.libvips.nip4.png
 	hicolor/apps/256x256/org.libvips.nip4.png
 	hicolor/apps/512x512/org.libvips.nip4.png
+
+  works for flatpak
 
 # menu redesign
 
