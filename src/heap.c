@@ -2435,7 +2435,9 @@ lisp_pelement(VipsBuf *buf, PElement *base,
 		break;
 
 	case ELEMENT_MANAGED:
-		vips_buf_appendf(buf, "<Managed* %p>", PEGETVAL(base));
+		vips_buf_appendf(buf, "<Managed* %p, ", PEGETVAL(base));
+		iobject_info(IOBJECT(PEGETVAL(base)), buf);
+		vips_buf_appendf(buf, ">");
 		break;
 
 	case ELEMENT_COMB:

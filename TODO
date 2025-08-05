@@ -1,30 +1,14 @@
-- try:
 
-	Image_file "/home/john/pics/openslide/dicom/hologic/09181039999158_20241203_114159_fixed/09181039999158_20241203_114159_00.dcm"
-	Pattern_images_item.Text_item.action
+- select two rows then ^G should make a Group[] at the bottom of the current
+  column
 
-  "font"£ gets jno caption
+	add "Group slected rows" to column menu
 
-  tries to look up Workspaces.Preferences.PAINTBOX_FONT, not computed yet,
-  backtracks?
+	remove "Group" from row menu
 
-  Workspaces.Preferences.PAINTBOX_FONT evals to "Sans 12"
+- make toolkilgroupview more compact
 
-  setting
-
-	A2 = Workspaces.Preferences.PAINTBOX_FONT
-
-  and then using Text makes it all work correctly
-
-  hypothesis:
-
-	eval of A2 = Pattern_images_item.Text_item.action
-	hits dirty Workspaces.Preferences.PAINTBOX_FONT symbol, stops A2 comp
-	computes Workspaces.Preferences.PAINTBOX_FONT
-	does not restart A2 correctly
-
-
-
+	scrolling all the time in the default window size is a PITA
 
 - get judder with rotate and images smaller than the window
 

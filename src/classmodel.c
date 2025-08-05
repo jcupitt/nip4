@@ -36,7 +36,7 @@
 G_DEFINE_TYPE(Classmodel, classmodel, HEAPMODEL_TYPE);
 
 /* All the classmodel that have been updated ... recomp needs to mark these
- * dirty before pickng the next row.
+ * dirty before picking the next row.
  */
 static GSList *classmodel_updated = NULL;
 
@@ -409,7 +409,7 @@ classmodel_iimage_update(Classmodel *classmodel, Imageinfo *ii)
 		row_name_print(HEAPMODEL(classmodel)->row);
 		printf(" is defined on ii \"%s\" ... searching for client "
 			   "displays\n",
-			ii->im->filename);
+			ii->image->filename);
 #endif /*DEBUG*/
 		slist_map(imageinfo_expr_which(ii),
 			(SListMapFn) classmodel_iimage_expr, &parms);
@@ -1102,10 +1102,9 @@ classmodel_update_model(Heapmodel *heapmodel)
 		heapmodel->row->expr) {
 		Expr *expr = heapmodel->row->expr;
 
-		if (!heapmodel->modified)
-			if (!classmodel_update_members(classmodel,
-					&expr->root))
-				return classmodel;
+		if (!heapmodel->modified &&
+			!classmodel_update_members(classmodel, &expr->root))
+			return classmodel;
 	}
 
 	return HEAPMODEL_CLASS(classmodel_parent_class)->update_model(heapmodel);
