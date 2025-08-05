@@ -1,11 +1,3 @@
-
-- select two rows then ^G should make a Group[] at the bottom of the current
-  column
-
-	add "Group slected rows" to column menu
-
-	remove "Group" from row menu
-
 - make toolkilgroupview more compact
 
 	scrolling all the time in the default window size is a PITA

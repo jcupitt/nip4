@@ -53,6 +53,22 @@ columnview_edit(Columnview *cview)
 }
 
 static void
+columnview_group_selected(Columnview *cview)
+{
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
+	Workspace *ws = col->ws;
+
+	if (workspace_selected_num(ws) > 0) {
+		icontainer_current(ICONTAINER(ws), ICONTAINER(col));
+		if (!workspace_selected_group(ws))
+			workspace_show_error(ws);
+
+		workspace_deselect_all(ws);
+		symbol_recalculate_all();
+	}
+}
+
+static void
 columnview_caption_edit_activate(GtkEntry *self, gpointer user_data)
 {
 	Columnview *cview = COLUMNVIEW(user_data);
@@ -547,6 +563,8 @@ columnview_action(GSimpleAction *action, GVariant *parameter, View *view)
 		workspace_deselect_all(ws);
 		column_select_symbols(col);
 	}
+	else if (g_str_equal(name, "column-group-selected"))
+		columnview_group_selected(cview);
 	else if (g_str_equal(name, "column-duplicate")) {
 		char new_name[MAX_STRSIZE];
 		Column *new_col;

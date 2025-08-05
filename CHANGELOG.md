@@ -6,6 +6,8 @@
 - high-dpi support
 - icon for windows exe
 - fix Fontname creation
+- add ^G to group selected rows
+- add "Group selected" to column menu
 
 ## 9.0.11 2025/07/21
 

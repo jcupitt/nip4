@@ -621,6 +621,24 @@ mainwindow_keyboard_duplicate_action(GSimpleAction *action,
 	}
 }
 
+// ^G in the main window ... duplicate selected rows, or last row
+static void
+mainwindow_keyboard_group_selected_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	Workspace *ws;
+	if ((ws = WORKSPACE(ICONTAINER(main->wsg)->current))) {
+		if (workspace_selected_num(ws) > 0 &&
+			!workspace_selected_group(ws))
+			workspace_show_error(ws);
+
+		workspace_deselect_all(ws);
+		symbol_recalculate_all();
+	}
+}
+
 static GActionEntry mainwindow_entries[] = {
 	// main window actions
 
@@ -632,8 +650,10 @@ static GActionEntry mainwindow_entries[] = {
 	{ "recover", mainwindow_recover_action },
 	{ "close", mainwindow_close_action },
 	{ "quit", mainwindow_quit_action },
-	{ "keyboard-duplicate", mainwindow_keyboard_duplicate_action },
 	{ "fullscreen", action_toggle, NULL, "false", mainwindow_fullscreen },
+
+	{ "keyboard-duplicate", mainwindow_keyboard_duplicate_action },
+	{ "keyboard-group-selected", mainwindow_keyboard_group_selected_action },
 
 	// workspace tab menu
 	{ "tab-new", mainwindow_tab_new },
@@ -659,6 +679,7 @@ static GActionEntry mainwindow_entries[] = {
 	// column menu
 	{ "column-edit-caption", mainwindow_view_action },
 	{ "column-select-all", mainwindow_view_action },
+	{ "column-group-selected", mainwindow_view_action },
 	{ "column-duplicate", mainwindow_view_action },
 	// takes a string param with the name of the column to merge
 	{ "column-merge", mainwindow_view_action, "s" },
@@ -668,10 +689,9 @@ static GActionEntry mainwindow_entries[] = {
 
 	// row menu
 	{ "row-edit", mainwindow_view_action },
-	{ "row-saveas", mainwindow_view_action },
-	{ "row-group", mainwindow_view_action },
-	{ "row-ungroup", mainwindow_view_action },
 	{ "row-duplicate", mainwindow_view_action },
+	{ "row-saveas", mainwindow_view_action },
+	{ "row-ungroup", mainwindow_view_action },
 	{ "row-replace", mainwindow_view_action },
 	{ "row-recalculate", mainwindow_view_action },
 	{ "row-reset", mainwindow_view_action },
