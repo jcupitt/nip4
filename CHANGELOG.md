@@ -8,6 +8,7 @@
 - fix Fontname creation
 - add ^G to group selected rows
 - add "Group selected" to column menu
+- toolkitgroupview is more compact
 
 ## 9.0.11 2025/07/21
 

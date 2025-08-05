@@ -93,6 +93,11 @@
   margin-right: 4px;
 }
 
+.toolkitgroupview-item {
+  margin-top: -3px;
+  margin-bottom: -3px;
+}
+
 imagedisplay {
   transition-property: outline-offset, outline-color;
   transition-duration: 300ms;
