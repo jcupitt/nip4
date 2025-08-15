@@ -678,31 +678,11 @@ Image_new_item = class Menupullright "_New" "make new things" {
 
 	Image_region_item = class
 		Menupullright "_Region on Image" "make a new region on an image" {
-		Region_item = class
-			Menuaction "_Region" "make a region on an image" {
-			action image = scope.Region_relative image 0.25 0.25 0.5 0.5;
-		}
-
-		Mark_item = class
-			Menuaction "_Point" "make a point on an image" {
-			action image = scope.Mark_relative image 0.5 0.5;
-		}
-
-		Arrow_item = class
-			Menuaction "_Arrow" "make an arrow on an image" {
-			action image = scope.Arrow_relative image 0.25 0.25 0.5 0.5;
-		}
-
-		HGuide_item = class
-			Menuaction "_Horizontal Guide"
-				"make a horizontal guide on an image" {
-			action image = scope.HGuide image 0.5;
-		}
-
-		VGuide_item = class
-			Menuaction "_Vertical Guide" "make a vertical guide on an image" {
-			action image = scope.VGuide image 0.5;
-		}
+		Region_item = Region_new_item.Region_item;
+		Arrow_item = Region_new_item.Arrow_item;
+		Mark_item = Region_new_item.Mark_item;
+		HGuide_item = Region_new_item.HGuide_item;
+		VGuide_item = Region_new_item.VGuide_item;
 
     	sep1 = Menuseparator;
 
