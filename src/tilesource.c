@@ -600,8 +600,6 @@ tilesource_rgb(Tilesource *tilesource, VipsImage *in)
 	VipsImage *x;
 	int n_bands;
 
-	printf("tilesource_rgb:\n");
-
 	g_autoptr(VipsImage) image = in;
 	g_object_ref(image);
 
@@ -760,8 +758,6 @@ tilesource_rgb(Tilesource *tilesource, VipsImage *in)
 		image = x;
 	}
 
-	return g_steal_pointer(&image);
-}
 
 /* Rebuild just the second half of the image pipeline, eg. after a change to
  * falsecolour, scale, or if current_z changes.
