@@ -32,6 +32,12 @@
 
 # menu redesign
 
+- remove all use of im_* functions
+
+- move all vips_call stuff to _stdenv
+
+- better Group support
+
 - maxpos, then create mark from coordinate should be two clicks
 
 - try:
