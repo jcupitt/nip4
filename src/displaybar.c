@@ -137,7 +137,7 @@ displaybar_apply_view_settings(Displaybar *displaybar)
 				"falsecolour", view_settings->falsecolour,
 				"log", view_settings->log,
 				"icc", view_settings->icc,
-				"active", view_settings->active,
+				"active", TRUE,
 				NULL);
 
 		Imageui *imageui = displaybar->imageui;

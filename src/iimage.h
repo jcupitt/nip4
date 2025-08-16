@@ -54,12 +54,6 @@ struct _iImage {
 	 */
 	GSList *views;
 
-	/* Track display pos/size/etc. here.
-	 */
-	int image_left; /* Scroll position */
-	int image_top;
-	int image_mag; /* Scale */
-
 	/* View attachments.
 	 */
 	gboolean show_status;

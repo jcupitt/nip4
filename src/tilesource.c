@@ -809,9 +809,7 @@ tilesource_update_image(Tilesource *tilesource)
 		return 0;
 
 	if (!(image = tilesource_image(tilesource, &mask, tilesource->current_z))) {
-#ifdef DEBUG
 		printf("tilesource_update_image: build failed\n");
-#endif /*DEBUG*/
 		return -1;
 	}
 
