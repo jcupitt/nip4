@@ -758,6 +758,8 @@ tilesource_rgb(Tilesource *tilesource, VipsImage *in)
 		image = x;
 	}
 
+	return g_steal_pointer(&image);
+}
 
 /* Rebuild just the second half of the image pipeline, eg. after a change to
  * falsecolour, scale, or if current_z changes.
