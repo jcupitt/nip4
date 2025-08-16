@@ -147,10 +147,7 @@ iimage_save(Model *model, xmlNode *xnode)
 
 	/* We always rebuild the value from the expr ... don't save.
 	 */
-	if (!set_iprop(xthis, "image_left", iimage->image_left) ||
-		!set_iprop(xthis, "image_top", iimage->image_top) ||
-		!set_iprop(xthis, "image_mag", iimage->image_mag) ||
-		!set_sprop(xthis, "show_status", bool_to_char(iimage->show_status)) ||
+	if (!set_sprop(xthis, "show_status", bool_to_char(iimage->show_status)) ||
 		!set_sprop(xthis, "show_convert", bool_to_char(iimage->show_convert)))
 		return NULL;
 
@@ -175,9 +172,6 @@ iimage_load(Model *model,
 
 	g_assert(IS_RHS(parent));
 
-	(void) get_iprop(xnode, "image_left", &iimage->image_left);
-	(void) get_iprop(xnode, "image_top", &iimage->image_top);
-	(void) get_iprop(xnode, "image_mag", &iimage->image_mag);
 	(void) get_bprop(xnode, "show_status", &iimage->show_status);
 	(void) get_bprop(xnode, "show_paintbox", &iimage->show_paintbox);
 	(void) get_bprop(xnode, "show_convert", &iimage->show_convert);
@@ -406,10 +400,6 @@ iimage_init(iImage *iimage)
 	iimage->classmodels = NULL;
 
 	iimage->views = NULL;
-
-	iimage->image_left = 0;
-	iimage->image_top = 0;
-	iimage->image_mag = 0;
 
 	iimage->show_status = FALSE;
 	iimage->show_paintbox = FALSE;
