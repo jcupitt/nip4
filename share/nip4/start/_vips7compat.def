@@ -45,7 +45,8 @@ im_tile_cache_random in tile_width tile_height max_tiles
 		$tile_width => tile_width,
 		$tile_height => tile_height,
 		$max_tiles => max_tiles,
-		$access => "random"
+		$access => "random",
+		$persistent => true
 	];
 
 im_recomb x y = vips_call9 "recomb" [x, y] [];
