@@ -377,7 +377,7 @@ vo_get_required_output(VipsObject *object, GParamSpec *pspec,
 		}
 #endif /*DEBUG */
 
-		if (!heap_gvalue_to_ip(&value, &lhs)) {
+		if (!heap_gvalue_to_ip(vo->rc->heap, &value, &lhs)) {
 			g_value_unset(&value);
 			return object;
 		}
@@ -413,7 +413,7 @@ vo_get_optional_arg(const char *name, PElement *value, Vo *vo, PElement *out)
 			return value;
 		g_value_init(&gvalue, type);
 		g_object_get_property(G_OBJECT(vo->object), name, &gvalue);
-		if (!heap_gvalue_to_ip(&gvalue, &lhs)) {
+		if (!heap_gvalue_to_ip(vo->rc->heap, &gvalue, &lhs)) {
 			g_value_unset(&gvalue);
 			return value;
 		}

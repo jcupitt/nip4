@@ -539,7 +539,7 @@ static BuiltinTypeSpot *header_get_typeof_args[] = {
 /* Get type of header field.
  */
 static void
-apply_header_get_type_call(Reduce *rc,
+apply_header_typeof_call(Reduce *rc,
 	const char *name, HeapNode **arg, PElement *out)
 {
 	Heap *heap = rc->heap;
@@ -580,8 +580,11 @@ apply_header_int_call(Reduce *rc,
 	Imageinfo *ii = reduce_get_image(rc, &rhs);
 
 	int value;
-	if (vips_image_get_int(ii->image, buf, &value) ||
-		!heap_real_new(heap, value, out))
+	if (vips_image_get_int(ii->image, buf, &value)) {
+		error_vips_all();
+		reduce_throw(rc);
+	}
+	if (!heap_real_new(heap, value, out))
 		reduce_throw(rc);
 }
 
@@ -605,8 +608,11 @@ apply_header_double_call(Reduce *rc,
 	Imageinfo *ii = reduce_get_image(rc, &rhs);
 
 	double value;
-	if (vips_image_get_double(ii->image, buf, &value) ||
-		!heap_real_new(heap, value, out))
+	if (vips_image_get_double(ii->image, buf, &value)) {
+		error_vips_all();
+		reduce_throw(rc);
+	}
+	if (!heap_real_new(heap, value, out))
 		reduce_throw(rc);
 }
 
@@ -632,8 +638,10 @@ apply_header_string_call(Reduce *rc,
 	// a managedstring, since value might go away ... take a copy and control
 	// it with our GC
 	const char *value;
-	if (vips_image_get_string(ii->image, buf, &value))
+	if (vips_image_get_string(ii->image, buf, &value)) {
+		error_vips_all();
 		reduce_throw(rc);
+	}
 	if (!value) {
 		error_top(_("Null value"));
 		error_sub(_("field %s has a NULL value"), buf);
@@ -641,6 +649,37 @@ apply_header_string_call(Reduce *rc,
 	}
 	if (!heap_managedstring_new(heap, value, out))
 		reduce_throw(rc);
+}
+
+/* Get any type field to a nip4 type, if possible.
+ */
+static void
+apply_header_get_call(Reduce *rc,
+	const char *name, HeapNode **arg, PElement *out)
+{
+	Heap *heap = rc->heap;
+
+	PElement rhs;
+
+	/* Get string.
+	 */
+	PEPOINTRIGHT(arg[1], &rhs);
+	char buf[VIPS_PATH_MAX];
+	(void) reduce_get_string(rc, &rhs, buf, VIPS_PATH_MAX);
+
+	PEPOINTRIGHT(arg[0], &rhs);
+	Imageinfo *ii = reduce_get_image(rc, &rhs);
+
+	GValue value_copy = { 0 };
+	if (vips_image_get(ii->image, buf, &value_copy)) {
+		error_vips_all();
+		reduce_throw(rc);
+	}
+	if (!heap_gvalue_to_ip(heap, &value_copy, out)) {
+		g_value_unset(&value_copy);
+		reduce_throw(rc);
+	}
+	g_value_unset(&value_copy);
 }
 
 /* Args for "math".
@@ -1400,7 +1439,7 @@ static BuiltinInfo builtin_table[] = {
 
 	{ "vips_header_typeof", N_("get header field type"),
 		FALSE, VIPS_NUMBER(header_get_typeof_args),
-		&header_get_typeof_args[0], apply_header_get_type_call },
+		&header_get_typeof_args[0], apply_header_typeof_call },
 	{ "vips_header_int", N_("get int valued field"),
 		FALSE, VIPS_NUMBER(header_get_typeof_args),
 		&header_get_typeof_args[0], apply_header_int_call },
@@ -1410,6 +1449,9 @@ static BuiltinInfo builtin_table[] = {
 	{ "vips_header_string", N_("get string valued field"),
 		FALSE, VIPS_NUMBER(header_get_typeof_args),
 		&header_get_typeof_args[0], apply_header_string_call },
+	{ "vips_header_get", N_("get any valued field"),
+		FALSE, VIPS_NUMBER(header_get_typeof_args),
+		&header_get_typeof_args[0], apply_header_get_call },
 
 };
 
@@ -1468,9 +1510,7 @@ builtin_usage(VipsBuf *buf, BuiltinInfo *builtin)
 	vips_buf_appends(buf, "\n");
 
 	for (i = 0; i < builtin->nargs; i++)
-		vips_buf_appendf(buf, "    %d - %s\n",
-			i + 1,
-			builtin->args[i]->name);
+		vips_buf_appendf(buf, "    %d - %s\n", i + 1, builtin->args[i]->name);
 }
 
 #ifdef DEBUG
