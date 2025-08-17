@@ -1,3 +1,14 @@
+- Image / Header / Get / Interpretation needs Real graphicview
+
+	test again
+
+- remove
+
+    type = get_type value;
+    bits = get_bits value;
+    rect = Rect 0 0 width height;
+
+  from Image
 
 - get judder with rotate and images smaller than the window
 

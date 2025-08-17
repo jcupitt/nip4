@@ -795,7 +795,7 @@ Image_header_item = class
 
 		// the header fields we can get
 		fields = class {
-			type = 0;
+			interpretation = 0;
 			width = 1;
 			height = 2;
 			format = 3;
@@ -811,7 +811,7 @@ Image_header_item = class
 				$height => height,
 				$bands => bands,
 				$format => format,
-				$type => type,
+				$interpretation => interpretation,
 				$xres => xres,
 				$yres => yres,
 				$xoffset => xoffset,
@@ -822,7 +822,7 @@ Image_header_item = class
 			field_option name = Option_enum (_ "Field") field_names name;
 
 			field_funcs = Table [
-				[type, get_type],
+				[interpretation, get_interpretation],
 				[width, get_width],
 				[height, get_height],
 				[format, get_format],
@@ -866,9 +866,9 @@ Image_header_item = class
 			action x = get_field "format" x;
 		}
 
-		Type_item = class
-			Menuaction "_Type" "get type" {
-			action x = get_field "type" x;
+		Interpretation_item = class
+			Menuaction "_Interpretation" "get interpretation" {
+			action x = get_field "interpretation" x;
 		}
 
 		Xres_item = class

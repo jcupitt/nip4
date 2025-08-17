@@ -459,7 +459,7 @@ Colour colour_space value = class
 			bands > 1
 		= mean im
 	{
-		type = get_header "Type" im;
+		type = get_header "Interpretation" im;
 		bands = get_header "Bands" im;
 		nip_type = Image_type.colour_spaces.lookup 1 0 type;
 	}
@@ -874,6 +874,88 @@ Image_type = class {
 	];
 }
 
+/* Interpretation field.
+ */
+Image_interpretation = class {
+	MULTIBAND = 0;
+	B_W = 1;
+	HISTOGRAM = 10;
+	XYZ = 12;
+	LAB = 13;
+	CMYK = 15;
+	LABQ = 16;
+	RGB = 17;
+	UCS = 18;
+	LCH = 19;
+	LABS = 21;
+	sRGB = 22;
+	YXY = 23;
+	FOURIER = 24;
+	RGB16 = 25;
+	GREY16 = 26;
+	ARRAY = 27;
+	scRGB = 28;
+	HSV = 29;
+
+	/* Table to get names <-> numbers.
+	 */
+	interpretation_names = Enum [
+		$MULTIBAND => MULTIBAND,
+		$B_W => B_W,
+		$HISTOGRAM => HISTOGRAM,
+		$XYZ => XYZ,
+		$LAB => LAB,
+		$CMYK => CMYK,
+		$LABQ => LABQ,
+		$RGB => RGB,
+		$UCS => UCS,
+		$LCH => LCH,
+		$LABS => LABS,
+		$sRGB => sRGB,
+		$YXY => YXY,
+		$FOURIER => FOURIER,
+		$RGB16 => RGB16,
+		$GREY16 => GREY16,
+		$ARRAY => ARRAY,
+		$scRGB => scRGB,
+		$HSV => HSV
+	];
+
+	/* Table relating nip's colour space names and VIPS's interpretation
+	 * numbers. Options are generated from this, so match the order to the
+	 * order in the Colour menu.
+	 */
+	colour_spaces = Enum [
+		$sRGB => sRGB,
+		$scRGB => scRGB,
+		$Lab => LAB,
+		$LCh => LCH,
+		$XYZ => XYZ,
+		$Yxy => YXY,
+		$UCS => UCS,
+		$HSV => HSV
+	];
+
+	/* A slightly larger table ... the types of colorimetric image we can
+	 * have. Add mono, and the S and Q forms of LAB.
+	 */
+	image_colour_spaces = Enum [
+		$Mono => B_W,
+		$sRGB => sRGB,
+		$scRGB => scRGB,
+		$RGB16 => RGB16,
+		$GREY16 => GREY16,
+		$Lab => LAB,
+		$LabQ => LABQ,
+		$LabS => LABS,
+		$LCh => LCH,
+		$XYZ => XYZ,
+		$Yxy => YXY,
+		$UCS => UCS,
+		$HSV => HSV
+	];
+}
+
 /* Base image type. Simple layer over vips_image.
  */
 Image value = class
@@ -887,16 +969,17 @@ Image value = class
 	height = get_height value;
 	bands = get_bands value;
 	format = get_format value;
-	bits = get_bits value;
 	coding = get_coding value;
-	type = get_type value;
-	xres = get_header "Xres" value;
-	yres = get_header "Yres" value;
-	xoffset = get_header "Xoffset" value;
-	yoffset = get_header "Yoffset" value;
+	interpretation = get_interpretation value;
+	xres = get_header "xres" value;
+	yres = get_header "yres" value;
+	xoffset = get_header "xoffset" value;
+	yoffset = get_header "yoffset" value;
 	filename = get_header "filename" value;
 
-	// convenience ... the area our pixels occupy, as a rect
+	// for compat ... remove these!
+	type = get_type value;
+	bits = get_bits value;
 	rect = Rect 0 0 width height;
 
 	// operator overloading
