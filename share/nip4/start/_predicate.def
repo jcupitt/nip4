@@ -490,26 +490,11 @@ is_hist x
 
 get_header field x
 	= oo_unary_function get_header_op x, is_class x
-	= get_header_image x, is_image x
+	= vips_header_get field x, is_image x
 	= error (_ "bad arguments to " ++ "get_header")
 {
 	get_header_op = Operator "get_header" (get_header field)
 		Operator_type.COMPOUND false;
-	get_header_image im
-		= im_header_int field im, type == itype
-		= im_header_double field im, type == dtype
-		= im_header_string field im, type == stype1 || type == stype2
-		= error (_ "image has no field " ++ field), type == 0
-		= error (_ "unknown type for field " ++ field ++ " " ++ print
-type)
-	{
-		type = im_header_get_typeof field im;
-
-		itype = name2gtype "gint";
-		dtype = name2gtype "gdouble";
-		stype1 = name2gtype "VipsRefString";
-		stype2 = name2gtype "gchararray";
-	}
 }
 
 get_header_type field x
