@@ -39,8 +39,3 @@ Widget_font_item = class
 	Menuaction "F_ont Chooser" "make a new font chooser widget" {
 	action = Fontname "Pick a font"  Workspaces.Preferences.PAINTBOX_FONT;
 }
-
-Widget_clock_item = class
-	Menuaction "_Clock" "make a new clock widget" {
-	action = Clock 1 1;
-}

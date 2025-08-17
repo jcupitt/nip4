@@ -1098,18 +1098,17 @@ Image_levels_item = class
 			_result {
 			_vislevel = 3;
 
-			b = Scale "Black point"  0 100 0;
-			w = Scale "White point"  0 100 100;
-
-			sp = Scale "Shadow point" 0.1 0.3 0.2;
-			mp = Scale "Mid-tone point" 0.4 0.6 0.5;
-			hp = Scale "Highlight point" 0.7 0.9 0.8;
+			curve = tone_build x.format b w sp mp hp sa ma ha;
 
 			sa = Scale "Shadow adjust" (-15) 15 0;
 			ma = Scale "Mid-tone adjust" (-30) 30 0;
 			ha = Scale "Highlight adjust" (-15) 15 0;
 
-			curve = tone_build x.format b w sp mp hp sa ma ha;
+			b = Scale "Black point"  0 100 0;
+			w = Scale "White point"  0 100 100;
+			sp = Scale "Shadow point" 0.1 0.3 0.2;
+			mp = Scale "Mid-tone point" 0.4 0.6 0.5;
+			hp = Scale "Highlight point" 0.7 0.9 0.8;
 
 			_result = map_unary (hist_map curve) x;
 		}
