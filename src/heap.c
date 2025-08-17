@@ -1975,11 +1975,8 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 /* Try to make a heap object from a gvalue.
  */
 gboolean
-heap_gvalue_to_ip(GValue *in, PElement *out)
+heap_gvalue_to_ip(Heap *heap, GValue *in, PElement *out)
 {
-	Reduce *rc = reduce_context;
-	Heap *heap = rc->heap;
-
 	if (G_VALUE_HOLDS_BOOLEAN(in))
 		PEPUTP(out, ELEMENT_BOOL, (int) g_value_get_boolean(in));
 	else if (G_VALUE_HOLDS_CHAR(in))

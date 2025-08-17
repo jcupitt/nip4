@@ -498,7 +498,7 @@ gboolean heap_reduce_strict(PElement *base);
 gboolean heap_copy(Heap *heap, Compile *compile, PElement *out);
 
 gboolean heap_ip_to_gvalue(PElement *in, GValue *out);
-gboolean heap_gvalue_to_ip(GValue *in, PElement *out);
+gboolean heap_gvalue_to_ip(Heap *heap, GValue *in, PElement *out);
 
 void graph_node(Heap *heap, VipsBuf *buf, HeapNode *root, gboolean fn);
 void graph_pelement(Heap *heap, VipsBuf *buf, PElement *root, gboolean fn);

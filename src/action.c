@@ -433,7 +433,7 @@ action_proc_dot(Reduce *rc, Compile *compile,
 		g_value_init(&value, G_PARAM_SPEC_VALUE_TYPE(pspec));
 		g_object_get_property(gobject, p, &value);
 
-		if (!heap_gvalue_to_ip(&value, out)) {
+		if (!heap_gvalue_to_ip(rc->heap, &value, out)) {
 			g_value_unset(&value);
 			reduce_throw(rc);
 		}
