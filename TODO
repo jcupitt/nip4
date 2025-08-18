@@ -1,4 +1,22 @@
 
+# menu redesign
+
+- remove vips7-isms
+
+	- Type and Image_type
+	- im_* functions (except in _vips7compat)
+	- vips_call (except in _stdenv)
+	- test suite
+
+  reorganisation
+
+	- move stuff out of Image and into Filter? Or split Filter into
+	  Convolution / Conversion / etc.
+
+	  Image / Transform could come out, it#s resample
+
+	- split Filter
+
 - remove
 
     type = get_type value;
@@ -6,43 +24,6 @@
     rect = Rect 0 0 width height;
 
   from Image
-
-- get judder with rotate and images smaller than the window
-
-	draw on update, then draw again on relayout
-
-	hard to fix
-
-- show zoomed out tiles too
-
-	should stop some more flicker
-
-	seems tricky for some reason?
-
-- load ws with locked tab, rightclick menu on locked tab does not
-  have tick selected
-
-  two tabs, lock one, menu on other also shows lock
-
-	a bit tricky to fix
-
-  maybe we are forced to have a separate menu for each tab?
-
-- the "new tab" icon is still broken in the windows build
-
-- we are missing a program icon too, do we need to make
-
-	hicolor/apps/48x48/org.libvips.nip4.png
-	hicolor/apps/256x256/org.libvips.nip4.png
-	hicolor/apps/512x512/org.libvips.nip4.png
-
-  works for flatpak
-
-# menu redesign
-
-- remove all use of im_* functions
-
-- move all vips_call stuff to _stdenv
 
 - better Group support
 
@@ -84,8 +65,6 @@
 - perspective distort could have an "interpoplate" option (always bilinear
   right now)
 
-- rename Image_type as Image_interpretation
-
 - try:
 
 	Matrix_build_item.Matrix_laplacian_item.action
@@ -102,19 +81,14 @@
 
   translate, rotate etc? need xyz for that
 
-- Grey ramp, checkerboard, grid CIELAB slice -> Test Images
-
 - magic kernel
 
 - use vips_addalpha() operation
 
-- remove use of cache (it's tilecache only now)
-
 - prewitt and scharr edge detectors
 
-- puts lots of stuff into Image > New eg xyz, sdf etc.
 
-- can we improve Group[]?
+
 
 
 
