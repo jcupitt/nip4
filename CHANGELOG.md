@@ -13,6 +13,7 @@
 - add Real, Group, Vector graphic classes
 - better row drop
 - cancel row drag with Esc
+- better row drag animation
 
 ## 9.0.11 2025/07/21
 

@@ -1187,43 +1187,42 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 
 				if (cview) {
 					int pos;
-
 					// row we are over, if any
 					Rowview *local = columnview_find_rowview(cview,
 						mouse_x, mouse_y);
 
-					if (local) {
+					// the area in the column containing the set of rows
+					graphene_rect_t scol_bounds;
+					if (!gtk_widget_compute_bounds(GTK_WIDGET(cview->sview),
+							wview->fixed, &scol_bounds))
+						return;
+
+					pos = -1;
+					if (mouse_y < scol_bounds.origin.y)
+						pos = 0;
+					else if (mouse_y >
+							scol_bounds.origin.y + scol_bounds.size.height)
+						// this will get renumbered on drop
+						pos = 100000;
+					else if (local) {
 						Rowview *top = rowview_get_top(local);
 
-						graphene_rect_t bounds;
+						graphene_rect_t row_bounds;
 						if (!gtk_widget_compute_bounds(GTK_WIDGET(top->frame),
-								wview->fixed, &bounds))
+								wview->fixed, &row_bounds))
 							return;
 
 						Row *row = ROW(VOBJECT(top)->iobject);
 						pos = 2 * ICONTAINER(row)->pos + 1;
-						if (mouse_y > bounds.origin.y + bounds.size.height / 2)
+						if (mouse_y >
+							row_bounds.origin.y + row_bounds.size.height / 2)
 							pos += 1;
 						else
 							pos -= 1;
 					}
-					else {
-						// we are over a column, but not over a row ... we
-						// could be over the titlebar, or over the entry area
-						// at the bottom
-						Columnview *title =
-							workspaceview_find_columnview_title(wview,
-								mouse_x, mouse_y);
 
-						if (title)
-							pos = 0;
-						else
-							// not in the title, append to end of column
-							// this will get renumbered on drop
-							pos = 100000;
-					}
-
-					workspaceview_move_row_shadow(wview, cview, pos);
+					if (pos >= 0)
+						workspaceview_move_row_shadow(wview, cview, pos);
 				}
 				else
 					workspaceview_move_row_shadow(wview, NULL, -1);
