@@ -978,6 +978,30 @@ workspaceview_float_rowview(Workspaceview *wview, Rowview *rview)
 }
 
 static void
+workspaceview_undo_row_drag(Workspaceview *wview)
+{
+	Rowview *rview = wview->drag_rview;
+
+	g_object_ref(rview);
+
+	g_assert(IS_SUBCOLUMNVIEW(wview->old_sview));
+	g_assert(IS_ROWVIEW(rview));
+
+	view_child_remove(VIEW(rview));
+	// the row number has to be wrong or reattach is skipped
+	rview->rnum = -1;
+	view_child_add(VIEW(wview->old_sview), VIEW(rview));
+
+	g_object_unref(rview);
+
+	// the row and the old containing column need to refresh
+	Row *row = ROW(VOBJECT(rview)->iobject);
+	iobject_changed(IOBJECT(row));
+	Subcolumn *scol = SUBCOLUMN(ICONTAINER(row)->parent);
+	iobject_changed(IOBJECT(scol));
+}
+
+static void
 workspaceview_drop_rowview(Workspaceview *wview)
 {
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
@@ -1013,17 +1037,7 @@ workspaceview_drop_rowview(Workspaceview *wview)
 
 	// reparent the rowview back to the original column ... this is where
 	// icontainer_reparent() expects to find it
-	g_object_ref(rview);
-
-	g_assert(IS_SUBCOLUMNVIEW(wview->old_sview));
-	g_assert(IS_ROWVIEW(rview));
-
-	view_child_remove(VIEW(rview));
-	// the row number has to be wrong or reattach is skipped
-	rview->rnum = -1;
-	view_child_add(VIEW(wview->old_sview), VIEW(rview));
-
-	g_object_unref(rview);
+	workspaceview_undo_row_drag(wview);
 
 	// update the model
 	if (col == row_col) {
@@ -1172,27 +1186,43 @@ workspaceview_drag_update(GtkEventControllerMotion *self,
 					mouse_x, mouse_y);
 
 				if (cview) {
-					// row we are over
+					int pos;
+					// row we are over, if any
 					Rowview *local = columnview_find_rowview(cview,
 						mouse_x, mouse_y);
 
-					if (local) {
+					// the area in the column containing the set of rows
+					graphene_rect_t scol_bounds;
+					if (!gtk_widget_compute_bounds(GTK_WIDGET(cview->sview),
+							wview->fixed, &scol_bounds))
+						return;
+
+					pos = -1;
+					if (mouse_y < scol_bounds.origin.y)
+						pos = 0;
+					else if (mouse_y >
+							scol_bounds.origin.y + scol_bounds.size.height)
+						// this will get renumbered on drop
+						pos = 100000;
+					else if (local) {
 						Rowview *top = rowview_get_top(local);
 
-						graphene_rect_t bounds;
+						graphene_rect_t row_bounds;
 						if (!gtk_widget_compute_bounds(GTK_WIDGET(top->frame),
-								wview->fixed, &bounds))
+								wview->fixed, &row_bounds))
 							return;
 
 						Row *row = ROW(VOBJECT(top)->iobject);
-						int pos = 2 * ICONTAINER(row)->pos + 1;
-						if (mouse_y > bounds.origin.y + bounds.size.height / 2)
-							workspaceview_move_row_shadow(wview,
-								cview, pos + 1);
+						pos = 2 * ICONTAINER(row)->pos + 1;
+						if (mouse_y >
+							row_bounds.origin.y + row_bounds.size.height / 2)
+							pos += 1;
 						else
-							workspaceview_move_row_shadow(wview,
-								cview, pos - 1);
+							pos -= 1;
 					}
+
+					if (pos >= 0)
+						workspaceview_move_row_shadow(wview, cview, pos);
 				}
 				else
 					workspaceview_move_row_shadow(wview, NULL, -1);
@@ -1302,6 +1332,39 @@ workspaceview_alert_close_clicked(GtkButton *button, void *user_data)
 	workspace_set_alert(ws, FALSE);
 }
 
+static gboolean
+workspaceview_key_pressed(GtkEventControllerKey *self,
+	guint keyval, guint keycode, GdkModifierType state, gpointer user_data)
+{
+	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+	switch (keyval) {
+	case GDK_KEY_Escape:
+		if (wview->state == WVIEW_DRAG) {
+			wview->state = WVIEW_WAIT;
+
+			if (wview->drag_rview) {
+				// cancel row drag, remove the floating column we made
+				workspaceview_undo_row_drag(wview);
+				workspaceview_unfloat(wview);
+				workspaceview_remove_row_shadow(wview);
+				workspace_queue_layout(ws);
+			}
+			else if (wview->drag_cview) {
+				// undo column drag is tricky
+			}
+		}
+
+		break;
+
+	default:
+		break;
+	}
+
+	return FALSE;
+}
+
 static void
 workspaceview_class_init(WorkspaceviewClass *class)
 {
@@ -1332,6 +1395,7 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_CALLBACK(workspaceview_drag_end);
 	BIND_CALLBACK(workspaceview_error_close_clicked);
 	BIND_CALLBACK(workspaceview_alert_close_clicked);
+	BIND_CALLBACK(workspaceview_key_pressed);
 
 	object_class->dispose = workspaceview_dispose;
 

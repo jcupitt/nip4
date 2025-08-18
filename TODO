@@ -1,4 +1,3 @@
-
 # menu redesign
 
 - remove vips7-isms
@@ -89,12 +88,42 @@
 
 
 
+- get judder with rotate and images smaller than the window
 
+	draw on update, then draw again on relayout
 
+	hard to fix
+
+- show zoomed out tiles too
+
+	should stop some more flicker
+
+	seems tricky for some reason?
+
+- load ws with locked tab, rightclick menu on locked tab does not
+  have tick selected
+
+  two tabs, lock one, menu on other also shows lock
+
+	a bit tricky to fix
+
+  maybe we are forced to have a separate menu for each tab?
+
+- the "new tab" icon is still broken in the windows build
+
+- we are missing a program icon too, do we need to make
+
+	hicolor/apps/48x48/org.libvips.nip4.png
+	hicolor/apps/256x256/org.libvips.nip4.png
+	hicolor/apps/512x512/org.libvips.nip4.png
+
+  works for flatpak
 
 - could use file chooser widget in bm-workspaces, what would it look like?
 
 - check all batch mode flags
+
+	see eg. vips-bench nip4 benchmark
 
 - try to save and restore image view scale and position
 
@@ -120,8 +149,6 @@
 
   see imagewindow_set_tilesource() and uncomment the call to
   imageui_set_bestfit() to work on this again
-
-- still getting buffer ownership assert fails with libvips built in debug mode
 
 - need preferences?
 
