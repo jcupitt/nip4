@@ -1,3 +1,13 @@
+- is the magick menu caching correctly? we see a lot of forking for each
+  action
+
+	eg. Annotate runs the annotation 9 times as the row evaluates
+
+	system should cache on the input file pointer plus the cmd string
+
+	removed NOCACHE from system, still runs 9 times :(
+
+- magick menu should use magick7
 
 - get judder with rotate and images smaller than the window
 
