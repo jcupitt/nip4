@@ -21,16 +21,6 @@
 
   maybe we are forced to have a separate menu for each tab?
 
-- the "new tab" icon is still broken in the windows build
-
-- we are missing a program icon too, do we need to make
-
-	hicolor/apps/48x48/org.libvips.nip4.png
-	hicolor/apps/256x256/org.libvips.nip4.png
-	hicolor/apps/512x512/org.libvips.nip4.png
-
-  works for flatpak
-
 - could use file chooser widget in bm-workspaces, what would it look like?
 
 - check all batch mode flags
@@ -213,17 +203,6 @@
 	vips_add options a b = vips_call "add" [a, b] options
 
 	x = vips_add [$uchar => true] y z
-
-## widgets TODO
-
-- still to do:
-
-    (void) g_type_class_ref(TYPE_CLOCK);
-    (void) g_type_class_ref(TYPE_GROUP);
-    (void) g_type_class_ref(TYPE_REAL);
-    (void) g_type_class_ref(TYPE_VECTOR);
-
-  maybe skip clock
 
 ## plotting
 
