@@ -1,4 +1,4 @@
-/* 
+/*
 
    ImageMagick operations edited by Alan Gibson (aka "snibgo"; snibgo at earthling dot net).
    1-Apr-2014
@@ -40,11 +40,12 @@ Magick_noop_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 ===*/
 
+/*
 Magick_testPar_item = class
 	Menuaction "_TestPar" "no operation" {
 	action x = class
@@ -57,9 +58,10 @@ Magick_testPar_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
+ */
 
 /* Removed Read_item and Write_item, much better to use nip2 load/save image.
  * Plus they can load all libMagick formats anyway.
@@ -80,11 +82,11 @@ Magick_NewImageMenu_item = class
 			colour = Magick.generalcol_widget;
 			command = Magick.command [
 				size._flag,
-				"\"canvas:" ++ colour._flag ++ "\"", 
+				"\"canvas:" ++ colour._flag ++ "\"",
 				"\"%s\""
 			];
 
-			_result = Magick.system0 command; 
+			_result = Magick.system0 command;
 		}
 	}
 
@@ -100,7 +102,7 @@ Magick_NewImageMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system0 command; 
+			_result = Magick.system0 command;
 		}
 	}
 
@@ -116,12 +118,12 @@ Magick_NewImageMenu_item = class
 
 			command = Magick.command [
 				size._flag,
-				concat ["\"gradient:", 
+				concat ["\"gradient:",
 					topColour._flag, "-", bottomColour._flag, "\""],
 				"\"%s\""
 			];
 
-			_result = Magick.system0 command; 
+			_result = Magick.system0 command;
 		}
 	}
 
@@ -137,7 +139,7 @@ Magick_NewImageMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system0 command; 
+			_result = Magick.system0 command;
 		}
 	}
 
@@ -155,7 +157,7 @@ Magick_NewImageMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system0 command; 
+			_result = Magick.system0 command;
 		}
 	}
 
@@ -175,12 +177,12 @@ Magick_NewImageMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system0 command; 
+			_result = Magick.system0 command;
 		}
 	}
 
 	Magick_radialgradient_item = class
-		Menuaction "_Radial gradient" 
+		Menuaction "_Radial gradient"
 			"make a radial gradient between two colours" {
 		action = class
 			_result {
@@ -192,12 +194,12 @@ Magick_NewImageMenu_item = class
 
 			command = Magick.command [
 				size._flag,
-				concat ["\"radial-gradient:", 
+				concat ["\"radial-gradient:",
 					innerColour._flag, "-", outerColour._flag, "\""],
 				"\"%s\""
 			];
 
-			_result = Magick.system0 command; 
+			_result = Magick.system0 command;
 		}
 	}
 }  // end Magick_NewImageMenu_item
@@ -214,7 +216,7 @@ Magick_MultiMenu_item = class
 
 			method = Magick.compose_widget;
 			offsets = Magick.OffsetGeometry_widget;
-			gravity = Magick.gravity_widget; 
+			gravity = Magick.gravity_widget;
 
 			command = Magick.command [
 				"\"%s\"",
@@ -226,7 +228,7 @@ Magick_MultiMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system2 command x y; 
+			_result = Magick.system2 command x y;
 		}
 	}
 
@@ -238,7 +240,7 @@ Magick_MultiMenu_item = class
 
 			method = Magick.compose_widget;
 			offsets = Magick.OffsetGeometry_widget;
-			gravity = Magick.gravity_widget; 
+			gravity = Magick.gravity_widget;
 
 			command = Magick.command [
 				"\"%s\"",
@@ -246,12 +248,12 @@ Magick_MultiMenu_item = class
 				"\"%s\"",
 				"-geometry", offsets._flag,
 				gravity._flag,
-				method._flag, 
+				method._flag,
 				"-composite",
 				"\"%s\""
 			];
 
-			_result = Magick.system3 command x y z; 
+			_result = Magick.system3 command x y z;
 		}
 	}
 
@@ -276,7 +278,7 @@ Magick_MultiMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system2 command x y; 
+			_result = Magick.system2 command x y;
 		}
 	}
 
@@ -293,7 +295,7 @@ Magick_MultiMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system2 command x y; 
+			_result = Magick.system2 command x y;
 		}
 	}
 
@@ -318,7 +320,7 @@ Magick_MultiMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
@@ -342,7 +344,7 @@ Magick_MultiMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
@@ -359,7 +361,7 @@ Magick_MultiMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system2 command x y; 
+			_result = Magick.system2 command x y;
 		}
 	}
 
@@ -380,7 +382,7 @@ Magick_image_type_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -388,31 +390,31 @@ sep2 = Menuseparator;
 
 Magick_alpha_item = class
 	Menuaction "_Alpha" "add/remove alpha channel" {
-	action x = class 
+	action x = class
 		_result {
 		_vislevel = 3;
 
-		alpha = Magick.alpha_widget; 
+		alpha = Magick.alpha_widget;
 		command = Magick.command [
 			"\"%s\"",
 			alpha._flag,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
 Magick_annotate_item = class
 	Menuaction "_Annotate" "add text annotation" {
-	action x = class 
+	action x = class
 		_result {
 		_vislevel = 3;
 
 		text = Magick.text_widget;
 		font = Magick.Font_widget;
-		geometry = Magick.AnnotGeometry_widget; 
-		gravity = Magick.gravity_widget; 
+		geometry = Magick.AnnotGeometry_widget;
+		gravity = Magick.gravity_widget;
 		foreground = Magick.foreground_widget;
 		undercol = Magick.undercol_widget;
 		antialias = Magick.antialias_widget;
@@ -423,13 +425,13 @@ Magick_annotate_item = class
 			gravity._flag,
 			foreground._flag,
 			undercol._flag,
-			"-annotate", 
-			geometry._flag, 
+			"-annotate",
+			geometry._flag,
 			"\"" ++ text.value ++ "\"",
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -447,7 +449,7 @@ Magick_autoGamma_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -465,7 +467,7 @@ Magick_autoLevel_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -474,12 +476,12 @@ Magick_blurSharpMenu_item = class
 
 	Magick_adaptive_blur_item = class
 		Menuaction "_Adaptive Blur" "blur less near edges" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
 			intensity = Magick.intensity_widget;
-			radius = Magick.blur_rad_widget; 
+			radius = Magick.blur_rad_widget;
 			sigma = Magick.sigma_widget;
 			channels = Magick.channels_widget;
 			// note: adaptive-blur doesn't regard VP.
@@ -493,70 +495,70 @@ Magick_blurSharpMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
 	Magick_blur_item = class
 		Menuaction "_Blur" "blur" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
-			radius = Magick.blur_rad_widget; 
+			radius = Magick.blur_rad_widget;
 			sigma = Magick.sigma_widget;
 			channels = Magick.channels_widget;
 			virtpixback = Magick.VirtualPixelBack_widget;
 			command = Magick.command [
 				"\"%s\"",
-				virtpixback._flag, 
+				virtpixback._flag,
 				channels._flag,
 				"-blur",
 				print radius.value ++ "x" ++ print sigma.value,
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
 	Magick_gaussianBlur_item = class
 		Menuaction "_Gaussian Blur" "blur with a Gaussian operator" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
-			radius = Magick.blur_rad_widget; 
+			radius = Magick.blur_rad_widget;
 			sigma = Magick.sigma_widget;
 			channels = Magick.channels_widget;
 			virtpixback = Magick.VirtualPixelBack_widget;
 			command = Magick.command [
 				"\"%s\"",
-				virtpixback._flag, 
+				virtpixback._flag,
 				channels._flag,
 				"-gaussian-blur",
 				print radius.value ++ "x" ++ print sigma.value,
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
 	Magick_motionBlur_item = class
 		Menuaction "_Motion Blur" "simulate motion blur" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
-			radius = Magick.blur_rad_widget; 
+			radius = Magick.blur_rad_widget;
 			sigma = Magick.sigma_widget;
 			angle = Scale "angle" (-360) 360 0;
 			channels = Magick.ch_widget;
 			virtpixback = Magick.VirtualPixelBack_widget;
 			command = Magick.command [
 				"\"%s\"",
-				virtpixback._flag, 
+				virtpixback._flag,
 				channels._flag,
 				"-motion-blur",
 				print radius.value ++ "x" ++
@@ -565,7 +567,7 @@ Magick_blurSharpMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
@@ -581,25 +583,25 @@ Magick_blurSharpMenu_item = class
 
 			command = Magick.command [
 				"\"%s\"",
-				virtpixback._flag, 
+				virtpixback._flag,
 				channels._flag,
-				"-radial-blur", 
+				"-radial-blur",
 				print angle.value,
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
 	Magick_selectiveBlur_item = class
 		Menuaction "_Selective Blur" "blur where contrast is less than or equal to threshold" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
 			intensity = Magick.intensity_widget;
-			radius = Magick.blur_rad_widget; 
+			radius = Magick.blur_rad_widget;
 			sigma = Magick.sigma_widget;
 			threshold = Scale "Threshold (percent)" 0 100 50;
 			channels = Magick.channels_widget;
@@ -607,7 +609,7 @@ Magick_blurSharpMenu_item = class
 			command = Magick.command [
 				"\"%s\"",
 				intensity._flag,
-				virtpixback._flag, 
+				virtpixback._flag,
 				channels._flag,
 				"-selective-blur",
 				print radius.value ++ "x" ++
@@ -616,7 +618,7 @@ Magick_blurSharpMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
@@ -624,12 +626,12 @@ Magick_blurSharpMenu_item = class
 
 	Magick_adaptive_sharpen_item = class
 		Menuaction "_Adaptive Sharpen" "sharpen more near edges" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
 			intensity = Magick.intensity_widget;
-			radius = Magick.blur_rad_widget; 
+			radius = Magick.blur_rad_widget;
 			sigma = Magick.sigma_widget;
 
 			command = Magick.command [
@@ -640,40 +642,40 @@ Magick_blurSharpMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
 	Magick_sharpen_item = class
 		Menuaction "_Sharpen" "sharpen" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
-			radius = Magick.blur_rad_widget; 
+			radius = Magick.blur_rad_widget;
 			sigma = Magick.sigma_widget;
 			channels = Magick.channels_widget;
 			virtpixback = Magick.VirtualPixelBack_widget;
 			command = Magick.command [
 				"\"%s\"",
-				virtpixback._flag, 
-				channels._flag, 
+				virtpixback._flag,
+				channels._flag,
 				"-sharpen",
 				print radius.value ++ "x" ++ print sigma.value,
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
 	Magick_unsharpen_item = class
 		Menuaction "_Unsharp" "sharpen with unsharp mask" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
-			radius = Magick.blur_rad_widget; 
+			radius = Magick.blur_rad_widget;
 			sigma = Magick.sigma_widget;
 			channels = Magick.channels_widget;
 			gain = Scale "Gain" (-10) 10 1;
@@ -682,8 +684,8 @@ Magick_blurSharpMenu_item = class
 
 			command = Magick.command [
 				"\"%s\"",
-				virtpixback._flag, 
-				channels._flag, 
+				virtpixback._flag,
+				channels._flag,
 				"-unsharp",
 				print radius.value ++ "x" ++
 					print sigma.value ++ "+" ++
@@ -692,7 +694,7 @@ Magick_blurSharpMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
@@ -713,12 +715,12 @@ Magick_border_item = class
 			"\"%s\"",
 			compose._flag,
 			bordercol._flag,
-			"-border", 
+			"-border",
 			print width.expr,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -735,12 +737,12 @@ Magick_brightCont_item = class
 		command = Magick.command [
 			"\"%s\"",
 			channels._flag,
-			"-brightness-contrast", 
+			"-brightness-contrast",
 			print bri.value ++ "x" ++ print con.value,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -752,16 +754,16 @@ Magick_canny_item = class
 		_result {
 		_vislevel = 3;
 
-		radius = Magick.blur_rad_widget; 
+		radius = Magick.blur_rad_widget;
 		sigma = Magick.sigma_widget;
 		lowPc = Scale "lower percent" 0 100 10;
 		highPc = Scale "lower percent" 0 100 10;
 
 		command = Magick.command [
 			"\"%s\"",
-			"-canny", 
+			"-canny",
 			concat ["\"",
-				print radius.value ++ "x" ++ 
+				print radius.value ++ "x" ++
 				print sigma.value ++ "+" ++
 				print lowPc.value ++ "%%+" ++
 				print highPc.value ++ "%%" ++ "\""
@@ -769,7 +771,7 @@ Magick_canny_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -786,12 +788,12 @@ Magick_charcoal_item = class
 		command = Magick.command [
 			"\"%s\"",
 			intensity._flag,
-			"-charcoal", 
+			"-charcoal",
 			print factor.value,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -801,18 +803,18 @@ Magick_chop_item = class
 		_result {
 		_vislevel = 3;
 
-		gravity = Magick.gravity_widget; 
+		gravity = Magick.gravity_widget;
 		geometry = Magick.WhxyGeometry_widget;
 
 		command = Magick.command [
 			"\"%s\"",
 			gravity._flag,
-			"-chop", 
+			"-chop",
 			geometry._flag,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -828,12 +830,12 @@ Magick_colorize_item = class
 		command = Magick.command [
 			"\"%s\"",
 			foreground._flag,
-			"-colorize", 
+			"-colorize",
 			print val.value,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -851,15 +853,15 @@ Magick_colors_item = class
 		command = Magick.command [
 			"\"%s\"",
 			"-quantize", quantize._flag,
-			"-treedepth", 
-			print treedepth.expr, 
+			"-treedepth",
+			print treedepth.expr,
 			dither._flag,
-			"-colors", 
+			"-colors",
 			print colors.expr,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -880,7 +882,7 @@ Magick_colorspace_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -899,7 +901,7 @@ Magick_colorspaceGray_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -917,7 +919,7 @@ Magick_contrast_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -941,7 +943,7 @@ Magick_contrastStretch_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -953,7 +955,7 @@ Magick_crop_item = class
 		_result {
 		_vislevel = 3;
 
-		gravity = Magick.gravity_widget; 
+		gravity = Magick.gravity_widget;
 		geometry = Magick.WhxyGeometry_widget;
 
 		command = Magick.command [
@@ -965,7 +967,7 @@ Magick_crop_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -987,7 +989,7 @@ Magick_deskew_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1003,7 +1005,7 @@ Magick_despeckle_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1028,7 +1030,7 @@ Magick_distort_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1049,7 +1051,7 @@ Magick_draw_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1068,7 +1070,7 @@ Magick_edge_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1087,7 +1089,7 @@ Magick_emboss_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1103,7 +1105,7 @@ Magick_enhance_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1122,7 +1124,7 @@ Magick_equalize_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1139,13 +1141,13 @@ Magick_evaluate_item = class
 
 		command = Magick.command [
 			"\"%s\"",
-			channels._flag, 
-			operation._flag, 
+			channels._flag,
+			operation._flag,
 			print val.expr ++ if isPc then "%%" else "",
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1157,20 +1159,20 @@ Magick_extent_item = class
 
 		background = Magick.background_widget;
 		compose = Magick.compose_widget;
-		gravity = Magick.gravity_widget; 
+		gravity = Magick.gravity_widget;
 		geometry = Magick.WhxyGeometry_widget;
 
 		command = Magick.command [
 			"\"%s\"",
-			compose._flag, 
-			background._flag, 
+			compose._flag,
+			background._flag,
 			gravity._flag,
-			"-extent", 
+			"-extent",
 			geometry._flag,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1190,7 +1192,7 @@ Magick_FlipFlopMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
@@ -1206,7 +1208,7 @@ Magick_FlipFlopMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
@@ -1222,7 +1224,7 @@ Magick_FlipFlopMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
@@ -1238,7 +1240,7 @@ Magick_FlipFlopMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
@@ -1267,7 +1269,7 @@ Magick_floodfill_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1284,15 +1286,15 @@ Magick_frame_item = class
 
 		command = Magick.command [
 			"\"%s\"",
-			compose._flag, 
-			border._flag, 
-			matte._flag, 
-			"-frame", 
+			compose._flag,
+			border._flag,
+			matte._flag,
+			"-frame",
 			geometry._flag,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1310,13 +1312,13 @@ Magick_function_item = class
 		command = Magick.command [
 			"\"%s\"",
 			channels._flag,
-			"-function", 
-			function._flag, 
+			"-function",
+			function._flag,
 			values.value,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1341,7 +1343,7 @@ Magick_fx_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1362,7 +1364,7 @@ Magick_gamma_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1376,9 +1378,9 @@ Magick_gradient_item = class
 		colourB = Magick.generalcol_widget;
 
 		position = Option "colourA is at" [
-				"top", "bottom", 
-				"left", "right", 
-				"top-left", "top-right", 
+				"top", "bottom",
+				"left", "right",
+				"top-left", "top-right",
 				"bottom-left", "bottom-right"] 0;
 		_baryArg
 			= concat ["0,0,", colourA._flag, " 0,%%[fx:h-1],", colourB._flag], position.value == 0
@@ -1397,12 +1399,12 @@ Magick_gradient_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
 Magick_gradientCorn_item = class
-	Menuaction "_Gradient corners" 
+	Menuaction "_Gradient corners"
 		"apply a bilinear gradient between the corners" {
 	action x = class
 		_result {
@@ -1424,7 +1426,7 @@ Magick_gradientCorn_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1440,7 +1442,7 @@ Magick_histogram_item = class
 				"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1457,12 +1459,12 @@ Magick_implode_item = class
 		command = Magick.command [
 			"\"%s\"",
 			interpolate._flag,
-			"-implode", 
+			"-implode",
 			print factor.value,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1483,13 +1485,13 @@ Magick_level_item = class
 			"\"%s\"",
 			channels._flag,
 			(if isInv then "+" else "-") ++ "level",
-			"\"" ++ print blk.value ++ "," ++ 
-				print wht.value ++ (if isPc then "%%" else "") ++ "," ++ 
+			"\"" ++ print blk.value ++ "," ++
+				print wht.value ++ (if isPc then "%%" else "") ++ "," ++
 				print gam.value ++ "\"",
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1512,7 +1514,7 @@ Magick_levelCols_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1534,7 +1536,7 @@ Magick_linearStretch_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1550,7 +1552,7 @@ Magick_magnify_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1569,12 +1571,12 @@ Magick_modulate_item = class
 			"\"%s\"",
 			modcolsp._flag,
 			"-modulate",
-			print bright.value ++ "," ++ print sat.value ++ "," ++ 
+			print bright.value ++ "," ++ print sat.value ++ "," ++
 				print hue.value,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1594,13 +1596,13 @@ Magick_monochrome_item = class
 			"\"%s\"",
 			intensity._flag,
 			dither._flag,
-			"-treedepth", 
-			print treedepth.expr, 
+			"-treedepth",
+			print treedepth.expr,
 			"-monochrome",
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1632,13 +1634,13 @@ Magick_morphology_item = class
 			"\"%s\"",
 			channels._flag,
 			"-morphology",
-			method._flag ++ ":" ++ print iter.expr, 
+			method._flag ++ ":" ++ print iter.expr,
 			kernel._flag ++
 			(if kernel_arg.value == "" then "" else ":") ++ kernel_arg.value,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1657,7 +1659,7 @@ Magick_negate_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1674,13 +1676,13 @@ Magick_addNoise_item = class
 		command = Magick.command [
 			"\"%s\"",
 			channels._flag,
-			"-attenuate", 
+			"-attenuate",
 			print attenuate.value,
 			noise._flag,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1701,7 +1703,7 @@ Magick_normalize_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1726,7 +1728,7 @@ Magick_opaque_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1745,7 +1747,7 @@ Magick_paint_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1765,7 +1767,7 @@ Polaroid_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 ===*/
@@ -1785,7 +1787,7 @@ Magick_posterize_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1804,7 +1806,7 @@ Magick_raise_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1829,7 +1831,7 @@ Magick_resize_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1850,7 +1852,7 @@ Magick_roll_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1873,7 +1875,7 @@ Magick_rotate_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1894,7 +1896,7 @@ Magick_sepia_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1914,7 +1916,7 @@ Magick_shade_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1952,7 +1954,7 @@ Magick_shadow_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1974,7 +1976,7 @@ Magick_shave_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -1996,7 +1998,7 @@ Magick_shear_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -2015,12 +2017,12 @@ Magick_sigmoid_item = class
 			"\"%s\"",
 			channels._flag,
 			(if isInv then "+" else "-") ++ "sigmoidal-contrast",
-			"\"" ++ print contrast.value ++ "x" ++ 
+			"\"" ++ print contrast.value ++ "x" ++
 				print midpoint.value ++ "%%\"",
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -2030,7 +2032,7 @@ Magick_sketch_item = class
 		_result {
 		_vislevel = 3;
 
-		radius = Magick.blur_rad_widget; 
+		radius = Magick.blur_rad_widget;
 		sigma = Magick.sigma_widget;
 		angle = Scale "angle" (-360) 360 0;
 
@@ -2042,7 +2044,7 @@ Magick_sketch_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -2063,7 +2065,7 @@ Magick_solarize_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -2076,19 +2078,19 @@ Magick_splice_item = class
 		_vislevel = 3;
 
 		background = Magick.background_widget;
-		gravity = Magick.gravity_widget; 
+		gravity = Magick.gravity_widget;
 		geometry = Magick.WhxyGeometry_widget;
 
 		command = Magick.command [
 			"\"%s\"",
-			background._flag, 
+			background._flag,
 			gravity._flag,
-			"-splice", 
+			"-splice",
 			geometry._flag,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -2109,7 +2111,7 @@ Magick_spread_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -2125,19 +2127,19 @@ Magick_statistic_item = class
 
 		command = Magick.command [
 			"\"%s\"",
-			"-statistic", 
-			statisticType._flag, 
+			"-statistic",
+			statisticType._flag,
 			print width.expr ++ "x" ++ print height.expr,
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
 Magick_swirl_item = class
 	Menuaction "_Swirl" "swirl around the centre" {
-	action x = class 
+	action x = class
 		_result {
 		_vislevel = 3;
 
@@ -2150,7 +2152,7 @@ Magick_swirl_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -2171,12 +2173,12 @@ Magick_thresholdMenu_item = class
 				"\"%s\"",
 				intensity._flag,
 				channels._flag,
-				"-threshold", 
+				"-threshold",
 				"\"" ++ print threshold.value ++ "%%\"",
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
@@ -2197,7 +2199,7 @@ Magick_thresholdMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
@@ -2218,7 +2220,7 @@ Magick_thresholdMenu_item = class
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
@@ -2236,14 +2238,14 @@ Magick_thresholdMenu_item = class
 			command = Magick.command [
 				"\"%s\"",
 				"-lat",
-				concat ["\"", print width.expr, "x", print height.expr, 
+				concat ["\"", print width.expr, "x", print height.expr,
 					(if offset.value >= 0 then "+" else ""), print offset.value,
 					"%%\""
 				],
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
@@ -2261,13 +2263,13 @@ Magick_thresholdMenu_item = class
 			command = Magick.command [
 				"\"%s\"",
 				channels._flag,
-				"-random-threshold", 
+				"-random-threshold",
 				"\"" ++ print low.value ++ "x" ++ print high.value ++
 					(if isPc then "%%" else "") ++ "\"",
 				"\"%s\""
 			];
 
-			_result = Magick.system command x; 
+			_result = Magick.system command x;
 		}
 	}
 
@@ -2291,7 +2293,7 @@ Magick_tile_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -2313,7 +2315,7 @@ Magick_tint_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -2334,7 +2336,7 @@ Magick_transparent_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -2354,7 +2356,7 @@ Magick_trim_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -2370,7 +2372,7 @@ Magick_uniqueCols_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -2380,7 +2382,7 @@ Magick_vignette_item = class
 		_result {
 		_vislevel = 3;
 
-		radius = Magick.blur_rad_widget; 
+		radius = Magick.blur_rad_widget;
 		sigma = Magick.sigma_widget;
 		rx = Scale "Rolloff x (percent)" 0 100 10;
 		ry = Scale "Rolloff y (percent)" 0 100 10;
@@ -2396,7 +2398,7 @@ Magick_vignette_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
@@ -2416,7 +2418,7 @@ Magick_wave_item = class
 			"\"%s\""
 		];
 
-		_result = Magick.system command x; 
+		_result = Magick.system command x;
 	}
 }
 
