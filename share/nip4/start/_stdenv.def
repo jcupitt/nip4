@@ -2405,8 +2405,14 @@ system_image command x
 	system im
 		= image_out
 	{
-		[image_out, log] =
-			im_system_image (get_image im) "%s.tif" "%s.tif" command;
+		[image_out, log] = vips_call9 "system" [command] [
+			$in => [get_image im],
+			$out => true,
+			$in_format => "%s.tif",
+			$out_format => "%s.tif",
+			$cache => true,
+			$log => true
+		];
 	}
 }
 

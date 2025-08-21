@@ -41,6 +41,10 @@
 	(G_TYPE_INSTANCE_GET_CLASS((obj), \
 		TOOLKITGROUPVIEW_TYPE, ToolkitgroupviewClass))
 
+/* The max depth of the tree.
+ */
+#define MAX_PAGE_DEPTH (256)
+
 struct _Toolkitgroupview {
 	View parent_object;
 
@@ -55,10 +59,20 @@ struct _Toolkitgroupview {
 	 */
 	gboolean search_mode;
 
-	/* Page names for our stack, root first. Use this for go-back, and to
-	 * rebuild the view on refresh.
+	/* The number of pages deep we are, so 1 for on the root page.
 	 */
-	GSList *page_names;
+	int n_pages;
+
+	/* Page names for our stack, root first. Use this for go-back, and to
+	 * rebuild the view on refresh. These strings must be g_free()d. The root
+	 * page is called "root".
+	 */
+	char *page_names[MAX_PAGE_DEPTH];
+
+	/* For each page in the stack, TRUE if the user has pushed the "pin"
+	 * button.
+	 */
+	gboolean pinned[MAX_PAGE_DEPTH];
 
 	GtkWidget *stack;
 	GtkWidget *search_toggle;
@@ -66,8 +80,6 @@ struct _Toolkitgroupview {
 	GtkWidget *scrolled_window;
 	GtkWidget *list_view;
 
-	// the last pin widget we bound
-	GtkWidget *pin;
 };
 
 typedef struct _ToolkitgroupviewClass {

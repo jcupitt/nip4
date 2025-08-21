@@ -87,6 +87,7 @@
 - prewitt and scharr edge detectors
 
 
+- add magick7 support to _magick.def
 
 - get judder with rotate and images smaller than the window
 

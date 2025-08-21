@@ -215,22 +215,35 @@ toolkitgroupview_dispose(GObject *object)
 	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(object);
 
 	gtk_widget_dispose_template(GTK_WIDGET(kitgview), TOOLKITGROUPVIEW_TYPE);
-	g_slist_free_full(g_steal_pointer(&kitgview->page_names), g_free);
+	for (int i = 0; i < MAX_PAGE_DEPTH; i++)
+		VIPS_FREE(kitgview->page_names[i]);
 
 	G_OBJECT_CLASS(toolkitgroupview_parent_class)->dispose(object);
 }
 
-static GSList *
-toolkitgroupview_parse_path(char *path)
+static void
+toolkitgroupview_set_path(Toolkitgroupview *kitgview, char *path)
 {
-	GSList *page_names = NULL;
+	for (int i = 0; i < MAX_PAGE_DEPTH; i++) {
+		VIPS_FREE(kitgview->page_names[i]);
+		kitgview->pinned[i] = FALSE;
+	}
+	kitgview->n_pages = 1;
+	kitgview->page_names[0] = g_strdup("root");
 
-	char *p;
-	char *q;
-	for (p = path; (q = vips_break_token(p, ">")); p = q)
-		page_names = g_slist_append(page_names, g_strdup(p));
+	if (path) {
+		char *p;
+		char *q;
 
-	return page_names;
+		kitgview->n_pages = 0;
+		for (p = path; (q = vips_break_token(p, ">")); p = q) {
+			VIPS_SETSTR(kitgview->page_names[kitgview->n_pages], g_strdup(p));
+
+			if (kitgview->n_pages >= MAX_PAGE_DEPTH - 1)
+				return;
+			kitgview->n_pages += 1;
+		}
+	}
 }
 
 static void
@@ -250,8 +263,7 @@ toolkitgroupview_set_property(GObject *object,
 	case PROP_PATH:
 		path = g_strdup(g_value_get_string(value));
 		if (strlen(path) > 0) {
-			g_slist_free_full(g_steal_pointer(&kitgview->page_names), g_free);
-			kitgview->page_names = toolkitgroupview_parse_path(path);
+			toolkitgroupview_set_path(kitgview, path);
 			kitgview->search_mode = FALSE;
 			vobject_refresh_queue(VOBJECT(kitgview));
 		}
@@ -264,8 +276,7 @@ toolkitgroupview_set_property(GObject *object,
 			vobject_refresh_queue(VOBJECT(kitgview));
 			gtk_editable_set_text(GTK_EDITABLE(kitgview->search_entry),
 				search_text);
-			gtk_string_filter_set_search(kitgview->filter,
-				search_text);
+			gtk_string_filter_set_search(kitgview->filter, search_text);
 		}
 		break;
 
@@ -276,16 +287,14 @@ toolkitgroupview_set_property(GObject *object,
 }
 
 static char *
-toolkitgroupview_print_path(GSList *page_names)
+toolkitgroupview_print_path(Toolkitgroupview *kitgview)
 {
 	GString *path = g_string_new("");
 
-	for (GSList *p = page_names; p; p = p->next) {
-		const char *name = (const char *) p->data;
-
-		g_string_append(path, name);
-		if (p->next)
+	for (int i = 0; i < kitgview->n_pages; i++) {
+		if (i > 0)
 			g_string_append(path, ">");
+		g_string_append(path, kitgview->page_names[i]);
 	}
 
 	return g_string_free_and_steal(path);
@@ -306,8 +315,7 @@ toolkitgroupview_get_property(GObject *object,
 		if (kitgview->search_mode)
 			g_value_set_string(value, "");
 		else
-			g_value_take_string(value,
-				toolkitgroupview_print_path(kitgview->page_names));
+			g_value_take_string(value, toolkitgroupview_print_path(kitgview));
 		break;
 
 	case PROP_SEARCH:
@@ -425,8 +433,27 @@ toolkitgroupview_build_node(Toolkitgroupview *kitgview, Node *parent)
 	return G_LIST_MODEL(store);
 }
 
+// go back one, if we can
+static void
+toolkitgroupview_browse_back(Toolkitgroupview *kitgview)
+{
+	if (kitgview->n_pages > 1) {
+		GtkWidget *last_page =
+			gtk_stack_get_visible_child(GTK_STACK(kitgview->stack));
+
+		// display the second-last page
+		gtk_stack_set_visible_child_name(GTK_STACK(kitgview->stack),
+			kitgview->page_names[kitgview->n_pages - 2]);
+
+		// delete the last page
+		gtk_stack_remove(GTK_STACK(kitgview->stack), last_page);
+
+		kitgview->n_pages -= 1;
+	}
+}
+
 static GtkWidget *
-toolkitgroupview_build_browse_page(Toolkitgroupview *kitgview, Node *parent);
+toolkitgroupview_add_browse_page(Toolkitgroupview *kitgview, Node *parent);
 
 static void
 toolkitgroupview_browse_clicked(GtkWidget *button,
@@ -438,39 +465,25 @@ toolkitgroupview_browse_clicked(GtkWidget *button,
 	GtkWidget *left = gtk_widget_get_first_child(box);
 
 	// click on "go back?"
-	if (gtk_widget_is_visible(left)) {
-		// remove the last item from the page_names list ... we know we are
-		// at least one deep in the menu
-		g_assert(kitgview->page_names->next);
-		char *last_name = (char *) g_slist_last(kitgview->page_names)->data;
-		kitgview->page_names = g_slist_remove(kitgview->page_names, last_name);
-		g_free(last_name);
-
-		// get the (new) last name
-		const char *name =
-			(const char *) g_slist_last(kitgview->page_names)->data;
-		GtkWidget *last_page =
-			gtk_stack_get_visible_child(GTK_STACK(kitgview->stack));
-
-		gtk_stack_set_visible_child_name(GTK_STACK(kitgview->stack), name);
-		gtk_stack_remove(GTK_STACK(kitgview->stack), last_page);
-		kitgview->pin = NULL;
-	}
+	if (gtk_widget_is_visible(left))
+		toolkitgroupview_browse_back(kitgview);
 	else {
 		if (node->kit ||
-			(node->toolitem && node->toolitem->is_pullright)) {
-			// go right ... make sure we clear the pin widget first
-			if (kitgview->pin)
-				gtk_check_button_set_active(GTK_CHECK_BUTTON(kitgview->pin),
-					FALSE);
-			kitgview->pin = NULL;
-			toolkitgroupview_build_browse_page(kitgview, node);
-		}
+			(node->toolitem && node->toolitem->is_pullright))
+			toolkitgroupview_add_browse_page(kitgview, node);
 
 		// activate after moving to the new page so listeners can get the new
 		// page name
 		toolkitgroupview_activate(kitgview, node->toolitem, node->tool);
 	}
+}
+
+static void
+toolkitgroupview_pin_toggled(GtkCheckButton *self, gpointer user_data)
+{
+	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(user_data);
+
+	kitgview->pinned[kitgview->n_pages - 1] ^= 1;
 }
 
 static void
@@ -507,6 +520,8 @@ toolkitgroupview_setup_browse_item(GtkListItemFactory *factory,
 
 	GtkWidget *pin = gtk_check_button_new();
 	set_tooltip(pin, "Pin menu in place");
+	g_signal_connect(pin, "toggled",
+		G_CALLBACK(toolkitgroupview_pin_toggled), kitgview);
 	gtk_box_append(GTK_BOX(enclosing), pin);
 
 	gtk_list_item_set_child(item, enclosing);
@@ -541,8 +556,7 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 		gtk_label_set_xalign(GTK_LABEL(label), 0.5);
 		g_object_set_qdata(G_OBJECT(button), node_quark, parent);
 
-		// remember the widget so we can test and set the state
-		kitgview->pin = pin;
+		// note the pin widget on the page
 	}
 	else {
 		gtk_label_set_xalign(GTK_LABEL(label), 0.0);
@@ -583,12 +597,12 @@ toolkitgroupview_build_browse_list_view(Toolkitgroupview *kitgview, Node *this)
 }
 
 static GtkWidget *
-toolkitgroupview_build_browse_page(Toolkitgroupview *kitgview, Node *this)
+toolkitgroupview_add_browse_page(Toolkitgroupview *kitgview, Node *this)
 {
 	const char *name = node_get_name(this);
 
 #ifdef DEBUG
-	printf("toolkitgroupview_build_browse_page: adding page %s\n", name);
+	printf("toolkitgroupview_add_browse_page: adding page %s\n", name);
 #endif /*DEBUG*/
 
 	GtkWidget *scrolled_window = gtk_scrolled_window_new();
@@ -596,7 +610,9 @@ toolkitgroupview_build_browse_page(Toolkitgroupview *kitgview, Node *this)
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
 		GTK_POLICY_EXTERNAL, GTK_POLICY_EXTERNAL);
 	gtk_stack_add_named(GTK_STACK(kitgview->stack), scrolled_window, name);
-	kitgview->page_names = g_slist_append(kitgview->page_names, g_strdup(name));
+	kitgview->page_names[kitgview->n_pages] = g_strdup(name);
+	kitgview->pinned[kitgview->n_pages] = FALSE;
+	kitgview->n_pages += 1;
 
 	GtkWidget *list_view =
 		toolkitgroupview_build_browse_list_view(kitgview, this);
@@ -618,16 +634,22 @@ toolkitgroupview_rebuild_browse(Toolkitgroupview *kitgview)
 	g_assert(!kitgview->list_view);
 	g_assert(!kitgview->filter);
 
-	// take a copy of the old pages_names list and reset to the root
-	GSList *old_page_names = kitgview->page_names;
-	kitgview->page_names = g_slist_append(NULL, g_strdup("root"));
-
 	// don't animate the browser rebuild process
 	gboolean should_animate =
 		widget_should_animate(GTK_WIDGET(kitgview->stack));
 	g_object_set(gtk_widget_get_settings(GTK_WIDGET(kitgview->stack)),
 		"gtk-enable-animations", FALSE,
 		NULL);
+
+	// steal the old pages_names list and reset to the root
+	char *old_page_names[MAX_PAGE_DEPTH];
+	int old_n_pages = kitgview->n_pages;
+	for (int i = 0; i < old_n_pages; i++) {
+		old_page_names[i] = kitgview->page_names[i];
+		kitgview->page_names[i] = NULL;
+	}
+
+	toolkitgroupview_set_path(kitgview, NULL);
 
 	// build and fill the root page in the root scrolled window
 	kitgview->list_view =
@@ -639,20 +661,18 @@ toolkitgroupview_rebuild_browse(Toolkitgroupview *kitgview)
 		G_LIST_MODEL(gtk_list_view_get_model(
 			GTK_LIST_VIEW(kitgview->list_view)));
 
-	for (GSList *p = old_page_names->next; p; p = p->next) {
-		char *name = (char *) p->data;
-
+	for (int i = 0; i < old_n_pages; i++) {
 		/* Is there an item on the page we've just made with the next name on
 		 * the page list?
 		 */
 		Node *this = NULL;
-		for (int i = 0; i < g_list_model_get_n_items(list_model); i++) {
-			Node *item = g_list_model_get_item(list_model, i);
+		for (int j = 0; j < g_list_model_get_n_items(list_model); j++) {
+			Node *item = g_list_model_get_item(list_model, j);
 			const char *item_name = node_get_name(item);
 
 			// name can be NULL for eg separators
 			if (item_name &&
-				g_str_equal(item_name, name)) {
+				g_str_equal(item_name, old_page_names[i])) {
 				this = item;
 				break;
 			}
@@ -661,12 +681,13 @@ toolkitgroupview_rebuild_browse(Toolkitgroupview *kitgview)
 			break;
 
 		GtkWidget *list_view =
-			toolkitgroupview_build_browse_page(kitgview, this);
+			toolkitgroupview_add_browse_page(kitgview, this);
 		list_model = G_LIST_MODEL(gtk_list_view_get_model(
 			GTK_LIST_VIEW(list_view)));
 	}
 
-	g_slist_free_full(g_steal_pointer(&old_page_names), g_free);
+	for (int i = 0; i < old_n_pages; i++)
+		VIPS_FREE(old_page_names[i]);
 
 	g_object_set(gtk_widget_get_settings(GTK_WIDGET(kitgview->stack)),
 		"gtk-enable-animations", should_animate,
@@ -826,8 +847,7 @@ toolkitgroupview_rebuild_list(Toolkitgroupview *kitgview)
 	gtk_scrolled_window_set_child(
 		GTK_SCROLLED_WINDOW(kitgview->scrolled_window), kitgview->list_view);
 
-	// truncate the page_names list, since we're a flat view
-	g_slist_free_full(g_steal_pointer(&kitgview->page_names->next), g_free);
+	kitgview->n_pages = 1;
 }
 
 static void
@@ -839,8 +859,6 @@ toolkitgroupview_refresh(vObject *vobject)
 	printf("toolkitgroupview_refresh:\n");
 #endif /*DEBUG*/
 
-	kitgview->pin = NULL;
-
 	// remove all stack pages except the first
 	GtkWidget *stack = kitgview->stack;
 	GtkWidget *root_page = gtk_widget_get_first_child(stack);
@@ -849,8 +867,6 @@ toolkitgroupview_refresh(vObject *vobject)
 
 		while ((child = gtk_widget_get_next_sibling(root_page)))
 			gtk_stack_remove(GTK_STACK(stack), child);
-
-		kitgview->pin = NULL;
 	}
 	gtk_stack_set_visible_child(GTK_STACK(kitgview->stack), root_page);
 
@@ -1018,8 +1034,7 @@ toolkitgroupview_init(Toolkitgroupview *kitgview)
 {
 	gtk_widget_init_template(GTK_WIDGET(kitgview));
 
-	kitgview->page_names =
-		g_slist_append(kitgview->page_names, g_strdup("root"));
+	toolkitgroupview_set_path(kitgview, NULL);
 
 	GtkEntryBuffer *buffer =
 		gtk_entry_get_buffer(GTK_ENTRY(kitgview->search_entry));
@@ -1038,12 +1053,7 @@ toolkitgroupview_new(void)
 void
 toolkitgroupview_home(Toolkitgroupview *kitgview)
 {
-	if (!kitgview->pin ||
-		!gtk_check_button_get_active(GTK_CHECK_BUTTON(kitgview->pin))) {
-		// back to just the "root" page
-		if (kitgview->page_names)
-			g_slist_free_full(g_steal_pointer(&kitgview->page_names->next),
-				g_free);
-		vobject_refresh_queue(VOBJECT(kitgview));
-	}
+	while(kitgview->n_pages > 1 &&
+		!kitgview->pinned[kitgview->n_pages - 1])
+		toolkitgroupview_browse_back(kitgview);
 }

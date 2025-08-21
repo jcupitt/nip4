@@ -14,6 +14,7 @@
 - better row drop
 - cancel row drag with Esc
 - better row drag animation
+- menu pins stack
 
 ## 9.0.11 2025/07/21
 
