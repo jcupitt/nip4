@@ -1,5 +1,7 @@
 ## master
 
+## 9.0.12 2025/08/21
+
 - better power of two detection in openslideload
 - fix tile edges with gtk_snapshot_set_snap() [kleisauke]
 - better fallback if gtk snap is not there

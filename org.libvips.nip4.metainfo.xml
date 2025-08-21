@@ -58,6 +58,18 @@ from the command-line and without a GUI.
 
   <releases>
 
+    <release version="9.0.12" date="2025-08-21">
+      <description>
+        <p>
+
+		This version has many image display improvements, an EXE icon
+		on windows, high-DPI support, better group and ungroup, better
+		row drag, and a much better toolkit menu.
+
+        </p>
+      </description>
+    </release>
+
     <release version="9.0.11" date="2025-07-21">
       <description>
         <p>
