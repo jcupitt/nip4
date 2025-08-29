@@ -25,7 +25,11 @@ from the command-line and without a GUI.
 
 [![Screenshot](images/shot1.png)](images/shot1.png)
 
+The CHARISMA workspace for museum technical imaging.
+
 [![Screenshot](images/shot2.png)](images/shot2.png)
+
+A 10,000 node workspace that computes per-voxel Patlaks from PET-CT scans.
 
 # Installing
 
