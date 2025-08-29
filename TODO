@@ -1,6 +1,3 @@
-- clicking on the error icon in the tab should scroll to show the error
-  row
-
 - add magick7 support to _magick.def
 
 - get judder with rotate and images smaller than the window
