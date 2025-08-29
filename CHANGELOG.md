@@ -1,5 +1,8 @@
 ## master
 
+- improve Text
+- fix scroll to row on error
+
 ## 9.0.12 2025/08/21
 
 - better power of two detection in openslideload
