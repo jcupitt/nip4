@@ -20,22 +20,21 @@
 
   <description>
     <p>
-*This is a first alpha release for testing this new
-version of nip. Don't use it for anything serious!*
 
-nip4 is a GUI for the libvips image processing library. It's a little
-like a spreadsheet: you create a set of formula connecting your objects
-together, and on a change nip2 will recalculate. This makes it convenient
-for developing image processing systems since you can watch pixels change
-as you adjust your equations.
+      nip4 is a spreadsheet-like interface to the libvips image processing
+      library. You create a set of formula connecting your objects together,
+      and on a change nip4 will recalculate.  Because nip4 uses libvips
+      as the image processing engine it can handle very large images,
+      recalculates quickly, and only needs a little memory.  It scales to
+      fairly complex workflows: I've used it to develop systems with more
+      than 10,000 cells, analyzing images of many tens of gigabytes.
 
-Because nip4 uses libvips as the image processing engine it can handle very
-large images and only needs a little memory. It scales to fairly complex
-workflows: I've used it to develop systems with more than 10,000 cells,
-analyzing images of many tens of gigabytes.
+    </p>
+    <p>
 
-It has a batch mode, so you can run any image processing system you develop
-from the command-line and without a GUI.
+      nip4 can load all workspaces from nip2, the previous version of this
+      program.  It has a batch mode, so you can run any image processing
+      system you develop from the command-line and without a GUI.
 
     </p>
   </description>
@@ -44,19 +43,31 @@ from the command-line and without a GUI.
 
   <screenshots>
 
-    <screenshot type="default">
+    <screenshot>
       <image>https://raw.githubusercontent.com/jcupitt/nip4/master/images/shot1.png</image>
-      <caption>A new interface design</caption>
+      <caption>The CHARISMA workspace for museum technical imaging</caption>
     </screenshot>
 
     <screenshot>
       <image>https://raw.githubusercontent.com/jcupitt/nip4/master/images/shot2.png</image>
-      <caption>Workspaces from older versions load correctly</caption>
+      <caption>A 10,000 node workspace that computes per-voxel Patlaks from PET-CT scans</caption>
     </screenshot>
 
   </screenshots>
 
   <releases>
+
+    <release version="9.0.12" date="2025-08-21">
+      <description>
+        <p>
+
+		This version has many image display improvements, an EXE icon
+		on windows, high-DPI support, better group and ungroup, better
+		row drag, and a much better toolkit menu.
+
+        </p>
+      </description>
+    </release>
 
     <release version="9.0.11" date="2025-07-21">
       <description>

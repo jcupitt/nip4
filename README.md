@@ -20,12 +20,17 @@ very large images, recalculates quickly, and only needs a little memory.
 It scales to fairly complex workflows: I've used it to develop systems with
 more than 10,000 cells, analyzing images of many tens of gigabytes.
 
+nip4 can load all workspaces from nip2, the previous version of this program.
 It has a batch mode, so you can run any image processing system you develop
 from the command-line and without a GUI.
 
 [![Screenshot](images/shot1.png)](images/shot1.png)
 
+The CHARISMA workspace for museum technical imaging.
+
 [![Screenshot](images/shot2.png)](images/shot2.png)
+
+A 10,000 node workspace that computes per-voxel Patlaks from PET-CT scans.
 
 # Installing
 

@@ -141,8 +141,8 @@ Image_new_item = class Menupullright "_New" "make new things" {
 			text = String "Text to paint" "<i>Hello</i> world!";
 			font = Fontname "Use font" Workspaces.Preferences.PAINTBOX_FONT;
 			fontfile = Pathname "Font file" "";
-			width = Expression "Text width" 0;
-			height = Expression "Text height" 0;
+			textw = Expression "Text width" 0;
+			texth = Expression "Text height" 0;
 			align = Option "Alignment" [
 				"Left",
 				"Centre",
@@ -165,8 +165,8 @@ Image_new_item = class Menupullright "_New" "make new things" {
 					= [];
 
 				options = base_options ++ concat [
-					set_option $width 0 (to_real width),
-					set_option $height 0 (to_real height),
+					set_option $width 0 (to_real textw),
+					set_option $height 0 (to_real texth),
 					set_option $fontfile "" fontfile.value,
 					if !fit then set_option $dpi 72 (to_real dpi) else [],
 					set_option $spacing 0 (to_real spacing)
