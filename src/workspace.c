@@ -50,6 +50,7 @@ workspace_set_error(Workspace *ws, gboolean show_error)
 	if (show_error) {
 		VIPS_SETSTR(ws->error_top, error_get_top());
 		VIPS_SETSTR(ws->error_sub, error_get_sub());
+		iobject_changed(IOBJECT(ws));
 	}
 
 	if (ws->show_error != show_error) {
@@ -1542,7 +1543,8 @@ workspace_next_error(Workspace *ws)
 	g_assert(ws->last_error &&
 		ws->last_error->err);
 
-	model_scrollto(MODEL(ws->last_error), MODEL_SCROLL_TOP);
+	Row *row = ROW(ws->last_error);
+	model_scrollto(MODEL(row->top_row), MODEL_SCROLL_TOP);
 
 	error_top("%s", ws->last_error->expr->error_top);
 	error_sub("%s", ws->last_error->expr->error_sub);

@@ -35,17 +35,6 @@
 
 G_DEFINE_TYPE(Rowview, rowview, VIEW_TYPE)
 
-/*
-enum {
-  ROWVIEW_TARGET_STRING,
-};
-
-static GtkTargetEntry rowview_target_table[] = {
-  { "STRING", 0, ROWVIEW_TARGET_STRING },
-  { "text/plain", 0, ROWVIEW_TARGET_STRING }
-};
- */
-
 static void
 rowview_dispose(GObject *object)
 {
@@ -223,9 +212,6 @@ rowview_scrollto(View *view, ModelScrollPosition position)
 	Workspaceview *wview = columnview_get_wview(cview);
 
 	int x, y, w, h;
-
-	/* Extract position of tally row in RC widget.
-	 */
 	rowview_get_position(rview, &x, &y, &w, &h);
 	workspaceview_scroll(wview, x, y, w, h);
 }
@@ -526,14 +512,30 @@ rowview_get_position(Rowview *rview, int *x, int *y, int *w, int *h)
 	Columnview *cview = view_get_columnview(VIEW(rview));
 	Workspaceview *wview = columnview_get_wview(cview);
 	GtkWidget *fixed = wview->fixed;
+	Row *row = ROW(VOBJECT(rview)->iobject);
 
-	graphene_rect_t bounds;
+	graphene_rect_t b1, b2, b3;
 
-	if (gtk_widget_compute_bounds(GTK_WIDGET(rview), fixed, &bounds)) {
-		*x = bounds.origin.x;
-		*y = bounds.origin.y;
-		*w = bounds.size.width;
-		*h = bounds.size.height;
+	// rowview doesn't exist as a single widget, get the bounds of the
+	// compnents
+	if (gtk_widget_compute_bounds(GTK_WIDGET(rview->frame), fixed, &b1) &&
+		gtk_widget_compute_bounds(GTK_WIDGET(rview->rhsview), fixed, &b2) &&
+		gtk_widget_compute_bounds(GTK_WIDGET(rview->spin), fixed, &b3)) {
+		graphene_rect_t b4;
+
+		graphene_rect_union(&b1, &b2, &b4);
+
+		// add spin if this is a class classes
+		if (row->is_class)
+			graphene_rect_union(&b4, &b3, &b4);
+
+		// add a small margin (prettier)
+		graphene_rect_inset(&b4, -10, -10);
+
+		*x = b4.origin.x;
+		*y = b4.origin.y;
+		*w = b4.size.width;
+		*h = b4.size.height;
 	}
 	else {
 		/* Nothing there yet ... guess.
