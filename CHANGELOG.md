@@ -1,7 +1,7 @@
 ## master
 
 - improve Text
-- fix scroll to row on error
+- improve scroll to row on error
 
 ## 9.0.12 2025/08/21
 

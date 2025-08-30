@@ -655,10 +655,10 @@ row_scrollto(Model *model, ModelScrollPosition position)
 	 * scroll to the exact row, since there's no view for it, and won't be
 	 * for a while after we hit the idle loop again.
 	 */
-	if (!col->open)
+	if (!col->open) {
 		column_set_open(col, TRUE);
-
-	column_scrollto(col, position);
+		column_scrollto(col, position);
+	}
 
 	MODEL_CLASS(row_parent_class)->scrollto(model, position);
 }
