@@ -135,7 +135,6 @@ mainwindow_get_workspace(Mainwindow *main)
 #endif /*DEBUG*/
 
 	if (!main->wsg) {
-		printf("no wsg\n");
 		Workspacegroup *wsg =
 			workspacegroup_new_blank(main_workspaceroot, NULL);
 		mainwindow_set_wsg(main, wsg);
@@ -639,6 +638,73 @@ mainwindow_keyboard_group_selected_action(GSimpleAction *action,
 	}
 }
 
+static void
+mainwindow_tab_replace_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	if (main->wsg) {
+		Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
+
+
+	}
+}
+
+static void
+mainwindow_tab_saveas_sub(GObject *source_object,
+	GAsyncResult *res, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
+
+	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
+	if (file) {
+		mainwindow_set_save_folder(main, file);
+
+		g_autofree char *path = g_file_get_path(file);
+
+		// make sure we have a ".def" suffix
+		char filename[VIPS_PATH_MAX];
+		change_suffix(path, filename, ".def", (const char*[]){ ".def" }, 1);
+
+		if (main->wsg) {
+			Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
+
+			if (ws->local_kit) {
+				if (filemodel_top_save(FILEMODEL(ws->local_kit), filename))
+					filemodel_set_filename(FILEMODEL(main->wsg), filename);
+				else
+					mainwindow_error(main);
+			}
+		}
+	}
+}
+
+static void
+mainwindow_tab_saveas(Mainwindow *main)
+{
+	GtkFileDialog *dialog = gtk_file_dialog_new();
+	gtk_file_dialog_set_title(dialog, "Save local definitions as");
+	gtk_file_dialog_set_modal(dialog, TRUE);
+
+	GFile *save_folder = mainwindow_get_save_folder(main);
+	if (save_folder)
+		gtk_file_dialog_set_initial_folder(dialog, save_folder);
+
+	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
+		&mainwindow_tab_saveas_sub, main);
+}
+
+static void
+mainwindow_tab_saveas_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	mainwindow_tab_saveas(main);
+}
+
 static GActionEntry mainwindow_entries[] = {
 	// main window actions
 
@@ -668,6 +734,10 @@ static GActionEntry mainwindow_entries[] = {
 	{ "tab-saveas", mainwindow_view_action },
 	{ "tab-lock", action_toggle, NULL, "false", mainwindow_view_action },
 	{ "tab-delete", mainwindow_view_action },
+
+	// workspacedefs
+	{ "tab-replace", mainwindow_tab_replace_action },
+	{ "tab-save-as", mainwindow_tab_saveas_action },
 
 	// workspaceview rightclick menu
 	{ "column-new", mainwindow_view_action },

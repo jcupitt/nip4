@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
+
+  <menu id="workspacedefs-menu">
+    <section>
+      <item>
+        <attribute name="label">Replace from file ...</attribute>
+        <attribute name='action'>win.tab-replace</attribute>
+      </item>
+      <item>
+        <attribute name="label">Save as ...</attribute>
+        <attribute name='action'>win.tab-save-as</attribute>
+      </item>
+    </section>
+  </menu>
+
   <template class="Workspacedefs" parent="View">
     <child>
 
@@ -28,8 +42,14 @@
               <object class="GtkLabel" id="status">
                 <property name="hexpand">true</property>
                 <property name="vexpand">false</property>
-                <property name="width-chars">80</property>
 
+              </object>
+            </child>
+
+            <child type="end">
+              <object class="GtkMenuButton" id="gears">
+                <property name="direction">none</property>
+                <property name="menu-model">workspacedefs-menu</property>
               </object>
             </child>
 

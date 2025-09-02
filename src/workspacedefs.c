@@ -104,6 +104,8 @@ workspacedefs_refresh(vObject *vobject)
 		vips_buf_appendf(&buf,
 			ngettext("%d definition", "%d definitions", n), n);
 	}
+	else
+		vips_buf_appendf(&buf, _("no definitions"));
 	if (workspacedefs->errors) {
 		if (!vips_buf_is_empty(&buf))
 			vips_buf_appendf(&buf, ", ");

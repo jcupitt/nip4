@@ -1,3 +1,5 @@
+- started mainwindow_tab_saveas_action(), mainwindow_tab_replace_action()
+
 - improve styling of workspacedefs?
 
 	we set the style in gtk/
