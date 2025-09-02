@@ -91,7 +91,6 @@
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
-        <property name="margin-top">8px</property>
 
 	<child>
           <object class="GtkActionBar" id="error_bar">
@@ -142,7 +141,6 @@
         <child>
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
-            <property name="spacing">8px</property>
 
             <child> <!-- left-hand pane -->
               <object class="GtkRevealer" id="left">
@@ -151,7 +149,6 @@
 
                 <child>
                   <object class="Toolkitgroupview" id="kitgview">
-                    <property name="margin-start">4px</property>
                     <property name="hexpand">false</property>
                     <property name="vexpand">true</property>
                     <property name="show-all">true</property>
@@ -169,6 +166,9 @@
 
                 <child>
                   <object class="GtkTextView" id="text_view">
+                    <property name="left-margin">5px</property>
+                    <property name="top-margin">5px</property>
+                    <property name="monospace">true</property>
                     <property name="monospace">true</property>
                     <property name="hexpand">true</property>
                     <property name="vexpand">true</property>

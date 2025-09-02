@@ -2,7 +2,7 @@
 
 - improve Text
 - improve scroll to row on error
-- improve styling of toolkitgroupview
+- improve styling
 - add Menuseparator support
 - draggable divider for workspacedefs
 - next/prev on error bar

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <template class="Toolkitgroupview" parent="View">
+    <style><class name="navigation-sidebar"/></style>
+    <style><class name="toolkitgroupview"/></style>
+
     <child>
 
       <object class="GtkStack" id="stack">
@@ -22,6 +25,7 @@
                     <property name="orientation">horizontal</property>
                     <property name="hexpand">true</property>
                     <property name="vexpand">false</property>
+                    <property name="margin-start">7px</property>
 
 		    <child>
                       <object class="GtkToggleButton" id="search_toggle">

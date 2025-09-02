@@ -43,6 +43,8 @@
 
             <child>
               <object class="GtkTextView" id="text">
+                <property name="left-margin">5px</property>
+                <property name="top-margin">5px</property>
                 <property name="monospace">true</property>
                 <property name="buffer">buffer</property>
 

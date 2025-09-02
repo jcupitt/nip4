@@ -1,4 +1,6 @@
-- improve styling of woprkspacedefs?
+- improve styling of workspacedefs?
+
+	we set the style in gtk/
 
 	a #1d1d1d background for the text widget?
 

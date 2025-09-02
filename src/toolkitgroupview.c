@@ -518,6 +518,8 @@ toolkitgroupview_setup_browse_item(GtkListItemFactory *factory,
 	gtk_box_append(GTK_BOX(box), right);
 
 	GtkWidget *pin = gtk_check_button_new();
+	gtk_widget_set_margin_start(pin, 9);
+	gtk_widget_set_margin_end(pin, 7);
 	set_tooltip(pin, "Pin menu in place");
 	g_signal_connect(pin, "toggled",
 		G_CALLBACK(toolkitgroupview_pin_toggled), kitgview);

@@ -150,8 +150,6 @@
                   <object class="Toolkitgroupview" id="kitgview">
                     <property name="hexpand">false</property>
                     <property name="vexpand">true</property>
-                    <style><class name="navigation-sidebar"/></style>
-                    <style><class name="toolkitgroupview"/></style>
 
                   </object>
                 </child>
@@ -167,6 +165,7 @@
                 <property name="shrink-start-child">true</property>
                 <property name="shrink-end-child">true</property>
                 <property name="wide-handle">true</property>
+                <property name="position">450</property>
 
                 <property name="start-child"> <!-- centre area -->
                   <object class="GtkScrolledWindow" id="scrolled_window">
