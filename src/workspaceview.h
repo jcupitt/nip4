@@ -59,7 +59,6 @@ struct _Workspaceview {
 	GtkWidget *alert_top;
 	GtkWidget *alert_sub;
 	GtkWidget *left;
-	GtkWidget *right;
 	GtkWidget *kitgview;
 	GtkWidget *fixed;			/* GtkFixed for tally */
 	GtkWidget *scrolled_window; /* ScrolledWindow holding fixed */

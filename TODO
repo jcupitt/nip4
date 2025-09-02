@@ -1,6 +1,10 @@
-- workspacedefs should have an adjustable divider
+- improve styling of woprkspacedefs?
 
-	and a #1d1d1d background for the text widget?
+	a #1d1d1d background for the text widget?
+
+	a titlebar?
+
+- workspace error alert could have next / ok / prev buttons
 
 - add magick7 support to _magick.def
 

@@ -470,8 +470,8 @@ workspaceview_link(View *view, Model *model, View *parent)
 		"reveal-child",
 		G_SETTINGS_BIND_DEFAULT);
 	g_settings_bind(settings, "definitions",
-		G_OBJECT(wview->right),
-		"reveal-child",
+		G_OBJECT(wview->workspacedefs),
+		"visible",
 		G_SETTINGS_BIND_DEFAULT);
 }
 
@@ -1383,7 +1383,6 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_VARIABLE(Workspaceview, alert_top);
 	BIND_VARIABLE(Workspaceview, alert_sub);
 	BIND_VARIABLE(Workspaceview, left);
-	BIND_VARIABLE(Workspaceview, right);
 	BIND_VARIABLE(Workspaceview, kitgview);
 	BIND_VARIABLE(Workspaceview, scrolled_window);
 	BIND_VARIABLE(Workspaceview, fixed);

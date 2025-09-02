@@ -4,6 +4,7 @@
 - improve scroll to row on error
 - improve styling of toolkitgroupview
 - add Menuseparator support
+- draggable divider for workspacedefs
 
 ## 9.0.12 2025/08/21
 
