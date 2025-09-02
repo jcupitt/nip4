@@ -122,11 +122,10 @@
 
 	        <child>
                   <object class="Toolkitgroupview" id="kitgview">
-                    <property name="margin-start">5px</property>
-                    <property name="margin-end">5px</property>
                     <property name="hexpand">false</property>
                     <property name="vexpand">true</property>
                     <style><class name="navigation-sidebar"/></style>
+                    <style><class name="toolkitgroupview"/></style>
 
                   </object>
                 </child>

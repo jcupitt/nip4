@@ -1,11 +1,6 @@
-- toolkitgroupview background should extend to edges
-
-	set the background as a style for the whole of the left half of the
-	screen in the .ui file
-
-	remove .view{bg} in gtk/nip4.css
-
 - workspacedefs should have an adjustable divider
+
+	and a #1d1d1d background for the text widget?
 
 - add magick7 support to _magick.def
 

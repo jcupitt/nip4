@@ -93,9 +93,12 @@
   margin-right: 4px;
 }
 
-# set background colour of toolkitgroupview
-.view {
-  background-color: #1d1d1d;
+.toolkitgroupview {
+    background-color: #1d1d1d;
+}
+
+.toolkitgroupview .view {
+    background-color: #1d1d1d;
 }
 
 .toolkitgroupview-item {
