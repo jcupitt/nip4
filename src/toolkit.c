@@ -245,3 +245,14 @@ toolkit_by_name(Toolkitgroup *kitg, const char *name)
 
 	return kit;
 }
+
+GtkFileFilter *
+toolkit_filter_new(void)
+{
+	GtkFileFilter *filter = mainwindow_filter_all_new();
+
+	gtk_file_filter_set_name(filter, "nip4 definitions");
+	gtk_file_filter_add_pattern(filter, "*.def");
+
+	return filter;
+}

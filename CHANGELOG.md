@@ -6,6 +6,7 @@
 - add Menuseparator support
 - draggable divider for workspacedefs
 - next/prev on error bar
+- load/save for wsdefs
 
 ## 9.0.12 2025/08/21
 

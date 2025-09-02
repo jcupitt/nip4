@@ -1,12 +1,8 @@
-- started mainwindow_tab_saveas_action(), mainwindow_tab_replace_action()
+- def filter on workspacedef load/save doesn't work?!
 
-- improve styling of workspacedefs?
+	workspace save as works, what is that doing differently
 
-	we set the style in gtk/
-
-	a #1d1d1d background for the text widget?
-
-	a titlebar?
+- program window burger menu is unimplemented
 
 - add magick7 support to _magick.def
 

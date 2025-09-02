@@ -639,16 +639,62 @@ mainwindow_keyboard_group_selected_action(GSimpleAction *action,
 }
 
 static void
+mainwindow_tab_replace_sub(GObject *source_object,
+	GAsyncResult *res, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
+
+	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
+	if (file) {
+		g_autofree char *filename = g_file_get_path(file);
+
+		if (main->wsg) {
+			Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
+
+			if (!workspace_local_set_from_file(ws, filename))
+				mainwindow_error(main);
+		}
+	}
+}
+
+static void
+mainwindow_tab_replace(Mainwindow *main)
+{
+	GtkFileDialog *dialog = gtk_file_dialog_new();
+	gtk_file_dialog_set_title(dialog, "Replace tab definitions");
+	gtk_file_dialog_set_modal(dialog, TRUE);
+	gtk_file_dialog_set_accept_label(dialog, "Replace");
+
+	GFile *load_folder = mainwindow_get_load_folder(main);
+	if (load_folder)
+		gtk_file_dialog_set_initial_folder(dialog, load_folder);
+
+	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+	GtkFileFilter *filter;
+
+	filter = toolkit_filter_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	filter = mainwindow_filter_all_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
+	g_object_unref(filters);
+
+	gtk_file_dialog_open(dialog, GTK_WINDOW(main), NULL,
+		&mainwindow_tab_replace_sub, main);
+}
+
+static void
 mainwindow_tab_replace_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
 	Mainwindow *main = MAINWINDOW(user_data);
 
-	if (main->wsg) {
-		Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
-
-
-	}
+	mainwindow_tab_replace(main);
 }
 
 static void
@@ -685,12 +731,26 @@ static void
 mainwindow_tab_saveas(Mainwindow *main)
 {
 	GtkFileDialog *dialog = gtk_file_dialog_new();
-	gtk_file_dialog_set_title(dialog, "Save local definitions as");
+	gtk_file_dialog_set_title(dialog, "Save tab definitions as");
 	gtk_file_dialog_set_modal(dialog, TRUE);
 
 	GFile *save_folder = mainwindow_get_save_folder(main);
 	if (save_folder)
 		gtk_file_dialog_set_initial_folder(dialog, save_folder);
+
+	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+	GtkFileFilter *filter;
+
+	filter = toolkit_filter_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	filter = mainwindow_filter_all_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
+	g_object_unref(filters);
 
 	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
 		&mainwindow_tab_saveas_sub, main);

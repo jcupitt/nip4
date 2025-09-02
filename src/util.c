@@ -1893,7 +1893,7 @@ ifile_open_write(const char *name, ...)
 	(void) g_vsnprintf(buf, VIPS_PATH_MAX, name, ap);
 	va_end(ap);
 
-	g_autoptr(iOpenFile) of = ifile_build("stdin");
+	g_autoptr(iOpenFile) of = ifile_build(buf);
 	if (!of)
 		return NULL;
 
