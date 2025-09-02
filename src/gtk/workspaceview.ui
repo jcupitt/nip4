@@ -47,11 +47,37 @@
             </child>
 
             <child type="end">
-              <object class="GtkButton">
-                <property name="label">OK</property>
-                <property name="valign">center</property>
-                <signal name="clicked"
-                    handler="workspaceview_error_close_clicked"/>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
+
+                <child>
+                  <object class="GtkButton">
+                    <property name="label">Next</property>
+                    <property name="valign">center</property>
+                    <signal name="clicked"
+                        handler="workspaceview_error_next_clicked"/>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkButton">
+                    <property name="label">Previous</property>
+                    <property name="valign">center</property>
+                    <signal name="clicked"
+                        handler="workspaceview_error_prev_clicked"/>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkButton">
+                    <property name="label">OK</property>
+                    <property name="valign">center</property>
+                    <signal name="clicked"
+                        handler="workspaceview_error_close_clicked"/>
+                  </object>
+                </child>
+
               </object>
             </child>
 

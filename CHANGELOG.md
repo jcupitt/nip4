@@ -5,6 +5,7 @@
 - improve styling of toolkitgroupview
 - add Menuseparator support
 - draggable divider for workspacedefs
+- next/prev on error bar
 
 ## 9.0.12 2025/08/21
 

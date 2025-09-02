@@ -1315,6 +1315,26 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 }
 
 static void
+workspaceview_error_next_clicked(GtkButton *button, void *user_data)
+{
+	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+	(void) workspace_next_error(ws);
+	workspace_show_error(ws);
+}
+
+static void
+workspaceview_error_prev_clicked(GtkButton *button, void *user_data)
+{
+	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+	(void) workspace_prev_error(ws);
+	workspace_show_error(ws);
+}
+
+static void
 workspaceview_error_close_clicked(GtkButton *button, void *user_data)
 {
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
@@ -1392,6 +1412,8 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_CALLBACK(workspaceview_drag_begin);
 	BIND_CALLBACK(workspaceview_drag_update);
 	BIND_CALLBACK(workspaceview_drag_end);
+	BIND_CALLBACK(workspaceview_error_next_clicked);
+	BIND_CALLBACK(workspaceview_error_prev_clicked);
 	BIND_CALLBACK(workspaceview_error_close_clicked);
 	BIND_CALLBACK(workspaceview_alert_close_clicked);
 	BIND_CALLBACK(workspaceview_key_pressed);
