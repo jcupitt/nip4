@@ -21,6 +21,7 @@
         <property name="orientation">vertical</property>
         <property name="hexpand">false</property>
         <property name="vexpand">true</property>
+        <property name="spacing">5px</property>
 
         <child>
           <object class="GtkBox">
@@ -67,6 +68,9 @@
                 <property name="top-margin">5px</property>
                 <property name="monospace">true</property>
                 <property name="buffer">buffer</property>
+                <style>
+                  <class name="workspacedefs-text"/>
+                </style>
 
               </object>
             </child>

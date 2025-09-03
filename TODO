@@ -1,3 +1,10 @@
+- program window, pressing |> does not clear "[modified]" in titlebar
+
+	what's the difference between [modified] and the * in front? Is the *
+	"toolkit needs saving?"
+
+- ^Q in mainwindow with a modified toolkit does not prompt save
+
 - program window burger menu is unimplemented
 
 - add magick7 support to _magick.def
