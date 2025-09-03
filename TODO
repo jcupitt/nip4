@@ -1,7 +1,3 @@
-- def filter on workspacedef load/save doesn't work?!
-
-	workspace save as works, what is that doing differently
-
 - program window burger menu is unimplemented
 
 - add magick7 support to _magick.def

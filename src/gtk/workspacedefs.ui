@@ -5,11 +5,11 @@
     <section>
       <item>
         <attribute name="label">Replace from file ...</attribute>
-        <attribute name='action'>win.tab-replace</attribute>
+        <attribute name='action'>win.tab-local-replace</attribute>
       </item>
       <item>
         <attribute name="label">Save as ...</attribute>
-        <attribute name='action'>win.tab-save-as</attribute>
+        <attribute name='action'>win.tab-local-saveas</attribute>
       </item>
     </section>
   </menu>
