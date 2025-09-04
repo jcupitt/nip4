@@ -246,31 +246,6 @@ directive:
 		tool->lineno = input_state.lineno;
 
 		input_reset();
-	} |
-	TK_DIALOG TK_CONST TK_CONST {
-		Tool *tool;
-
-		if (!is_top(current_symbol))
-			yyerror(_( "not top level"));
-
-		/* Should have two strings.
-		 */
-		if ($2.type != PARSE_CONST_STR || $3.type != PARSE_CONST_STR)
-			yyerror(_("not strings" ));
-
-		/* Add tool.
-		 */
-		tool = tool_new_dia(current_kit, tool_position, $2.val.str, $3.val.str);
-		if (!tool)
-			yyerror(error_get_sub());
-		tool->lineno = input_state.lineno;
-
-		/* Cast away const here.
-		 */
-		tree_const_destroy((ParseConst *) &$2);
-		tree_const_destroy((ParseConst *) &$3);
-
-		input_reset();
 	}
 	;
 

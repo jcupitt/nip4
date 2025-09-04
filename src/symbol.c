@@ -970,6 +970,8 @@ symbol_recalculate_sub(Symbol *sym)
 		if (!reduce_regenerate(sym->expr, &sym->expr->root))
 			result = FALSE;
 	}
+	else
+		heap_noval_new(NULL, &sym->expr->root);
 
 #ifdef DEBUG_TIME
     printf("symbol_recalculate_sub: ");

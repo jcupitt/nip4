@@ -1052,7 +1052,7 @@ is_WHNF(PElement *out)
 
 		if (i > na) {
 			printf("constructor %s with %d args ",
-				symbol_name(sym), i);
+				symbol_name(compile->sym), i);
 			printf("should have %d args\n", compile->nparam);
 			return FALSE;
 		}

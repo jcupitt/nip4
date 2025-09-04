@@ -196,12 +196,6 @@ tool_save_text(Model *model, iOpenFile *of)
 			return FALSE;
 		break;
 
-	case TOOL_DIA:
-		if (!ifile_write(of, "#dialog \"%s\" \"%s\"\n\n",
-				IOBJECT(tool)->name, FILEMODEL(tool)->filename))
-			return FALSE;
-		break;
-
 	default:
 		g_assert(FALSE);
 	}
@@ -215,8 +209,7 @@ tool_type_to_char(Tooltype type)
 	switch (type) {
 	case TOOL_SYM:
 		return "symbol";
-	case TOOL_DIA:
-		return "dialog";
+
 	case TOOL_SEP:
 		return "separator";
 
@@ -715,12 +708,6 @@ tool_toolitem_rebuild(Tool *tool)
 				NULL);
 		break;
 
-	case TOOL_DIA:
-		if ((tool->toolitem = toolitem_new(NULL, NULL, tool)))
-			VIPS_SETSTR(tool->toolitem->label,
-				IOBJECT(tool)->name);
-		break;
-
 	case TOOL_SEP:
 		if ((tool->toolitem = toolitem_new(NULL, NULL, tool)))
 			tool->toolitem->is_separator = TRUE;
@@ -857,54 +844,6 @@ tool_new_sep(Toolkit *kit, int pos)
 	tool->type = TOOL_SEP;
 	iobject_set(IOBJECT(tool), "separator", NULL);
 	tool_link(tool, kit, pos, NULL);
-	tool_toolitem_rebuild(tool);
-
-	return tool;
-}
-
-/* Search a kit for a tool by tool name. Used for searching for dialogs ... we
- * can't use the symtable stuff, as they're not syms.
- */
-static Tool *
-tool_find(Toolkit *kit, const char *name)
-{
-	return (Tool *) icontainer_map(ICONTAINER(kit),
-		(icontainer_map_fn) iobject_test_name, (char *) name, NULL);
-}
-
-/* Add a dialog entry to a toolkit.
- */
-Tool *
-tool_new_dia(Toolkit *kit, int pos,
-	const char *name, const char *filename)
-{
-	Tool *tool;
-
-	g_assert(kit && name && filename);
-
-	if ((tool = tool_find(kit, name))) {
-		if (tool->type != TOOL_DIA) {
-			error_top(_("Name clash"));
-			error_sub(_("can't create dialog with name \"%s\", "
-						"an object with that name already exists in "
-						"kit \"%s\""),
-				name, IOBJECT(kit)->name);
-			return NULL;
-		}
-
-		/* Just update the filename.
-		 */
-		filemodel_set_filename(FILEMODEL(tool), filename);
-		tool->lineno = -1;
-	}
-	else {
-		tool = TOOL(g_object_new(TOOL_TYPE, NULL));
-		tool->type = TOOL_DIA;
-		filemodel_set_filename(FILEMODEL(tool), filename);
-		iobject_set(IOBJECT(tool), name, NULL);
-		tool_link(tool, kit, pos, NULL);
-	}
-
 	tool_toolitem_rebuild(tool);
 
 	return tool;

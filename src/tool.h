@@ -86,12 +86,10 @@ struct _Toolitem {
 #define TOOL_GET_CLASS(obj) \
 	(G_TYPE_INSTANCE_GET_CLASS((obj), TOOL_TYPE, ToolClass))
 
-/* Tool types: a def (sym points to symbol for this def), a dialog (keep
- * filename and prompt name), or a separator.
+/* Tool types: a def (sym points to symbol for this def), or a separator.
  */
 typedef enum {
 	TOOL_SYM,
-	TOOL_DIA,
 	TOOL_SEP
 } Tooltype;
 
@@ -132,7 +130,5 @@ GType tool_get_type(void);
 
 Tool *tool_new_sym(Toolkit *kit, int pos, Symbol *sym);
 Tool *tool_new_sep(Toolkit *kit, int pos);
-Tool *tool_new_dia(Toolkit *kit, int pos,
-	const char *filename, const char *name);
 
 Toolitem *toolitem_lookup(Toolkitgroup *kitg, Symbol *action);

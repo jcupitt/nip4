@@ -506,10 +506,6 @@ dump_tiny_tool(Tool *tool)
 		printf("<separator> ");
 		break;
 
-	case TOOL_DIA:
-		printf("<dialog \"%s\"> ", FILEMODEL(tool)->filename);
-		break;
-
 	case TOOL_SYM:
 		dump_tiny(tool->sym);
 		break;
