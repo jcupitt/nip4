@@ -1,3 +1,17 @@
+- program window
+
+	fred = class { a = 1; b = 2; }
+
+	|>
+
+  use the menu to make A1 fred.a
+
+  edit fred to be
+
+	fred x = x + 12
+
+  segv
+
 - program window, pressing |> does not clear "[modified]" in titlebar
 
 	what's the difference between [modified] and the * in front? Is the *
