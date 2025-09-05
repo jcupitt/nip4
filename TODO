@@ -7,6 +7,10 @@
 - the logic in program_save_action() is almost the same as
   mainwindow_save_action() ... move into filemodel
 
+	we might be able to get rid of workspacegroup_save_all()
+
+	can we get rid of mainwindow_saveas()? filemodel_saveas() ought to work
+
 	reuse elsewhere?
 
 - try
@@ -25,12 +29,6 @@
 	maybe select the first tool in the kit?
 
 		program_set_tool()
-
-- image window open button in titlebar
-
-	tooltip is "open image" (same for open item in menu)P
-
-	dialog is "replace image A5"
 
 - add magick7 support to _magick.def
 

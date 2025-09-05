@@ -241,7 +241,7 @@ filemodel_dispose(GObject *gobject)
 }
 
 static xmlNode *
-filemodel_save(Model *model, xmlNode *xnode)
+filemodel_real_save(Model *model, xmlNode *xnode)
 {
 	Filemodel *filemodel = FILEMODEL(model);
 	xmlNode *xthis;
@@ -256,7 +256,7 @@ filemodel_save(Model *model, xmlNode *xnode)
 }
 
 static gboolean
-filemodel_load(Model *model,
+filemodel_real_load(Model *model,
 	ModelLoadState *state, Model *parent, xmlNode *xnode)
 {
 	Filemodel *filemodel = FILEMODEL(model);
@@ -415,8 +415,8 @@ filemodel_class_init(FilemodelClass *class)
 
 	iobject_class->info = filemodel_info;
 
-	model_class->save = filemodel_save;
-	model_class->load = filemodel_load;
+	model_class->save = filemodel_real_save;
+	model_class->load = filemodel_real_load;
 
 	class->top_load = filemodel_real_top_load;
 	class->set_modified = filemodel_real_set_modified;
@@ -791,6 +791,36 @@ filemodel_save_before_close(Filemodel *filemodel,
 
 	gtk_alert_dialog_choose(alert, window, NULL,
 		filemodel_save_before_close_cb, NULL);
+}
+
+void
+filemodel_save(GtkWindow *window, Filemodel *filemodel,
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b)
+{
+	// unmodified? no save to do
+	if (!filemodel ||
+		!filemodel->modified) {
+		if (next)
+			next(window, filemodel, a, b);
+		return;
+	}
+
+	const char *filename;
+	if (!(filename = filemodel->filename))
+		// no filename, we need to go via save-as
+		filemodel_saveas(window, filemodel, next, error, a, b);
+	else {
+		// we have a filename associated with this model ... we can
+		// just save directly
+		if (filemodel_top_save(filemodel, filename)) {
+			filemodel_set_modified(filemodel, FALSE);
+			if (next)
+				next(window, filemodel, a, b);
+		}
+		else if (error)
+			error(window, filemodel, a, b);
+	}
 }
 
 static Filemodel *

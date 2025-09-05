@@ -459,30 +459,24 @@ mainwindow_recover_action(GSimpleAction *action,
 }
 
 static void
+mainwindow_save_error(GtkWindow *win, Filemodel *filemodel, void *a, void *b)
+{
+	Mainwindow *main = MAINWINDOW(a);
+
+	mainwindow_error(main);
+}
+
+static void
 mainwindow_save_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
 	Mainwindow *main = MAINWINDOW(user_data);
 
-	// there needs to be a model to save
-	if (!main->wsg)
-		return;
-
-	// unmodified? no save to do
-	if (!FILEMODEL(main->wsg)->modified)
-		return;
-
-	const char *filename;
-	if (!(filename = FILEMODEL(main->wsg)->filename))
-		// no filename, we need to go via save-as
-		mainwindow_saveas(main);
-	else {
-		// we have a filename associated with this workspacegroup ... we can
-		// just save directly
-		if (workspacegroup_save_all(main->wsg, filename))
-			filemodel_set_modified(FILEMODEL(main->wsg), FALSE);
-		else
-			mainwindow_error(main);
+	if (main->wsg) {
+		workspacegroup_set_save_type(main->wsg, WORKSPACEGROUP_SAVE_ALL);
+		filemodel_save(GTK_WINDOW(main), FILEMODEL(main->wsg),
+			NULL,
+			mainwindow_save_error, main, NULL);
 	}
 }
 

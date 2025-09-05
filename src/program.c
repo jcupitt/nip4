@@ -524,29 +524,10 @@ program_save_action(GSimpleAction *action,
 {
 	Program *program = PROGRAM(user_data);
 
-	// there needs to be a model to save
-	if (!program->kit)
-		return;
-
-	// unmodified? no save to do
-	Filemodel *filemodel = FILEMODEL(program->kit);
-	if (!filemodel->modified)
-		return;
-
-	const char *filename;
-	if (!(filename = filemodel->filename))
-		// no filename, we need to go via save-as
-		filemodel_saveas(GTK_WINDOW(program), filemodel,
+	if (program->kit)
+		filemodel_save(GTK_WINDOW(program), FILEMODEL(program->kit),
 			NULL,
 			program_saveas_error, program, NULL);
-	else {
-		// we have a filename associated with this model ... we can
-		// just save directly
-		if (filemodel_top_save(filemodel, filename))
-			filemodel_set_modified(filemodel, FALSE);
-		else
-			program_set_error(program, TRUE);
-	}
 }
 
 static void
