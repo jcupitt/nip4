@@ -1,11 +1,25 @@
-- program window, pressing |> does not clear "[modified]" in titlebar
+- program window burger menu is mostly unimplemented
 
-	what's the difference between [modified] and the * in front? Is the *
-	"toolkit needs saving?"
+	open:
 
-- ^Q in mainwindow with a modified toolkit does not prompt save
+		toolkit new from file
 
-- program window burger menu is unimplemented
+		load into current context
+
+	new kit:
+
+		popup asks for kit name
+
+	new tool:
+
+		clear the edit window
+
+		make a new kit, if we don't have a kit selected
+
+			 set kit name to "untitled"
+
+	save toolkit
+	save toolkit as
 
 - add magick7 support to _magick.def
 

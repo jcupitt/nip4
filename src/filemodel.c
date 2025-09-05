@@ -24,6 +24,7 @@
  */
 
 /*
+#define DEBUG_VERBOSE
 #define DEBUG
  */
 
@@ -205,12 +206,12 @@ filemodel_finalize(GObject *gobject)
 
 	filemodel = FILEMODEL(gobject);
 
-#ifdef DEBUG
+#ifdef DEBUG_VERBOSE
 	printf("filemodel_finalize: %s \"%s\" (%s)\n",
 		G_OBJECT_TYPE_NAME(filemodel),
 		IOBJECT(filemodel)->name,
 		filemodel->filename);
-#endif /*DEBUG*/
+#endif /*DEBUG_VERBOSE*/
 
 	VIPS_FREE(filemodel->filename);
 
@@ -227,12 +228,12 @@ filemodel_dispose(GObject *gobject)
 
 	filemodel = FILEMODEL(gobject);
 
-#ifdef DEBUG
+#ifdef DEBUG_VERBOSE
 	printf("filemodel_dispose: %s \"%s\" (%s)\n",
 		G_OBJECT_TYPE_NAME(filemodel),
 		IOBJECT(filemodel)->name,
 		filemodel->filename);
-#endif /*DEBUG*/
+#endif /*DEBUG_VERBOSE*/
 
 	filemodel_unregister(filemodel);
 
@@ -836,7 +837,7 @@ filemodel_close_registered_next(GtkWindow *window,
 	if ((filemodel = filemodel_get_registered()))
 		filemodel_save_before_close(filemodel,
 			filemodel_close_registered_next_reply, callback, b);
-	else
+	else if (callback)
 		callback(b, NULL);
 }
 

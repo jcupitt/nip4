@@ -497,9 +497,14 @@ mainwindow_close_action(GSimpleAction *action,
 }
 
 static void *
-mainwindow_quit_sub(Mainwindow *main)
+mainwindow_quit_action_cb(void *a, void *b)
 {
-	gtk_window_close(GTK_WINDOW(main));
+	Mainwindow *main = MAINWINDOW(a);
+
+	App *app;
+	g_object_get(main, "application", &app, NULL);
+
+	g_application_quit(G_APPLICATION(app));
 
 	return NULL;
 }
@@ -508,9 +513,8 @@ static void
 mainwindow_quit_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
-	// quit application
-	slist_map(mainwindow_all,
-		(SListMapFn) mainwindow_quit_sub, NULL);
+	// from ^Q ... close all modified filemodels, then quit the app
+	filemodel_close_registered(mainwindow_quit_action_cb, user_data);
 }
 
 static void

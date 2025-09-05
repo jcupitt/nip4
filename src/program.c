@@ -342,6 +342,7 @@ program_parse(Program *program)
     }
 
     program->changed = FALSE;
+	program_refresh(program);
     if (program->kit)
         filemodel_set_modified(FILEMODEL(program->kit), TRUE);
 
