@@ -9,6 +9,7 @@
 - load/save for wsdefs
 - fix a crash in redefine
 - better ^Q handling
+- implement program window menu
 
 ## 9.0.12 2025/08/21
 

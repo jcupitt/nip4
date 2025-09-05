@@ -11,7 +11,7 @@
     <section>
       <item>
         <attribute name='label' translatable='yes'>New toolkit ...</attribute>
-        <attribute name='action'>app.new-toolkit</attribute>
+        <attribute name='action'>win.new-toolkit</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>New tool ...</attribute>

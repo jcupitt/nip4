@@ -191,9 +191,8 @@ workspaceviewlabel_name_edit_activate(iEntry *self, gpointer user_data)
 
 	g_autofree char *text = NULL;
 	g_object_get(self, "text", &text, NULL);
-	if (text) {
+	if (text)
 		workspace_rename(ws, text);
-	}
 
 	g_object_set(wviewlabel, "edit", FALSE, NULL);
 }

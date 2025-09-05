@@ -1,25 +1,36 @@
-- program window burger menu is mostly unimplemented
+- pin widget in program toolkitgroupview doesn't seem to work
 
-	open:
+	click on a kit, click on a tool, always bounces back to start
 
-		toolkit new from file
+- error bar in program window does not get red BG
 
-		load into current context
+- the logic in program_save_action() is almost the same as
+  mainwindow_save_action() ... move into filemodel
 
-	new kit:
+	reuse elsewhere?
 
-		popup asks for kit name
+- try
 
-	new tool:
+	make a unnamed toolkit
+	add a tool "fred = 12"
+	load x.def, contains text "fred = 99"
+	segv
 
-		clear the edit window
+- open does not jump the tk menu to the right place
 
-		make a new kit, if we don't have a kit selected
+	see program_kitgview_activate()
 
-			 set kit name to "untitled"
+	should this be in _refresh()?
 
-	save toolkit
-	save toolkit as
+	maybe select the first tool in the kit?
+
+		program_set_tool()
+
+- image window open button in titlebar
+
+	tooltip is "open image" (same for open item in menu)P
+
+	dialog is "replace image A5"
 
 - add magick7 support to _magick.def
 

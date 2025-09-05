@@ -334,10 +334,9 @@ program_parse(Program *program)
      */
     attach_input_string(buffer);
     if (!parse_onedef(program->kit, program->tool_pos)) {
-		printf("\terror top = %s\n", error_get_top());
-
         text_view_select_text(GTK_TEXT_VIEW(program->text_view),
             input_state.charpos - yyleng, input_state.charpos);
+
         return FALSE;
     }
 
@@ -356,38 +355,46 @@ program_parse(Program *program)
     return TRUE;
 }
 
+static gboolean
+program_select_tool(Program *program, Toolkit *kit, Tool *tool)
+{
+	if (program->changed &&
+		!program_parse(program)) {
+		program_set_error(program, TRUE);
+		g_object_set(program->kitgview, "path", program->kit_path, NULL);
+		g_object_set(program->kitgview, "search", program->kit_search, NULL);
+
+		return FALSE;
+	}
+	else {
+		program_set_error(program, FALSE);
+		program_set_kit(program, kit);
+
+		VIPS_FREE(program->kit_path);
+		const char *kit_path;
+		g_object_get(program->kitgview, "path", &kit_path, NULL);
+		program->kit_path = g_strdup(kit_path);
+
+		VIPS_FREE(program->kit_search);
+		const char *kit_search;
+		g_object_get(program->kitgview, "search", &kit_search, NULL);
+		program->kit_search = g_strdup(kit_search);
+
+		if (tool)
+			program_set_tool(program, tool);
+
+		return TRUE;
+	}
+}
+
 static void
 program_kitgview_activate(Toolkitgroupview *kitgview,
 	Toolitem *toolitem, Tool *tool, Program *program)
 {
 	Tool *selected_tool = tool ? tool : (toolitem ? toolitem->tool : NULL);
 
-	if (selected_tool) {
-		if (program->changed &&
-			!program_parse(program)) {
-			program_set_error(program, TRUE);
-			g_object_set(program->kitgview,
-				"path", program->kit_path, NULL);
-			g_object_set(program->kitgview,
-				"search", program->kit_search, NULL);
-		}
-		else {
-			program_set_error(program, FALSE);
-			program_set_kit(program, selected_tool->kit);
-
-			VIPS_FREE(program->kit_path);
-			const char *kit_path;
-			g_object_get(program->kitgview, "path", &kit_path, NULL);
-			program->kit_path = g_strdup(kit_path);
-
-			VIPS_FREE(program->kit_search);
-			const char *kit_search;
-			g_object_get(program->kitgview, "search", &kit_search, NULL);
-			program->kit_search = g_strdup(kit_search);
-
-			program_set_tool(program, selected_tool);
-		}
-	}
+	if (selected_tool)
+		program_select_tool(program, selected_tool->kit, selected_tool);
 }
 
 static void
@@ -421,6 +428,128 @@ program_set_property(GObject *object,
 }
 
 static void
+program_open_cb(GObject *source_object,
+	GAsyncResult *res, gpointer user_data)
+{
+	Program *program = PROGRAM(user_data);
+	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
+
+	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
+	if (file) {
+		g_autofree char *filename = g_file_get_path(file);
+
+		Toolkit *kit;
+		if ((kit = toolkit_new_from_file(program->kitg, filename)))
+			program_select_tool(program, kit, NULL);
+		else
+			program_set_error(program, TRUE);
+	}
+}
+
+static void
+program_open_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Program *program = PROGRAM(user_data);
+
+	GtkFileDialog *dialog = gtk_file_dialog_new();
+	gtk_file_dialog_set_title(dialog, "Open definition");
+	gtk_file_dialog_set_modal(dialog, TRUE);
+
+	if (program->load_folder)
+		gtk_file_dialog_set_initial_folder(dialog, program->load_folder);
+
+	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+	GtkFileFilter *filter;
+
+	filter = toolkit_filter_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	filter = mainwindow_filter_all_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
+	g_object_unref(filters);
+
+	gtk_file_dialog_open(dialog, GTK_WINDOW(program), NULL,
+		&program_open_cb, program);
+}
+
+static void
+program_new_toolkit_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Program *program = PROGRAM(user_data);
+
+	Toolkit *kit = toolkit_by_name(program->kitg, "untitled");
+	if (program_select_tool(program, kit, NULL))
+		program_set_text(program, "// empty toolkit!");
+}
+
+static void
+program_new_tool_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Program *program = PROGRAM(user_data);
+
+	if (program_select_tool(program, program->kit, NULL))
+		program_set_text(program, "// type your new definition here!");
+}
+
+static void
+program_saveas_error(GtkWindow *win, Filemodel *filemodel, void *a, void *b)
+{
+	Program *program = PROGRAM(a);
+
+	program_set_error(program, TRUE);
+}
+
+static void
+program_saveas_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Program *program = PROGRAM(user_data);
+
+    if (program->kit)
+		filemodel_saveas(GTK_WINDOW(program), FILEMODEL(program->kit),
+			NULL,
+			program_saveas_error, program, NULL);
+}
+
+static void
+program_save_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Program *program = PROGRAM(user_data);
+
+	// there needs to be a model to save
+	if (!program->kit)
+		return;
+
+	// unmodified? no save to do
+	Filemodel *filemodel = FILEMODEL(program->kit);
+	if (!filemodel->modified)
+		return;
+
+	const char *filename;
+	if (!(filename = filemodel->filename))
+		// no filename, we need to go via save-as
+		filemodel_saveas(GTK_WINDOW(program), filemodel,
+			NULL,
+			program_saveas_error, program, NULL);
+	else {
+		// we have a filename associated with this model ... we can
+		// just save directly
+		if (filemodel_top_save(filemodel, filename))
+			filemodel_set_modified(filemodel, FALSE);
+		else
+			program_set_error(program, TRUE);
+	}
+}
+
+static void
 program_close_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
@@ -430,15 +559,13 @@ program_close_action(GSimpleAction *action,
 }
 
 static GActionEntry program_entries[] = {
-	// FIXME ... ooof
+	{ "open", program_open_action },
 
-	// { "open", program_open_action },
+	{ "new-toolkit", program_new_toolkit_action },
+	{ "new-tool", program_new_tool_action },
 
-	// { "new-toolkit", program_new_toolkit_action },
-	// { "new-tool", program_new_tool_action },
-
-	// { "save", program_saveas_action },
-	// { "saveas", program_saveas_action },
+	{ "save", program_save_action },
+	{ "saveas", program_saveas_action },
 
 	{ "close", program_close_action },
 };

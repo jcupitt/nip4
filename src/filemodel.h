@@ -126,6 +126,9 @@ GtkWindow *filemodel_get_window_hint(Filemodel *filemodel);
 
 typedef void (*FilemodelSaveasResult)(GtkWindow *window,
 	Filemodel *filemodel, void *a, void *b);
+void filemodel_saveas(GtkWindow *window, Filemodel *filemodel,
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b);
 void filemodel_save_before_close(Filemodel *filemodel,
 	FilemodelSaveasResult next, void *a, void *b);
 

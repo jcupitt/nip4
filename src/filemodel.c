@@ -675,12 +675,14 @@ filemodel_saveas_sub(GObject *source_object,
 		else {
 			filemodel_set_filename(filemodel, filename);
 			filemodel_set_modified(filemodel, FALSE);
-			next(window, filemodel, a, b);
+
+			if (next)
+				next(window, filemodel, a, b);
 		}
 	}
 }
 
-static void
+void
 filemodel_saveas(GtkWindow *window, Filemodel *filemodel,
 	FilemodelSaveasResult next,
 	FilemodelSaveasResult error, void *a, void *b)
