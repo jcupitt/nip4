@@ -13,6 +13,10 @@
 
 		model the window displays
 
+		window_get_modifiers()
+
+		window_set_action_view()
+
 		others?
 
 - can we make filemodel open / replace / merge generic too?
