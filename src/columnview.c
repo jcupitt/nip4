@@ -144,6 +144,16 @@ columnview_merge(Columnview *cview)
 }
 
 static void
+columnview_saveas_next(GtkWindow *win, Filemodel *filemodel, void *a, void *b)
+{
+	Columnview *cview = COLUMNVIEW(a);
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
+	Workspace *ws = col->ws;
+
+	workspace_deselect_all(ws);
+}
+
+static void
 columnview_saveas_error(GtkWindow *win, Filemodel *filemodel, void *a, void *b)
 {
 	Columnview *cview = COLUMNVIEW(a);
@@ -151,6 +161,7 @@ columnview_saveas_error(GtkWindow *win, Filemodel *filemodel, void *a, void *b)
 	Workspace *ws = col->ws;
 
 	workspace_show_error(ws);
+	workspace_deselect_all(ws);
 }
 
 static void
@@ -165,8 +176,8 @@ columnview_saveas(Columnview *cview)
 	workspace_deselect_all(ws);
 	column_select_symbols(col);
 
-	filemodel_save(GTK_WINDOW(main), FILEMODEL(wsg),
-		NULL,
+	filemodel_saveas(GTK_WINDOW(main), FILEMODEL(wsg),
+		columnview_saveas_next,
 		columnview_saveas_error, cview, NULL);
 }
 

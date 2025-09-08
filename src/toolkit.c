@@ -107,11 +107,23 @@ toolkit_load_text(Model *model, Model *parent, iOpenFile *of)
 	return res;
 }
 
+static GtkFileFilter *
+toolkit_filter_new(Filemodel *filemodel)
+{
+	GtkFileFilter *filter = gtk_file_filter_new();
+
+	gtk_file_filter_set_name(filter, "nip4 definitions");
+	gtk_file_filter_add_pattern(filter, "*.def");
+
+	return filter;
+}
+
 static void
 toolkit_class_init(ToolkitClass *class)
 {
 	iObjectClass *iobject_class = (iObjectClass *) class;
 	ModelClass *model_class = (ModelClass *) class;
+	FilemodelClass *filemodel_class = (FilemodelClass *) class;
 
 	/* Create signals.
 	 */
@@ -120,10 +132,14 @@ toolkit_class_init(ToolkitClass *class)
 	 */
 	iobject_class->info = toolkit_info;
 	iobject_class->changed = toolkit_changed;
+	iobject_class->user_name = "definitions";
 
 	model_class->view_new = toolkit_view_new;
 	model_class->save_text = toolkit_save_text;
 	model_class->load_text = toolkit_load_text;
+
+	filemodel_class->filter_new = toolkit_filter_new;
+	filemodel_class->suffix = ".def";
 }
 
 static void
@@ -244,15 +260,4 @@ toolkit_by_name(Toolkitgroup *kitg, const char *name)
 	}
 
 	return kit;
-}
-
-GtkFileFilter *
-toolkit_filter_new(void)
-{
-	GtkFileFilter *filter = gtk_file_filter_new();
-
-	gtk_file_filter_set_name(filter, "nip4 definitions");
-	gtk_file_filter_add_pattern(filter, "*.def");
-
-	return filter;
 }

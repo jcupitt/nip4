@@ -763,7 +763,7 @@ workspaceview_saveas(Workspaceview *wview)
 	workspacegroup_set_save_type(wsg, WORKSPACEGROUP_SAVE_WORKSPACE);
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 
-	filemodel_save(GTK_WINDOW(main), FILEMODEL(wsg),
+	filemodel_saveas(GTK_WINDOW(main), FILEMODEL(wsg),
 		NULL,
 		workspaceview_saveas_error, wview, NULL);
 }

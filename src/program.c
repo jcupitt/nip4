@@ -462,9 +462,9 @@ program_open_action(GSimpleAction *action,
 	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
 	GtkFileFilter *filter;
 
-	filter = toolkit_filter_new();
-	g_list_store_append(filters, G_OBJECT(filter));
-	g_object_unref(filter);
+	//filter = toolkit_filter_new();
+	//g_list_store_append(filters, G_OBJECT(filter));
+	//g_object_unref(filter);
 
 	filter = mainwindow_filter_all_new();
 	g_list_store_append(filters, G_OBJECT(filter));

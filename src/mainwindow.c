@@ -621,9 +621,9 @@ mainwindow_local_replace(Mainwindow *main)
 	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
 	GtkFileFilter *filter;
 
-	filter = toolkit_filter_new();
-	g_list_store_append(filters, G_OBJECT(filter));
-	g_object_unref(filter);
+	//filter = toolkit_filter_new();
+	//g_list_store_append(filters, G_OBJECT(filter));
+	//g_object_unref(filter);
 
 	filter = mainwindow_filter_all_new();
 	g_list_store_append(filters, G_OBJECT(filter));
@@ -646,71 +646,19 @@ mainwindow_local_replace_action(GSimpleAction *action,
 }
 
 static void
-mainwindow_local_saveas_sub(GObject *source_object,
-	GAsyncResult *res, gpointer user_data)
-{
-	Mainwindow *main = MAINWINDOW(user_data);
-	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-
-	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
-	if (file) {
-		mainwindow_set_save_folder(main, file);
-
-		g_autofree char *path = g_file_get_path(file);
-
-		// make sure we have a ".def" suffix
-		char filename[VIPS_PATH_MAX];
-		change_suffix(path, filename, ".def", (const char*[]){ ".def" }, 1);
-
-		if (main->wsg) {
-			Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
-
-			if (ws->local_kit) {
-				if (filemodel_top_save(FILEMODEL(ws->local_kit), filename))
-					filemodel_set_filename(FILEMODEL(main->wsg), filename);
-				else
-					mainwindow_error(main);
-			}
-		}
-	}
-}
-
-static void
-mainwindow_local_saveas(Mainwindow *main)
-{
-	GtkFileDialog *dialog = gtk_file_dialog_new();
-	gtk_file_dialog_set_title(dialog, "Save tab definitions as");
-	gtk_file_dialog_set_modal(dialog, TRUE);
-
-	GFile *save_folder = mainwindow_get_save_folder(main);
-	if (save_folder)
-		gtk_file_dialog_set_initial_folder(dialog, save_folder);
-
-	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
-	GtkFileFilter *filter;
-
-	filter = toolkit_filter_new();
-	g_list_store_append(filters, G_OBJECT(filter));
-	g_object_unref(filter);
-
-	filter = mainwindow_filter_all_new();
-	g_list_store_append(filters, G_OBJECT(filter));
-	g_object_unref(filter);
-
-	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
-	g_object_unref(filters);
-
-	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
-		&mainwindow_local_saveas_sub, main);
-}
-
-static void
 mainwindow_local_saveas_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
 	Mainwindow *main = MAINWINDOW(user_data);
 
-	mainwindow_local_saveas(main);
+	if (main->wsg) {
+		Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
+
+		if (ws->local_kit)
+			filemodel_saveas(GTK_WINDOW(main), FILEMODEL(ws->local_kit),
+				NULL,
+				mainwindow_save_error, main, NULL);
+	}
 }
 
 static GActionEntry mainwindow_entries[] = {

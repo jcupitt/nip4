@@ -1,26 +1,42 @@
-- filemodel_close_registered() function param should be called "next", not
-  callback
+- filemodel_save_before_close_error() assumes the window is a mainwindow ...
+  this will break with program
 
-- test:
+	need a base class for nip4 windows (program, image, plot, main) with:
 
-    column saveas
-    workspace saveas (not workspacegroup)
+		load dir
 
-- scrap:
+		save dir
 
-    workspacegroup_save_selected() ?
+		show error method
 
+		GSettings*
 
-- we should have a generic filemodel_open() as well that pops up a filedialog
+		model the window displays
 
-      see mainwindow_open_action()
+		others?
 
-      new_from_file() method should take parent icontainer as arg
+- can we make filemodel open / replace / merge generic too?
 
-      what about replace?
+	see program_open_action()
 
-      what about merge?
+		calls toolkit_new_from_file(tkgroup, filename)
 
+	new_from_file() method should take parent icontainer as arg
+
+	needs:
+
+		current load/save folder
+
+			need method on window?
+
+		name of class to load for dialog title
+
+		maybe pass class pointer for object to create?
+
+		new_from_file() should be a method on the parent class? or
+		class pointer on actual class?
+
+		filter method
 
 
 - pin widget in program toolkitgroupview doesn't seem to work
@@ -28,34 +44,6 @@
 	click on a kit, click on a tool, always bounces back to start
 
 	done by refresh?
-
-
-
-
-
-- the logic in program_save_action() is almost the same as
-  mainwindow_save_action() ... move into filemodel
-
-	can we get rid of mainwindow_saveas()? filemodel_saveas() ought to work
-
-	reuse elsewhere?
-
-	how do we make filemodel set the correct filters?
-
-	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
-
-	GtkFileFilter *filter;
-
-	filter = workspacegroup_filter_new();
-	g_list_store_append(filters, G_OBJECT(filter));
-	g_object_unref(filter);
-
-	filter = mainwindow_filter_all_new();
-	g_list_store_append(filters, G_OBJECT(filter));
-	g_object_unref(filter);
-
-	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
-	g_object_unref(filters);
 
 - try
 
