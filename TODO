@@ -1,27 +1,25 @@
 - filemodel_close_registered() function param should be called "next", not
   callback
 
-- toolkit filemodel needs to have suffix and filter_new defined
+- test:
 
-	others? where else do we have the save / saveas pattern
+    column saveas
+    workspace saveas (not workspacegroup)
 
-	column is a filemodel
+- scrap:
 
-		see columnview_saveas()
+    workspacegroup_save_selected() ?
 
-	workspace is a filemodel
-
-		see workspaceview_saveas()
-
-	workspacegroup is a filemodel (done this one in mainwindow)
-
-	toolkitgroup is NOT a filemode (just a model) but it is a container
 
 - we should have a generic filemodel_open() as well that pops up a filedialog
 
-  see mainwindow_open_action()
+      see mainwindow_open_action()
 
-  new_from_file() method should take parent icontainer as arg
+      new_from_file() method should take parent icontainer as arg
+
+      what about replace?
+
+      what about merge?
 
 
 

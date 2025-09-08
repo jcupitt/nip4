@@ -744,25 +744,13 @@ workspaceview_layout(View *view)
 }
 
 static void
-workspaceview_saveas_sub(GObject *source_object,
-	GAsyncResult *res, gpointer user_data)
+workspaceview_saveas_error(GtkWindow *win,
+	Filemodel *filemodel, void *a, void *b)
 {
-	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspaceview *wview = WORKSPACEVIEW(a);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(wview)));
-	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
 
-	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
-	if (file) {
-		mainwindow_set_save_folder(main, file);
-
-		g_autofree char *filename = g_file_get_path(file);
-
-		icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
-		if (!workspacegroup_save_current(wsg, filename))
-			workspace_show_error(ws);
-	}
+	workspace_show_error(ws);
 }
 
 static void
@@ -772,21 +760,12 @@ workspaceview_saveas(Workspaceview *wview)
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
 	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(wview)));
 
-	GtkFileDialog *dialog;
-
-	// we can only save the current tab
+	workspacegroup_set_save_type(wsg, WORKSPACEGROUP_SAVE_WORKSPACE);
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 
-	dialog = gtk_file_dialog_new();
-	gtk_file_dialog_set_title(dialog, "Save tab as");
-	gtk_file_dialog_set_modal(dialog, TRUE);
-
-	GFile *save_folder = mainwindow_get_save_folder(main);
-	if (save_folder)
-		gtk_file_dialog_set_initial_folder(dialog, save_folder);
-
-	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
-		&workspaceview_saveas_sub, wview);
+	filemodel_save(GTK_WINDOW(main), FILEMODEL(wsg),
+		NULL,
+		workspaceview_saveas_error, wview, NULL);
 }
 
 static void
