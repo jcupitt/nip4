@@ -904,17 +904,17 @@ static void
 filemodel_close_registered_next(GtkWindow *window,
 	Filemodel *filemodel, void *a, void *b)
 {
-	SListMapFn callback = (SListMapFn) a;
+	SListMapFn next = (SListMapFn) a;
 
 	if ((filemodel = filemodel_get_registered()))
 		filemodel_save_before_close(filemodel,
-			filemodel_close_registered_next_reply, callback, b);
-	else if (callback)
-		callback(b, NULL);
+			filemodel_close_registered_next_reply, next, b);
+	else if (next)
+		next(b, NULL);
 }
 
 void
-filemodel_close_registered(SListMapFn callback, void *user_data)
+filemodel_close_registered(SListMapFn next, void *user_data)
 {
-	filemodel_close_registered_next(NULL, NULL, callback, user_data);
+	filemodel_close_registered_next(NULL, NULL, next, user_data);
 }
