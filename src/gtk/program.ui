@@ -95,6 +95,9 @@
 	<child>
           <object class="GtkActionBar" id="error_bar">
             <property name="revealed">false</property>
+	    <style>
+	      <class name="error_widget"/>
+	    </style>
 
 	    <child type="center">
               <object class="GtkBox">

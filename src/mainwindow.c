@@ -302,6 +302,7 @@ mainwindow_open_action(GSimpleAction *action,
 	if (load_folder)
 		gtk_file_dialog_set_initial_folder(dialog, load_folder);
 
+	/*
 	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
 	GtkFileFilter *filter;
 
@@ -319,6 +320,7 @@ mainwindow_open_action(GSimpleAction *action,
 
 	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
 	g_object_unref(filters);
+	 */
 
 	gtk_file_dialog_open(dialog, GTK_WINDOW(main), NULL,
 		mainwindow_open_result, main);
@@ -384,81 +386,6 @@ mainwindow_duplicate_action(GSimpleAction *action,
 }
 
 static void
-mainwindow_saveas_sub(GObject *source_object,
-	GAsyncResult *res, gpointer user_data)
-{
-	Mainwindow *main = MAINWINDOW(user_data);
-	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-
-	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
-	if (file) {
-		mainwindow_set_save_folder(main, file);
-
-		g_autofree char *path = g_file_get_path(file);
-
-		// make sure we have a ".ws" suffix
-		char filename[VIPS_PATH_MAX];
-		change_suffix(path, filename, ".ws", (const char*[]){ ".ws" }, 1);
-
-		if (workspacegroup_save_all(main->wsg, filename)) {
-			filemodel_set_modified(FILEMODEL(main->wsg), FALSE);
-			filemodel_set_filename(FILEMODEL(main->wsg), filename);
-		}
-		else
-			mainwindow_error(main);
-	}
-}
-
-static void
-mainwindow_saveas(Mainwindow *main)
-{
-	GtkFileDialog *dialog = gtk_file_dialog_new();
-	gtk_file_dialog_set_title(dialog, "Save workspace as");
-	gtk_file_dialog_set_modal(dialog, TRUE);
-
-	GFile *save_folder = mainwindow_get_save_folder(main);
-	if (save_folder)
-		gtk_file_dialog_set_initial_folder(dialog, save_folder);
-
-	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
-
-	GtkFileFilter *filter;
-
-	filter = workspacegroup_filter_new();
-	g_list_store_append(filters, G_OBJECT(filter));
-	g_object_unref(filter);
-
-	filter = mainwindow_filter_all_new();
-	g_list_store_append(filters, G_OBJECT(filter));
-	g_object_unref(filter);
-
-	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
-	g_object_unref(filters);
-
-	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
-		&mainwindow_saveas_sub, main);
-}
-
-static void
-mainwindow_saveas_action(GSimpleAction *action,
-	GVariant *parameter, gpointer user_data)
-{
-	Mainwindow *main = MAINWINDOW(user_data);
-
-	mainwindow_saveas(main);
-}
-
-static void
-mainwindow_recover_action(GSimpleAction *action,
-	GVariant *parameter, gpointer user_data)
-{
-	Mainwindow *main = MAINWINDOW(user_data);
-
-	Recover *recover = recover_new(GTK_WINDOW(main), main->wsg->wsr);
-	gtk_window_present(GTK_WINDOW(recover));
-}
-
-static void
 mainwindow_save_error(GtkWindow *win, Filemodel *filemodel, void *a, void *b)
 {
 	Mainwindow *main = MAINWINDOW(a);
@@ -481,17 +408,40 @@ mainwindow_save_action(GSimpleAction *action,
 }
 
 static void
+mainwindow_saveas_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	if (main->wsg) {
+		workspacegroup_set_save_type(main->wsg, WORKSPACEGROUP_SAVE_ALL);
+		filemodel_saveas(GTK_WINDOW(main), FILEMODEL(main->wsg),
+			NULL,
+			mainwindow_save_error, main, NULL);
+	}
+}
+
+static void
+mainwindow_recover_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	Recover *recover = recover_new(GTK_WINDOW(main), main->wsg->wsr);
+	gtk_window_present(GTK_WINDOW(recover));
+}
+
+static void
 mainwindow_close_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
 	Mainwindow *main = MAINWINDOW(user_data);
 
-	// close this window
 	gtk_window_close(GTK_WINDOW(main));
 }
 
 static void *
-mainwindow_quit_action_cb(void *a, void *b)
+mainwindow_quit_action_next(void *a, void *b)
 {
 	Mainwindow *main = MAINWINDOW(a);
 
@@ -508,7 +458,7 @@ mainwindow_quit_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
 	// from ^Q ... close all modified filemodels, then quit the app
-	filemodel_close_registered(mainwindow_quit_action_cb, user_data);
+	filemodel_close_registered(mainwindow_quit_action_next, user_data);
 }
 
 static void

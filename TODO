@@ -1,17 +1,63 @@
+- filemodel_close_registered() function param should be called "next", not
+  callback
+
+- toolkit filemodel needs to have suffix and filter_new defined
+
+	others? where else do we have the save / saveas pattern
+
+	column is a filemodel
+
+		see columnview_saveas()
+
+	workspace is a filemodel
+
+		see workspaceview_saveas()
+
+	workspacegroup is a filemodel (done this one in mainwindow)
+
+	toolkitgroup is NOT a filemode (just a model) but it is a container
+
+- we should have a generic filemodel_open() as well that pops up a filedialog
+
+  see mainwindow_open_action()
+
+  new_from_file() method should take parent icontainer as arg
+
+
+
 - pin widget in program toolkitgroupview doesn't seem to work
 
 	click on a kit, click on a tool, always bounces back to start
 
-- error bar in program window does not get red BG
+	done by refresh?
+
+
+
+
 
 - the logic in program_save_action() is almost the same as
   mainwindow_save_action() ... move into filemodel
 
-	we might be able to get rid of workspacegroup_save_all()
-
 	can we get rid of mainwindow_saveas()? filemodel_saveas() ought to work
 
 	reuse elsewhere?
+
+	how do we make filemodel set the correct filters?
+
+	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+
+	GtkFileFilter *filter;
+
+	filter = workspacegroup_filter_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	filter = mainwindow_filter_all_new();
+	g_list_store_append(filters, G_OBJECT(filter));
+	g_object_unref(filter);
+
+	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
+	g_object_unref(filters);
 
 - try
 

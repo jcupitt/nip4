@@ -134,4 +134,3 @@ gboolean workspacegroup_save_all(Workspacegroup *wsg,
 
 Workspacegroup *workspacegroup_duplicate(Workspacegroup *wsg);
 
-GtkFileFilter *workspacegroup_filter_new(void);

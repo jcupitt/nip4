@@ -75,12 +75,19 @@ typedef struct _FilemodelClass {
 
 		top_save			top level save ... intercept this to override
 
+		filter_new			make a new filemodel filter for this file type
+
+		suffix				if non-NULL, the required suffix for files of
+							this type
+
 	 */
 
 	gboolean (*top_load)(Filemodel *filemodel,
 		ModelLoadState *state, Model *parent, xmlNode *xnode);
 	void (*set_modified)(Filemodel *filemodel, gboolean modified);
 	gboolean (*top_save)(Filemodel *filemodel, const char *filename);
+	GtkFileFilter *(*filter_new)(Filemodel *filemodel);
+	const char *suffix;
 } FilemodelClass;
 
 void filemodel_register(Filemodel *filemodel);

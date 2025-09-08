@@ -667,6 +667,17 @@ workspacegroup_set_modified(Filemodel *filemodel, gboolean modified)
 		set_modified(filemodel, modified);
 }
 
+static GtkFileFilter *
+workspacegroup_filter_new(Filemodel *filemodel)
+{
+	GtkFileFilter *filter = gtk_file_filter_new();
+
+	gtk_file_filter_set_name(filter, "nip4 workspaces");
+	gtk_file_filter_add_suffix(filter, "ws");
+
+	return filter;
+}
+
 static void
 workspacegroup_class_init(WorkspacegroupClass *class)
 {
@@ -694,6 +705,8 @@ workspacegroup_class_init(WorkspacegroupClass *class)
 
 	filemodel_class->top_load = workspacegroup_top_load;
 	filemodel_class->set_modified = workspacegroup_set_modified;
+	filemodel_class->filter_new = workspacegroup_filter_new;
+	filemodel_class->suffix = ".ws";
 }
 
 static void
@@ -916,7 +929,7 @@ workspacegroup_save_current(Workspacegroup *wsg, const char *filename)
 	return TRUE;
 }
 
-/* Save an entire workspacegroup.
+/* Save everything.
  */
 gboolean
 workspacegroup_save_all(Workspacegroup *wsg, const char *filename)
@@ -924,6 +937,7 @@ workspacegroup_save_all(Workspacegroup *wsg, const char *filename)
 	workspacegroup_set_save_type(wsg, WORKSPACEGROUP_SAVE_ALL);
 	if (!filemodel_top_save(FILEMODEL(wsg), filename)) {
 		unlinkf("%s", filename);
+
 		return FALSE;
 	}
 
@@ -943,25 +957,15 @@ workspacegroup_duplicate(Workspacegroup *wsg)
 		return NULL;
 
 	if (!(new_wsg = workspacegroup_new_from_file(wsr,
-			  filename, FILEMODEL(wsg)->filename))) {
+		filename, FILEMODEL(wsg)->filename))) {
 		unlinkf("%s", filename);
 		return NULL;
 	}
+
 	unlinkf("%s", filename);
 
 	filemodel_set_filename(FILEMODEL(new_wsg), FILEMODEL(wsg)->filename);
 	filemodel_set_modified(FILEMODEL(new_wsg), FILEMODEL(wsg)->modified);
 
 	return new_wsg;
-}
-
-GtkFileFilter *
-workspacegroup_filter_new(void)
-{
-	GtkFileFilter *filter = gtk_file_filter_new();
-
-	gtk_file_filter_set_name(filter, "nip4 workspaces");
-	gtk_file_filter_add_suffix(filter, "ws");
-
-	return filter;
 }

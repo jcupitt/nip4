@@ -240,6 +240,17 @@ filemodel_dispose(GObject *gobject)
 	G_OBJECT_CLASS(filemodel_parent_class)->dispose(gobject);
 }
 
+static GtkFileFilter *
+filemodel_filter_new(Filemodel *filemodel)
+{
+	FilemodelClass *class = FILEMODEL_GET_CLASS(filemodel);
+
+	if (class->filter_new)
+		return class->filter_new(filemodel);
+
+	return NULL;
+}
+
 static xmlNode *
 filemodel_real_save(Model *model, xmlNode *xnode)
 {
@@ -668,7 +679,21 @@ filemodel_saveas_sub(GObject *source_object,
 
 	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
 	if (file) {
-		g_autofree char *filename = g_file_get_path(file);
+		FilemodelClass *filemodel_class = FILEMODEL_GET_CLASS(filemodel);
+		g_autofree char *path = g_file_get_path(file);
+
+		char buf[VIPS_PATH_MAX];
+		char *filename;
+
+		/* Set the correct suffix, if necessary.
+		 */
+		filename = path;
+		if (filemodel_class->suffix) {
+			change_suffix(path, buf,
+					filemodel_class->suffix,
+					(const char*[]){ filemodel_class->suffix }, 1);
+			filename = buf;
+		}
 
 		if (!filemodel_top_save(filemodel, filename))
 			error(window, filemodel, a, b);
@@ -707,6 +732,21 @@ filemodel_saveas(GtkWindow *window, Filemodel *filemodel,
 		g_autoptr(GFile) file = g_file_new_for_path(filename);
 		if (file)
 			gtk_file_dialog_set_initial_file(dialog, file);
+	}
+
+	GtkFileFilter *filter;
+	if ((filter = filemodel_filter_new(filemodel))) {
+		GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+
+		g_list_store_append(filters, G_OBJECT(filter));
+		g_object_unref(filter);
+
+		filter = mainwindow_filter_all_new();
+		g_list_store_append(filters, G_OBJECT(filter));
+		g_object_unref(filter);
+
+		gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
+		g_object_unref(filters);
 	}
 
 	gtk_file_dialog_save(dialog, window, NULL,
