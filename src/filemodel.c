@@ -977,6 +977,55 @@ filemodel_open(GtkWindow *window, Filemodel *filemodel,
 	gtk_file_dialog_open(dialog, window, NULL, &filemodel_open_sub, NULL);
 }
 
+typedef struct _Suspension {
+	GtkWindow *window;
+   	Filemodel *filemodel;
+	FilemodelSaveasResult next;
+	FilemodelSaveasResult error;
+   	void *a;
+   	void *b;
+} Suspension;
+
+static void
+filemodel_replace_next(GtkWindow *window,
+	Filemodel *filemodel, void *a, void *b)
+{
+	Suspension *sus = (Suspension *) a;
+
+	filemodel_open(sus->window, sus->filemodel,
+		sus->next, sus->error, sus->a, sus->b);
+	g_free(sus);
+}
+
+static void
+filemodel_replace_error(GtkWindow *window,
+	Filemodel *filemodel, void *a, void *b)
+{
+	Suspension *sus = (Suspension *) a;
+
+	if (sus->error)
+		sus->error(sus->window, sus->filemodel, sus->a, sus->b);
+	g_free(sus);
+}
+
+void
+filemodel_replace(GtkWindow *window, Filemodel *filemodel,
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b)
+{
+	Suspension *sus = g_new(Suspension, 1);
+	sus->window = window;
+	sus->filemodel = filemodel;
+	sus->next = next;
+	sus->error = error;
+	sus->a = a;
+	sus->b = b;
+
+	filemodel_save_before_close(filemodel,
+		filemodel_replace_next,
+		filemodel_replace_error, sus, NULL);
+}
+
 static Filemodel *
 filemodel_get_registered(void)
 {

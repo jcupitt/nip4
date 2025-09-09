@@ -113,25 +113,6 @@ gboolean filemodel_load_all(Filemodel *filemodel, Model *parent,
 gboolean filemodel_load_all_openfile(Filemodel *filemodel,
 	Model *parent, iOpenFile *of);
 
-/*
- * fixme ... this will need to be replaced with a more conventional load/save
- * dialog system like vipsdip's
- *
-void filemodel_inter_saveas(iWindow *parent, Filemodel *filemodel);
-void filemodel_inter_save(iWindow *parent, Filemodel *filemodel);
-void filemodel_inter_savenempty_cb(iWindow *iwnd, void *client,
-	iWindowNotifyFn nfn, void *sys);
-void filemodel_inter_savenempty(iWindow *parent, Filemodel *filemodel);
-void filemodel_inter_savenclose_cb(iWindow *iwnd, void *client,
-	iWindowNotifyFn nfn, void *sys);
-void filemodel_inter_savenclose(iWindow *parent, Filemodel *filemodel);
-void filemodel_inter_loadas(iWindow *parent, Filemodel *filemodel);
-void filemodel_inter_replace(iWindow *parent, Filemodel *filemodel);
-
-void filemodel_inter_close_registered_cb(iWindow *iwnd, void *client,
-	iWindowNotifyFn nfn, void *sys);
- */
-
 void filemodel_set_auto_load(Filemodel *filemodel);
 
 void filemodel_set_window_hint(Filemodel *filemodel, GtkWindow *window);
@@ -150,6 +131,9 @@ void filemodel_save(GtkWindow *window, Filemodel *filemodel,
 	FilemodelSaveasResult error, void *a, void *b);
 
 void filemodel_open(GtkWindow *window, Filemodel *filemodel,
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b);
+void filemodel_replace(GtkWindow *window, Filemodel *filemodel,
 	FilemodelSaveasResult next,
 	FilemodelSaveasResult error, void *a, void *b);
 

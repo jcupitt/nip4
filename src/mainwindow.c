@@ -327,43 +327,6 @@ mainwindow_open_action(GSimpleAction *action,
 }
 
 static void
-mainwindow_merge_result(GObject *source_object,
-	GAsyncResult *res, gpointer user_data)
-{
-	Mainwindow *main = MAINWINDOW(user_data);
-	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-
-	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
-	if (file) {
-		g_autofree char *filename = g_file_get_path(file);
-
-		if (!workspacegroup_merge_workspaces(main->wsg, filename))
-			mainwindow_error(main);
-
-		symbol_recalculate_all();
-	}
-}
-
-static void
-mainwindow_merge_action(GSimpleAction *action,
-	GVariant *parameter, gpointer user_data)
-{
-	Mainwindow *main = MAINWINDOW(user_data);
-
-	GtkFileDialog *dialog = gtk_file_dialog_new();
-	gtk_file_dialog_set_title(dialog, "Merge workspace");
-	gtk_file_dialog_set_accept_label(dialog, "Merge");
-	gtk_file_dialog_set_modal(dialog, TRUE);
-
-	GFile *load_folder = mainwindow_get_load_folder(main);
-	if (load_folder)
-		gtk_file_dialog_set_initial_folder(dialog, load_folder);
-
-	gtk_file_dialog_open(dialog, GTK_WINDOW(main), NULL,
-		mainwindow_merge_result, main);
-}
-
-static void
 mainwindow_duplicate_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
@@ -417,6 +380,26 @@ mainwindow_saveas_action(GSimpleAction *action,
 		workspacegroup_set_save_type(main->wsg, WORKSPACEGROUP_SAVE_ALL);
 		filemodel_saveas(GTK_WINDOW(main), FILEMODEL(main->wsg),
 			NULL,
+			mainwindow_save_error, main, NULL);
+	}
+}
+
+static void
+mainwindow_merge_next(GtkWindow *win, Filemodel *filemodel, void *a, void *b)
+{
+	symbol_recalculate_all();
+}
+
+static void
+mainwindow_merge_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	if (main->wsg) {
+		workspacegroup_set_load_type(main->wsg, WORKSPACEGROUP_LOAD_NEW);
+		filemodel_open(GTK_WINDOW(main), FILEMODEL(main->wsg),
+			mainwindow_merge_next,
 			mainwindow_save_error, main, NULL);
 	}
 }

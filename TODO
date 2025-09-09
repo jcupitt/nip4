@@ -1,5 +1,12 @@
 - filemodel_open() is done, do _replace() next
 
+	done, use in mainwindow_local_replace()
+
+- add GtkWindow as first param of filemodel_save_before_close()? see _replace
+
+
+
+
 - pin widget in program toolkitgroupview doesn't seem to work
 
 	click on a kit, click on a tool, always bounces back to start
