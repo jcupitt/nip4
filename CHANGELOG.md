@@ -10,6 +10,7 @@
 - fix a crash in redefine
 - better ^Q handling
 - implement program window menu
+- generic load/save/open/replace/close for filemodel
 
 ## 9.0.12 2025/08/21
 

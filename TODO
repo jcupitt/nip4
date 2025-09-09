@@ -4,6 +4,15 @@
 
 - add GtkWindow as first param of filemodel_save_before_close()? see _replace
 
+- mainwindow still has file dialog code for open (since it can open many file
+  types)
+
+	can we fix this?
+
+- mainwindow still has load_folder / save_folder
+
+	could use filemodel class menbers instead?
+
 
 
 
