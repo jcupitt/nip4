@@ -667,7 +667,7 @@ workspacegroup_set_modified(Filemodel *filemodel, gboolean modified)
 		set_modified(filemodel, modified);
 }
 
-static GtkFileFilter *
+GtkFileFilter *
 workspacegroup_filter_new(Filemodel *filemodel)
 {
 	GtkFileFilter *filter = gtk_file_filter_new();

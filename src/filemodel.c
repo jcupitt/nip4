@@ -863,6 +863,83 @@ filemodel_save(GtkWindow *window, Filemodel *filemodel,
 	}
 }
 
+static void
+filemodel_open_sub(GObject *source_object,
+	GAsyncResult *res, gpointer user_data)
+{
+	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
+
+	GtkWindow *window = g_object_get_data(G_OBJECT(dialog), "nip4-window");
+	Filemodel *filemodel =
+		g_object_get_data(G_OBJECT(dialog), "nip4-filemodel");
+	FilemodelSaveasResult next =
+		g_object_get_data(G_OBJECT(dialog), "nip4-next");
+	FilemodelSaveasResult error =
+		g_object_get_data(G_OBJECT(dialog), "nip4-error");
+	void *a = g_object_get_data(G_OBJECT(dialog), "nip4-a");
+	void *b = g_object_get_data(G_OBJECT(dialog), "nip4-b");
+
+	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
+	if (file) {
+		g_autofree char *filename = g_file_get_path(file);
+	    Model *parent = MODEL(ICONTAINER(filemodel)->parent);
+
+		if (filemodel_load_all(filemodel, parent, filename, NULL)) {
+			// update load folder
+			if (next)
+				next(window, filemodel, a, b);
+		}
+		else {
+			if (error)
+				error(window, filemodel, a, b);
+		}
+	}
+}
+
+void
+filemodel_open(GtkWindow *window, Filemodel *filemodel,
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b)
+{
+	const char *user_name = IOBJECT_GET_CLASS(filemodel)->user_name;
+	const char *tname = IOBJECT_GET_CLASS_NAME(filemodel);
+	g_autofree char *title = g_strdup_printf("Open %s",
+			user_name ? user_name : tname);
+
+	GtkFileDialog *dialog = gtk_file_dialog_new();
+	gtk_file_dialog_set_title(dialog, title);
+	gtk_file_dialog_set_modal(dialog, TRUE);
+
+	g_object_set_data(G_OBJECT(dialog), "nip4-window", window);
+	g_object_set_data(G_OBJECT(dialog), "nip4-filemodel", filemodel);
+	g_object_set_data(G_OBJECT(dialog), "nip4-next", next);
+	g_object_set_data(G_OBJECT(dialog), "nip4-error", error);
+	g_object_set_data(G_OBJECT(dialog), "nip4-a", a);
+	g_object_set_data(G_OBJECT(dialog), "nip4-b", b);
+
+	/*
+	if (program->load_folder)
+		gtk_file_dialog_set_initial_folder(dialog, program->load_folder);
+	 */
+
+	GtkFileFilter *filter;
+	if ((filter = filemodel_filter_new(filemodel))) {
+		GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+
+		g_list_store_append(filters, G_OBJECT(filter));
+		g_object_unref(filter);
+
+		filter = mainwindow_filter_all_new();
+		g_list_store_append(filters, G_OBJECT(filter));
+		g_object_unref(filter);
+
+		gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
+		g_object_unref(filters);
+	}
+
+	gtk_file_dialog_open(dialog, window, NULL, &filemodel_open_sub, NULL);
+}
+
 static Filemodel *
 filemodel_get_registered(void)
 {

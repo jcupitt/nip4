@@ -1,46 +1,21 @@
 - filemodel_save_before_close_error() assumes the window is a mainwindow ...
   this will break with program
 
-	need a base class for nip4 windows (program, image, plot, main) with:
+- classmodel has user_name for the name of the class in dialogs
 
-		load dir
+	move into model? we want this in filemodel too
 
-		save dir
+	see eg. filemodel_open()
 
-		show error method
+	it's also in iobject! get rid of the classmodel one?
 
-		GSettings*
+- move load_folder and save_folder into filemodel ... should be class
+  properties
 
-		model the window displays
+	from window
 
-		window_get_modifiers()
+	see eg. filemodel_open()
 
-		window_set_action_view()
-
-		others?
-
-- can we make filemodel open / replace / merge generic too?
-
-	see program_open_action()
-
-		calls toolkit_new_from_file(tkgroup, filename)
-
-	new_from_file() method should take parent icontainer as arg
-
-	needs:
-
-		current load/save folder
-
-			need method on window?
-
-		name of class to load for dialog title
-
-		maybe pass class pointer for object to create?
-
-		new_from_file() should be a method on the parent class? or
-		class pointer on actual class?
-
-		filter method
 
 
 - pin widget in program toolkitgroupview doesn't seem to work

@@ -142,4 +142,8 @@ void filemodel_save(GtkWindow *window, Filemodel *filemodel,
 	FilemodelSaveasResult next,
 	FilemodelSaveasResult error, void *a, void *b);
 
+void filemodel_open(GtkWindow *window, Filemodel *filemodel,
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b);
+
 void filemodel_close_registered(SListMapFn callback, void *user_data);
