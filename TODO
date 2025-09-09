@@ -1,22 +1,4 @@
-- filemodel_save_before_close_error() assumes the window is a mainwindow ...
-  this will break with program
-
-- classmodel has user_name for the name of the class in dialogs
-
-	move into model? we want this in filemodel too
-
-	see eg. filemodel_open()
-
-	it's also in iobject! get rid of the classmodel one?
-
-- move load_folder and save_folder into filemodel ... should be class
-  properties
-
-	from window
-
-	see eg. filemodel_open()
-
-
+- filemodel_open() is done, do _replace() next
 
 - pin widget in program toolkitgroupview doesn't seem to work
 

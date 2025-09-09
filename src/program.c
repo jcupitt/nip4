@@ -30,11 +30,6 @@
 struct _Program {
 	GtkApplicationWindow parent;
 
-	/* The current save and load directories.
-	 */
-	GFile *save_folder;
-	GFile *load_folder;
-
 	// the model we display
 	Toolkitgroup *kitg;
 
@@ -72,40 +67,6 @@ enum {
 };
 
 G_DEFINE_TYPE(Program, program, GTK_TYPE_APPLICATION_WINDOW);
-
-GFile *
-program_get_save_folder(Program *program)
-{
-	return program->save_folder;
-}
-
-static GFile *
-get_parent(GFile *file)
-{
-	GFile *parent = g_file_get_parent(file);
-
-	return parent ? parent : g_file_new_for_path("/");
-}
-
-void
-program_set_save_folder(Program *program, GFile *file)
-{
-	VIPS_UNREF(program->save_folder);
-	program->save_folder = get_parent(file);
-}
-
-GFile *
-program_get_load_folder(Program *program)
-{
-	return program->load_folder;
-}
-
-void
-program_set_load_folder(Program *program, GFile *file)
-{
-	VIPS_UNREF(program->load_folder);
-	program->load_folder = get_parent(file);
-}
 
 static void
 program_set_error(Program *program, gboolean error)
@@ -428,56 +389,6 @@ program_set_property(GObject *object,
 }
 
 static void
-program_open_cb(GObject *source_object,
-	GAsyncResult *res, gpointer user_data)
-{
-	Program *program = PROGRAM(user_data);
-	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-
-	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
-	if (file) {
-		g_autofree char *filename = g_file_get_path(file);
-
-		Toolkit *kit;
-		if ((kit = toolkit_new_from_file(program->kitg, filename)))
-			program_select_tool(program, kit, NULL);
-		else
-			program_set_error(program, TRUE);
-	}
-}
-
-static void
-program_open_action(GSimpleAction *action,
-	GVariant *parameter, gpointer user_data)
-{
-	Program *program = PROGRAM(user_data);
-
-	GtkFileDialog *dialog = gtk_file_dialog_new();
-	gtk_file_dialog_set_title(dialog, "Open definition");
-	gtk_file_dialog_set_modal(dialog, TRUE);
-
-	if (program->load_folder)
-		gtk_file_dialog_set_initial_folder(dialog, program->load_folder);
-
-	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
-	GtkFileFilter *filter;
-
-	//filter = toolkit_filter_new();
-	//g_list_store_append(filters, G_OBJECT(filter));
-	//g_object_unref(filter);
-
-	filter = mainwindow_filter_all_new();
-	g_list_store_append(filters, G_OBJECT(filter));
-	g_object_unref(filter);
-
-	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
-	g_object_unref(filters);
-
-	gtk_file_dialog_open(dialog, GTK_WINDOW(program), NULL,
-		&program_open_cb, program);
-}
-
-static void
 program_new_toolkit_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
@@ -531,6 +442,30 @@ program_save_action(GSimpleAction *action,
 }
 
 static void
+program_open_next(GtkWindow *win, Filemodel *filemodel, void *a, void *b)
+{
+	Program *program = PROGRAM(a);
+
+	char name[VIPS_PATH_MAX];
+	name_from_filename(filemodel->filename, name);
+	toolkit_set_name(TOOLKIT(filemodel), name);
+
+	program_select_tool(program, TOOLKIT(filemodel), NULL);
+}
+
+static void
+program_open_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Program *program = PROGRAM(user_data);
+
+	Toolkit *kit = toolkit_new_filename(program->kitg, "untitled");
+	filemodel_open(GTK_WINDOW(program), FILEMODEL(kit),
+		program_open_next,
+		program_saveas_error, program, NULL);
+}
+
+static void
 program_close_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
 {
@@ -563,10 +498,6 @@ program_init(Program *program)
 
 	program->kit_path = g_strdup("");
 	program->kit_search = g_strdup("");
-
-	g_autofree char *cwd = g_get_current_dir();
-	program->save_folder = g_file_new_for_path(cwd);
-	program->load_folder = g_file_new_for_path(cwd);
 
 	gtk_widget_init_template(GTK_WIDGET(program));
 

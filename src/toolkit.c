@@ -149,16 +149,22 @@ toolkit_init(Toolkit *kit)
 	kit->pseudo = FALSE;
 }
 
+void
+toolkit_set_name(Toolkit *kit, const char *name)
+{
+	iobject_set(IOBJECT(kit), name, NULL);
+	if (name[0] == '_')
+		MODEL(kit)->display = FALSE;
+	toolkitgroup_sort(kit->kitg);
+}
+
 static void
 toolkit_link(Toolkit *kit, Toolkitgroup *kitg, const char *name)
 {
-	iobject_set(IOBJECT(kit), name, NULL);
 	icontainer_child_add(ICONTAINER(kitg), ICONTAINER(kit), -1);
 	kit->kitg = kitg;
 	filemodel_register(FILEMODEL(kit));
-	if (name[0] == '_')
-		MODEL(kit)->display = FALSE;
-	toolkitgroup_sort(kitg);
+	toolkit_set_name(kit, name);
 }
 
 /* Find a kit by kit name.

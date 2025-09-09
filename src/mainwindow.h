@@ -37,10 +37,10 @@ extern gboolean mainwindow_auto_recalc;
 gboolean mainwindow_paste_filename(const char *filename, void *user_data);
 
 void mainwindow_set_action_view(View *action_view);
-void mainwindow_set_save_folder(Mainwindow *main, GFile *save_folder);
 GFile *mainwindow_get_save_folder(Mainwindow *main);
-void mainwindow_set_load_folder(Mainwindow *main, GFile *save_folder);
+void mainwindow_set_save_folder(Mainwindow *main, GFile *file);
 GFile *mainwindow_get_load_folder(Mainwindow *main);
+void mainwindow_set_load_folder(Mainwindow *main, GFile *file);
 void mainwindow_error(Mainwindow *main);
 
 GtkFileFilter *mainwindow_filter_all_new(void);

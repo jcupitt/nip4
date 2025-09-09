@@ -66,6 +66,7 @@ GType toolkit_get_type(void);
 
 Toolkit *toolkit_find(Toolkitgroup *kitg, const char *name);
 Toolkit *toolkit_by_name(Toolkitgroup *kitg, const char *name);
+void toolkit_set_name(Toolkit *kit, const char *name);
 
 Toolkit *toolkit_new(Toolkitgroup *kitg, const char *filename);
 Toolkit *toolkit_new_filename(Toolkitgroup *kitg, const char *filename);

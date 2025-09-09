@@ -769,22 +769,19 @@ workspaceview_saveas(Workspaceview *wview)
 }
 
 static void
-workspaceview_merge_sub(GObject *source_object,
-	GAsyncResult *res, gpointer user_data)
+workspaceview_merge_next(GtkWindow *win,
+	Filemodel *filemodel, void *a, void *b)
 {
-	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspaceview *wview = WORKSPACEVIEW(a);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(wview)));
-	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
 
-	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
-	if (file) {
-		mainwindow_set_save_folder(main, file);
+	symbol_recalculate_all();
 
-		g_autofree char *filename = g_file_get_path(file);
+	if (ws &&
+		COLUMN(ICONTAINER(ws)->current)) {
+		Column *col = COLUMN(ICONTAINER(ws)->current);
 
-		if (!workspace_merge_file(ws, filename))
-			workspace_show_error(ws);
+		model_scrollto(MODEL(col), MODEL_SCROLL_BOTTOM);
 	}
 }
 
@@ -795,20 +792,17 @@ workspaceview_merge(Workspaceview *wview)
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
 	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(wview)));
 
-	// we can only save the current tab
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
+	workspacegroup_set_load_type(wsg, WORKSPACEGROUP_LOAD_COLUMNS);
 
-	GtkFileDialog *dialog = gtk_file_dialog_new();
-	gtk_file_dialog_set_title(dialog, "Merge into tab");
-	gtk_file_dialog_set_accept_label(dialog, "Merge");
-	gtk_file_dialog_set_modal(dialog, TRUE);
+	/* We'll do a layout after load, so just load to a huge x and
+	 * we'll be OK.
+	 */
+	column_set_offset(2 * VIPS_RECT_RIGHT(&ws->area));
 
-	GFile *load_folder = mainwindow_get_load_folder(main);
-	if (load_folder)
-		gtk_file_dialog_set_initial_folder(dialog, load_folder);
-
-	gtk_file_dialog_open(dialog, GTK_WINDOW(main), NULL,
-		&workspaceview_merge_sub, wview);
+	filemodel_open(GTK_WINDOW(main), FILEMODEL(wsg),
+		workspaceview_merge_next,
+		workspaceview_saveas_error, wview, NULL);
 }
 
 static void

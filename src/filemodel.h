@@ -88,6 +88,12 @@ typedef struct _FilemodelClass {
 	gboolean (*top_save)(Filemodel *filemodel, const char *filename);
 	GtkFileFilter *(*filter_new)(Filemodel *filemodel);
 	const char *suffix;
+
+	/* The current save and load directories for objects of this type.
+	 */
+	GFile *save_folder;
+	GFile *load_folder;
+
 } FilemodelClass;
 
 void filemodel_register(Filemodel *filemodel);
@@ -137,7 +143,8 @@ void filemodel_saveas(GtkWindow *window, Filemodel *filemodel,
 	FilemodelSaveasResult next,
 	FilemodelSaveasResult error, void *a, void *b);
 void filemodel_save_before_close(Filemodel *filemodel,
-	FilemodelSaveasResult next, void *a, void *b);
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b);
 void filemodel_save(GtkWindow *window, Filemodel *filemodel,
 	FilemodelSaveasResult next,
 	FilemodelSaveasResult error, void *a, void *b);

@@ -820,7 +820,8 @@ mainwindow_close_request(GtkWindow *self, gpointer user_data)
 
 	if (FILEMODEL(main->wsg)->modified) {
 		filemodel_save_before_close(FILEMODEL(main->wsg),
-			mainwindow_close_request_next, main, NULL);
+			mainwindow_close_request_next,
+			mainwindow_save_error, main, NULL);
 		// block close, then retrigger after save, see
 		// mainwindow_close_request_idle()
 		return TRUE;
