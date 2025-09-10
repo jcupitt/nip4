@@ -131,9 +131,11 @@ void filemodel_save(GtkWindow *window, Filemodel *filemodel,
 	FilemodelSaveasResult error, void *a, void *b);
 
 void filemodel_open(GtkWindow *window, Filemodel *filemodel,
+	const char *verb,
 	FilemodelSaveasResult next,
 	FilemodelSaveasResult error, void *a, void *b);
 void filemodel_replace(GtkWindow *window, Filemodel *filemodel,
+	const char *verb,
 	FilemodelSaveasResult next,
 	FilemodelSaveasResult error, void *a, void *b);
 

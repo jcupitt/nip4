@@ -940,15 +940,17 @@ filemodel_open_sub(GObject *source_object,
 
 void
 filemodel_open(GtkWindow *window, Filemodel *filemodel,
+	const char *verb,
 	FilemodelSaveasResult next,
 	FilemodelSaveasResult error, void *a, void *b)
 {
 	const char *user_name = iobject_get_user_name(IOBJECT(filemodel));
-	g_autofree char *title = g_strdup_printf("Open %s", user_name);
+	g_autofree char *title = g_strdup_printf("%s %s", verb, user_name);
 
 	GtkFileDialog *dialog = gtk_file_dialog_new();
 	gtk_file_dialog_set_title(dialog, title);
 	gtk_file_dialog_set_modal(dialog, TRUE);
+	gtk_file_dialog_set_accept_label(dialog, verb);
 	gtk_file_dialog_set_initial_folder(dialog,
 		filemodel_get_load_folder(filemodel));
 
@@ -980,6 +982,7 @@ filemodel_open(GtkWindow *window, Filemodel *filemodel,
 typedef struct _Suspension {
 	GtkWindow *window;
    	Filemodel *filemodel;
+	const char *verb;
 	FilemodelSaveasResult next;
 	FilemodelSaveasResult error;
    	void *a;
@@ -992,7 +995,7 @@ filemodel_replace_next(GtkWindow *window,
 {
 	Suspension *sus = (Suspension *) a;
 
-	filemodel_open(sus->window, sus->filemodel,
+	filemodel_open(sus->window, sus->filemodel, sus->verb,
 		sus->next, sus->error, sus->a, sus->b);
 	g_free(sus);
 }
@@ -1010,12 +1013,14 @@ filemodel_replace_error(GtkWindow *window,
 
 void
 filemodel_replace(GtkWindow *window, Filemodel *filemodel,
+	const char *verb,
 	FilemodelSaveasResult next,
 	FilemodelSaveasResult error, void *a, void *b)
 {
 	Suspension *sus = g_new(Suspension, 1);
 	sus->window = window;
 	sus->filemodel = filemodel;
+	sus->verb = verb;
 	sus->next = next;
 	sus->error = error;
 	sus->a = a;

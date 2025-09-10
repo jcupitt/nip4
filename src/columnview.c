@@ -157,7 +157,7 @@ columnview_merge(Columnview *cview)
 	workspace_column_select(ws, col);
 	workspacegroup_set_load_type(wsg, WORKSPACEGROUP_LOAD_ROWS);
 
-	filemodel_open(GTK_WINDOW(main), FILEMODEL(wsg),
+	filemodel_open(GTK_WINDOW(main), FILEMODEL(wsg), _("Merge"),
 		columnview_merge_next,
 		columnview_saveas_error, cview, NULL);
 }

@@ -800,7 +800,7 @@ workspaceview_merge(Workspaceview *wview)
 	 */
 	column_set_offset(2 * VIPS_RECT_RIGHT(&ws->area));
 
-	filemodel_open(GTK_WINDOW(main), FILEMODEL(wsg),
+	filemodel_open(GTK_WINDOW(main), FILEMODEL(wsg), _("Merge"),
 		workspaceview_merge_next,
 		workspaceview_saveas_error, wview, NULL);
 }

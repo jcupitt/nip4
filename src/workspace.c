@@ -1059,7 +1059,7 @@ workspace_class_init(WorkspaceClass *class)
 	gobject_class->finalize = workspace_finalize;
 
 	iobject_class->changed = workspace_changed;
-	iobject_class->user_name = _("Tab");
+	iobject_class->user_name = _("tab");
 
 	icontainer_class->child_add = workspace_child_add;
 	icontainer_class->child_remove = workspace_child_remove;

@@ -398,7 +398,7 @@ mainwindow_merge_action(GSimpleAction *action,
 
 	if (main->wsg) {
 		workspacegroup_set_load_type(main->wsg, WORKSPACEGROUP_LOAD_NEW);
-		filemodel_open(GTK_WINDOW(main), FILEMODEL(main->wsg),
+		filemodel_open(GTK_WINDOW(main), FILEMODEL(main->wsg), _("Merge"),
 			mainwindow_merge_next,
 			mainwindow_save_error, main, NULL);
 	}
@@ -570,6 +570,22 @@ mainwindow_keyboard_group_selected_action(GSimpleAction *action,
 }
 
 static void
+mainwindow_local_saveas_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Mainwindow *main = MAINWINDOW(user_data);
+
+	if (main->wsg) {
+		Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
+
+		if (ws->local_kit)
+			filemodel_saveas(GTK_WINDOW(main), FILEMODEL(ws->local_kit),
+				NULL,
+				mainwindow_save_error, main, NULL);
+	}
+}
+
+static void
 mainwindow_local_replace_sub(GObject *source_object,
 	GAsyncResult *res, gpointer user_data)
 {
@@ -626,22 +642,6 @@ mainwindow_local_replace_action(GSimpleAction *action,
 	Mainwindow *main = MAINWINDOW(user_data);
 
 	mainwindow_local_replace(main);
-}
-
-static void
-mainwindow_local_saveas_action(GSimpleAction *action,
-	GVariant *parameter, gpointer user_data)
-{
-	Mainwindow *main = MAINWINDOW(user_data);
-
-	if (main->wsg) {
-		Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
-
-		if (ws->local_kit)
-			filemodel_saveas(GTK_WINDOW(main), FILEMODEL(ws->local_kit),
-				NULL,
-				mainwindow_save_error, main, NULL);
-	}
 }
 
 static GActionEntry mainwindow_entries[] = {

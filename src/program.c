@@ -460,7 +460,7 @@ program_open_action(GSimpleAction *action,
 	Program *program = PROGRAM(user_data);
 
 	Toolkit *kit = toolkit_new_filename(program->kitg, "untitled");
-	filemodel_open(GTK_WINDOW(program), FILEMODEL(kit),
+	filemodel_open(GTK_WINDOW(program), FILEMODEL(kit), _("Open"),
 		program_open_next,
 		program_saveas_error, program, NULL);
 }

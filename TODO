@@ -2,7 +2,54 @@
 
 	done, use in mainwindow_local_replace()
 
-- add GtkWindow as first param of filemodel_save_before_close()? see _replace
+	local_kit is null .. we need to make an empty kit and replace that
+
+	will this work? workspace_local_set() does
+
+    ws->local_kit = toolkit_new(ws->local_kitg, "Workspace Locals");
+    filemodel_unregister(FILEMODEL(ws->local_kit));
+    VIPS_SETSTR(ws->local_defs, txt);
+    iobject_changed(IOBJECT(ws));
+
+    attach_input_string(txt);
+    if (!parse_toplevel(ws->local_kit, 0))
+        return FALSE;
+
+	and doesn't use the toolkit load mechanism ... is this to stop things
+	ending up in the menus?
+
+static void
+mainwindow_local_replace_next(GtkWindow *win, Filemodel *filemodel,
+    void *a, void *b)
+{
+    iobject_changed(IOBJECT(ws));
+    symbol_recalculate_all();
+}
+
+static void
+mainwindow_local_replace_action(GSimpleAction *action,
+    GVariant *parameter, gpointer user_data)
+{
+    Mainwindow *main = MAINWINDOW(user_data);
+
+    if (main->wsg) {
+        Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
+
+        if (!ws->local_kit)
+            ws->local_kit = toolkit_new(ws->local_kitg, "Workspace Locals");
+
+        filemodel_replace(GTK_WINDOW(main), FILEMODEL(ws->local_kit),
+            "Replace",
+            mainwindow_local_replace_next,
+            mainwindow_save_error, main, NULL);
+    }
+}
+
+
+- what about classmodel graphgic save? can we use it there?
+
+	no, that calls classmodel->graphic_replace() etc., not
+	filemodel_top_load()
 
 - mainwindow still has file dialog code for open (since it can open many file
   types)
@@ -11,9 +58,7 @@
 
 - mainwindow still has load_folder / save_folder
 
-	could use filemodel class menbers instead?
-
-
+	could use filemodel class members instead?
 
 
 - pin widget in program toolkitgroupview doesn't seem to work

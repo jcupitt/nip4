@@ -384,7 +384,7 @@ iregion_class_init(iRegionClass *class)
 	 */
 	gobject_class->finalize = iregion_finalize;
 
-	iobject_class->user_name = _("Region");
+	iobject_class->user_name = _("region");
 	iobject_class->generate_caption = iregion_generate_caption;
 
 	icontainer_class->parent_add = iregion_parent_add;

@@ -132,7 +132,7 @@ toolkit_class_init(ToolkitClass *class)
 	 */
 	iobject_class->info = toolkit_info;
 	iobject_class->changed = toolkit_changed;
-	iobject_class->user_name = "definitions";
+	iobject_class->user_name = _("toolkit");
 
 	model_class->view_new = toolkit_view_new;
 	model_class->save_text = toolkit_save_text;

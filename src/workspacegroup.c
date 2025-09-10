@@ -694,7 +694,7 @@ workspacegroup_class_init(WorkspacegroupClass *class)
 	 */
 	gobject_class->dispose = workspacegroup_dispose;
 
-	iobject_class->user_name = _("Workspace");
+	iobject_class->user_name = _("workspace");
 
 	icontainer_class->child_remove = workspacegroup_child_remove;
 
