@@ -1,40 +1,9 @@
-- what about classmodel graphic save? can we use it there?
 
-	no, that calls classmodel->graphic_replace() etc., not
-	filemodel_top_load()
+- program: ^W should parse the text and block on error
 
-- mainwindow still has file dialog code for open (since it can open many file
-  types)
+- program: don't get save-before-close box for modified toolkits?
 
-	can we fix this?
-
-- mainwindow still has load_folder / save_folder
-
-	could use filemodel class members instead?
-
-
-- pin widget in program toolkitgroupview doesn't seem to work
-
-	click on a kit, click on a tool, always bounces back to start
-
-	done by refresh?
-
-- try
-
-	make a unnamed toolkit
-	add a tool "fred = 12"
-	load x.def, contains text "fred = 99"
-	segv
-
-- open does not jump the tk menu to the right place
-
-	see program_kitgview_activate()
-
-	should this be in _refresh()?
-
-	maybe select the first tool in the kit?
-
-		program_set_tool()
+- program window needs delete tool / toolkit?
 
 - add magick7 support to _magick.def
 

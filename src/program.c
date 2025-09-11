@@ -218,7 +218,7 @@ program_set_kit(Program *program, Toolkit *kit)
 }
 
 static void
-program_set_text(Program *program, const char *text)
+program_set_text(Program *program, const char *text, gboolean editable)
 {
 	GtkTextBuffer *buffer =
 		gtk_text_view_get_buffer(GTK_TEXT_VIEW(program->text_view));
@@ -235,6 +235,8 @@ program_set_text(Program *program, const char *text)
 			program_text_changed, program);
 	}
 
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(program->text_view), editable);
+
 	program->changed = FALSE;
 }
 
@@ -244,11 +246,21 @@ program_set_tool(Program *program, Tool *tool)
 	if (program->tool != tool) {
 		WEAKREF_SET(program->tool, tool);
 
-		if (tool &&
-			program->tool->sym->expr)
-			program_set_text(program, program->tool->sym->expr->compile->text);
+		if (tool) {
+			if (tool->sym->expr)
+				program_set_text(program, tool->sym->expr->compile->text, TRUE);
+			else if (tool->sym->type == SYM_BUILTIN) {
+				char txt[MAX_STRSIZE];
+				VipsBuf buf = VIPS_BUF_STATIC(txt);
 
-		iobject_changed(IOBJECT(program->kitg));
+				vips_buf_appendf(&buf, "%s: %s\n\n",
+						IOBJECT(tool->sym)->name, tool->help);
+				builtin_usage(&buf, tool->sym->builtin);
+				program_set_text(program, vips_buf_all(&buf), FALSE);
+			}
+		}
+
+		program_refresh(program);
 	}
 }
 
@@ -396,7 +408,7 @@ program_new_toolkit_action(GSimpleAction *action,
 
 	Toolkit *kit = toolkit_by_name(program->kitg, "untitled");
 	if (program_select_tool(program, kit, NULL))
-		program_set_text(program, "// empty toolkit!");
+		program_set_text(program, "// empty toolkit!", TRUE);
 }
 
 static void
@@ -406,7 +418,7 @@ program_new_tool_action(GSimpleAction *action,
 	Program *program = PROGRAM(user_data);
 
 	if (program_select_tool(program, program->kit, NULL))
-		program_set_text(program, "// type your new definition here!");
+		program_set_text(program, "// type your new definition here!", TRUE);
 }
 
 static void

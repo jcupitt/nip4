@@ -302,7 +302,6 @@ mainwindow_open_action(GSimpleAction *action,
 	if (load_folder)
 		gtk_file_dialog_set_initial_folder(dialog, load_folder);
 
-	/*
 	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
 	GtkFileFilter *filter;
 
@@ -310,7 +309,7 @@ mainwindow_open_action(GSimpleAction *action,
 	g_list_store_append(filters, G_OBJECT(filter));
 	g_object_unref(filter);
 
-	filter = workspacegroup_filter_new();
+	filter = workspacegroup_filter_new(NULL);
 	g_list_store_append(filters, G_OBJECT(filter));
 	g_object_unref(filter);
 
@@ -320,7 +319,6 @@ mainwindow_open_action(GSimpleAction *action,
 
 	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
 	g_object_unref(filters);
-	 */
 
 	gtk_file_dialog_open(dialog, GTK_WINDOW(main), NULL,
 		mainwindow_open_result, main);

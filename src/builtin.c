@@ -1503,8 +1503,8 @@ builtin_usage(VipsBuf *buf, BuiltinInfo *builtin)
 	int i;
 
 	vips_buf_appendf(buf,
-		ngettext("Builtin \"%s\" takes %d argument.",
-			"Builtin \"%s\" takes %d arguments.",
+		ngettext("builtin \"%s\" takes %d argument:",
+			"Builtin \"%s\" takes %d arguments:",
 			builtin->nargs),
 		builtin->name, builtin->nargs);
 	vips_buf_appends(buf, "\n");

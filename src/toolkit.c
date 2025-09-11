@@ -97,8 +97,7 @@ toolkit_load_text(Model *model, Model *parent, iOpenFile *of)
 		/* The sub won't have filename or line number: zap them in.
 		 */
 		error_sub("%s:%d\n%s\n",
-			FILEMODEL(kit)->filename, input_state.lineno,
-			error_get_sub());
+			FILEMODEL(kit)->filename, input_state.lineno, error_get_sub());
 
 #ifdef DEBUG
 	(void) dump_kit(kit);
