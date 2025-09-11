@@ -11,7 +11,7 @@
     <section>
       <item>
         <attribute name='label' translatable='yes'>New toolkit ...</attribute>
-        <attribute name='action'>app.new-toolkit</attribute>
+        <attribute name='action'>win.new-toolkit</attribute>
       </item>
       <item>
         <attribute name='label' translatable='yes'>New tool ...</attribute>
@@ -91,11 +91,13 @@
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
-        <property name="margin-top">8px</property>
 
 	<child>
           <object class="GtkActionBar" id="error_bar">
             <property name="revealed">false</property>
+	    <style>
+	      <class name="error_widget"/>
+	    </style>
 
 	    <child type="center">
               <object class="GtkBox">
@@ -142,7 +144,6 @@
         <child>
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
-            <property name="spacing">8px</property>
 
             <child> <!-- left-hand pane -->
               <object class="GtkRevealer" id="left">
@@ -151,7 +152,6 @@
 
                 <child>
                   <object class="Toolkitgroupview" id="kitgview">
-                    <property name="margin-start">4px</property>
                     <property name="hexpand">false</property>
                     <property name="vexpand">true</property>
                     <property name="show-all">true</property>
@@ -169,6 +169,9 @@
 
                 <child>
                   <object class="GtkTextView" id="text_view">
+                    <property name="left-margin">5px</property>
+                    <property name="top-margin">5px</property>
+                    <property name="monospace">true</property>
                     <property name="monospace">true</property>
                     <property name="hexpand">true</property>
                     <property name="vexpand">true</property>

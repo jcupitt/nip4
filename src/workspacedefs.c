@@ -104,6 +104,8 @@ workspacedefs_refresh(vObject *vobject)
 		vips_buf_appendf(&buf,
 			ngettext("%d definition", "%d definitions", n), n);
 	}
+	else
+		vips_buf_appendf(&buf, _("no definitions"));
 	if (workspacedefs->errors) {
 		if (!vips_buf_is_empty(&buf))
 			vips_buf_appendf(&buf, ", ");
@@ -193,83 +195,6 @@ workspacedefs_class_init(WorkspacedefsClass *class)
 	BIND_CALLBACK(workspacedefs_text_changed);
 
 }
-
-/*
-static gboolean
-workspacedefs_set_text_from_file(Workspacedefs *workspacedefs,
-	const char *fname)
-{
-	Workspace *ws = workspacedefs->ws;
-
-	workspacedefs->changed = FALSE;
-	workspacedefs->errors = FALSE;
-	if (!workspace_local_set_from_file(ws, fname)) {
-		text_view_select_text(GTK_TEXT_VIEW(workspacedefs->text),
-			input_state.charpos - yyleng, input_state.charpos);
-		workspacedefs->errors = TRUE;
-
-		return FALSE;
-	}
-
-	symbol_recalculate_all();
-
-	return TRUE;
-}
- */
-
-/* Callback from load browser.
-static void
-workspacedefs_load_file_cb(iWindow *iwnd,
-	void *client, iWindowNotifyFn nfn, void *sys)
-{
-	Filesel *filesel = FILESEL(iwnd);
-	Workspacedefs *workspacedefs = WORKSPACEDEFS(client);
-	char *fname;
-
-	if (!(fname = filesel_get_filename(filesel))) {
-		nfn(sys, IWINDOW_ERROR);
-		return;
-	}
-
-	if (!workspacedefs_set_text_from_file(workspacedefs, fname)) {
-		g_free(fname);
-		nfn(sys, IWINDOW_ERROR);
-		return;
-	}
-
-	g_free(fname);
-
-	nfn(sys, IWINDOW_YES);
-}
-
-static void
-workspacedefs_replace_cb(GtkWidget *wid, Workspacedefs *workspacedefs)
-{
-	GtkWidget *filesel;
-
-	filesel = filesel_new();
-	iwindow_set_title(IWINDOW(filesel),
-		_("Replace Definition From File"));
-	filesel_set_flags(FILESEL(filesel), FALSE, FALSE);
-	filesel_set_filetype(FILESEL(filesel), filesel_type_definition, 0);
-	iwindow_set_parent(IWINDOW(filesel), GTK_WIDGET(wid));
-	filesel_set_done(FILESEL(filesel),
-		workspacedefs_load_file_cb, workspacedefs);
-	iwindow_build(IWINDOW(filesel));
-
-	gtk_widget_show(GTK_WIDGET(filesel));
-}
-
-static void
-workspacedefs_save_as_cb(GtkWidget *wid, Workspacedefs *workspacedefs)
-{
-	Workspace *ws = workspacedefs->ws;
-
-	if (ws->local_kit)
-		filemodel_inter_saveas(IWINDOW(wid),
-			FILEMODEL(ws->local_kit));
-}
- */
 
 static void
 workspacedefs_init(Workspacedefs *workspacedefs)

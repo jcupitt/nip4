@@ -689,7 +689,7 @@ symbol_rename(Symbol *sym, const char *new_name)
 		return TRUE;
 
 	if ((old_sym = compile_lookup(compile, new_name))) {
-		error_top("%s", _("Name in use"));
+		error_top(_("Name clash"));
 		error_sub(_("can't rename %s \"%s\" as \"%s\", "
 					"the name is already in use"),
 			decode_SymbolType_user(sym->type),
@@ -970,6 +970,8 @@ symbol_recalculate_sub(Symbol *sym)
 		if (!reduce_regenerate(sym->expr, &sym->expr->root))
 			result = FALSE;
 	}
+	else
+		heap_noval_new(NULL, &sym->expr->root);
 
 #ifdef DEBUG_TIME
     printf("symbol_recalculate_sub: ");

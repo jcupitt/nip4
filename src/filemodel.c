@@ -24,6 +24,7 @@
  */
 
 /*
+#define DEBUG_VERBOSE
 #define DEBUG
  */
 
@@ -40,6 +41,48 @@
 G_DEFINE_TYPE(Filemodel, filemodel, MODEL_TYPE)
 
 static GSList *filemodel_registered = NULL;
+
+GFile *
+filemodel_get_save_folder(Filemodel *filemodel)
+{
+	FilemodelClass *class = FILEMODEL_GET_CLASS(filemodel);
+
+	return class->save_folder;
+}
+
+static GFile *
+get_parent(GFile *file)
+{
+	GFile *parent = g_file_get_parent(file);
+
+	return parent ? parent : g_file_new_for_path("/");
+}
+
+void
+filemodel_set_save_folder(Filemodel *filemodel, GFile *file)
+{
+	FilemodelClass *class = FILEMODEL_GET_CLASS(filemodel);
+
+	VIPS_UNREF(class->save_folder);
+	class->save_folder = get_parent(file);
+}
+
+GFile *
+filemodel_get_load_folder(Filemodel *filemodel)
+{
+	FilemodelClass *class = FILEMODEL_GET_CLASS(filemodel);
+
+	return class->load_folder;
+}
+
+void
+filemodel_set_load_folder(Filemodel *filemodel, GFile *file)
+{
+	FilemodelClass *class = FILEMODEL_GET_CLASS(filemodel);
+
+	VIPS_UNREF(class->load_folder);
+	class->load_folder = get_parent(file);
+}
 
 /* Register a file model. Registered models are part of the "xxx has been
  * modified, save before quit?" check.
@@ -205,12 +248,12 @@ filemodel_finalize(GObject *gobject)
 
 	filemodel = FILEMODEL(gobject);
 
-#ifdef DEBUG
+#ifdef DEBUG_VERBOSE
 	printf("filemodel_finalize: %s \"%s\" (%s)\n",
 		G_OBJECT_TYPE_NAME(filemodel),
 		IOBJECT(filemodel)->name,
 		filemodel->filename);
-#endif /*DEBUG*/
+#endif /*DEBUG_VERBOSE*/
 
 	VIPS_FREE(filemodel->filename);
 
@@ -227,20 +270,31 @@ filemodel_dispose(GObject *gobject)
 
 	filemodel = FILEMODEL(gobject);
 
-#ifdef DEBUG
+#ifdef DEBUG_VERBOSE
 	printf("filemodel_dispose: %s \"%s\" (%s)\n",
 		G_OBJECT_TYPE_NAME(filemodel),
 		IOBJECT(filemodel)->name,
 		filemodel->filename);
-#endif /*DEBUG*/
+#endif /*DEBUG_VERBOSE*/
 
 	filemodel_unregister(filemodel);
 
 	G_OBJECT_CLASS(filemodel_parent_class)->dispose(gobject);
 }
 
+static GtkFileFilter *
+filemodel_filter_new(Filemodel *filemodel)
+{
+	FilemodelClass *class = FILEMODEL_GET_CLASS(filemodel);
+
+	if (class->filter_new)
+		return class->filter_new(filemodel);
+
+	return NULL;
+}
+
 static xmlNode *
-filemodel_save(Model *model, xmlNode *xnode)
+filemodel_real_save(Model *model, xmlNode *xnode)
 {
 	Filemodel *filemodel = FILEMODEL(model);
 	xmlNode *xthis;
@@ -255,7 +309,7 @@ filemodel_save(Model *model, xmlNode *xnode)
 }
 
 static gboolean
-filemodel_load(Model *model,
+filemodel_real_load(Model *model,
 	ModelLoadState *state, Model *parent, xmlNode *xnode)
 {
 	Filemodel *filemodel = FILEMODEL(model);
@@ -414,12 +468,16 @@ filemodel_class_init(FilemodelClass *class)
 
 	iobject_class->info = filemodel_info;
 
-	model_class->save = filemodel_save;
-	model_class->load = filemodel_load;
+	model_class->save = filemodel_real_save;
+	model_class->load = filemodel_real_load;
 
 	class->top_load = filemodel_real_top_load;
 	class->set_modified = filemodel_real_set_modified;
 	class->top_save = filemodel_real_top_save;
+
+	g_autofree char *cwd = g_get_current_dir();
+	class->save_folder = g_file_new_for_path(cwd);
+	class->load_folder = g_file_new_for_path(cwd);
 }
 
 static void
@@ -538,7 +596,7 @@ filemodel_load_all(Filemodel *filemodel, Model *parent,
 	const char *filename, const char *filename_user)
 {
 	ModelClass *model_class = MODEL_GET_CLASS(filemodel);
-	const char *tname = G_OBJECT_CLASS_NAME(model_class);
+	const char *user_name = iobject_get_user_name(IOBJECT(filemodel));
 
 #ifdef DEBUG
 	printf("filemodel_load_all: load file \"%s\" into parent %s \"%s\"\n",
@@ -559,7 +617,8 @@ filemodel_load_all(Filemodel *filemodel, Model *parent,
 	}
 	else {
 		error_top(_("Not implemented"));
-		error_sub(_("_%s() not implemented for class \"%s\""), "load", tname);
+		error_sub(_("_%s() not implemented for class \"%s\""), "load",
+			user_name);
 		return FALSE;
 	}
 
@@ -576,7 +635,7 @@ gboolean
 filemodel_load_all_openfile(Filemodel *filemodel, Model *parent, iOpenFile *of)
 {
 	ModelClass *model_class = MODEL_GET_CLASS(filemodel);
-	const char *tname = G_OBJECT_CLASS_NAME(model_class);
+	const char *user_name = iobject_get_user_name(IOBJECT(filemodel));
 
 #ifdef DEBUG
 	printf("filemodel_load_all_openfile: load \"%s\" "
@@ -596,7 +655,8 @@ filemodel_load_all_openfile(Filemodel *filemodel, Model *parent, iOpenFile *of)
 	}
 	else {
 		error_top(_("Not implemented"));
-		error_sub(_("_%s() not implemented for class \"%s\""), "load", tname);
+		error_sub(_("_%s() not implemented for class \"%s\""), "load",
+			user_name);
 		return FALSE;
 	}
 
@@ -667,25 +727,44 @@ filemodel_saveas_sub(GObject *source_object,
 
 	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
 	if (file) {
-		g_autofree char *filename = g_file_get_path(file);
+		FilemodelClass *filemodel_class = FILEMODEL_GET_CLASS(filemodel);
+		g_autofree char *path = g_file_get_path(file);
 
-		if (!filemodel_top_save(filemodel, filename))
-			error(window, filemodel, a, b);
+		char buf[VIPS_PATH_MAX];
+		char *filename;
+
+		/* Set the correct suffix, if necessary.
+		 */
+		filename = path;
+		if (filemodel_class->suffix) {
+			change_suffix(path, buf,
+					filemodel_class->suffix,
+					(const char*[]){ filemodel_class->suffix }, 1);
+			filename = buf;
+		}
+
+		if (!filemodel_top_save(filemodel, filename)) {
+			if (error)
+				error(window, filemodel, a, b);
+		}
 		else {
 			filemodel_set_filename(filemodel, filename);
 			filemodel_set_modified(filemodel, FALSE);
-			next(window, filemodel, a, b);
+			filemodel_set_save_folder(filemodel, file);
+
+			if (next)
+				next(window, filemodel, a, b);
 		}
 	}
 }
 
-static void
+void
 filemodel_saveas(GtkWindow *window, Filemodel *filemodel,
 	FilemodelSaveasResult next,
 	FilemodelSaveasResult error, void *a, void *b)
 {
-	const char *tname = IOBJECT_GET_CLASS_NAME(filemodel);
-	g_autofree char *title = g_strdup_printf("Save %s as", tname);
+	const char *user_name = iobject_get_user_name(IOBJECT(filemodel));
+	g_autofree char *title = g_strdup_printf("Save %s", user_name);
 
 	GtkFileDialog *dialog = gtk_file_dialog_new();
 	gtk_file_dialog_set_title(dialog, title);
@@ -706,12 +785,26 @@ filemodel_saveas(GtkWindow *window, Filemodel *filemodel,
 			gtk_file_dialog_set_initial_file(dialog, file);
 	}
 
-	gtk_file_dialog_save(dialog, window, NULL,
-		filemodel_saveas_sub, NULL);
+	GtkFileFilter *filter;
+	if ((filter = filemodel_filter_new(filemodel))) {
+		GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+
+		g_list_store_append(filters, G_OBJECT(filter));
+		g_object_unref(filter);
+
+		filter = mainwindow_filter_all_new();
+		g_list_store_append(filters, G_OBJECT(filter));
+		g_object_unref(filter);
+
+		gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
+		g_object_unref(filters);
+	}
+
+	gtk_file_dialog_save(dialog, window, NULL, filemodel_saveas_sub, NULL);
 }
 
 static void
-filemodel_save_before_close_cb(GObject *source_object,
+filemodel_save_before_close_sub(GObject *source_object,
 	GAsyncResult *result, void *data)
 {
 	GtkAlertDialog *alert = GTK_ALERT_DIALOG(source_object);
@@ -728,7 +821,8 @@ filemodel_save_before_close_cb(GObject *source_object,
 	switch (choice) {
 	case 0:
 		// close without saving ... tag as unmodified, and move on
-		// "next" is responsible for doing the gtk_window_close()
+		// "next" is responsible for doing the gtk_window_close() or whatever
+		// and emptying the model
 		filemodel_set_modified(filemodel, FALSE);
 		next(window, filemodel, a, b);
 		break;
@@ -744,33 +838,34 @@ filemodel_save_before_close_cb(GObject *source_object,
 	}
 }
 
-static void
-filemodel_save_before_close_error(GtkWindow *window,
-	Filemodel *filemodel, void *a, void *b)
-{
-	Mainwindow *main = MAINWINDOW(window);
-
-	mainwindow_error(main);
-}
-
 void
 filemodel_save_before_close(Filemodel *filemodel,
-	FilemodelSaveasResult next, void *a, void *b)
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b)
 {
 	GtkWindow *window = filemodel_get_window_hint(filemodel);
-	const char *tname = IOBJECT_GET_CLASS_NAME(filemodel);
 
-	g_autofree char *message = g_strdup_printf("%s has been modified", tname);
+	// not modified? no need to save, we can just move on
+	if (!filemodel->modified) {
+		if (next)
+			next(window, filemodel, a, b);
+		return;
+	}
+
+	const char *user_name = iobject_get_user_name(IOBJECT(filemodel));
+
+	g_autofree char *message = g_strdup_printf("%s has been modified",
+		user_name);
 	g_autofree char *detail = NULL;
 	if (filemodel->filename)
 		detail = g_strdup_printf("%s has been modified "
 								 "since it was loaded from \"%s\".\n\n"
 								 "Do you want to save your changes?",
-			tname, filemodel->filename);
+			user_name, filemodel->filename);
 	else
 		detail = g_strdup_printf("%s has been modified. "
 								 "Do you want to save your changes?",
-			tname);
+			user_name);
 
 	const char *labels[] = { "Close without saving", "Cancel", "Save", NULL };
 
@@ -781,13 +876,171 @@ filemodel_save_before_close(Filemodel *filemodel,
 	g_object_set_data(G_OBJECT(alert), "nip4-window", window);
 	g_object_set_data(G_OBJECT(alert), "nip4-filemodel", filemodel);
 	g_object_set_data(G_OBJECT(alert), "nip4-next", next);
-	g_object_set_data(G_OBJECT(alert), "nip4-error",
-		filemodel_save_before_close_error);
+	g_object_set_data(G_OBJECT(alert), "nip4-error", error);
 	g_object_set_data(G_OBJECT(alert), "nip4-a", a);
 	g_object_set_data(G_OBJECT(alert), "nip4-b", b);
 
 	gtk_alert_dialog_choose(alert, window, NULL,
-		filemodel_save_before_close_cb, NULL);
+		filemodel_save_before_close_sub, NULL);
+}
+
+void
+filemodel_save(GtkWindow *window, Filemodel *filemodel,
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b)
+{
+	// unmodified? no save to do
+	if (!filemodel ||
+		!filemodel->modified) {
+		if (next)
+			next(window, filemodel, a, b);
+		return;
+	}
+
+	const char *filename;
+	if (!(filename = filemodel->filename))
+		// no filename, we need to go via save-as
+		filemodel_saveas(window, filemodel, next, error, a, b);
+	else {
+		// we have a filename associated with this model ... we can
+		// just save directly
+		if (filemodel_top_save(filemodel, filename)) {
+			filemodel_set_modified(filemodel, FALSE);
+			if (next)
+				next(window, filemodel, a, b);
+		}
+		else if (error)
+			error(window, filemodel, a, b);
+	}
+}
+
+static void
+filemodel_open_sub(GObject *source_object,
+	GAsyncResult *res, gpointer user_data)
+{
+	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
+
+	GtkWindow *window = g_object_get_data(G_OBJECT(dialog), "nip4-window");
+	Filemodel *filemodel =
+		g_object_get_data(G_OBJECT(dialog), "nip4-filemodel");
+	FilemodelSaveasResult next =
+		g_object_get_data(G_OBJECT(dialog), "nip4-next");
+	FilemodelSaveasResult error =
+		g_object_get_data(G_OBJECT(dialog), "nip4-error");
+	void *a = g_object_get_data(G_OBJECT(dialog), "nip4-a");
+	void *b = g_object_get_data(G_OBJECT(dialog), "nip4-b");
+
+	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
+	if (file) {
+		g_autofree char *filename = g_file_get_path(file);
+	    Model *parent = MODEL(ICONTAINER(filemodel)->parent);
+
+		if (filemodel_load_all(filemodel, parent, filename, NULL)) {
+			filemodel_set_load_folder(filemodel, file);
+			if (next)
+				next(window, filemodel, a, b);
+		}
+		else {
+			if (error)
+				error(window, filemodel, a, b);
+		}
+	}
+}
+
+void
+filemodel_open(GtkWindow *window, Filemodel *filemodel,
+	const char *verb,
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b)
+{
+	const char *user_name = iobject_get_user_name(IOBJECT(filemodel));
+	g_autofree char *title = g_strdup_printf("%s %s", verb, user_name);
+
+	GtkFileDialog *dialog = gtk_file_dialog_new();
+	gtk_file_dialog_set_title(dialog, title);
+	gtk_file_dialog_set_modal(dialog, TRUE);
+	gtk_file_dialog_set_accept_label(dialog, verb);
+	gtk_file_dialog_set_initial_folder(dialog,
+		filemodel_get_load_folder(filemodel));
+
+	g_object_set_data(G_OBJECT(dialog), "nip4-window", window);
+	g_object_set_data(G_OBJECT(dialog), "nip4-filemodel", filemodel);
+	g_object_set_data(G_OBJECT(dialog), "nip4-next", next);
+	g_object_set_data(G_OBJECT(dialog), "nip4-error", error);
+	g_object_set_data(G_OBJECT(dialog), "nip4-a", a);
+	g_object_set_data(G_OBJECT(dialog), "nip4-b", b);
+
+	GtkFileFilter *filter;
+	if ((filter = filemodel_filter_new(filemodel))) {
+		GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
+
+		g_list_store_append(filters, G_OBJECT(filter));
+		g_object_unref(filter);
+
+		filter = mainwindow_filter_all_new();
+		g_list_store_append(filters, G_OBJECT(filter));
+		g_object_unref(filter);
+
+		gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
+		g_object_unref(filters);
+	}
+
+	gtk_file_dialog_open(dialog, window, NULL, &filemodel_open_sub, NULL);
+}
+
+typedef struct _Suspension {
+	GtkWindow *window;
+   	Filemodel *filemodel;
+	const char *verb;
+	FilemodelSaveasResult next;
+	FilemodelSaveasResult error;
+   	void *a;
+   	void *b;
+} Suspension;
+
+static void
+filemodel_replace_next(GtkWindow *window,
+	Filemodel *filemodel, void *a, void *b)
+{
+	Suspension *sus = (Suspension *) a;
+
+	model_empty(MODEL(filemodel));
+
+	filemodel_open(sus->window, sus->filemodel, sus->verb,
+		sus->next, sus->error, sus->a, sus->b);
+
+	g_free(sus);
+}
+
+static void
+filemodel_replace_error(GtkWindow *window,
+	Filemodel *filemodel, void *a, void *b)
+{
+	Suspension *sus = (Suspension *) a;
+
+	if (sus->error)
+		sus->error(sus->window, sus->filemodel, sus->a, sus->b);
+	g_free(sus);
+}
+
+void
+filemodel_replace(GtkWindow *window, Filemodel *filemodel,
+	const char *verb,
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b)
+{
+	Suspension *sus = g_new(Suspension, 1);
+	sus->window = window;
+	sus->filemodel = filemodel;
+	sus->verb = verb;
+	sus->next = next;
+	sus->error = error;
+	sus->a = a;
+	sus->b = b;
+
+	filemodel_save_before_close(filemodel,
+		filemodel_replace_next,
+		filemodel_replace_error, sus, NULL);
 }
 
 static Filemodel *
@@ -831,17 +1084,18 @@ static void
 filemodel_close_registered_next(GtkWindow *window,
 	Filemodel *filemodel, void *a, void *b)
 {
-	SListMapFn callback = (SListMapFn) a;
+	SListMapFn next = (SListMapFn) a;
 
 	if ((filemodel = filemodel_get_registered()))
 		filemodel_save_before_close(filemodel,
-			filemodel_close_registered_next_reply, callback, b);
-	else
-		callback(b, NULL);
+			filemodel_close_registered_next_reply,
+			NULL, next, b);
+	else if (next)
+		next(b, NULL);
 }
 
 void
-filemodel_close_registered(SListMapFn callback, void *user_data)
+filemodel_close_registered(SListMapFn next, void *user_data)
 {
-	filemodel_close_registered_next(NULL, NULL, callback, user_data);
+	filemodel_close_registered_next(NULL, NULL, next, user_data);
 }

@@ -157,7 +157,7 @@ iobject_class_init(iObjectClass *class)
 	class->info = iobject_real_info;
 	class->generate_caption = NULL;
 
-	class->user_name = _("Object");
+	class->user_name = _("object");
 
 	/* Create signals.
 	 */
@@ -270,4 +270,13 @@ iobject_dump(iObject *iobject)
 
 	iobject_info(iobject, &buf);
 	printf("%s", vips_buf_all(&buf));
+}
+
+const char *
+iobject_get_user_name(iObject *object)
+{
+	const char *user_name = IOBJECT_GET_CLASS(object)->user_name;
+	const char *class_name = IOBJECT_GET_CLASS_NAME(object);
+
+	return user_name ? user_name : class_name;
 }

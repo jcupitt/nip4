@@ -266,6 +266,7 @@ column_class_init(ColumnClass *class)
 	iObjectClass *iobject_class = (iObjectClass *) class;
 	iContainerClass *icontainer_class = (iContainerClass *) class;
 	ModelClass *model_class = (ModelClass *) class;
+	FilemodelClass *filemodel_class = (FilemodelClass *) class;
 
 	gobject_class->finalize = column_finalize;
 
@@ -276,7 +277,7 @@ column_class_init(ColumnClass *class)
 	 */
 	gobject_class->dispose = column_dispose;
 
-	iobject_class->user_name = _("Column");
+	iobject_class->user_name = _("column");
 
 	icontainer_class->child_add = column_child_add;
 	icontainer_class->child_remove = column_child_remove;
@@ -286,6 +287,9 @@ column_class_init(ColumnClass *class)
 	model_class->save = column_save;
 	model_class->save_test = column_save_test;
 	model_class->load = column_load;
+
+	filemodel_class->filter_new = workspacegroup_filter_new;
+	filemodel_class->suffix = ".ws";
 
 	/* Static init.
 	 */

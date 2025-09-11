@@ -437,6 +437,7 @@ void heap_set(Heap *heap, NodeFlags setmask);
 void heap_clear(Heap *heap, NodeFlags clearmask);
 int heap_serial_new(Heap *heap);
 
+gboolean heap_noval_new(Heap *heap, PElement *out);
 gboolean heap_bool_new(Heap *heap, gboolean val, PElement *out);
 gboolean heap_real_new(Heap *heap, double in, PElement *out);
 gboolean heap_element_new(Heap *heap, Element *e, PElement *out);

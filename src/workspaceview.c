@@ -41,7 +41,7 @@ G_DEFINE_TYPE(Workspaceview, workspaceview, VIEW_TYPE)
 static const int workspaceview_layout_snap = 100;
 static const int workspaceview_layout_hspacing = 10;
 static const int workspaceview_layout_vspacing = 10;
-static const int workspaceview_layout_left = 5;
+static const int workspaceview_layout_left = 10;
 static const int workspaceview_layout_top = 5;
 static const double workspaceview_animation_duration = 0.5;
 
@@ -470,8 +470,8 @@ workspaceview_link(View *view, Model *model, View *parent)
 		"reveal-child",
 		G_SETTINGS_BIND_DEFAULT);
 	g_settings_bind(settings, "definitions",
-		G_OBJECT(wview->right),
-		"reveal-child",
+		G_OBJECT(wview->workspacedefs),
+		"visible",
 		G_SETTINGS_BIND_DEFAULT);
 }
 
@@ -744,25 +744,13 @@ workspaceview_layout(View *view)
 }
 
 static void
-workspaceview_saveas_sub(GObject *source_object,
-	GAsyncResult *res, gpointer user_data)
+workspaceview_saveas_error(GtkWindow *win,
+	Filemodel *filemodel, void *a, void *b)
 {
-	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspaceview *wview = WORKSPACEVIEW(a);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(wview)));
-	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
 
-	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
-	if (file) {
-		mainwindow_set_save_folder(main, file);
-
-		g_autofree char *filename = g_file_get_path(file);
-
-		icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
-		if (!workspacegroup_save_current(wsg, filename))
-			workspace_show_error(ws);
-	}
+	workspace_show_error(ws);
 }
 
 static void
@@ -772,40 +760,28 @@ workspaceview_saveas(Workspaceview *wview)
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
 	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(wview)));
 
-	GtkFileDialog *dialog;
-
-	// we can only save the current tab
+	workspacegroup_set_save_type(wsg, WORKSPACEGROUP_SAVE_WORKSPACE);
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
 
-	dialog = gtk_file_dialog_new();
-	gtk_file_dialog_set_title(dialog, "Save tab as");
-	gtk_file_dialog_set_modal(dialog, TRUE);
-
-	GFile *save_folder = mainwindow_get_save_folder(main);
-	if (save_folder)
-		gtk_file_dialog_set_initial_folder(dialog, save_folder);
-
-	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
-		&workspaceview_saveas_sub, wview);
+	filemodel_saveas(GTK_WINDOW(main), FILEMODEL(wsg),
+		NULL,
+		workspaceview_saveas_error, wview, NULL);
 }
 
 static void
-workspaceview_merge_sub(GObject *source_object,
-	GAsyncResult *res, gpointer user_data)
+workspaceview_merge_next(GtkWindow *win,
+	Filemodel *filemodel, void *a, void *b)
 {
-	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspaceview *wview = WORKSPACEVIEW(a);
 	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
-	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(wview)));
-	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
 
-	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
-	if (file) {
-		mainwindow_set_save_folder(main, file);
+	symbol_recalculate_all();
 
-		g_autofree char *filename = g_file_get_path(file);
+	if (ws &&
+		COLUMN(ICONTAINER(ws)->current)) {
+		Column *col = COLUMN(ICONTAINER(ws)->current);
 
-		if (!workspace_merge_file(ws, filename))
-			workspace_show_error(ws);
+		model_scrollto(MODEL(col), MODEL_SCROLL_BOTTOM);
 	}
 }
 
@@ -816,20 +792,17 @@ workspaceview_merge(Workspaceview *wview)
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
 	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(wview)));
 
-	// we can only save the current tab
 	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
+	workspacegroup_set_load_type(wsg, WORKSPACEGROUP_LOAD_COLUMNS);
 
-	GtkFileDialog *dialog = gtk_file_dialog_new();
-	gtk_file_dialog_set_title(dialog, "Merge into tab");
-	gtk_file_dialog_set_accept_label(dialog, "Merge");
-	gtk_file_dialog_set_modal(dialog, TRUE);
+	/* We'll do a layout after load, so just load to a huge x and
+	 * we'll be OK.
+	 */
+	column_set_offset(2 * VIPS_RECT_RIGHT(&ws->area));
 
-	GFile *load_folder = mainwindow_get_load_folder(main);
-	if (load_folder)
-		gtk_file_dialog_set_initial_folder(dialog, load_folder);
-
-	gtk_file_dialog_open(dialog, GTK_WINDOW(main), NULL,
-		&workspaceview_merge_sub, wview);
+	filemodel_open(GTK_WINDOW(main), FILEMODEL(wsg), _("Merge"),
+		workspaceview_merge_next,
+		workspaceview_saveas_error, wview, NULL);
 }
 
 static void
@@ -1315,6 +1288,26 @@ workspaceview_drag_end(GtkEventControllerMotion *self,
 }
 
 static void
+workspaceview_error_next_clicked(GtkButton *button, void *user_data)
+{
+	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+	(void) workspace_next_error(ws);
+	workspace_show_error(ws);
+}
+
+static void
+workspaceview_error_prev_clicked(GtkButton *button, void *user_data)
+{
+	Workspaceview *wview = WORKSPACEVIEW(user_data);
+	Workspace *ws = WORKSPACE(VOBJECT(wview)->iobject);
+
+	(void) workspace_prev_error(ws);
+	workspace_show_error(ws);
+}
+
+static void
 workspaceview_error_close_clicked(GtkButton *button, void *user_data)
 {
 	Workspaceview *wview = WORKSPACEVIEW(user_data);
@@ -1383,7 +1376,6 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_VARIABLE(Workspaceview, alert_top);
 	BIND_VARIABLE(Workspaceview, alert_sub);
 	BIND_VARIABLE(Workspaceview, left);
-	BIND_VARIABLE(Workspaceview, right);
 	BIND_VARIABLE(Workspaceview, kitgview);
 	BIND_VARIABLE(Workspaceview, scrolled_window);
 	BIND_VARIABLE(Workspaceview, fixed);
@@ -1393,6 +1385,8 @@ workspaceview_class_init(WorkspaceviewClass *class)
 	BIND_CALLBACK(workspaceview_drag_begin);
 	BIND_CALLBACK(workspaceview_drag_update);
 	BIND_CALLBACK(workspaceview_drag_end);
+	BIND_CALLBACK(workspaceview_error_next_clicked);
+	BIND_CALLBACK(workspaceview_error_prev_clicked);
 	BIND_CALLBACK(workspaceview_error_close_clicked);
 	BIND_CALLBACK(workspaceview_alert_close_clicked);
 	BIND_CALLBACK(workspaceview_key_pressed);

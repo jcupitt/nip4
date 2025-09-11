@@ -5,7 +5,7 @@
     <section>
       <attribute name="display-hint">horizontal-buttons</attribute>
       <item>
-        <attribute name="label">Open image</attribute>
+        <attribute name="label">Replace image</attribute>
         <attribute name="action">win.replace</attribute>
         <attribute name="verb-icon">document-open-symbolic</attribute>
       </item>
@@ -159,7 +159,7 @@
           <object class="GtkButton">
             <property name="icon-name">document-open-symbolic</property>
             <property name="action-name">win.replace</property>
-            <property name="tooltip-text">Open image</property>
+            <property name="tooltip-text">Replace image</property>
           </object>
         </child>
 

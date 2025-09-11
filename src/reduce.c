@@ -835,15 +835,19 @@ reduce_is_class(Reduce *rc, PElement *klass)
 gboolean
 reduce_is_instanceof_exact(Reduce *rc, const char *name, PElement *instance)
 {
-	char txt[256];
-	VipsBuf buf = VIPS_BUF_STATIC(txt);
 
 	if (!reduce_is_class(rc, instance))
 		return FALSE;
 
-	symbol_qualified_name(PEGETCLASSCOMPILE(instance)->sym, &buf);
-	if (strcmp(name, vips_buf_all(&buf)) == 0)
-		return TRUE;
+	Compile *compile = PEGETCLASSCOMPILE(instance);;
+	if (compile &&
+		compile->sym) {
+		char txt[256];
+		VipsBuf buf = VIPS_BUF_STATIC(txt);
+
+		symbol_qualified_name(compile->sym, &buf);
+		return g_str_equal(name, vips_buf_all(&buf));
+	}
 
 	return FALSE;
 }
@@ -860,7 +864,8 @@ reduce_is_instanceof(Reduce *rc, const char *name, PElement *instance)
 		return FALSE;
 	if (reduce_is_instanceof_exact(rc, name, instance))
 		return TRUE;
-	if (class_get_super(instance, &super) && !PEISELIST(&super))
+	if (class_get_super(instance, &super) &&
+		!PEISELIST(&super))
 		return reduce_is_instanceof(rc, name, &super);
 
 	return FALSE;
@@ -1047,7 +1052,7 @@ is_WHNF(PElement *out)
 
 		if (i > na) {
 			printf("constructor %s with %d args ",
-				symbol_name(sym), i);
+				symbol_name(compile->sym), i);
 			printf("should have %d args\n", compile->nparam);
 			return FALSE;
 		}

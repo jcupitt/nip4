@@ -108,6 +108,8 @@ GType workspacegroup_get_type(void);
 Workspace *workspacegroup_find_workspace(Workspacegroup *wsg, const char *name);
 gboolean workspacegroup_is_empty(Workspacegroup *wsg);
 
+GtkFileFilter *workspacegroup_filter_new(Filemodel *filemodel);
+
 Workspacegroup *workspacegroup_new(Workspaceroot *wsr);
 Workspacegroup *workspacegroup_new_blank(Workspaceroot *wsr,
 	const char *name);
@@ -134,4 +136,3 @@ gboolean workspacegroup_save_all(Workspacegroup *wsg,
 
 Workspacegroup *workspacegroup_duplicate(Workspacegroup *wsg);
 
-GtkFileFilter *workspacegroup_filter_new(void);

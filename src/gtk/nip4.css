@@ -93,9 +93,26 @@
   margin-right: 4px;
 }
 
+.workspacedefs-text {
+    background-color: #1d1d1d;
+}
+
+.toolkitgroupview {
+    background-color: #1d1d1d;
+}
+
+.toolkitgroupview .view {
+    background-color: #1d1d1d;
+}
+
 .toolkitgroupview-item {
-  margin-top: -3px;
-  margin-bottom: -3px;
+  margin-top: -4px;
+  margin-bottom: -4px;
+}
+
+.toolkitgroupview-sep {
+  margin-top: -9px;
+  margin-bottom: -10px;
 }
 
 imagedisplay {

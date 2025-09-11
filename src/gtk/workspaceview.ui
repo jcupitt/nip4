@@ -47,11 +47,37 @@
             </child>
 
             <child type="end">
-              <object class="GtkButton">
-                <property name="label">OK</property>
-                <property name="valign">center</property>
-                <signal name="clicked"
-                    handler="workspaceview_error_close_clicked"/>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
+
+                <child>
+                  <object class="GtkButton">
+                    <property name="label">Next</property>
+                    <property name="valign">center</property>
+                    <signal name="clicked"
+                        handler="workspaceview_error_next_clicked"/>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkButton">
+                    <property name="label">Previous</property>
+                    <property name="valign">center</property>
+                    <signal name="clicked"
+                        handler="workspaceview_error_prev_clicked"/>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkButton">
+                    <property name="label">OK</property>
+                    <property name="valign">center</property>
+                    <signal name="clicked"
+                        handler="workspaceview_error_close_clicked"/>
+                  </object>
+                </child>
+
               </object>
             </child>
 
@@ -122,66 +148,68 @@
 
 	        <child>
                   <object class="Toolkitgroupview" id="kitgview">
-                    <property name="margin-start">5px</property>
-                    <property name="margin-end">5px</property>
                     <property name="hexpand">false</property>
                     <property name="vexpand">true</property>
-                    <style><class name="navigation-sidebar"/></style>
 
                   </object>
                 </child>
               </object>
             </child>
 
-
-            <child> <!-- centre area -->
-              <object class="GtkScrolledWindow" id="scrolled_window">
+            <child> <!-- paned for centre and right -->
+              <object class="GtkPaned" id="paned">
                 <property name="hexpand">true</property>
                 <property name="vexpand">true</property>
+                <property name="resize-start-child">true</property>
+                <property name="resize-end-child">false</property>
+                <property name="shrink-start-child">true</property>
+                <property name="shrink-end-child">true</property>
+                <property name="wide-handle">true</property>
+                <property name="position">450</property>
 
-                <child>
-                  <object class="GtkFixed" id="fixed">
+                <property name="start-child"> <!-- centre area -->
+                  <object class="GtkScrolledWindow" id="scrolled_window">
+                    <property name="hexpand">true</property>
+                    <property name="vexpand">true</property>
 
-                    <!-- columns are added as children of this fixed -->
+		    <child>
+                      <object class="GtkFixed" id="fixed">
 
-                    <child>
-                      <object class="GtkGestureClick">
-                        <property name="button">1</property>
-                        <signal name="pressed" handler="workspaceview_pressed"/>
-                      </object>
-                    </child>
+                        <!-- columns are added as children of this fixed -->
 
-                    <child>
-                      <object class="GtkGestureDrag">
-                        <signal name="drag-begin"
-                                handler="workspaceview_drag_begin"/>
-                        <signal name="drag-update"
-                                handler="workspaceview_drag_update"/>
-                        <signal name="drag-end"
-                                handler="workspaceview_drag_end"/>
-                      </object>
-                    </child>
+                        <child>
+                          <object class="GtkGestureClick">
+                            <property name="button">1</property>
+			    <signal name="pressed"
+				    handler="workspaceview_pressed"/>
+                          </object>
+                        </child>
 
-                    <child>
-                      <object class="GtkEventControllerKey">
-                        <signal name="key-pressed"
-                                handler="workspaceview_key_pressed"/>
+                        <child>
+                          <object class="GtkGestureDrag">
+                            <signal name="drag-begin"
+                                    handler="workspaceview_drag_begin"/>
+                            <signal name="drag-update"
+                                    handler="workspaceview_drag_update"/>
+                            <signal name="drag-end"
+                                    handler="workspaceview_drag_end"/>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkEventControllerKey">
+                            <signal name="key-pressed"
+                                    handler="workspaceview_key_pressed"/>
+                          </object>
+                        </child>
+
                       </object>
                     </child>
 
                   </object>
-                </child>
+                </property>
 
-              </object>
-            </child>
-
-            <child> <!-- right-hand pane -->
-              <object class="GtkRevealer" id="right">
-                <property name="transition-type">slide-left</property>
-                <property name="hexpand">false</property>
-                <property name="vexpand">true</property>
-
-	        <child>
+                <property name="end-child"> <!-- right-hand pane -->
                   <object class="Workspacedefs" id="workspacedefs">
                     <property name="margin-start">5px</property>
                     <property name="margin-end">5px</property>
@@ -190,7 +218,7 @@
                     <property name="vexpand">true</property>
 
                   </object>
-                </child>
+                </property>
 
               </object>
             </child>

@@ -125,7 +125,7 @@ matrix_class_init(MatrixClass *class)
 
 	gobject_class->finalize = matrix_finalize;
 
-	iobject_class->user_name = _("Matrix");
+	iobject_class->user_name = _("matrix");
 
 	model_class->view_new = matrix_view_new;
 

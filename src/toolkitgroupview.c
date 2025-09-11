@@ -398,8 +398,7 @@ toolkitgroupview_build_toolitem(void *a, void *b, void *c)
 	Toolkitgroupview *kitgview = TOOLKITGROUPVIEW(c);
 
 	if (toolitem->tool &&
-		(kitgview->show_all || MODEL(toolitem->tool)->display) &&
-		(kitgview->show_all || !toolitem->is_separator))
+		(kitgview->show_all || MODEL(toolitem->tool)->display))
 		toolkitgroupview_add_toolitem(kitgview, store, toolitem);
 
 	return NULL;
@@ -519,6 +518,8 @@ toolkitgroupview_setup_browse_item(GtkListItemFactory *factory,
 	gtk_box_append(GTK_BOX(box), right);
 
 	GtkWidget *pin = gtk_check_button_new();
+	gtk_widget_set_margin_start(pin, 9);
+	gtk_widget_set_margin_end(pin, 7);
 	set_tooltip(pin, "Pin menu in place");
 	g_signal_connect(pin, "toggled",
 		G_CALLBACK(toolkitgroupview_pin_toggled), kitgview);
@@ -555,8 +556,6 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 		gtk_widget_set_visible(pin, TRUE);
 		gtk_label_set_xalign(GTK_LABEL(label), 0.5);
 		g_object_set_qdata(G_OBJECT(button), node_quark, parent);
-
-		// note the pin widget on the page
 	}
 	else {
 		gtk_label_set_xalign(GTK_LABEL(label), 0.0);
@@ -572,10 +571,16 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 	}
 
 	if (node->toolitem &&
-		node->toolitem->is_separator)
+		node->toolitem->is_separator) {
 		gtk_widget_set_sensitive(button, FALSE);
+		gtk_widget_add_css_class(button, "toolkitgroupview-sep");
+	}
+	else
+		gtk_widget_remove_css_class(button, "toolkitgroupview-sep");
 
-	gtk_widget_remove_css_class(gtk_widget_get_parent(button), "activatable");
+	GtkWidget *enclosing_box = gtk_widget_get_parent(button);
+	GtkWidget *enclosing_item = gtk_widget_get_parent(enclosing_box);
+	gtk_widget_remove_css_class(enclosing_item, "activatable");
 }
 
 static GtkWidget *

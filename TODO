@@ -37,10 +37,17 @@
 - prewitt and scharr edge detectors
 - puts lots of stuff into Image > New eg xyz, sdf etc.
 - can we improve Group[]?
+
 - add magick7 support to _magick.def
 
 
 
+
+- program: ^W should parse the text and block on error
+
+- program: don't get save-before-close box for modified toolkits?
+
+- program: add delete tool / toolkit?
 
 - get judder with rotate and images smaller than the window
 

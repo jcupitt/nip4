@@ -839,6 +839,14 @@ heap_getmem(Heap *heap)
 }
 
 gboolean
+heap_noval_new(Heap *heap, PElement *out)
+{
+	PEPUTP(out, ELEMENT_NOVAL, 0);
+
+	return TRUE;
+}
+
+gboolean
 heap_bool_new(Heap *heap, gboolean val, PElement *out)
 {
 	PEPUTP(out, ELEMENT_BOOL, val);

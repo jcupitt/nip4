@@ -142,6 +142,9 @@
 
         <child type="action-end">
           <object class="GtkButton">
+            <property name="margin-end">4px</property>
+            <property name="margin-top">4px</property>
+            <property name="margin-start">4px</property>
             <property name="icon-name">tab-new</property>
             <property name="tooltip-text">New tab ^T</property>
             <signal name="clicked"

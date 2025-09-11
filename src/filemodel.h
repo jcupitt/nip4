@@ -75,12 +75,25 @@ typedef struct _FilemodelClass {
 
 		top_save			top level save ... intercept this to override
 
+		filter_new			make a new filemodel filter for this file type
+
+		suffix				if non-NULL, the required suffix for files of
+							this type
+
 	 */
 
 	gboolean (*top_load)(Filemodel *filemodel,
 		ModelLoadState *state, Model *parent, xmlNode *xnode);
 	void (*set_modified)(Filemodel *filemodel, gboolean modified);
 	gboolean (*top_save)(Filemodel *filemodel, const char *filename);
+	GtkFileFilter *(*filter_new)(Filemodel *filemodel);
+	const char *suffix;
+
+	/* The current save and load directories for objects of this type.
+	 */
+	GFile *save_folder;
+	GFile *load_folder;
+
 } FilemodelClass;
 
 void filemodel_register(Filemodel *filemodel);
@@ -100,25 +113,6 @@ gboolean filemodel_load_all(Filemodel *filemodel, Model *parent,
 gboolean filemodel_load_all_openfile(Filemodel *filemodel,
 	Model *parent, iOpenFile *of);
 
-/*
- * fixme ... this will need to be replaced with a more conventional load/save
- * dialog system like vipsdip's
- *
-void filemodel_inter_saveas(iWindow *parent, Filemodel *filemodel);
-void filemodel_inter_save(iWindow *parent, Filemodel *filemodel);
-void filemodel_inter_savenempty_cb(iWindow *iwnd, void *client,
-	iWindowNotifyFn nfn, void *sys);
-void filemodel_inter_savenempty(iWindow *parent, Filemodel *filemodel);
-void filemodel_inter_savenclose_cb(iWindow *iwnd, void *client,
-	iWindowNotifyFn nfn, void *sys);
-void filemodel_inter_savenclose(iWindow *parent, Filemodel *filemodel);
-void filemodel_inter_loadas(iWindow *parent, Filemodel *filemodel);
-void filemodel_inter_replace(iWindow *parent, Filemodel *filemodel);
-
-void filemodel_inter_close_registered_cb(iWindow *iwnd, void *client,
-	iWindowNotifyFn nfn, void *sys);
- */
-
 void filemodel_set_auto_load(Filemodel *filemodel);
 
 void filemodel_set_window_hint(Filemodel *filemodel, GtkWindow *window);
@@ -126,7 +120,23 @@ GtkWindow *filemodel_get_window_hint(Filemodel *filemodel);
 
 typedef void (*FilemodelSaveasResult)(GtkWindow *window,
 	Filemodel *filemodel, void *a, void *b);
+void filemodel_saveas(GtkWindow *window, Filemodel *filemodel,
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b);
 void filemodel_save_before_close(Filemodel *filemodel,
-	FilemodelSaveasResult next, void *a, void *b);
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b);
+void filemodel_save(GtkWindow *window, Filemodel *filemodel,
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b);
+
+void filemodel_open(GtkWindow *window, Filemodel *filemodel,
+	const char *verb,
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b);
+void filemodel_replace(GtkWindow *window, Filemodel *filemodel,
+	const char *verb,
+	FilemodelSaveasResult next,
+	FilemodelSaveasResult error, void *a, void *b);
 
 void filemodel_close_registered(SListMapFn callback, void *user_data);

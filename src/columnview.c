@@ -96,75 +96,24 @@ columnview_caption_edit_cancel(GtkEntry *self, gpointer user_data)
 }
 
 static void
-columnview_merge_sub(GObject *source_object,
-	GAsyncResult *res, gpointer user_data)
+columnview_saveas_next(GtkWindow *win, Filemodel *filemodel, void *a, void *b)
 {
-	Columnview *cview = COLUMNVIEW(user_data);
+	Columnview *cview = COLUMNVIEW(a);
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
 	Workspace *ws = col->ws;
-	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(cview)));
-	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
 
-	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
-	if (file) {
-		mainwindow_set_load_folder(main, file);
-
-		g_autofree char *filename = g_file_get_path(file);
-
-		if (!workspacegroup_merge_rows(wsg, filename))
-			workspace_show_error(ws);
-		symbol_recalculate_all();
-	}
+	workspace_deselect_all(ws);
 }
 
 static void
-columnview_merge(Columnview *cview)
+columnview_saveas_error(GtkWindow *win, Filemodel *filemodel, void *a, void *b)
 {
-	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(cview)));
+	Columnview *cview = COLUMNVIEW(a);
 	Column *col = COLUMN(VOBJECT(cview)->iobject);
 	Workspace *ws = col->ws;
 
-	// workspacegroup_merge_rows() merges into the current column
-	workspace_column_select(ws, col);
-
-	GtkFileDialog *dialog;
-
-	dialog = gtk_file_dialog_new();
-	gtk_file_dialog_set_title(dialog, "Merge into column");
-	gtk_file_dialog_set_accept_label(dialog, "Merge");
-	gtk_file_dialog_set_modal(dialog, TRUE);
-
-	GFile *load_folder = mainwindow_get_load_folder(main);
-	if (load_folder)
-		gtk_file_dialog_set_initial_folder(dialog, load_folder);
-
-	gtk_file_dialog_open(dialog, GTK_WINDOW(main), NULL,
-		&columnview_merge_sub, cview);
-}
-
-static void
-columnview_saveas_sub(GObject *source_object,
-	GAsyncResult *res, gpointer user_data)
-{
-	Columnview *cview = COLUMNVIEW(user_data);
-	Column *col = COLUMN(VOBJECT(cview)->iobject);
-	Workspace *ws = col->ws;
-	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
-	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(cview)));
-	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-
-	g_autoptr(GFile) file = gtk_file_dialog_save_finish(dialog, res, NULL);
-	if (file) {
-		mainwindow_set_save_folder(main, file);
-
-		g_autofree char *filename = g_file_get_path(file);
-
-		workspace_deselect_all(ws);
-		column_select_symbols(col);
-		if (!workspacegroup_save_selected(wsg, filename))
-			workspace_show_error(ws);
-	}
+	workspace_show_error(ws);
+	workspace_deselect_all(ws);
 }
 
 static void
@@ -175,21 +124,42 @@ columnview_saveas(Columnview *cview)
 	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
 	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(cview)));
 
-	GtkFileDialog *dialog;
+	workspacegroup_set_save_type(wsg, WORKSPACEGROUP_SAVE_SELECTED);
+	workspace_deselect_all(ws);
+	column_select_symbols(col);
 
-	// we can only save the current tab
-	icontainer_current(ICONTAINER(wsg), ICONTAINER(ws));
+	filemodel_saveas(GTK_WINDOW(main), FILEMODEL(wsg),
+		columnview_saveas_next,
+		columnview_saveas_error, cview, NULL);
+}
 
-	dialog = gtk_file_dialog_new();
-	gtk_file_dialog_set_title(dialog, "Save column as");
-	gtk_file_dialog_set_modal(dialog, TRUE);
+static void
+columnview_merge_next(GtkWindow *win, Filemodel *filemodel, void *a, void *b)
+{
+	Columnview *cview = COLUMNVIEW(a);
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
+	Workspace *ws = col->ws;
+	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
 
-	GFile *save_folder = mainwindow_get_save_folder(main);
-	if (save_folder)
-		gtk_file_dialog_set_initial_folder(dialog, save_folder);
+	filemodel_set_modified(FILEMODEL(wsg), TRUE);
+	symbol_recalculate_all();
+}
 
-	gtk_file_dialog_save(dialog, GTK_WINDOW(main), NULL,
-		&columnview_saveas_sub, cview);
+static void
+columnview_merge(Columnview *cview)
+{
+	Mainwindow *main = MAINWINDOW(view_get_window(VIEW(cview)));
+	Column *col = COLUMN(VOBJECT(cview)->iobject);
+	Workspace *ws = col->ws;
+	Workspacegroup *wsg = workspace_get_workspacegroup(ws);
+
+	// load as a set of rows into the current col
+	workspace_column_select(ws, col);
+	workspacegroup_set_load_type(wsg, WORKSPACEGROUP_LOAD_ROWS);
+
+	filemodel_open(GTK_WINDOW(main), FILEMODEL(wsg), _("Merge"),
+		columnview_merge_next,
+		columnview_saveas_error, cview, NULL);
 }
 
 /* Find the position and size of a columnview.

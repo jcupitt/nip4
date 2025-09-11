@@ -2,6 +2,16 @@
 
 - improve Text
 - improve scroll to row on error
+- improve styling
+- add Menuseparator support
+- draggable divider for workspacedefs
+- next/prev on error bar
+- load/save for wsdefs
+- fix a crash in redefine
+- better ^Q handling
+- implement program window menu
+- program displays info for builtins
+- generic load/save/open/replace/close for filemodel
 
 ## 9.0.12 2025/08/21
 

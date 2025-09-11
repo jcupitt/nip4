@@ -1059,7 +1059,7 @@ workspace_class_init(WorkspaceClass *class)
 	gobject_class->finalize = workspace_finalize;
 
 	iobject_class->changed = workspace_changed;
-	iobject_class->user_name = _("Tab");
+	iobject_class->user_name = _("tab");
 
 	icontainer_class->child_add = workspace_child_add;
 	icontainer_class->child_remove = workspace_child_remove;
@@ -1508,14 +1508,32 @@ workspace_test_error(Row *row, Workspace *ws, int *found)
 	return NULL;
 }
 
+/* Return the next error, looping around if we're on the last.
+ */
+static Row *
+workspace_get_next_error(Workspace *ws)
+{
+	int found;
+	Row *next;
+
+	found = 0;
+	next = ROW(slist_map2(ws->errors,
+		(SListMap2Fn) workspace_test_error, ws, &found));
+
+	// still not found? we must have hit the end, therefore it's the first one
+	if (!next &&
+		ws->errors)
+		next = ROW(ws->errors->data);
+
+	return next;
+}
+
 /* FALSE for no errors.
  */
 gboolean
 workspace_next_error(Workspace *ws)
 {
 	workspace_error_sanity(ws);
-
-	int found;
 
 	if (!ws->errors) {
 		error_top(_("No errors in tab"));
@@ -1524,27 +1542,49 @@ workspace_next_error(Workspace *ws)
 		return FALSE;
 	}
 
-	/* Search for the one after the last one.
-	 */
-	found = 0;
-	ws->last_error = (Row *) slist_map2(ws->errors,
-		(SListMap2Fn) workspace_test_error, ws, &found);
-
-	/* NULL? We've hit end of table, start again.
-	 */
-	if (!ws->last_error) {
-		found = 1;
-		ws->last_error = (Row *) slist_map2(ws->errors,
-			(SListMap2Fn) workspace_test_error, ws, &found);
-	}
-
-	/* *must* have one now.
-	 */
+	ws->last_error = workspace_get_next_error(ws);
 	g_assert(ws->last_error &&
 		ws->last_error->err);
 
-	Row *row = ROW(ws->last_error);
-	model_scrollto(MODEL(row->top_row), MODEL_SCROLL_TOP);
+	model_scrollto(MODEL(ws->last_error->top_row), MODEL_SCROLL_TOP);
+
+	error_top("%s", ws->last_error->expr->error_top);
+	error_sub("%s", ws->last_error->expr->error_sub);
+
+	workspace_error_sanity(ws);
+
+	return TRUE;
+}
+
+/* FALSE for no errors.
+ */
+gboolean
+workspace_prev_error(Workspace *ws)
+{
+	workspace_error_sanity(ws);
+
+	if (!ws->errors) {
+		error_top(_("No errors in tab"));
+		error_sub("%s",
+			_("there are no errors (that I can see) in this tab"));
+		return FALSE;
+	}
+
+	/* Loop until we find our current error again, then use the one before
+	 * that.
+	 */
+	Row *current = ws->last_error;
+	for (;;) {
+		Row *next = workspace_get_next_error(ws);
+
+		if (next == current)
+			break;
+
+		ws->last_error = next;
+	}
+	g_assert(ws->last_error && ws->last_error->err);
+
+	model_scrollto(MODEL(ws->last_error->top_row), MODEL_SCROLL_TOP);
 
 	error_top("%s", ws->last_error->expr->error_top);
 	error_sub("%s", ws->last_error->expr->error_sub);
