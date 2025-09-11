@@ -125,7 +125,7 @@ matrixview_grid_build(Matrixview *matrixview)
 			case MATRIX_DISPLAY_TEXT_SCALE_OFFSET:
 			case MATRIX_DISPLAY_TEXT:
 				item = GTK_WIDGET(ientry_new());
-				g_object_set(item, "width-chars", 5, NULL);
+				g_object_set(item, "width-chars", 10, NULL);
 				matrixview_set_callbacks(matrixview, item);
 				break;
 
