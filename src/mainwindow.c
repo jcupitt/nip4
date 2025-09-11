@@ -585,68 +585,59 @@ mainwindow_local_saveas_action(GSimpleAction *action,
 	}
 }
 
-static void
-mainwindow_local_replace_sub(GObject *source_object,
-	GAsyncResult *res, gpointer user_data)
+static void *
+mainwindow_set_from_tool(Tool *tool, void *a, void *b)
 {
-	Mainwindow *main = MAINWINDOW(user_data);
-	GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
+	GString *text = (GString *) a;
 
-	g_autoptr(GFile) file = gtk_file_dialog_open_finish(dialog, res, NULL);
-	if (file) {
-		g_autofree char *filename = g_file_get_path(file);
+	// ahem a little cautious
+	if (tool->sym &&
+		tool->sym->expr &&
+		tool->sym->expr->compile &&
+		tool->sym->expr->compile->text)
+		g_string_append(text, tool->sym->expr->compile->text);
 
-		if (main->wsg) {
-			Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
-
-			if (!workspace_local_set_from_file(ws, filename))
-				mainwindow_error(main);
-		}
-	}
+	return NULL;
 }
 
 static void
-mainwindow_local_replace(Mainwindow *main)
+mainwindow_local_replace_next(GtkWindow *win, Filemodel *filemodel,
+    void *a, void *b)
 {
-	GtkFileDialog *dialog = gtk_file_dialog_new();
-	gtk_file_dialog_set_title(dialog, "Replace tab definitions");
-	gtk_file_dialog_set_modal(dialog, TRUE);
-	gtk_file_dialog_set_accept_label(dialog, "Replace");
+    Mainwindow *main = MAINWINDOW(a);
+	Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
 
-	GFile *load_folder = mainwindow_get_load_folder(main);
-	if (load_folder)
-		gtk_file_dialog_set_initial_folder(dialog, load_folder);
+	g_autoptr(GString) text = g_string_sized_new(10000);
 
-	GListStore *filters = g_list_store_new(GTK_TYPE_FILE_FILTER);
-	GtkFileFilter *filter;
+	toolkit_map(TOOLKIT(filemodel), mainwindow_set_from_tool, text, NULL);
 
-	//filter = toolkit_filter_new();
-	//g_list_store_append(filters, G_OBJECT(filter));
-	//g_object_unref(filter);
+	if (!workspace_local_set(ws, text->str))
+		mainwindow_error(main);
 
-	filter = mainwindow_filter_all_new();
-	g_list_store_append(filters, G_OBJECT(filter));
-	g_object_unref(filter);
-
-	gtk_file_dialog_set_filters(dialog, G_LIST_MODEL(filters));
-	g_object_unref(filters);
-
-	gtk_file_dialog_open(dialog, GTK_WINDOW(main), NULL,
-		&mainwindow_local_replace_sub, main);
+    symbol_recalculate_all();
 }
 
 static void
 mainwindow_local_replace_action(GSimpleAction *action,
-	GVariant *parameter, gpointer user_data)
+    GVariant *parameter, gpointer user_data)
 {
-	Mainwindow *main = MAINWINDOW(user_data);
+    Mainwindow *main = MAINWINDOW(user_data);
 
-	mainwindow_local_replace(main);
+    if (main->wsg) {
+        Workspace *ws = WORKSPACE(ICONTAINER(main->wsg)->current);
+
+		// zap any old defs
+		(void) workspace_local_set(ws, "");
+
+        filemodel_replace(GTK_WINDOW(main), FILEMODEL(ws->local_kit),
+            "Replace",
+            mainwindow_local_replace_next,
+            mainwindow_save_error, main, NULL);
+    }
 }
 
 static GActionEntry mainwindow_entries[] = {
 	// main window actions
-
 	{ "open", mainwindow_open_action },
 	{ "merge", mainwindow_merge_action },
 	{ "duplicate", mainwindow_duplicate_action },
@@ -674,7 +665,7 @@ static GActionEntry mainwindow_entries[] = {
 	{ "tab-lock", action_toggle, NULL, "false", mainwindow_view_action },
 	{ "tab-delete", mainwindow_view_action },
 
-	// workspacedefs
+	// workspacedefs burger menu
 	{ "tab-local-replace", mainwindow_local_replace_action },
 	{ "tab-local-saveas", mainwindow_local_saveas_action },
 

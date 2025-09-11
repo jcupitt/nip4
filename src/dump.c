@@ -33,8 +33,8 @@
  * debugging code.
  */
 /*
-#define DEBUG
  */
+#define DEBUG
 
 /* Dump a binary operator.
  */

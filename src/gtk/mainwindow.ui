@@ -101,6 +101,15 @@
           </object>
         </child>
 
+	<!-- handy for testing menu items
+        <child type="start">
+          <object class="GtkButton">
+            <property name="label">Test</property>
+            <property name="action-name">win.tab-local-replace</property>
+          </object>
+        </child>
+	  -->
+
         <child type="title">
           <object class="GtkBox" id="content_box">
             <property name="valign">center</property>

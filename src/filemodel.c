@@ -821,7 +821,8 @@ filemodel_save_before_close_sub(GObject *source_object,
 	switch (choice) {
 	case 0:
 		// close without saving ... tag as unmodified, and move on
-		// "next" is responsible for doing the gtk_window_close()
+		// "next" is responsible for doing the gtk_window_close() or whatever
+		// and emptying the model
 		filemodel_set_modified(filemodel, FALSE);
 		next(window, filemodel, a, b);
 		break;
@@ -843,6 +844,14 @@ filemodel_save_before_close(Filemodel *filemodel,
 	FilemodelSaveasResult error, void *a, void *b)
 {
 	GtkWindow *window = filemodel_get_window_hint(filemodel);
+
+	// not modified? no need to save, we can just move on
+	if (!filemodel->modified) {
+		if (next)
+			next(window, filemodel, a, b);
+		return;
+	}
+
 	const char *user_name = iobject_get_user_name(IOBJECT(filemodel));
 
 	g_autofree char *message = g_strdup_printf("%s has been modified",
@@ -995,8 +1004,11 @@ filemodel_replace_next(GtkWindow *window,
 {
 	Suspension *sus = (Suspension *) a;
 
+	model_empty(MODEL(filemodel));
+
 	filemodel_open(sus->window, sus->filemodel, sus->verb,
 		sus->next, sus->error, sus->a, sus->b);
+
 	g_free(sus);
 }
 

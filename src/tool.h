@@ -99,20 +99,20 @@ struct _Tool {
 	Filemodel parent_class;
 
 	Tooltype type;
-	Symbol *sym;		 /* For SYM tools: symbol this tool represents */
-	guint new_value_sid; /* Watch for new_value with this */
-	Symbol *link_sym;	 /* the sym we are watching (in case ->sym is
-					NULLed before we try to disconnect */
+	Symbol *sym;		/* For SYM tools: symbol this tool represents */
+	guint new_value_sid;/* Watch for new_value with this */
+	Symbol *link_sym;	/* the sym we are watching (in case ->sym is
+						   NULLed before we try to disconnect */
 
-	Toolkit *kit; /* Link back to toolkit */
-	int lineno;	  /* -1 for not known, or lineno in kit */
+	Toolkit *kit;		/* Link back to toolkit */
+	int lineno;			/* -1 for not known, or lineno in kit */
 
 	Toolitem *toolitem; /* Items made by this tool */
 
 	/* The first line of the comment prior to the definition. Toolitem help
 	 * and tooltip can be generated from the Menuitem members.
 	 */
-	char *help; /* eg. "concat l: join a list of .." */
+	char *help;			/* eg. "concat l: join a list of .." */
 };
 
 typedef struct _ToolClass {
