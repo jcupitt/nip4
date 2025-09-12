@@ -453,15 +453,16 @@ Colour colour_space value = class
 	// to a vector if bands > 1
 	// to a number otherwise
 	itoc im
-		= this.Colour nip_type (to_matrix im).value?0,
+		= this.Colour nip_interpretation (to_matrix im).value?0,
 			bands == 3
 		= scope.Vector (map mean (bandsplit im)),
 			bands > 1
 		= mean im
 	{
-		type = get_header "Interpretation" im;
-		bands = get_header "Bands" im;
-		nip_type = Image_type.colour_spaces.lookup 1 0 type;
+		interpretation = get_header "interpretation" im;
+		bands = get_header "bands" im;
+		nip_interpretation =
+			Image_interpretation.colour_spaces.lookup 1 0 interpretation;
 	}
 
 	// methods
@@ -484,7 +485,8 @@ Colour_picker default_colour default_value = class
 	Colour space.item colour.expr {
 	_vislevel = 3;
 
-	space = Option_enum "Colour space" Image_type.colour_spaces default_colour;
+	space = Option_enum "Colour space"
+		Image_interpretation.colour_spaces default_colour;
 	colour = Expression "Colour value" default_value;
 
 	Colour_edit colour_space value =
@@ -936,7 +938,7 @@ Image_interpretation = class {
 		$HSV => HSV
 	];
 
-	/* A slightly larger table ... the types of colorimetric image we can
+	/* A slightly larger table ... colorimetric interpretations we can
 	 * have. Add mono, and the S and Q forms of LAB.
 	 */
 	image_colour_spaces = Enum [
@@ -956,7 +958,7 @@ Image_interpretation = class {
 	];
 }
 
-/* Base image type. Simple layer over vips_image.
+/* Base image class. Simple layer over vips_image.
  */
 Image value = class
 	_Object {
@@ -1017,7 +1019,7 @@ Image value = class
 			new_stuff = image_new width height new_bands
 				format
 				coding
-				Image_type.B_W x xoffset yoffset;
+				Image_interpretation.B_W x xoffset yoffset;
 			new_bands
 				= get_bands x, has_bands x
 				= 1;
@@ -1030,7 +1032,8 @@ Image value = class
 
 		// properties of our output image
 		target_bands = get_member_list has_bands get_bands objects;
-		target_type = get_member_list has_type get_type objects;
+		target_interpretation = get_member_list
+			has_interpretation get_interpretation objects;
 
 		// if one of then/else is an image, get the target format from that
 		// otherwise, let the non-image objects set the target
@@ -1043,7 +1046,7 @@ Image value = class
 
 		[then', else'] = map to_image x;
 
-		ite_result_image = image_set_type target_type
+		ite_result_image = image_set_interpretation target_interpretation
 			(if value then then' else else');
 	}
 

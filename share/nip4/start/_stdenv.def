@@ -637,18 +637,22 @@ rotquad = apply_matim_operation "rotquad" im_rotquad;
 fliplr = apply_matim_operation "fliplr" im_fliphor;
 fliptb = apply_matim_operation "flipud" im_flipver;
 
-image_set_type type x
-	= oo_unary_function image_set_type_op x, is_class x
-	= im_copy_set x (to_real type)
+image_set_interpretation interpretation x
+	= oo_unary_function image_set_interpretation_op x, is_class x
+	= im_copy_set x (to_real interpretation)
 		(get_header "Xres" x) (get_header "Yres" x)
 		(get_header "Xoffset" x) (get_header "Yoffset" x),
 		is_image x
-	= error (_ "bad arguments to " ++ "image_set_type:" ++
-		print type ++ " " ++ print x)
+	= error (_ "bad arguments to " ++ "image_set_interpretation:" ++
+		print interpretation ++ " " ++ print x)
 {
-	image_set_type_op = Operator "image_set_type"
-		(image_set_type type) Operator_type.COMPOUND_REWRAP false;
+	image_set_interpretation_op = Operator "image_set_interpretation"
+		(image_set_interpretation interpretation)
+		Operator_type.COMPOUND_REWRAP false;
 }
+
+// compat
+image_set_type = image_set_interpretation;
 
 image_set_origin xoff yoff x
 	= oo_unary_function image_set_origin_op x, is_class x

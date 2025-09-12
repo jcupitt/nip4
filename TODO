@@ -1,19 +1,32 @@
 # menu redesign
 
-- rename Image_type as Image_interpretation
+- from _types.def remove
 
-  	try
+	 Image_interpretation
+
+- remove these from Image class
+
+	type = get_type value;
+    bits = get_bits value;
+    rect = Rect 0 0 width height;
+
+- remove from _stdenv.def
+
+	image_set_type
+
+- image_set_interpretation in _stdenv.def should use vips_copy_set
+
+- get rid of _colour_conversion_table ... use vips_colourspace instead
+
+	see _convert.def
+
+- try:
 
 		Colour_new_item.CCT_colour.action
-		convert to sRGB colourspace
-		"interpretation" not found
-
-	Colour class needs an "interpretation" member?
-
-	to_image works, strangely
-
-
-
+		to_image A1
+		open viewer
+		info bar does not display pixel values correctly
+		mean A2 works
 
 - maxpos, then create mark from coordinate should be two clicks
 

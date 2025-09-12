@@ -662,10 +662,10 @@ colour_transform from to in
 	i = index match _colour_conversion_table;
 }
 
-/* Transform to a colour space, assuming the type field in the input is
- * correct
+/* Transform to a colour space, assuming the interpretation tag on the input
+ * is correct
  */
-colour_transform_to to in = colour_transform (get_type in) to in;
+colour_transform_to to in = colour_transform (get_interpretation in) to in;
 
 /* String for path separator on this platform.
  */
