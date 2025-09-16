@@ -734,6 +734,9 @@ tilesource_rgb(Tilesource *tilesource, VipsImage *in)
 		image = x;
 	}
 
+	// must be forced to uint8 sRGB by now
+	image->Type = VIPS_INTERPRETATION_sRGB;
+
 	// reattach alpha
 	if (alpha) {
 		double max_alpha_before = vips_interpretation_max_alpha(alpha->Type);
@@ -757,6 +760,11 @@ tilesource_rgb(Tilesource *tilesource, VipsImage *in)
 		VIPS_UNREF(image);
 		image = x;
 	}
+
+	// must now be RGB or RGBA uint8 sRGB
+	g_assert(image->BandFmt == VIPS_FORMAT_UCHAR);
+	g_assert(image->Bands == 3 || image->Bands == 4);
+	g_assert(image->Type == VIPS_INTERPRETATION_sRGB);
 
 	return g_steal_pointer(&image);
 }

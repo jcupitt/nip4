@@ -30,9 +30,9 @@
 #include "nip4.h"
 
 /*
+ */
 #define DEBUG_VERBOSE
 #define DEBUG
- */
 
 struct _Infobar {
 	GtkWidget parent_instance;
@@ -245,6 +245,10 @@ static void
 infobar_update_pixel(Infobar *infobar,
 	Tilesource *tilesource, double image_x, double image_y)
 {
+#ifdef DEBUG
+	printf("infobar_update_pixel: %g x %g:\n", image_x, image_y);
+#endif /*DEBUG*/
+
 	/* We need to fetch pixels from base for histograms, from image
 	 * otherwise.
 	 */
