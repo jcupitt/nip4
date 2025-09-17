@@ -386,13 +386,12 @@ recover_refresh(Recover *recover)
 	(void) path_map_dir(PATH_TMP, "*.ws",
 		(path_map_fn) store_add_file, model);
 
-	// sort by PID, then date, then time
+	// sort by date, then time
+	// we can't sort by PID easily -- they are not numeric on all
+	// platforms
 	GtkMultiSorter *multi = gtk_multi_sorter_new();
 	GtkExpression *expression;
 	GtkSorter *sorter;
-	expression = gtk_property_expression_new(RECOVERFILE_TYPE, NULL, "pid");
-	sorter = GTK_SORTER(gtk_string_sorter_new(expression));
-	gtk_multi_sorter_append(multi, sorter);
 	expression = gtk_property_expression_new(RECOVERFILE_TYPE, NULL, "date");
 	sorter = GTK_SORTER(gtk_string_sorter_new(expression));
 	gtk_multi_sorter_append(multi, sorter);
@@ -515,15 +514,6 @@ recover_init(Recover *recover)
 	factory = gtk_signal_list_item_factory_new();
 	g_object_set_qdata(G_OBJECT(factory), recover_quark, recover);
 	g_signal_connect(factory, "setup",
-		G_CALLBACK(recover_setup_item), "pid");
-	g_signal_connect(factory, "bind",
-		G_CALLBACK(recover_bind_item), "pid");
-	column = gtk_column_view_column_new("Process ID", factory);
-	gtk_column_view_append_column(GTK_COLUMN_VIEW(recover->table), column);
-
-	factory = gtk_signal_list_item_factory_new();
-	g_object_set_qdata(G_OBJECT(factory), recover_quark, recover);
-	g_signal_connect(factory, "setup",
 		G_CALLBACK(recover_setup_item), "date");
 	g_signal_connect(factory, "bind",
 		G_CALLBACK(recover_bind_item), "date");
@@ -537,6 +527,15 @@ recover_init(Recover *recover)
 	g_signal_connect(factory, "bind",
 		G_CALLBACK(recover_bind_item), "time");
 	column = gtk_column_view_column_new("HH:MM.ss", factory);
+	gtk_column_view_append_column(GTK_COLUMN_VIEW(recover->table), column);
+
+	factory = gtk_signal_list_item_factory_new();
+	g_object_set_qdata(G_OBJECT(factory), recover_quark, recover);
+	g_signal_connect(factory, "setup",
+		G_CALLBACK(recover_setup_item), "pid");
+	g_signal_connect(factory, "bind",
+		G_CALLBACK(recover_bind_item), "pid");
+	column = gtk_column_view_column_new("Process ID", factory);
 	gtk_column_view_append_column(GTK_COLUMN_VIEW(recover->table), column);
 
 	factory = gtk_signal_list_item_factory_new();
