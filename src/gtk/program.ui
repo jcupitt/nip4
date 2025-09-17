@@ -32,6 +32,13 @@
 
     <section>
       <item>
+        <attribute name='label' translatable='yes'>List unresolved symbols</attribute>
+        <attribute name='action'>win.link-report</attribute>
+      </item>
+    </section>
+
+    <section>
+      <item>
         <attribute name='label' translatable='yes'>Close</attribute>
         <attribute name='action'>win.close</attribute>
       </item>

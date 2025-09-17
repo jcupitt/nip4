@@ -57,8 +57,7 @@ tool_error(Tool *tool, VipsBuf *buf)
 }
 
 static void *
-tool_linkreport_sym_sym(Symbol *child,
-	Symbol *parent, VipsBuf *buf, gboolean *found)
+tool_linkreport_sym_sym(Symbol *child, Symbol *parent, VipsBuf *buf)
 {
 	/* Don't report generated syms eg. from lcomps or pattern
 	 * matches.
@@ -76,31 +75,29 @@ tool_linkreport_sym_sym(Symbol *child,
 		vips_buf_appendf(buf, " ");
 		symbol_qualified_name(child, buf);
 		vips_buf_appendf(buf, "\n");
-
-		*found = TRUE;
 	}
 
 	return NULL;
 }
 
 static void *
-tool_linkreport_sym(Symbol *sym, VipsBuf *buf, gboolean *found)
+tool_linkreport_sym(Symbol *sym, VipsBuf *buf)
 {
 	if (sym->expr)
 		return slist_map3(sym->expr->compile->children,
-			(SListMap3Fn) tool_linkreport_sym_sym, sym, buf, found);
+			(SListMap3Fn) tool_linkreport_sym_sym, sym, buf, NULL);
 
 	return NULL;
 }
 
 void *
-tool_linkreport_tool(Tool *tool, VipsBuf *buf, gboolean *found)
+tool_linkreport_tool(Tool *tool, VipsBuf *buf)
 {
 	if (tool->type != TOOL_SYM)
 		return NULL;
 
 	return symbol_map_all(tool->sym,
-		(symbol_map_fn) tool_linkreport_sym, buf, found);
+		(symbol_map_fn) tool_linkreport_sym, buf, NULL);
 }
 
 static void

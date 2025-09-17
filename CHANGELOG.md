@@ -14,6 +14,7 @@
 - generic load/save/open/replace/close for filemodel
 - better recover after crash sorting
 - fix an infobar race
+- program: add find unresolved syms
 
 ## 9.0.12 2025/08/21
 

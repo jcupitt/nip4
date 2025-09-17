@@ -329,18 +329,31 @@ program_parse(Program *program)
 }
 
 static gboolean
-program_select_tool(Program *program, Toolkit *kit, Tool *tool)
+program_can_switch(Program *program)
 {
 	if (program->changed &&
 		!program_parse(program)) {
 		program_set_error(program, TRUE);
+
+		return FALSE;
+	}
+	else {
+		program_set_error(program, FALSE);
+
+		return TRUE;
+	}
+}
+
+static gboolean
+program_select_tool(Program *program, Toolkit *kit, Tool *tool)
+{
+	if (!program_can_switch(program)) {
 		g_object_set(program->kitgview, "path", program->kit_path, NULL);
 		g_object_set(program->kitgview, "search", program->kit_search, NULL);
 
 		return FALSE;
 	}
 	else {
-		program_set_error(program, FALSE);
 		program_set_kit(program, kit);
 
 		VIPS_FREE(program->kit_path);
@@ -477,6 +490,43 @@ program_open_action(GSimpleAction *action,
 		program_saveas_error, program, NULL);
 }
 
+static void *
+program_linkreport_tool(Tool *tool, VipsBuf *buf)
+{
+    tool_linkreport_tool(tool, buf);
+
+    return NULL;
+}
+
+static void *
+program_linkreport_kit(Toolkit *kit, VipsBuf *buf)
+{
+    toolkit_map(kit, (tool_map_fn) program_linkreport_tool, buf, NULL);
+
+    return NULL;
+}
+
+static void
+program_linkreport_action(GSimpleAction *action,
+	GVariant *parameter, gpointer user_data)
+{
+	Program *program = PROGRAM(user_data);
+
+	if (program_can_switch(program)) {
+		char txt[MAX_STRSIZE];
+		VipsBuf buf = VIPS_BUF_STATIC( txt );
+
+		(void) toolkitgroup_map(program->kitg,
+			(toolkit_map_fn) program_linkreport_kit, &buf, NULL);
+		if (vips_buf_is_empty(&buf)) {
+			vips_buf_appends(&buf, _("No unresolved symbols found."));
+			vips_buf_appends(&buf, "\n");
+		}
+
+		program_set_text(program, vips_buf_all(&buf), FALSE);
+	}
+}
+
 static void
 program_close_action(GSimpleAction *action,
 	GVariant *parameter, gpointer user_data)
@@ -494,6 +544,8 @@ static GActionEntry program_entries[] = {
 
 	{ "save", program_save_action },
 	{ "saveas", program_saveas_action },
+
+	{ "link-report", program_linkreport_action },
 
 	{ "close", program_close_action },
 };
