@@ -1,10 +1,4 @@
 
-- recover after crash should sort by date, then by PID
-
-	blank line between days?
-
-	implement click on column name to sort by that col
-
 - program: ^W should parse the text and block on error
 
 - program: don't get save-before-close box for modified toolkits?
