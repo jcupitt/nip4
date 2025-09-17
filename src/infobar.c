@@ -30,9 +30,9 @@
 #include "nip4.h"
 
 /*
- */
 #define DEBUG_VERBOSE
 #define DEBUG
+ */
 
 struct _Infobar {
 	GtkWidget parent_instance;

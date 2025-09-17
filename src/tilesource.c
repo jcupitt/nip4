@@ -246,8 +246,16 @@ tilesource_render_notify_idle(void *user_data)
 	/* Only bother fetching the updated tile if it's from our current
 	 * pipeline.
 	 */
-	if (update->image == tilesource->image)
+	if (update->image == tilesource->image) {
 		tilesource_collect(tilesource, &update->rect, update->z);
+
+		/* All operations which depend on this image need to be kicked out of
+		 * cache.
+		 *
+		 * Things like the getpoint() we run for the infobar.
+		 */
+		vips_image_invalidate_all(update->image);
+	}
 
 	/* Matches the g_new() in tilesource_render_notify().
 	 */

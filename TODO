@@ -1,12 +1,3 @@
-- try:
-
-	A1 = Colour "sRGB" [50, 100, 150]
-	A2 = Matrix [A1.value]
-	A3 = im_mask2vips A2
-	A4 = Image A3
-	A5 = extract_area 0 0 1 1 A4
-
-  Open viewer in A5, infobar shows (0), shoud show (50)
 
 - recover after crash should sort by date, then by PID
 
