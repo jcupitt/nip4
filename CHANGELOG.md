@@ -15,6 +15,7 @@
 - better recover after crash sorting
 - fix an infobar race
 - program: add find unresolved syms
+- lots more vips7 compat macros
 
 ## 9.0.12 2025/08/21
 
