@@ -12,6 +12,8 @@
 - implement program window menu
 - program displays info for builtins
 - generic load/save/open/replace/close for filemodel
+- better recover after crash sorting
+- fix an infobar race
 
 ## 9.0.12 2025/08/21
 
