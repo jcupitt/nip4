@@ -73,19 +73,23 @@ mksvpair s v
 	= [s, v], is_string s
 	= error "not str on lhs of ->";
 
+// basic wrappers for vips8 operators
+vips_linear in a b
+	= vips_call9 "linear" [in, a, b] [];
+
 // the vector ops ... im is an image, vec is a real_list
 vec op_name im vec
-	= im_lintra_vec ones im vec,
+	= vips_linear im ones vec,
 		op_name == "add" || op_name == "add'"
-	= im_lintra_vec ones (-1 * im) vec,
+	= vips_linear (-1 * im) ones vec,
 		op_name == "subtract'"
-	= im_lintra_vec ones im inv,
+	= vips_linear im ones inv,
 		op_name == "subtract"
-	= im_lintra_vec vec im zeros,
+	= vips_linear im vec zeros,
 		op_name == "multiply" || op_name == "multiply'"
-	= im_lintra_vec vec (1 / im) zeros,
+	= vips_linear (1 / im) vec zeros,
 		op_name == "divide'"
-	= im_lintra_vec recip im zeros,
+	= vips_linear im recip zeros,
 		op_name == "divide"
 	= im_expntra_vec im vec,
 		op_name == "power'"
