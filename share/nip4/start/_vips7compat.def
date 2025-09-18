@@ -34,6 +34,8 @@ im_invert in = vips_call9 "invert" [in] [];
 
 im_replicate in across down = vips_call9 "replicate" [in, across, down] [];
 
+im_read_point in x y = vips_call9 "getpoint" [in, x, y] [];
+
 im_copy_set im t xr yr xo yo
 	= vips_call9 "copy" [im] [
 		$interpretation => t,
@@ -245,6 +247,11 @@ im_convsep in matrix
 		$precision => "integer"
 	];
 
+im_aconvsep in matrix
+	= vips_call9 "convsep" [in, matrix] [
+		$precision => "approximate"
+	];
+
 im_convsep_f in matrix
 	= vips_call9 "convsep" [in, matrix] [
 		$precision => "float"
@@ -408,8 +415,11 @@ im_stdif in a m0 b s0 xw yw
 
 im_stdif_raw = im_stdif;
 
-im_rad2float filename
-	= vips_call9 "rad2float" [filename] [];
+im_rad2float in
+	= vips_call9 "rad2float" [in] [];
+
+im_float2rad in
+	= vips_call9 "float2rad" [in] [];
 
 im_csv2vips filename
 	= vips_call9 "csvload" [filename] [
@@ -564,8 +574,15 @@ im_tone_build_range in_max out_max Lb Lw Ps Pm Ph S M H
 		$H => H
 	];
 
-// this was never ported to vips8 and is a bit useless
-im_zerox in flag = error "im_zerox: not implemented";
+// not useful and not in vips8
+im_tone_analyse in Ps Pm Ph S M H
+	= error "not implemented";
+im_tone_map in lut
+	= error "not implemented";
+im_zerox in flag
+	= error "not implemented";
+im_icc_ac2rc in profile
+	= error "not implemented";
 
 im_cntlines in dir
 	= vips_call9 "countlines" [in, dir] [
@@ -588,6 +605,10 @@ im_affinei_all in interpolate a b c d dx dy
 		$interpolate => interpolate,
 		$idx => dx,
 		$idy => dy
+	];
+
+im_zoom in x y
+	= vips_call9 "zoom" [in, x, y] [
 	];
 
 im_project in
@@ -735,6 +756,9 @@ im_draw_flood in start_x start_y ink
 
 im_draw_line image x1 y1 x2 y2 ink
         = vips_call9 "draw_line" [image, ink, x1, y1, x2, y2] [];
+
+im_draw_rect image left top width height fill ink
+        = vips_call9 "draw_rect" [image, ink, left, top, width, height] [];
 
 im_draw_circle image cx cy radius fill ink
         = vips_call9 "draw_circle" [image, ink, cx, cy, radius] [
