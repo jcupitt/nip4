@@ -26,8 +26,15 @@ im_clip2s x = vips_call9 "cast" [x, "short"] [];
 im_clip2f x = vips_call9 "cast" [x, "float"] [];
 
 im_scale x = vips_call9 "scale" [x] [];
+im_scaleps x = vips_call9 "scale" [x] [
+		$log => true
+	];
+
+im_invert in = vips_call9 "invert" [in] [];
 
 im_replicate in across down = vips_call9 "replicate" [in, across, down] [];
+
+im_read_point in x y = vips_call9 "getpoint" [in, x, y] [];
 
 im_copy_set im t xr yr xo yo
 	= vips_call9 "copy" [im] [
@@ -130,10 +137,17 @@ im_XYZ2Yxy x = vips_call9 "XYZ2Yxy" [x] [];
 im_Yxy2XYZ x = vips_call9 "Yxy2XYZ" [x] [];
 
 im_XYZ2UCS = im_LCh2UCS @ im_Lab2LCh @ im_XYZ2Lab;
+im_UCS2XYZ = im_Lab2XYZ @ im_LCh2Lab @ im_UCS2LCh;
 im_sRGB2XYZ = im_scRGB2XYZ @ im_sRGB2scRGB;
 im_XYZ2sRGB = im_scRGB2sRGB @ im_XYZ2scRGB;
 im_Lab2UCS = im_LCh2UCS @ im_Lab2LCh;
 im_UCS2Lab = im_LCh2Lab @ im_UCS2LCh;
+
+im_LabQ2disp in disp = vips_call9 "LabQ2sRGB" [in] [];
+im_Lab2disp in disp = (im_XYZ2sRGB @ im_Lab2XYZ) in;
+im_XYZ2disp in disp = im_XYZ2sRGB in;
+im_disp2Lab in disp = (im_XYZ2Lab @ im_sRGB2XYZ) in;
+im_disp2XYZ in disp = im_sRGB2XYZ in;
 
 im_icc_import x profile intent
 	= vips_call9 "icc_import" [x] [
@@ -233,9 +247,36 @@ im_convsep in matrix
 		$precision => "integer"
 	];
 
+im_aconvsep in matrix
+	= vips_call9 "convsep" [in, matrix] [
+		$precision => "approximate"
+	];
+
 im_convsep_f in matrix
 	= vips_call9 "convsep" [in, matrix] [
 		$precision => "float"
+	];
+
+im_compass in matrix
+	= vips_call9 "compass" [in, matrix] [
+		$times => 8,
+		$angle => "d45",
+		$precision => "integer"
+	];
+
+im_lindetect in matrix
+	= vips_call9 "compass" [in, matrix] [
+		$times => 4,
+		$angle => "d45",
+		$precision => "integer"
+	];
+
+im_gradient in matrix
+	= vips_call9 "compass" [in, matrix] [
+		$times => 2,
+		$angle => "d90",
+		$combine => "sum",
+		$precision => "integer"
 	];
 
 im_rotate_dmask45 matrix
@@ -371,6 +412,26 @@ im_stdif in a m0 b s0 xw yw
 		$m0 => m0,
 		$a => a
 	];
+
+im_stdif_raw = im_stdif;
+
+im_rad2float in
+	= vips_call9 "rad2float" [in] [];
+
+im_float2rad in
+	= vips_call9 "float2rad" [in] [];
+
+im_csv2vips filename
+	= vips_call9 "csvload" [filename] [
+	];
+
+im_binfile filename out width height bands offset
+	= vips_call9 "rawload" [filename, out, width, height, bands] [
+		$offset => offset
+	];
+
+im_video_v4l1 device channel brightness colour contrast hue ngrabs
+	= error "no v4l support";
 
 im_histgr in band_number
 	= vips_call9 "hist_find" [in] [
@@ -513,8 +574,15 @@ im_tone_build_range in_max out_max Lb Lw Ps Pm Ph S M H
 		$H => H
 	];
 
-// this was never ported to vips8 and is a bit useless
-im_zerox in flag = error "im_zerox: not implemented";
+// not useful and not in vips8
+im_tone_analyse in Ps Pm Ph S M H
+	= error "not implemented";
+im_tone_map in lut
+	= error "not implemented";
+im_zerox in flag
+	= error "not implemented";
+im_icc_ac2rc in profile
+	= error "not implemented";
 
 im_cntlines in dir
 	= vips_call9 "countlines" [in, dir] [
@@ -537,6 +605,10 @@ im_affinei_all in interpolate a b c d dx dy
 		$interpolate => interpolate,
 		$idx => dx,
 		$idy => dy
+	];
+
+im_zoom in x y
+	= vips_call9 "zoom" [in, x, y] [
 	];
 
 im_project in
@@ -646,6 +718,10 @@ im_global_balance in gamma
 		$int_output => true
 	];
 
+im_remosaic in old_str new_str
+	= vips_call9 "remosaic" [in, old_str new_str] [
+	];
+
 im_system_image in in_format out_format command
 	= vips_call9 "system" [command] [
 		$in => [in],
@@ -680,6 +756,9 @@ im_draw_flood in start_x start_y ink
 
 im_draw_line image x1 y1 x2 y2 ink
         = vips_call9 "draw_line" [image, ink, x1, y1, x2, y2] [];
+
+im_draw_rect image left top width height fill ink
+        = vips_call9 "draw_rect" [image, ink, left, top, width, height] [];
 
 im_draw_circle image cx cy radius fill ink
         = vips_call9 "draw_circle" [image, ink, cx, cy, radius] [
