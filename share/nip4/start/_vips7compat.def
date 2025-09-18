@@ -415,11 +415,10 @@ im_stdif in a m0 b s0 xw yw
 
 im_stdif_raw = im_stdif;
 
-im_rad2float in
-	= vips_call9 "rad2float" [in] [];
-
 im_float2rad in
 	= vips_call9 "float2rad" [in] [];
+im_rad2float in
+	= vips_call9 "rad2float" [in] [];
 
 im_csv2vips filename
 	= vips_call9 "csvload" [filename] [
