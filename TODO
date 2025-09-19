@@ -1,3 +1,19 @@
+- test other nip4-batch options
+
+	benchmark on banana
+
+- add tab completion ... somewhat like VS intellisense
+
+	should work in workspace entry box, and in program window
+
+- generate little vips8 wrappers automatically on startup
+
+	vips_linear options in a b
+		= vips_call9 "linear" [in, a, b] options;
+
+  could be in a separate namespace? eg.
+
+	vips8.linear
 
 - program: ^W should parse the text and block on error
 
