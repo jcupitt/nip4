@@ -28,7 +28,8 @@ There are three principal modes:
 .B nip4-batch filename [ arg1.. ]
 Load filename as a set of definitions and pass in any other arguments as
 argc and argv. This is the default mode and is suitable for writing scripts
-in nip4's programming language.
+in nip4's programming language. In this mode it will function as a shebang
+interpreter.
 
 .TP
 .B nip4-batch -e expression [ arg1.. ]
@@ -110,6 +111,35 @@ Load argv1 (fred.jpg), add 99, output to result.png.
 .TP
 .B nip4-batch -e "Matrix [[1,2],[4,5]] ** -1" -o poop.mat
 Invert the 2x2 matrix and write the result to poop.mat.
+
+.SH SHEBANG
+
+You can use nip4-batch as a shebang interpreter. For example, this file
+
+.nf
+.ft 6
+  #!/usr/bin/env nip4-batch
+
+  main
+    = error "usage: infile -o outfile", argc != 2
+    = (sharpen @ shrink @ crop) (Image_file argv?1)
+  {
+    crop x = extract_area 100 100 (x.width - 200) (x.height - 200) x;
+    shrink = resize Kernel_linear 0.9 0.9;
+    sharpen = conv (Matrix_con 8 0 [[-1, -1, -1], [-1, 16, -1], [-1, -1, -1]]);
+  }
+.fi
+.ft
+
+When saved to a file called "process" can be executed from your shell like this:
+
+.nf
+.ft 6
+  $ ./process a.jpg -o b.jpg
+.fi
+.ft
+
+Meaning load from a.jpg, process, and save to b.jpg.
 
 .SH COPYRIGHT
 2025 (c) libvips.org
