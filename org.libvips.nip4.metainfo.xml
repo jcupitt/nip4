@@ -57,6 +57,18 @@
 
   <releases>
 
+    <release version="9.0.14" date="2025-09-20">
+      <description>
+        <p>
+
+            This version improves the workspace definitions pane and the
+            programming window. Batch mode now works. Visual styling is
+            improved. Lots of bug fixes and small polishing.
+
+        </p>
+      </description>
+    </release>
+
     <release version="9.0.12" date="2025-08-21">
       <description>
         <p>

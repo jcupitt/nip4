@@ -1,3 +1,21 @@
+- right click on image thumbnail, save-as JPG, doesn't work
+
+- "cancel" button doesn't stop image load
+
+    nip4 ~/pics/st-francis.jpg
+
+  get a cancel button, pressing it pops down the progress bar, but load
+  continues
+
+  vipsdisp is similar
+
+  cancel on save-as seems to work OK
+
+
+
+
+
+
 - toolkitgroupview could have a non-scrolling version as the default
 
 	context would be much clearer, though it would take loads of space
