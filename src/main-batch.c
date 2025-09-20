@@ -417,9 +417,10 @@ main(int argc, char **argv)
     if (main_option_test)
         main_option_verbose = TRUE;
 
-    if (main_option_i18n)
-        /* We'll need to load all menus.
-         */
+	/* We'll need to load all menus for workspace mode, or to gen i18n.
+	 */
+    if (main_option_i18n ||
+		main_option_workspace)
         main_option_no_load_menus = FALSE;
 
 	/* On Windows, argv is ascii-only ... use this to get a utf-8 version of

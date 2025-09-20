@@ -29,11 +29,9 @@ extern Imageinfogroup *main_imageinfogroup;
 extern void *main_c_stack_base;
 extern const char *main_argv0;
 
-extern gboolean main_option_time_save;
-extern gboolean main_option_profile;
 extern gboolean main_option_i18n;
-extern gboolean main_option_batch;
 extern gboolean main_option_no_load_menus;
+extern gboolean main_option_batch;
 
 void set_prefix(const char *prefix);
 const char *get_prefix(void);

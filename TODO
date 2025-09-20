@@ -1,11 +1,3 @@
-- main_shutdown() takes a LONG time
-
-	can we just del temp files maybe? just call vips_shutdown()?
-
-- stop menu loading when we're not in workspace mode?
-
- 	or maybe we do this already?
-
 - add tab completion ... somewhat like VS intellisense
 
 	should work in workspace entry box, and in program window
