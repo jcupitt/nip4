@@ -103,6 +103,7 @@
                     "-DJPEGXL_ENABLE_JNI=off",
                     "-DJPEGXL_ENABLE_MANPAGES=off",
                     "-DJPEGXL_ENABLE_OPENEXR=off",
+                    "-DJPEGXL_ENABLE_SJPEG=off",
                     "-DJPEGXL_ENABLE_TOOLS=off"
                 ]
             },
@@ -139,6 +140,7 @@
             "buildsystem" : "cmake-ninja",
             "build-options" : {
                 "config-opts" : [
+                    "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
                     "-DCMAKE_INSTALL_LIBDIR=lib"
                 ],
                 "arch" : {
