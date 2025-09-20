@@ -1,3 +1,7 @@
+- toolkitgroupview could have a non-scrolling version as the default
+
+	context would be much clearer, though it would take loads of space
+
 - add tab completion ... somewhat like VS intellisense
 
 	should work in workspace entry box, and in program window

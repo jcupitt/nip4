@@ -1,7 +1,7 @@
 {
     "app-id" : "org.libvips.nip4",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "48",
+    "runtime-version" : "49",
     "sdk" : "org.gnome.Sdk",
     "command" : "nip4",
     "finish-args" : [
@@ -374,7 +374,7 @@
                 {
                     "type" : "git",
                     "url" : "https://github.com/libvips/libvips.git",
-                    "tag" : "v8.18.0-test2"
+                    "commit" : "2df097b0f3d8ca6794073d604628371bed718dff"
                 }
             ]
         },
@@ -406,7 +406,7 @@
                 {
                     "type" : "git",
                     "url" : "https://github.com/jcupitt/nip4.git",
-                    "tag" : "v9.0.12"
+                    "tag" : "v9.0.13"
                 }
             ]
         }
