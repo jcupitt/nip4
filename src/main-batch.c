@@ -33,18 +33,10 @@ static gboolean main_option_test = FALSE;
 static char *main_option_prefix = NULL;
 static gboolean main_option_version = FALSE;
 static gboolean main_option_workspace = FALSE;
-
-// need testing
 static char *main_option_expression = NULL;
 static char **main_option_set = NULL;
 static gboolean main_option_verbose = FALSE;
-
-// not needed
-static gboolean main_option_print_main = TRUE;
-static char *main_option_script = NULL;
-static gboolean main_option_stdin_ws = FALSE;
-static gboolean main_option_stdin_def = TRUE;
-
+static gboolean main_option_print = FALSE;
 
 static GOptionEntry main_batch_options[] = {
     { "output", 'o', 0, G_OPTION_ARG_FILENAME, &main_option_output,
@@ -55,28 +47,18 @@ static GOptionEntry main_batch_options[] = {
         N_("start as if installed to PREFIX"), "PREFIX" },
     { "version", 'v', 0, G_OPTION_ARG_NONE, &main_option_version,
         N_("print version number"), NULL },
-    { "workspace", 'v', 0, G_OPTION_ARG_NONE, &main_option_workspace,
+    { "workspace", 'w', 0, G_OPTION_ARG_NONE, &main_option_workspace,
         N_("load args as workspaces"), NULL },
-
-	// no longer needed
-	{ "print-main", 'p', 0, G_OPTION_ARG_NONE, &main_option_print_main,
-        N_( "print value of 'main' to stdout" ), NULL },
-    { "script", 's', 0, G_OPTION_ARG_FILENAME, &main_option_script,
-        N_("load FILE as a set of definitions"), "FILE" },
-    { "stdin-ws", 'w', 0, G_OPTION_ARG_NONE, &main_option_stdin_ws,
-        N_("load stdin as a workspace"), NULL },
-    { "stdin-def", 'd', 0, G_OPTION_ARG_NONE, &main_option_stdin_def,
-        N_("load stdin as a set of definitions"), NULL },
-
-	// these options need testing and fixing
-    { "expression", 'e', 0, G_OPTION_ARG_STRING, &main_option_expression,
-        N_("evaluate and print EXPRESSION"), "EXPRESSION" },
-    { "set", '=', 0, G_OPTION_ARG_STRING_ARRAY, &main_option_set,
-        N_("set values"), NULL },
-    { "verbose", 'V', 0, G_OPTION_ARG_NONE, &main_option_verbose,
-        N_("verbose error output"), NULL },
     { "i18n", 'i', 0, G_OPTION_ARG_NONE, &main_option_i18n,
         N_("output strings for internationalisation"), NULL },
+    { "expression", 'e', 0, G_OPTION_ARG_STRING, &main_option_expression,
+        N_("evaluate and print EXPRESSION"), "EXPRESSION" },
+    { "verbose", 'V', 0, G_OPTION_ARG_NONE, &main_option_verbose,
+        N_("verbose error output"), NULL },
+    { "set", '=', 0, G_OPTION_ARG_STRING_ARRAY, &main_option_set,
+        N_("set values"), NULL },
+    { "print", 'p', 0, G_OPTION_ARG_NONE, &main_option_print,
+        N_("print \"main\""), NULL },
 
     { NULL }
 };
@@ -362,6 +344,21 @@ main_build_argv(int argc, char **argv)
 	filemodel_set_modified(FILEMODEL(kit), FALSE);
 }
 
+static void
+main_expression(const char *expression)
+{
+	Toolkit *kit = toolkit_new(main_toolkitgroup, "_expression");
+
+	char txt[MAX_STRSIZE];
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
+
+	vips_buf_appendf(&buf, "main = %s;", main_option_expression);
+	attach_input_string(vips_buf_all(&buf));
+	(void) parse_onedef(kit, -1);
+
+	filemodel_set_modified(FILEMODEL(kit), FALSE);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -450,6 +447,9 @@ main(int argc, char **argv)
 
 		// the rest of argc/argv become nip4 defs
 		main_build_argv(argc - 1, argv + 1);
+
+		// always print main in script mode
+		main_option_print = TRUE;
 	}
 	else {
 		// load args as workspaces ... the empty wsg is something for images
@@ -478,23 +478,30 @@ main(int argc, char **argv)
             main_error_exit("--test: errors found");
     }
 
+    if (main_option_expression) {
+		main_expression(main_option_expression);
+		main_option_print = TRUE;
+	}
+
 	/* Print or save all the mains we can find: one at the top level,
 	 * one in each workspace.
 	 */
-	Symbol *sym;
-	gboolean found;
+	if (main_option_print) {
+		Symbol *sym;
+		gboolean found;
 
-	symbol_recalculate_all_force(TRUE);
+		symbol_recalculate_all_force(TRUE);
 
-	found = FALSE;
-	if ((sym = compile_lookup(symbol_root->expr->compile, "main"))) {
-		main_print_main(sym);
-		found = TRUE;
+		found = FALSE;
+		if ((sym = compile_lookup(symbol_root->expr->compile, "main"))) {
+			main_print_main(sym);
+			found = TRUE;
+		}
+		workspace_map((workspace_map_fn) main_print_ws, &found, NULL);
+
+		if (!found)
+			main_error_exit("%s", _("no \"main\" found"));
 	}
-	workspace_map((workspace_map_fn) main_print_ws, &found, NULL);
-
-	if (!found)
-		main_error_exit("%s", _("no \"main\" found"));
 
     main_shutdown();
 

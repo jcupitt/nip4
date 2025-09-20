@@ -16,7 +16,8 @@
 - fix an infobar race
 - program: add find unresolved syms
 - lots more vips7 compat macros
-- fix nip4-batch as a shebang interpreter
+- fix up nip4-batch
+- add some man pages
 
 ## 9.0.12 2025/08/21
 

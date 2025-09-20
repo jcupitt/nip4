@@ -1,0 +1,115 @@
+.TH NIP4-BATCH 1 "Oct 4 2025"
+
+.SH NAME
+.PP
+nip4-batch - command-line interface to the nip4 image processing spreadsheet
+
+.SH SYNOPSIS
+.B nip4-batch
+.I filename
+.RI [ arg1.. ]
+.br
+.B nip4-batch -e
+.I expression
+.RI [ arg1.. ]
+.br
+.B nip4-batch -w
+.RI [ filename1.. ]
+
+.SH DESCRIPTION
+.B nip4-batch
+is a command-line interface to the
+.B nip4(1)
+image processing spreadsheet.
+
+There are three principal modes:
+
+.TP
+.B nip4-batch filename [ arg1.. ]
+Load filename as a set of definitions and pass in any other arguments as
+argc and argv. This is the default mode and is suitable for writing scripts
+in nip4's programming language.
+
+.TP
+.B nip4-batch -e expression [ arg1.. ]
+Set main = expression, set argc and argc to any remaining arguments, and
+print the value of symbol "main" to stdout.
+
+.TP
+.B nip4-batch -w [ filename1.. ]
+Load the named files as workspaces or images. You can use the options below
+to pass the workspace parameters and control what workspace results are
+saved or printed.
+
+.SS "Command Line Options"
+.PP
+These options give more precise control over nip4-batch's behaviour.
+
+.TP
+.B --workspace
+Load arguments as workspaces.
+
+.TP
+.BI --expression= expression
+Evaluate
+.I expression
+and print the result to stdout. Any other arguments are loaded as argc and
+argv.
+
+.TP
+.BI --output= filename
+The value of main is written to
+.I filename.
+If main is a
+list, the filename is incremented between objects. You can use
+the suffix to specify the format and options to write in.
+
+.TP
+.B --print-main
+Print the value of main on exit. nip4-batch will check for a top-level
+symbol called main, and also check each workspace for a main.
+
+.SS "Debugging Options"
+.PP
+Some other options are useful for debugging, benchmarking, and for generating
+strings for internationalisation.
+
+.TP
+.B --verbose
+Produce verbose error messages: handy for debugging in batch mode.
+
+.TP
+.B --i18n
+Output strings from .def files for internationalisation.
+
+.TP
+.B --version
+Print version information.
+
+.TP
+.B --test
+Start up (including any arg processing), test for any errors,
+and exit with an error code if any occurred. Useful for running
+automated tests.
+
+.TP
+.BI --prefix= PREFIX
+Set install prefix. Start up as if nip4-batch had been installed to PREFIX.
+Useful for running automated tests without installing the thing.
+
+.SH EXAMPLES
+
+.TP
+.B nip4-batch -e "2 + 2"
+Prints 4 to stdout.
+
+.TP
+.B nip4-batch -e "99 + Image_file argv?1" -o result.png fred.jpg
+Load argv1 (fred.jpg), add 99, output to result.png.
+
+.TP
+.B nip4-batch -e "Matrix [[1,2],[4,5]] ** -1" -o poop.mat
+Invert the 2x2 matrix and write the result to poop.mat.
+
+.SH COPYRIGHT
+2025 (c) libvips.org
