@@ -43,7 +43,7 @@
 
   <screenshots>
 
-    <screenshot>
+    <screenshot type="default">
       <image>https://raw.githubusercontent.com/jcupitt/nip4/master/images/shot1.png</image>
       <caption>The CHARISMA workspace for museum technical imaging</caption>
     </screenshot>
