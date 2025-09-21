@@ -57,13 +57,13 @@
 
   <releases>
 
-    <release version="9.0.14" date="2025-09-20">
+    <release version="9.0.13" date="2025-09-20">
       <description>
         <p>
 
-            This version improves the workspace definitions pane and the
-            programming window. Batch mode now works. Visual styling is
-            improved. Lots of bug fixes and small polishing.
+        This version improves the workspace definitions pane and the
+        programming window. Batch mode is now complete. Visual styling is
+        improved. Lots of bug fixes and small polishing.
 
         </p>
       </description>

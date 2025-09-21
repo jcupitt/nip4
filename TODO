@@ -1,5 +1,3 @@
-- right click on image thumbnail, save-as JPG, doesn't work
-
 - "cancel" button doesn't stop image load
 
     nip4 ~/pics/st-francis.jpg
@@ -8,6 +6,8 @@
   continues
 
   vipsdisp is similar
+
+  it will prevent image load
 
   cancel on save-as seems to work OK
 
