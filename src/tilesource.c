@@ -1209,10 +1209,12 @@ tilesource_background_load_done_idle(void *user_data)
 	Tilesource *tilesource = (Tilesource *) user_data;
 
 #ifdef DEBUG
-	printf("tilesource_background_load_done_cb: ... unreffing\n");
+	printf("tilesource_background_load_done_cb: load_error = %d\n",
+		tilesource->load_error);
 #endif /*DEBUG*/
 
-	/* You can now fetch pixels from abse and rebuild image.
+	/* You can now fetch pixels from base and rebuild image. But check
+	 * load_error.
 	 */
 	g_object_set(tilesource,
 		"loaded", TRUE,
@@ -1992,6 +1994,12 @@ tilesource_request_tile(Tilesource *tilesource, Tile *tile)
 	printf("tilesource_request_tile: %d x %d\n",
 		tile->region->valid.left, tile->region->valid.top);
 #endif /*DEBUG_VERBOSE*/
+
+	if (tilesource->load_error) {
+		error_top(_("Unable to load image"));
+		error_sub("%s", tilesource->load_message);
+		return -1;
+	}
 
 	/* Change z if necessary.
 	 */
