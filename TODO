@@ -1,9 +1,9 @@
+
 - cancel image load, temp file left, not cleaned on ^Q
 
-- do the cleanup thing in main_shutdown() if nip4 has been built in meson
-  debug mode
+	heap_gc() doesn't fix this
 
-- update screenshots for UI changes
+	do we need a libvuips change?
 
 - toolkitgroupview could have a non-scrolling version as the default
 

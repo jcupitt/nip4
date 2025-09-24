@@ -1,5 +1,8 @@
 ## master
 
+- fix load cancel
+- leak test on shutdown not in release builds
+
 ## 9.0.13 2025/09/20
 
 - improve Text

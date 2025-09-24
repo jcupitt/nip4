@@ -403,9 +403,10 @@ main_startup(int argc, char **argv)
 void
 main_shutdown(void)
 {
-#ifdef DEBUG
-	/* Do a careful shutdown (very slow) in DEBUG
+#ifndef RELEASE
+	/* Do a careful shutdown (very slow)>
 	 */
+	printf("main_shutdown: shutdown leak test ...\n");
 
 	/* Junk all symbols. This may remove a bunch of intermediate images
 	 * too.
@@ -431,7 +432,7 @@ main_shutdown(void)
 	managed_check_all_destroyed();
 	util_check_all_destroyed();
 	view_dump();
-#endif /*DEBUG*/
+#endif /*DEBUG_LEAK*/
 
 	/* Can we leave files in tmp after ^C/^V?
 	 */

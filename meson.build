@@ -1,6 +1,6 @@
 project('nip4', 'c',
   # ie. a major after nip2 8.9 for workspace save file versioning
-  version: '9.0.13',
+  version: '9.0.14',
   license: 'GPL',
   meson_version: '>=0.64',
   default_options: [
@@ -26,6 +26,14 @@ project_build_root = meson.current_build_dir()
 
 pkg = import('pkgconfig')
 gnome = import('gnome')
+
+# if we're optimising (eg. release mode) we turn off cast checks and g_asserts
+if get_option('optimization') not in ['0', 'g']
+  add_project_arguments('-DG_DISABLE_CAST_CHECKS', language: ['cpp', 'c'])
+  add_project_arguments('-DG_DISABLE_CHECKS', language: ['cpp', 'c'])
+  add_project_arguments('-DG_DISABLE_ASSERT', language: ['cpp', 'c'])
+  add_project_arguments('-DRELEASE', language: ['cpp', 'c'])
+endif
 
 # we should probably have more flexibility here
 lex = find_program('flex')
