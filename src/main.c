@@ -403,11 +403,6 @@ main_startup(int argc, char **argv)
 void
 main_shutdown(void)
 {
-#ifndef RELEASE
-	/* Do a careful shutdown (very slow)>
-	 */
-	printf("main_shutdown: shutdown leak test ...\n");
-
 	/* Junk all symbols. This may remove a bunch of intermediate images
 	 * too.
 	 */
@@ -420,13 +415,10 @@ main_shutdown(void)
 	 */
 	reduce_destroy(reduce_context);
 
+	/* Trust, but verify.
+	 */
+#ifndef RELEASE
 	path_rewrite_free_all();
-
-	/* Should have freed everything now.
-	 */
-
-	/* Make sure!
-	 */
 	VIPS_UNREF(main_imageinfogroup);
 	heap_check_all_destroyed();
 	managed_check_all_destroyed();

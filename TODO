@@ -14,7 +14,11 @@
 
   could be in a separate namespace? eg.
 
-	vips8.linear
+	vips8.linear options in a b
+
+  was main_link_package() in nip2, made SYM_EXTERNAL tools
+
+  SYM_EXTERNAL is gone
 
 - program: ^W should parse the text and block on error
 

@@ -1469,18 +1469,13 @@ builtin_gsl_error(const char *reason, const char *file,
 void
 builtin_init(void)
 {
-	Toolkit *kit;
-	int i;
-
 	/* Make the _builtin toolkit and populate.
 	 */
-	kit = toolkit_new(main_toolkitgroup, "_builtin");
-
-	for (i = 0; i < VIPS_NUMBER(builtin_table); i++) {
+	Toolkit *kit = toolkit_new(main_toolkitgroup, "_builtin");
+	for (int i = 0; i < VIPS_NUMBER(builtin_table); i++) {
 		Symbol *sym;
 
-		sym = symbol_new(symbol_root->expr->compile,
-			builtin_table[i].name);
+		sym = symbol_new(symbol_root->expr->compile, builtin_table[i].name);
 		g_assert(sym->type == SYM_ZOMBIE);
 		sym->type = SYM_BUILTIN;
 		sym->builtin = &builtin_table[i];
