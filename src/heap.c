@@ -2531,11 +2531,12 @@ graph_pointer(PElement *root)
 
 /* Fwd ref.
  */
-static void shell_pelement(PElement *base);
+static gboolean shell_pelement(PElement *base);
 
-/* Print a graph shell-style.
+/* Print a graph shell-style. TRUE for node is a concrete, printable or
+ * saveable thing.
  */
-static void
+static gboolean
 shell_node(HeapNode *hn)
 {
 	PElement p1, p2;
@@ -2544,9 +2545,13 @@ shell_node(HeapNode *hn)
 	 */
 	if (hn->flgs & FLAG_PRINT) {
 		printf("<*circular*>");
-		return;
+		return TRUE;
 	}
 	hn->flgs |= FLAG_PRINT;
+
+	gboolean concrete;
+
+	concrete = FALSE;
 
 	switch (hn->type) {
 	case TAG_CLASS:
@@ -2563,15 +2568,17 @@ shell_node(HeapNode *hn)
 		string_mode = PEISCHAR(&p1);
 
 		for (;;) {
-			if (string_mode)
+			if (string_mode) {
 				printf("%c", PEGETCHAR(&p1));
+				concrete = TRUE;
+			}
 			else
-				shell_pelement(&p1);
+				concrete = shell_pelement(&p1);
 
 			PEPOINTRIGHT(hn, &p2);
 			if (PEISMANAGEDSTRING(&p2)) {
-				printf("%s\n",
-					PEGETMANAGEDSTRING(&p2)->string);
+				printf("%s\n", PEGETMANAGEDSTRING(&p2)->string);
+				concrete = TRUE;
 				break;
 			}
 			else if (PEISELIST(&p2))
@@ -2584,28 +2591,37 @@ shell_node(HeapNode *hn)
 			if (string_mode && !PEISCHAR(&p1))
 				string_mode = FALSE;
 		}
-	} break;
+	}
+		break;
 
 	case TAG_DOUBLE:
 		printf("%g", hn->body.num);
+		concrete = TRUE;
 		break;
 
 	case TAG_COMPLEX:
 		printf("%g %g",
 			GETLEFT(hn)->body.num, GETRIGHT(hn)->body.num);
+		concrete = TRUE;
 		break;
 
 	case TAG_FREE:
 	default:
 		g_assert(FALSE);
 	}
+
+	return concrete;
 }
 
 /* Print a pelement shell-style.
  */
-static void
+static gboolean
 shell_pelement(PElement *base)
 {
+	gboolean concrete;
+
+	concrete = FALSE;
+
 	switch (PEGETTYPE(base)) {
 	/* Only allow concrete base types.
 	 */
@@ -2618,23 +2634,25 @@ shell_pelement(PElement *base)
 	case ELEMENT_TAG:
 	case ELEMENT_SYMBOL:
 	case ELEMENT_NOVAL:
-		printf("no-value");
 		break;
 
 	case ELEMENT_NODE:
-		shell_node(PEGETVAL(base));
+		concrete = shell_node(PEGETVAL(base));
 		break;
 
 	case ELEMENT_CHAR:
 		printf("%c", (int) PEGETCHAR(base));
+		concrete = TRUE;
 		break;
 
 	case ELEMENT_BOOL:
 		printf("%s", bool_to_char(PEGETBOOL(base)));
+		concrete = TRUE;
 		break;
 
 	case ELEMENT_ELIST:
 		printf("[ ]");
+		concrete = TRUE;
 		break;
 
 	case ELEMENT_MANAGED:
@@ -2642,11 +2660,14 @@ shell_pelement(PElement *base)
 			printf("%s", PEGETIMAGE(base)->filename);
 		else if (PEISMANAGEDSTRING(base))
 			printf("%s", PEGETMANAGEDSTRING(base)->string);
+		concrete = TRUE;
 		break;
 
 	default:
 		g_assert(FALSE);
 	}
+
+	return concrete;
 }
 
 /* Print a pelement shell-style.
@@ -2660,6 +2681,6 @@ graph_value(PElement *root)
 		error_alert(NULL);
 
 	heap_clear(reduce_context->heap, FLAG_PRINT);
-	shell_pelement(root);
-	printf("\n");
+	if (shell_pelement(root))
+		printf("\n");
 }

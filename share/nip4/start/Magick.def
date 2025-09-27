@@ -36,8 +36,8 @@ Magick_noop_item = class
 		_vislevel = 3;
 
 		command = Magick.command [
-			"\"%s\"",
-			"\"%s\""
+			"'%s'",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -53,9 +53,9 @@ Magick_testPar_item = class
 		_vislevel = 3;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"( +clone ) +append ",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -82,8 +82,8 @@ Magick_NewImageMenu_item = class
 			colour = Magick.generalcol_widget;
 			command = Magick.command [
 				size._flag,
-				"\"canvas:" ++ colour._flag ++ "\"",
-				"\"%s\""
+				"'canvas:" ++ colour._flag ++ "'",
+				"'%s'"
 			];
 
 			_result = Magick.system0 command;
@@ -99,7 +99,7 @@ Magick_NewImageMenu_item = class
 			builtin = Magick.builtin_widget;
 			command = Magick.command [
 				builtin._flag,
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system0 command;
@@ -118,9 +118,9 @@ Magick_NewImageMenu_item = class
 
 			command = Magick.command [
 				size._flag,
-				concat ["\"gradient:",
-					topColour._flag, "-", bottomColour._flag, "\""],
-				"\"%s\""
+				concat ["'gradient:",
+					topColour._flag, "-", bottomColour._flag, "'"],
+				"'%s'"
 			];
 
 			_result = Magick.system0 command;
@@ -136,7 +136,7 @@ Magick_NewImageMenu_item = class
 			order = Expression "order" 8;
 			command = Magick.command [
 				"hald:" ++ print order.expr,
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system0 command;
@@ -154,7 +154,7 @@ Magick_NewImageMenu_item = class
 			command = Magick.command [
 				size._flag,
 				pattern._flag,
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system0 command;
@@ -174,7 +174,7 @@ Magick_NewImageMenu_item = class
 			command = Magick.command [
 				size._flag,
 				"plasma:",
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system0 command;
@@ -194,9 +194,9 @@ Magick_NewImageMenu_item = class
 
 			command = Magick.command [
 				size._flag,
-				concat ["\"radial-gradient:",
-					innerColour._flag, "-", outerColour._flag, "\""],
-				"\"%s\""
+				concat ["'radial-gradient:",
+					innerColour._flag, "-", outerColour._flag, "'"],
+				"'%s'"
 			];
 
 			_result = Magick.system0 command;
@@ -219,13 +219,13 @@ Magick_MultiMenu_item = class
 			gravity = Magick.gravity_widget;
 
 			command = Magick.command [
-				"\"%s\"",
-				"\"%s\"",
+				"'%s'",
+				"'%s'",
 				"-geometry", offsets._flag,
 				gravity._flag,
 				method._flag,
 				"-composite",
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system2 command x y;
@@ -243,14 +243,14 @@ Magick_MultiMenu_item = class
 			gravity = Magick.gravity_widget;
 
 			command = Magick.command [
-				"\"%s\"",
-				"\"%s\"",
-				"\"%s\"",
+				"'%s'",
+				"'%s'",
+				"'%s'",
 				"-geometry", offsets._flag,
 				gravity._flag,
 				method._flag,
 				"-composite",
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system3 command x y z;
@@ -272,10 +272,10 @@ Magick_MultiMenu_item = class
 			// FIXME: uses -intensity "when mapping greyscale CLUT image to alpha channel if set by -channels"
 
 			command = Magick.command [
-				"\"%s\"",
-				"\"%s\"",
+				"'%s'",
+				"'%s'",
 				"-clut",
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system2 command x y;
@@ -289,10 +289,10 @@ Magick_MultiMenu_item = class
 			_vislevel = 3;
 
 			command = Magick.command [
-				"\"%s\"",
-				"\"%s\"",
+				"'%s'",
+				"'%s'",
 				"-hald-clut",
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system2 command x y;
@@ -312,12 +312,12 @@ Magick_MultiMenu_item = class
 			isDecipher = Toggle "Decipher" false;
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				if pathname.value == "" then "" else (
 					( if isDecipher then "-decipher " else "-encipher ") ++
-					( "\"" ++ pathname.value ++ "\"" )
+					( "'" ++ pathname.value ++ "'" )
 				),
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -334,14 +334,14 @@ Magick_MultiMenu_item = class
 			pathname2 = Pathname "Read profile file" "";
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				if pathname1.value == "" then "" else (
 					"-profile " ++
-					"\"" ++ pathname1.value ++ "\""),
+					"'" ++ pathname1.value ++ "'"),
 				if pathname2.value == "" then "" else (
 					"-profile " ++
-					"\"" ++ pathname2.value ++ "\""),
-				"\"%s\""
+					"'" ++ pathname2.value ++ "'"),
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -355,10 +355,10 @@ Magick_MultiMenu_item = class
 			_vislevel = 3;
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				"-remap",
-				"\"%s\"",
-				"\"%s\""
+				"'%s'",
+				"'%s'"
 			];
 
 			_result = Magick.system2 command x y;
@@ -377,9 +377,9 @@ Magick_image_type_item = class
 		imagetype = Magick.imagetype_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			imagetype._flag,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -396,9 +396,9 @@ Magick_alpha_item = class
 
 		alpha = Magick.alpha_widget;
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			alpha._flag,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -419,7 +419,7 @@ Magick_annotate_item = class
 		undercol = Magick.undercol_widget;
 		antialias = Magick.antialias_widget;
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			font._flag,
 			antialias._flag,
 			gravity._flag,
@@ -427,8 +427,8 @@ Magick_annotate_item = class
 			undercol._flag,
 			"-annotate",
 			geometry._flag,
-			"\"" ++ text.value ++ "\"",
-			"\"%s\""
+			"'" ++ text.value ++ "'",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -443,10 +443,10 @@ Magick_autoGamma_item = class
 
 		channels = Magick.channels_widget;
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			"-auto-gamma",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -461,10 +461,10 @@ Magick_autoLevel_item = class
 
 		channels = Magick.channels_widget;
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			"-auto-level",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -487,12 +487,12 @@ Magick_blurSharpMenu_item = class
 			// note: adaptive-blur doesn't regard VP.
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				intensity._flag,
 				channels._flag,
 				"-adaptive-blur",
 				print radius.value ++ "x" ++ print sigma.value,
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -510,12 +510,12 @@ Magick_blurSharpMenu_item = class
 			channels = Magick.channels_widget;
 			virtpixback = Magick.VirtualPixelBack_widget;
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				virtpixback._flag,
 				channels._flag,
 				"-blur",
 				print radius.value ++ "x" ++ print sigma.value,
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -533,12 +533,12 @@ Magick_blurSharpMenu_item = class
 			channels = Magick.channels_widget;
 			virtpixback = Magick.VirtualPixelBack_widget;
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				virtpixback._flag,
 				channels._flag,
 				"-gaussian-blur",
 				print radius.value ++ "x" ++ print sigma.value,
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -557,14 +557,14 @@ Magick_blurSharpMenu_item = class
 			channels = Magick.ch_widget;
 			virtpixback = Magick.VirtualPixelBack_widget;
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				virtpixback._flag,
 				channels._flag,
 				"-motion-blur",
 				print radius.value ++ "x" ++
 					print sigma.value ++ "+" ++
 					print angle.value,
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -572,7 +572,7 @@ Magick_blurSharpMenu_item = class
 	}
 
 	Magick_rotationalBlur_item = class
-		Menuaction "_RotationalBlur" "blur around the centre" {
+		Menuaction "_Rotational Blur" "blur around the centre" {
 		action x = class
 			_result {
 			_vislevel = 3;
@@ -582,12 +582,12 @@ Magick_blurSharpMenu_item = class
 			angle = Scale "angle (degrees)" (-360) 360 20;
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				virtpixback._flag,
 				channels._flag,
 				"-radial-blur",
 				print angle.value,
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -607,7 +607,7 @@ Magick_blurSharpMenu_item = class
 			channels = Magick.channels_widget;
 			virtpixback = Magick.VirtualPixelBack_widget;
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				intensity._flag,
 				virtpixback._flag,
 				channels._flag,
@@ -615,7 +615,7 @@ Magick_blurSharpMenu_item = class
 				print radius.value ++ "x" ++
 					print sigma.value ++  "+" ++
 					print threshold.value ++ "%%",
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -635,11 +635,11 @@ Magick_blurSharpMenu_item = class
 			sigma = Magick.sigma_widget;
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				intensity._flag,
 				"-adaptive-sharpen",
 				print radius.value ++ "x" ++ print sigma.value,
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -657,12 +657,12 @@ Magick_blurSharpMenu_item = class
 			channels = Magick.channels_widget;
 			virtpixback = Magick.VirtualPixelBack_widget;
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				virtpixback._flag,
 				channels._flag,
 				"-sharpen",
 				print radius.value ++ "x" ++ print sigma.value,
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -683,7 +683,7 @@ Magick_blurSharpMenu_item = class
 			virtpixback = Magick.VirtualPixelBack_widget;
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				virtpixback._flag,
 				channels._flag,
 				"-unsharp",
@@ -691,7 +691,7 @@ Magick_blurSharpMenu_item = class
 					print sigma.value ++ "+" ++
 					print gain.value ++ "+" ++
 					print threshold.value,
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -712,12 +712,12 @@ Magick_border_item = class
 		bordercol = Magick.bordercol_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			compose._flag,
 			bordercol._flag,
 			"-border",
 			print width.expr,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -735,11 +735,11 @@ Magick_brightCont_item = class
 		channels = Magick.channels_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			"-brightness-contrast",
 			print bri.value ++ "x" ++ print con.value,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -760,15 +760,15 @@ Magick_canny_item = class
 		highPc = Scale "lower percent" 0 100 10;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-canny",
-			concat ["\"",
+			concat ["'",
 				print radius.value ++ "x" ++
 				print sigma.value ++ "+" ++
-				print lowPc.value ++ "%%+" ++
-				print highPc.value ++ "%%" ++ "\""
+				print lowPc.value ++ "%+" ++
+				print highPc.value ++ "%" ++ "'"
 			],
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -786,11 +786,11 @@ Magick_charcoal_item = class
 		factor = Scale "factor" 0 50 1;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			intensity._flag,
 			"-charcoal",
 			print factor.value,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -807,11 +807,11 @@ Magick_chop_item = class
 		geometry = Magick.WhxyGeometry_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			gravity._flag,
 			"-chop",
 			geometry._flag,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -828,11 +828,11 @@ Magick_colorize_item = class
 		val = Scale "value" 0 100 100;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			foreground._flag,
 			"-colorize",
 			print val.value,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -851,14 +851,14 @@ Magick_colors_item = class
 		colors = Expression "Colours" 3;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-quantize", quantize._flag,
 			"-treedepth",
 			print treedepth.expr,
 			dither._flag,
 			"-colors",
 			print colors.expr,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -876,10 +876,10 @@ Magick_colorspace_item = class
 		colsp = Magick.colorspace_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-colorspace",
 			colsp._flag,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -895,10 +895,10 @@ Magick_colorspaceGray_item = class
 		intensity = Magick.intensity_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			intensity._flag,
 			"-colorspace gray",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -914,9 +914,9 @@ Magick_contrast_item = class
 		isReduce = Toggle "reduce contrast" false;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			(if isReduce then "+" else "-") ++ "contrast",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -935,12 +935,12 @@ Magick_contrastStretch_item = class
 		wht = Scale "percent to make white" 0 100 0;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			intensity._flag,
 			channels._flag,
 			"-contrast-stretch",
-			"\"" ++ print blk.value ++ "x" ++ print wht.value ++ "%%\"",
-			"\"%s\""
+			"'" ++ print blk.value ++ "x" ++ print wht.value ++ "%'",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -959,12 +959,12 @@ Magick_crop_item = class
 		geometry = Magick.WhxyGeometry_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			gravity._flag,
 			"-crop",
 			geometry._flag,
 			"+repage",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -982,11 +982,11 @@ Magick_deskew_item = class
 		// FIXME: toggle auto-crop?
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-deskew",
-			"\"" ++ print threshold.value ++ "%%\"",
+			"'" ++ print threshold.value ++ "%'",
 			"+repage",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1000,9 +1000,9 @@ Magick_despeckle_item = class
 		_vislevel = 3;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-despeckle",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1021,13 +1021,13 @@ Magick_distort_item = class
 		isPlus = Toggle "Extend to show entire image" false;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			virtpixback._flag,
 			(if isPlus then "+" else "-") ++ "distort",
 			distort._flag,
 			args.value,
 			"+repage",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1044,11 +1044,11 @@ Magick_draw_item = class
 		args = String "Arguments" "line 0,0 9,9 rectangle 10,10 20,20";
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			foreground._flag,
 			"-draw",
-			concat ["\"", args.value, "\""],
-			"\"%s\""
+			concat ["'", args.value, "'"],
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1064,10 +1064,10 @@ Magick_edge_item = class
 		rad = Expression "Radius" 3;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-edge",
 			print rad.expr,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1083,10 +1083,10 @@ Magick_emboss_item = class
 		rad = Expression "Radius" 3;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-emboss",
 			print rad.expr,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1100,9 +1100,9 @@ Magick_enhance_item = class
 		_vislevel = 3;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-enhance",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1118,10 +1118,10 @@ Magick_equalize_item = class
 		channels = Magick.channels_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			"-equalize",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1140,11 +1140,11 @@ Magick_evaluate_item = class
 		isPc = Toggle "Value is percent" false;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			operation._flag,
 			print val.expr ++ if isPc then "%%" else "",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1163,13 +1163,13 @@ Magick_extent_item = class
 		geometry = Magick.WhxyGeometry_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			compose._flag,
 			background._flag,
 			gravity._flag,
 			"-extent",
 			geometry._flag,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1187,9 +1187,9 @@ Magick_FlipFlopMenu_item = class
 			_vislevel = 3;
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				"-flip",
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -1203,9 +1203,9 @@ Magick_FlipFlopMenu_item = class
 			_vislevel = 3;
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				"-flop",
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -1219,9 +1219,9 @@ Magick_FlipFlopMenu_item = class
 			_vislevel = 3;
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				"-transpose +repage",
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -1235,9 +1235,9 @@ Magick_FlipFlopMenu_item = class
 			_vislevel = 3;
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				"-transverse +repage",
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -1259,14 +1259,14 @@ Magick_floodfill_item = class
 
 		// -draw "color x,y floodfill"
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			foreground._flag,
 			"-fuzz",
-			"\"" ++ print fuzz.value ++ "%%\"",
-			"-draw \" color",
+			"'" ++ print fuzz.value ++ "%'",
+			"-draw ' color",
 			coordinate._flag,
-			"floodfill \"",
-			"\"%s\""
+			"floodfill '",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1285,13 +1285,13 @@ Magick_frame_item = class
 		geometry = Magick.FrameGeometry_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			compose._flag,
 			border._flag,
 			matte._flag,
 			"-frame",
 			geometry._flag,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1310,12 +1310,12 @@ Magick_function_item = class
 		values = String "values" "0,0,0,0";
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			"-function",
 			function._flag,
 			values.value,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1334,13 +1334,13 @@ Magick_fx_item = class
 		args = String "Expression" "u*1/2";
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			interpolate._flag,
 			virtpixback._flag,
 			"-fx",
-			concat ["\"", args.value, "\""],
-			"\"%s\""
+			concat ["'", args.value, "'"],
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1357,11 +1357,11 @@ Magick_gamma_item = class
 		gamma = Magick.gamma_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			"-gamma",
 			print gamma.value,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1383,20 +1383,20 @@ Magick_gradient_item = class
 				"top-left", "top-right",
 				"bottom-left", "bottom-right"] 0;
 		_baryArg
-			= concat ["0,0,", colourA._flag, " 0,%%[fx:h-1],", colourB._flag], position.value == 0
-			= concat ["0,0,", colourB._flag, " 0,%%[fx:h-1],", colourA._flag], position.value == 1
-			= concat ["0,0,", colourA._flag, " %%[fx:w-1],0,", colourB._flag], position.value == 2
-			= concat ["0,0,", colourB._flag, " %%[fx:w-1],0,", colourA._flag], position.value == 3
-			= concat ["0,0,", colourA._flag, " %%[fx:w-1],%%[fx:h-1],", colourB._flag], position.value == 4
-			= concat ["%%[fx:w-1],0,", colourA._flag, " 0,%%[fx:h-1],", colourB._flag], position.value == 5
-			= concat ["%%[fx:w-1],0,", colourB._flag, " 0,%%[fx:h-1],", colourA._flag], position.value == 6
-			= concat ["0,0,", colourB._flag, " %%[fx:w-1],%%[fx:h-1],", colourA._flag], position.value == 7
+			= concat ["0,0,", colourA._flag, " 0,%[fx:h-1],", colourB._flag], position.value == 0
+			= concat ["0,0,", colourB._flag, " 0,%[fx:h-1],", colourA._flag], position.value == 1
+			= concat ["0,0,", colourA._flag, " %[fx:w-1],0,", colourB._flag], position.value == 2
+			= concat ["0,0,", colourB._flag, " %[fx:w-1],0,", colourA._flag], position.value == 3
+			= concat ["0,0,", colourA._flag, " %[fx:w-1],%[fx:h-1],", colourB._flag], position.value == 4
+			= concat ["%[fx:w-1],0,", colourA._flag, " 0,%[fx:h-1],", colourB._flag], position.value == 5
+			= concat ["%[fx:w-1],0,", colourB._flag, " 0,%[fx:h-1],", colourA._flag], position.value == 6
+			= concat ["0,0,", colourB._flag, " %[fx:w-1],%[fx:h-1],", colourA._flag], position.value == 7
 			= "dunno";
 
 		command = Magick.command [
-			"\"%s\"",
-			"-sparse-color barycentric \"" ++ _baryArg ++ "\"",
-			"\"%s\""
+			"'%s'",
+			"-sparse-color barycentric '" ++ _baryArg ++ "'",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1416,14 +1416,14 @@ Magick_gradientCorn_item = class
 		colour_bottom_right = Magick.generalcol_widget;
 
 		command = Magick.command [
-			"\"%s\"",
-			"-sparse-color bilinear \"" ++
+			"'%s'",
+			"-sparse-color bilinear '" ++
 				"0,0," ++ colour_top_left._flag ++
-				",%%[fx:w-1],0" ++ colour_top_right._flag ++
-				",0,%%[fx:h-1]" ++ colour_bottom_left._flag ++
-				",%%[fx:w-1],%%[fx:h-1]" ++ colour_bottom_right._flag ++ "\"",
+				",%[fx:w-1],0" ++ colour_top_right._flag ++
+				",0,%[fx:h-1]" ++ colour_bottom_left._flag ++
+				",%[fx:w-1],%[fx:h-1]" ++ colour_bottom_right._flag ++ "'",
 			"+depth",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1437,9 +1437,9 @@ Magick_histogram_item = class
 		_vislevel = 3;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-define histogram:unique-colors=false histogram:" ++
-				"\"%s\""
+				"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1457,11 +1457,11 @@ Magick_implode_item = class
 		// FIXME: virtual-pixel?
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			interpolate._flag,
 			"-implode",
 			print factor.value,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1482,13 +1482,13 @@ Magick_level_item = class
 		isInv = Toggle "Invert effect" false;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			(if isInv then "+" else "-") ++ "level",
-			"\"" ++ print blk.value ++ "," ++
-				print wht.value ++ (if isPc then "%%" else "") ++ "," ++
-				print gam.value ++ "\"",
-			"\"%s\""
+			"'" ++ print blk.value ++ "," ++
+				print wht.value ++ (if isPc then "%" else "") ++ "," ++
+				print gam.value ++ "'",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1507,11 +1507,11 @@ Magick_levelCols_item = class
 		isInv = Toggle "Invert effect" false;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			(if isInv then "+" else "-") ++ "level-colors",
-			"\"" ++ colour_black._flag ++ "," ++ colour_white._flag ++ "\"",
-			"\"%s\""
+			"'" ++ colour_black._flag ++ "," ++ colour_white._flag ++ "'",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1529,11 +1529,11 @@ Magick_linearStretch_item = class
 		wht = Scale "percent to make white" 0 100 0;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			"-linear-stretch",
-			"\"" ++ print blk.value ++ "x" ++ print wht.value ++ "%%\"",
-			"\"%s\""
+			"'" ++ print blk.value ++ "x" ++ print wht.value ++ "%'",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1547,9 +1547,9 @@ Magick_magnify_item = class
 		_vislevel = 3;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-magnify",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1568,12 +1568,12 @@ Magick_modulate_item = class
 		hue = Scale "hue" 0 200 100;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			modcolsp._flag,
 			"-modulate",
 			print bright.value ++ "," ++ print sat.value ++ "," ++
 				print hue.value,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1593,13 +1593,13 @@ Magick_monochrome_item = class
 		dither = Magick.dither_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			intensity._flag,
 			dither._flag,
 			"-treedepth",
 			print treedepth.expr,
 			"-monochrome",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1631,13 +1631,13 @@ Magick_morphology_item = class
 		channels = Magick.channels_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			"-morphology",
 			method._flag ++ ":" ++ print iter.expr,
 			kernel._flag ++
 			(if kernel_arg.value == "" then "" else ":") ++ kernel_arg.value,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1653,10 +1653,10 @@ Magick_negate_item = class
 		channels = Magick.channels_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			"-negate",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1674,12 +1674,12 @@ Magick_addNoise_item = class
 		noise = Magick.noise_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			"-attenuate",
 			print attenuate.value,
 			noise._flag,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1696,11 +1696,11 @@ Magick_normalize_item = class
 		channels = Magick.channels_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			intensity._flag,
 			channels._flag,
 			"-normalize",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1718,14 +1718,14 @@ Magick_opaque_item = class
 		changeColour = Magick.changeCol_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			fill._flag,
 			channels._flag,
 			"-fuzz",
-			"\"" ++ print changeColour.fuzz.value ++ "%%\"",
+			"'" ++ print changeColour.fuzz.value ++ "%'",
 			(if changeColour.nonMatch then "+" else "-") ++ "opaque",
-			"\"" ++ changeColour.colour._flag ++ "\"",
-			"\"%s\""
+			"'" ++ changeColour.colour._flag ++ "'",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1741,10 +1741,10 @@ Magick_paint_item = class
 		rad = Expression "radius" 10;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-paint",
 			print rad.expr,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1761,10 +1761,10 @@ Polaroid_item = class
 		angle = Scale "angle" (-90) 90 20;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-polaroid",
 			print angle.value,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1781,10 +1781,10 @@ Magick_posterize_item = class
 		levels = Expression "levels" 3;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-posterize",
 			print levels.expr,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1800,10 +1800,10 @@ Magick_raise_item = class
 		thk = Expression "Thickness" 3;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-raise",
 			print thk.expr,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1823,12 +1823,12 @@ Magick_resize_item = class
 		isPc = Toggle "Width and height are percent" false;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			filter._flag,
 			"-" ++ type._flag,
-			"\"" ++ print width.value ++ "x" ++ print height.value ++
-				(if isPc then "%%" else "!") ++ "\"",
-			"\"%s\""
+			"'" ++ print width.value ++ "x" ++ print height.value ++
+				(if isPc then "%" else "!") ++ "'",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1845,11 +1845,11 @@ Magick_roll_item = class
 		rolly = Expression "Y" 3;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-roll",
 			(if rollx.expr >= 0 then "+" else "") ++ print rollx.expr ++
 			(if rolly.expr >= 0 then "+" else "") ++ print rolly.expr,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1866,13 +1866,13 @@ Magick_rotate_item = class
 		virtpixback = Magick.VirtualPixelBack_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			virtpixback._flag,
 			"+distort",
 			"SRT",
 			print angle.value,
 			"+repage",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1890,10 +1890,10 @@ Magick_sepia_item = class
 		threshold = Scale "Threshold (percent)" 0 100 80;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-sepia-tone",
-			"\"" ++ print threshold.value ++ "%%\"",
-			"\"%s\""
+			"'" ++ print threshold.value ++ "%'",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1910,10 +1910,10 @@ Magick_shade_item = class
 		elevation = Scale "Elevation (degrees)" 0 90 45;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-shade",
 			print azimuth.value ++ "x" ++ print elevation.value,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1937,21 +1937,21 @@ Magick_shadow_item = class
 		// FIXME: raw operation creates page offset, which vips dislikes.
 		// So we take this futher, compositing with source.
 		command = Magick.command [
-			"\"%s\"",
-			"\"(\" +clone",
-			"-background", "\"" ++ shadowCol._flag ++ "\"",
+			"'%s'",
+			"'(' +clone",
+			"-background", "'" ++ shadowCol._flag ++ "'",
 			"-shadow",
 			concat [
-				"\"",
+				"'",
 				print opacity.value, "x", print sigma.value,
 				(if offsx.value >= 0 then "+" else ""), print offsx.value,
 				(if offsy.value >= 0 then "+" else ""), print offsy.value,
-				(if arePc then "%%" else ""),
-				"\""
+				(if arePc then "%" else ""),
+				"'"
 			],
-			"\")\" +swap -background None -layers merge",
+			"')' +swap -background None -layers merge",
 			"+repage",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1969,11 +1969,11 @@ Magick_shave_item = class
 		isPc = Toggle "Width and height are percent" false;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-shave",
-			"\"" ++ print width.value ++ "x" ++ print height.value ++
-				(if isPc then "%%" else "") ++ "\"",
-			"\"%s\""
+			"'" ++ print width.value ++ "x" ++ print height.value ++
+				(if isPc then "%" else "") ++ "'",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -1991,11 +1991,11 @@ Magick_shear_item = class
 		background = Magick.background_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			background._flag,
 			"-shear",
 			print shearX.expr ++ "x" ++ print shearY.expr,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -2014,12 +2014,12 @@ Magick_sigmoid_item = class
 		isInv = Toggle "Invert effect" false;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			(if isInv then "+" else "-") ++ "sigmoidal-contrast",
-			"\"" ++ print contrast.value ++ "x" ++
-				print midpoint.value ++ "%%\"",
-			"\"%s\""
+			"'" ++ print contrast.value ++ "x" ++
+				print midpoint.value ++ "%'",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -2037,11 +2037,11 @@ Magick_sketch_item = class
 		angle = Scale "angle" (-360) 360 0;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-sketch",
 			print radius.value ++ "x" ++ print sigma.value ++
 				(if angle >= 0 then ("+" ++ print angle.value) else ""),
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -2058,11 +2058,11 @@ Magick_solarize_item = class
 		threshold = Scale "Threshold (percent)" 0 100 50;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			channels._flag,
 			"-solarize",
-			"\"" ++ print threshold.value ++ "%%\"",
-			"\"%s\""
+			"'" ++ print threshold.value ++ "%'",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -2082,12 +2082,12 @@ Magick_splice_item = class
 		geometry = Magick.WhxyGeometry_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			background._flag,
 			gravity._flag,
 			"-splice",
 			geometry._flag,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -2104,11 +2104,11 @@ Magick_spread_item = class
 		amount = Expression "Amount (pixels)" 5;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			virtpixback._flag,
 			"-spread",
 			print amount.expr,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -2126,11 +2126,11 @@ Magick_statistic_item = class
 		statisticType = Magick.StatType_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-statistic",
 			statisticType._flag,
 			print width.expr ++ "x" ++ print height.expr,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -2146,10 +2146,10 @@ Magick_swirl_item = class
 		angle = Magick.angle_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-swirl",
 			print angle.value,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -2170,12 +2170,12 @@ Magick_thresholdMenu_item = class
 			threshold = Scale "Threshold (percent)" 0 100 50;
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				intensity._flag,
 				channels._flag,
 				"-threshold",
-				"\"" ++ print threshold.value ++ "%%\"",
-				"\"%s\""
+				"'" ++ print threshold.value ++ "%'",
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -2192,11 +2192,11 @@ Magick_thresholdMenu_item = class
 			threshold = Scale "Threshold (percent)" 0 100 50;
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				channels._flag,
 				"-black-threshold",
-				"\"" ++ print threshold.value ++ "%%\"",
-				"\"%s\""
+				"'" ++ print threshold.value ++ "%'",
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -2213,11 +2213,11 @@ Magick_thresholdMenu_item = class
 			threshold = Scale "Threshold (percent)" 0 100 50;
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				channels._flag,
 				"-white-threshold",
-				"\"" ++ print threshold.value ++ "%%\"",
-				"\"%s\""
+				"'" ++ print threshold.value ++ "%'",
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -2236,13 +2236,13 @@ Magick_thresholdMenu_item = class
 			// note: "-lat" doesn't respond to channels
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				"-lat",
-				concat ["\"", print width.expr, "x", print height.expr,
+				concat ["'", print width.expr, "x", print height.expr,
 					(if offset.value >= 0 then "+" else ""), print offset.value,
-					"%%\""
+					"%'"
 				],
-				"\"%s\""
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -2261,12 +2261,12 @@ Magick_thresholdMenu_item = class
 			isPc = Toggle "Thresholds are percent" true;
 
 			command = Magick.command [
-				"\"%s\"",
+				"'%s'",
 				channels._flag,
 				"-random-threshold",
-				"\"" ++ print low.value ++ "x" ++ print high.value ++
-					(if isPc then "%%" else "") ++ "\"",
-				"\"%s\""
+				"'" ++ print low.value ++ "x" ++ print high.value ++
+					(if isPc then "%" else "") ++ "'",
+				"'%s'"
 			];
 
 			_result = Magick.system command x;
@@ -2289,8 +2289,8 @@ Magick_tile_item = class
 
 		command = Magick.command [
 			size._flag,
-			"tile:" ++ "\"%s\"",
-			"\"%s\""
+			"tile:" ++ "'%s'",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -2307,12 +2307,12 @@ Magick_tint_item = class
 		amount = Scale "amount (percent)" 0 100 50;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			foreground._flag,
 			"-tint",
 			// snibgo note: although the amount is a percentage, it doesn't need "%" character.
 			print amount.value,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -2328,12 +2328,12 @@ Magick_transparent_item = class
 		changeColour = Magick.changeCol_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-fuzz",
-			"\"" ++ print changeColour.fuzz.value ++ "%%\"",
+			"'" ++ print changeColour.fuzz.value ++ "%'",
 			(if changeColour.nonMatch then "+" else "-") ++ "transparent",
-			"\"" ++ changeColour.colour._flag ++ "\"",
-			"\"%s\""
+			"'" ++ changeColour.colour._flag ++ "'",
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -2349,11 +2349,11 @@ Magick_trim_item = class
 		fuzz = Magick.fuzz_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-fuzz",
-			"\"" ++ print fuzz.value ++ "%%\"",
+			"'" ++ print fuzz.value ++ "%'",
 			"-trim +repage",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -2367,9 +2367,9 @@ Magick_uniqueCols_item = class
 		_vislevel = 3;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-unique-colors",
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -2389,13 +2389,13 @@ Magick_vignette_item = class
 		background = Magick.background_widget;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			background._flag,
 			"-vignette",
 			print radius.value ++ "x" ++ print sigma.value ++
 				(if rx.value >= 0 then "+" else "") ++ print rx.value ++
 				(if ry.value >= 0 then "+" else "") ++ print ry.value,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;
@@ -2412,10 +2412,10 @@ Magick_wave_item = class
 		wavelength = Scale "Wavelength (pixels)" 0 100 10;
 
 		command = Magick.command [
-			"\"%s\"",
+			"'%s'",
 			"-wave",
 			print amplitude.value ++ "x" ++ print wavelength.value,
-			"\"%s\""
+			"'%s'"
 		];
 
 		_result = Magick.system command x;

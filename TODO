@@ -95,6 +95,27 @@
 
 
 
+- toolkitgroupview could have a non-scrolling version as the default
+
+	context would be much clearer, though it would take loads of space
+
+- add tab completion ... somewhat like VS intellisense
+
+	should work in workspace entry box, and in program window
+
+- generate little vips8 wrappers automatically on startup
+
+	vips_linear options in a b
+		= vips_call9 "linear" [in, a, b] options;
+
+  could be in a separate namespace? eg.
+
+	vips8.linear options in a b
+
+  was main_link_package() in nip2, made SYM_EXTERNAL tools
+
+  SYM_EXTERNAL is gone
+
 - program: ^W should parse the text and block on error
 
 - program: don't get save-before-close box for modified toolkits?

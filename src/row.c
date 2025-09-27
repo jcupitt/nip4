@@ -1662,13 +1662,6 @@ row_recomp(Row *row)
 {
 	Row *top_row = row->top_row;
 
-	static GTimer *recomp_timer = NULL;
-
-	if (!recomp_timer)
-		recomp_timer = g_timer_new();
-
-	g_timer_reset(recomp_timer);
-
 	/* Sort dirties into recomp order.
 	 */
 	row_recomp_sort(top_row);
@@ -1765,16 +1758,6 @@ row_recomp(Row *row)
 	   	icontainer_map_all(ICONTAINER(top_row),
 			(icontainer_map_fn) heapmodel_update_model, NULL))
 			expr_error_set(top_row->expr);
-
-	if (main_option_profile) {
-		char txt[100];
-		VipsBuf buf = VIPS_BUF_STATIC(txt);
-		Symbol *context = symbol_get_parent(top_row->ws->sym);
-
-		row_qualified_name_relative(context, top_row, &buf);
-		printf("%s\t%g\n", vips_buf_all(&buf),
-			g_timer_elapsed(recomp_timer, NULL));
-	}
 
 #ifdef DEBUG
 	printf("row_recomp: value of ");

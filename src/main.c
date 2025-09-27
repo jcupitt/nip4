@@ -127,12 +127,17 @@ main_mkdir(const char *dir)
 static void *
 main_load_def(const char *filename)
 {
-	Toolkit *kit;
+	g_autofree char *basename = g_path_get_basename(filename);
 
-	if (!(kit = toolkit_new_from_file(main_toolkitgroup, filename)))
-		error_alert(NULL);
-	else
-		filemodel_set_auto_load(FILEMODEL(kit));
+	if (!main_option_no_load_menus ||
+		basename[0] == '_') {
+		Toolkit *kit;
+
+		if (!(kit = toolkit_new_from_file(main_toolkitgroup, filename)))
+			error_alert(NULL);
+		else
+			filemodel_set_auto_load(FILEMODEL(kit));
+	}
 
 	return NULL;
 }
@@ -410,17 +415,19 @@ main_shutdown(void)
 	 */
 	reduce_destroy(reduce_context);
 
+	/* Trust, but verify.
+	 */
+#ifndef RELEASE
 	path_rewrite_free_all();
-
-	/* Should have freed everything now.
-	 */
-
-	/* Make sure!
-	 */
 	VIPS_UNREF(main_imageinfogroup);
 	heap_check_all_destroyed();
-	vips_shutdown();
 	managed_check_all_destroyed();
 	util_check_all_destroyed();
 	view_dump();
+#endif /*DEBUG_LEAK*/
+
+	/* Can we leave files in tmp after ^C/^V?
+	 */
+
+	vips_shutdown();
 }

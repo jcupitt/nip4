@@ -1,5 +1,11 @@
 ## master
 
+- fix load cancel
+- disable leak test on shutdown in release builds
+- fix Magick on windows with better quoting
+
+## 9.0.13 2025/09/20
+
 - improve Text
 - improve scroll to row on error
 - improve styling
@@ -16,6 +22,8 @@
 - fix an infobar race
 - program: add find unresolved syms
 - lots more vips7 compat macros
+- fix up nip4-batch
+- add some man pages
 
 ## 9.0.12 2025/08/21
 

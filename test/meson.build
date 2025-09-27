@@ -35,23 +35,37 @@ demos = [
 
 foreach name : should_pass_tests
   file = files('workspaces/' + name)
-  test(name, nip4_batch, args: ['--test', file])
-  test(name, nip4_batch, args: ['--test', file], env: ['VIPS_NOVECTOR=1'])
+  test(name, nip4_batch,
+    args: ['--test', '--workspace', file],
+  )
+  test(name, nip4_batch,
+    args: ['--test', '--workspace', file],
+    env: ['VIPS_NOVECTOR=1']
+  )
 endforeach
 
 foreach name : should_fail_tests
   file = files('workspaces/' + name)
-  test(name, nip4_batch, should_fail: true, args: ['--test', file])
-  test(name, nip4_batch, should_fail: true,
-    args: ['--test', file],
+  test(name, nip4_batch,
+    should_fail: true,
+    args: ['--test', '--workspace', file],
+  )
+  test(name, nip4_batch,
+    should_fail: true,
+    args: ['--test', '--workspace', file],
     env: ['VIPS_NOVECTOR=1'],
   )
 endforeach
 
 foreach name : demos
   file = files(project_source_root + '/share/nip4/data/examples/' + name)
-  test(name, nip4_batch, args: ['--test', file])
+  test(name, nip4_batch,
+    args: ['--test', '--workspace', file],
+  )
   # repeat, with the vector system disabled
-  test(name, nip4_batch, args: ['--test', file], env: ['VIPS_NOVECTOR=1'])
+  test(name, nip4_batch,
+    args: ['--test', '--workspace', file],
+    env: ['VIPS_NOVECTOR=1'],
+  )
 endforeach
 

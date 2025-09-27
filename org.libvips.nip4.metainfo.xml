@@ -43,7 +43,7 @@
 
   <screenshots>
 
-    <screenshot>
+    <screenshot type="default">
       <image>https://raw.githubusercontent.com/jcupitt/nip4/master/images/shot1.png</image>
       <caption>The CHARISMA workspace for museum technical imaging</caption>
     </screenshot>
@@ -56,6 +56,18 @@
   </screenshots>
 
   <releases>
+
+    <release version="9.0.13" date="2025-09-20">
+      <description>
+        <p>
+
+        This version improves the workspace definitions pane and the
+        programming window. Batch mode is now complete. Visual styling is
+        improved. Lots of bug fixes and small polishing.
+
+        </p>
+      </description>
+    </release>
 
     <release version="9.0.12" date="2025-08-21">
       <description>

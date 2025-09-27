@@ -1676,12 +1676,12 @@ Autotrace_item = class
 		scale = Scale "SVG scale" 0.1 10 1;
 
 		command
-			= "autotrace %s " ++ join_sep " "
+			= "autotrace '%s' " ++ join_sep " "
 				[ofmt, ofile, desp, lint, cent]
 		{
 			prog = search_for_error "autotrace";
 			ofmt = "-output-format svg";
-			ofile = "-output-file %s";
+			ofile = "-output-file '%s'";
 			desp = "-despeckle-level " ++ print despeckle.value;
 			lint = "-line-threshold " ++ print line.value;
 			cent = if center then "-centerline " else "";

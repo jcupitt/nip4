@@ -1,7 +1,7 @@
 {
     "app-id" : "org.libvips.nip4",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "48",
+    "runtime-version" : "49",
     "sdk" : "org.gnome.Sdk",
     "command" : "nip4",
     "finish-args" : [
@@ -103,6 +103,7 @@
                     "-DJPEGXL_ENABLE_JNI=off",
                     "-DJPEGXL_ENABLE_MANPAGES=off",
                     "-DJPEGXL_ENABLE_OPENEXR=off",
+                    "-DJPEGXL_ENABLE_SJPEG=off",
                     "-DJPEGXL_ENABLE_TOOLS=off"
                 ]
             },
@@ -139,6 +140,7 @@
             "buildsystem" : "cmake-ninja",
             "build-options" : {
                 "config-opts" : [
+                    "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
                     "-DCMAKE_INSTALL_LIBDIR=lib"
                 ],
                 "arch" : {
@@ -374,7 +376,7 @@
                 {
                     "type" : "git",
                     "url" : "https://github.com/libvips/libvips.git",
-                    "tag" : "v8.18.0-test2"
+                    "commit" : "2df097b0f3d8ca6794073d604628371bed718dff"
                 }
             ]
         },
@@ -406,7 +408,7 @@
                 {
                     "type" : "git",
                     "url" : "https://github.com/jcupitt/nip4.git",
-                    "tag" : "v9.0.12"
+                    "tag" : "v9.0.13-2"
                 }
             ]
         }

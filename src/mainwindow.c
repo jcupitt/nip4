@@ -1083,7 +1083,8 @@ mainwindow_new(App *app, Workspacegroup *wsg)
 		VipsBuf buf = VIPS_BUF_STATIC(txt);
 		vips_buf_append_size(&buf, size);
 		error_sub(_("The temporary area \"%s\" contains %s of files. "
-            "Use \"Recover after crash\" to clean up."),
+            "Use \"Delete all backups\" in \"Recover after crash\" "
+			"to clean up."),
             save_dir, vips_buf_all(&buf));
 
 		workspace_show_alert(mainwindow_get_workspace(main));

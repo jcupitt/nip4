@@ -29,46 +29,37 @@
 #include "nip4.h"
 
 static char *main_option_output = NULL;
-static gboolean main_option_print_main = FALSE;
 static gboolean main_option_test = FALSE;
 static char *main_option_prefix = NULL;
 static gboolean main_option_version = FALSE;
-
-//static iOpenFile *main_stdin = NULL;
-static char *main_option_script = NULL;
+static gboolean main_option_workspace = FALSE;
 static char *main_option_expression = NULL;
-static gboolean main_option_stdin_ws = FALSE;
-static gboolean main_option_stdin_def = FALSE;
 static char **main_option_set = NULL;
 static gboolean main_option_verbose = FALSE;
+static gboolean main_option_print = FALSE;
 
 static GOptionEntry main_batch_options[] = {
     { "output", 'o', 0, G_OPTION_ARG_FILENAME, &main_option_output,
         N_("write value of 'main' to FILE"), "FILE" },
-	{ "print-main", 'p', 0, G_OPTION_ARG_NONE, &main_option_print_main,
-        N_( "print value of 'main' to stdout" ), NULL },
     { "test", 'T', 0, G_OPTION_ARG_NONE, &main_option_test,
         N_("test for errors and quit"), NULL },
     { "prefix", 'x', 0, G_OPTION_ARG_FILENAME, &main_option_prefix,
         N_("start as if installed to PREFIX"), "PREFIX" },
     { "version", 'v', 0, G_OPTION_ARG_NONE, &main_option_version,
         N_("print version number"), NULL },
-
-	// these options need testing and fixing
-    { "expression", 'e', 0, G_OPTION_ARG_STRING, &main_option_expression,
-        N_("evaluate and print EXPRESSION"), "EXPRESSION" },
-    { "script", 's', 0, G_OPTION_ARG_FILENAME, &main_option_script,
-        N_("load FILE as a set of definitions"), "FILE" },
-    { "set", '=', 0, G_OPTION_ARG_STRING_ARRAY, &main_option_set,
-        N_("set values"), NULL },
-    { "verbose", 'V', 0, G_OPTION_ARG_NONE, &main_option_verbose,
-        N_("verbose error output"), NULL },
-    { "stdin-ws", 'w', 0, G_OPTION_ARG_NONE, &main_option_stdin_ws,
-        N_("load stdin as a workspace"), NULL },
-    { "stdin-def", 'd', 0, G_OPTION_ARG_NONE, &main_option_stdin_def,
-        N_("load stdin as a set of definitions"), NULL },
+    { "workspace", 'w', 0, G_OPTION_ARG_NONE, &main_option_workspace,
+        N_("load args as workspaces"), NULL },
     { "i18n", 'i', 0, G_OPTION_ARG_NONE, &main_option_i18n,
         N_("output strings for internationalisation"), NULL },
+    { "expression", 'e', 0, G_OPTION_ARG_STRING, &main_option_expression,
+        N_("evaluate and print EXPRESSION"), "EXPRESSION" },
+    { "verbose", 'V', 0, G_OPTION_ARG_NONE, &main_option_verbose,
+        N_("verbose error output"), NULL },
+    { "set", '=', 0, G_OPTION_ARG_STRING_ARRAY, &main_option_set,
+        N_("set values"), NULL },
+    { "print", 'p', 0, G_OPTION_ARG_NONE, &main_option_print,
+        N_("print \"main\""), NULL },
+
     { NULL }
 };
 
@@ -313,6 +304,61 @@ main_print_ws(Workspace *ws, gboolean *found)
     return NULL;
 }
 
+/* Make nip's argc/argv[].
+ */
+static void
+main_build_argv(int argc, char **argv)
+{
+	Toolkit *kit = toolkit_new(main_toolkitgroup, "_args");
+
+	char txt[MAX_STRSIZE];
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
+
+	vips_buf_rewind(&buf);
+	vips_buf_appendf(&buf, "argc = %d;", argc);
+	attach_input_string(vips_buf_all(&buf));
+	(void) parse_onedef(kit, -1);
+
+	vips_buf_rewind(&buf);
+	vips_buf_appendf(&buf, "argv = [");
+	for (int i = 0; i < argc; i++) {
+		/* Ignore "--" args. Consider eg.
+		 *
+		 * 	./try201.nip4 -o x.v -- -12 ~/pics/shark.jpg
+		 *
+		 * if we didn't remove --, all scripts would need to.
+		 */
+		if (g_str_equal(argv[i], "--"))
+			continue;
+
+		if(i > 0)
+			vips_buf_appendf(&buf, ", ");
+		vips_buf_appendf(&buf, "\"%s\"", argv[i]);
+	}
+	vips_buf_appendf(&buf, "];");
+
+	attach_input_string(vips_buf_all(&buf));
+	if (!parse_onedef(kit, -1))
+		main_log_add("%s\n", error_get_sub());
+
+	filemodel_set_modified(FILEMODEL(kit), FALSE);
+}
+
+static void
+main_expression(const char *expression)
+{
+	Toolkit *kit = toolkit_new(main_toolkitgroup, "_expression");
+
+	char txt[MAX_STRSIZE];
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
+
+	vips_buf_appendf(&buf, "main = %s;", main_option_expression);
+	attach_input_string(vips_buf_all(&buf));
+	(void) parse_onedef(kit, -1);
+
+	filemodel_set_modified(FILEMODEL(kit), FALSE);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -327,7 +373,7 @@ main(int argc, char **argv)
     g_set_application_name(_(PACKAGE));
 
     GOptionContext *context =
-        g_option_context_new(_("- batch interface to image processing spreadsheet"));
+		g_option_context_new(_("- batch interface to nip4"));
     GOptionGroup *main_group = g_option_group_new(NULL, NULL, NULL, NULL, NULL);
     g_option_group_add_entries(main_group, main_batch_options);
     vips_add_option_entries(main_group);
@@ -371,9 +417,10 @@ main(int argc, char **argv)
     if (main_option_test)
         main_option_verbose = TRUE;
 
-    if (main_option_i18n)
-        /* We'll need to load all menus.
-         */
+	/* We'll need to load all menus for workspace mode, or to gen i18n.
+	 */
+    if (main_option_i18n ||
+		main_option_workspace)
         main_option_no_load_menus = FALSE;
 
 	/* On Windows, argv is ascii-only ... use this to get a utf-8 version of
@@ -385,13 +432,35 @@ main(int argc, char **argv)
 
     main_startup(argc, argv);
 
-	// empty workspace we load images etc into
-	Workspacegroup *wsg =
-		workspacegroup_new_blank(main_workspaceroot, "untitled");
-	Workspace *ws = workspacegroup_get_workspace(wsg);
+	/* In the default script mode (used for #! scripts), we load argv[1] as a
+	 * set of defs and pass the main func any remaining arguments.
+	 *
+	 * In --workspace mode we load all the args as workspaces / images / defs
+	 * etc.
+	 */
 
-	for (int i = 1; i < argc; i++)
-		main_load_file(ws, argv[i]);
+	Workspacegroup *wsg;
+	if (!main_option_workspace &&
+		argc > 1) {
+		// load argv[1] as a set of defs
+		if (!toolkit_new_from_file(main_toolkitgroup, argv[1]))
+			main_log_add("%s\n", error_get_sub());
+
+		// the rest of argc/argv become nip4 defs
+		main_build_argv(argc - 1, argv + 1);
+
+		// always print main in script mode
+		main_option_print = TRUE;
+	}
+	else {
+		// load args as workspaces ... the empty wsg is something for images
+		// etc to load into
+		wsg = workspacegroup_new_blank(main_workspaceroot, "untitled");
+		Workspace *ws = workspacegroup_get_workspace(wsg);
+
+		for (int i = 1; i < argc; i++)
+			main_load_file(ws, argv[i]);
+	}
 
 	if (main_option_set)
         for (int i = 0; main_option_set[i]; i++) {
@@ -410,16 +479,20 @@ main(int argc, char **argv)
             main_error_exit("--test: errors found");
     }
 
-    if (main_option_print_main ||
-        main_option_output) {
+    if (main_option_expression) {
+		main_expression(main_option_expression);
+		main_option_print = TRUE;
+	}
+
+	/* Print or save all the mains we can find: one at the top level,
+	 * one in each workspace.
+	 */
+	if (main_option_print) {
 		Symbol *sym;
 		gboolean found;
 
 		symbol_recalculate_all_force(TRUE);
 
-		/* Process all the mains we can find: one at the top level,
-		 * one in each workspace.
-		 */
 		found = FALSE;
 		if ((sym = compile_lookup(symbol_root->expr->compile, "main"))) {
 			main_print_main(sym);
