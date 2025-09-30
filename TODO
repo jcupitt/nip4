@@ -99,28 +99,30 @@
 
 	context would be much clearer, though it would take loads of space
 
-- add tab completion ... somewhat like VS intellisense
+- add tab completion ... somewhat like VS intellisense?
 
 	should work in workspace entry box, and in program window
 
-- generate little vips8 wrappers automatically on startup
+- program: search does not look in _vips or _builtin
 
-	vips_linear options in a b
-		= vips_call9 "linear" [in, a, b] options;
+	program search should show tk name?
 
-  could be in a separate namespace? eg.
+	eg.:
 
-	vips8.linear options in a b
+		_vips > vips_invert
+		_builtin > dir
 
-  was main_link_package() in nip2, made SYM_EXTERNAL tools
-
-  SYM_EXTERNAL is gone
+- program: search, "subscript", does not find definition
 
 - program: ^W should parse the text and block on error
 
 - program: don't get save-before-close box for modified toolkits?
 
 - program: add delete tool / toolkit?
+
+- program: needs "find"?
+
+- add magick7 support to _magick.def
 
 - get judder with rotate and images smaller than the window
 

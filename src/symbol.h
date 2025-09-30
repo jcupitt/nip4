@@ -48,7 +48,7 @@ typedef enum {
 	SYM_WORKSPACE,	   /* A loaded workspace */
 	SYM_WORKSPACEROOT, /* Base of all workspaces */
 	SYM_ROOT,		   /* The root symbol */
-	SYM_BUILTIN		   /* A reference to a built-in function */
+	SYM_BUILTIN,	   /* A reference to a built-in function */
 } SymbolType;
 
 /* A symbol.

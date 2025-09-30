@@ -111,24 +111,39 @@ pe_is_class(Reduce *rc, PElement *base)
 }
 
 /* The types we might want to spot for builtins.
- *
- * Others, eg.:
- *
-static BuiltinTypeSpot bool_spot = { "bool", pe_is_bool };
-static BuiltinTypeSpot realvec_spot = { "[real]", reduce_is_realvec };
-static BuiltinTypeSpot matrix_spot = { "[[real]]", reduce_is_matrix };
-static gboolean pe_is_gobject( Reduce *rc, PElement *base )
-		{ return( PEISMANAGEDGOBJECT( base ) ); }
-static BuiltinTypeSpot gobject_spot = { "GObject", pe_is_gobject };
- *
  */
 
-static BuiltinTypeSpot vimage_spot = { "vips_image", pe_is_image };
+static gboolean
+pe_is_gobject(Reduce *rc, PElement *base)
+{
+	return PEISMANAGEDGOBJECT(base);
+}
+
+static gboolean
+pe_is_image_or_matrix(Reduce *rc, PElement *base)
+{
+	return pe_is_image(rc, base) || pe_is_class(rc, base);
+}
+
+static gboolean
+pe_is_enum(Reduce *rc, PElement *base)
+{
+	return pe_is_real(rc, base) || reduce_is_finitestring(rc, base);
+}
+
+static BuiltinTypeSpot enum_spot = { "GEnum", pe_is_enum };
+static BuiltinTypeSpot gobject_spot = { "GObject", pe_is_gobject };
+static BuiltinTypeSpot bool_spot = { "bool", pe_is_bool };
+static BuiltinTypeSpot char_spot = { "char", pe_is_char };
+static BuiltinTypeSpot realvec_spot = { "[real]", reduce_is_realvec };
+static BuiltinTypeSpot vimage_spot = { "vips_image", pe_is_image_or_matrix };
+static BuiltinTypeSpot vimagevec_spot = { "[vips_image]", reduce_is_imagevec };
 static BuiltinTypeSpot real_spot = { "real", pe_is_real };
 static BuiltinTypeSpot complex_spot = { "complex|image", iscomplexarg };
 static BuiltinTypeSpot flist_spot = { "non-empty list", pe_is_flist };
 static BuiltinTypeSpot string_spot = { "[char]", reduce_is_finitestring };
 static BuiltinTypeSpot list_spot = { "[*]", reduce_is_list };
+static BuiltinTypeSpot options_spot = { "[options]", reduce_is_list };
 static BuiltinTypeSpot math_spot = { "image|real|complex", ismatharg };
 static BuiltinTypeSpot instance_spot = { "class", pe_is_class };
 static BuiltinTypeSpot any_spot = { "any", isany };
@@ -171,8 +186,8 @@ static BuiltinTypeSpot *image2matrix_args[] = {
 };
 
 static void
-apply_image2matrix_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_image2matrix_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 
@@ -199,8 +214,8 @@ static BuiltinTypeSpot *matrix2image_args[] = {
 };
 
 static void
-apply_matrix2image_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_matrix2image_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 
@@ -240,8 +255,8 @@ static BuiltinTypeSpot *underscore_args[] = {
 /* Do a _ call. Args already spotted.
  */
 static void
-apply_underscore_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_underscore_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 	char text[MAX_STRSIZE];
@@ -265,8 +280,8 @@ static BuiltinTypeSpot *has_member_args[] = {
 /* Do a has_member call. Args already spotted.
  */
 static void
-apply_has_member_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_has_member_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 	char mname[MAX_STRSIZE];
@@ -289,8 +304,8 @@ static BuiltinTypeSpot *is_instanceof_args[] = {
 /* Do an is_instance call. Args already spotted.
  */
 static void
-apply_is_instanceof_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_is_instanceof_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 	char kname[MAX_STRSIZE];
@@ -310,8 +325,8 @@ static BuiltinTypeSpot *complex_args[] = {
 /* Do a complex op. Args already spotted.
  */
 static void
-apply_complex_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_complex_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 
@@ -348,8 +363,8 @@ static BuiltinTypeSpot *flist_args[] = {
 /* Do a list op. Args already spotted.
  */
 static void
-apply_list_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_list_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 	PElement a;
@@ -379,8 +394,8 @@ static BuiltinTypeSpot *gammq_args[] = {
 };
 
 static void
-apply_gammq_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_gammq_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 	double a, x, Q;
@@ -411,8 +426,8 @@ static BuiltinTypeSpot *image_args[] = {
 /* Do a image call.
  */
 static void
-apply_image_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_image_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	Heap *heap = rc->heap;
 
@@ -461,8 +476,8 @@ static BuiltinTypeSpot *read_args[] = {
 /* Do a read call.
  */
 static void
-apply_read_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_read_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 	char buf[VIPS_PATH_MAX];
@@ -486,8 +501,8 @@ static BuiltinTypeSpot *graph_export_image_args[] = {
 /* Do a graph_export_image call.
  */
 static void
-apply_graph_export_image_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_graph_export_image_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 	double dpi;
@@ -539,8 +554,8 @@ static BuiltinTypeSpot *header_get_typeof_args[] = {
 /* Get type of header field.
  */
 static void
-apply_header_typeof_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_header_typeof_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	Heap *heap = rc->heap;
 
@@ -563,8 +578,8 @@ apply_header_typeof_call(Reduce *rc,
 /* Get an int.
  */
 static void
-apply_header_int_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_header_int_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	Heap *heap = rc->heap;
 
@@ -591,8 +606,8 @@ apply_header_int_call(Reduce *rc,
 /* Get a double.
  */
 static void
-apply_header_double_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_header_double_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	Heap *heap = rc->heap;
 
@@ -619,8 +634,8 @@ apply_header_double_call(Reduce *rc,
 /* Get a string.
  */
 static void
-apply_header_string_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_header_string_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	Heap *heap = rc->heap;
 
@@ -654,8 +669,8 @@ apply_header_string_call(Reduce *rc,
 /* Get any type field to a nip4 type, if possible.
  */
 static void
-apply_header_get_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_header_get_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	Heap *heap = rc->heap;
 
@@ -771,8 +786,8 @@ static MathFn math_fn[] = {
 /* Do a math function (eg. sin, cos, tan).
  */
 static void
-apply_math_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_math_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 	int i;
@@ -837,7 +852,8 @@ static PredicateFn predicate_fn[] = {
 /* Do a predicate function (eg. is_bool)
  */
 static void
-apply_pred_call(Reduce *rc, const char *name, HeapNode **arg, PElement *out)
+apply_pred_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 	gboolean res;
@@ -867,7 +883,8 @@ static BuiltinTypeSpot *error_args[] = {
 /* Do "error".
  */
 static void
-apply_error_call(Reduce *rc, const char *name, HeapNode **arg, PElement *out)
+apply_error_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	char buf[MAX_STRSIZE];
 	PElement rhs;
@@ -891,7 +908,8 @@ static BuiltinTypeSpot *search_args[] = {
 /* Do "search".
  */
 static void
-apply_search_call(Reduce *rc, const char *name, HeapNode **arg, PElement *out)
+apply_search_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	char buf[MAX_STRSIZE];
 	PElement rhs;
@@ -923,7 +941,8 @@ static BuiltinTypeSpot *print_args[] = {
 /* Do "print".
  */
 static void
-apply_print_call(Reduce *rc, const char *name, HeapNode **arg, PElement *out)
+apply_print_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 	char txt[MAX_STRSIZE];
@@ -1024,7 +1043,8 @@ dir_gobject(Reduce *rc,
 /* Do "dir".
  */
 static void
-apply_dir_call(Reduce *rc, const char *name, HeapNode **arg, PElement *out)
+apply_dir_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 
@@ -1096,7 +1116,8 @@ static BuiltinTypeSpot *expand_args[] = {
 /* Do "expand".
  */
 static void
-apply_expand_call(Reduce *rc, const char *name, HeapNode **arg, PElement *out)
+apply_expand_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 	char txt[VIPS_PATH_MAX];
@@ -1119,8 +1140,8 @@ static BuiltinTypeSpot *name2gtype_args[] = {
 /* Do "name2gtype".
  */
 static void
-apply_name2gtype_call(Reduce *rc, const char *name,
-	HeapNode **arg, PElement *out)
+apply_name2gtype_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 	char txt[VIPS_PATH_MAX];
@@ -1144,8 +1165,8 @@ static BuiltinTypeSpot *gtype2name_args[] = {
 /* Do "gtype2name".
  */
 static void
-apply_gtype2name_call(Reduce *rc, const char *name,
-	HeapNode **arg, PElement *out)
+apply_gtype2name_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 	int gtype;
@@ -1162,14 +1183,14 @@ apply_gtype2name_call(Reduce *rc, const char *name,
 static BuiltinTypeSpot *vo_new_args[] = {
 	&string_spot,
 	&list_spot,
-	&list_spot
+	&options_spot
 };
 
 /* Do a vips_object_new call.
  */
 static void
-apply_vo_new_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_vo_new_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 	char buf[256];
@@ -1189,14 +1210,14 @@ apply_vo_new_call(Reduce *rc,
 static BuiltinTypeSpot *vo_call_args[] = {
 	&string_spot,
 	&list_spot,
-	&list_spot
+	&options_spot
 };
 
 /* Do a vips_call call.
  */
 static void
-apply_vo_call_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_vo_call_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	PElement rhs;
 	char buf[256];
@@ -1211,23 +1232,11 @@ apply_vo_call_call(Reduce *rc,
 	vo_call(rc, out, buf, &required, &optional);
 }
 
-/* Do a vips_call call, nip9 style.
- */
 static void
-apply_vo_call9_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_vips_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
-	PElement rhs;
-	char buf[256];
-	PElement required;
-	PElement optional;
-
-	PEPOINTRIGHT(arg[2], &rhs);
-	reduce_get_string(rc, &rhs, buf, 256);
-	PEPOINTRIGHT(arg[1], &required);
-	PEPOINTRIGHT(arg[0], &optional);
-
-	vo_call9(rc, out, buf, &required, &optional);
+	vo_call9_array(rc, out, name, builtin->nargs, arg);
 }
 
 /* Args for "copy_set_meta".
@@ -1239,8 +1248,8 @@ static BuiltinTypeSpot *vo_copy_set_meta_args[] = {
 };
 
 static void
-apply_vo_copy_set_meta_call(Reduce *rc,
-	const char *name, HeapNode **arg, PElement *out)
+apply_vo_copy_set_meta_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	// im_copy_set_meta in field value
 	PElement image;
@@ -1317,9 +1326,6 @@ static BuiltinInfo builtin_table[] = {
 	{ "vips_call", N_("call vips8 operator"),
 		FALSE, VIPS_NUMBER(vo_call_args),
 		&vo_call_args[0], apply_vo_call_call },
-	{ "vips_call9", N_("call vips8 operator, nip9 style"),
-		FALSE, VIPS_NUMBER(vo_call_args),
-		&vo_call_args[0], apply_vo_call9_call },
 
 	/* compat
 	 */
@@ -1466,6 +1472,145 @@ builtin_gsl_error(const char *reason, const char *file,
 	reduce_throw(reduce_context);
 }
 
+static void *
+builtin_add_arg(VipsObject *object, GParamSpec *pspec,
+	VipsArgumentClass *argument_class,
+	VipsArgumentInstance *argument_instance, BuiltinInfo *builtin)
+{
+	// look for unassigned required input args
+	if ((argument_class->flags & VIPS_ARGUMENT_REQUIRED) &&
+		(argument_class->flags & VIPS_ARGUMENT_CONSTRUCT) &&
+		(argument_class->flags & VIPS_ARGUMENT_INPUT) &&
+		!(argument_class->flags & VIPS_ARGUMENT_DEPRECATED) &&
+		!argument_instance->assigned) {
+		GType type = G_PARAM_SPEC_VALUE_TYPE(pspec);
+		GType fundamental = G_TYPE_FUNDAMENTAL(type);
+
+		switch(type) {
+		case G_TYPE_BOOLEAN:
+			builtin->args[builtin->nargs] = &bool_spot;
+			break;
+
+		case G_TYPE_CHAR:
+		case G_TYPE_UCHAR:
+			builtin->args[builtin->nargs] = &char_spot;
+			break;
+
+		case G_TYPE_INT:
+		case G_TYPE_UINT:
+		case G_TYPE_LONG:
+		case G_TYPE_ULONG:
+		case G_TYPE_INT64:
+		case G_TYPE_UINT64:
+		case G_TYPE_FLOAT:
+		case G_TYPE_DOUBLE:
+			builtin->args[builtin->nargs] = &real_spot;
+			break;
+
+		case G_TYPE_STRING:
+			builtin->args[builtin->nargs] = &string_spot;
+			break;
+
+		case G_TYPE_OBJECT:
+			builtin->args[builtin->nargs] = &gobject_spot;
+			break;
+
+		default:
+			if (type == VIPS_TYPE_SAVE_STRING ||
+				type == VIPS_TYPE_REF_STRING ||
+				type == VIPS_TYPE_BLOB)
+				builtin->args[builtin->nargs] = &string_spot;
+			else if (fundamental == G_TYPE_ENUM)
+				builtin->args[builtin->nargs] = &enum_spot;
+			else if (type == VIPS_TYPE_ARRAY_DOUBLE ||
+				type == VIPS_TYPE_ARRAY_INT)
+				builtin->args[builtin->nargs] = &realvec_spot;
+			else if (type == VIPS_TYPE_IMAGE)
+				builtin->args[builtin->nargs] = &vimage_spot;
+			else if (type == VIPS_TYPE_ARRAY_IMAGE)
+				builtin->args[builtin->nargs] = &vimagevec_spot;
+			else if (fundamental == G_TYPE_OBJECT)
+				builtin->args[builtin->nargs] = &gobject_spot;
+			else {
+				error_top(_("Unimplemented type"));
+				error_sub(_("unable to handle arg %s of type %s"),
+					g_param_spec_get_name(pspec),
+					g_type_name(fundamental));
+
+				return object;
+			}
+		}
+
+		builtin->nargs += 1;
+	}
+
+	return NULL;
+}
+
+static void
+builtin_vips_name(Toolkit *vips, VipsObjectClass *class, const char *name)
+{
+	BuiltinInfo *builtin = g_new0(BuiltinInfo, 1);
+	builtin->name = name;
+	builtin->desc = class->description;
+	builtin->override = FALSE;				// can't be overridden by the class
+	builtin->fn = apply_vips_call;
+
+	// total number of args, so input, output, optional, deprecated etc.
+	int nargs = g_slist_length(class->argument_table_traverse);
+	// +1 since we always have options as the first arg
+	builtin->args = g_new(BuiltinTypeSpot *, nargs + 1);
+
+	// the options arg
+	builtin->args[0] = &options_spot;
+	builtin->nargs += 1;
+
+	// add a type checker for each input arg
+	g_autoptr(VipsOperation) op =
+		g_object_new(G_OBJECT_CLASS_TYPE(class), NULL);
+	if (vips_argument_map(VIPS_OBJECT(op),
+		(VipsArgumentMapFn) builtin_add_arg, builtin, NULL)) {
+		printf("unable to bind vips8 operation %s\n", class->nickname);
+		printf("\t%s\n\t%s\n", error_get_top(), error_get_sub());
+
+		return;
+	}
+
+	char builtin_name[256];
+	g_snprintf(builtin_name, 256, "vips_%s", name);
+	Symbol *sym = symbol_new(symbol_root->expr->compile, builtin_name);
+	g_assert(sym->type == SYM_ZOMBIE);
+	sym->type = SYM_BUILTIN;
+	sym->builtin = builtin;
+	(void) tool_new_sym(vips, -1, sym);
+	symbol_made(sym);
+}
+
+static void *
+builtin_vips(GType type, void *user_data)
+{
+	VipsObjectClass *class = VIPS_OBJECT_CLASS(g_type_class_ref(type));
+	Toolkit *vips = TOOLKIT(user_data);
+
+	if (G_TYPE_IS_ABSTRACT(type))
+		return NULL;
+	if (class->deprecated)
+		return NULL;
+	if (VIPS_OPERATION_CLASS(class)->flags & VIPS_OPERATION_DEPRECATED)
+		return NULL;
+	if (VIPS_OPERATION_CLASS(class)->flags & VIPS_OPERATION_DEPRECATED)
+		return NULL;
+
+	builtin_vips_name(vips, class, class->nickname);
+
+	/* Add aliases.
+	 */
+	if (g_str_equal(class->nickname, "extract_area"))
+		builtin_vips_name(vips, class, "crop");
+
+    return NULL;
+}
+
 void
 builtin_init(void)
 {
@@ -1488,6 +1633,12 @@ builtin_init(void)
 	kit->pseudo = TRUE;
 
 	gsl_set_error_handler(builtin_gsl_error);
+
+	/* Make stubs for vips8 functions.
+	 */
+	Toolkit *vips = toolkit_new(main_toolkitgroup, "_vips");
+	(void) vips_type_map_all(g_type_from_name("VipsOperation"),
+		builtin_vips, vips);
 }
 
 /* Make a usage error.
@@ -1563,5 +1714,6 @@ builtin_run(Reduce *rc, Compile *compile,
 	builtin_trace_args(rc->heap, name, builtin->nargs, arg);
 #endif /*DEBUG*/
 
-	builtin->fn(rc, name, arg, out);
+	builtin->fn(builtin, rc, name, arg, out);
 }
+
