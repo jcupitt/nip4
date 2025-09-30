@@ -32,9 +32,6 @@ void vo_object_new(Reduce *rc, PElement *out, const char *name,
 	PElement *required, PElement *optional);
 void vo_call(Reduce *rc, PElement *out, const char *name,
 	PElement *required, PElement *optional);
-
-void vo_call9(Reduce *rc, PElement *out, const char *name,
-	PElement *optional, PElement *required);
 void vo_call9_array(Reduce *rc, PElement *out, const char *name,
 	int nargs, HeapNode **args);
 void vo_callva(Reduce *rc, PElement *out, const char *name, ...);

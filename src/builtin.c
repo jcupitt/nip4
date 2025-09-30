@@ -111,21 +111,32 @@ pe_is_class(Reduce *rc, PElement *base)
 }
 
 /* The types we might want to spot for builtins.
- *
- * Others, eg.:
- *
-static BuiltinTypeSpot matrix_spot = { "[[real]]", reduce_is_matrix };
- *
  */
 
-static gboolean pe_is_gobject( Reduce *rc, PElement *base )
-		{ return( PEISMANAGEDGOBJECT( base ) ); }
+static gboolean
+pe_is_gobject(Reduce *rc, PElement *base)
+{
+	return PEISMANAGEDGOBJECT(base);
+}
 
+static gboolean
+pe_is_image_or_matrix(Reduce *rc, PElement *base)
+{
+	return pe_is_image(rc, base) || pe_is_class(rc, base);
+}
+
+static gboolean
+pe_is_enum(Reduce *rc, PElement *base)
+{
+	return pe_is_real(rc, base) || reduce_is_finitestring(rc, base);
+}
+
+static BuiltinTypeSpot enum_spot = { "GEnum", pe_is_enum };
 static BuiltinTypeSpot gobject_spot = { "GObject", pe_is_gobject };
 static BuiltinTypeSpot bool_spot = { "bool", pe_is_bool };
 static BuiltinTypeSpot char_spot = { "char", pe_is_char };
 static BuiltinTypeSpot realvec_spot = { "[real]", reduce_is_realvec };
-static BuiltinTypeSpot vimage_spot = { "vips_image", pe_is_image };
+static BuiltinTypeSpot vimage_spot = { "vips_image", pe_is_image_or_matrix };
 static BuiltinTypeSpot vimagevec_spot = { "[vips_image]", reduce_is_imagevec };
 static BuiltinTypeSpot real_spot = { "real", pe_is_real };
 static BuiltinTypeSpot complex_spot = { "complex|image", iscomplexarg };
@@ -1221,35 +1232,8 @@ apply_vo_call_call(BuiltinInfo *builtin,
 	vo_call(rc, out, buf, &required, &optional);
 }
 
-/* Args for "vips_object_new".
- */
-static BuiltinTypeSpot *vo_call9_args[] = {
-	&string_spot,
-	&options_spot,
-	&list_spot,
-};
-
-/* Do a vips_call call, nip9 style.
- */
 static void
-apply_vo_call9_call(BuiltinInfo *builtin,
-	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
-{
-	PElement rhs;
-	char buf[256];
-	PElement required;
-	PElement optional;
-
-	PEPOINTRIGHT(arg[2], &rhs);
-	reduce_get_string(rc, &rhs, buf, 256);
-	PEPOINTRIGHT(arg[1], &optional);
-	PEPOINTRIGHT(arg[0], &required);
-
-	vo_call9(rc, out, buf, &optional, &required);
-}
-
-static void
-apply_vips8_call(BuiltinInfo *builtin,
+apply_vips_call(BuiltinInfo *builtin,
 	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
 {
 	vo_call9_array(rc, out, name, builtin->nargs, arg);
@@ -1342,9 +1326,6 @@ static BuiltinInfo builtin_table[] = {
 	{ "vips_call", N_("call vips8 operator"),
 		FALSE, VIPS_NUMBER(vo_call_args),
 		&vo_call_args[0], apply_vo_call_call },
-	{ "vips_call9", N_("call vips8 operator, nip9 style"),
-		FALSE, VIPS_NUMBER(vo_call9_args),
-		&vo_call_args[0], apply_vo_call9_call },
 
 	/* compat
 	 */
@@ -1526,7 +1507,6 @@ builtin_add_arg(VipsObject *object, GParamSpec *pspec,
 			builtin->args[builtin->nargs] = &real_spot;
 			break;
 
-		case G_TYPE_ENUM:
 		case G_TYPE_STRING:
 			builtin->args[builtin->nargs] = &string_spot;
 			break;
@@ -1538,9 +1518,10 @@ builtin_add_arg(VipsObject *object, GParamSpec *pspec,
 		default:
 			if (type == VIPS_TYPE_SAVE_STRING ||
 				type == VIPS_TYPE_REF_STRING ||
-				type == VIPS_TYPE_BLOB ||
-				fundamental == G_TYPE_ENUM)
+				type == VIPS_TYPE_BLOB)
 				builtin->args[builtin->nargs] = &string_spot;
+			else if (fundamental == G_TYPE_ENUM)
+				builtin->args[builtin->nargs] = &enum_spot;
 			else if (type == VIPS_TYPE_ARRAY_DOUBLE ||
 				type == VIPS_TYPE_ARRAY_INT)
 				builtin->args[builtin->nargs] = &realvec_spot;
@@ -1566,29 +1547,14 @@ builtin_add_arg(VipsObject *object, GParamSpec *pspec,
 	return NULL;
 }
 
-static void *
-builtin_vips8(GType type, void *user_data)
+static void
+builtin_vips_name(Toolkit *vips, VipsObjectClass *class, const char *name)
 {
-	VipsObjectClass *class = VIPS_OBJECT_CLASS(g_type_class_ref(type));
-	Toolkit *vips8 = TOOLKIT(user_data);
-
-	if (G_TYPE_IS_ABSTRACT(type))
-		return NULL;
-	if (class->deprecated)
-		return NULL;
-	if (VIPS_OPERATION_CLASS(class)->flags & VIPS_OPERATION_DEPRECATED)
-		return NULL;
-	if (VIPS_OPERATION_CLASS(class)->flags & VIPS_OPERATION_DEPRECATED)
-		return NULL;
-
-	g_autoptr(VipsOperation) op =
-		g_object_new(G_OBJECT_CLASS_TYPE(class), NULL);
-
 	BuiltinInfo *builtin = g_new0(BuiltinInfo, 1);
-	builtin->name = class->nickname;
+	builtin->name = name;
 	builtin->desc = class->description;
 	builtin->override = FALSE;				// can't be overridden by the class
-	builtin->fn = apply_vips8_call;
+	builtin->fn = apply_vips_call;
 
 	// total number of args, so input, output, optional, deprecated etc.
 	int nargs = g_slist_length(class->argument_table_traverse);
@@ -1600,22 +1566,47 @@ builtin_vips8(GType type, void *user_data)
 	builtin->nargs += 1;
 
 	// add a type checker for each input arg
+	g_autoptr(VipsOperation) op =
+		g_object_new(G_OBJECT_CLASS_TYPE(class), NULL);
 	if (vips_argument_map(VIPS_OBJECT(op),
 		(VipsArgumentMapFn) builtin_add_arg, builtin, NULL)) {
 		printf("unable to bind vips8 operation %s\n", class->nickname);
 		printf("\t%s\n\t%s\n", error_get_top(), error_get_sub());
 
-		return NULL;
+		return;
 	}
 
-	char name[256];
-	g_snprintf(name, 256, "vips8_%s", class->nickname);
-	Symbol *sym = symbol_new(symbol_root->expr->compile, name);
+	char builtin_name[256];
+	g_snprintf(builtin_name, 256, "vips_%s", name);
+	Symbol *sym = symbol_new(symbol_root->expr->compile, builtin_name);
 	g_assert(sym->type == SYM_ZOMBIE);
 	sym->type = SYM_BUILTIN;
 	sym->builtin = builtin;
-	(void) tool_new_sym(vips8, -1, sym);
+	(void) tool_new_sym(vips, -1, sym);
 	symbol_made(sym);
+}
+
+static void *
+builtin_vips(GType type, void *user_data)
+{
+	VipsObjectClass *class = VIPS_OBJECT_CLASS(g_type_class_ref(type));
+	Toolkit *vips = TOOLKIT(user_data);
+
+	if (G_TYPE_IS_ABSTRACT(type))
+		return NULL;
+	if (class->deprecated)
+		return NULL;
+	if (VIPS_OPERATION_CLASS(class)->flags & VIPS_OPERATION_DEPRECATED)
+		return NULL;
+	if (VIPS_OPERATION_CLASS(class)->flags & VIPS_OPERATION_DEPRECATED)
+		return NULL;
+
+	builtin_vips_name(vips, class, class->nickname);
+
+	/* Add aliases.
+	 */
+	if (g_str_equal(class->nickname, "extract_area"))
+		builtin_vips_name(vips, class, "crop");
 
     return NULL;
 }
@@ -1645,9 +1636,9 @@ builtin_init(void)
 
 	/* Make stubs for vips8 functions.
 	 */
-	Toolkit *vips8 = toolkit_new(main_toolkitgroup, "_vips8");
+	Toolkit *vips = toolkit_new(main_toolkitgroup, "_vips");
 	(void) vips_type_map_all(g_type_from_name("VipsOperation"),
-		builtin_vips8, vips8);
+		builtin_vips, vips);
 }
 
 /* Make a usage error.

@@ -568,36 +568,8 @@ vo_call(Reduce *rc, PElement *out, const char *name,
 	vo_free(vo);
 }
 
-/* Same, but the revised nip9 version.
- */
-void
-vo_call9(Reduce *rc, PElement *out, const char *name,
-	PElement *optional, PElement *required)
-{
-	Vo *vo;
-
-	if (!(vo = vo_new(rc, name)))
-		reduce_throw(rc);
-
-	if (!vo_args(vo, required, optional)) {
-		vips_object_unref_outputs(vo->object);
-		vo_free(vo);
-		reduce_throw(rc);
-	}
-
-	if (!vo_call_execute(vo, optional)) {
-		vips_object_unref_outputs(vo->object);
-		vo_free(vo);
-		reduce_throw(rc);
-	}
-
-	vo_write_result(vo, out, TRUE);
-
-	vips_object_unref_outputs(vo->object);
-	vo_free(vo);
-}
-
-/* Same, but fetch args from the call spine.
+/* The vips9 version ... fetch args from the spine, don't wrap the result
+ * unless we have to, take options first.
  */
 void
 vo_call9_array(Reduce *rc, PElement *out, const char *name,

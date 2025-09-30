@@ -1196,11 +1196,10 @@ Image_alpha_item = class
 			_result
 				= Image output
 			{
-				output = vips_call9 "composite"
-					[$compositing_space => compositing_space.value_thing,
-					 $premultiplied => premultiplied.value
-					]
-					[[y.value, x.value], blend.value];
+				output = vips_composite [
+					$compositing_space => compositing_space.value_thing,
+					$premultiplied => premultiplied.value
+				] [y.value, x.value] blend.value;
 			}
 		}
 	}
@@ -1228,11 +1227,10 @@ Image_alpha_item = class
 			_result
 				= Image output
 			{
-				output = vips_call9 "composite"
-					[$compositing_space => compositing_space.value_thing,
-					 $premultiplied => premultiplied.value
-					]
-					[[z.value, y.value, x.value], [blend1.value, blend2.value]];
+				output = vips_composite [
+					$compositing_space => compositing_space.value_thing,
+					$premultiplied => premultiplied.value
+				] [z.value, y.value, x.value] [blend1.value, blend2.value];
 			}
 		}
 	}
@@ -1301,11 +1299,10 @@ Trim_item = class Menuaction "_Trim" "crop away edges" {
 		_result
 			= Region x l t w h
 		{
-			[l, t, w, h] = vips_call9 "find_trim"
-				[$threshold => thresh.value,
-				 $background => background.expr
-				]
-			   	[x.value];
+			[l, t, w, h] = vips_find_trim [
+				$threshold => thresh.value,
+				$background => background.expr
+			] x.value;
 		}
 	}
 }
@@ -1958,7 +1955,7 @@ Pattern_images_item = class
 					set_option $spacing 0 (to_real spacing)
 				];
 
-				out = vips_call9 "text" options [text.value];
+				out = vips_text options text.value;
 			}
 		}
 	}
