@@ -370,9 +370,8 @@ Select_item = class
 
 			distance = Image _distance;
 
-			[_result, _distance] = vips_call9 "fill_nearest" [x.value] [
-				"distance" => true
-			];
+			[_result, _distance] = vips_call9 "fill_nearest"
+				[$distance => true] [x.value];
 		}
 	}
 
@@ -387,9 +386,7 @@ fill_nearest x
 	near x
 		= [out, distance]
 	{
-		[out, distance] = vips_call9 "fill_nearest" [x] [
-			"distance" => true
-		];
+		  [out, distance] = vips_call9 "fill_nearest" [$distance => true] [x];
 	}
 }
 

@@ -114,16 +114,19 @@ pe_is_class(Reduce *rc, PElement *base)
  *
  * Others, eg.:
  *
-static BuiltinTypeSpot bool_spot = { "bool", pe_is_bool };
-static BuiltinTypeSpot realvec_spot = { "[real]", reduce_is_realvec };
 static BuiltinTypeSpot matrix_spot = { "[[real]]", reduce_is_matrix };
-static gboolean pe_is_gobject( Reduce *rc, PElement *base )
-		{ return( PEISMANAGEDGOBJECT( base ) ); }
-static BuiltinTypeSpot gobject_spot = { "GObject", pe_is_gobject };
  *
  */
 
+static gboolean pe_is_gobject( Reduce *rc, PElement *base )
+		{ return( PEISMANAGEDGOBJECT( base ) ); }
+
+static BuiltinTypeSpot gobject_spot = { "GObject", pe_is_gobject };
+static BuiltinTypeSpot bool_spot = { "bool", pe_is_bool };
+static BuiltinTypeSpot char_spot = { "char", pe_is_char };
+static BuiltinTypeSpot realvec_spot = { "[real]", reduce_is_realvec };
 static BuiltinTypeSpot vimage_spot = { "vips_image", pe_is_image };
+static BuiltinTypeSpot vimagevec_spot = { "[vips_image]", reduce_is_imagevec };
 static BuiltinTypeSpot real_spot = { "real", pe_is_real };
 static BuiltinTypeSpot complex_spot = { "complex|image", iscomplexarg };
 static BuiltinTypeSpot flist_spot = { "non-empty list", pe_is_flist };
@@ -1224,10 +1227,17 @@ apply_vo_call9_call(Reduce *rc,
 
 	PEPOINTRIGHT(arg[2], &rhs);
 	reduce_get_string(rc, &rhs, buf, 256);
-	PEPOINTRIGHT(arg[1], &required);
-	PEPOINTRIGHT(arg[0], &optional);
+	PEPOINTRIGHT(arg[1], &optional);
+	PEPOINTRIGHT(arg[0], &required);
 
-	vo_call9(rc, out, buf, &required, &optional);
+	vo_call9(rc, out, buf, &optional, &required);
+}
+
+static void
+apply_vips8_call(Reduce *rc, const char *name,
+	HeapNode **arg, PElement *out)
+{
+	vo_call9_args(rc, out, name, arg);
 }
 
 /* Args for "copy_set_meta".
@@ -1466,6 +1476,135 @@ builtin_gsl_error(const char *reason, const char *file,
 	reduce_throw(reduce_context);
 }
 
+static void *
+builtin_add_arg(VipsObject *object, GParamSpec *pspec,
+	VipsArgumentClass *argument_class,
+	VipsArgumentInstance *argument_instance, BuiltinInfo *builtin)
+{
+	// look for unassigned required input args
+	if ((argument_class->flags & VIPS_ARGUMENT_REQUIRED) &&
+		(argument_class->flags & VIPS_ARGUMENT_CONSTRUCT) &&
+		(argument_class->flags & VIPS_ARGUMENT_INPUT) &&
+		!(argument_class->flags & VIPS_ARGUMENT_DEPRECATED) &&
+		!argument_instance->assigned) {
+		GType type = G_PARAM_SPEC_VALUE_TYPE(pspec);
+		GType fundamental = G_TYPE_FUNDAMENTAL(type);
+
+		switch(type) {
+		case G_TYPE_BOOLEAN:
+			builtin->args[builtin->nargs] = &bool_spot;
+			break;
+
+		case G_TYPE_CHAR:
+		case G_TYPE_UCHAR:
+			builtin->args[builtin->nargs] = &char_spot;
+			break;
+
+		case G_TYPE_INT:
+		case G_TYPE_UINT:
+		case G_TYPE_LONG:
+		case G_TYPE_ULONG:
+		case G_TYPE_INT64:
+		case G_TYPE_UINT64:
+		case G_TYPE_FLOAT:
+		case G_TYPE_DOUBLE:
+			builtin->args[builtin->nargs] = &real_spot;
+			break;
+
+		case G_TYPE_ENUM:
+		case G_TYPE_STRING:
+			builtin->args[builtin->nargs] = &string_spot;
+			break;
+
+		case G_TYPE_OBJECT:
+			builtin->args[builtin->nargs] = &gobject_spot;
+			break;
+
+		default:
+			if (type == VIPS_TYPE_SAVE_STRING ||
+				type == VIPS_TYPE_REF_STRING ||
+				type == VIPS_TYPE_BLOB ||
+				fundamental == G_TYPE_ENUM)
+				builtin->args[builtin->nargs] = &string_spot;
+			else if (type == VIPS_TYPE_ARRAY_DOUBLE ||
+				type == VIPS_TYPE_ARRAY_INT)
+				builtin->args[builtin->nargs] = &realvec_spot;
+			else if (type == VIPS_TYPE_IMAGE)
+				builtin->args[builtin->nargs] = &vimage_spot;
+			else if (type == VIPS_TYPE_ARRAY_IMAGE)
+				builtin->args[builtin->nargs] = &vimagevec_spot;
+			else if (fundamental == G_TYPE_OBJECT)
+				builtin->args[builtin->nargs] = &gobject_spot;
+			else {
+				error_top(_("Unimplemented type"));
+				error_sub(_("unable to handle arg %s of type %s"),
+					g_param_spec_get_name(pspec),
+					g_type_name(fundamental));
+
+				return object;
+			}
+		}
+
+		builtin->nargs += 1;
+	}
+
+	return NULL;
+}
+
+static void *
+builtin_vips8(GType type, void *user_data)
+{
+	VipsObjectClass *class = VIPS_OBJECT_CLASS(g_type_class_ref(type));
+	Toolkit *vips8 = TOOLKIT(user_data);
+
+	if (G_TYPE_IS_ABSTRACT(type))
+		return NULL;
+	if (class->deprecated)
+		return NULL;
+	if (VIPS_OPERATION_CLASS(class)->flags & VIPS_OPERATION_DEPRECATED)
+		return NULL;
+	if (VIPS_OPERATION_CLASS(class)->flags & VIPS_OPERATION_DEPRECATED)
+		return NULL;
+
+	g_autoptr(VipsOperation) op =
+		g_object_new(G_OBJECT_CLASS_TYPE(class), NULL);
+
+	BuiltinInfo *builtin = g_new0(BuiltinInfo, 1);
+	builtin->name = class->nickname;
+	builtin->desc = class->description;
+	builtin->override = FALSE;				// can't be overridden by the class
+	builtin->fn = apply_vips8_call;
+
+	// total number of args, so input, output, optional, deprecated etc.
+	int nargs = g_slist_length(class->argument_table_traverse);
+	// +1 since we always have options as the first arg
+	builtin->args = g_new(BuiltinTypeSpot *, nargs + 1);
+
+	// the options arg
+	builtin->args[0] = &list_spot;
+	builtin->nargs += 1;
+
+	// add a type checker for each input arg
+	if (vips_argument_map(VIPS_OBJECT(op),
+		(VipsArgumentMapFn) builtin_add_arg, builtin, NULL)) {
+		printf("unable to bind vips8 operation %s\n", class->nickname);
+		printf("\t%s\n\t%s\n", error_get_top(), error_get_sub());
+
+		return NULL;
+	}
+
+	char name[256];
+	g_snprintf(name, 256, "vips8_%s", class->nickname);
+	Symbol *sym = symbol_new(symbol_root->expr->compile, name);
+	g_assert(sym->type == SYM_ZOMBIE);
+	sym->type = SYM_BUILTIN;
+	sym->builtin = builtin;
+	(void) tool_new_sym(vips8, -1, sym);
+	symbol_made(sym);
+
+    return NULL;
+}
+
 void
 builtin_init(void)
 {
@@ -1488,6 +1627,12 @@ builtin_init(void)
 	kit->pseudo = TRUE;
 
 	gsl_set_error_handler(builtin_gsl_error);
+
+	/* Make stubs for vips8 functions.
+	 */
+	Toolkit *vips8 = toolkit_new(main_toolkitgroup, "_vips8");
+	(void) vips_type_map_all(g_type_from_name("VipsOperation"),
+		builtin_vips8, vips8);
 }
 
 /* Make a usage error.
@@ -1565,3 +1710,4 @@ builtin_run(Reduce *rc, Compile *compile,
 
 	builtin->fn(rc, name, arg, out);
 }
+

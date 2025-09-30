@@ -3,7 +3,7 @@
 
 	context would be much clearer, though it would take loads of space
 
-- add tab completion ... somewhat like VS intellisense
+- add tab completion ... somewhat like VS intellisense?
 
 	should work in workspace entry box, and in program window
 
@@ -15,16 +15,23 @@
   could be in a separate namespace? eg.
 
 	vips8.linear options in a b
+		= vips_call9 "linear" [in, a, b] options;
 
   was main_link_package() in nip2, made SYM_EXTERNAL tools
 
+	made eg toolkit("_foreign"), tool("im_jpegload"), a top level def
+
   SYM_EXTERNAL is gone
+
+- program: search, "subscript", does not find definition
 
 - program: ^W should parse the text and block on error
 
 - program: don't get save-before-close box for modified toolkits?
 
-- program window needs delete tool / toolkit?
+- program: needs delete tool / toolkit?
+
+- program: needs "find"?
 
 - add magick7 support to _magick.def
 

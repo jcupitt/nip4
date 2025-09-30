@@ -385,16 +385,16 @@ im_GREY162RGB16 in
  */
 
 im_sRGB2scRGB in
-	= vips_call9 "sRGB2scRGB" [in] [];
+	= vips_call9 "sRGB2scRGB" [] [in];
 
 im_scRGB2sRGB in
-	= vips_call9 "scRGB2sRGB" [in] [];
+	= vips_call9 "scRGB2sRGB" [] [in];
 
 im_scRGB2XYZ in
-	= vips_call9 "scRGB2XYZ" [in] [];
+	= vips_call9 "scRGB2XYZ" [] [in];
 
 im_XYZ2scRGB in
-	= vips_call9 "XYZ2scRGB" [in] [];
+	= vips_call9 "XYZ2scRGB" [] [in];
 
 /* apply a func to an image ... make it 1 or 3 bands, and reapply other bands
  * on the way out. Except if it's LABPACK.

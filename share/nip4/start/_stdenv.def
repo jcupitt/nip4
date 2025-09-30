@@ -982,7 +982,7 @@ extract_area x y w h obj
 	extract_range from length list
 		= (take length @ drop from) list;
 
-	crop im x y w h = vips_call9 "crop" [im, x, y, w, h] [];
+	crop im x y w h = vips_call9 "crop" [] [im, x, y, w, h];
 }
 
 extract_band b obj = subscript obj b;
@@ -1447,9 +1447,7 @@ hist_find_indexed mode index value
 			Operator_type.COMPOUND false;
 
 	indexed index value
-		= vips_call9 "hist_find_indexed" [value, index] [
-			"combine" => mode
-		];
+		= vips_call9 "hist_find_indexed" [$combine => mode] [value, index];
 }
 
 hist_entropy x
@@ -1461,7 +1459,7 @@ hist_entropy x
 		hist_entropy Operator_type.COMPOUND_REWRAP false;
 
 	entropy x
-		= vips_call9 "hist_entropy" [x] [];
+		= vips_call9 "hist_entropy" [] [x];
 }
 
 hist_map hist image
@@ -1564,8 +1562,8 @@ hist_equalize_local w h l image
 	hist_equalize_local_op = Operator "hist_equalize_local"
 		(hist_equalize_local w h l) Operator_type.COMPOUND_REWRAP false;
 
-	out = vips_call9 "hist_local"
-		[image, to_real w, to_real h] [$max_slope => to_real l];
+	out = vips_call9 "hist_local" [$max_slope => to_real l]
+		[image, to_real w, to_real h] ;
 }
 
 // find the threshold below which are percent of the image (percent in [0,1])
@@ -1618,7 +1616,7 @@ reduce kernel xshr yshr image
 		reduce_im Operator_type.COMPOUND_REWRAP false;
 
 	reduce_im im
-		= vips_call9 "reduce" [im, xshr, yshr] [$kernel => kernel.value];
+		= vips_call9 "reduce" [$kernel => kernel.value] [im, xshr, yshr];
 }
 
 similarity interpolate scale angle image
@@ -1630,11 +1628,12 @@ similarity interpolate scale angle image
 		similarity_im Operator_type.COMPOUND_REWRAP false;
 
 	similarity_im im
-		= vips_call9 "similarity" [im] [
-			$interpolate => interpolate.value,
-			$scale => scale,
-			$angle => angle
-		];
+		= vips_call9 "similarity"
+			[$interpolate => interpolate.value,
+			  $scale => scale,
+			  $angle => angle
+			]
+            [im];
 }
 
 resize kernel xfac yfac image
@@ -1670,8 +1669,8 @@ resize kernel xfac yfac image
 		= vips_resize kernel xfac' yfac' im
 	{
 		vips_resize kernel hscale vscale im
-			= vips_call9 "resize" [im, hscale]
-				[$vscale => vscale, $kernel => kernel.value];
+			= vips_call9 "resize" [$vscale => vscale, $kernel => kernel.value]
+			   [im, hscale];
 	}
 }
 
@@ -2399,14 +2398,15 @@ system_image command x
 	system im
 		= image_out
 	{
-		[image_out, log] = vips_call9 "system" [command] [
-			$in => [im],
-			$out => true,
-			$in_format => "%s.tif",
-			$out_format => "%s.tif",
-			$cache => true,
-			$log => true
-		];
+		[image_out, log] = vips_call9 "system" [
+			 $in => [im],
+			 $out => true,
+			 $in_format => "%s.tif",
+			 $out_format => "%s.tif",
+			 $cache => true,
+			 $log => true
+            ]
+		    [command];
 	}
 }
 
@@ -2422,13 +2422,14 @@ system_image2 command x1 x2
 		(system_image2 command) Operator_type.COMPOUND_REWRAP false;
 
 	system x1 x2
-		= vips_call9 "system" [command] [
-			$in => [x1, x2],
-			$out => true,
-			$in_format => "%s.tif",
-			$out_format => "%s.tif",
-			$cache => true
-		];
+		= vips_call9 "system" [
+			 $in => [x1, x2],
+			 $out => true,
+			 $in_format => "%s.tif",
+			 $out_format => "%s.tif",
+			 $cache => true
+		    ]
+			[command];
 }
 
 /* Three images in, one out.
@@ -2443,13 +2444,14 @@ system_image3 command x1 x2 x3
 		(system_image3 command x1) Operator_type.COMPOUND_REWRAP false;
 
 	system x1 x2 x3
-		= vips_call9 "system" [command] [
-			$in => [x1, x2, x3],
-			$out => true,
-			$in_format => "%s.tif",
-			$out_format => "%s.tif",
-			$cache => true
-		];
+		= vips_call9 "system" [
+			 $in => [x1, x2, x3],
+			 $out => true,
+			 $in_format => "%s.tif",
+			 $out_format => "%s.tif",
+			 $cache => true
+			]
+			[command];
 }
 
 /* Zero images in, one out.
@@ -2457,11 +2459,12 @@ system_image3 command x1 x2 x3
 system_image0 command
 	= Image image_out
 {
-	image_out = vips_call9 "system" [command] [
-		$out => true,
-		$out_format => "%s.tif",
-        $cache => true
-	];
+	image_out = vips_call9 "system" [
+		 $out => true,
+		 $out_format => "%s.tif",
+         $cache => true
+	    ]
+	    [command];
 }
 
 hough_line w h x
@@ -2472,11 +2475,7 @@ hough_line w h x
 	hough_line_op = Operator "hough_line"
 		(hough_line w h) Operator_type.COMPOUND_REWRAP false;
 
-	hline w h x
-		= vips_call9 "hough_line" [x] [
-			$width => w,
-			$height => h
-		];
+	hline w h x = vips_call9 "hough_line" [$width => w, $height => h] [x];
 }
 
 hough_circle s mn mx x
@@ -2488,11 +2487,8 @@ hough_circle s mn mx x
 		(hough_circle s mn mx) Operator_type.COMPOUND_REWRAP false;
 
 	hcircle s mn mx x
-		= vips_call9 "hough_circle" [x] [
-			$scale => s,
-			$min_radius => mn,
-			$max_radius => mx
-		];
+		= vips_call9 "hough_circle"
+			[$scale => s, $min_radius => mn, $max_radius => mx] [x];
 }
 
 mapim interp ind in
@@ -2504,31 +2500,26 @@ mapim interp ind in
 	mapim_op = Operator "mapim"
 		(mapim interp) Operator_type.COMPOUND_REWRAP false;
 
-	mapim_fn ind im
-		= vips_call9 "mapim" [im, ind] [$interpolate => interp];
+	mapim_fn ind im = vips_call9 "mapim" [$interpolate => interp] [im, ind];
 }
 
 perlin cell width height
 	= Image im
 {
-	im = vips_call9 "perlin" [to_real width, to_real height] [
-		$cell_size => to_real cell
-	];
+	im = vips_call9 "perlin" [$cell_size => to_real cell]
+		[to_real width, to_real height];
 }
 
 worley cell width height
 	= Image im
 {
-	im = vips_call9 "worley" [to_real width, to_real height] [
-		$cell_size => to_real cell
-	];
+    im = vips_call9 "worley" [$cell_size => to_real cell]
+        [to_real width, to_real height];
 }
 
 gaussnoise width height mean sigma
-	= vips_call9 "gaussnoise" [to_real width, to_real height] [
-		$mean => to_real mean,
-		$sigma => to_real sigma
-	];
+	= vips_call9 "gaussnoise" [$mean => to_real mean, $sigma => to_real sigma]
+		[to_real width, to_real height];
 
 flattenimage bg x
 	= oo_unary_function flatten_op x, is_class x
@@ -2538,10 +2529,7 @@ flattenimage bg x
 	flatten_op = Operator "flatten"
 		(flattenimage bg) Operator_type.COMPOUND_REWRAP false;
 
-	flt bg x
-		= vips_call9 "flatten" [x] [
-			$background => bg.value
-		];
+	flt bg x = vips_call9 "flatten" [$background => bg.value] [x];
 }
 
 premultiply x
@@ -2552,7 +2540,7 @@ premultiply x
 	premultiply_op = Operator "premultiply"
 		premultiply Operator_type.COMPOUND_REWRAP false;
 
-	prem x = vips_call9 "premultiply" [x] [];
+	prem x = vips_call9 "premultiply" [] [x];
 }
 
 unpremultiply x
@@ -2563,7 +2551,7 @@ unpremultiply x
 	unpremultiply_op = Operator "unpremultiply"
 		unpremultiply Operator_type.COMPOUND_REWRAP false;
 
-	unprem x = vips_call9 "unpremultiply" [x] [];
+	unprem x = vips_call9 "unpremultiply" [] [x];
 }
 
 hist_entropy x
@@ -2574,7 +2562,7 @@ hist_entropy x
 	hist_entropy_op = Operator "hist_entropy"
 		hist_entropy Operator_type.COMPOUND_REWRAP false;
 
-	entropy x = vips_call9 "hist_entropy" [x] [];
+	entropy x = vips_call9 "hist_entropy" [] [x];
 }
 
 canny sigma precision x
@@ -2586,10 +2574,7 @@ canny sigma precision x
 		(canny sigma precision) Operator_type.COMPOUND_REWRAP false;
 
 	canny_im sigma precision x
-		= vips_call9 "canny" [x] [
-			$sigma => sigma,
-			$precision => precision
-		];
+		= vips_call9 "canny" [$sigma => sigma, $precision => precision] [x];
 }
 
 sobel x
@@ -2600,5 +2585,5 @@ sobel x
 	sobel_op = Operator "sobel"
 		sobel Operator_type.COMPOUND_REWRAP false;
 
-	sobel_im x = vips_call9 "sobel" [x] [];
+	sobel_im x = vips_call9 "sobel" [] [x];
 }

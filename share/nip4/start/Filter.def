@@ -1691,12 +1691,12 @@ Autotrace_item = class
 			= Image output
 		{
 			output = vips_call9 "system"
-				[command]
 				[$in => [x.value],
 				 $in_format => "%s.ppm",
 				 $out => true,
 				 $out_format => "%s.svg[scale=" ++ print scale.value ++ "]"
-				];
+				]
+				[command];
 		}
 	}
 }

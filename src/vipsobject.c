@@ -261,7 +261,7 @@ vo_set_optional(Vo *vo, PElement *optional)
 	return TRUE;
 }
 
-/* Make a vo and supply args from nip2.
+/* Make a vo and supply args from nip.
  */
 static gboolean
 vo_args(Vo *vo, PElement *required, PElement *optional)
@@ -543,7 +543,7 @@ vo_call(Reduce *rc, PElement *out, const char *name,
  */
 void
 vo_call9(Reduce *rc, PElement *out, const char *name,
-	PElement *required, PElement *optional)
+	PElement *optional, PElement *required)
 {
 	Vo *vo;
 
@@ -564,6 +564,21 @@ vo_call9(Reduce *rc, PElement *out, const char *name,
 	vo_write_result(vo, out, TRUE);
 
 	vips_object_unref_outputs(vo->object);
+	vo_free(vo);
+}
+
+/* Same, but fetch args from the call spine.
+ */
+void
+vo_call9_args(Reduce *rc, PElement *out, const char *name, HeapNode **args)
+{
+	Vo *vo;
+
+	if (!(vo = vo_new(rc, name)))
+		reduce_throw(rc);
+
+	vips_object_unref_outputs(vo->object);
+
 	vo_free(vo);
 }
 
