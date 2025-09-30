@@ -4,6 +4,7 @@
 - disable leak test on shutdown in release builds
 - fix Magick on windows with better quoting
 - reverse order of args in vips_call9 ... put options first
+- add vips8_xxxxx() builtins
 
 ## 9.0.13 2025/09/20
 

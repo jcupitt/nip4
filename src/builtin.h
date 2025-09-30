@@ -36,7 +36,8 @@ typedef struct {
 
 /* A builtin function.
  */
-typedef void (*builtin_fn)(Reduce *, const char *, HeapNode **, PElement *);
+typedef void (*builtin_fn)(BuiltinInfo *,
+	Reduce *, const char *, HeapNode **, PElement *);
 
 /* A function name and a pointer to an implementation.
  */

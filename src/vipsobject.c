@@ -107,8 +107,7 @@ vo_gather_required(PElement *item, Vo *vo)
 {
 	if (vo->nargs_supplied >= MAX_VIPS_ARGS) {
 		error_top(_("Too many arguments"));
-		error_sub(_("no more than %d arguments allowed"),
-			MAX_VIPS_ARGS);
+		error_sub(_("no more than %d arguments allowed"), MAX_VIPS_ARGS);
 		return item;
 	}
 
@@ -295,6 +294,34 @@ vo_args(Vo *vo, PElement *required, PElement *optional)
 	return TRUE;
 }
 
+/* Make a vo and supply args from an array of pointers to nip values.
+ */
+static gboolean
+vo_args_array(Vo *vo, PElement *optional)
+{
+	/* Set required input arguments.
+	 */
+	if (vips_argument_map(VIPS_OBJECT(vo->object),
+			(VipsArgumentMapFn) vo_set_required_input, vo, NULL))
+		return FALSE;
+	if (vo->nargs_supplied != vo->nargs_required) {
+		error_top(_("Wrong number of required arguments"));
+		error_sub(_("operation \"%s\" has %d required arguments, "
+					"you supplied %d"),
+			vo->name,
+			vo->nargs_required,
+			vo->nargs_supplied);
+		return FALSE;
+	}
+
+	/* Set all optional input args.
+	 */
+	if (!vo_set_optional(vo, optional))
+		return FALSE;
+
+	return TRUE;
+}
+
 /* Make a VipsObject.
  */
 void
@@ -308,6 +335,7 @@ vo_object_new(Reduce *rc, PElement *out, const char *name,
 		reduce_throw(rc);
 
 	if (!vo_args(vo, required, optional)) {
+		vips_object_unref_outputs(vo->object);
 		vo_free(vo);
 		reduce_throw(rc);
 	}
@@ -523,6 +551,7 @@ vo_call(Reduce *rc, PElement *out, const char *name,
 		reduce_throw(rc);
 
 	if (!vo_args(vo, required, optional)) {
+		vips_object_unref_outputs(vo->object);
 		vo_free(vo);
 		reduce_throw(rc);
 	}
@@ -551,6 +580,7 @@ vo_call9(Reduce *rc, PElement *out, const char *name,
 		reduce_throw(rc);
 
 	if (!vo_args(vo, required, optional)) {
+		vips_object_unref_outputs(vo->object);
 		vo_free(vo);
 		reduce_throw(rc);
 	}
@@ -570,12 +600,41 @@ vo_call9(Reduce *rc, PElement *out, const char *name,
 /* Same, but fetch args from the call spine.
  */
 void
-vo_call9_args(Reduce *rc, PElement *out, const char *name, HeapNode **args)
+vo_call9_array(Reduce *rc, PElement *out, const char *name,
+	int nargs, HeapNode **args)
 {
 	Vo *vo;
 
+	// must be at least an optional args list
+	g_assert(nargs >= 1);
+
 	if (!(vo = vo_new(rc, name)))
 		reduce_throw(rc);
+
+	PElement optional;
+	PEPOINTRIGHT(args[nargs - 1], &optional);
+
+	for (int i = 0; i < nargs - 1; i++) {
+		PElement item;
+
+		PEPOINTRIGHT(args[nargs - (i + 2)], &item);
+		if (vo_gather_required(&item, vo))
+			reduce_throw(rc);
+	}
+
+	if (!vo_args_array(vo, &optional)) {
+		vips_object_unref_outputs(vo->object);
+		vo_free(vo);
+		reduce_throw(rc);
+	}
+
+	if (!vo_call_execute(vo, &optional)) {
+		vips_object_unref_outputs(vo->object);
+		vo_free(vo);
+		reduce_throw(rc);
+	}
+
+	vo_write_result(vo, out, TRUE);
 
 	vips_object_unref_outputs(vo->object);
 
