@@ -1,5 +1,15 @@
 # menu redesign
 
+- in order, redesign:
+
+	_predicate.def
+	_stdenv.def
+	_types.def
+
+
+
+
+
 - get rid of all the im_functions
 
 	except for _vips7compat.def
@@ -7,6 +17,8 @@
 - have has_image / get_image, but is_real / to_real
 
 	use is_image / to_image, a bit nicer
+
+	we have is_image alreay, do we need both?
 
 - add to_enum
 

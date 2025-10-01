@@ -75,41 +75,41 @@ mksvpair s v
 
 // the vector ops ... im is an image, vec is a real_list
 vec op_name im vec
-	= vips_linear im ones vec,
+	= vips_linear [] im ones vec,
 		op_name == "add" || op_name == "add'"
-	= vips_linear (-1 * im) ones vec,
+	= vips_linear [] (-1 * im) ones vec,
 		op_name == "subtract'"
-	= vips_linear im ones inv,
+	= vips_linear [] im ones inv,
 		op_name == "subtract"
-	= vips_linear im vec zeros,
+	= vips_linear [] im vec zeros,
 		op_name == "multiply" || op_name == "multiply'"
-	= vips_linear (1 / im) vec zeros,
+	= vips_linear [] (1 / im) vec zeros,
 		op_name == "divide'"
-	= vips_linear im recip zeros,
+	= vips_linear [] im recip zeros,
 		op_name == "divide"
-	= im_expntra_vec im vec,
-		op_name == "power'"
-	= im_powtra_vec im vec,
+	= vips_math2_const [] im "pow" vec,
 		op_name == "power"
-	= im_remainderconst_vec im vec,
+	= vips_math2_const [] im "wop" vec,
+		op_name == "power'"
+	= vips_remainder_const [] im vec,
 		op_name == "remainder"
-	= im_andimage_vec im vec,
+	= vips_boolean_const [] im "and" vec,
 		op_name == "bitwise_and" || op_name == "bitwise_and'"
-	= im_orimage_vec im vec,
+	= vips_boolean_const [] im "or" vec,
 		op_name == "bitwise_or" || op_name == "bitwise_or'"
-	= im_eorimage_vec im vec,
+	= vips_boolean_const [] im "eor" vec,
 		op_name == "eor" || op_name == "eor'"
-	= im_equal_vec im vec,
+	= vips_relational_const [] im "equal" vec,
 		op_name == "equal" || op_name == "equal'"
-	= im_notequal_vec im vec,
+	= vips_relational_const [] im "noteq" vec,
 		op_name == "not_equal" || op_name == "not_equal'"
-	= im_less_vec im vec,
+	= vips_relational_const [] im "less" vec,
 		op_name == "less"
-	= im_moreeq_vec im vec,
+	= vips_relational_const [] im "moreeq" vec,
 		op_name == "less'"
-	= im_lesseq_vec im vec,
+	= vips_relational_const [] im "lesseq" vec,
 		op_name == "less_equal"
-	= im_more_vec im vec,
+	= vips_relational_const [] im "more" vec,
 		op_name == "less_equal'"
 	= error ("unimplemented vector operation: " ++ op_name)
 {
@@ -170,7 +170,7 @@ bandjoin l
 {
 	has_wrapper = has_member_list (has_member "Image") l;
 	wrapper = get_member_list (has_member "Image") (get_member "Image") l;
-	joined = im_gbandjoin (map get_image l);
+	joined = vips_bandjoin [] (map get_image l);
 }
 
 bandand x
