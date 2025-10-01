@@ -47,6 +47,16 @@ typedef struct _Node {
 	Toolkit *kit;
 	Tool *tool;
 	Toolitem *toolitem;
+
+	// our search text ... join name, description, help text, tk name,
+	// etc. here
+	char *search_text;
+
+	// sort text ... the most obvious property value
+	const char *sort_text;
+
+	// help we display in eg tooltips
+	const char *help_text;
 } Node;
 
 typedef struct _NodeClass {
@@ -71,14 +81,30 @@ enum {
 static void
 node_print(Node *node)
 {
+	printf("node: ");
 	if (node->kit)
-		printf("node kit %s\n", IOBJECT(node->kit)->name);
+		printf("kit = %s ", IOBJECT(node->kit)->name);
 	if (node->tool)
-		printf("node tool %s\n", IOBJECT(node->tool)->name);
+		printf("tool = %s ", IOBJECT(node->tool)->name);
 	if (node->toolitem)
-		printf("node toolitem %s\n", IOBJECT(node->toolitem->tool)->name);
+		printf("toolitem = %s ", IOBJECT(node->toolitem->tool)->name);
+	printf("\n");
+
+	printf("\tsearch_text = %s\n", node->search_text);
+	printf("\tsort_text = %s\n", node->sort_text);
+	printf("\thelp_text = %s\n", node->help_text);
 }
 #endif /*DEBUG*/
+
+static void
+node_dispose(GObject *object)
+{
+	Node *node = NODE(object);
+
+	VIPS_FREE(node->search_text);
+
+	G_OBJECT_CLASS(node_parent_class)->dispose(object);
+}
 
 static void
 node_get_property(GObject *object,
@@ -88,32 +114,11 @@ node_get_property(GObject *object,
 
 	switch (prop_id) {
 	case PROP_SEARCH_TEXT:
-		if (node->kit &&
-			IOBJECT(node->kit)->name)
-			g_value_set_string(value, IOBJECT(node->kit)->name);
-		else if (node->tool &&
-			IOBJECT(node->tool)->name &&
-			node->tool->help)
-			g_value_set_string(value, node->tool->help);
-		else if (node->tool &&
-			IOBJECT(node->tool)->name)
-			g_value_set_string(value, IOBJECT(node->tool)->name);
-		else if (node->toolitem &&
-			node->toolitem->name)
-			g_value_set_string(value, node->toolitem->help);
-		else
-			g_value_set_string(value, "");
+		g_value_set_string(value, node->search_text);
 		break;
 
 	case PROP_SORT_TEXT:
-		if (node->toolitem &&
-			node->toolitem->name)
-			g_value_set_string(value, node->toolitem->user_path);
-		else if (node->tool &&
-			IOBJECT(node->tool)->name)
-			g_value_set_string(value, IOBJECT(node->tool)->name);
-		else
-			g_value_set_string(value, "");
+		g_value_set_string(value, node->sort_text);
 		break;
 
 	default:
@@ -127,6 +132,7 @@ node_class_init(NodeClass *class)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
 
+    gobject_class->dispose = node_dispose;
     gobject_class->get_property = node_get_property;
 
 	g_object_class_install_property(gobject_class, PROP_SEARCH_TEXT,
@@ -160,6 +166,49 @@ node_new(Toolkit *kit, Tool *tool, Toolitem *toolitem)
 	node->kit = kit;
 	node->tool = tool;
 	node->toolitem = toolitem;
+
+	char txt[256];
+	VipsBuf buf = VIPS_BUF_STATIC(txt);
+
+	if (node->kit &&
+		IOBJECT(node->kit)->name) {
+		vips_buf_appends(&buf, IOBJECT(node->kit)->name);
+		vips_buf_appends(&buf, " ");
+	}
+	if (node->tool &&
+		IOBJECT(node->tool)->name) {
+		vips_buf_appends(&buf, IOBJECT(node->tool)->name);
+		vips_buf_appends(&buf, " ");
+	}
+	if (node->tool &&
+		IOBJECT(node->tool)->name &&
+		node->tool->help) {
+		vips_buf_appends(&buf, node->tool->help);
+		vips_buf_appends(&buf, " ");
+	}
+	if (node->toolitem &&
+		node->toolitem->help) {
+		vips_buf_appends(&buf, node->toolitem->help);
+		vips_buf_appends(&buf, " ");
+	}
+
+	node->search_text = g_strdup(vips_buf_all(&buf));
+
+	if (node->toolitem &&
+		node->toolitem->user_path)
+		node->sort_text = node->toolitem->user_path;
+	else if (node->tool &&
+		IOBJECT(node->tool)->name)
+		node->sort_text = IOBJECT(node->tool)->name;
+	else
+		node->sort_text = "";
+
+	if (node->toolitem &&
+		node->toolitem->help)
+		node->help_text = node->toolitem->help;
+	if (node->tool &&
+		node->tool->help)
+		node->help_text = node->tool->help;
 
 #ifdef DEBUG
 	node_print(node);
@@ -564,8 +613,8 @@ toolkitgroupview_bind_browse_item(GtkListItemFactory *factory,
 			(node->toolitem && node->toolitem->is_pullright));
 		gtk_widget_set_visible(pin, FALSE);
 
-		if (node->toolitem)
-			set_tooltip(button, node->toolitem->help);
+		if (node->help_text)
+			set_tooltip(button, node->help_text);
 
 		g_object_set_qdata(G_OBJECT(button), node_quark, node);
 	}
@@ -809,8 +858,8 @@ toolkitgroupview_bind_list_item(GtkListItemFactory *factory,
 	else
 		gtk_label_set_label(GTK_LABEL(label), IOBJECT(node->tool)->name);
 
-	if (node->toolitem)
-		set_tooltip(button, node->toolitem->help);
+	if (node->help_text)
+		set_tooltip(button, node->help_text);
 
 	g_object_set_qdata(G_OBJECT(button), node_quark, node);
 

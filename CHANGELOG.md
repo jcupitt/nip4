@@ -5,6 +5,7 @@
 - fix Magick on windows with better quoting
 - reverse order of args in `vips_call9` ... put options first
 - add `vips8_xxxxx` builtins, remove `vips_call9`
+- improve search and display of builtins
 
 ## 9.0.13 2025/09/20
 
