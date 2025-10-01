@@ -172,7 +172,7 @@ Image_new_item = class Menupullright "_New" "make new things" {
 					set_option $spacing 0 (to_real spacing)
 				];
 
-				out = vips_call9 "text" [text.value] options;
+				out = vips_text options text.value;
 			}
 		}
 	}
@@ -1868,11 +1868,12 @@ Image_SDF_item = class
 			b = Matrix [[3 * across.expr / 4, 3 * down.expr / 4]];
 			corners = Matrix [[10, 10, 10, 10]];
 
-			_result = sdf across down shape
-				[$r => to_real radius,
-				 $a => a.value?0,
-				 $b => b.value?0,
-				 $corners => corners.value?0];
+			_result = sdf [
+				$r => to_real radius,
+				$a => a.value?0,
+				$b => b.value?0,
+				$corners => corners.value?0
+			] across down shape.value;
 		}
 	}
 

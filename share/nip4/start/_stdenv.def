@@ -73,10 +73,6 @@ mksvpair s v
 	= [s, v], is_string s
 	= error "not str on lhs of ->";
 
-// basic wrappers for vips8 operators
-vips_linear in a b
-	= vips_call9 "linear" [in, a, b] [];
-
 // the vector ops ... im is an image, vec is a real_list
 vec op_name im vec
 	= vips_linear im ones vec,
@@ -674,14 +670,14 @@ image_set_origin xoff yoff x
 
 cache tile_width tile_height max_tiles x
 	= oo_unary_function cache_op x, is_class x
-	= vips_call9 "tilecache" [x] [
+	= vips_tilecache [
         $tile_width => to_real tile_width,
         $tile_height => to_real tile_height,
         $max_tiles => to_real max_tiles,
         $access => "random",
         $persistent => true,
         $threaded => true
-      ], is_image x
+      ] x, is_image x
 	= error (_ "bad arguments to " ++ "cache")
 {
 	cache_op = Operator "cache"
@@ -2604,7 +2600,7 @@ minpair a b
 
 	minpair_value a b = if a < b then a else b;
 
-	minpair_im a b = vips_call9 "minpair" [get_image a, get_image b] [];
+	minpair_im a b = vips_minpair [] (get_image a) (get_image b);
 }
 
 maxpair a b
@@ -2616,7 +2612,7 @@ maxpair a b
 {
 	maxpair_op = Operator "maxpair" maxpair Operator_type.ARITHMETIC false;
 
-	maxpair_im a b = vips_call9 "maxpair" [get_image a, get_image b] [];
+	maxpair_im a b = vips_maxpair [] (get_image a) (get_image b);
 }
 
 clamp min max x
@@ -2628,38 +2624,32 @@ clamp min max x
 {
 	clamp_op = Operator "clamp" (clamp min max) Operator_type.ARITHMETIC false;
 
-	clamp_im min max x = vips_call9 "clamp" [get_image x] [
+	clamp_im min max x = vips_clamp [
 		$min => to_real min,
 		$max => to_real max
-	];
+	] (get_image x);
 }
 
 linear a b x
 	= oo_unary_function linear_op x, is_class x
-	= linear_im a b x, has_image x
+	= vips_linear [] (get_image x) (to_real a) (to_real b), has_image x
 	= a * x + b
 {
 	linear_op
 		= Operator "linear" (linear a b) Operator_type.ARITHMETIC false;
-
-	linear_im a b x = vips_call9 "linear"
-		[get_image x, to_real a, to_real b] [];
 }
 
 linearu a b x
 	= oo_unary_function linearu_op x, is_class x
+	= vips_linear [$uchar => true] (get_image x) (to_real a) (to_real b),
+		has_image x
 	= linearu_im a b x, has_image x
 	= (int) (a * x + b)
 {
 	linearu_op
 		= Operator "linearu" (linearu a b) Operator_type.ARITHMETIC false;
-
-	linearu_im a b x = vips_call9 "linear"
-		[get_image x, to_real a, to_real b]
-		[$uchar => true];
 }
 
-sdf width height shape options
-	= Image (vips_call9 "sdf"
-		[to_real width, to_real height, to_real shape] options);
+sdf options width height shape
+	= Image (vips_sdf options (to_real width) (to_real height) shape);
 

@@ -1,5 +1,17 @@
 # menu redesign
 
+- get rid of all the im_functions
+
+	except for _vips7compat.def
+
+- have has_image / get_image, but is_real / to_real
+
+	use is_image / to_image, a bit nicer
+
+- add to_enum
+
+	allows str and real
+
 - from _types.def remove
 
 	 Image_interpretation
