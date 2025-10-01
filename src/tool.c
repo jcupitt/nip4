@@ -428,8 +428,7 @@ toolitem_set_tooltip(Toolitem *toolitem, PElement *root)
 	if (root &&
 		heap_is_instanceof(CLASS_MENUITEM, root, &result) &&
 		result &&
-		class_get_member_string(root,
-			MEMBER_TOOLTIP, value, MAX_NAME)) {
+		class_get_member_string(root, MEMBER_TOOLTIP, value, MAX_NAME)) {
 		VIPS_SETSTR(toolitem->tooltip, _(value));
 	}
 	else if (toolitem->tool &&
@@ -775,7 +774,9 @@ tool_set_help(Tool *tool)
 	}
 	else if (tool->sym &&
 		tool->sym->type == SYM_BUILTIN)
-		VIPS_SETSTR(tool->help, tool->sym->builtin->desc);
+		VIPS_SETSTR(tool->help, g_strdup_printf("%s: %s",
+				IOBJECT(tool->sym)->name,
+				tool->sym->builtin->desc));
 	else
 		VIPS_SETSTR(tool->help, NULL);
 }

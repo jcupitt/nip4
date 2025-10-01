@@ -7,17 +7,6 @@
 
 	should work in workspace entry box, and in program window
 
-- program: search does not look in _vips or _builtin
-
-	program search should show tk name?
-
-	eg.:
-
-		_vips > vips_invert
-		_builtin > dir
-
-- program: search, "subscript", does not find definition
-
 - program: ^W should parse the text and block on error
 
 - program: don't get save-before-close box for modified toolkits?
