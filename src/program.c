@@ -253,8 +253,7 @@ program_set_tool(Program *program, Tool *tool)
 				char txt[MAX_STRSIZE];
 				VipsBuf buf = VIPS_BUF_STATIC(txt);
 
-				vips_buf_appendf(&buf, "%s: %s\n\n",
-						IOBJECT(tool->sym)->name, tool->help);
+				vips_buf_appendf(&buf, "%s\n\n", tool->help);
 				builtin_usage(&buf, tool->sym->builtin);
 				program_set_text(program, vips_buf_all(&buf), FALSE);
 			}

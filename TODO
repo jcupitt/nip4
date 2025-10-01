@@ -7,6 +7,13 @@
 
 	should work in workspace entry box, and in program window
 
+		vips_for|
+
+		im_falsecolour in = ...
+		im_fastcor in = ...
+		vips_falsecolour: false-colour an image
+		vips_fastcor: fast correlation
+
 - program: ^W should parse the text and block on error
 
 - program: don't get save-before-close box for modified toolkits?
