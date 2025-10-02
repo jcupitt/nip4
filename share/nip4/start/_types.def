@@ -712,7 +712,7 @@ Image_coding = class {
 	RAD = 6;
 }
 
-/* Values for BandFmt field in image.
+/* Values for format field in image.
  */
 Image_format = class {
 	DPCOMPLEX = 9;
@@ -796,84 +796,6 @@ Enum value = class
 	// map things to strings and back
 	get_name x = this.lookup 1 0 x;
 	get_thing x = this.lookup 0 1 x;
-}
-
-/* Type field.
- */
-Image_type = class {
-	MULTIBAND = 0;
-	B_W = 1;
-	HISTOGRAM = 10;
-	XYZ = 12;
-	LAB = 13;
-	CMYK = 15;
-	LABQ = 16;
-	RGB = 17;
-	UCS = 18;
-	LCH = 19;
-	LABS = 21;
-	sRGB = 22;
-	YXY = 23;
-	FOURIER = 24;
-	RGB16 = 25;
-	GREY16 = 26;
-	ARRAY = 27;
-	scRGB = 28;
-
-	/* Table to get names <-> numbers.
-	 */
-	type_names = Enum [
-		$MULTIBAND => MULTIBAND,
-		$B_W => B_W,
-		$HISTOGRAM => HISTOGRAM,
-		$XYZ => XYZ,
-		$LAB => LAB,
-		$CMYK => CMYK,
-		$LABQ => LABQ,
-		$RGB => RGB,
-		$UCS => UCS,
-		$LCH => LCH,
-		$LABS => LABS,
-		$sRGB => sRGB,
-		$YXY => YXY,
-		$FOURIER => FOURIER,
-		$RGB16 => RGB16,
-		$GREY16 => GREY16,
-		$ARRAY => ARRAY,
-		$scRGB => scRGB
-	];
-
-	/* Table relating nip's colour space names and VIPS's Type numbers.
-	 * Options are generated from this, so match the order to the order in
-	 * the Colour menu.
-	 */
-	colour_spaces = Enum [
-		$sRGB => sRGB,
-		$scRGB => scRGB,
-		$Lab => LAB,
-		$LCh => LCH,
-		$XYZ => XYZ,
-		$Yxy => YXY,
-		$UCS => UCS
-	];
-
-	/* A slightly larger table ... the types of colorimetric image we can
-	 * have. Add mono, and the S and Q forms of LAB.
-	 */
-	image_colour_spaces = Enum [
-		$Mono => B_W,
-		$sRGB => sRGB,
-		$scRGB => scRGB,
-		$RGB16 => RGB16,
-		$GREY16 => GREY16,
-		$Lab => LAB,
-		$LabQ => LABQ,
-		$LabS => LABS,
-		$LCh => LCH,
-		$XYZ => XYZ,
-		$Yxy => YXY,
-		$UCS => UCS
-	];
 }
 
 /* Interpretation field.
@@ -973,16 +895,11 @@ Image value = class
 	format = get_format value;
 	coding = get_coding value;
 	interpretation = get_interpretation value;
-	xres = get_header "xres" value;
-	yres = get_header "yres" value;
-	xoffset = get_header "xoffset" value;
-	yoffset = get_header "yoffset" value;
+	xres = get_xres value;
+	yres = get_yres value;
+	xoffset = get_xoffset value;
+	yoffset = get_yoffset value;
 	filename = get_header "filename" value;
-
-	// for compat ... remove these!
-	type = get_type value;
-	bits = get_bits value;
-	rect = Rect 0 0 width height;
 
 	// operator overloading
 	// (op Image Vector) done in Vector class

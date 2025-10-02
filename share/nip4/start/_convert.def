@@ -60,7 +60,7 @@ to_image x
 	= Image x.value, is_Plot x
 	= x, is_Image x
 	= Image (image_set_type
-			(Image_type.colour_spaces.lookup 0 1 x.colour_space)
+			(Image_interpretation.colour_spaces.lookup 0 1 x.colour_space)
 			(mtoi [x.value])),
 		is_Colour x
 	= oo_unary_function to_image_op x, is_class x
@@ -122,28 +122,30 @@ to_colour x
 	to_colour_op = Operator "to_colour" toc Operator_type.COMPOUND false;
 
 	toc x
-		= Colour (colour_space (get_type x''))
+		= Colour (colour_space (get_interpretation x''))
 			(map mean (bandsplit (get_image x''))),
-			has_image x && has_type x
+			has_image x && has_interpretation x
 		= Colour "sRGB" [x, x, x], is_real x	// since Colour can't do mono
 		= Colour "sRGB" x, is_real_list x && is_list_len 3 x
 		= map toc x, is_matrix x
 		= error (_ "bad arguments to " ++ "to_colour")
 	{
 		x'
-			= x, Image_type.colour_spaces.has_thing (get_type x)
-			= colour_transform_to Image_type.sRGB x;
+			= x,
+                Image_interpretation.colour_spaces.has_thing (get_interpretation x)
+			= colour_transform_to Image_interpretation.sRGB x;
 		x''
 			= extract_bands 0 3 x', get_bands x' > 3
 			= x';
 	}
 
-	colour_space type
-		= table.get_name type, table.has_thing type
-		= error (_ "unable to make Colour from " ++ table.get_name type ++
+	colour_space interpretation
+		= table.get_name interpretation, table.has_thing interpretation
+		= error (_ "unable to make Colour from " ++ table.get_name
+interpretation ++
 			_ " image")
 	{
-		table = Image_type.colour_spaces;
+		table = Image_interpretation.colour_spaces;
 	}
 }
 
@@ -357,11 +359,11 @@ im_D50Lab2XYZ lab
 /* ... and mono conversions
  */
 im_sRGB2mono in
-	= (image_set_type Image_type.B_W @
+	= (image_set_type Image_interpretation.B_W @
 		clip2fmt (get_header "BandFmt" in) @
 			recomb (Matrix [[.3, .6, .1]])) in;
 im_mono2sRGB in
-	= image_set_type Image_type.sRGB (in ++ in ++ in);
+	= image_set_type Image_interpretation.sRGB (in ++ in ++ in);
 
 im_sRGB2Lab = im_XYZ2Lab @ im_sRGB2XYZ;
 
@@ -375,11 +377,11 @@ im_8216 x = (im_clip2us x) << 8;
 im_f216 x = im_clip2us (x * 256);
 
 im_RGB162GREY16 in
-	= (image_set_type Image_type.GREY16 @
+	= (image_set_type Image_interpretation.GREY16 @
 		clip2fmt (get_header "BandFmt" in) @
 			recomb (Matrix [[.3, .6, .1]])) in;
 im_GREY162RGB16 in
-	= image_set_type Image_type.RGB16 (in ++ in ++ in);
+	= image_set_type Image_interpretation.RGB16 (in ++ in ++ in);
 
 /* The vips8 scRGB functions.
  */
@@ -625,8 +627,8 @@ _colour_conversion_table = [
 	[LABS, LABS, image_set_type LABS]
 ]
 {
-	/* From Image_type ... repeat here for brevity. Use same ordering as
-	 * in Colour menu for consistency.
+	/* From Image_interpretation ... repeat here for brevity. Use same
+     * ordering as in Colour menu for consistency.
 	 */
 	B_W = 1;
 	XYZ = 12;
@@ -647,8 +649,8 @@ _colour_conversion_table = [
  */
 colour_transform from to in
 	= colour_unary _colour_conversion_table?i?2 in, i >= 0
-	= error (_ "unable to convert " ++ Image_type.type_names.get_name from ++
-		_ " to " ++ Image_type.type_names.get_name to)
+	= error (_ "unable to convert " ++ Image_interpretation.type_names.get_name from ++
+		_ " to " ++ Image_interpretation.type_names.get_name to)
 {
 	match x = x?0 == from && x?1 == to;
 	i = index match _colour_conversion_table;
