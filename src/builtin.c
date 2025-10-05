@@ -207,6 +207,28 @@ apply_image2matrix_call(BuiltinInfo *builtin,
 	VIPS_FREE(values);
 }
 
+/* Args for "vips_image_guess_interpretation".
+ */
+static BuiltinTypeSpot *image_guess_interpretation_args[] = {
+	&vimage_spot
+};
+
+static void
+apply_image_guess_interpretation_call(BuiltinInfo *builtin,
+	Reduce *rc, const char *name, HeapNode **arg, PElement *out)
+{
+	PElement rhs;
+
+	PEPOINTRIGHT(arg[0], &rhs);
+	Imageinfo *ii = reduce_get_image(rc, &rhs);
+
+	VipsInterpretation interpretation =
+		vips_image_guess_interpretation(ii->image);
+
+	if (!heap_real_new(rc->heap, interpretation, out))
+		reduce_throw(rc);
+}
+
 /* Args for "vips_image_matrix".
  */
 static BuiltinTypeSpot *matrix2image_args[] = {
@@ -1458,6 +1480,11 @@ static BuiltinInfo builtin_table[] = {
 	{ "vips_header_get", N_("get any valued field"),
 		FALSE, VIPS_NUMBER(header_get_typeof_args),
 		&header_get_typeof_args[0], apply_header_get_call },
+
+	{ "vips_image_guess_interpretation", N_("guess interpretation for image"),
+		FALSE, VIPS_NUMBER(image_guess_interpretation_args),
+		&image_guess_interpretation_args[0],
+		apply_image_guess_interpretation_call },
 
 };
 

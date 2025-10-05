@@ -6,6 +6,7 @@
 - reverse order of args in `vips_call9` ... put options first
 - add `vips8_xxxxx` builtins, remove `vips_call9`
 - improve search and display of builtins
+- add `vips_image_guess_interpretation` builtin
 
 ## 9.0.13 2025/09/20
 
