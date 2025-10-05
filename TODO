@@ -186,12 +186,21 @@
 
 	should work in workspace entry box, and in program window
 
-		vips_for|
+		vips_fa |
 
 		im_falsecolour in = ...
 		im_fastcor in = ...
 		vips_falsecolour: false-colour an image
 		vips_fastcor: fast correlation
+
+	maybe a bar down the right shows matches to the thing around the
+	cursor?
+
+	a popdown from the cursor shows what tab will complete to
+
+	tooltips around mouse do lookups on text
+
+
 
 - program: ^W should parse the text and block on error
 
