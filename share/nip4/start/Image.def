@@ -44,17 +44,7 @@ Image_new_item = class Menupullright "_New" "make new things" {
 				pixel = Expression "Pixel value" 0;
 
 				_result
-					= image_new [
-                        $bands => x.bands,
-						$format => x.format,
-                        $coding => x.coding,
-                        $interpretation => x.interpretation,
-                        $pixel => pixel.expr,
-                        $xres => x.xres,
-                        $yres => x.yres,
-                        $xoffset => x.xoffset,
-                        $yoffset => x.yoffset
-                    ] x.width x.height;
+					= image_new_from_image [$pixel => pixel.expr] x x.width x.height;
 		}
 	}
 
@@ -2232,12 +2222,7 @@ Image_draw_item = class
 
                     t = floor thick;
 
-                    bg = image_new [
-                        $bands => get_bands im,
-                        $format => get_format im,
-                        $coding => get_coding im,
-                        $interpretation => get_interpretation im
-                    ] (get_width im) (get_height im);
+                    bg = image_new_from_image [] im (get_width im) (get_height im);
                     draw_block x y w t im =
                         draw_rect_width x y w t true 1 [255] im;
                     label = im_text text.value font.value w 1 d;
@@ -2276,13 +2261,7 @@ Image_join_item = class
 		w = a.width + b.width + shim;
 		h = max_pair a.height b.height;
 
-		back = image_new [
-            $bands => a.bands,
-            $format => a.format,
-            $coding => a.coding,
-            $interpretation => a.interpretation,
-            $pixel => bg
-        ] w h;
+		back = image_new_from_image [$pixel => bg] a w h;
 
 		ya = [0, max_pair 0 ((b.height - a.height)/2),
 			max_pair 0 (b.height - a.height)];
@@ -2299,13 +2278,7 @@ Image_join_item = class
 		w = max_pair a.width b.width;
 		h = a.height + b.height + shim;
 
-		back = image_new [
-            $bands => a.bands,
-            $format => a.format,
-            $coding => a.coding,
-            $interpretation => a.interpretation,
-            $pixel => bg
-        ] w h;
+		back = image_new_from_image [$pixel => bg] a w h;
 
 		xa = [0, max_pair 0 ((b.width - a.width)/2),
 			max_pair 0 (b.width - a.width)];

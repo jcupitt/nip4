@@ -1239,12 +1239,7 @@ Filter_blend_item = class
 		moveit fg bg u v
 			= insert_noexpand u v fg bg'
 		{
-			bg' = image_new [
-				$bands => fg.bands,
-                $format => fg.format,
-                $coding => fg.coding,
-                $interpretation => fg.interpretation
-            ] bg.width bg.height;
+			bg' = image_new_from_image [] fg bg.width bg.height;
 		}
 
 		action bg fg = class
@@ -1553,13 +1548,9 @@ Filter_drop_shadow_item = class
 				mask'' = convsep blur_matrix mask';
 
                 // use mask to fade between bg and shadow colour
-                mk_background colour = image_new [
-                    $bands => image.bands,
-                    $format => image.format,
-                    $coding => image.coding,
-                    $interpretation => image.interpretation,
+                mk_background colour = image_new_from_image [
                     $pixel => colour
-                ] final_rect.width final_rect.height;
+                ] image final_rect.width final_rect.height;
 
                 bg_image = mk_background bg_colour.expr;
                 shadow_image = mk_background sd_colour.expr;
@@ -1613,13 +1604,9 @@ Filter_paint_text_item = class
 			_result
 				= insert_noexpand place.left place.top (blend txt' fg place) x
 			{
-				fg = image_new [
-                    $bands => x.bands,
-                    $format => x.format,
-                    $coding => x.coding,
-                    $interpretation => x.interpretation,
+				fg = image_new_from_image [
                     $pixel => colour.expr
-                ] place.width place.height;
+                ] x place.width place.height;
 				txt = Image (im_text text.value font.value
 					place.width align.value (to_real dpi));
 	            bg = im_black place.width place.height 1;
@@ -1669,13 +1656,9 @@ Filter_paint_text_item = class
 
 					place = extract_area x' y' w' h' image;
 					text' = insert_noexpand 0 0 text (im_black w' h' 1);
-					fg = image_new [
-                        $bands => image.bands,
-                        $format => image.format,
-                        $coding => image.coding,
-                        $interpretation => image.type,
+					fg = image_new_from_image [
                         $pixel => colour.expr
-                    ] w' h';
+                    ] image w' h';
 					place' = blend text' fg place;
 				}
 			}

@@ -53,6 +53,23 @@ image_new options w h
     ] image'';
 }
 
+image_new_from_image options image
+    = image_new options'
+{
+    // earlier options override later options, so we just append the image
+    // properties to the option set
+    options' = options ++ [
+            $bands => get_bands image,
+            $format => get_format image,
+            $coding => get_coding image,
+            $interpretation => get_interpretation image,
+            $xoff => get_xoffset image,
+            $yoff => get_yoffset image,
+            $xres => get_xres image,
+            $yres => get_yres image
+    ];
+}
+
 /* generate a slice of LAB space size x size pixels for L* == l
  */
 lab_slice size l

@@ -324,12 +324,7 @@ meanze x
     {
         // histogram, knock out zeros
         hist = hist_find i;
-        black = image_new [
-            $bands => get_bands hist,
-            $format => get_format hist,
-            $coding => get_coding hist,
-            $interpretation => get_interpretation hist
-        ] 1 1;
+        black = image_new_from_image [] hist 1 1;
         histze = insert 0 0 black hist;
 
         // matching identity
@@ -1799,13 +1794,7 @@ draw_rect_width x y w h f t ink image
             insert x' y' (block t h')) image
     {
         insert = insert_noexpand;
-        block w h = image_new [
-            $bands => get_bands image,
-            $format => get_format image,
-            $coding => get_coding image,
-            $interpretation => get_interpretation image,
-            $pixel => ink'
-        ] w h;
+        block w h = image_new_from_image [$pixel => ink'] image w h;
 
         ink'
             = Vector ink, is_list ink

@@ -176,12 +176,7 @@ build_frame r_tl r_tr r_bl r_br r_mt r_mb r_ml r_mr im_w im_h ov bf = result
 	bottom 	= merge_to_scale r_mb cw_target blend 0;
 	left 	= merge_to_scale r_ml ch_target blend 1;
 	right 	= merge_to_scale r_mr ch_target blend 1;
-    middle  = Image (image_new [
-            $bands => left.bands
-            $format => left.format
-            $coding => left.coding
-            $interpretation => left.interpretation
-        ] cw_target ch_target);
+    middle  = Image (image_new_from_image [] left cw_target ch_target);
 
 	//Build sections into full frame.
 	row_1 = frame_lr_min r_tl r_tr w_target blend, ( w_target < (r_tl.width * 2))
@@ -245,12 +240,7 @@ complex_frame frame im_w im_h ov cs es ms bf option= result
 	bottom 	= complex_edge r_mb r_eb cw_target blend 0;
 	left	= complex_edge r_ml r_el ch_target blend 1;
 	right	= complex_edge r_mr r_er ch_target blend 1;
-    middle  = Image (image_new [
-            $bands => left.bands
-            $format => left.format
-            $coding => left.coding
-            $interpretation => left.interpretation
-        ] top.width left.height);
+    middle  = Image (image_new_from_image [] left top.width left.height);
 
 	//Build regions into full frame.
 	row_1 = frame_lr_min r_tl r_tr w_target blend, ( w_target < (r_tl.width * 2))
@@ -347,13 +337,7 @@ frame_tb_min r_t r_b target bw = result
  */
 frame_position_image im ref os colour= result
 	{
-	background = image_new [
-        $bands => im.bands,
-        $format => im.format,
-        $coding => im.coding,
-        $interpretation => im.interpretation,
-        $pixel => colour
-    ] ref.width ref.height;
+	background = image_new_from_image [$pixel => colour] im ref.width ref.height;
 
 	result = insert_noexpand xp yp im background
 		{
