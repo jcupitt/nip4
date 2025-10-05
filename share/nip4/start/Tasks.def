@@ -62,9 +62,7 @@ Tasks_capture_item = class
 						= x : l;
 				}
 
-				blank = image_new 1 1 1
-					Image_format.DOUBLE Image_coding.NOCODING Image_type.B_W
-					0 0 0;
+				blank = image_new [$format => Image_format.DOUBLE] 1 1;
 			}
 		}
 	}
@@ -86,9 +84,7 @@ Tasks_capture_item = class
 				= Image (im_binfile path.value
 					across.expr down.expr bytes.expr skip.expr)
 			{
-				blank = image_new 1 1 1
-					Image_format.DOUBLE Image_coding.NOCODING Image_type.B_W
-					0 0 0;
+				blank = image_new [$format => Image_format.DOUBLE] 1 1;
 			}
 		}
 	}
@@ -765,7 +761,8 @@ Manual_balance_item = class
 			_im_pairs = zip2 _m_list _scaled_ims;
 
 		// Prepare black images as starting point. ////////////
-			_blank = image_new (_m_list?0).width (_m_list?0).height 1 6 Image_coding.NOCODING 1 0 0 0;
+			_blank = image_new [] (_m_list?0).width (_m_list?0).height;
+
 			_pair_start = [(_blank + 1), _blank];
 
 			Build = Toggle "Build Scale and Offset Correction Images" false;

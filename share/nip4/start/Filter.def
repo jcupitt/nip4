@@ -1239,8 +1239,12 @@ Filter_blend_item = class
 		moveit fg bg u v
 			= insert_noexpand u v fg bg'
 		{
-			bg' = image_new bg.width bg.height
-				fg.bands fg.format fg.coding fg.type 0 0 0;
+			bg' = image_new [
+				$bands => fg.bands,
+                $format => fg.format,
+                $coding => fg.coding,
+                $interpretation => fg.interpretation
+            ] bg.width bg.height;
 		}
 
 		action bg fg = class
@@ -1540,17 +1544,22 @@ Filter_drop_shadow_item = class
                 mask
                     = (foldr1 bitwise_and @ bandsplit) (image.value != 0),
                 		transparent
-                    = image_new image.width image.height 1 Image_format.UCHAR
-                        Image_coding.NOCODING Image_type.B_W 255 0 0;
+                    = image_new [
+                        $interpretation => Image_interpretation.B_W,
+                        $pixel => 255
+                    ] image.width image.height;
                 mask' = embed 0 shadow_rect'.left shadow_rect'.top
                         final_rect.width final_rect.height mask;
 				mask'' = convsep blur_matrix mask';
 
                 // use mask to fade between bg and shadow colour
-                mk_background colour = image_new
-                	final_rect.width final_rect.height
-                    image.bands image.format image.coding image.type
-                    colour 0 0;
+                mk_background colour = image_new [
+                    $bands => image.bands,
+                    $format => image.format,
+                    $coding => image.coding,
+                    $interpretation => image.interpretation,
+                    $pixel => colour
+                ] final_rect.width final_rect.height;
 
                 bg_image = mk_background bg_colour.expr;
                 shadow_image = mk_background sd_colour.expr;
@@ -1604,8 +1613,13 @@ Filter_paint_text_item = class
 			_result
 				= insert_noexpand place.left place.top (blend txt' fg place) x
 			{
-				fg = image_new place.width place.height x.bands x.format
-					x.coding x.type colour.expr 0 0;
+				fg = image_new [
+                    $bands => x.bands,
+                    $format => x.format,
+                    $coding => x.coding,
+                    $interpretation => x.interpretation,
+                    $pixel => colour.expr
+                ] place.width place.height;
 				txt = Image (im_text text.value font.value
 					place.width align.value (to_real dpi));
 	            bg = im_black place.width place.height 1;
@@ -1655,8 +1669,13 @@ Filter_paint_text_item = class
 
 					place = extract_area x' y' w' h' image;
 					text' = insert_noexpand 0 0 text (im_black w' h' 1);
-					fg = image_new w' h' image.bands image.format
-						image.coding image.type colour.expr 0 0;
+					fg = image_new [
+                        $bands => image.bands,
+                        $format => image.format,
+                        $coding => image.coding,
+                        $interpretation => image.type,
+                        $pixel => colour.expr
+                    ] w' h';
 					place' = blend text' fg place;
 				}
 			}

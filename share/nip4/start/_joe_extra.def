@@ -249,11 +249,11 @@ Select_item = class
 						rx
 							= x.region_rect, is_Region x
 							= x;
-						b     = image_new im.width im.height 1 0 0 1 0 0 0;
-						w     = image_new rx.nwidth rx.nheight 1 0 0 1 255 0 0;
-						m     = insert_noexpand rx.nleft rx.ntop w b;
-                     }
+						b = image_new [] im.width im.height;
+						w = image_new [$pixel => 255] rx.nwidth rx.nheight;
+						m = insert_noexpand rx.nleft rx.ntop w b;
                    }
+                 }
             }
         }
 

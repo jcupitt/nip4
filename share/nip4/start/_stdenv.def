@@ -154,7 +154,8 @@ bandeor = bandbool "eor";
 
 sum x
     = oo_unary_function sum_op x, is_class x
-    = mean x * (get_width x) * (get_height x) * (get_bands x), is_image x
+    // don't use "mean" here, it'd create a circular dependency
+    = vips_avg [] x * get_width x * get_height x * get_bands x, is_image x
     = sum_list x, is_list x
     = error (_ "bad arguments (" ++ print x ++ ") to " ++ "sum")
 {
@@ -323,8 +324,12 @@ meanze x
     {
         // histogram, knock out zeros
         hist = hist_find i;
-        black = image_new 1 1 (get_bands hist)
-            (get_format hist) (get_coding hist) (get_interpretation hist) 0 0 0;
+        black = image_new [
+            $bands => get_bands hist,
+            $format => get_format hist,
+            $coding => get_coding hist,
+            $interpretation => get_interpretation hist
+        ] 1 1;
         histze = insert 0 0 black hist;
 
         // matching identity
@@ -488,7 +493,7 @@ project x
 
 abs x
     = oo_unary_function abs_op x, is_class x
-    = im_abs x, is_image x
+    = vips_abs [] x, is_image x
     = abs_cmplx x, is_complex x
     = abs_num x, is_real x
     = abs_list x, is_real_list x
@@ -1074,11 +1079,11 @@ measure_draw across down measure image
     x = map (extract 0) cods;
     y = map (extract 1) cods;
 
-    outer = mkim [$pixel => 255] sample_width sample_height 1;
-    inner = mkim [] (sample_width - 4) (sample_height - 4) 1;
+    outer = Image (image_new [$pixel => 255] sample_width sample_height);
+    inner = Image (image_new [] (sample_width - 4) (sample_height - 4));
     patch = insert 2 2 inner outer;
 
-    bg = mkim [] image.width image.height 1;
+    bg = Image (image_new [] image.width image.height);
 
     mask = Image (im_insertset bg.value patch.value x y);
 
@@ -1220,7 +1225,7 @@ clip2fmt format image
 
 embed type x y w h im
     = oo_unary_function embed_op im, is_class im
-    = im_embed im (to_real type)
+    = vips_embed [$extend => type] im
         (to_real x) (to_real y) (to_real w) (to_real h), is_image im
     = error (_ "bad arguments to " ++ "embed")
 {
@@ -1794,8 +1799,14 @@ draw_rect_width x y w h f t ink image
             insert x' y' (block t h')) image
     {
         insert = insert_noexpand;
-        block w h = image_new w h (get_bands image) (get_format image)
-            (get_coding image) (get_interpretation image) ink' 0 0;
+        block w h = image_new [
+            $bands => get_bands image,
+            $format => get_format image,
+            $coding => get_coding image,
+            $interpretation => get_interpretation image,
+            $pixel => ink'
+        ] w h;
+
         ink'
             = Vector ink, is_list ink
             = ink;

@@ -1,6 +1,24 @@
 # menu redesign
 
-- in order, redesign:
+- try:
+
+    abs 99
+
+  does not evaluate
+
+- vips_object_new has options at the end :(
+
+- image_new defaults to B_W, check all usage
+
+- use image_new_from_image more
+
+    a lot of image_new is just copying metada from another image
+
+
+
+
+
+- in order, rework:
 
 	_predicate.def
 	_stdenv.def

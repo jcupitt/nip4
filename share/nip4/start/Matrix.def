@@ -1,41 +1,41 @@
 
-Matrix_build_item = class 
+Matrix_build_item = class
 	Menupullright "_New" "make a new matrix of some sort" {
 
-	Plain_item = class 
+	Plain_item = class
 		Menuaction "_Plain" "make a new plain matrix widget" {
 		action = Matrix (identity_matrix 3);
 	}
 
-	Convolution_item = class 
+	Convolution_item = class
 		Menuaction "_Convolution" "make a new convolution matrix widget" {
 		action = Matrix_con 1 0 [[0, 0, 0], [0, 1, 0], [0, 0, 0]];
 	}
 
-	Recombination_item = class 
-		Menuaction "_Recombination" 
+	Recombination_item = class
+		Menuaction "_Recombination"
 			"make a new recombination matrix widget" {
 		action = Matrix_rec (identity_matrix 3);
 	}
 
-	Morphology_item = class 
+	Morphology_item = class
 		Menuaction "_Morphology" "make a new morphology matrix widget" {
 		action = Matrix_mor [[0, 0, 0], [0, 255, 0], [0, 0, 0]];
 	}
 
 	sep1 = Menuseparator;
 
-	Matrix_identity_item = class 
+	Matrix_identity_item = class
 		Menuaction "_Identity" "make an identity matrix" {
 		action = identity (identity_matrix 5);
-		
-		identity v = class 
+
+		identity v = class
 			_result {
 			_vislevel = 3;
 
 			s = Expression "Size" (len v);
 
-			_result 
+			_result
 				= Matrix (identity_matrix (to_real s)), to_real s != len v;
 				= Matrix v;
 
@@ -43,11 +43,11 @@ Matrix_build_item = class
 		}
 	}
 
-	Matrix_series_item = class 
+	Matrix_series_item = class
 		Menuaction "_Series" "make a series" {
 		action = series (mkseries 0 1 5);
 
-		mkseries s t e 
+		mkseries s t e
 			= transpose [[to_real s, to_real s + to_real t .. to_real e]];
 
 		series v = class
@@ -62,8 +62,8 @@ Matrix_build_item = class
 			t = Expression "Step by" _t;
 			e = Expression "End value" _e;
 
-			_result 
-				= Matrix (mkseries s t e), 
+			_result
+				= Matrix (mkseries s t e),
 						to_real s != _s || to_real t != _t || to_real e != _e
 				= Matrix v;
 
@@ -71,7 +71,7 @@ Matrix_build_item = class
 		}
 	}
 
-	Matrix_square_item = class 
+	Matrix_square_item = class
 		Menuaction "_Square" "make a square matrix" {
 		action = square (mksquare 5);
 
@@ -83,18 +83,18 @@ Matrix_build_item = class
 
 			s = Expression "Size" (len v);
 
-			_result 
+			_result
 				= Matrix_con (sum v) 0 v, len v == to_real s
 				= Matrix_con (sum m) 0 m
 			{
-				m = mksquare (to_real s); 
+				m = mksquare (to_real s);
 			}
 
 			Matrix_vips value scale offset filename display = square value;
 		}
 	}
 
-	Matrix_circular_item = class 
+	Matrix_circular_item = class
 		Menuaction "_Circular" "make a circular matrix" {
 		action = circle (mkcircle 3);
 
@@ -104,7 +104,7 @@ Matrix_build_item = class
 			line = [-r .. r];
 			xes = replicate (2 * r + 1) line;
 			yes = transpose xes;
-			pyth a b 
+			pyth a b
 					= 1, (a**2 + b**2) ** 0.5 <= r
 					= 0;
 		}
@@ -115,18 +115,18 @@ Matrix_build_item = class
 
 			r = Expression "Radius" ((len v - 1) / 2);
 
-			_result 
+			_result
 				= Matrix_con (sum v) 0 v, len v == r.expr * 2 + 1
 				= Matrix_con (sum m) 0 m
 			{
-				m = mkcircle (to_real r); 
+				m = mkcircle (to_real r);
 			}
 
 			Matrix_vips value scale offset filename display = circle value;
 		}
 	}
 
-	Matrix_gaussian_item = class 
+	Matrix_gaussian_item = class
 		Menuaction "_Gaussian" "make a gaussian matrix" {
 		action = class
 			_result {
@@ -136,7 +136,7 @@ Matrix_build_item = class
 			ma = Scale "Minimum amplitude" 0 1 0.2;
 			integer = Toggle "Integer" false;
 
-			_result 
+			_result
 				= fn s.value ma.value
 			{
 				fn
@@ -146,7 +146,7 @@ Matrix_build_item = class
 		}
 	}
 
-	Matrix_laplacian_item = class 
+	Matrix_laplacian_item = class
 		Menuaction "_Laplacian" "make the Laplacian of a Gaussian matrix" {
 		action = class
 			_result {
@@ -156,7 +156,7 @@ Matrix_build_item = class
 			ma = Scale "Minimum amplitude" 0 1 0.1;
 			integer = Toggle "Integer" false;
 
-			_result 
+			_result
 				= fn s.value ma.value
 			{
 				fn
@@ -186,7 +186,7 @@ Matrix_extract_item = class
 			first = Expression "Extract from row" 0;
 			number = Expression "Extract this many rows" 1;
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process x
@@ -204,7 +204,7 @@ Matrix_extract_item = class
 			first = Expression "Extract from column" 0;
 			number = Expression "Extract this many columns" 1;
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process mat
@@ -224,7 +224,7 @@ Matrix_extract_item = class
 			width = Expression "Number of columns" 1;
 			height = Expression "Number of rows" 1;
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process mat
@@ -244,13 +244,13 @@ Matrix_extract_item = class
 				"Trailing Diagonal"
 			] 0;
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process mat
 					= mat.Matrix_base (map2 extr [0..] mat.value),
 						which == 0
-					= mat.Matrix_base (map2 extr 
+					= mat.Matrix_base (map2 extr
 						[mat.width - 1, mat.width - 2 .. 0] mat.value);
 				extr n l = [l?n];
 			}
@@ -262,9 +262,7 @@ Matrix_insert_item = class
 	Menupullright "_Insert" "insert rows or columns into a matrix" {
 	// make a new 8-bit uchar image of wxh with pixels set to p
 	// use to generate new cells
-	newim w h p
-		= image_new w h 1 
-			Image_format.UCHAR Image_coding.NOCODING Image_type.B_W p 0 0;
+	newim w h p = image_new [$pixel => p] w h;
 
 	Rows_item = class
 		Menuaction "_Rows" "insert rows" {
@@ -276,18 +274,18 @@ Matrix_insert_item = class
 			number = Expression "Insert this many rows" 1;
 			item = Expression "Set new cells to" 0;
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process x
 					= foldl1 join_tb (concat [top, new, bottom])
 				{
-					top 
+					top
 						= [extract_area 0 0 w f x], f > 0
 						= [];
-					new = [(if is_Matrix x then to_matrix else id) 
+					new = [(if is_Matrix x then to_matrix else id)
 						(newim w number item.expr)];
-					bottom 
+					bottom
 						= [extract_area 0 f w (h - f) x], f < h
 						= [];
 
@@ -309,18 +307,18 @@ Matrix_insert_item = class
 			number = Expression "Insert this many columns" 1;
 			item = Expression "Set new cells to" 0;
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process x
 					= foldl1 join_lr (concat [left, new, right])
 				{
-					left 
+					left
 						= [extract_area 0 0 f h x], f > 0
 						= [];
-					new = [(if is_Matrix x then to_matrix else id) 
+					new = [(if is_Matrix x then to_matrix else id)
 						(newim number h item.expr)];
-					right 
+					right
 						= [extract_area f 0 (w - f) h x], f < w
 						= [];
 
@@ -336,7 +334,7 @@ Matrix_insert_item = class
 Matrix_delete_item = class
 	Menupullright "_Delete" "delete rows or columns from a matrix" {
 	// remove number of items, starting at first
-	delete first number l = take (to_real first) l ++ 
+	delete first number l = take (to_real first) l ++
 		drop (to_real first + to_real number) l;
 
 	Rows_item = class
@@ -349,16 +347,16 @@ Matrix_delete_item = class
 			first = Expression "Delete from row" 0;
 			number = Expression "Delete this many rows" 1;
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process x
 					= foldl1 join_tb (concat [top, bottom])
 				{
-					top 
+					top
 						= [extract_area 0 0 w f x], f > 0
 						= [];
-					bottom 
+					bottom
 						= [extract_area 0 b w (h - b) x], b < h
 						= [];
 
@@ -381,16 +379,16 @@ Matrix_delete_item = class
 			first = Expression "Delete from column" 0;
 			number = Expression "Delete this many columns" 1;
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process x
 					= foldl1 join_lr (concat [left, right])
 				{
-					left 
+					left
 						= [extract_area 0 0 f h x], f > 0
 						= [];
-					right 
+					right
 						= [extract_area r 0 (w - r) h x], r < w
 						= [];
 
@@ -428,7 +426,7 @@ Matrix_rotate_item = class
 	rot270 = Image_transform_item.Rotate_item.Fixed_item.Rot270_item;
 
 	Matrix_rot45_item = class
-		Menuaction "_45 Degrees" 
+		Menuaction "_45 Degrees"
 			"45 degree rotate (square, odd-length-sides only)" {
 		action x = map_unary rot45 x;
 	}
@@ -436,7 +434,7 @@ Matrix_rotate_item = class
 
 Matrix_flip_item = Image_transform_item.Flip_item;
 
-Matrix_sort_item = class 
+Matrix_sort_item = class
 	Menuaction "_Sort" "sort by column or row" {
 	action x = class
 		_result {
@@ -452,11 +450,11 @@ Matrix_sort_item = class
 			_ "Descending"
 		] 0;
 
-		_result 
+		_result
 			= map_unary sort x
 		{
 			idx = to_real i;
-			pred a b 
+			pred a b
 				= a?idx <= b?idx, d == 0
 				= a?idx >= b?idx;
 			sort x
@@ -481,8 +479,8 @@ Matrix_transpose_item = class
 
 #separator
 
-Matrix_plot_scatter_item = class 
-	Menuaction "_Plot Scatter" 
+Matrix_plot_scatter_item = class
+	Menuaction "_Plot Scatter"
 		"plot a scatter graph of a matrix of [x,y1,y2,..] coordinates" {
 	action x = class
 		_result {
@@ -501,12 +499,12 @@ Matrix_plot_scatter_item = class
 			= Plot options ((x2b @ get_image @ to_image) x)
 		{
 			options
-				= [$style => Plot_style.POINT, $format => Plot_format.XYYY] ++ 
+				= [$style => Plot_style.POINT, $format => Plot_format.XYYY] ++
 					range;
 			range
 				= [], auto
-				= [$xmin => xmin.expr, $xmax => xmax.expr, 
-					$ymin => ymin.expr, $ymax => ymax.expr]; 
+				= [$xmin => xmin.expr, $xmax => xmax.expr,
+					$ymin => ymin.expr, $ymax => ymax.expr];
 
 			// matrix to image makes a 1-band mxn image
 			// we need to put columns into bands
@@ -524,8 +522,8 @@ Matrix_plot_scatter_item = class
 
 Matrix_plot_item = Hist_plot_item;
 
-Matrix_buildlut_item = class 
-	Menuaction "_Build LUT From Scatter" 
+Matrix_buildlut_item = class
+	Menuaction "_Build LUT From Scatter"
 		"make a lookup table from a matrix of [x,y1,y2..] coordinates" {
 	action x = class
 		_result {

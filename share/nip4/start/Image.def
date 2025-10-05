@@ -21,13 +21,17 @@ Image_new_item = class Menupullright "_New" "make new things" {
 			nheight = Expression "Image height (pixels)" 64;
 			nbands = Expression "Image bands" 1;
 			format_option = Option "Image format" format_names 0;
-			type_option = Option_enum "Image type" Image_type.type_names "B_W";
+			interpretation_option = Option_enum "Image interpretation"
+                Image_interpretation.interpretation_names "B_W";
 			pixel = Expression "Pixel value" 0;
 
 			_result
-				= image_new (to_real nwidth) (to_real nheight) (to_real nbands)
-					(to_real format_option) Image_coding.NOCODING
-					type_option.value_thing pixel.expr 0 0;
+				= image_new [
+                    $bands => to_real nbands,
+                    $format => to_real format_option,
+                    $interpretation => interpretation_option.value_thing,
+                    $pixel => pixel.expr
+                ] (to_real nwidth) (to_real nheight);
 		}
 	}
 
@@ -40,8 +44,17 @@ Image_new_item = class Menupullright "_New" "make new things" {
 				pixel = Expression "Pixel value" 0;
 
 				_result
-					= image_new x.width x.height x.bands
-						x.format x.coding x.type pixel.expr x.xoffset x.yoffset;
+					= image_new [
+                        $bands => x.bands,
+						$format => x.format,
+                        $coding => x.coding,
+                        $interpretation => x.interpretation,
+                        $pixel => pixel.expr,
+                        $xres => x.xres,
+                        $yres => x.yres,
+                        $xoffset => x.xoffset,
+                        $yoffset => x.yoffset
+                    ] x.width x.height;
 		}
 	}
 
@@ -567,9 +580,9 @@ Image_new_item = class Menupullright "_New" "make new things" {
 					= Image (imagearray_assemble 0 0 [[green, red], [blue, white]])
 				{
 
-					black = image_new (to_real psize) (to_real psize) 1
-						Image_format.FLOAT Image_coding.NOCODING
-						Image_type.sRGB 0 0 0;
+					black = image_new [
+						$format => Image_format.FLOAT
+                    ] (to_real psize) (to_real psize);
 					notblack = black + brightness;
 
 					green = black ++ notblack ++ black;
@@ -1400,8 +1413,13 @@ Image_transform_item = class
 							= top, position == 9
 							= yposv?((int) (position / 3));
 
-						background = image_new nwidth nheight
-							bands format coding type bgcolour.expr 0 0;
+						background = image_new [
+							$bands => bands,
+                            $format => format,
+                            $coding => coding,
+                            $interpretation => interpretation,
+                            $pixel => bgcolour.expr
+                        ] nwidth nheight;
 					}
 				}
 			}
@@ -2214,8 +2232,12 @@ Image_draw_item = class
 
                     t = floor thick;
 
-                    bg = image_new (get_width im) (get_height im) (get_bands im)
-                        (get_format im) (get_coding im) (get_type im) 0 0 0;
+                    bg = image_new [
+                        $bands => get_bands im,
+                        $format => get_format im,
+                        $coding => get_coding im,
+                        $interpretation => get_interpretation im
+                    ] (get_width im) (get_height im);
                     draw_block x y w t im =
                         draw_rect_width x y w t true 1 [255] im;
                     label = im_text text.value font.value w 1 d;
@@ -2254,7 +2276,13 @@ Image_join_item = class
 		w = a.width + b.width + shim;
 		h = max_pair a.height b.height;
 
-		back = image_new w h a.bands a.format a.coding a.type bg 0 0;
+		back = image_new [
+            $bands => a.bands,
+            $format => a.format,
+            $coding => a.coding,
+            $interpretation => a.interpretation,
+            $pixel => bg
+        ] w h;
 
 		ya = [0, max_pair 0 ((b.height - a.height)/2),
 			max_pair 0 (b.height - a.height)];
@@ -2271,7 +2299,13 @@ Image_join_item = class
 		w = max_pair a.width b.width;
 		h = a.height + b.height + shim;
 
-		back = image_new w h a.bands a.format a.coding a.type bg 0 0;
+		back = image_new [
+            $bands => a.bands,
+            $format => a.format,
+            $coding => a.coding,
+            $interpretation => a.interpretation,
+            $pixel => bg
+        ] w h;
 
 		xa = [0, max_pair 0 ((b.width - a.width)/2),
 			max_pair 0 (b.width - a.width)];

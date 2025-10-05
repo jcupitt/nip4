@@ -3,59 +3,67 @@
  */
 make_xy x y = im_make_xy (to_real x) (to_real y);
 
-/* make an image with the specified properties ... pixel is (eg.) 
+/* make an image with the specified properties ... pixel is (eg.)
  * Vector [0, 0, 0], or 12. If coding == labq, we ignore bands, format and
  * type, generate a 3 band float image, and lab2labq it before handing it
  * back.
  */
-image_new w h b fmt coding type pixel xoff yoff
-	= embed 1 0 0 w h im''''
+image_new options w h
+	= embed 1 0 0 w h image'''
 {
-	b'
-		= 3, coding == Image_coding.LABPACK
-		= b;
-	fmt'
-		= Image_format.FLOAT, coding == Image_coding.LABPACK
-		= fmt;
-	type'
-		= Image_type.LAB, coding == Image_coding.LABPACK
-		= type;
-
-	im = im_black 1 1 (to_real b') + pixel;
-
-	im' = clip2fmt fmt' im;
-
-	im'' 
-		= im_Lab2LabQ im', coding == Image_coding.LABPACK;
-		= im';
-
-	im''' = image_set_type type' im'';
-	im'''' = image_set_origin xoff yoff im''';
-}
-
-mkim options x y b
-    = Image (image_new x y b
-        (opt $format) (opt $coding) (opt $type)
-        (opt $pixel)
-        (opt $xoffset) (opt $yoffset))
-{
-    opt = get_option options [
+    defaults = get_option options [
         $format => Image_format.UCHAR,
+        $bands => 1,
         $coding => Image_coding.NOCODING,
-        $type => Image_type.sRGB,
-        $pixel => 0,
+        $interpretation => Image_interpretation.B_W,
+        $xres => 0,
+        $yres => 0,
         $xoffset => 0,
-        $yoffset => 0
+        $yoffset => 0,
+        $pixel => 0
     ];
+
+    coding = defaults $coding;
+    format
+        = Image_format.FLOAT, coding == Image_coding.LABPACK
+        = defaults $format;
+    bands
+        = 3, coding == Image_coding.LABPACK
+        = defaults $bands;
+    interpretation
+		= Image_interpretation.LAB, coding == Image_coding.LABPACK
+        = defaults $interpretation;
+    xres = defaults $xres;
+    yres = defaults $yres;
+    xoffset = defaults $xoffset;
+    yoffset = defaults $yoffset;
+    pixel = defaults $pixel;
+
+	image = vips_black [$bands => to_real bands] 1 1 + pixel;
+    image' = vips_cast [] image format;
+    image''
+        = vips_Lab2LabQ [] image', coding == Image_coding.LABPACK
+        = image';
+    image''' = vips_copy [
+        $interpretation => interpretation,
+        $xres => xres,
+        $yres => yres,
+        $xoffset => xoffset,
+        $yoffset => yoffset
+    ] image'';
 }
 
 /* generate a slice of LAB space size x size pixels for L* == l
  */
-lab_slice size l 
+lab_slice size l
 	= image_set_type Image_type.LAB im
 {
-    L = image_new size size 1
-		Image_format.FLOAT Image_coding.NOCODING Image_type.B_W l 0 0;
+    L = image_new [
+		$format => Image_format.FLOAT,
+        $interpretation => Image_type.B_W,
+        $pixel => l
+    ] size size;
+
 	A1 = im_fgrey (to_real size) (to_real size);
 
 	/* im_fgrey always makes 0-1, so these ranges can be wired in.
@@ -111,7 +119,7 @@ matrix_gaussian_blur radius
 matrix_blur radius
         = Matrix_con (sum mask_sq_line) 0 [mask_sq_line]
 {
-        mask_sq_line = replicate (2 * radius - 1) 1; 
+        mask_sq_line = replicate (2 * radius - 1) 1;
 }
 
 /* Make a colour from a temperature.
@@ -128,10 +136,10 @@ colour_from_temp T
 		= -3.0258469 * 10 ** 9 / T ** 3 + 2.1070379 * 10 ** 6 / T ** 2 +
 			0.2226347 * 10 ** 3 / T + 0.240390;
 
-	y 
-		= -1.1063814 * x ** 3 - 1.34811020 * x ** 2 + 
+	y
+		= -1.1063814 * x ** 3 - 1.34811020 * x ** 2 +
 			2.18555832 * x - 0.20219638, T < 2222
-		= -0.9549476 * x ** 3 - 1.37418593 * x ** 2 + 
+		= -0.9549476 * x ** 3 - 1.37418593 * x ** 2 +
 			2.09137015 * x - 0.16748867, T < 4000
 		=  3.0817580 * x ** 3 - 5.87338670 * x ** 2 +
 			3.75112997 * x - 0.37001483;
@@ -144,7 +152,7 @@ temp_from_colour z
 	x = c.value?1;
 	y = c.value?2;
 
-	// McCamy's approximation, see eg. 
+	// McCamy's approximation, see eg.
 	// http://en.wikipedia.org/wiki/Color_temperature#Approximation
 
 	xe = 0.332;

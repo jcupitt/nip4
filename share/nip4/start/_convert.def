@@ -99,15 +99,15 @@ to_image x
 to_image_size width height bands format x
 	= x, is_image x
 	= x.value, is_Image x
-	= im''
+	= image_new [
+        $bands => bands,
+        $format => format',
+        $pixel => x
+    ] width height
 {
-	// we want x to set the target format if we don't have one, so we
-	// can't use image_new
-	im = im_black 1 1 bands + x;
-	im'
-		= clip2fmt format im, format != NULL
-		= im;
-	im'' = embed 1 0 0 width height im';
+    format'
+        = get_format x, format == NULL
+        = format;
 }
 
 /* Try to make a Colour.

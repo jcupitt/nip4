@@ -655,9 +655,11 @@ Colour_matrix_to_chart_item = class
 
 				// make an n-band constant image from eg. [1,2,3]
 				// we don't know the format .. use sRGB (well, why not?)
-				patch v = image_new (to_real pwidth) (to_real pheight) (len v)
-					Image_format.FLOAT Image_coding.NOCODING
-					Image_type.sRGB (Vector v) 0 0;
+				patch v = image_new [
+                    $bands => len v,
+                    $format => Image_format.FLOAT,
+                    $pixel => v
+                ] (to_real pwidth) (to_real pheight);
 
 				// make an image for each patch
 				patch_table = map (map patch) patches;
