@@ -63,7 +63,7 @@ is_prefix prefix str = take (len prefix) str == prefix;
  */
 is_suffix suffix str = take (len suffix) (reverse str) == reverse suffix;
 
-/* List contains seqence.
+/* List contains sequence.
  *
  * is_substr "llo" "hello world!" == true
  * is_substr :: [*] -> [*] -> bool
@@ -87,7 +87,8 @@ is_real_list l = is_listof is_real l;
  */
 is_string_list l = is_listof is_string l;
 
-/* Test list length ... quicker than len x == n for large lists.
+/* Test list length ... quicker than len x == n for large (or infinite) lists,
+ * since it won't eval the whole of x.
  */
 is_list_len n x
 	= true, x == [] && n == 0
@@ -190,7 +191,7 @@ is_Expression x = is_instanceof "Expression" x;
 
 is_String x = is_instanceof "String" x;
 
-/* A list of the form [[1,2],[3,4],[5,6]...]
+/* A list of the form [[1, 2], [3, 4], [5, 6] ...]
  */
 is_xy_list l
 	= is_list l && all (map xy l)
@@ -204,7 +205,7 @@ contains_Group l
 	= any (map contains_Group l), is_list l
 	= false;
 
-/* Does an object have a sensible VIPS interpretation?
+/* Does an object have a libvips interpretation?
  */
 has_interpretation x = is_image x || is_Image x || is_Arrow x || is_Colour x;
 
@@ -306,8 +307,7 @@ has_bands x = is_image x || has_member "bands" x || is_Arrow x;
 
 get_bands x
 	= x.bands, has_member "bands" x
-	= x.image.bands, is_Arrow x
-	= get_header "bands" x, is_image x
+	= get_header "bands" (get_image x), has_image x
 	= 1, is_real x
 	= len x, is_real_list x
 	= oo_unary_function get_bands_op x, is_class x

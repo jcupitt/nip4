@@ -1,10 +1,14 @@
 # menu redesign
 
+- add vips_image_guess_interpretation() as a builtin
+
+    otherwise we have to maintain our own version, see get_interpretation
+
 - vips_object_new has options at the end :(
 
 - in order, rework:
 
-	_predicate.def
+	_predicate.def      done
 	_stdenv.def
 	_types.def
 
@@ -20,40 +24,7 @@
 
     - should be is_number / to_number ?
 
-- can we do enums with reflection using "dir"?
-
-  enums need programmatic name, human name, value
-
-    Enum = class {
-        // filter out names nip4 adds automatically
-        names = filter (not @ member ["this", "name", "super", "enum"])
-            (dir this.enum);
-        values = map (converse get_member this.enum) names;
-
-        has_name name = member name names;
-        get_name value = names ? index value values;
-
-        has_value value = member value values;
-        get_value name = dot this.enum name
-
-        ...
-    }
-
-    Interpretation = class Enum {
-        enum = class {
-            MULTIBAND = 0;
-            B_W = 1;
-            HISTOGRAM = 10;
-        }
-
-        display = class {
-            MULTIBAND = _ "Multiband";
-            B_W, _ "Mono";
-            HISTOGRAM, _ "Histogram";
-        }
-
-
-
+- rename Image_interpretation as Interpretation
 
     Enum = class {
         // filter out names nip4 adds automatically
@@ -70,7 +41,7 @@
     }
 
     Interpretation = class {
-        enum = class Enum {
+        value = class Enum {
             MULTIBAND = 0;
             B_W = 1;
             HISTOGRAM = 10;
@@ -78,8 +49,8 @@
 
         display = class Enum {
             MULTIBAND = _ "Multiband";
-            B_W, _ "Mono";
-            HISTOGRAM, _ "Histogram";
+            B_W = _ "Mono";
+            HISTOGRAM = _ "Histogram";
         }
 
 
@@ -87,11 +58,11 @@
         ...
     }
 
-  inter = Interpretation.enum.HISTOGRAM;
+  inter = Interpretation.value.HISTOGRAM;
 
-  name = Interpretation.enum.get_name inter;
+  name = Interpretation.value.get_name inter;
 
-  value = Interpretation.enum.get_value "HISTOGRAM";
+  value = Interpretation.value.get_value "HISTOGRAM";
 
   label = Interpretation.display.get_name inter;
 
