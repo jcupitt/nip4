@@ -12,17 +12,21 @@ new interface:
 
 https://www.libvips.org/2025/03/12/nip4-for-nip2-users.html
 
+# Introduction
+
 nip4 is a spreadsheet-like interface to the [libvips image processing
-library](https://libvips.github.io/libvips). You create a set of formula
-connecting your objects together, and on a change nip4 will recalculate.
-Because nip4 uses libvips as the image processing engine it can handle
-very large images, recalculates quickly, and only needs a little memory.
+library](https://libvips.github.io/libvips). 
+You create a set of formula connecting your objects together, and on a change 
+nip4 will recalculate. Because nip4 uses libvips as the image processing engine 
+it can handle  very large images, recalculates quickly, and only needs a little memory.
 It scales to fairly complex workflows: I've used it to develop systems with
 more than 10,000 cells, analyzing images of many tens of gigabytes.
 
 nip4 can load all workspaces from nip2, the previous version of this program.
 It has a batch mode, so you can run any image processing system you develop
-from the command-line and without a GUI.
+from the command-line and without a GUI. It is purely functional, meaning 
+there is no assignment and there are no side effects, and it is fully lazy, meaning
+all computation is driven by the user interface, down to the pixel level.
 
 [![Screenshot](images/shot1.png)](images/shot1.png)
 
