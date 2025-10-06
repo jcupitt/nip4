@@ -1,7 +1,5 @@
 # menu redesign
 
-- use vips_image_guess_interpretation() in _predice.def get_interpretation
-
 - vips_object_new has options at the end :(
 
 - in order, rework:
@@ -18,11 +16,9 @@
 
 	except for _vips7compat.def
 
-- see has_number / get_number and has_real / get_real in _predicate.def
-
-    - should be is_number / to_number ?
-
 - rename Image_interpretation as Interpretation
+
+    although we have Object and Object_type .. maybe class_enum is better?
 
     Enum = class {
         // filter out names nip4 adds automatically

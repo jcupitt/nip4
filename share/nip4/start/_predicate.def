@@ -100,10 +100,10 @@ is_list_len_more n x
 	= false, x == [] || n == 0
 	= is_list_len_more (n - 1) (tl x);
 
-is_list_len_more_equal n x
+is_list_len_moreeq n x
 	= true, n == 0
 	= false, x == []
-	= is_list_len_more_equal (n - 1) (tl x);
+	= is_list_len_moreeq (n - 1) (tl x);
 
 /* is_rectangular l: is l a rectangular data structure
  */
@@ -355,7 +355,7 @@ get_header_type field x
 
 set_header field value x
 	= oo_unary_function set_header_op x, is_class x
-	= vips_copy [field => value] x, is_image x
+	= copy [field => value] x, is_image x
 	= error (_ "bad arguments to " ++ "set_header")
 {
 	set_header_op = Operator "set_header" (set_header field value)

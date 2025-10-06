@@ -22,12 +22,12 @@ not a = !a;
 
 less a b = a < b;
 more a b = a > b;
-less_equal a b = a <= b;
-more_equal a b = a >= b;
+lesseq a b = a <= b;
+moreeq a b = a >= b;
 equal a b = a == b;
-not_equal a b = a != b;
+noteq a b = a != b;
 pointer_equal a b = a === b;
-not_pointer_equal a b = a !== b;
+pointer_noteq a b = a !== b;
 
 add a b = a + b;
 subtract a b = a - b;
@@ -97,15 +97,15 @@ vec op_name im vec
     = vips_relational_const [] im "equal" vec,
         op_name == "equal" || op_name == "equal'"
     = vips_relational_const [] im "noteq" vec,
-        op_name == "not_equal" || op_name == "not_equal'"
+        op_name == "noteq" || op_name == "noteq'"
     = vips_relational_const [] im "less" vec,
         op_name == "less"
     = vips_relational_const [] im "moreeq" vec,
         op_name == "less'"
     = vips_relational_const [] im "lesseq" vec,
-        op_name == "less_equal"
+        op_name == "lesseq"
     = vips_relational_const [] im "more" vec,
-        op_name == "less_equal'"
+        op_name == "lesseq'"
     = error ("unimplemented vector operation: " ++ op_name)
 {
     zeros = replicate (len vec) 0;
@@ -311,7 +311,7 @@ meanze x
         sum = st.value?0?2;
 
         // find non-zero pixels (not zero in all bands)
-        zp = vec "notequal" i (replicate b 0);
+        zp = vec "noteq" i (replicate b 0);
 
         // number of non-zero pixels
         N = b * (mean zp * w * h) / 255;
@@ -344,7 +344,7 @@ meanze x
 
 deviation x
     = oo_unary_function deviation_op x, is_class x
-    = im_deviate x, is_image x
+    = vips_deviate [] x, is_image x
     = deviation_list x, is_real_list x || is_matrix x
     = error (_ "bad arguments to " ++ "deviation")
 {
@@ -415,7 +415,7 @@ deviationze x
         sum2 = st.value?0?3;
 
         // find non-zero pixels (not zero in all bands)
-        zp = im_notequal_vec i (replicate b 0);
+        zp = vec "noteq" i (replicate b 0);
 
         // number of non-zero pixels
         N = b * (mean zp * w * h) / 255;
@@ -425,7 +425,7 @@ deviationze x
 // find the centre of gravity of a histogram
 gravity x
     = oo_unary_function gravity_op x, is_class x
-    = im_hist_gravity x, is_hist x
+    = gravity_hist x, is_hist x
     = gravity_list x, is_list x
     = error (_ "bad arguments to " ++ "gravity")
 {
@@ -433,7 +433,7 @@ gravity x
 
     // centre of gravity of a histogram... use the histogram to weight an
     // identity, then sum, then find the mean element
-    im_hist_gravity h
+    gravity_hist h
         = m
     {
         // make horizontal
@@ -447,7 +447,7 @@ gravity x
 
         // matching identity
         i
-            = im_identity_ushort 1 w, w <= 2 ** 16 - 1
+            = vips_identity [$ushort => true] w, w <= 2 ** 16 - 1
             = make_xy w 1 ? 0;
 
         // weight identity and sum
@@ -481,7 +481,7 @@ gravity x
 
 project x
     = oo_unary_function project_op x, is_class x
-    = im_project x, is_image x
+    = vips_project [] x, is_image x
     = error (_ "bad arguments to " ++ "project")
 {
     project_op = Operator "project" project Operator_type.COMPOUND false;
@@ -505,14 +505,6 @@ abs x
         = -n;
 
     abs_cmplx c = ((re c)**2 + (im c)**2) ** 0.5;
-}
-
-copy x
-    = oo_unary_function copy_op x, is_class x
-    = im_copy x, is_image x
-    = x
-{
-    copy_op = Operator "copy" copy Operator_type.COMPOUND_REWRAP false;
 }
 
 // like abs, but treat pixels as vectors ... ie. always get a 1-band image
@@ -542,6 +534,15 @@ abs_vec x
         = (sum (map square (bandsplit im))) ** 0.5;
 }
 
+copy options x
+    = oo_unary_function copy_op x, is_class x
+    = vips_copy options x, is_image x
+    = x
+{
+    copy_op = Operator "copy" (copy options)
+		Operator_type.COMPOUND_REWRAP false;
+}
+
 transpose x
     = oo_unary_function transpose_op x, is_class x
     = transpose_image x, is_image x
@@ -555,27 +556,24 @@ transpose x
         = [], l' == []
         = (map hd l') : (transpose_list (map tl l'))
     {
-        l' = takewhile (not_equal []) l;
+        l' = takewhile (noteq []) l;
     }
 
-    transpose_image = im_flipver @ im_rot270;
+    transpose_image = (converse (vips_flip []) "vertical") @
+	(converse (vips_rot []) "d270");
 }
 
 rot45 x
     = oo_unary_function rot45_op x, is_class x
-    = error "rot45 image: not implemented", is_image x
+    = vips_rot45 [] x, is_image x
+    = rot45_matrix x, is_matrix x
     = error (_ "bad arguments to " ++ "rot45")
 {
     rot45_op = Operator "rot45"
-        rot45_object Operator_type.COMPOUND_REWRAP false;
-
-    rot45_object x
-        = rot45_matrix x, is_odd_square_matrix x
-        = error "rot45 image: not implemented", is_image x
-        = error (_ "bad arguments to " ++ "rot45");
+        rot45 Operator_type.COMPOUND_REWRAP false;
 
     // slow, but what the heck
-    rot45_matrix l = (im_rotate_dmask45 (Matrix l)).value;
+    rot45_matrix l = vips_matrix_from_image (vips_rot45 [] (Matrix l));
 }
 
 // apply an image function to a [[real]] ... matrix is converted to a 1 band
@@ -726,7 +724,7 @@ maxpos x
     {
         max_value = max (Matrix m);
         indexes = map (index (equal max_value)) m;
-        row = index (not_equal (-1)) indexes;
+        row = index (noteq (-1)) indexes;
     }
 
     maxpos_list l
@@ -749,7 +747,7 @@ minpos x
     {
         min_value = min (Matrix m);
         indexes = map (index (equal min_value)) m;
-        row = index (not_equal (-1)) indexes;
+        row = index (noteq (-1)) indexes;
     }
 
     minpos_list l
@@ -1857,7 +1855,7 @@ print_base base in
         = reverse chars
     {
         digits = map (\x x % base)
-            (takewhile (not_equal 0)
+            (takewhile (noteq 0)
                 (iterate (\x idivide x base) in));
         chars = map tohd digits;
 

@@ -20,7 +20,7 @@ check_xy_list = [is_xy_list, _ "list of form [[1, 2], [3, 4], [5, 6], ...]"];
 check_instance name = [is_instanceof name, name];
 check_Image = check_instance "Image";
 check_Matrix = [is_Matrix, _ "Matrix"];
-check_colour_space = [is_colour_space, 
+check_colour_space = [is_colour_space,
 	join_sep "|" Image_type.colour_spaces.names];
 check_rectangular = [is_rectangular, _ "rectangular [[*]]"];
 check_Guide = [is_Guide, _ "HGuide|VGuide"];
@@ -36,7 +36,7 @@ check_Mark = check_instance (_ "Mark");
  *   stuff like "arg 2 must be real"
  *
  * - each line in _check_all is [test, "description"]
- *   any number of lines 
+ *   any number of lines
  *
  *   stuff like "to must be greater than from"
  *
@@ -58,14 +58,14 @@ check_args x
 	test_fail x = ! x?0;
 
 	// set of failed argcheck indexes
-	badargs = map (extract 1) 
+	badargs = map (extract 1)
 		(filter test_fail (zip2 (map testarg argcheck) [0..]))
 	{
 		testarg x = x?2?0 x?0;
 	}
 
 	// set of failed allcheck indexes
-	badalls = map (extract 1) 
+	badalls = map (extract 1)
 		(filter test_fail (zip2 (map hd allcheck) [0..]));
 
 	// the error message
@@ -73,22 +73,22 @@ check_args x
 		argmsg ++ allmsg ++ "\n" ++
 		_ "where" ++ "\n" ++ arg_types ++ extra;
 
-	// make the failed argcheck messages ... eg.  ""value" should be 
+	// make the failed argcheck messages ... eg.  ""value" should be
 	// real, you passed <function>" etc.
 	argmsg = concat (map fmt badargs)
 	{
 		fmt n = indent ++ "\"" ++ argcheck?n?1 ++ "\"" ++
 			_ " should be of type " ++ argcheck?n?2?1 ++ ", " ++
-			_ "you passed" ++ ":\n" ++ 
+			_ "you passed" ++ ":\n" ++
 			indent ++ indent ++ print argcheck?n?0 ++ "\n";
 	}
 
 	// make the failed allcheck messages ... eg "condition failed:
-	// x < y" ... don't make a message if any typechecks have 
+	// x < y" ... don't make a message if any typechecks have
 	// failed, as we'll probably error horribly
-	allmsg 
+	allmsg
 		= [], badargs != []
-		= concat (map fmt badalls) ++ 
+		= concat (map fmt badalls) ++
 			_ "you passed" ++ "\n" ++
 			concat (map fmt_arg argcheck)
 	{
@@ -103,11 +103,11 @@ check_args x
 	}
 
 	// extra bit at the bottom, if we have any conditions
-	extra 
+	extra
 		= [], allcheck == []
 		= "\n" ++ _ "and" ++ "\n" ++ all_desc;
 
-	// make a list of all the allcheck descriptions, with a few 
+	// make a list of all the allcheck descriptions, with a few
 	// spaces in front
 	all_desc_list = map (join indent @ extract 1) allcheck;
 
@@ -130,8 +130,8 @@ Operator op_name fn type symmetric = class {
 
 /* Form the converse of an Operator.
  */
-oo_converse op 
-	= Operator (converse_name op.op_name) 
+oo_converse op
+	= Operator (converse_name op.op_name)
 		(converse op.fn) op.type op.symmetric
 {
 	converse_name x
@@ -146,47 +146,47 @@ oo_binary_lookup op_name
 	= error (_ "unknown binary operator" ++ ": " ++ print op_name)
 {
 	operator_table = [
-		Operator "add" add 
+		Operator "add" add
 			Operator_type.ARITHMETIC true,
-		Operator "subtract" subtract 
+		Operator "subtract" subtract
 			Operator_type.ARITHMETIC false,
-		Operator "remainder" remainder 
+		Operator "remainder" remainder
 			Operator_type.ARITHMETIC false,
-		Operator "power" power 
+		Operator "power" power
 			Operator_type.ARITHMETIC false,
-		Operator "subscript" subscript 
+		Operator "subscript" subscript
 			Operator_type.ARITHMETIC false,
-		Operator "left_shift" left_shift 
+		Operator "left_shift" left_shift
 			Operator_type.ARITHMETIC false,
-		Operator "right_shift" right_shift 
+		Operator "right_shift" right_shift
 			Operator_type.ARITHMETIC false,
-		Operator "divide" divide 
+		Operator "divide" divide
 			Operator_type.ARITHMETIC false,
-		Operator "join" join 
+		Operator "join" join
 			Operator_type.ARITHMETIC false,
-		Operator "multiply" multiply 
+		Operator "multiply" multiply
 			Operator_type.ARITHMETIC true,
-		Operator "logical_and" logical_and 
+		Operator "logical_and" logical_and
 			Operator_type.ARITHMETIC true,
-		Operator "logical_or" logical_or 
+		Operator "logical_or" logical_or
 			Operator_type.ARITHMETIC true,
-		Operator "bitwise_and" bitwise_and 
+		Operator "bitwise_and" bitwise_and
 			Operator_type.ARITHMETIC true,
-		Operator "bitwise_or" bitwise_or 
+		Operator "bitwise_or" bitwise_or
 			Operator_type.ARITHMETIC true,
-		Operator "eor" eor 
+		Operator "eor" eor
 			Operator_type.ARITHMETIC true,
-		Operator "comma" comma 
+		Operator "comma" comma
 			Operator_type.ARITHMETIC false,
-		Operator "if_then_else" if_then_else 
+		Operator "if_then_else" if_then_else
 			Operator_type.ARITHMETIC false,
-		Operator "equal" equal 
+		Operator "equal" equal
 			Operator_type.RELATIONAL true,
-		Operator "not_equal" not_equal 
+		Operator "noteq" noteq
 			Operator_type.RELATIONAL true,
-		Operator "less" less 
+		Operator "less" less
 			Operator_type.RELATIONAL false,
-		Operator "less_equal" less_equal 
+		Operator "lesseq" lesseq
 			Operator_type.RELATIONAL false
 	];
 
@@ -204,33 +204,33 @@ oo_unary_lookup op_name
 	operator_table = [
 		/* Operators.
 		 */
-		Operator "cast_signed_char" cast_signed_char 
+		Operator "cast_signed_char" cast_signed_char
 		Operator_type.ARITHMETIC false,
-		Operator "cast_unsigned_char" cast_unsigned_char 
+		Operator "cast_unsigned_char" cast_unsigned_char
 		Operator_type.ARITHMETIC false,
-		Operator "cast_signed_short" cast_signed_short 
+		Operator "cast_signed_short" cast_signed_short
 		Operator_type.ARITHMETIC false,
-		Operator "cast_unsigned_short" cast_unsigned_short 
+		Operator "cast_unsigned_short" cast_unsigned_short
 		Operator_type.ARITHMETIC false,
-		Operator "cast_signed_int" cast_signed_int 
+		Operator "cast_signed_int" cast_signed_int
 		Operator_type.ARITHMETIC false,
-		Operator "cast_unsigned_int" cast_unsigned_int 
+		Operator "cast_unsigned_int" cast_unsigned_int
 		Operator_type.ARITHMETIC false,
-		Operator "cast_float" cast_float 
+		Operator "cast_float" cast_float
 		Operator_type.ARITHMETIC false,
-		Operator "cast_double" cast_double 
+		Operator "cast_double" cast_double
 		Operator_type.ARITHMETIC false,
-		Operator "cast_complex" cast_complex 
+		Operator "cast_complex" cast_complex
 		Operator_type.ARITHMETIC false,
-		Operator "cast_double_complex" cast_double_complex 
+		Operator "cast_double_complex" cast_double_complex
 		Operator_type.ARITHMETIC false,
-		Operator "unary_minus" unary_minus 
+		Operator "unary_minus" unary_minus
 		Operator_type.ARITHMETIC false,
-		Operator "negate" negate 
+		Operator "negate" negate
 		Operator_type.RELATIONAL false,
-		Operator "complement" complement 
+		Operator "complement" complement
 		Operator_type.ARITHMETIC false,
-		Operator "unary_plus" unary_plus 
+		Operator "unary_plus" unary_plus
 		Operator_type.ARITHMETIC false,
 
 		/* Built in projections.
@@ -281,18 +281,18 @@ oo_method_lookup table = map (extract 0) (filter (extract 1) table);
 
  */
 oo_binary_function op a b
-	= matches1?0, 
+	= matches1?0,
 		matches1 != []
-	= matches2?0, 
+	= matches2?0,
 		is_class b && matches2 != []
-	= matches3?0, 
+	= matches3?0,
 		op.symmetric && matches3 != []
-	= matches4?0, 
+	= matches4?0,
 		op.symmetric && is_class b && matches4 != []
 	= pointer_equal a b,
 		op.op_name == "equal" || op.op_name == "equal'"
-	= not_pointer_equal a b,
-		op.op_name == "not_equal" || op.op_name == "not_equal'"
+	= pointer_noteq a b,
+		op.op_name == "noteq" || op.op_name == "noteq'"
 	= error (_ "No method found for binary operator." ++ "\n" ++
 		_ "left" ++ " = " ++ print a ++ "\n" ++
 		_ "operator" ++ " = " ++ op.op_name ++ "\n" ++
@@ -323,8 +323,8 @@ oo_binary'_function op a b
 	= matches2?0, op.symmetric && matches2 != []
 	= pointer_equal a b,
 		op.op_name == "equal" || op.op_name == "equal'"
-	= not_pointer_equal a b,
-		op.op_name == "not_equal" || op.op_name == "not_equal'"
+	= pointer_noteq a b,
+		op.op_name == "noteq" || op.op_name == "noteq'"
 	= error (_ "No method found for binary operator." ++ "\n" ++
 		_ "left" ++ " = " ++ print a ++ "\n" ++
 		_ "operator" ++ " = " ++ op.op_name ++ "\n" ++
@@ -336,7 +336,7 @@ oo_binary'_function op a b
 
 oo_unary_function op x
 	= matches?0, matches != []
-	= error (_ "No method found for unary operator." ++ "\n" ++ 
+	= error (_ "No method found for unary operator." ++ "\n" ++
 		_ "operator" ++ " = " ++ op.op_name ++ "\n" ++
 		_ "argument" ++ " = " ++ print x)
 {

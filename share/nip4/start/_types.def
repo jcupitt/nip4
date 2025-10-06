@@ -584,8 +584,8 @@ Rect left top width height = class
             (op.op_name == "equal" || op.op_name == "equal'")],
         [!equal x,
             is_Rect x &&
-            (op.op_name == "not_equal" ||
-                op.op_name == "not_equal'")],
+            (op.op_name == "noteq" ||
+                op.op_name == "noteq'")],
 
         // binops with a complex are the same as (comp op comp)
         [oo_binary_function op this (Rect (re x) (im x) 0 0),
@@ -1298,7 +1298,7 @@ NULL = class
             op.op_name == "equal"],
         [this !== x,
             op.type == Operator_type.RELATIONAL &&
-            op.op_name == "not_equal"]
+            op.op_name == "noteq"]
     ] ++ super.oo_binary_table op x;
 }
 

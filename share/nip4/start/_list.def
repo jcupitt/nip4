@@ -44,7 +44,7 @@ difference = foldl @ converse @ delete;
  * drop 3 "abcd" == "d"
  * drop :: num -> [*] -> [*]
  */
-drop n l 
+drop n l
 	= l, n <= 0 || l == []
 	= drop (n - 1) (tl l);
 
@@ -93,11 +93,11 @@ flatten x
 
 /* foldl fn st l: fold list l from the left with function fn and start st
  *
- * Start from the left hand end of the list (unlike foldr, see below). 
+ * Start from the left hand end of the list (unlike foldr, see below).
  * foldl is less useful (and much slower).
  *
  * foldl fn start [a,b .. z] = ((((st fn a) fn b) ..) fn z)
- * foldl :: (* -> ** -> *) -> * -> [**] -> * 
+ * foldl :: (* -> ** -> *) -> * -> [**] -> *
  */
 foldl fn st l
 	= st, l == []
@@ -221,7 +221,7 @@ len l
  * limit :: [*] -> *
  */
 limit l
-	= error "incorrect use of limit", 
+	= error "incorrect use of limit",
 		l == [] || tl l == [] || tl (tl l) == []
 	= a, a == b
 	= limit (b : x)
@@ -229,7 +229,7 @@ limit l
 	a:b:x = l;
 }
 
-/* Turn a function of n args into a function which takes a single arg of an 
+/* Turn a function of n args into a function which takes a single arg of an
  * n-element list.
  */
 list_1ary fn x = fn x?0;
@@ -248,13 +248,13 @@ map f l
 	= [], l == [];
 	= f (hd l) : map f (tl l);
 
-/* map2 fn l1 l2: map two lists together with fn 
+/* map2 fn l1 l2: map two lists together with fn
  *
  * map2 :: (* -> ** -> ***) -> [*] -> [**] -> [***]
  */
 map2 fn l1 l2 = map (list_2ary fn) (zip2 l1 l2);
 
-/* map3 fn l1 l2 l3: map three lists together with fn 
+/* map3 fn l1 l2 l3: map three lists together with fn
  *
  * map3 :: (* -> ** -> *** -> ****) -> [*] -> [**] -> [***] -> [****]
  */
@@ -334,7 +334,7 @@ scanl fn st l
  *
  * sort :: [*] -> [*]
  */
-sort l = sortc less_equal l;
+sort l = sortc lesseq l;
 
 /* sortc comp l: sort list l into order using a comparision function
  *
@@ -348,7 +348,7 @@ sortc comp l
 	n = len l;
 	n2 = (int) (n / 2);
 
-	/* merge l1 l2: merge sorted lists l1 and l2 to make a single 
+	/* merge l1 l2: merge sorted lists l1 and l2 to make a single
 	 * sorted list
 	 */
 	merge l1 l2
@@ -397,13 +397,13 @@ sortr l = sortc more l;
 split fn l
         = [], l == [] || l' == []
         = head : split fn tail
-{ 
+{
         nfn = not @ fn;
 
         l' = dropwhile fn l;
         head = takewhile nfn l';
         tail = dropwhile nfn l';
-}   
+}
 
 /* splits fn l: break a list into sections separated by a single fn
  *
@@ -411,24 +411,24 @@ split fn l
  * split :: (* -> bool) -> [*] -> [[*]]
  */
 splits fn l
-        = [], l == [] 
+        = [], l == []
         = head : splits fn tail
-{ 
+{
         fn' = not @ fn;
-	dropif x 
+	dropif x
 		= [], x == []
 		= tl x;
 
         head = takewhile fn' l;
         tail = dropif (dropwhile fn' l);
-}   
+}
 
 /* splitpl fnl l: split a list up with a list of predicates
  *
  * splitpl [is_digit, is_letter, is_digit] "123cat" == ["123", "cat", []]
  * splitpl :: [* -> bool] -> [*] -> [[*]]
  */
-splitpl fnl l 
+splitpl fnl l
         = l, fnl == []
         = head : splitpl (tl fnl) tail
 {
@@ -448,7 +448,7 @@ split_lines n l
 /* take n l: take the first n elements from list l
  * take :: num -> [*] -> [*]
  */
-take n l 
+take n l
 	= [], n <= 0
 	= [], l == []
 	= hd l : take (n-1) (tl l);
@@ -463,7 +463,7 @@ takewhile fn l
 	= hd l : takewhile fn (tl l), fn (hd l)
 	= [];
 
-/* zip2 l1 l2: zip two lists together 
+/* zip2 l1 l2: zip two lists together
  *
  * zip2 [1,2] ['a', 'b', 'c'] == [[1,'a'],[2,'b']]
  * zip2 :: [*] -> [**] -> [[*,**]]

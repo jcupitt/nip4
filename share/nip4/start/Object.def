@@ -1,6 +1,6 @@
 Object_duplicate_item = class
 	Menuaction "_Duplicate" "take a copy of an object" {
-	action x = map_unary copy x;
+	action x = map_unary (copy []) x;
 }
 
 #separator
@@ -18,7 +18,7 @@ Object_group_to_list_item = class
 #separator
 
 Object_break_item = class
-	Menuaction "_Break Up Object" 
+	Menuaction "_Break Up Object"
 		"break an object into a list of components" {
 	action x
 		= map_unary break x
@@ -32,7 +32,7 @@ Object_break_item = class
 }
 
 Object_assemble_item = class
-	Menuaction "_Assemble Objects" 
+	Menuaction "_Assemble Objects"
 		"assemble a list of objects into a single object" {
 	action x
 		= map_unary ass x
