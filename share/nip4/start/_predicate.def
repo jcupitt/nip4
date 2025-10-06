@@ -212,10 +212,8 @@ has_interpretation x = is_image x || is_Image x || is_Arrow x || is_Colour x;
 /* Try to get a VIPS image interpretation from an object.
  */
 get_interpretation x
-	= get_interpretation_im x, is_image x
-	= get_interpretation_im x.value, is_Image x
-	= get_interpretation_im x.image.value, is_Arrow x
 	= Image_interpretation.colour_spaces.lookup 0 1 x.colour_space, is_Colour x
+	= vips_image_guess_interpretation (get_image x), has_image x
 	// slightly odd ... but our display is always 0-255, so it makes sense for
 	// a plain number to be in the same range
 	= Image_interpretation.sRGB, is_real x
@@ -224,54 +222,6 @@ get_interpretation x
 {
 	get_interpretation_op = Operator "get_interpretation" get_interpretation
 		Operator_type.COMPOUND false;
-
-	// get the type from a VIPS image ... but only if it makes sense with
-	// the rest of the image
-
-	// we often have interpretation set wrong, hence the ugly guessing :-(
-	// can have alpha, hence we let bands be one more than you might think
-
-	get_interpretation_im im
-		= Image_interpretation.LABQ, coding == Image_coding.LABPACK
-		= Image_interpretation.scRGB, coding == Image_coding.RAD
-		= Image_interpretation.GREY16,
-			interpretation == Image_interpretation.GREY16 && is_bands 1
-		= Image_interpretation.HISTOGRAM,
-			interpretation == Image_interpretation.HISTOGRAM &&
-			(width == 1 || height == 1)
-		= Image_interpretation.B_W, is_bands 1
-		= Image_interpretation.CMYK,
-			interpretation == Image_interpretation.CMYK && is_bands 4
-		= interpretation, is_colorimetric && is_bands 3
-		= Image_interpretation.sRGB, !is_colorimetric && is_bands 3
-		= Image_interpretation.MULTIBAND, !is_colorimetric && !is_bands 3
-		= interpretation
-	{
-		interpretation = get_header "interpretation" im;
-		coding = get_header "coding" im;
-		bands = get_header "bands" im;
-		width = get_header "width" im;
-		height = get_header "height" im;
-
-		// 3-band colorimetric types we allow ... the things which the
-		// Colour/Convert To menu can make, excluding mono.
-		ok_types = [
-			Image_interpretation.sRGB,
-			Image_interpretation.scRGB,
-			Image_interpretation.RGB16,
-			Image_interpretation.LAB,
-			Image_interpretation.LABQ,
-			Image_interpretation.LABS,
-			Image_interpretation.LCH,
-			Image_interpretation.XYZ,
-			Image_interpretation.YXY,
-			Image_interpretation.UCS
-		];
-		is_colorimetric = member ok_types interpretation;
-
-		// is bands n, with an optional alpha (ie. can be n + 1 too)
-		is_bands n = bands == n || bands == n + 1;
-	}
 }
 
 has_image x = is_image x || is_Image x || is_Arrow x;
