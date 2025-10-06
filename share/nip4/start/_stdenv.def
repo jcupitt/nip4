@@ -311,7 +311,7 @@ meanze x
         sum = st.value?0?2;
 
         // find non-zero pixels (not zero in all bands)
-        zp = im_notequal_vec i (replicate b 0);
+        zp = vec "notequal" i (replicate b 0);
 
         // number of non-zero pixels
         N = b * (mean zp * w * h) / 255;
@@ -328,10 +328,11 @@ meanze x
         histze = insert 0 0 black hist;
 
         // matching identity
-        iden
-            = im_identity_ushort (get_bands hist) (get_width hist),
-                (get_width hist) > 256
-            = im_identity (get_bands hist);
+        iden = vips_identity [
+            $bands => get_bands hist,
+            $ushort => get_width hist > 256,
+            $size => get_width hist
+        ];
 
         // number of non-zero pixels
         N = mean histze * 256;

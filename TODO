@@ -1,8 +1,6 @@
 # menu redesign
 
-- add vips_image_guess_interpretation() as a builtin
-
-    otherwise we have to maintain our own version, see get_interpretation
+- use vips_image_guess_interpretation() in _predice.def get_interpretation
 
 - vips_object_new has options at the end :(
 
