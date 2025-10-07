@@ -2,7 +2,7 @@ Hist_new_item = class
 	Menupullright "_New" "new histogram" {
 	Hist_item = class
 		Menuaction "_Identity" "make an identity histogram" {
-		action = class 
+		action = class
 			_result {
 			_vislevel = 3;
 
@@ -11,14 +11,14 @@ Hist_new_item = class
 		}
 	}
 
-	Hist_new_from_matrix = Matrix_buildlut_item; 
+	Hist_new_from_matrix = Matrix_buildlut_item;
 
 	Hist_from_image_item = class
 		Menuaction "Ta_g Image As Histogram" "set image Type to Histogram" {
 		action x = hist_tag x;
 	}
 
-	Tone_item = class 
+	Tone_item = class
 		Menuaction "_Tone Curve" "make a new tone mapping curve" {
 		action = class
 			_result {
@@ -36,7 +36,7 @@ Hist_new_item = class
 			ma = Scale "Mid-tone adjust" (-30) 30 0;
 			ha = Scale "Highlight adjust" (-15) 15 0;
 
-			_result 
+			_result
 				= tone_build fmt b w sp mp hp sa ma ha
 			{
 				fmt = [Image_format.UCHAR, Image_format.USHORT]?d;
@@ -45,30 +45,30 @@ Hist_new_item = class
 	}
 }
 
-Hist_convert_to_hist_item = class 
+Hist_convert_to_hist_item = class
 	Menuaction "Con_vert to Histogram" "convert anything to a histogram" {
 	action x = hist_tag (to_image x);
 }
 
-Hist_find_item = class 
+Hist_find_item = class
 	Menupullright "_Find" "find a histogram" {
-	Oned_item = class 
-		Menuaction "_One Dimension" 
+	Oned_item = class
+		Menuaction "_One Dimension"
 			"for a n-band image, make an n-band 1D histogram" {
 		action x = map_unary hist_find x;
 	}
 
-	Nd_item = class 
-		Menuaction "_Many Dimensions" 
+	Nd_item = class
+		Menuaction "_Many Dimensions"
 			"for a n-band image, make an n-dimensional histogram" {
-		action x = class 
+		action x = class
 			_result {
 			_vislevel = 3;
 
 			// default to something small-ish
 			bins = Expression "Number of bins in each dimension" 8;
 
-			_result 
+			_result
 				= map_unary process x
 			{
 				process in
@@ -78,7 +78,7 @@ Hist_find_item = class
 	}
 
 	Indexed_item = class
-		Menuaction "_Indexed" 
+		Menuaction "_Indexed"
 			"use a 1-band index image to pick bins for an n-band image" {
 		action x y  = class
 			_result {
@@ -95,7 +95,7 @@ Hist_find_item = class
 					[im, index] = sortc (const is_index) [a, b];
 
 					is_index x
-						= has_image x && b == 1 && 
+						= has_image x && b == 1 &&
 							(f == Image_format.UCHAR || f == Image_format.USHORT)
 					{
 						im = get_image x;
@@ -108,7 +108,7 @@ Hist_find_item = class
 	}
 }
 
-Hist_map_item = class 
+Hist_map_item = class
 	Menuaction "_Map" "map an image through a histogram" {
 	action x y
 		= map_binary map x y
@@ -125,46 +125,46 @@ Hist_eq_item = Filter_enhance_item.Hist_equal_item;
 
 #separator
 
-Hist_cum_item = class 
-	Menuaction "_Integrate" 
+Hist_cum_item = class
+	Menuaction "_Integrate"
 		"form cumulative histogram" {
 	action x = map_unary hist_cum x;
 }
 
-Hist_diff_item = class 
-	Menuaction "_Differentiate" 
+Hist_diff_item = class
+	Menuaction "_Differentiate"
 		"find point-to-point differences (inverse of Integrate)" {
 	action x = map_unary hist_diff x;
 }
 
-Hist_norm_item = class 
+Hist_norm_item = class
 	Menuaction "N_ormalise" "normalise a histogram" {
 	action x = map_unary hist_norm x;
 }
 
-Hist_inv_item = class 
+Hist_inv_item = class
 	Menuaction "In_vert" "invert a histogram" {
 	action x = map_unary hist_inv x;
 }
 
-Hist_match_item = class 
-	Menuaction "Ma_tch" 
+Hist_match_item = class
+	Menuaction "Ma_tch"
 		"find LUT which will match first histogram to second" {
 	action in ref = map_binary hist_match in ref;
 }
 
-Hist_zerox_item = class 
+Hist_zerox_item = class
 	Menuaction "_Zero Crossings" "find zero crossings" {
-	action x = class 
+	action x = class
 		_result {
 		_vislevel = 3;
 
 		edge = Option "Direction" [
-			"Positive-going", 
+			"Positive-going",
 			"Negative-going"
 		] 0;
 
-		_result 
+		_result
 			= map_unary (zerox (if edge == 0 then -1 else 1)) x;
 	}
 }
@@ -175,21 +175,21 @@ Hist_entropy_item = class Menuaction "Entropy" "calculate histogram entropy" {
 
 #separator
 
-Hist_profile_item = class 
-	Menuaction "Find _Profile" 
+Hist_profile_item = class
+	Menuaction "Find _Profile"
 		"search from image edges for non-zero pixels" {
-	action x = class  
+	action x = class
 		_result {
 		_vislevel = 3;
 
 		edge = Option "Search from" [
-			"Top edge down", 
+			"Top edge down",
 			"Left edge to right",
 			"Bottom edge up",
 			"Right edge to left"
 		] 2;
 
-		_result 
+		_result
 			= map_unary profile x
 		{
 			profile image
@@ -206,8 +206,8 @@ Hist_profile_item = class
 	}
 }
 
-Hist_project_item = class 
-	Menuaction "Find Pro_jections" 
+Hist_project_item = class
+	Menuaction "Find Pro_jections"
 		"find horizontal and vertical projections" {
 	action x = class {
 		_vislevel = 2;
@@ -227,15 +227,15 @@ Hist_project_item = class
 
 #separator
 
-Hist_graph_item = class 
+Hist_graph_item = class
 	Menuaction "P_lot Slice" "plot a slice along a guide or arrow" {
-	action x = class 
+	action x = class
 		_value {
 		_vislevel = 3;
 
 		width = Scale "Width" 1 40 1;
-		displace = Scale "Horizontal displace" (-50) 50 0; 
-		vdisplace = Scale "Vertical displace" (-50) 50 0; 
+		displace = Scale "Horizontal displace" (-50) 50 0;
+		vdisplace = Scale "Vertical displace" (-50) 50 0;
 
 		_value
 			= map_unary graph x
@@ -243,8 +243,7 @@ Hist_graph_item = class
 			graph arrow
 				= hist_tag area'
 			{
-				area = extract_arrow 
-					displace.value vdisplace.value width.value arrow;
+				area = crop displace.value vdisplace.value width.value arrow;
 
 				// squish vertically to get an average
 				area' = resize Kernel_linear 1 (1 / width.value) area;
@@ -253,24 +252,23 @@ Hist_graph_item = class
 	}
 }
 
-Extract_arrow_item = class 
+Extract_arrow_item = class
 	Menuaction "Extract _Arrow" "extract the area around an arrow" {
-	action x = class 
+	action x = class
 		_value {
 		_vislevel = 3;
 
 		width = Scale "Width" 1 40 1;
-		displace = Scale "Horizontal displace" (-50) 50 0; 
-		vdisplace = Scale "Vertical displace" (-50) 50 0; 
+		displace = Scale "Horizontal displace" (-50) 50 0;
+		vdisplace = Scale "Vertical displace" (-50) 50 0;
 
 		_value
-			= map_unary (extract_arrow 
-				displace.value vdisplace.value width.value) x;
+			= map_unary (crop displace.value vdisplace.value width.value) x;
 	}
 }
 
 Hist_plot_item = class
-	Menuaction "Plot _Object" 
+	Menuaction "Plot _Object"
 		"plot an object as a bar, point or line graph" {
 	action x = class
 		_result {
@@ -293,15 +291,15 @@ Hist_plot_item = class
 			= Plot options (image x)
 		{
 			options
-				= [$style => style.value, $format => format.value] ++ 
+				= [$style => style.value, $format => format.value] ++
 					range ++ captions;
 			range
 				= [], auto
-				= [$xmin => xmin.expr, $xmax => xmax.expr, 
-					$ymin => ymin.expr, $ymax => ymax.expr]; 
+				= [$xmin => xmin.expr, $xmax => xmax.expr,
+					$ymin => ymin.expr, $ymax => ymax.expr];
 
-			captions 
-				= concat (map test caption_options) ++ 
+			captions
+				= concat (map test caption_options) ++
 				  [$series_captions => series_captions.expr]
 			{
 				caption_options = [
@@ -318,7 +316,7 @@ Hist_plot_item = class
 			}
 
 			image x
-				= image (extract_arrow 0 0 1 x), is_Arrow x
+				= image (crop 0 0 1 x), is_Arrow x
 				= get_image x, has_image x
 				= x2b im, b == 1
 				= im
@@ -330,10 +328,10 @@ Hist_plot_item = class
 
 				// matrix to image makes a 1-band mxn image
 				// we need to put columns into bands
-				x2b im 
+				x2b im
 					= bandjoin (map extract_col [0 .. w - 1])
 				{
-						extract_col x = extract_area x 0 1 h im;
+						extract_col x = crop x 0 1 h im;
 				}
 			}
 		}

@@ -540,96 +540,37 @@ copy options x
     = x
 {
     copy_op = Operator "copy" (copy options)
-		Operator_type.COMPOUND_REWRAP false;
-}
-
-transpose x
-    = oo_unary_function transpose_op x, is_class x
-    = transpose_image x, is_image x
-    = transpose_list x, is_listof is_list x
-    = error (_ "bad arguments to " ++ "transpose")
-{
-    transpose_op = Operator "transpose"
-        transpose Operator_type.COMPOUND_REWRAP false;
-
-    transpose_list l
-        = [], l' == []
-        = (map hd l') : (transpose_list (map tl l'))
-    {
-        l' = takewhile (noteq []) l;
-    }
-
-    transpose_image = (converse (vips_flip []) "vertical") @
-	(converse (vips_rot []) "d270");
-}
-
-rot45 x
-    = oo_unary_function rot45_op x, is_class x
-    = vips_rot45 [] x, is_image x
-    = rot45_matrix x, is_matrix x
-    = error (_ "bad arguments to " ++ "rot45")
-{
-    rot45_op = Operator "rot45"
-        rot45 Operator_type.COMPOUND_REWRAP false;
-
-    // slow, but what the heck
-    rot45_matrix l = vips_matrix_from_image (vips_rot45 [] (Matrix l));
+        Operator_type.COMPOUND_REWRAP false;
 }
 
 // apply an image function to a [[real]] ... matrix is converted to a 1 band
 // image for processing
-apply_matrix_as_image fn m
-    = (get_value @ im_vips2mask @ fn @ im_mask2vips @ Matrix) m;
+apply_matrix_as_image fn
+    = get_value @ vips_matrix_from_image @ fn @ vips_image_from_matrix @ Matrix;
 
 // a general image/matrix operation where the mat version is most easily done
 // by converting mat->image->mat
-apply_matim_operation name fn x
-    = oo_unary_function class_op x, is_class x
-    = fn x, is_image x
-    = apply_matrix_as_image fn x, is_matrix x
+apply_matim_operation name fn in
+    = oo_unary_function class_op in, is_class in
+    = fn in, is_image in
+    = apply_matrix_as_image fn in, is_matrix in
     = error (_ "bad arguments to " ++ name)
 {
     class_op = Operator name
         (apply_matim_operation name fn) Operator_type.COMPOUND_REWRAP false;
 }
 
-rot90 = apply_matim_operation "rot90" im_rot90;
-rot180 = apply_matim_operation "rot180" im_rot180;
-rot270 = apply_matim_operation "rot270" im_rot270;
-rotquad = apply_matim_operation "rotquad" im_rotquad;
-fliplr = apply_matim_operation "fliplr" im_fliphor;
-fliptb = apply_matim_operation "flipud" im_flipver;
-
-image_set_interpretation interpretation x
-    = oo_unary_function image_set_interpretation_op x, is_class x
-    = im_copy_set x (to_real interpretation)
-        (get_header "Xres" x) (get_header "Yres" x)
-        (get_header "Xoffset" x) (get_header "Yoffset" x),
-        is_image x
-    = error (_ "bad arguments to " ++ "image_set_interpretation:" ++
-        print interpretation ++ " " ++ print x)
-{
-    image_set_interpretation_op = Operator "image_set_interpretation"
-        (image_set_interpretation interpretation)
-        Operator_type.COMPOUND_REWRAP false;
-}
-
-// compat
-image_set_type = image_set_interpretation;
-
-image_set_origin xoff yoff x
-    = oo_unary_function image_set_origin_op x, is_class x
-    = im_copy_set x
-        (get_header "Type" x)
-        (get_header "Xres" x) (get_header "Yres" x)
-        (to_real xoff) (to_real yoff),
-        is_image x
-    = error (_ "bad arguments to " ++ "image_set_origin")
-{
-    image_set_origin_op = Operator "image_set_origin"
-        (image_set_origin xoff yoff)
-        Operator_type.COMPOUND_REWRAP false;
-}
+rot45 = apply_matim_operation "rot45" (vips_rot45 []);
+rot90 = apply_matim_operation "rot90" (converse (vips_rot []) "d90");
+rot180 = apply_matim_operation "rot180" (converse (vips_rot []) "d180");
+rot270 = apply_matim_operation "rot270" (converse (vips_rot []) "d270");
+rotquad in = apply_matim_operation "rotquad" (vips_wrap [
+    $x => get_width in / 2,
+    $y => get_height in / 2
+]) in;
+fliplr = apply_matim_operation "fliplr" (converse (vips_flip []) "horizontal");
+fliptb = apply_matim_operation "flipud" (converse (vips_flip []) "vertical");
+transpose = apply_matim_operation "transpose" (fliptb @ rot270);
 
 cache tile_width tile_height max_tiles x
     = oo_unary_function cache_op x, is_class x
@@ -938,29 +879,28 @@ recomb matrix x
     }
 }
 
-extract_area x y w h obj
-    = oo_unary_function extract_area_op obj, is_class obj
+crop x y w h obj
+    = oo_unary_function crop_op obj, is_class obj
     = vips_crop [] obj x' y' w' h', is_image obj
-    = map (extract_range x' w') (extract_range y' h' obj), is_matrix obj
-    = error (_ "bad arguments to " ++ "extract_area")
+    = map (crop_range x' w') (crop_range y' h' obj), is_matrix obj
+    = error (_ "bad arguments to " ++ "crop")
 {
     x' = to_real x;
     y' = to_real y;
     w' = to_real w;
     h' = to_real h;
 
-    extract_area_op = Operator "extract_area" (extract_area x y w h)
+    crop_op = Operator "crop" (crop x y w h)
         Operator_type.COMPOUND_REWRAP false;
 
-    extract_range from length list
-        = (take length @ drop from) list;
+    crop_range from length list = (take length @ drop from) list;
 }
 
 extract_band b obj = subscript obj b;
 
 extract_row y obj
     = oo_unary_function extract_row_op obj, is_class obj
-    = extract_area 0 y' (get_width obj) 1 obj, is_image obj
+    = crop 0 y' (get_width obj) 1 obj, is_image obj
     = [obj?y'], is_matrix obj
     = error (_ "bad arguments to " ++ "extract_row")
 {
@@ -972,7 +912,7 @@ extract_row y obj
 
 extract_column x obj
     = oo_unary_function extract_column_op obj, is_class obj
-    = extract_area x' 0 1 height obj, is_image obj
+    = crop x' 0 1 height obj, is_image obj
     = map (\row [row?x']) obj, is_matrix obj
     = error (_ "bad arguments to " ++ "extract_column")
 {
@@ -1100,7 +1040,7 @@ measure_sample across down measure image
         y <- [0 .. down - 1]; x <- [0 .. across - 1]];
 
     image' = decode image;
-    patches = map (\p extract_area p?0 p?1 sample_width sample_height image')
+    patches = map (\p crop p?0 p?1 sample_width sample_height image')
         cods;
     measures = Matrix (map (map mean) (map bandsplit patches));
 }
@@ -2037,14 +1977,14 @@ imagearray_chop tile_width tile_height hoverlap voverlap i
     chop' y
         = map chop'' [0, hstep .. last_x]
     {
-        chop'' x = extract_area x y tile_width' tile_height' pad;
+        chop'' x = crop x y tile_width' tile_height' pad;
     }
 }
 
 /* Reassemble image.
  */
 imagearray_assemble hoverlap voverlap il
-    = (image_set_origin 0 0 @ foldl1 tbj @ map (foldl1 lrj)) il
+    = (copy [$xoffset => 0, $yoffset => 0] @ foldl1 tbj @ map (foldl1 lrj)) il
 {
     lrj l r = insert (get_width l + hoverlap) 0 r l;
     tbj t b = insert 0 (get_height t + voverlap) b t;
@@ -2058,21 +1998,6 @@ identity_matrix n
 {
     line p = take p [0, 0 ..] ++ [1] ++ take (n - p - 1) [0, 0 ..];
 }
-
-/* Incomplete gamma function Q(a, x) == 1 - P(a, x)
-
-    FIXME ... this is now a builtin, until we can get a nice List class
-    (requires overloadable ':')
-
-gammq a x
-    = error "bad args", x < 0 || a <= 0
-    = 1 - gamser, x < a + 1
-    = gammcf
-{
-    gamser = (gser a x)?0;
-    gammcf = (gcf a x)?0;
-}
- */
 
 /* Incomplete gamma function P(a, x) evaluated as series representation. Also
  * return ln(gamma(a)) ... nr in c, pp 218
@@ -2089,30 +2014,15 @@ gser a x
         // maximum iterations
         maxit = 100;
 
-        ap = List [a + 1, a + 2 ...];
+        ap = List [a + 1, a + 2 ..];
         xoap = x / ap;
 
         del = map product (prefixes xoap.value);
 
-
-
-
-
-
-
-/*
-        del = map (multiply (1 / a)) (map product (prefixes xoap))
-
-        del =
-
-        xap = iterate (multiply
- */
-
         /* Generate all prefixes of a list ... [1,2,3] -> [[1], [1, 2], [1, 2,
-         * 3], [1, 2, 3, 4] ...]
+         * 3], [1, 2, 3, 4] ..]
          */
-        prefixes l = map (converse take l) [1..];
-
+        prefixes l = map (converse take l) [1 ..];
     }
 }
 
@@ -2133,8 +2043,8 @@ gammln xx
 /* make a LUT from a scatter
  */
 buildlut x
-    = Plot_histogram (im_buildlut x), is_Matrix x && x.width > 1
-    = im_buildlut (Matrix x), is_matrix x && is_list_len_more 1 x?0
+    = Plot_histogram (vips_buildlut [] x), is_Matrix x && x.width > 1
+    = vips_buildlut [] (Matrix x), is_matrix x && is_list_len_more 1 x?0
     = error (_ "bad arguments to " ++ "buildlut");
 
 /* Linear regression. Return a class with the stuff we need in.
@@ -2216,9 +2126,9 @@ linregw xes yes devs
  * indexes we merged to make that point, ie. len weight == how significant
  * this point is.
  *
- * eg.
- *  cluster 12 [152,154,155,42,159] ==
- *      [[155,42],[[1,2,0,4],[3]]]
+ * eg.:
+ *
+ *  cluster 12 [152,154,155,42,159] == [[155,42],[[1,2,0,4],[3]]]
  */
 cluster thresh points
     = oo_unary_function cluster_op points, is_class points
@@ -2273,11 +2183,12 @@ cluster thresh points
 }
 
 /* Extract the area of an image around an arrow.
+ *
  * Transform the image to make the arrow horizontal, then displace by hd and
  * vd pxels, then cut out a bit h pixels high centered on the arrow.
  */
 extract_arrow hd vd h arrow
-    = extract_area (re p' + hd) (im p' - h / 2 + vd) (re pv) h im'
+    = crop (re p' + hd) (im p' - h / 2 + vd) (re pv) h im'
 {
     // the line as a polar vector
     pv = polar (arrow.width, arrow.height);
@@ -2305,7 +2216,7 @@ extract_arrow hd vd h arrow
  */
 rad2float image
     = oo_unary_function rad2float_op image, is_class image
-    = im_rad2float image, is_image image
+    = vips_rad2float [] image, is_image image
     = error (_ "bad arguments to " ++ "rad2float")
 {
     rad2float_op = Operator "rad2float"
@@ -2314,7 +2225,7 @@ rad2float image
 
 float2rad image
     = oo_unary_function float2rad_op image, is_class image
-    = im_float2rad image, is_image image
+    = vips_float2rad [] image, is_image image
     = error (_ "bad arguments to " ++ "float2rad")
 {
     float2rad_op = Operator "float2rad"
@@ -2329,8 +2240,8 @@ segment x
     segment_op = Operator "segment"
         segment Operator_type.COMPOUND_REWRAP false;
 
-    [image, nsegs] = im_segment x;
-    image' = im_copy_set_meta image "n-segments" nsegs;
+    [image, nsegs] = vips_labelregions [$segments => true] x;
+    image' = vips_copy_set_meta image "n-segments" nsegs;
 }
 
 point a b

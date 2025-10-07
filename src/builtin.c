@@ -1349,12 +1349,6 @@ static BuiltinInfo builtin_table[] = {
 		FALSE, VIPS_NUMBER(vo_call_args),
 		&vo_call_args[0], apply_vo_call_call },
 
-	/* compat
-	 */
-	{ "im_copy_set_meta", N_("copy, setting a metadata item"),
-		FALSE, VIPS_NUMBER(vo_copy_set_meta_args),
-		&vo_copy_set_meta_args[0], apply_vo_copy_set_meta_call },
-
 	/* Predicates.
 	 */
 	{ "is_image", N_("true if argument is primitive image"),
@@ -1453,7 +1447,6 @@ static BuiltinInfo builtin_table[] = {
 	{ "vips_image_from_matrix", N_("new image from a matrix"),
 		FALSE, VIPS_NUMBER(matrix2image_args),
 		&matrix2image_args[0], apply_matrix2image_call },
-
 	{ "vips_matrix_from_image", N_("new matrix from an image"),
 		FALSE, VIPS_NUMBER(image2matrix_args),
 		&image2matrix_args[0], apply_image2matrix_call },
@@ -1480,6 +1473,9 @@ static BuiltinInfo builtin_table[] = {
 	{ "vips_header_get", N_("get any valued field"),
 		FALSE, VIPS_NUMBER(header_get_typeof_args),
 		&header_get_typeof_args[0], apply_header_get_call },
+	{ "vips_copy_set_meta", N_("copy, setting a metadata item"),
+		FALSE, VIPS_NUMBER(vo_copy_set_meta_args),
+		&vo_copy_set_meta_args[0], apply_vo_copy_set_meta_call },
 
 	{ "vips_image_guess_interpretation", N_("guess interpretation for image"),
 		FALSE, VIPS_NUMBER(image_guess_interpretation_args),

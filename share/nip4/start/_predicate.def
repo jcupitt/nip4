@@ -295,7 +295,7 @@ has_height = has_header "height";
 get_height = get_header "height";
 
 has_value = has_member "value";
-get_value x = get_header "value";
+get_value = get_header "value";
 
 has_number x = is_number x || is_Real x;
 

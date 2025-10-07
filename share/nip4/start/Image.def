@@ -1730,10 +1730,8 @@ Image_band_item = class
 						orientation == 0
 					= bandjoin (map extract_row [0 .. im.height - 1])
 				{
-					extract_column n
-						= extract_area n 0 1 im.height im;
-					extract_row n
-						= extract_area 0 n im.width 1 im;
+					extract_column n = crop n 0 1 im.height im;
+					extract_row n = crop 0 n im.width 1 im;
 				}
 			}
 		}
@@ -1973,7 +1971,7 @@ Image_crop_item = class
 			= map_nary (list_5ary extract) [x, l.expr, t.expr, w.expr, h.expr]
 		{
 			extract im l t w h
-				= extract_area left' top' width' height' im
+				= crop left' top' width' height' im
 			{
 				width' = min_pair (to_real w) im.width;
 				height' = min_pair (to_real h) im.height;
@@ -1993,7 +1991,7 @@ Trim_item = class Menuaction "_Trim" "crop away edges" {
 		background = Expression "Background" default_background
 		{
 			default_background
-				= map mean (bandsplit (extract_area 0 0 1 1 x));
+				= map mean (bandsplit (crop 0 0 1 1 x));
 		}
 
 		_result
@@ -2039,7 +2037,7 @@ Image_insert_item = class
 				= insert_noexpand place.left place.top
 					(clip2fmt _b'.format a'') _b'
 			{
-				a'' = extract_area 0 0 place.width place.height _a';
+				a'' = crop 0 0 place.width place.height _a';
 			}
 		}
 
@@ -2172,7 +2170,7 @@ Image_draw_item = class
 				default_ink
 					= [0], ! has_image x
 					= pixel;
-				pixel = map mean (bandsplit (extract_area sx sy 1 1 im));
+				pixel = map mean (bandsplit (crop sx sy 1 1 im));
 				im = get_image x;
 			}
 

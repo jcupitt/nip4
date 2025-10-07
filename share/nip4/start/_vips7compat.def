@@ -42,7 +42,7 @@ im_copy_set im t xr yr xo yo
         $yoffset => yo
     ] im;
 
-// im_copy_set_meta is implemented as a builtin
+im_copy_set_meta = vips_copy_set_meta;
 
 im_tile_cache_random in tile_width tile_height max_tiles
     = vips_tilecache [

@@ -971,7 +971,7 @@ Image value = class
 
         [then', else'] = map to_image x;
 
-        ite_result_image = image_set_interpretation target_interpretation
+        ite_result_image = copy [$interpretation => target_interpretation]
             (if value then then' else else');
     }
 
@@ -1020,7 +1020,7 @@ Region image left top width height = class
     // we need to always succeed ... value is our enclosing image if we're
     // out of bounds
     value
-        = extract_area left top width height image.value,
+        = crop left top width height image.value,
             image.rect.includes_rect region_rect
         = image.value;
 }

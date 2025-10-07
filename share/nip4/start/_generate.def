@@ -63,8 +63,8 @@ image_new_from_image options image
             $format => get_format image,
             $coding => get_coding image,
             $interpretation => get_interpretation image,
-            $xoff => get_xoffset image,
-            $yoff => get_yoffset image,
+            $xoffset => get_xoffset image,
+            $yoffset => get_yoffset image,
             $xres => get_xres image,
             $yres => get_yres image
     ];
@@ -88,7 +88,7 @@ lab_slice size l
     A2 = A1 * 256 - 128;
 
     A4 = im_rot90 A2;
-    im = image_set_origin (size / 2) (size / 2) (L ++ A2 ++ A4);
+    im = copy [$xoffset => size / 2, $yoffset => size / 2] (L ++ A2 ++ A4);
 }
 
 /* Look at Image, try to make a Colour (failing that, a Vector) which is white

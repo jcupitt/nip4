@@ -442,7 +442,7 @@ Tasks_capture_item = class
 
 				// try to make something image-like from it
 				image x
-					= extract_area x.left x.top 1 1 x.image, is_Mark x
+					= crop x.left x.top 1 1 x.image, is_Mark x
 					= get_image x, has_image x
 					= get_image (to_image x);
 

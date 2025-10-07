@@ -190,7 +190,7 @@ Matrix_extract_item = class
 				= map_unary process x
 			{
 				process x
-					= extract_area 0 first (get_width x) number x;
+					= crop 0 first (get_width x) number x;
 			}
 		}
 	}
@@ -208,7 +208,7 @@ Matrix_extract_item = class
 				= map_unary process x
 			{
 				process mat
-					= extract_area first 0 number (get_height x) x;
+					= crop first 0 number (get_height x) x;
 			}
 		}
 	}
@@ -228,7 +228,7 @@ Matrix_extract_item = class
 				= map_unary process x
 			{
 				process mat
-					= extract_area left top width height x;
+					= crop left top width height x;
 			}
 		}
 	}
@@ -281,12 +281,12 @@ Matrix_insert_item = class
 					= foldl1 join_tb (concat [top, new, bottom])
 				{
 					top
-						= [extract_area 0 0 w f x], f > 0
+						= [crop 0 0 w f x], f > 0
 						= [];
 					new = [(if is_Matrix x then to_matrix else id)
 						(newim w number item.expr)];
 					bottom
-						= [extract_area 0 f w (h - f) x], f < h
+						= [crop 0 f w (h - f) x], f < h
 						= [];
 
 					f = to_real first;
@@ -314,12 +314,12 @@ Matrix_insert_item = class
 					= foldl1 join_lr (concat [left, new, right])
 				{
 					left
-						= [extract_area 0 0 f h x], f > 0
+						= [crop 0 0 f h x], f > 0
 						= [];
 					new = [(if is_Matrix x then to_matrix else id)
 						(newim number h item.expr)];
 					right
-						= [extract_area f 0 (w - f) h x], f < w
+						= [crop f 0 (w - f) h x], f < w
 						= [];
 
 					f = to_real first;
@@ -354,10 +354,10 @@ Matrix_delete_item = class
 					= foldl1 join_tb (concat [top, bottom])
 				{
 					top
-						= [extract_area 0 0 w f x], f > 0
+						= [crop 0 0 w f x], f > 0
 						= [];
 					bottom
-						= [extract_area 0 b w (h - b) x], b < h
+						= [crop 0 b w (h - b) x], b < h
 						= [];
 
 					f = to_real first;
@@ -386,10 +386,10 @@ Matrix_delete_item = class
 					= foldl1 join_lr (concat [left, right])
 				{
 					left
-						= [extract_area 0 0 f h x], f > 0
+						= [crop 0 0 f h x], f > 0
 						= [];
 					right
-						= [extract_area r 0 (w - r) h x], r < w
+						= [crop r 0 (w - r) h x], r < w
 						= [];
 
 					f = to_real first;
@@ -514,7 +514,7 @@ Matrix_plot_scatter_item = class
 				w = get_width im;
 				h = get_height im;
 				b = get_bands im;
-				extract_col x = extract_area x 0 1 h im;
+				extract_col x = crop x 0 1 h im;
 			}
 		}
 	}

@@ -1654,7 +1654,7 @@ Filter_paint_text_item = class
 					w' = range 1 text.width (image.width - x');
 					h' = range 1 text.height (image.height - y');
 
-					place = extract_area x' y' w' h' image;
+					place = crop x' y' w' h' image;
 					text' = insert_noexpand 0 0 text (im_black w' h' 1);
 					fg = image_new_from_image [
                         $pixel => colour.expr

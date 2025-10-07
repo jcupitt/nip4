@@ -279,7 +279,7 @@ complex_edge ra rb t bl d = rc
 	   = (t - ra.height + (2 * bl))/2;
 
 	rc = ra , t <= 0
-	   = Image (extract_area rai e1 e2 e3 e4), t <= check
+	   = Image (crop rai e1 e2 e3 e4), t <= check
 	   = merge_array bl [[rb',ra,rb']], d == 0
 	   = merge_array bl [[rb'],[ra],[rb']]
 	   	{rb' = merge_to_scale rb t2 bl d;}
@@ -299,8 +299,8 @@ frame_lr_min r_l r_r target bw = result
 		= r_l.width;
 
 	//Removing excess from what will be the middle of the final image.
-	n_l = extract_area r_l.value 0 0 n_w r_l.height;
-	n_r = extract_area r_r.value (r_r.width - n_w) 0 n_w r_l.height;
+	n_l = crop r_l.value 0 0 n_w r_l.height;
+	n_r = crop r_r.value (r_r.width - n_w) 0 n_w r_l.height;
 
 	//Merge the two image together with a bw*2 pixel overlap.
 	result = Image (im_lrmerge n_l n_r ((bw*2) - n_w) 0 bw);
@@ -320,8 +320,8 @@ frame_tb_min r_t r_b target bw = result
 		= r_t.height;
 
 	//Removing excess from what will be the middle of the final image.
-	n_t = extract_area r_t.value 0 0 r_t.width n_h;
-	n_b = extract_area r_b.value 0 (r_b.height - n_h) r_b.width n_h;
+	n_t = crop r_t.value 0 0 r_t.width n_h;
+	n_b = crop r_b.value 0 (r_b.height - n_h) r_b.width n_h;
 
 	//Merge the two image together with a 50 pixel overlap.
 	result = Image (im_tbmerge n_t n_b 0 ((bw*2) -n_h) bw);
@@ -369,7 +369,7 @@ merge_array bw arr = result
 		im3 = im_tbmerge (get_image im1) (get_image im2) 0 bw'' bw;
 		}
 
-	im_out 	= (image_set_origin 0 0 @
+	im_out 	= (copy [$xoffset => 0, $yoffset => 0] @
 			foldl1 (merge_tb bw) @
 			map (foldl1 (merge_lr bw))) arr;
 	result = Image im_out;
@@ -417,7 +417,7 @@ merge_to_scale im target blend dir = result
 	im_tmp 	= im.value, var_a > target
 		    = process im no_loops;
 
-	result = Image (extract_area (get_image im_tmp) 0 0 var_w var_h);
+	result = Image (crop (get_image im_tmp) 0 0 var_w var_h);
 	};
 
 //////////////////////////////////////////////////////////////////////////////
