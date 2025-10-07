@@ -175,6 +175,9 @@ main_startup(int argc, char **argv)
 {
 	main_argv0 = argv[0];
 
+	// try to spot stack overflow with this
+    main_c_stack_base = &argc;
+
 #ifdef DEBUG
 	vips_leak_set(TRUE);
 #endif /*DEBUG*/
