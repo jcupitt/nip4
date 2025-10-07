@@ -9,6 +9,11 @@
 	_types.def
 
 
+- try:
+
+	vips_getpoint [] A1.value 10 10
+
+  get "10 0 1 " ... is the vips array not being unpacked to a list?
 
 
 

@@ -2237,8 +2237,7 @@ segment x
     = image', is_image x
     = error (_ "bad arguments to " ++ "segment")
 {
-    segment_op = Operator "segment"
-        segment Operator_type.COMPOUND_REWRAP false;
+    segment_op = Operator "segment" segment Operator_type.COMPOUND_REWRAP false;
 
     [image, nsegs] = vips_labelregions [$segments => true] x;
     image' = vips_copy_set_meta image "n-segments" nsegs;
@@ -2247,7 +2246,7 @@ segment x
 point a b
     = oo_binary_function point_op a b, is_class a
     = oo_binary'_function point_op a b, is_class b
-    = im_read_point b x y, is_image b
+    = vips_getpoint [] b x y, is_image b
     = [b?x?y], is_matrix b
     = [b?x], is_real_list b && y == 0
     = [b?y], is_real_list b && x == 0
