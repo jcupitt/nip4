@@ -1190,6 +1190,33 @@ heap_intvec_new(Heap *heap, int n, int *vec, PElement *out)
 	return TRUE;
 }
 
+gboolean
+heap_imagevec_new(Heap *heap, int n, VipsImage **vec, PElement *out)
+{
+	PElement list = *out;
+
+	/* Make first RHS ... the end of the list.
+	 */
+	heap_list_init(&list);
+
+	/* Build a CONS node for each element.
+	 */
+	for (int i = 0; i < n; i++) {
+		PElement t;
+		if (!heap_list_add(heap, &list, &t))
+			return FALSE;
+
+		g_object_ref(vec[i]);
+		Managed *managed = MANAGED(imageinfo_new(main_imageinfogroup,
+			heap, vec[i], vec[i]->filename));
+		PEPUTP(&t, ELEMENT_MANAGED, managed);
+
+		(void) heap_list_next(&list);
+	}
+
+	return TRUE;
+}
+
 /* Make a matrix.
  */
 gboolean
@@ -2032,6 +2059,36 @@ heap_gvalue_to_ip(Heap *heap, GValue *in, PElement *out)
 	else if (G_VALUE_HOLDS_STRING(in)) {
 		if (!heap_managedstring_new(heap, g_value_get_string(in), out))
 			return FALSE;
+	}
+	else if (G_VALUE_HOLDS_BOXED(in)) {
+		if (G_VALUE_TYPE(in) == VIPS_TYPE_ARRAY_INT) {
+			int n;
+			int *array = vips_value_get_array_int(in, &n);
+
+			if (!heap_intvec_new(heap, n, array, out))
+				return FALSE;
+		}
+		else if (G_VALUE_TYPE(in) == VIPS_TYPE_ARRAY_DOUBLE) {
+			int n;
+			double *array = vips_value_get_array_double(in, &n);
+
+			if (!heap_realvec_new(heap, n, array, out))
+				return FALSE;
+		}
+		else if (G_VALUE_TYPE(in) == VIPS_TYPE_ARRAY_IMAGE) {
+			int n;
+			VipsImage **array = vips_value_get_array_image(in, &n);
+
+			if (!heap_imagevec_new(heap, n, array, out))
+				return FALSE;
+		}
+		else {
+			error_top(_("Unimplemented type"));
+			error_sub(_("unable to convert boxed type %s to a nip type"),
+				G_VALUE_TYPE_NAME(in));
+
+			return FALSE;
+		}
 	}
 	else if (G_VALUE_HOLDS_OBJECT(in)) {
 		GObject *object;

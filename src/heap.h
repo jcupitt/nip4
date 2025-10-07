@@ -452,6 +452,7 @@ gboolean heap_list_next(PElement *list);
 gboolean heap_list_cat(Reduce *rc, PElement *a, PElement *b, PElement *out);
 void heap_appl_init(PElement *base, PElement *func);
 gboolean heap_appl_add(Heap *heap, PElement *base, PElement *parm);
+gboolean heap_imagevec_new(Heap *heap, int n, VipsImage **vec, PElement *out);
 gboolean heap_matrix_new(Heap *heap,
 	int xsize, int ysize, double *vec, PElement *out);
 gboolean heap_string_new(Heap *heap, const char *str, PElement *out);
