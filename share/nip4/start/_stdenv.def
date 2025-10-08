@@ -2379,22 +2379,20 @@ mapim interp ind in
 }
 
 perlin cell width height
-    = Image im
-{
-    im = vips_perlin [$cell_size => to_real cell]
-        (to_real width) (to_real height);
-}
+    = vips_perlin [
+        $cell_size => to_real cell
+    ] (to_real width) (to_real height);
 
 worley cell width height
-    = Image im
-{
-    im = vips_worley [$cell_size => to_real cell]
-        (to_real width) (to_real height);
-}
+    = vips_worley [
+        $cell_size => to_real cell
+    ] (to_real width) (to_real height);
 
 gaussnoise width height mean sigma
-    = vips_gaussnoise [$mean => to_real mean, $sigma => to_real sigma]
-        (to_real width) (to_real height);
+    = vips_gaussnoise [
+        $mean => to_real mean,
+        $sigma => to_real sigma
+    ] (to_real width) (to_real height);
 
 flattenimage bg x
     = oo_unary_function flatten_op x, is_class x
@@ -2472,8 +2470,6 @@ minpair a b
 {
     minpair_op = Operator "minpair" minpair Operator_type.ARITHMETIC false;
 
-    minpair_value a b = if a < b then a else b;
-
     minpair_im a b = vips_minpair [] (get_image a) (get_image b);
 }
 
@@ -2524,5 +2520,5 @@ linearu a b x
 }
 
 sdf options width height shape
-    = Image (vips_sdf options (to_real width) (to_real height) shape);
+    = vips_sdf options (to_real width) (to_real height) shape;
 

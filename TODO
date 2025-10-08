@@ -4,8 +4,8 @@
 
 - in order, rework:
 
-	_predicate.def      done
-	_stdenv.def
+	_predicate.def		done
+	_stdenv.def		done
 	_types.def
 
 
