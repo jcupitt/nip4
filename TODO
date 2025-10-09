@@ -1,11 +1,25 @@
 # menu redesign
 
+- Matrix_base image gets stuck
+
+	uses matmul / matinv etc., and they refer to Matrix
+
+- test matmul etc, esp mixed image and matrix
+
+- can often use strings, not enums
+
+	though eg. get_coding will return an int
+
+- have fliptb, but join_tb
+
+	pick one!
+
 - vips_object_new has options at the end :(
 
 - in order, rework:
 
 	_predicate.def		done
-	_stdenv.def		done
+	_stdenv.def		removing last im_ funcs
 	_types.def
 
 

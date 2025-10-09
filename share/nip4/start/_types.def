@@ -1,8 +1,11 @@
 /* A list of things. Do automatic iteration of unary and binary operators on
  * us.
+ *
  *  List [1, 2] + [2, 3] -> List [3, 5]
  *  hd (List [2, 3]) -> 2
  *  List [] == [] -> true
+ *
+ * nip4 doesn't allow overloading of ':', annoyingly.
  */
 List value = class
     _Object {
@@ -75,7 +78,7 @@ Group value = class
 
     // we can't call map_trinary directly, since it uses Group and we
     // don't support mutually recursive top-level functions :-(
-    // copy-paste it here, keep in sync with the version in _stdenv
+    // copy-paste it here, keep in sync with the map_nary in _stdenv
     map_nary fn args
         = fn args, groups == []
         = Group (map process [0, 1 .. shortest - 1])
@@ -193,17 +196,6 @@ Expression caption expr = class
     ];
 }
 
-/* A ticking clock.
- */
-Clock interval value = class
-    scope.Real value {
-    _check_args = [
-        [interval, "interval", check_real]
-    ];
-
-    Real x = this.Clock interval x;
-}
-
 /* An editable filename.
  */
 Pathname caption value = class
@@ -225,7 +217,7 @@ Fontname caption value = class
 }
 
 /* Vector type ... just a finite list of real. Handy for wrapping an
- * argument to eg. im_lintra_vec. Make it behave like a single pixel image.
+ * argument to eg. linear. Make it behave like a single pixel image.
  */
 Vector value = class
     _Object {
@@ -314,7 +306,7 @@ Matrix_base value = class
     width = len value?0;
     height = len value;
 
-    // extract a rectanguar area
+    // extract a rectangular area
     extract left top width height
         = this.Matrix_base
             ((map (take width) @ map (drop left) @
@@ -371,13 +363,21 @@ Matrix_base value = class
 
     ] ++ super.oo_binary_table op x
     {
-        mul = im_matmul this x;
-        mul' = im_matmul x this;
-        div = im_matmul this (im_matinv x);
-        div' = im_matmul x (im_matinv this);
-        inv = im_matinv this;
-        sq = im_matmul this this;
+        mul = matmul this x;
+        mul' = matmul x this;
+        div = matmul this (matinv x);
+        div' = matmul x (matinv this);
+        inv = matinv this;
+        sq = matmul this this;
         op' = oo_converse op;
+
+        // we can't use the versions in _stdenv.def since that would be a circular dep
+        mat1 fn = vips_matrix_from_image @ fn @ vips_image_from_matrix
+        mat2 fn a b
+            = vips_matrix_from_image (fn (vips_image_from_matrix a) (vips_image_from_matrix b))
+        matmul = mat2 (vips_matrixmultiply []);
+        matinv = mat1 (vips_matrixinvert []);
+
     }
 
     oo_unary_table op = [
@@ -1269,8 +1269,7 @@ Plot_type = class {
 Plot options value = class
     scope.Image value {
     Image value = this.Plot options value;
-    to_image dpi = extract_bands 0 3
-        (graph_export_image (to_real dpi) this);
+    to_image dpi = extract_bands 0 3 (graph_export_image (to_real dpi) this);
 }
 
 Plot_matrix options value = class

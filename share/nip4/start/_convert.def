@@ -402,10 +402,10 @@ colour_apply fn x
 
 	first
 		= extract_bands 0 3 x, b > 3
-		= extract_bands 0 1 x;
+		= extract_band 0 x;
 	tail
 		= extract_bands 3 (b - 3) x, b > 3
-		= extract_bands 1 (b - 1) x;
+		= extract_band (b - 1) x;
 	x' = fn first;
 	x'' = x' ++ clip2fmt (get_format x') tail;
 }
