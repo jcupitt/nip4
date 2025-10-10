@@ -129,7 +129,7 @@ Kirk
 				= map_unary process x
 			{
 				process in
-					= clip2fmt blur.format proc
+					= cast blur.format proc
 				{
 					mask
 						= matrix_blur r.value, shape.value == 0
@@ -1233,7 +1233,7 @@ Filter_blend_item = class
 
 		// add an alpha ... cast the alpha image to match the main image
 		append_alpha im alpha
-			= im ++ clip2fmt im.format alpha;
+			= im ++ cast im.format alpha;
 
 		// makes fg the same size as bg, displaced with u, v pixel offset
 		moveit fg bg u v
@@ -1416,7 +1416,7 @@ Filter_negative_item = class
 		= map_unary invert x
 	{
 		invert in
-			= clip2fmt in.format (colour_transform_to (get_type in) rgb')
+			= cast in.format (colour_transform_to (get_type in) rgb')
 		{
 			rgb = colour_transform_to Image_type.sRGB in;
 			rgb' = 255 - rgb;
@@ -1453,7 +1453,7 @@ Filter_solarize_item = class
 				tab''
 					= tab' * (1 / kink), tab' < mx * kink
 					= (mx - tab') / (1 - kink);
-				tab''' = clip2fmt image.format tab'';
+				tab''' = cast image.format tab'';
 
 				// smooth a bit
 				mask = matrix_blur (tab'''.width / 8);

@@ -278,7 +278,7 @@ Matrix_insert_item = class
 				= map_unary process x
 			{
 				process x
-					= foldl1 join_tb (concat [top, new, bottom])
+					= foldl1 jointb (concat [top, new, bottom])
 				{
 					top
 						= [crop 0 0 w f x], f > 0
@@ -311,7 +311,7 @@ Matrix_insert_item = class
 				= map_unary process x
 			{
 				process x
-					= foldl1 join_lr (concat [left, new, right])
+					= foldl1 joinlr (concat [left, new, right])
 				{
 					left
 						= [crop 0 0 f h x], f > 0
@@ -351,7 +351,7 @@ Matrix_delete_item = class
 				= map_unary process x
 			{
 				process x
-					= foldl1 join_tb (concat [top, bottom])
+					= foldl1 jointb (concat [top, bottom])
 				{
 					top
 						= [crop 0 0 w f x], f > 0
@@ -383,7 +383,7 @@ Matrix_delete_item = class
 				= map_unary process x
 			{
 				process x
-					= foldl1 join_lr (concat [left, right])
+					= foldl1 joinlr (concat [left, right])
 				{
 					left
 						= [crop 0 0 f h x], f > 0
@@ -407,12 +407,12 @@ Matrix_join = class
 	Menupullright "_Join" "join two matricies" {
 	Left_right_item = class
 		Menuaction "_Left to Right" "join two matricies left-right" {
-		action a b = map_binary join_lr a b;
+		action a b = map_binary joinlr a b;
 	}
 
 	Top_bottom_item = class
 		Menuaction "_Top to Bottom" "joiin two matricies top-bottom" {
-		action a b = map_binary join_tb a b;
+		action a b = map_binary jointb a b;
 	}
 }
 

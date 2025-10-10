@@ -595,7 +595,7 @@ Image_new_item = class Menupullright "_New" "make new things" {
 
 				_result
 					= Image (image_set_type Image_type.B_W
-						(clip2fmt Image_format.UCHAR wedge))
+						(cast Image_format.UCHAR wedge))
 				{
 					wedge
 						= 255 / (to_real npatches - 1) *
@@ -619,7 +619,7 @@ Image_new_item = class Menupullright "_New" "make new things" {
 
 				_result
 					= Image (image_set_type Image_type.CMYK
-						(clip2fmt Image_format.UCHAR strips))
+						(cast "uchar" strips))
 				{
 					wedge
 						= 255 / (to_real npatches - 1) *
@@ -1056,7 +1056,7 @@ Image_levels_item = class
 				adj x
 					// only force back to input type if this is a thing
 					// with a type ... so we work for Colour / Matrix etc.
-					= clip2fmt x.format x', has_member "format" x
+					= cast x.format x', has_member "format" x
 					= x'
 				{
 					x' = x * scale + offset;
@@ -1086,7 +1086,7 @@ Image_levels_item = class
 				= map_unary gam x
 			{
 				gam x
-					= clip2fmt (get_format x) x', has_format x
+					= cast (get_format x) x', has_format x
 					= x'
 				{
 					x' = (im_mx.expr / im_mx.expr ** gamma) * x ** gamma;
@@ -1576,7 +1576,7 @@ Image_transform_item = class
 					a' = a.value;
 					b' = b.value;
 
-					b'' = clip2fmt a.format b';
+					b'' = cast a.format b';
 
 					// return p2 ... if lock is set, return a p2 a standard
 					// distance along the vector joining p1 and p2
@@ -1706,7 +1706,7 @@ Image_band_item = class
 				= map_unary process x
 			{
 				process im
-					= foldl1 [join_lr, join_tb]?orientation (bandsplit im);
+					= foldl1 [joinlr, jointb]?orientation (bandsplit im);
 			}
 		}
 	}
@@ -2035,7 +2035,7 @@ Image_insert_item = class
 
 			_result
 				= insert_noexpand place.left place.top
-					(clip2fmt _b'.format a'') _b'
+					(cast _b'.format a'') _b'
 			{
 				a'' = crop 0 0 place.width place.height _a';
 			}
@@ -2064,9 +2064,9 @@ Image_insert_item = class
 				= map_binary insert a b
 			{
 				insert a b
-					= insert_noexpand left top (clip2fmt b.format a) b,
+					= insert_noexpand left top (cast b.format a) b,
 						position == 9
-					= insert_noexpand xp yp (clip2fmt b.format a) b
+					= insert_noexpand xp yp (cast b.format a) b
 				{
 					xr = b.width - a.width;
 					yr = b.height - a.height;
@@ -2253,7 +2253,7 @@ Image_join_item = class
 
     sep1 = Menuseparator;
 
-	join_lr shim bg align a b
+	joinlr shim bg align a b
 		= im2
 	{
 		w = a.width + b.width + shim;
@@ -2270,7 +2270,7 @@ Image_join_item = class
 		im2 = insert_noexpand (a.width + shim) yb?align b im1;
 	}
 
-	join_tb shim bg align a b
+	jointb shim bg align a b
 		= im2
 	{
 		w = max_pair a.width b.width;
@@ -2301,7 +2301,7 @@ Image_join_item = class
 			align = Option "Alignment" halign_names 1;
 
 			_result = map_binary
-				(join_lr shim.value bg_colour.expr align.value) a b;
+				(joinlr shim.value bg_colour.expr align.value) a b;
 		}
 	}
 
@@ -2316,7 +2316,7 @@ Image_join_item = class
 			align = Option "Alignment" valign_names 1;
 
 			_result = map_binary
-				(join_tb shim.value bg_colour.expr align.value) a b;
+				(jointb shim.value bg_colour.expr align.value) a b;
 		}
 	}
 
@@ -2341,8 +2341,8 @@ Image_join_item = class
 			// displays as group but does not have the looping behaviour?
 			_result
 				= (image_set_origin 0 0 @
-					foldl1 (join_tb vshim.value bg_colour.expr halign.value) @
-					map (foldl1 (join_lr hshim.value
+					foldl1 (jointb vshim.value bg_colour.expr halign.value) @
+					map (foldl1 (joinlr hshim.value
 						bg_colour.expr valign.value))) (to_list (to_list x));
 		}
 	}
@@ -2377,8 +2377,8 @@ Image_join_item = class
 
 			_result
 				= (image_set_origin 0 0 @
-					foldl1 (join_tb vshim.value bg_colour.expr halign.value) @
-					map (foldl1 (join_lr hshim.value
+					foldl1 (jointb vshim.value bg_colour.expr halign.value) @
+					map (foldl1 (joinlr hshim.value
 						bg_colour.expr valign.value))) (to_list (to_list _l'));
 		}
 	}

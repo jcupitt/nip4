@@ -333,10 +333,10 @@ im_histnorm in = vips_hist_norm [] in;
 im_histeq = im_histnorm @ im_histcum;
 
 im_histspec in ref
-	= vips_hist_match [] a b
+	= vips_hist_match [] in' ref'
 {
-	a = im_histeq in;
-	b = im_histeq ref;
+	in' = im_histeq in;
+	ref' = im_histeq ref;
 }
 
 im_hist_indexed value index = vips_hist_find_indexed [] index value;
@@ -535,7 +535,7 @@ im_draw_line image x1 y1 x2 y2 ink
    = vips_draw_line [] image ink x1 y1 x2 y2;
 
 im_draw_rect image left top width height fill ink
-   = vips_draw_rect [] image ink left top width height;
+   = vips_draw_rect [$fill => f != 0] image ink left top width height;
 
 im_draw_circle image cx cy radius fill ink
    = vips_draw_circle [$fill => fill != 0] image ink cx cy radius;

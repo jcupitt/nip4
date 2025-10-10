@@ -360,8 +360,7 @@ im_D50Lab2XYZ lab
  */
 im_sRGB2mono in
 	= (image_set_type Image_interpretation.B_W @
-		clip2fmt (get_header "BandFmt" in) @
-			recomb (Matrix [[.3, .6, .1]])) in;
+		cast (get_header "format" in) @ recomb (Matrix [[.3, .6, .1]])) in;
 im_mono2sRGB in
 	= image_set_type Image_interpretation.sRGB (in ++ in ++ in);
 
@@ -378,8 +377,7 @@ im_f216 x = im_clip2us (x * 256);
 
 im_RGB162GREY16 in
 	= (image_set_type Image_interpretation.GREY16 @
-		clip2fmt (get_header "BandFmt" in) @
-			recomb (Matrix [[.3, .6, .1]])) in;
+		cast (get_header "format" in) @ recomb (Matrix [[.3, .6, .1]])) in;
 im_GREY162RGB16 in
 	= image_set_type Image_interpretation.RGB16 (in ++ in ++ in);
 
@@ -407,7 +405,7 @@ colour_apply fn x
 		= extract_bands 3 (b - 3) x, b > 3
 		= extract_band (b - 1) x;
 	x' = fn first;
-	x'' = x' ++ clip2fmt (get_format x') tail;
+	x'' = x' ++ cast (get_format x') tail;
 }
 
 /* Any 1-ary colour op, applied to Vector/Image/Matrix or image

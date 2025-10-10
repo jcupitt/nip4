@@ -203,7 +203,7 @@ Tasks_capture_item = class
 			= map_binary wc w i
 		{
 			wc w i
-				= clip2fmt i.format (w' * i)
+				= cast i.format (w' * i)
 			{
 				fac = mean w / max w;
 				w' = fac * (max w / w);
@@ -791,7 +791,7 @@ Manual_balance_item = class
 				{
 				bl_mask    = convsep (matrix_blur _blur) (get_image m_current?0);
 				blended_im  = im_blend bl_mask (m_current?1).value im_start.value;
-				im_out      = Image (clip2fmt im_start.format blended_im);
+				im_out      = Image (cast im_start.format blended_im);
 				}
 
 			// Process for building scale and offset image.
@@ -831,7 +831,7 @@ Manual_balance_item = class
 			_scale_im = resize Kernel_linear xfactor yfactor scale_im;
 			_offset_im = resize Kernel_linear xfactor yfactor offset_im;
 
-			value = get_image ( clip2fmt im_in.format ( ( im_in * _scale_im ) +  _offset_im ) );
+			value = get_image (cast im_in.format ((im_in * _scale_im) + _offset_im));
 			}
 		}
 }

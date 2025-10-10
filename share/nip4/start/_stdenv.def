@@ -573,25 +573,22 @@ fliptb = apply_matim_operation "flipud" (converse (vips_flip []) "vertical");
 transpose = apply_matim_operation "transpose" (fliptb @ rot270);
 matinv = apply_matim_operation "matinv" (vips_matrixinvert []);
 
-matrix_binary fn a b
+apply_matim_binary fn a b
     = itom (fn (mtoi a) (mtoi b))
 {
-    mtoi x = vips_image_from_matrix (Matrix x);
     itom x = (vips_matrix_from_image x).value;
+    mtoi x
+        = vips_image_from_matrix (Matrix x), is_matrix x
+        = x;
 }
 
 matmul a b
     = oo_binary'_function matmul_op a b, is_class b
     = oo_binary_function matmul_op a b, is_class a
-    = vips_matmul [] a' b', is_image a' && is_image b'
+    = apply_matim_binary (vips_matrixmultiply []) a b,
+        is_matrix_image a && is_matrix_image b
     = error (_ "bad arguments to " ++ "matmul")
 {
-    to_image x
-        = vips_image_from_matrix (Matrix x), is_matrix x
-        = x;
-    a' = to_image a;
-    b' = to_image b;
-
     matmul_op = Operator "matmul" matmul Operator_type.COMPOUND_REWRAP false;
 }
 
@@ -623,7 +620,8 @@ tile across down x
 
 grid tile_height across down x
     = oo_unary_function grid_op x, is_class x
-    = vips_grid [] x (to_real tile_height) (to_real across) (to_real down), is_image x
+    = vips_grid [] x (to_real tile_height) (to_real across) (to_real down),
+        is_image x
     = error (_ "bad arguments to " ++ "grid")
 {
     grid_op = Operator "grid"
@@ -1108,7 +1106,7 @@ transform params image
 rotate interp angle x
     = oo_binary_function rotate_op angle x, is_class angle
     = oo_binary'_function rotate_op angle x, is_class x
-	= vips_affine [$interpolate => interp.value] x [a, -b, b, a], is_real angle && is_image x
+    = vips_affine [$interpolate => interp.value] x [a, -b, b, a], is_real angle && is_image x
     = error (_ "bad arguments to " ++ "rotate")
 {
     rotate_op = Operator "rotate" (rotate interp) Operator_type.COMPOUND_REWRAP false;
@@ -1116,28 +1114,28 @@ rotate interp angle x
     b = sin angle;
 }
 
-join_lr a b
-    = oo_binary_function join_lr_op a b, is_class a
-    = oo_binary'_function join_lr_op a b, is_class b
+joinlr a b
+    = oo_binary_function joinlr_op a b, is_class a
+    = oo_binary'_function joinlr_op a b, is_class b
     = join_im a b, is_image a && is_image b
-    = matrix_binary join_im a b, is_matrix a && is_matrix b
-    = error (_ "bad arguments to " ++ "join_lr")
+    = apply_matim_binary join_im a b, is_matrix_image a && is_matrix_image b
+    = error (_ "bad arguments to " ++ "joinlr")
 {
-    join_lr_op = Operator "join_lr" join_lr Operator_type.COMPOUND_REWRAP false;
+    joinlr_op = Operator "joinlr" joinlr Operator_type.COMPOUND_REWRAP false;
 
-    join_im a b = insert (get_width a) 0 b a;
+    joinlr_im a b = insert (get_width a) 0 b a;
 }
 
-join_tb a b
-    = oo_binary_function join_tb_op a b, is_class a
-    = oo_binary'_function join_tb_op a b, is_class b
-    = join_im a b, is_image a && is_image b
-    = matrix_binary join_im a b, is_matrix a && is_matrix b
-    = error (_ "bad arguments to " ++ "join_tb")
+jointb a b
+    = oo_binary_function jointb_op a b, is_class a
+    = oo_binary'_function jointb_op a b, is_class b
+    = jointb_im a b, is_image a && is_image b
+    = apply_matim_binary jointb_im a b, is_matrix_image a && is_matrix_image b
+    = error (_ "bad arguments to " ++ "jointb")
 {
-    join_tb_op = Operator "join_tb" join_tb Operator_type.COMPOUND_REWRAP false;
+    jointb_op = Operator "jointb" jointb Operator_type.COMPOUND_REWRAP false;
 
-    join_im a b = insert 0 (get_height a) b a;
+    jointb_im a b = insert 0 (get_height a) b a;
 }
 
 conj x
@@ -1153,13 +1151,27 @@ conj x
     conj_op = Operator "conj" conj Operator_type.COMPOUND false;
 }
 
-clip2fmt format image
-    = oo_unary_function clip2fmt_op image, is_class image
-    = im_clip2fmt image (to_real format), is_image image
-    = error (_ "bad arguments to " ++ "clip2fmt")
+cast format x
+    = oo_unary_function cast_op x, is_class x
+    = vips_cast [] image (to_real format), is_image x
+    = cast_real (to_real format) x, is_real x
+    = error (_ "bad arguments to " ++ "cast")
 {
-    clip2fmt_op = Operator "clip2fmt"
-        (clip2fmt format) Operator_type.COMPOUND_REWRAP false;
+    cast_op = Operator "cast"
+        (cast format) Operator_type.COMPOUND_REWRAP false;
+
+    cast_real format x
+        = cast_unsigned_char x, format == Image_format.UCHAR
+        = cast_signed_char x, format == Image_format.CHAR
+        = cast_unsigned_short x, format == Image_format.USHORT
+        = cast_signed_short x, format == Image_format.SHORT
+        = cast_unsigned_int x, format == Image_format.UINT
+        = cast_signed_int x, format == Image_format.INT
+        = cast_float x, format == Image_format.FLOAT
+        = cast_double x, format == Image_format.DOUBLE
+        = cast_complex x, format == Image_format.COMPLEX
+        = cast_double_complex x, format == Image_format.DPCOMPLEX
+        = error (_ "bad arguments to " ++ "cast");
 }
 
 embed type x y w h im
@@ -1179,7 +1191,7 @@ _morph_2_masks fn m1 m2
     = m''
 {
     // The [[real]] can contain 128 values ... squeeze them out!
-    image = im_mask2vips (Matrix m2) == 255;
+    image = vips_image_from_matrix (Matrix m2) == 255;
     m2_width = get_width image;
     m2_height = get_height image;
 
@@ -1194,7 +1206,7 @@ _morph_2_masks fn m1 m2
     image'' = fn m1 image';
 
     // back to mask
-    m' = im_vips2mask ((double) image'');
+    m' = vips_matrix_from_image ((double) image'');
 
     // Turn 0 in output to 128 (don't care).
     m''
@@ -1208,7 +1220,7 @@ _morph_2_masks fn m1 m2
 
 dilate mask image
     = oo_unary_function dilate_op image, is_class image
-    = im_dilate image (to_matrix mask), is_image image
+    = vips_morph [] image (to_matrix mask) "dilate", is_image image
     = error (_ "bad arguments to " ++ "dilate")
 {
     dilate_op = Operator "dilate"
@@ -1221,7 +1233,7 @@ dilate mask image
 
 erode mask image
     = oo_unary_function erode_op image, is_class image
-    = im_erode image (to_matrix mask), is_image image
+    = vips_morph [] image (to_matrix mask) "erode", is_image image
     = error (_ "bad arguments to " ++ "erode")
 {
     erode_op = Operator "erode"
@@ -1234,7 +1246,7 @@ erode mask image
 
 conv mask image
     = oo_unary_function conv_op image, is_class image
-    = im_conv image (to_matrix mask), is_image image
+    = vips_conv [$precision => "integer"] image (to_matrix mask), is_image image
     = error (_ "bad arguments to " ++ "conv" ++ ": " ++
         "conv (" ++ print mask ++ ") (" ++ print image ++ ")")
 {
@@ -1244,7 +1256,7 @@ conv mask image
 
 convf mask image
     = oo_unary_function convf_op image, is_class image
-    = im_conv_f image (to_matrix mask), is_image image
+    = vips_conv [$precision => "float"] image (to_matrix mask), is_image image
     = error (_ "bad arguments to " ++ "convf" ++ ": " ++
         "convf (" ++ print mask ++ ") (" ++ print image ++ ")")
 {
@@ -1254,7 +1266,7 @@ convf mask image
 
 convsep mask image
     = oo_unary_function convsep_op image, is_class image
-    = im_convsep image (to_matrix mask), is_image image
+    = vips_convsep [$precision => "int"] image (to_matrix mask), is_image image
     = error (_ "bad arguments to " ++ "convsep")
 {
     convsep_op = Operator "convsep"
@@ -1263,7 +1275,8 @@ convsep mask image
 
 aconvsep layers mask image
     = oo_unary_function aconvsep_op image, is_class image
-    = im_aconvsep image (to_matrix mask) (to_real layers), is_image image
+    = vips_convsep [$precision => "approximate"]
+        image (to_matrix mask) (to_real layers), is_image image
     = error (_ "bad arguments to " ++ "aconvsep")
 {
     aconvsep_op = Operator "aconvsep"
@@ -1272,7 +1285,8 @@ aconvsep layers mask image
 
 convsepf mask image
     = oo_unary_function convsepf_op image, is_class image
-    = im_convsep_f image (to_matrix mask), is_image image
+    = vips_convsep [$precision => "float"] image (to_matrix mask),
+        is_image image
     = error (_ "bad arguments to " ++ "convsepf")
 {
     convsepf_op = Operator "convsepf"
@@ -1281,7 +1295,7 @@ convsepf mask image
 
 rank w h n image
     = oo_unary_function rank_op image, is_class image
-    = im_rank image (to_real w) (to_real h) (to_real n), is_image image
+    = vips_rank [] image (to_real w) (to_real h) (to_real n), is_image image
     = error (_ "bad arguments to " ++ "rank")
 {
     rank_op = Operator "rank"
@@ -1299,7 +1313,7 @@ rank_image n x
     {
         has_wrapper = has_member_list (has_member "Image") l;
         wrapper = get_member_list (has_member "Image") (get_member "Image") l;
-        ranked = im_rank_image (map get_image l) (to_real n);
+        ranked = vips_bandrank [$index => to_real n] (map get_image l);
     }
 }
 
@@ -1307,7 +1321,7 @@ rank_image n x
 correlate small big
     = oo_binary_function correlate_op small big, is_class small
     = oo_binary'_function correlate_op small big, is_class big
-    = im_spcor big small, is_image small && is_image big
+    = vips_spcor [] big small, is_image small && is_image big
     = error (_ "bad arguments to " ++ "correlate")
 {
     correlate_op = Operator "correlate"
@@ -1318,17 +1332,17 @@ correlate small big
 correlate_fast small big
     = oo_binary_function correlate_fast_op small big, is_class small
     = oo_binary'_function correlate_fast_op small big, is_class big
-    = im_fastcor big small, is_image small && is_image big
+    = vips_fastcor [] big small, is_image small && is_image big
     = error (_ "bad arguments to " ++ "correlate_fast")
 {
     correlate_fast_op = Operator "correlate_fast"
         correlate_fast Operator_type.COMPOUND_REWRAP false;
 }
 
-// set Type, wrap as Plot_hist if it's a class
+// set interpretation, wrap as Plot_hist if it's a class
 hist_tag x
     = oo_unary_function hist_tag_op x, is_class x
-    = image_set_type Image_interpretation.HISTOGRAM x, is_image x
+    = set_header $interpretation $histogram x, is_image x
     = error (_ "bad arguments to " ++ "hist_tag")
 {
     hist_tag_op = Operator "hist_tag"
@@ -1337,7 +1351,7 @@ hist_tag x
 
 hist_find x
     = oo_unary_function hist_find_op x, is_class x
-    = im_histgr x (-1), is_image x
+    = vips_hist_find [] x, is_image x
     = error (_ "bad arguments to " ++ "hist_find")
 {
     hist_find_op = Operator "hist_find"
@@ -1346,7 +1360,7 @@ hist_find x
 
 hist_find_nD bins image
     = oo_unary_function hist_find_nD_op image, is_class image
-    = im_histnD image (to_real bins), is_image image
+    = vips_hist_find_ndim [$bins => to_real bins] image, is_image image
     = error (_ "bad arguments to " ++ "hist_find_nD")
 {
     hist_find_nD_op = Operator "hist_find_nD"
@@ -1375,14 +1389,13 @@ hist_entropy x
     hist_entropy_op = Operator "hist_entropy"
         hist_entropy Operator_type.COMPOUND_REWRAP false;
 
-    entropy x
-        = vips_hist_entropy [] x;
+    entropy x = vips_hist_entropy [] x;
 }
 
 hist_map hist image
     = oo_binary_function hist_map_op hist image, is_class hist
     = oo_binary'_function hist_map_op hist image, is_class image
-    = im_maplut image hist, is_image hist && is_image image
+    = vips_maplut [] image hist, is_image hist && is_image image
     = error (_ "bad arguments to " ++ "hist_map")
 {
     // can't use rewrap, as we want to always wrap as image
@@ -1392,7 +1405,7 @@ hist_map hist image
 
 hist_cum hist
     = oo_unary_function hist_cum_op hist, is_class hist
-    = im_histcum hist, is_image hist
+    = vips_hist_cum [] hist, is_image hist
     = error (_ "bad arguments to " ++ "hist_cum")
 {
     hist_cum_op = Operator "hist_cum"
@@ -1401,14 +1414,14 @@ hist_cum hist
 
 hist_diff hist
     = oo_unary_function hist_diff_op hist, is_class hist
-    = im_histdiff hist, is_image hist
+    = hist_diff_im hist, is_image hist
     = error (_ "bad arguments to " ++ "hist_diff")
 {
     hist_diff_op = Operator "hist_diff"
         hist_diff Operator_type.COMPOUND_REWRAP false;
 
-    im_histdiff h
-        = (conv (Matrix [[-1, 1]]) @ clip2fmt (fmt (get_format h))) h
+    hist_diff_im h
+        = (conv (Matrix [[-1, 1]]) @ cast (fmt (get_format h))) h
     {
         // up the format so it can represent the whole range of
         // possible values from this mask
@@ -1424,7 +1437,7 @@ hist_diff hist
 
 hist_norm hist
     = oo_unary_function hist_norm_op hist, is_class hist
-    = im_histnorm hist, is_image hist
+    = vips_hist_norm [] hist, is_image hist
     = error (_ "bad arguments to " ++ "hist_norm " ++ print hist)
 {
     hist_norm_op = Operator "hist_norm"
@@ -1440,7 +1453,7 @@ hist_inv hist
         hist_inv Operator_type.COMPOUND_REWRAP false;
 
     inv im
-        = im_invertlut (to_matrix im''') len
+        = vips_invertlut [$size => len] (to_matrix im''')
     {
         // need a vertical doublemask
         im'
@@ -1462,11 +1475,14 @@ hist_inv hist
 hist_match in ref
     = oo_binary_function hist_match_op in ref, is_class in
     = oo_binary'_function hist_match_op in ref, is_class ref
-    = im_histspec in ref, is_image in && is_image ref
+    = vips_hist_match [] in' ref', is_image in && is_image ref
     = error (_ "bad arguments to " ++ "hist_match")
 {
     hist_match_op = Operator "hist_match"
         hist_match Operator_type.COMPOUND_REWRAP false;
+
+	in' = (hist_norm @ hist_cum) in;
+	ref' = (hist_norm @ hist_cum) ref;
 }
 
 hist_equalize x = hist_map ((hist_norm @ hist_cum @ hist_find) x) x;
@@ -1498,9 +1514,9 @@ hist_thresh percent image
     h = (my_hist_norm @ sum @ bandsplit @ hist_cum @ hist_find)
         image.value;
 
-    // threshold that, then use im_profile to search for the x position in the
+    // threshold that, then use profile to search for the x position in the
     // histogram
-    x = mean (im_profile (h > percent) 1);
+    x = mean (vips_profile (h > percent))?1;
 }
 
 /* Sometimes useful, despite plotting now being built in, for making
@@ -1508,20 +1524,11 @@ hist_thresh percent image
  */
 hist_plot hist
     = oo_unary_function hist_plot_op hist, is_class hist
-    = im_histplot hist, is_image hist
+    = vips_hist_plot [] hist, is_image hist
     = error (_ "bad arguments to " ++ "hist_plot")
 {
     hist_plot_op = Operator "hist_plot"
         (Image @ hist_plot) Operator_type.COMPOUND false;
-}
-
-zerox d x
-    = oo_unary_function zerox_op x, is_class x
-    = im_zerox x (to_real d), is_image x
-    = error (_ "bad arguments to " ++ "zerox")
-{
-    zerox_op = Operator "zerox"
-        (zerox d) Operator_type.COMPOUND_REWRAP false;
 }
 
 reduce kernel xshr yshr image
@@ -1570,13 +1577,13 @@ resize kernel xfac yfac image
 
     resize_im im
         // upscale by integer factor, nearest neighbour
-        = im_zoom im xfac' yfac',
+        = vips_zoom [] im xfac' yfac',
             is_int xfac' && is_int yfac' &&
             xfac' >= 1 && yfac' >= 1 &&
             is_nn
 
         // downscale by integer factor, nearest neighbour
-        = im_subsample im rxfac' ryfac',
+        = vips_subsample [] im rxfac' ryfac',
             is_int rxfac' && is_int ryfac' &&
             rxfac' >= 1 && ryfac' >= 1 &&
             is_nn
@@ -1587,7 +1594,7 @@ resize kernel xfac yfac image
 
 sharpen radius x1 y2 y3 m1 m2 in
     = oo_unary_function sharpen_op in, is_class in
-    = im_sharpen in (to_real radius)
+    = sharpen_im in (to_real radius)
         (to_real x1) (to_real y2) (to_real y3)
         (to_real m1) (to_real m2), is_image in
     = error (_ "bad arguments to " ++ "sharpen")
@@ -1595,75 +1602,89 @@ sharpen radius x1 y2 y3 m1 m2 in
     sharpen_op = Operator "sharpen"
         (sharpen radius x1 y2 y3 m1 m2)
         Operator_type.COMPOUND_REWRAP false;
-}
 
-tone_analyse s m h sa ma ha in
-    = oo_unary_function tone_analyse_op in, is_class in
-    = im_tone_analyse in
-        (to_real s) (to_real m) (to_real h)
-        (to_real sa) (to_real ma) (to_real ha), is_image in
-    = error (_ "bad arguments to " ++ "tone_analyse")
-{
-    tone_analyse_op = Operator "tone_analyse"
-        (Plot_histogram @ tone_analyse s m h sa ma ha)
-        Operator_type.COMPOUND false;
-}
-
-tone_map hist image
-    = oo_binary_function tone_map_op hist image, is_class hist
-    = oo_binary'_function tone_map_op hist image, is_class image
-    = im_tone_map image hist, is_image hist && is_image image
-    = error (_ "bad arguments to " ++ "tone_map")
-{
-    tone_map_op = Operator "tone_map"
-        tone_map Operator_type.COMPOUND_REWRAP false;
+	sharpen_im in mask_size x1 y2 y3 m1 m2
+        = vips_sharpen [
+            $sigma => mask_size / 4,
+            $x1 => x1,
+            $y2 => y2,
+            $y3 => y3,
+            $m1 => m1,
+            $m2 => m2
+        ] in;
 }
 
 tone_build fmt b w s m h sa ma ha
-    = (Plot_histogram @ clip2fmt fmt)
-        (im_tone_build_range mx mx
+    = (Plot_histogram @ cast fmt)
+        (tone_build_im mx mx
             (to_real b) (to_real w)
             (to_real s) (to_real m) (to_real h)
             (to_real sa) (to_real ma) (to_real ha))
 {
     mx = Image_format.maxval fmt;
+
+    tone_build_im in_max out_max Lb Lw Ps Pm Ph S M H
+        = vips_tonelut [
+            $in_max => in_max,
+            $out_max => out_max,
+            $Lb => Lb,
+            $Lw => Lw,
+            $Ps => Ps,
+            $Pm => Pm,
+            $Ph => Ph,
+            $S => S,
+            $M => M,
+            $H => H
+        ];
 }
 
 icc_export depth profile intent in
     = oo_unary_function icc_export_op in, is_class in
-    = im_icc_export_depth in
+    = icc_export_im in
         (to_real depth) (expand profile) (to_real intent), is_image in
     = error (_ "bad arguments to " ++ "icc_export")
 {
     icc_export_op = Operator "icc_export"
         (icc_export depth profile intent)
         Operator_type.COMPOUND_REWRAP false;
+
+    icc_export_im in depth profile intent
+        = vips_icc_export [
+            $depth => depth,
+            $intent => intent,
+            $output_profile => profile
+        ] in;
 }
 
 icc_import profile intent in
     = oo_unary_function icc_import_op in, is_class in
-    = im_icc_import in
-        (expand profile) (to_real intent), is_image in
+    = icc_import_im in (expand profile) (to_real intent), is_image in
     = error (_ "bad arguments to " ++ "icc_import")
 {
     icc_import_op = Operator "icc_import"
         (icc_import profile intent)
         Operator_type.COMPOUND_REWRAP false;
+
+    icc_import_im in profile intent
+        = vips_icc_import [$intent => intent, $input_profile => profile] in;
 }
 
 icc_import_embedded intent in
     = oo_unary_function icc_import_embedded_op in, is_class in
-    = im_icc_import_embedded in (to_real intent), is_image in
+    = icc_import_embedded_im in (to_real intent), is_image in
     = error (_ "bad arguments to " ++ "icc_import_embedded")
 {
     icc_import_embedded_op = Operator "icc_import_embedded"
         (icc_import_embedded intent)
         Operator_type.COMPOUND_REWRAP false;
+
+    icc_import_embedded_im in intent
+        = vips_icc_import [$intent => intent, $embedded => true] in;
 }
 
 icc_transform in_profile out_profile intent in
     = oo_unary_function icc_transform_op in, is_class in
-    = im_icc_transform in
+    = icc_transform_im in
         (expand in_profile) (expand out_profile)
         (to_real intent), is_image in
     = error (_ "bad arguments to " ++ "icc_transform")
@@ -1671,18 +1692,13 @@ icc_transform in_profile out_profile intent in
     icc_transform_op = Operator "icc_transform"
         (icc_transform in_profile out_profile intent)
         Operator_type.COMPOUND_REWRAP false;
-}
 
-icc_ac2rc profile in
-    = oo_unary_function icc_ac2rc_op in, is_class in
-    = im_icc_ac2rc in (expand profile), is_image in
-    = error (_ "bad arguments to " ++ "icc_ac2rc")
-{
-    icc_ac2rc_op = Operator "icc_ac2rc"
-        (icc_ac2rc profile)
-        Operator_type.COMPOUND_REWRAP false;
+    icc_transform_im in input_profile output_profile intent
+        = vips_icc_transform [
+            $intent => intent,
+            $input_profile => output_profile
+        ] in output_profile;
 }
-
 
 // Given a xywh rect, flip it around so wh are always positive
 rect_normalise x y w h
@@ -1700,23 +1716,29 @@ rect_normalise x y w h
 
 draw_flood_blob x y ink image
     = oo_unary_function draw_flood_blob_op image, is_class image
-    = im_draw_flood_blob image (to_real x) (to_real y) ink, is_image image
+    = draw_flood_blob_im image (to_real x) (to_real y) ink, is_image image
     = error (_ "bad arguments to " ++ "draw_flood_blob")
 {
     draw_flood_blob_op = Operator "draw_flood_blob"
         (draw_flood_blob x y ink) Operator_type.COMPOUND_REWRAP false;
+
+    draw_flood_blob_im in start_x start_y ink
+        = vips_draw_flood [$equal => true] in ink start_x start_y;
 }
 
 draw_flood x y ink image
     = oo_unary_function draw_flood_op image, is_class image
-    = im_draw_flood image (to_real x) (to_real y) ink, is_image image
+    = draw_flood_im image (to_real x) (to_real y) ink, is_image image
     = error (_ "bad arguments to " ++ "draw_flood")
 {
     draw_flood_op = Operator "draw_flood"
         (draw_flood x y ink) Operator_type.COMPOUND_REWRAP false;
+
+    draw_flood_im in start_x start_y ink
+       = vips_draw_flood [$equal => false] in ink start_x start_y;
 }
 
-/* This version of draw_rect uses insert_noexpand and will be fast, even for
+/* This version of draw_rect uses insert_noexpand and should be fast, even for
  * huge images.
  */
 draw_rect_width x y w h f t ink image
@@ -1757,32 +1779,41 @@ draw_rect x y w h f ink image
  */
 draw_rect_paintbox x y w h f ink image
     = oo_unary_function draw_rect_op image, is_class image
-    = im_draw_rect image (to_real x) (to_real y)
+    = draw_rect_im image (to_real x) (to_real y)
         (to_real w) (to_real h) (to_real f) ink, is_image image
     = error (_ "bad arguments to " ++ "draw_rect_paintbox")
 {
     draw_rect_op = Operator "draw_rect"
         (draw_rect x y w h f ink) Operator_type.COMPOUND_REWRAP false;
+
+    draw_rect_im image left top width height fill ink
+       = vips_draw_rect [$fill => fill != 0] image ink left top width height;
 }
 
 draw_circle x y r f ink image
     = oo_unary_function draw_circle_op image, is_class image
-    = im_draw_circle image (to_real x) (to_real y)
+    = draw_circle_im image (to_real x) (to_real y)
         (to_real r) (to_real f) ink, is_image image
     = error (_ "bad arguments to " ++ "draw_circle")
 {
     draw_circle_op = Operator "draw_circle"
         (draw_circle x y r f ink) Operator_type.COMPOUND_REWRAP false;
+
+    draw_circle_im image cx cy radius fill ink
+       = vips_draw_circle [$fill => fill != 0] image ink cx cy radius;
 }
 
 draw_line x1 y1 x2 y2 ink image
     = oo_unary_function draw_line_op image, is_class image
-    = im_draw_line image (to_real x1) (to_real y1)
+    = draw_line_im image (to_real x1) (to_real y1)
         (to_real x2) (to_real y2) ink, is_image image
     = error (_ "bad arguments to " ++ "draw_line")
 {
     draw_line_op = Operator "draw_line"
         (draw_line x1 y1 x2 y2 ink) Operator_type.COMPOUND_REWRAP false;
+
+    draw_line_im image x1 y1 x2 y2 ink
+       = vips_draw_line [] image ink x1 y1 x2 y2;
 }
 
 print_base base in

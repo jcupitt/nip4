@@ -29,12 +29,12 @@ so_balance ref_meanmax im1 im2 mask gauss
    {
    //ref_meanmax = so_meanmax im1;
    so_values = so_calculate ref_meanmax im2 mask;
-   im2_cor_a = clip2fmt im2.format im2'', has_member "format" im2
+   im2_cor_a = cast im2.format im2'', has_member "format" im2
              = im2''
            {im2'' = im2 * (so_values?0) + (so_values?1);}
          // Option to convert replacement image to scaled gaussian noise
          im2_cor = im2_cor_a, gauss == false
-           = clip2fmt im2_cor_a.format gauss_im
+           = cast im2_cor_a.format gauss_im
        {gauss_im =
            gaussnoise im2_cor_a.width im2_cor_a.height ref_meanmax?0
 (deviation im2_cor_a);}

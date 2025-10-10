@@ -133,9 +133,9 @@ is_square_matrix l
       = true, l == [[]]
       = is_matrix l && is_list_len (len (hd l)) l;
 
-/* is_oddmatrix l: is l a matrix with odd-length sides
+/* is_odd_matrix l: is l a matrix with both sides of odd-length
  */
-is_oddmatrix l
+is_odd_matrix l
       = true, l == [[]]
       = is_matrix l && len l % 2 == 1 && len l?0 % 2 == 1;
 
@@ -143,9 +143,9 @@ is_oddmatrix l
  */
 is_odd_square_matrix l = is_square_matrix l && len l % 2 == 1;
 
-/* Is an item in a column of a table?
+/* is_matrix_image x: is x a matrix or an image
  */
-is_incolumn n table x = member (map (extract n) table) x;
+is_matrix_image x = is_matrix x || is_image x;
 
 /* Is HGuide or VGuide.
  */
