@@ -1,8 +1,8 @@
 # menu redesign
 
-- Matrix_base image gets stuck
+- load a gif, add 1, stops animating
 
-	uses matmul / matinv etc., and they refer to Matrix
+	ooo it is animating, just not displaying as animated
 
 - test matmul etc, esp mixed image and matrix
 

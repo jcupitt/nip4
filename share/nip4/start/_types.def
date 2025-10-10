@@ -371,13 +371,14 @@ Matrix_base value = class
         sq = matmul this this;
         op' = oo_converse op;
 
-        // we can't use the versions in _stdenv.def since that would be a circular dep
-        mat1 fn = vips_matrix_from_image @ fn @ vips_image_from_matrix
+        // we can't use the versions in _stdenv.def since that would be a
+        // circular dep
+        mat1 fn = vips_matrix_from_image @ fn @ vips_image_from_matrix;
         mat2 fn a b
-            = vips_matrix_from_image (fn (vips_image_from_matrix a) (vips_image_from_matrix b))
+            = vips_matrix_from_image
+                (fn (vips_image_from_matrix a) (vips_image_from_matrix b));
         matmul = mat2 (vips_matrixmultiply []);
         matinv = mat1 (vips_matrixinvert []);
-
     }
 
     oo_unary_table op = [
