@@ -344,7 +344,7 @@ Filter_fourier_item = class
 	] 0;
 
 	// make a visualisation image
-	make_vis fn = (Image @ image_set_type Image_type.FOURIER @ rotquad @ fn)
+	make_vis fn = (Image @ set_header $interpretation $fourier @ rotquad @ fn)
 		(im_create_fmask preview_size preview_size);
 
 	// make the process function
@@ -1293,7 +1293,7 @@ Filter_overlay_header_item = class
 			= map_binary overlay a b
 		{
 			overlay a b
-				= image_set_type Image_type.sRGB
+				= set_header $interpretation $srgb
 					[(a' ++ b' ++ 0),
 						(a' ++ 0 ++ b'),
 						(b' ++ a' ++ 0),
@@ -1329,7 +1329,7 @@ Filter_colourize_item = class
 				colour' = tint * colour_transform_to Image_type.LAB colour;
 				mono' = colour_transform_to Image_type.B_W mono;
 				colourized = (mono' / 2.55) ++ colour'?1 ++ colour'?2;
-				colourized' = image_set_type Image_type.LAB colourized;
+				colourized' = set_header $interpretation $lab colourized;
 			}
 		}
 	}

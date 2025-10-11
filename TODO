@@ -1,23 +1,26 @@
 # menu redesign
 
+- reworking _types.def ... try
+
+	Option_enum "hello" Interpretation $XYZ
+
+  seems confused
+
 - load a gif, add 1, stops animating
 
     ooo it is animating, just not displaying as animated
 
 - test matmul etc, esp mixed image and matrix
 
+	can we make a little test framework?
+
 - we still seem to be leaking a ref in ~/x.ws ... wasn't this fixed?
+
+	using label_regions
 
 - can often use strings, not enums
 
     though eg. get_coding will return an int
-
-- image_set_type has gone ... instead pick one of
-
-    set_header $interpretation $histogram
-    vips_copy [$interpretation => "histogram"] x
-
-  instead
 
 - naming convention
 
@@ -33,73 +36,13 @@
 
 - in order, rework:
 
+    _list.def      	done
     _predicate.def      done
     _stdenv.def     	done
+    _Object.def
     _types.def
-
-
-- try:
-
-    vips_getpoint [] A1.value 10 10
-
-  get "10 0 1 " ... is the vips array not being unpacked to a list?
-
-
-
-- get rid of all the im_functions
-
-    except for _vips7compat.def
-
-- rename Image_interpretation as Interpretation
-
-    although we have Object and Object_type .. maybe class_enum is better?
-
-    Enum = class {
-        // filter out names nip4 adds automatically
-        names = filter (not @ member ["this", "name", "super", this.name]) (dir this);
-        values = map (converse get_member this) names;
-
-        has_name name = member name names;
-        get_name value = names ? index value values;
-
-        has_value value = member value values;
-        get_value name = get_member name this;
-
-        ...
-    }
-
-    Interpretation = class {
-        value = class Enum {
-            MULTIBAND = 0;
-            B_W = 1;
-            HISTOGRAM = 10;
-        }
-
-        display = class Enum {
-            MULTIBAND = _ "Multiband";
-            B_W = _ "Mono";
-            HISTOGRAM = _ "Histogram";
-        }
-
-
-
-        ...
-    }
-
-  inter = Interpretation.value.HISTOGRAM;
-
-  name = Interpretation.value.get_name inter;
-
-  value = Interpretation.value.get_value "HISTOGRAM";
-
-  label = Interpretation.display.get_name inter;
-
-
-
-
-
-    Interpretation = Enum [
-        ["MULTIBAND", _ "Multiband", 0],
+    _generate.def
+    _convert.def
 
 
 - do we need vips_header_int as a builtin? we can define as
@@ -114,18 +57,6 @@
 - add to_enum
 
     allows str and real
-
-- from _types.def remove
-
-     Image_interpretation
-
-- remove these from Image class
-
-- remove from _stdenv.def
-
-    image_set_type
-
-- image_set_interpretation in _stdenv.def should use vips_copy_set
 
 - get rid of _colour_conversion_table ... use vips_colourspace instead
 
@@ -164,13 +95,7 @@
 
 - the nip4 menus need reworking to use max_alpha 255 for scrgb
 
-- add something to find unresolved symbols
-
-- get rid of im_copy_set etc.
-
-    add copy_set to stdenv, and that uses vips_call9
-
-- perspective distort could have an "interpoplate" option (always bilinear
+- perspective distort could have an "interpolate" option (always bilinear
   right now)
 
 - try:
@@ -196,8 +121,6 @@
 - remove use of cache (it's tilecache only now)
 
 - prewitt and scharr edge detectors
-
-- puts lots of stuff into Image > New eg xyz, sdf etc.
 
 - can we improve Group[]?
 

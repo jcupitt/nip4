@@ -149,7 +149,7 @@ Colour_tag_item = class
 
 		to = Option_enum (_ "Tag as") spaces (spaces.get_name dest);
 
-		_result = map_unary (image_set_type to.value_thing) x;
+		_result = map_unary (set_header $interpretation to.value_thing) x;
 	}
 
 	Mono_item = class

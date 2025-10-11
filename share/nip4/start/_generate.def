@@ -1,7 +1,6 @@
-
 /* make an image of size x by y whose pixels are their coordinates.
  */
-make_xy x y = im_make_xy (to_real x) (to_real y);
+makexy x y = vips_xyz [] (to_real x) (to_real y);
 
 /* make an image with the specified properties ... pixel is (eg.)
  * Vector [0, 0, 0], or 12. If coding == labq, we ignore bands, format and
@@ -39,7 +38,7 @@ image_new options w h
     yoffset = defaults $yoffset;
     pixel = defaults $pixel;
 
-image = vips_black [$bands => to_real bands] 1 1 + pixel;
+    image = vips_black [$bands => to_real bands] 1 1 + pixel;
     image' = vips_cast [] image format;
     image''
         = vips_Lab2LabQ [] image', coding == Image_coding.LABPACK
@@ -73,7 +72,7 @@ image_new_from_image options image
 /* generate a slice of LAB space size x size pixels for L* == l
  */
 lab_slice size l
-    = image_set_type Image_type.LAB im
+    = set_header $interpretation $lab im
 {
     L = image_new [
         $format => Image_format.FLOAT,
@@ -81,14 +80,10 @@ lab_slice size l
         $pixel => l
     ] size size;
 
-    A1 = im_fgrey (to_real size) (to_real size);
-
-    /* im_fgrey always makes 0-1, so these ranges can be wired in.
-     */
+    A1 = vips_grey [] (to_real size) (to_real size);
     A2 = A1 * 256 - 128;
-
-    A4 = im_rot90 A2;
-    im = copy [$xoffset => size / 2, $yoffset => size / 2] (L ++ A2 ++ A4);
+    A3 = rot90 A2;
+    im = copy [$xoffset => size / 2, $yoffset => size / 2] (L ++ A2 ++ A3);
 }
 
 /* Look at Image, try to make a Colour (failing that, a Vector) which is white

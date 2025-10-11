@@ -59,7 +59,7 @@ to_image x
 	= to_image x.expr, is_Expression x
 	= Image x.value, is_Plot x
 	= x, is_Image x
-	= Image (image_set_type
+	= Image (set_header $interpretation
 			(Image_interpretation.colour_spaces.lookup 0 1 x.colour_space)
 			(mtoi [x.value])),
 		is_Colour x
@@ -359,10 +359,10 @@ im_D50Lab2XYZ lab
 /* ... and mono conversions
  */
 im_sRGB2mono in
-	= (image_set_type Image_interpretation.B_W @
+	= (set_header $interpretation $b_w @
 		cast (get_header "format" in) @ recomb (Matrix [[.3, .6, .1]])) in;
 im_mono2sRGB in
-	= image_set_type Image_interpretation.sRGB (in ++ in ++ in);
+	= set_header $interpretation $srgb (in ++ in ++ in);
 
 im_sRGB2Lab = im_XYZ2Lab @ im_sRGB2XYZ;
 
@@ -376,10 +376,10 @@ im_8216 x = (im_clip2us x) << 8;
 im_f216 x = im_clip2us (x * 256);
 
 im_RGB162GREY16 in
-	= (image_set_type Image_interpretation.GREY16 @
+	= (set_header $interpretation $grey16 @
 		cast (get_header "format" in) @ recomb (Matrix [[.3, .6, .1]])) in;
 im_GREY162RGB16 in
-	= image_set_type Image_interpretation.RGB16 (in ++ in ++ in);
+	= set_header $interpretation $rgb16 (in ++ in ++ in);
 
 /* The vips8 scRGB functions.
  */
@@ -464,7 +464,7 @@ _colour_conversion_table = [
 	/* Lines are [space-from, space-to, conversion function]. Could do
 	 * this as a big array, but table lookup feels safer.
 	 */
-	[B_W, B_W, image_set_type B_W],
+	[B_W, B_W, set_header $interpretation B_W],
 	[B_W, XYZ, im_sRGB2XYZ @ im_mono2sRGB @ im_clip],
 	[B_W, YXY, im_XYZ2Yxy @ im_sRGB2XYZ @ im_mono2sRGB @ im_clip],
 	[B_W, LAB, im_sRGB2Lab @ im_mono2sRGB @ im_clip],
@@ -473,14 +473,14 @@ _colour_conversion_table = [
 	[B_W, RGB, im_XYZ2disp @ im_sRGB2XYZ @ im_mono2sRGB @ im_clip],
 	[B_W, sRGB, im_mono2sRGB @ im_clip],
 	[B_W, scRGB, im_sRGB2scRGB @ im_mono2sRGB @ im_clip],
-	[B_W, RGB16, image_set_type RGB16 @ im_8216 @ im_mono2sRGB],
-	[B_W, GREY16, image_set_type GREY16 @ im_8216],
+	[B_W, RGB16, set_header $interpretation RGB16 @ im_8216 @ im_mono2sRGB],
+	[B_W, GREY16, set_header $interpretation GREY16 @ im_8216],
 	[B_W, LABQ, im_Lab2LabQ @ im_sRGB2Lab @ im_mono2sRGB @ im_clip],
 	[B_W, LABS, im_LabQ2LabS @ im_Lab2LabQ @ im_sRGB2Lab @
 		im_mono2sRGB @ im_clip],
 
 	[XYZ, B_W, im_sRGB2mono @ im_XYZ2sRGB @ im_clip2f],
-	[XYZ, XYZ, image_set_type XYZ],
+	[XYZ, XYZ, set_header $interpretation XYZ],
 	[XYZ, YXY, im_XYZ2Yxy @ im_clip2f],
 	[XYZ, LAB, im_XYZ2Lab @ im_clip2f],
 	[XYZ, LCH, im_Lab2LCh @ im_XYZ2Lab],
@@ -493,7 +493,7 @@ _colour_conversion_table = [
 
 	[YXY, B_W, im_sRGB2mono @ im_XYZ2sRGB @ im_Yxy2XYZ @ im_clip2f],
 	[YXY, XYZ, im_Yxy2XYZ @ im_clip2f],
-	[YXY, YXY, image_set_type YXY],
+	[YXY, YXY, set_header $interpretation YXY],
 	[YXY, LAB, im_XYZ2Lab @ im_Yxy2XYZ @ im_clip2f],
 	[YXY, LCH, im_Lab2LCh @ im_XYZ2Lab @ im_Yxy2XYZ @ im_clip2f],
 	[YXY, UCS, im_XYZ2UCS @ im_Yxy2XYZ @ im_clip2f],
@@ -507,7 +507,7 @@ _colour_conversion_table = [
 	[LAB, B_W, im_sRGB2mono @ im_Lab2sRGB @ im_Lab2XYZ @ im_clip2f],
 	[LAB, XYZ, im_Lab2XYZ @ im_clip2f],
 	[LAB, YXY, im_XYZ2Yxy @ im_Lab2XYZ @ im_clip2f],
-	[LAB, LAB, image_set_type LAB @ im_clip2f],
+	[LAB, LAB, set_header $interpretation LAB @ im_clip2f],
 	[LAB, LCH, im_Lab2LCh @ im_clip2f],
 	[LAB, UCS, im_Lab2UCS @ im_clip2f],
 	[LAB, RGB, im_Lab2disp @ im_clip2f],
@@ -520,7 +520,7 @@ _colour_conversion_table = [
 	[LCH, XYZ, im_Lab2XYZ @ im_LCh2Lab @ im_clip2f],
 	[LCH, YXY, im_XYZ2Yxy @ im_Lab2XYZ @ im_LCh2Lab @ im_clip2f],
 	[LCH, LAB, im_LCh2Lab @ im_clip2f],
-	[LCH, LCH, image_set_type LCH],
+	[LCH, LCH, set_header $interpretation LCH],
 	[LCH, UCS, im_LCh2UCS @ im_clip2f],
 	[LCH, RGB, im_Lab2disp @ im_LCh2Lab @ im_clip2f],
 	[LCH, sRGB, im_Lab2sRGB @ im_LCh2Lab @ im_clip2f],
@@ -533,7 +533,7 @@ _colour_conversion_table = [
 	[UCS, YXY, im_XYZ2Yxy @ im_Lab2XYZ @ im_UCS2Lab @ im_clip2f],
 	[UCS, LAB, im_UCS2Lab @ im_clip2f],
 	[UCS, LCH, im_UCS2LCh @ im_clip2f],
-	[UCS, UCS, image_set_type UCS],
+	[UCS, UCS, set_header $interpretation UCS],
 	[UCS, RGB, im_Lab2disp @ im_UCS2Lab @ im_clip2f],
 	[UCS, sRGB, im_Lab2sRGB @ im_UCS2Lab @ im_clip2f],
 	[UCS, scRGB, im_XYZ2scRGB @ im_Lab2XYZ @ im_UCS2Lab @ im_clip2f],
@@ -546,11 +546,11 @@ _colour_conversion_table = [
 	[RGB, LAB, im_disp2Lab @ im_clip],
 	[RGB, LCH, im_Lab2LCh @ im_disp2Lab @ im_clip],
 	[RGB, UCS, im_Lab2UCS @ im_disp2Lab @ im_clip],
-	[RGB, RGB, image_set_type RGB],
+	[RGB, RGB, set_header $interpretation RGB],
 	[RGB, sRGB, im_XYZ2sRGB @ im_disp2XYZ @ im_clip],
 	[RGB, scRGB, im_XYZ2scRGB @ im_disp2XYZ @ im_clip],
-	[RGB, RGB16, image_set_type RGB16 @ im_8216],
-	[RGB, GREY16, image_set_type GREY16 @ im_8216 @ im_sRGB2mono],
+	[RGB, RGB16, set_header $interpretation RGB16 @ im_8216],
+	[RGB, GREY16, set_header $interpretation GREY16 @ im_8216 @ im_sRGB2mono],
 	[RGB, LABQ, im_Lab2LabQ @ im_disp2Lab @ im_clip],
 	[RGB, LABS, im_LabQ2LabS @ im_Lab2LabQ @ im_disp2Lab @ im_clip],
 
@@ -561,10 +561,10 @@ _colour_conversion_table = [
 	[sRGB, LCH, im_Lab2LCh @ im_sRGB2Lab @ im_clip],
 	[sRGB, UCS, im_XYZ2UCS @ im_sRGB2XYZ @ im_clip],
 	[sRGB, RGB, im_XYZ2disp @ im_sRGB2XYZ @ im_clip],
-	[sRGB, sRGB, image_set_type sRGB],
+	[sRGB, sRGB, set_header $interpretation sRGB],
 	[sRGB, scRGB, im_sRGB2scRGB @ im_clip],
-	[sRGB, RGB16, image_set_type RGB16 @ im_8216],
-	[sRGB, GREY16, image_set_type GREY16 @ im_8216 @ im_sRGB2mono],
+	[sRGB, RGB16, set_header $interpretation RGB16 @ im_8216],
+	[sRGB, GREY16, set_header $interpretation GREY16 @ im_8216 @ im_sRGB2mono],
 	[sRGB, LABQ, im_Lab2LabQ @ im_sRGB2Lab @ im_clip],
 	[sRGB, LABS, im_Lab2LabS @ im_sRGB2Lab @ im_clip],
 
@@ -576,27 +576,27 @@ _colour_conversion_table = [
 	[scRGB, UCS, im_XYZ2UCS @ im_scRGB2XYZ],
 	[scRGB, RGB, im_XYZ2disp @ im_scRGB2XYZ],
 	[scRGB, sRGB, im_scRGB2sRGB],
-	[scRGB, scRGB, image_set_type scRGB],
-	[scRGB, RGB16, image_set_type RGB16 @ im_8216 @ im_scRGB2sRGB],
-	[scRGB, GREY16, image_set_type GREY16 @ im_8216 @ im_sRGB2mono @
+	[scRGB, scRGB, set_header $interpretation scRGB],
+	[scRGB, RGB16, set_header $interpretation RGB16 @ im_8216 @ im_scRGB2sRGB],
+	[scRGB, GREY16, set_header $interpretation GREY16 @ im_8216 @ im_sRGB2mono @
 		im_scRGB2sRGB],
 	[scRGB, LABQ, im_Lab2LabQ @ im_XYZ2Lab @ im_scRGB2XYZ],
 	[scRGB, LABS, im_Lab2LabS @ im_XYZ2Lab @ im_scRGB2XYZ],
 
 	[RGB16, B_W, im_1628 @ im_sRGB2mono],
-	[RGB16, RGB, image_set_type RGB @ im_1628],
-	[RGB16, sRGB, image_set_type sRGB @ im_1628],
+	[RGB16, RGB, set_header $interpretation RGB @ im_1628],
+	[RGB16, sRGB, set_header $interpretation sRGB @ im_1628],
 	[RGB16, scRGB, im_sRGB2scRGB],
-	[RGB16, RGB16, image_set_type RGB16],
+	[RGB16, RGB16, set_header $interpretation RGB16],
 	[RGB16, GREY16, im_RGB162GREY16],
 	[RGB16, LABS, im_LabQ2LabS @ im_Lab2LabQ @ im_sRGB2Lab],
 
-	[GREY16, B_W, image_set_type B_W @ im_1628],
+	[GREY16, B_W, set_header $interpretation B_W @ im_1628],
 	[GREY16, RGB, im_mono2sRGB @ im_1628],
 	[GREY16, sRGB, im_mono2sRGB @ im_1628],
 	[GREY16, scRGB, im_sRGB2scRGB @ im_mono2sRGB],
 	[GREY16, RGB16, im_GREY162RGB16],
-	[GREY16, GREY16, image_set_type GREY16],
+	[GREY16, GREY16, set_header $interpretation GREY16],
 
 	[LABQ, B_W, im_sRGB2mono @ im_Lab2sRGB @ im_LabQ2Lab],
 	[LABQ, XYZ, im_Lab2XYZ @ im_LabQ2Lab],
@@ -607,7 +607,7 @@ _colour_conversion_table = [
 	[LABQ, RGB, im_LabQ2disp],
 	[LABQ, sRGB, im_Lab2sRGB @ im_LabQ2Lab],
 	[LABQ, scRGB, im_XYZ2scRGB @ im_Lab2XYZ @ im_LabQ2Lab],
-	[LABQ, LABQ, image_set_type LABQ],
+	[LABQ, LABQ, set_header $interpretation LABQ],
 	[LABQ, LABS, im_LabQ2LabS],
 
 	[LABS, B_W, im_sRGB2mono @ im_Lab2sRGB @ im_LabQ2Lab @
@@ -622,7 +622,7 @@ _colour_conversion_table = [
 	[LABS, sRGB, im_XYZ2sRGB @ im_Lab2XYZ @ im_LabS2Lab @ im_clip2s],
 	[LABS, scRGB, im_XYZ2scRGB @ im_Lab2XYZ @ im_LabS2Lab @ im_clip2s],
 	[LABS, LABQ, im_LabS2LabQ @ im_clip2s],
-	[LABS, LABS, image_set_type LABS]
+	[LABS, LABS, set_header $interpretation LABS]
 ]
 {
 	/* From Image_interpretation ... repeat here for brevity. Use same

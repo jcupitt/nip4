@@ -391,15 +391,29 @@ Matrix_base value = class
     ] ++ super.oo_unary_table op;
 }
 
+/* Base class for enums -- use reflection to get a list of subclass members
+ * and make functions to map names to and from values.
+ */
+Enum = class {
+    // filter out names nip4 adds automatically, and any functions
+    names = (filter (noteq "<function>" @ print @ converse get_member this) @
+         filter (not @ member [$this, $name, $super, this.name])) (dir this);
+    values = map (converse get_member this) names;
+
+    has_name name = member names name;
+    get_name value = names ? (index (equal value) values);
+
+    has_value value = member values value;
+    get_value name = get_member name this;
+}
+
 /* How to display a matrix: text, sliders, toggles, or text plus scale/offset.
  */
-Matrix_display = class {
-        text = 0;
-        slider = 1;
-        toggle = 2;
-        text_scale_offset = 3;
-
-        is_display = member [text, slider, toggle, text_scale_offset];
+Matrix_display = class Enum {
+    text = 0;
+    slider = 1;
+    toggle = 2;
+    text_scale_offset = 3;
 }
 
 /* A matrix as VIPS sees them ... add scale, offset and filename. For nip, add
@@ -434,7 +448,8 @@ Matrix_rec value = class
 Matrix_mor value = class
     Matrix_vips value 1 0 "" Matrix_display.toggle {};
 
-Matrix_file filename = (im_read_dmask @ expand @ search) filename;
+Matrix_file filename
+    = (vips_matrix_from_image @ vips_image @ expand @ search) filename;
 
 /* A CIE colour ... a triple, plus a format (eg XYZ, Lab etc)
  */
@@ -556,12 +571,10 @@ Option_string caption labels item = class
 /* Make an option from an enum.
  */
 Option_enum caption enum item = class
-    Option_string caption enum.names item {
-    // corresponding thing
-    value_thing = enum.get_thing item;
+    Option caption enum.names (enum.get_value item) {
 
     Option_edit caption labels value
-        = this.Option_enum caption enum (enum.names?value);
+        = this.Option_enum caption enum (enum.get_name value);
 }
 
 /* A rectangle. width and height can be -ve.
@@ -691,21 +704,9 @@ Rect left top width height = class
         = Rect (left - n) (top - n) (width + 2 * n) (height + 2 * n);
 }
 
-/* Values for Compression field in image.
- */
-Image_compression = class {
-    NONE = 0;
-    NO_COMPRESSION = 0;
-    TCSF_COMPRESSION = 1;
-    JPEG_COMPRESSION = 2;
-    LABPACK_COMPRESSED = 3;
-    RGB_COMPRESSED = 4;
-    LUM_COMPRESSED = 5;
-}
-
 /* Values for Coding field in image.
  */
-Image_coding = class {
+Coding = class Enum {
     NONE = 0;
     NOCODING = 0;
     COLQUANT = 1;
@@ -715,7 +716,7 @@ Image_coding = class {
 
 /* Values for format field in image.
  */
-Image_format = class {
+Format = class Enum {
     DPCOMPLEX = 9;
     DOUBLE = 8;
     COMPLEX = 7;
@@ -727,81 +728,24 @@ Image_format = class {
     CHAR = 1;
     UCHAR = 0;
     NOTSET = -1;
-
-    maxval fmt
-        = [
-            255,        // UCHAR
-            127,        // CHAR
-            65535,      // USHORT
-            32767,      // SHORT
-            4294967295, // UINT
-            2147483647, // INT
-            255,        // FLOAT
-            255,        // COMPLEX
-            255,        // DOUBLE
-            255         // DPCOMPLEX
-        ] ? fmt, fmt >= 0 && fmt <= DPCOMPLEX
-        = error (_ "bad value for BandFmt");
 }
 
-/* A lookup table.
- */
-Table value = class
-    _Object {
-    _check_args = [
-        [value, "value", check_rectangular]
-    ];
-
-    /* Extract a column.
-     */
-    column n = map (extract n) value;
-
-    /* present col x: is there an x in column col
-     */
-    present col x = member (column col) x;
-
-    /* Look on column from, return matching item in column to.
-     */
-    lookup from to x
-        = value?n?to, n >= 0
-        = error (_ "item" ++ " " ++ print x ++ " " ++ _ "not in table")
-    {
-        n = index (equal x) (column from);
-    }
-}
-
-/* A two column lookup table with the first column a string and the second a
- * thing. Used for representing various enums. Option_enum makes a selector
- * from one of these.
- */
-Enum value = class
-    Table value {
-    _check_args = [
-        [value, "value", check_enum]
-    ]
-    {
-        check_enum = [is_enum, _ "is [[char, *]]"];
-        is_enum x =
-            is_rectangular x &&
-            is_listof is_string (map (extract 0) x);
-    }
-
-    // handy ... all the names and things as lists
-    names = this.column 0;
-    things = this.column 1;
-
-    // is a legal name or thing
-    has_name x = this.present 0 x;
-    has_thing x = this.present 1 x;
-
-    // map things to strings and back
-    get_name x = this.lookup 1 0 x;
-    get_thing x = this.lookup 0 1 x;
+Format_maxval = class Enum {
+    DPCOMPLEX = 255;
+    DOUBLE = 255;
+    COMPLEX = 255;
+    FLOAT = 255;
+    INT = 2147483647;
+    UINT = 4294967295;
+    SHORT = 32767;
+    USHORT = 65535;
+    CHAR = 127;
+    UCHAR = 255;
 }
 
 /* Interpretation field.
  */
-Image_interpretation = class {
+Interpretation = class Enum {
     MULTIBAND = 0;
     B_W = 1;
     HISTOGRAM = 10;
@@ -821,64 +765,41 @@ Image_interpretation = class {
     ARRAY = 27;
     scRGB = 28;
     HSV = 29;
+}
 
-    /* Table to get names <-> numbers.
-     */
-    interpretation_names = Enum [
-        $MULTIBAND => MULTIBAND,
-        $B_W => B_W,
-        $HISTOGRAM => HISTOGRAM,
-        $XYZ => XYZ,
-        $LAB => LAB,
-        $CMYK => CMYK,
-        $LABQ => LABQ,
-        $RGB => RGB,
-        $UCS => UCS,
-        $LCH => LCH,
-        $LABS => LABS,
-        $sRGB => sRGB,
-        $YXY => YXY,
-        $FOURIER => FOURIER,
-        $RGB16 => RGB16,
-        $GREY16 => GREY16,
-        $ARRAY => ARRAY,
-        $scRGB => scRGB,
-        $HSV => HSV
-    ];
+/* The subset of Interpretation which are supported colourspaces.
+ *
+ * Options are generated from this, so match the order to the
+ * order in the Colour menu.
+ */
+Interpretation_colour = class Enum {
+    sRGB = Interpretation.sRGB;
+    scRGB = Interpretation.scRGB;
+    Lab = Interpretation.LAB;
+    LCh = Interpretation.LCH;
+    XYZ = Interpretation.XYZ;
+    Yxy = Interpretation.YXY;
+    UCS = Interpretation.UCS;
+    HSV = Interpretation.HSV;
+}
 
-    /* Table relating nip's colour space names and VIPS's interpretation
-     * numbers. Options are generated from this, so match the order to the
-     * order in the Colour menu.
-     */
-    colour_spaces = Enum [
-        $sRGB => sRGB,
-        $scRGB => scRGB,
-        $Lab => LAB,
-        $LCh => LCH,
-        $XYZ => XYZ,
-        $Yxy => YXY,
-        $UCS => UCS,
-        $HSV => HSV
-    ];
-
-    /* A slightly larger table ... colorimetric interpretations we can
-     * have. Add mono, and the S and Q forms of LAB.
-     */
-    image_colour_spaces = Enum [
-        $Mono => B_W,
-        $sRGB => sRGB,
-        $scRGB => scRGB,
-        $RGB16 => RGB16,
-        $GREY16 => GREY16,
-        $Lab => LAB,
-        $LabQ => LABQ,
-        $LabS => LABS,
-        $LCh => LCH,
-        $XYZ => XYZ,
-        $Yxy => YXY,
-        $UCS => UCS,
-        $HSV => HSV
-    ];
+/* And the subset which are allowed interpretation values. Add mono, and the
+ * S and Q forms of LAB.
+ */
+Interpretation_allowed = class Enum {
+    Mono = Interpretation.B_W;
+    sRGB = Interpretation.sRGB;
+    scRGB = Interpretation.scRGB;
+    RGB16 = Interpretation.RGB16;
+    GREY16 = Interpretation.GREY16;
+    Lab = Interpretation.LAB;
+    LabQ = Interpretation.LABQ;
+    LabS = Interpretation.LABS;
+    LCh = Interpretation.LCH;
+    XYZ = Interpretation.XYZ;
+    Yxy = Interpretation.YXY;
+    UCS = Interpretation.UCS;
+    HSV = Interpretation.HSV;
 }
 
 /* Base image class. Simple layer over vips_image.
@@ -905,7 +826,6 @@ Image value = class
     // operator overloading
     // (op Image Vector) done in Vector class
     oo_binary_table op x = [
-/*
         // handle image ++ constant here
         [wrap join_result_image,
             (has_real x || is_Vector x) &&
@@ -918,7 +838,6 @@ Image value = class
             has_number x],
         // if it's not a class on the RHS, handle here ... just apply and
         // rewrap
- */
         [wrap (op.fn this.value x),
             !is_class x]
         // all other cases handled by other classes
@@ -931,7 +850,6 @@ Image value = class
             = x, op.type == Operator_type.COMPOUND ||
                 !is_image x
             = this.Image x;
-
 
         join_result_image
             = value ++ new_stuff, op.op_name == "join"

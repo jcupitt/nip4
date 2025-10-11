@@ -186,7 +186,7 @@ Image_new_item = class Menupullright "_New" "make new things" {
 	] 0;
 
 	build fn size
-		= (Image @ image_set_type Image_type.FOURIER @ rotquad @ fn)
+		= (Image @ set_header $interpretation $fourier @ rotquad @ fn)
 			(im_create_fmask size size);
 
 	New_ideal_item = class
@@ -594,7 +594,7 @@ Image_new_item = class Menupullright "_New" "make new things" {
 				npatches = Expression "Number of patches" 16;
 
 				_result
-					= Image (image_set_type Image_type.B_W
+					= Image (set_header $interpretation $b_w
 						(cast Image_format.UCHAR wedge))
 				{
 					wedge
@@ -618,7 +618,7 @@ Image_new_item = class Menupullright "_New" "make new things" {
 				npatches = Expression "Number of patches" 16;
 
 				_result
-					= Image (image_set_type Image_type.CMYK
+					= Image (set_header $interpretation $cmyk
 						(cast "uchar" strips))
 				{
 					wedge
@@ -670,7 +670,7 @@ Image_new_item = class Menupullright "_New" "make new things" {
 						Vector (tl lab_start.value);
 					blocks'' = hd lab_start.value ++ Image blocks';
 					blocks'''
-						= image_set_type Image_type.LAB blocks'', Image grid
+						= set_header $interpretation $lab blocks'', Image grid
 						= 0;
 				}
 			}
