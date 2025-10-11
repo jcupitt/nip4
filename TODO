@@ -12,14 +12,6 @@
 
     though eg. get_coding will return an int
 
-- we have max_pair and maxpair
-
-    remove max_pair?
-
-    also remove range
-
-- make_xy should be makexy?
-
 - image_set_type has gone ... instead pick one of
 
     set_header $interpretation $histogram
@@ -35,12 +27,14 @@
         matmul
         matrix_multiply
 
+- make_xy should be makexy?
+
 - vips_object_new has options at the end :(
 
 - in order, rework:
 
     _predicate.def      done
-    _stdenv.def     removing last im_ funcs
+    _stdenv.def     	done
     _types.def
 
 

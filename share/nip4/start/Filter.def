@@ -80,7 +80,7 @@ Kirk
 			= map_unary lindet x
 		{
 			lindet im
-				= foldr1 max_pair images
+				= foldr1 maxpair images
 			{
 				masks = take 4 (iterate rot45 filter_lindet);
 				images = map (converse conv im) masks;
@@ -987,8 +987,8 @@ Filter_blend_item = class
                 process a b
 					= blend (Image condition) b a
                 {
-					output_width = max_pair a.width b.width;
-					output_height = max_pair a.height b.height;
+					output_width = maxpair a.width b.width;
+					output_height = maxpair a.height b.height;
 					range
 						= output_width, orientation == 0
 						= output_height;
@@ -1649,10 +1649,10 @@ Filter_paint_text_item = class
 					y
 						= top.expr, position == 9
 						= [0, yr / 2, yr]?(position / 3);
-					x' = range 0 x (image.width - 1);
-					y' = range 0 y (image.height - 1);
-					w' = range 1 text.width (image.width - x');
-					h' = range 1 text.height (image.height - y');
+					x' = clamp 0 (image.width - 1) x;
+					y' = clamp 0 (image.height - 1) y;
+					w' = clamp 1 (image.width - x') text.width;
+					h' = clamp 1 (image.height - y') text.height;
 
 					place = crop x' y' w' h' image;
 					text' = insert_noexpand 0 0 text (im_black w' h' 1);

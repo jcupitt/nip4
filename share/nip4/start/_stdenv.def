@@ -628,16 +628,6 @@ grid tile_height across down x
         (grid tile_height across down) Operator_type.COMPOUND_REWRAP false;
 }
 
-max_pair a b
-    = a, a > b
-    = b;
-
-min_pair a b
-      = a, a < b
-      = b;
-
-range min value max = min_pair max (max_pair min value);
-
 max x
     = oo_unary_function max_op x, is_class x
     = vips_max [] x, is_image x
@@ -649,8 +639,8 @@ max x
 
     max_list x
         = error "max []", x == []
-        = foldr1 max_pair x, is_real_list x
-        = foldr1 max_pair (map max_list x), is_list x
+        = foldr1 maxpair x, is_real_list x
+        = foldr1 maxpair (map max_list x), is_list x
         = max x;
 }
 
@@ -665,8 +655,8 @@ min x
 
     min_list x
         = error "min []", x == []
-        = foldr1 min_pair x, is_real_list x
-        = foldr1 min_pair (map min_list x), is_list x
+        = foldr1 minpair x, is_real_list x
+        = foldr1 minpair (map min_list x), is_list x
         = min x;
 }
 
@@ -792,8 +782,8 @@ scale x
     scale_list l
         = apply_scale s o l
     {
-        mn = find_limit min_pair l;
-        mx = find_limit max_pair l;
+        mn = find_limit minpair l;
+        mx = find_limit maxpair l;
         s = 255.0 / (mx - mn);
         o = -(mn * s);
     }
@@ -1901,7 +1891,7 @@ map_nary fn args
     groups = filter is_Group args;
 
     // what's the length of the shortest group arg?
-    shortest = foldr1 min_pair (map (len @ get_value) groups);
+    shortest = foldr1 minpair (map (len @ get_value) groups);
 
     // process index n ... pull that member from each argument
     // recurse to handle application, so we work for nested groups too
@@ -1944,7 +1934,7 @@ map_nary_list fn args
     lists = filter is_list args;
 
     // what's the length of the shortest list arg?
-    shortest = foldr1 min_pair (map len lists);
+    shortest = foldr1 minpair (map len lists);
 
     // process index n ... pull that member from each argument
     // recurse to handle application, so we work for nested lists too

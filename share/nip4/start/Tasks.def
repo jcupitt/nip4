@@ -162,9 +162,9 @@ Tasks_capture_item = class
 			{
 				left = prefs.VIDEO_CROP_LEFT;
 				top = prefs.VIDEO_CROP_TOP;
-				width = min_pair
+				width = minpair
 					prefs.VIDEO_CROP_WIDTH (_raw_grab.width + left);
-				height = min_pair
+				height = minpair
 					prefs.VIDEO_CROP_HEIGHT (_raw_grab.height + top);
 			}
 
@@ -362,7 +362,7 @@ Tasks_capture_item = class
 
 			_dEs = map abs_vec (_camera'' - _true_Lab).value;
 			avg_dE76 = mean _dEs;
-			_max_dE = foldr max_pair 0 _dEs;
+			_max_dE = foldr maxpair 0 _dEs;
 			_worst = index (equal _max_dE) _dEs;
 			worst_patch
 				= name _worst ++ " (patch " ++

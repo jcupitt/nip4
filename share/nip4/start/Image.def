@@ -1338,7 +1338,7 @@ Image_transform_item = class
 					{
 						xfac = (width / xdiv) / x.width;
 						yfac = (height / ydiv) / x.height;
-						fac = min_pair xfac yfac;
+						fac = minpair xfac yfac;
 					}
 				}
 			}
@@ -1964,8 +1964,8 @@ Image_crop_item = class
 
 		l = Expression "Crop left" ((int) (geo?0 + geo?2 / 4));
 		t = Expression "Crop top" ((int) (geo?1 + geo?3 / 4));
-		w = Expression "Crop width" (max_pair 1 ((int) (geo?2 / 2)));
-		h = Expression "Crop height" (max_pair 1 ((int) (geo?3 / 2)));
+		w = Expression "Crop width" (maxpair 1 ((int) (geo?2 / 2)));
+		h = Expression "Crop height" (maxpair 1 ((int) (geo?3 / 2)));
 
 		_result
 			= map_nary (list_5ary extract) [x, l.expr, t.expr, w.expr, h.expr]
@@ -1973,10 +1973,10 @@ Image_crop_item = class
 			extract im l t w h
 				= crop left' top' width' height' im
 			{
-				width' = min_pair (to_real w) im.width;
-				height' = min_pair (to_real h) im.height;
-				left' = range 0 (to_real l) (im.width - width');
-				top' = range 0 (to_real t) (im.height - height');
+				width' = minpair (to_real w) im.width;
+				height' = minpair (to_real h) im.height;
+				left' = clamp 0 (im.width - width') (to_real l);
+				top' = clamp 0 (im.height - height') (to_real t);
 			}
 		}
 	}
@@ -2027,10 +2027,10 @@ Image_insert_item = class
 				= Area _b' left top width height
 			{
 				// be careful in case b is smaller than a
-				left = max_pair 0 ((_b'.width - _a'.width) / 2);
-				top = max_pair 0 ((_b'.height - _a'.height) / 2);
-				width = min_pair _a'.width _b'.width;
-				height = min_pair _a'.height _b'.height;
+				left = maxpair 0 ((_b'.width - _a'.width) / 2);
+				top = maxpair 0 ((_b'.height - _a'.height) / 2);
+				width = minpair _a'.width _b'.width;
+				height = minpair _a'.height _b'.height;
 			}
 
 			_result
@@ -2257,14 +2257,14 @@ Image_join_item = class
 		= im2
 	{
 		w = a.width + b.width + shim;
-		h = max_pair a.height b.height;
+		h = maxpair a.height b.height;
 
 		back = image_new_from_image [$pixel => bg] a w h;
 
-		ya = [0, max_pair 0 ((b.height - a.height)/2),
-			max_pair 0 (b.height - a.height)];
-		yb = [0, max_pair 0 ((a.height - b.height)/2),
-			max_pair 0 (a.height - b.height)];
+		ya = [0, maxpair 0 ((b.height - a.height)/2),
+			maxpair 0 (b.height - a.height)];
+		yb = [0, maxpair 0 ((a.height - b.height)/2),
+			maxpair 0 (a.height - b.height)];
 
 		im1 = insert_noexpand 0 ya?align a back;
 		im2 = insert_noexpand (a.width + shim) yb?align b im1;
@@ -2273,15 +2273,15 @@ Image_join_item = class
 	jointb shim bg align a b
 		= im2
 	{
-		w = max_pair a.width b.width;
+		w = maxpair a.width b.width;
 		h = a.height + b.height + shim;
 
 		back = image_new_from_image [$pixel => bg] a w h;
 
-		xa = [0, max_pair 0 ((b.width - a.width)/2),
-			max_pair 0 (b.width - a.width)];
-		xb = [0, max_pair 0 ((a.width - b.width)/2),
-			max_pair 0 (a.width - b.width)];
+		xa = [0, maxpair 0 ((b.width - a.width)/2),
+			maxpair 0 (b.width - a.width)];
+		xb = [0, maxpair 0 ((a.width - b.width)/2),
+			maxpair 0 (a.width - b.width)];
 
 		im1 = insert_noexpand xa?align 0 a back;
 		im2 = insert_noexpand xb?align (a.height + shim) b im1;

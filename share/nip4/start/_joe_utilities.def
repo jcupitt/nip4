@@ -228,7 +228,7 @@ complex_frame frame im_w im_h ov cs es ms bf option= result
 
 	w_target = im_w + (2 * (s_width - ov));
 	h_target = im_h + (2 * (s_height - ov));
-	min_size = foldr1 min_pair [r_tl.width, r_tl.height,
+	min_size = foldr1 minpair [r_tl.width, r_tl.height,
 								r_mt.width, r_mt.height,
 								r_et.width, r_et.height];
 	blend = bf * min_size;

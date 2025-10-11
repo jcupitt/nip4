@@ -85,7 +85,7 @@ Group value = class
     {
         groups = filter is_Group args;
 
-        shortest = foldr1 min_pair (map (len @ get_value) groups);
+        shortest = foldr1 minpair (map (len @ get_value) groups);
 
         process n
             = NULL, any (map (is_noval n) args)
@@ -664,20 +664,20 @@ Rect left top width height = class
         = this, r.is_empty
         = Rect left' top' width' height'
     {
-        left' = min_pair nleft r.nleft;
-        top' = min_pair ntop r.ntop;
-        width' = max_pair nright r.nright - left';
-        height' = max_pair nbottom r.nbottom - top';
+        left' = minpair nleft r.nleft;
+        top' = minpair ntop r.ntop;
+        width' = maxpair nright r.nright - left';
+        height' = maxpair nbottom r.nbottom - top';
     }
 
     // intersection of two rects ... empty rect if no intersection
     intersect r
         = Rect left' top' width'' height''
     {
-        left' = max_pair nleft r.nleft;
-        top' = max_pair ntop r.ntop;
-        width' = min_pair nright r.nright - left';
-        height' = min_pair nbottom r.nbottom - top';
+        left' = maxpair nleft r.nleft;
+        top' = maxpair ntop r.ntop;
+        width' = minpair nright r.nright - left';
+        height' = minpair nbottom r.nbottom - top';
         width''
             = width', width > 0
             = 0;
