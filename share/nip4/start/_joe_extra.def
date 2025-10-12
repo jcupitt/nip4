@@ -247,11 +247,12 @@ Select_item = class
                 	mask = Image m
                     {
 						rx
-							= x.region_rect, is_Region x
+							= region_rect, is_Region x
 							= x;
 						b = image_new [] im.width im.height;
 						w = image_new [$pixel => 255] rx.nwidth rx.nheight;
 						m = insert_noexpand rx.nleft rx.ntop w b;
+                        region_rect = Rect x.left x.top x.width x.height;
                    }
                  }
             }

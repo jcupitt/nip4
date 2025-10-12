@@ -405,6 +405,10 @@ Enum = class {
 
     has_value value = member values value;
     get_value name = get_member name this;
+
+    has_index index = index >= 0 && index < len names;
+    get_index_from_name name = index (equal name) names;
+    get_index_from_value value = index (equal value) values;
 }
 
 /* How to display a matrix: text, sliders, toggles, or text plus scale/offset.
@@ -549,7 +553,7 @@ Toggle caption value = class
     Bool x = this.Toggle caption x;
 }
 
-/* Base option type.
+/* Base option type. value is the index in the labels array
  */
 Option caption labels value = class
     scope.Real value {
@@ -571,10 +575,10 @@ Option_string caption labels item = class
 /* Make an option from an enum.
  */
 Option_enum caption enum item = class
-    Option caption enum.names (enum.get_value item) {
+    Option caption enum.names (enum.get_index_from_name item) {
 
-    Option_edit caption labels value
-        = this.Option_enum caption enum (enum.get_name value);
+    Option_edit caption labels index
+        = this.Option_enum caption enum (enum.names?index);
 }
 
 /* A rectangle. width and height can be -ve.
@@ -767,39 +771,59 @@ Interpretation = class Enum {
     HSV = 29;
 }
 
-/* The subset of Interpretation which are supported colourspaces.
- *
- * Options are generated from this, so match the order to the
- * order in the Colour menu.
+Interpretation_description = class Enum {
+    MULTIBAND = _ "Multiband";
+    B_W = _ "Mono";
+    HISTOGRAM = _ "Histogram";
+    XYZ = _ "XYZ";
+    LAB = _ "Lab";
+    CMYK = _ "CMYK";
+    LABQ = _ "LabQ";
+    RGB = _ "RGB";
+    UCS = _ "UCS";
+    LCH = _ "LCh";
+    LABS = _ "LabS";
+    sRGB = _ "sRGB";
+    YXY = _ "XYZ";
+    FOURIER = _ "Fourier";
+    RGB16 = _ "RGB 16";
+    GREY16 = _ "Mono 16";
+    ARRAY = _ "Array";
+    scRGB = _ "scRGB";
+    HSV = _ "HSV";
+}
+
+/* The subset of Interpretation which are supported colourspaces, ie. in the
+ * Colour menu.
  */
 Interpretation_colour = class Enum {
-    sRGB = Interpretation.sRGB;
-    scRGB = Interpretation.scRGB;
-    Lab = Interpretation.LAB;
-    LCh = Interpretation.LCH;
-    XYZ = Interpretation.XYZ;
-    Yxy = Interpretation.YXY;
-    UCS = Interpretation.UCS;
-    HSV = Interpretation.HSV;
+    XYZ = 12;
+    LAB = 13;
+    UCS = 18;
+    LCH = 19;
+    sRGB = 22;
+    YXY = 23;
+    scRGB = 28;
+    HSV = 29;
 }
 
 /* And the subset which are allowed interpretation values. Add mono, and the
  * S and Q forms of LAB.
  */
 Interpretation_allowed = class Enum {
-    Mono = Interpretation.B_W;
-    sRGB = Interpretation.sRGB;
-    scRGB = Interpretation.scRGB;
-    RGB16 = Interpretation.RGB16;
-    GREY16 = Interpretation.GREY16;
-    Lab = Interpretation.LAB;
-    LabQ = Interpretation.LABQ;
-    LabS = Interpretation.LABS;
-    LCh = Interpretation.LCH;
-    XYZ = Interpretation.XYZ;
-    Yxy = Interpretation.YXY;
-    UCS = Interpretation.UCS;
-    HSV = Interpretation.HSV;
+    B_W = 1;
+    XYZ = 12;
+    LAB = 13;
+    LABQ = 16;
+    UCS = 18;
+    LCH = 19;
+    LABS = 21;
+    sRGB = 22;
+    YXY = 23;
+    RGB16 = 25;
+    GREY16 = 26;
+    scRGB = 28;
+    HSV = 29;
 }
 
 /* Base image class. Simple layer over vips_image.
@@ -932,16 +956,16 @@ Region image left top width height = class
         [height, "height", check_preal]
     ];
 
-    // a rect for our coordinates
-    // region.rect gets the rect for the extracted image
-    region_rect = Rect left top width height;
-
     // we need to always succeed ... value is our enclosing image if we're
     // out of bounds
     value
         = crop left top width height image.value,
-            image.rect.includes_rect region_rect
-        = image.value;
+            image_rect.includes_rect region_rect
+        = image.value
+    {
+        image_rect = Rect 0 0 image.width image.height;
+        region_rect = Rect left top width height;
+    }
 }
 
 Area image left top width height = class
@@ -1012,53 +1036,29 @@ Mark_relative image u v
         (image.width * u)
         (image.height * v);
 
-Kernel_type = class {
+Kernel = class Enum {
     NEAREST_NEIGHBOUR = 0;
     LINEAR = 1;
     CUBIC = 2;
     MITCHELL = 3;
     LANCZOS2 = 4;
     LANCZOS3 = 5;
-
-    // Should introspect to get the list of interpolators :-(
-    // We can "dir" on VipsInterpolate to get a list of them, but we
-    // can't get i18n'd descriptions until we have more
-    // introspection stuff in nip2.
-
-    /* Table to map kernel numbers to descriptive strings
-     */
-    descriptions = [
-        _ "Nearest neighbour",
-        _ "Linear",
-        _ "Cubic",
-        _ "Mitchell",
-        _ "Lanczos, two lobes",
-        _ "Lanczos, three lobes"
-    ];
-
-    /* And to vips enum nicknames.
-     */
-    types = [
-        "nearest",
-        "linear",
-        "cubic",
-        "mitchell",
-        "lanczos2",
-        "lanczos3"
-    ];
 }
 
-Kernel type = class {
-    value = Kernel_type.types?type;
+Kernal_description = class Enum {
+    NEAREST_NEIGHBOUR = _ "Nearest neighbour";
+    LINEAR = _ "Linear";
+    CUBIC = _ "Cubic";
+    MITCHELL = _ "Mitchell";
+    LANCZOS2 = _ "Lanczos, two lobes";
+    LANCZOS3 = _ "Lanczos, three lobes";
 }
-
-Kernel_linear = Kernel Kernel_type.LINEAR;
 
 Kernel_picker default = class
-    Kernel kernel.value {
+    Real value {
     _vislevel = 2;
 
-    kernel = Option "Kernel" Kernel_type.descriptions default;
+    kernel = Option_enum "Kernel" Kernel_description default;
 }
 
 Interpolate_type = class {

@@ -1,5 +1,72 @@
 # menu redesign
 
+- could subclass Enums and add more members?
+
+	use this for Interpretation?
+
+	can't use the i18ned name as the value, since it will change with
+	local and break workspace saves
+
+		// interpretations which are colorimetric spaces
+		Interpretation = class Enum {
+		    XYZ = 12;
+		    LAB = 13;
+		    UCS = 18;
+		    LCH = 19;
+		    sRGB = 22;
+		    YXY = 23;
+		    scRGB = 28;
+		    HSV = 29;
+		}
+
+		// supported colourmetric spaces is bigger
+		Interpretation_allowed = class Interpretation {
+		    B_W = 1;
+		    LABQ = 16;
+		    LABS = 21;
+		    RGB16 = 25;
+		    GREY16 = 26;
+		}
+
+		// non-colourimetric interpretations
+		Interpretation_all = class Interpretation_allowed {
+		    MULTIBAND = 0;
+		    HISTOGRAM = 10;
+		    CMYK = 15;
+		    FOURIER = 24;
+		    ARRAY = 27;
+		}
+
+		// i18n description of each value for menus
+		Interpretation_description = class Enum {
+		    MULTIBAND = _ "Multiband";
+		    B_W = _ "Mono";
+		    HISTOGRAM = _ "Histogram";
+		    XYZ = _ "XYZ";
+		    LAB = _ "Lab";
+		    CMYK = _ "CMYK";
+		    LABQ = _ "LabQ";
+		    RGB = _ "RGB";
+		    UCS = _ "UCS";
+		    LCH = _ "LCh";
+		    LABS = _ "LabS";
+		    sRGB = _ "sRGB";
+		    YXY = _ "XYZ";
+		    FOURIER = _ "Fourier";
+		    RGB16 = _ "RGB 16";
+		    GREY16 = _ "Mono 16";
+		    ARRAY = _ "Array";
+		    scRGB = _ "scRGB";
+		    HSV = _ "HSV";
+		}
+
+		Option_enum caption enum desc value
+
+		Option_enum caption
+			Interpretation_allowed
+			Interpretation_description
+			Interpretation.LABS
+
 - reworking _types.def ... try
 
 	Option_enum "hello" Interpretation $XYZ
