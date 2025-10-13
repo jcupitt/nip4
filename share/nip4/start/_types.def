@@ -395,9 +395,19 @@ Matrix_base value = class
  * and make functions to map names to and from values.
  */
 Enum = class {
-    // filter out names nip4 adds automatically, and any functions
-    names = (filter (noteq "<function>" @ print @ converse get_member this) @
-         filter (not @ member [$this, $name, $super, this.name])) (dir this);
+    // get the names of members in a class and all superclasses
+    names_for_class x
+        = inner ++ (remove_std @ remove_fn) (dir x)
+    {
+        remove_std = filter (not @ member [$this, $name, $super, x.name]);
+        remove_fn = filter (noteq "<function>" @ print @ converse get_member x);
+
+        inner
+            = names_for_class x.super, x.super.name != "Enum"
+            = [];
+    }
+
+    names = names_for_class this;
     values = map (converse get_member this) names;
 
     has_name name = member names name;
@@ -409,6 +419,15 @@ Enum = class {
     has_index index = index >= 0 && index < len names;
     get_index_from_name name = index (equal name) names;
     get_index_from_value value = index (equal value) values;
+}
+
+Option_enum caption enum desc item = class
+    Option caption _desc (enum.get_index_from_name item) {
+
+    _desc = map (converse get_value desc.values) enum.names;
+
+    Option_edit caption labels index
+        = this.Option_enum caption enum desc (enum.names?index);
 }
 
 /* How to display a matrix: text, sliders, toggles, or text plus scale/offset.
@@ -506,7 +525,7 @@ Colour_picker default_colour default_value = class
     _vislevel = 3;
 
     space = Option_enum "Colour space"
-        Image_interpretation.colour_spaces default_colour;
+        Interpretation Interpretation_description default_colour;
     colour = Expression "Colour value" default_value;
 
     Colour_edit colour_space value =
@@ -574,7 +593,7 @@ Option_string caption labels item = class
 
 /* Make an option from an enum.
  */
-Option_enum caption enum item = class
+Option_enum caption enum desc item = class
     Option caption enum.names (enum.get_index_from_name item) {
 
     Option_edit caption labels index
@@ -747,30 +766,37 @@ Format_maxval = class Enum {
     UCHAR = 255;
 }
 
-/* Interpretation field.
- */
+// interpretations which are colorimetric spaces
 Interpretation = class Enum {
-    MULTIBAND = 0;
-    B_W = 1;
-    HISTOGRAM = 10;
     XYZ = 12;
     LAB = 13;
-    CMYK = 15;
-    LABQ = 16;
-    RGB = 17;
     UCS = 18;
     LCH = 19;
-    LABS = 21;
     sRGB = 22;
     YXY = 23;
-    FOURIER = 24;
-    RGB16 = 25;
-    GREY16 = 26;
-    ARRAY = 27;
     scRGB = 28;
     HSV = 29;
 }
 
+// supported colourmetric spaces is bigger
+Interpretation_allowed = class Interpretation {
+    B_W = 1;
+    LABQ = 16;
+    LABS = 21;
+    RGB16 = 25;
+    GREY16 = 26;
+}
+
+// non-colourimetric interpretations
+Interpretation_all = class Interpretation_allowed {
+    MULTIBAND = 0;
+    HISTOGRAM = 10;
+    CMYK = 15;
+    FOURIER = 24;
+    ARRAY = 27;
+}
+
+// i18n description of each value for menus
 Interpretation_description = class Enum {
     MULTIBAND = _ "Multiband";
     B_W = _ "Mono";
@@ -791,39 +817,6 @@ Interpretation_description = class Enum {
     ARRAY = _ "Array";
     scRGB = _ "scRGB";
     HSV = _ "HSV";
-}
-
-/* The subset of Interpretation which are supported colourspaces, ie. in the
- * Colour menu.
- */
-Interpretation_colour = class Enum {
-    XYZ = 12;
-    LAB = 13;
-    UCS = 18;
-    LCH = 19;
-    sRGB = 22;
-    YXY = 23;
-    scRGB = 28;
-    HSV = 29;
-}
-
-/* And the subset which are allowed interpretation values. Add mono, and the
- * S and Q forms of LAB.
- */
-Interpretation_allowed = class Enum {
-    B_W = 1;
-    XYZ = 12;
-    LAB = 13;
-    LABQ = 16;
-    UCS = 18;
-    LCH = 19;
-    LABS = 21;
-    sRGB = 22;
-    YXY = 23;
-    RGB16 = 25;
-    GREY16 = 26;
-    scRGB = 28;
-    HSV = 29;
 }
 
 /* Base image class. Simple layer over vips_image.

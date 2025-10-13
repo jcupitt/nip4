@@ -1,5 +1,17 @@
 # menu redesign
 
+- try
+
+	fred = class {
+	    a = 1;
+	}
+
+	has_member "super" fred == true
+
+  ?!??!?!
+
+  ah, fred.super == []
+
 - could subclass Enums and add more members?
 
 	use this for Interpretation?
@@ -67,11 +79,6 @@
 			Interpretation_description
 			Interpretation.LABS
 
-- reworking _types.def ... try
-
-	Option_enum "hello" Interpretation $XYZ
-
-  seems confused
 
 - load a gif, add 1, stops animating
 
