@@ -202,6 +202,9 @@
 
 
 
+- try < > in the image titlebar
+
+    seems to get stuck on eg. mp3 files
 
 - toolkitgroupview could have a non-scrolling version as the default
 

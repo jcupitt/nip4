@@ -7,6 +7,7 @@
 - add `vips8_xxxxx` builtins, remove `vips_call9`
 - improve search and display of builtins
 - add `vips_image_guess_interpretation` builtin
+- improve display of computed multipage images
 
 ## 9.0.13 2025/09/20
 
