@@ -392,42 +392,37 @@ Matrix_base value = class
 }
 
 /* Base class for enums -- use reflection to get a list of subclass members
- * and make functions to map names to and from values.
+ * and make functions to map items to and from values.
+ *
+ * Enums map items -> values. items are always $strings, values can be
+ * anything. Call them "items", not "names", since class.name is taken
+ * already.
  */
 Enum = class {
-    // get the names of members in a class and all superclasses
-    names_for_class x
+    // get the names of concrete items in a class and all superclasses
+    items_for_class x
         = inner ++ (remove_std @ remove_fn) (dir x)
     {
         remove_std = filter (not @ member [$this, $name, $super, x.name]);
         remove_fn = filter (noteq "<function>" @ print @ converse get_member x);
 
         inner
-            = names_for_class x.super, x.super.name != "Enum"
+            = items_for_class x.super, x.super.name != "Enum"
             = [];
     }
 
-    names = names_for_class this;
-    values = map (converse get_member this) names;
+    items = items_for_class this;
+    values = map (converse get_member this) items;
 
-    has_name name = member names name;
-    get_name value = names ? (index (equal value) values);
+    has_item item = member items item;
+    get_item value = items ? (index (equal value) values);
 
     has_value value = member values value;
-    get_value name = get_member name this;
+    get_value item = get_member item this;
 
     has_index index = index >= 0 && index < len names;
-    get_index_from_name name = index (equal name) names;
+    get_index_from_item item = index (equal item) items;
     get_index_from_value value = index (equal value) values;
-}
-
-Option_enum caption enum desc item = class
-    Option caption _desc (enum.get_index_from_name item) {
-
-    _desc = map (converse get_value desc.values) enum.names;
-
-    Option_edit caption labels index
-        = this.Option_enum caption enum desc (enum.names?index);
 }
 
 /* How to display a matrix: text, sliders, toggles, or text plus scale/offset.
@@ -591,13 +586,15 @@ Option_string caption labels item = class
         = this.Option_string caption labels (labels?value);
 }
 
-/* Make an option from an enum.
+/* An option from an enum. Use a _description enum to give the user-visible
+ * enum names.
  */
 Option_enum caption enum desc item = class
-    Option caption enum.names (enum.get_index_from_name item) {
-
+    Option caption
+        (map desc.get_value enum.items)
+        (enum.get_index_from_item item) {
     Option_edit caption labels index
-        = this.Option_enum caption enum (enum.names?index);
+        = this.Option_enum caption enum desc (enum.items?index);
 }
 
 /* A rectangle. width and height can be -ve.
@@ -730,11 +727,15 @@ Rect left top width height = class
 /* Values for Coding field in image.
  */
 Coding = class Enum {
-    NONE = 0;
     NOCODING = 0;
-    COLQUANT = 1;
     LABPACK = 2;
     RAD = 6;
+}
+
+Coding_description = class Enum {
+    NOCODING = _ "Not coded";
+    LABPACK = _ "LABPACK";
+    RAD = _ "Radiance";
 }
 
 /* Values for format field in image.
@@ -751,6 +752,19 @@ Format = class Enum {
     CHAR = 1;
     UCHAR = 0;
     NOTSET = -1;
+}
+
+Format_description = class Enum {
+    DPCOMPLEX = _ "Double-precision complex";
+    DOUBLE = _ "Double-precision float";
+    COMPLEX = _ "Single-precision complex";
+    FLOAT = _ "Single-precision float";
+    INT = _ "32-bit signed integer";
+    UINT = _ "32-bit unsigned integer";
+    SHORT = _ "16-bit signed integer";
+    USHORT = _ "16-bit unsigned integer";
+    CHAR = _ "8-bit signed integer";
+    UCHAR = _ "8-bit unsigned integer";
 }
 
 Format_maxval = class Enum {
@@ -1036,23 +1050,22 @@ Kernel = class Enum {
     MITCHELL = 3;
     LANCZOS2 = 4;
     LANCZOS3 = 5;
+    MKS2013 = 6;
+    MKS2021 = 7;
 }
 
-Kernal_description = class Enum {
+Kernel_description = class Enum {
     NEAREST_NEIGHBOUR = _ "Nearest neighbour";
     LINEAR = _ "Linear";
     CUBIC = _ "Cubic";
     MITCHELL = _ "Mitchell";
     LANCZOS2 = _ "Lanczos, two lobes";
     LANCZOS3 = _ "Lanczos, three lobes";
+    MKS2013 = _ "Magic, 2013";
+    MKS2021 = _ "Magic, 2021";
 }
 
-Kernel_picker default = class
-    Real value {
-    _vislevel = 2;
-
-    kernel = Option_enum "Kernel" Kernel_description default;
-}
+Kernel_picker default = Option_enum "Kernel" Kernel Kernel_description default;
 
 Interpolate_type = class {
     NEAREST_NEIGHBOUR = 0;
