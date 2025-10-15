@@ -425,19 +425,25 @@ Table value = class
  * already.
  */
 Enum = class {
-    // get the names of concrete items in a class and all superclasses
-    items_for_class x
-        = inner ++ (remove_std @ remove_fn) (dir x)
+    // return a list of results for superclasses and this class
+    results_for_class fn x
+        = inner ++ fn x
     {
-        remove_std = filter (not @ member [$this, $name, $super, x.name]);
-        remove_fn = filter (noteq "<function>" @ print @ converse get_member x);
-
         inner
-            = items_for_class x.super, x.super.name != "Enum"
+            = results_for_class fn x.super, x.super.name != "Enum"
             = [];
     }
 
-    items = items_for_class this;
+    // get the names of concrete items in a class
+    items_for_class x
+        = (remove_std @ remove_fn @ remove_under @ dir) x
+    {
+        remove_std = filter (not @ member [$this, $name, $super, x.name]);
+        remove_fn = filter (noteq "<function>" @ print @ converse get_member x);
+        remove_under = filter (not @ is_prefix "_");
+    }
+
+    items = results_for_class items_for_class this;
     values = map (converse get_member this) items;
 
     has_item item = member items item;
@@ -449,15 +455,35 @@ Enum = class {
     has_index index = index >= 0 && index < len names;
     get_index_from_item item = index (equal item) items;
     get_index_from_value value = index (equal value) values;
+
+    // get a set of item-value pairs for all class descriptions
+    descriptions_for_class x
+        = x._description, has_member "_description" x
+        = [];
+
+    descriptions = results_for_class descriptions_for_class this;
+
+    description_from_value value
+        = get_item value, result == []
+        = result?0?1
+    {
+        result = filter (\x x?0 == value) descriptions;
+    }
 }
 
 /* How to display a matrix: text, sliders, toggles, or text plus scale/offset.
  */
 Matrix_display = class Enum {
-    text = 0;
-    slider = 1;
-    toggle = 2;
-    text_scale_offset = 3;
+    TEXT = 0;
+    SLIDER = 1;
+    TOGGLE = 2;
+    TEXT_SCALE_OFFSET = 3;
+
+    _description = [
+        [SLIDER, _ "Sliders"],
+        [TOGGLE, _ "Toggles"],
+        [TEXT_SCALE_OFFSET, _ "Text, scale and offset"]
+    ];
 }
 
 /* A matrix as VIPS sees them ... add scale, offset and filename. For nip, add

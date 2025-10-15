@@ -20,11 +20,12 @@
 	    MKS2013 = 6;
 	    MKS2021 = 7;
 
-
-	    _description = Enum {
-		NEAREST_NEGHBOUR = _ "Nearest neighbour";
-		...
-	    };
+	    # use a nested list to avoid enum-in-enum confusion
+	    _description = [
+		[SLIDER, _ "Sliders"],
+		[TOGGLE, _ "Toggles"],
+		[TEXT_SCALE_OFFSET, _ "Text, scale and offset"]
+	    ];
 	}
 
   picker in the base class
