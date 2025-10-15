@@ -391,37 +391,11 @@ Matrix_base value = class
     ] ++ super.oo_unary_table op;
 }
 
-/* A lookup table.
- */
-Table value = class
-    _Object {
-    _check_args = [
-        [value, "value", check_rectangular]
-    ];
-
-    /* Extract a column.
-     */
-    column n = map (extract n) value;
-
-    /* present col x: is there an x in column col
-     */
-    present col x = member (column col) x;
-
-    /* Look on column from, return matching item in column to.
-     */
-    lookup from to x
-        = value?n?to, n >= 0
-        = error (_ "item" ++ " " ++ print x ++ " " ++ _ "not in table")
-    {
-        n = index (equal x) (column from);
-    }
-}
-
 /* Base class for enums -- use reflection to get a list of subclass members
- * and make functions to map items to and from values.
+ * and make functions to map keys to and from values.
  *
- * Enums map items -> values. items are always $strings, values can be
- * anything. Call them "items", not "names", since class.name is taken
+ * Enums map keys <-> values. keys are always $strings, values can be
+ * anything. Call them "keys", not "names", since class.name is taken
  * already.
  */
 Enum = class {
@@ -434,8 +408,8 @@ Enum = class {
             = [];
     }
 
-    // get the names of concrete items in a class
-    items_for_class x
+    // get the names of concrete members in a class
+    keys_for_class x
         = (remove_std @ remove_fn @ remove_under @ dir) x
     {
         remove_std = filter (not @ member [$this, $name, $super, x.name]);
@@ -443,32 +417,34 @@ Enum = class {
         remove_under = filter (not @ is_prefix "_");
     }
 
-    items = results_for_class items_for_class this;
-    values = map (converse get_member this) items;
+    keys = results_for_class keys_for_class this;
+    values = map (converse get_member this) keys;
 
-    has_item item = member items item;
-    get_item value = items ? (index (equal value) values);
+    has_key key = member keys key;
+    get_key value = keys ? (index (equal value) values);
 
     has_value value = member values value;
-    get_value item = get_member item this;
+    get_value key = get_member key this;
 
     has_index index = index >= 0 && index < len names;
-    get_index_from_item item = index (equal item) items;
+    get_index_from_key key = index (equal key) keys;
     get_index_from_value value = index (equal value) values;
 
-    // get a set of item-value pairs for all class descriptions
+    // get a set of key-value pairs for all class descriptions
     descriptions_for_class x
         = x._description, has_member "_description" x
         = [];
 
     descriptions = results_for_class descriptions_for_class this;
 
-    description_from_value value
-        = get_item value, result == []
+    get_description value
+        = get_key value, result == []
         = result?0?1
     {
         result = filter (\x x?0 == value) descriptions;
     }
+
+    picker default = Option_enum this.name this default;
 }
 
 /* How to display a matrix: text, sliders, toggles, or text plus scale/offset.
@@ -480,6 +456,7 @@ Matrix_display = class Enum {
     TEXT_SCALE_OFFSET = 3;
 
     _description = [
+        [TEXT, _ "Text"],
         [SLIDER, _ "Sliders"],
         [TOGGLE, _ "Toggles"],
         [TEXT_SCALE_OFFSET, _ "Text, scale and offset"]
@@ -638,15 +615,14 @@ Option_string caption labels item = class
         = this.Option_string caption labels (labels?value);
 }
 
-/* An option from an enum. Use a _description enum to give the user-visible
- * enum names.
+/* An option from an enum. The default value is a key.
  */
-Option_enum caption enum desc item = class
+Option_enum caption enum key = class
     Option caption
-        (map desc.get_value enum.items)
-        (enum.get_index_from_item item) {
+        (map enum.get_description enum.values)
+        (enum.get_index_from_key key) {
     Option_edit caption labels index
-        = this.Option_enum caption enum desc (enum.items?index);
+        = this.Option_enum caption enum (enum.keys?index);
 }
 
 /* A rectangle. width and height can be -ve.
@@ -782,12 +758,12 @@ Coding = class Enum {
     NOCODING = 0;
     LABPACK = 2;
     RAD = 6;
-}
 
-Coding_description = class Enum {
-    NOCODING = _ "Not coded";
-    LABPACK = _ "LABPACK";
-    RAD = _ "Radiance";
+    _description = [
+        [NOCODING, _ "Uncoded"],
+        [LABPACK, _ "Packed Lab"],
+        [RAD, _ "Radiance"]
+    ];
 }
 
 /* Values for format field in image.
@@ -803,33 +779,32 @@ Format = class Enum {
     USHORT = 2;
     CHAR = 1;
     UCHAR = 0;
-    NOTSET = -1;
-}
 
-Format_description = class Enum {
-    DPCOMPLEX = _ "Double-precision complex";
-    DOUBLE = _ "Double-precision float";
-    COMPLEX = _ "Single-precision complex";
-    FLOAT = _ "Single-precision float";
-    INT = _ "32-bit signed integer";
-    UINT = _ "32-bit unsigned integer";
-    SHORT = _ "16-bit signed integer";
-    USHORT = _ "16-bit unsigned integer";
-    CHAR = _ "8-bit signed integer";
-    UCHAR = _ "8-bit unsigned integer";
-}
+    _description = [
+        [DPCOMPLEX, _ "Double-precision complex"],
+        [DOUBLE, _ "Double-precision float"],
+        [COMPLEX, _ "Single-precision complex"],
+        [FLOAT, _ "Single-precision float"],
+        [INT, _ "32-bit signed integer"],
+        [UINT, _ "32-bit unsigned integer"],
+        [SHORT, _ "16-bit signed integer"],
+        [USHORT, _ "16-bit unsigned integer"],
+        [CHAR, _ "8-bit signed integer"],
+        [UCHAR, _ "8-bit unsigned integer"]
+    ];
 
-Format_maxval = class Enum {
-    DPCOMPLEX = 255;
-    DOUBLE = 255;
-    COMPLEX = 255;
-    FLOAT = 255;
-    INT = 2147483647;
-    UINT = 4294967295;
-    SHORT = 32767;
-    USHORT = 65535;
-    CHAR = 127;
-    UCHAR = 255;
+    _maxval = [
+        [DPCOMPLEX, 255],
+        [DOUBLE, 255],
+        [COMPLEX, 255],
+        [FLOAT, 255],
+        [INT, 2147483647],
+        [UINT, 4294967295],
+        [SHORT, 32767],
+        [USHORT, 65535],
+        [CHAR, 127],
+        [UCHAR, 255]
+    ];
 }
 
 // interpretations which are colorimetric spaces
@@ -842,6 +817,18 @@ Interpretation = class Enum {
     YXY = 23;
     scRGB = 28;
     HSV = 29;
+
+    _description = [
+        [XYZ, _ "XYZ"],
+        [LAB, _ "Lab"],
+        [UCS, _ "UCS"],
+        [LCH, _ "LCh"],
+        [sRGB, _ "sRGB"],
+        [YXY, _ "XYZ"],
+        [scRGB, _ "scRGB"],
+        [HSV, _ "HSV"]
+    ];
+
 }
 
 // supported colourmetric spaces is bigger
@@ -851,6 +838,14 @@ Interpretation_allowed = class Interpretation {
     LABS = 21;
     RGB16 = 25;
     GREY16 = 26;
+
+    _description = [
+        [B_W, _ "Mono"],
+        [LABQ, _ "LabQ"],
+        [LABS, _ "LabS"],
+        [RGB16, _ "16-bit RGB"],
+        [GREY16, _ "16-bit mono"]
+    ];
 }
 
 // non-colourimetric interpretations
@@ -860,29 +855,14 @@ Interpretation_all = class Interpretation_allowed {
     CMYK = 15;
     FOURIER = 24;
     ARRAY = 27;
-}
 
-// i18n description of each value for menus
-Interpretation_description = class Enum {
-    MULTIBAND = _ "Multiband";
-    B_W = _ "Mono";
-    HISTOGRAM = _ "Histogram";
-    XYZ = _ "XYZ";
-    LAB = _ "Lab";
-    CMYK = _ "CMYK";
-    LABQ = _ "LabQ";
-    RGB = _ "RGB";
-    UCS = _ "UCS";
-    LCH = _ "LCh";
-    LABS = _ "LabS";
-    sRGB = _ "sRGB";
-    YXY = _ "XYZ";
-    FOURIER = _ "Fourier";
-    RGB16 = _ "RGB 16";
-    GREY16 = _ "Mono 16";
-    ARRAY = _ "Array";
-    scRGB = _ "scRGB";
-    HSV = _ "HSV";
+    _description = [
+        [MULTIBAND, _ "Multiband"],
+        [HISTOGRAM, _ "Histogram"],
+        [CMYK, _ "CMYK"],
+        [FOURIER, _ "Fourier"],
+        [ARRAY, _ "Array"]
+    ];
 }
 
 /* Base image class. Simple layer over vips_image.
@@ -1104,22 +1084,20 @@ Kernel = class Enum {
     LANCZOS3 = 5;
     MKS2013 = 6;
     MKS2021 = 7;
+
+    _description = [
+        [NEAREST_NEIGHBOUR, _ "Nearest neighbour"],
+        [LINEAR, _ "Linear"],
+        [CUBIC, _ "Cubic"],
+        [MITCHELL, _ "Mitchell"],
+        [LANCZOS2, _ "Lanczos, two lobes"],
+        [LANCZOS3, _ "Lanczos, three lobes"],
+        [MKS2013, _ "Magic, 2013"],
+        [MKS2021, _ "Magic, 2021"]
+    }
 }
 
-Kernel_description = class Enum {
-    NEAREST_NEIGHBOUR = _ "Nearest neighbour";
-    LINEAR = _ "Linear";
-    CUBIC = _ "Cubic";
-    MITCHELL = _ "Mitchell";
-    LANCZOS2 = _ "Lanczos, two lobes";
-    LANCZOS3 = _ "Lanczos, three lobes";
-    MKS2013 = _ "Magic, 2013";
-    MKS2021 = _ "Magic, 2021";
-}
-
-Kernel_picker default = Option_enum "Kernel" Kernel Kernel_description default;
-
-Interpolate_type = class {
+Interpolate = class Enum {
     NEAREST_NEIGHBOUR = 0;
     BILINEAR = 1;
     BICUBIC = 2;
@@ -1127,60 +1105,43 @@ Interpolate_type = class {
     NOHALO = 4;
     VSQBS = 5;
 
-    // Should introspect to get the list of interpolators :-(
-    // We can "dir" on VipsInterpolate to get a list of them, but we
-    // can't get i18n'd descriptions until we have more
-    // introspection stuff in nip2.
-
-    /* Table to map interpol numbers to descriptive strings
-     */
-    descriptions = [
-        _ "Nearest neighbour",
-        _ "Bilinear",
-        _ "Bicubic",
-        _ "Upsize: reduced halo bicubic (LBB)",
-        _ "Upsharp: reduced halo bicubic with edge sharpening (Nohalo)",
-        _ "Upsmooth: quadratic B-splines with jaggy reduction (VSQBS)"
+    _description = [
+        [NEAREST_NEIGHBOUR, _ "Nearest neighbour"],
+        [BILINEAR, _ "Bilinear"],
+        [BICUBIC, _ "Bicubic"],
+        [LBB, _ "Upsize: reduced halo bicubic (LBB)"],
+        [NOHALO,
+            _ "Upsharp: reduced halo bicubic with edge sharpening (Nohalo)"],
+        [VSQBS, _ "Upsmooth: quadratic B-splines with jaggy reduction (VSQBS)]
     ];
 
-    /* And to vips type names.
+    /* Map to vips type names.
      */
-    types = [
-        "VipsInterpolateNearest",
-        "VipsInterpolateBilinear",
-        "VipsInterpolateBicubic",
-        "VipsInterpolateLbb",
-        "VipsInterpolateNohalo",
-        "VipsInterpolateVsqbs"
+    _description = [
+        [NEAREST_NEIGHBOUR, $VipsInterpolateNearest],
+        [BILINEAR, $VipsInterpolateBilinear],
+        [BICUBIC, $VipsInterpolateBicubic],
+        [LBB, $VipsInterpolateLbb],
+        [NOHALO, $VipsInterpolateNohalo],
+        [VSQBS, $VipsInterpolateVsqbs]
     ];
+
+    new options type = vips_object_new Interpolate_type.types?type [] options;
 }
 
-Interpolate type options = class {
-    value = vips_object_new Interpolate_type.types?type [] options;
-}
-
-Interpolate_bilinear = Interpolate Interpolate_type.BILINEAR [];
-
-Interpolate_picker default = class
-    Interpolate interp.value [] {
-    _vislevel = 2;
-
-    interp = Option "Interpolation" Interpolate_type.descriptions default;
-}
-
-Render_intent = class {
+Intent = class {
     PERCEPTUAL = 0;
     RELATIVE = 1;
     SATURATION = 2;
     ABSOLUTE = 3;
+    AUTO = 4;
 
-    /* Table to get names <-> numbers.
-     */
-    names = Enum [
-        _ "Perceptual" => PERCEPTUAL,
-        _ "Relative" => RELATIVE,
-        _ "Saturation" => SATURATION,
-        _ "Absolute" => ABSOLUTE
+    _description = [
+        [PERCEPTUAL, _ "Perceptual"],
+        [RELATIVE, _ "Relative"],
+        [SATURATION, _ "Saturation"],
+        [ABSOLUTE _ "Absolute"]
+        [AUTO _ "Auto"]
     ];
 }
 
@@ -1200,45 +1161,30 @@ Menuaction label tooltip = class Menuitem label tooltip {}
 /* Plots.
  */
 
-Plot_style = class {
+Plot_style = class Enum {
     POINT = 0;
     LINE = 1;
     SPLINE = 2;
     BAR = 3;
 
-    names = Enum [
-        _ "Point" => POINT,
-        _ "Line" => LINE,
-        _ "Spline" => SPLINE,
-        _ "Bar" => BAR
+    _description = [
+        [POINT, _ "Point"],
+        [LINE, _ "Line"],
+        [SPLINE, _ "Spline"],
+        [BAR, _ "Bar"]
     ];
 }
 
-Plot_format = class {
+Plot_format = class Enum {
     YYYY = 0;
     XYYY = 1;
     XYXY = 2;
 
-    names = Enum [
-        _ "YYYY" => YYYY,
-        _ "XYYY" => XYXY,
-        _ "XYXY" => XYXY
+    _description = [
+        [YYYY, _ "YYYY"],
+        [XYYY, _ "XYYY"],
+        [XYXY, _ "XYXY"]
     ];
-}
-
-Plot_type = class {
-    /* Lots of Ys (ie. multiple line plots).
-     */
-    YYYY = 0;
-
-    /* First column of matrix is X position, others are Ys (ie. multiple XY
-     * line plots, all with the same Xes).
-     */
-    XYYY = 1;
-
-    /* Many independent XY plots.
-     */
-    XYXY = 2;
 }
 
 /* "options" is a list of ["key", value] pairs.
@@ -1278,7 +1224,7 @@ NULL = class
     ] ++ super.oo_binary_table op x;
 }
 
-Blend_type = class {
+Blend = class Enum {
     CLEAR = 0;
     SOURCE = 1;
     OVER = 2;
@@ -1305,96 +1251,43 @@ Blend_type = class {
     DIFFERENCE = 23;
     EXCLUSION = 24;
 
-    /* Table to map blend numbers to descriptive strings
-     */
-    descriptions = [
-        _ "Clear",
-        _ "Source",
-        _ "Over",
-        _ "In",
-        _ "Out",
-        _ "Atop",
-        _ "Dest",
-        _ "Dest over",
-        _ "Dest in",
-        _ "Dest out",
-        _ "Dest atop",
-        _ "Xor",
-        _ "Add",
-        _ "Saturate",
-        _ "Multiply",
-        _ "Screen",
-        _ "Overlay",
-        _ "Darken",
-        _ "Lighten",
-        _ "Colour dodge",
-        _ "Colour burn",
-        _ "Hard light",
-        _ "Soft light",
-        _ "Difference",
-        _ "Exclusion"
-    ];
-
-    /* And to vips enum nicknames.
-     */
-    types = Enum [
-        $clear => "clear",
-        $source => "source",
-        $over => "over",
-        $in => "in",
-        $out => "out",
-        $atop => "atop",
-        $dest => "dest",
-        $dest_over => "dest_over",
-        $dest_in => "dest_in",
-        $dest_out => "dest_out",
-        $dest_atop => "dest_atop",
-        $xor => "xor",
-        $add => "add",
-        $saturate => "saturate",
-        $multiply => "multiply",
-        $screen => "screen",
-        $overlay => "overlay",
-        $darken => "darken",
-        $lighten => "lighten",
-        $colour_dodge => "colour_dodge",
-        $colour_burn => "colour_burn",
-        $hard_light => "hard_light",
-        $soft_light => "soft_light",
-        $difference => "difference",
-        $exclusion => "exclusion"
+    _description = [
+        [CLEAR, _ "Clear"],
+        [SOURCE, _ "Source"],
+        [OVER, _ "Over"],
+        [IN, _ "In"],
+        [OUT, _ "Out"],
+        [ATOP, _ "Atop"],
+        [DEST, _ "Dest"],
+        [DEST_OVER, _ "Dest over"],
+        [DEST_IN, _ "Dest in"],
+        [DEST_OUT, _ "Dest out"],
+        [DEST_ATOP, _ "Dest atop"],
+        [XOR, _ "Xor"],
+        [ADD, _ "Add"],
+        [SATURATE, _ "Saturate"],
+        [MULTIPLY, _ "Multiply"],
+        [SCREEN, _ "Screen"],
+        [OVERLAY, _ "Overlay"],
+        [DARKEN, _ "Darken"],
+        [LIGHTEN, _ "Lighten"],
+        [COLOUR_DODGE, _ "Colour dodge"],
+        [COLOUR_BURN, _ "Colour burn"],
+        [HARD_LIGHT, _ "Hard light"],
+        [SOFT_LIGHT, _ "Soft light"],
+        [DIFFERENCE, _ "Difference"],
+        [EXCLUSION, _ "Exclusion]
     ];
 }
 
-Blend type = class {
-    value = Blend_type.types?type;
-}
-
-Blend_over = Blend Blend_type.OVER;
-
-Blend_picker default = class
-    Blend blend.value {
-    _vislevel = 2;
-
-    blend = Option "Blend" Blend_type.descriptions default;
-}
-
-Combine_type = class {
+Combine = class Enum {
     MAX = 0;
     SUM = 1;
     MIN = 2;
 
-    enum = Enum [
-        _ "Maximum" => MAX,
-        _ "Sum" => SUM,
-        _ "Minimum" => MIN
+    _description = [
+        [MAX, _ "Maximum"],
+        [SUM, _ "Sum"],
+        [MIN, _ "Minimum"]
     ];
 }
-
-Combine type = class {
-    value = Combine_type.enum.names?type;
-}
-
-Combine_sum = Combine Combine_type.SUM;
-
-Combine_picker default = Option "Combine" Combine_type.enum.names default;

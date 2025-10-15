@@ -1,5 +1,8 @@
 # menu redesign
 
+- Matrix_display slider / text / toggle / test_scale_offset are all
+  uppercase now
+
 - infobar in pages-as-bands just shows the first value
 
 - redefining a func in toolkit load should be an error
@@ -7,35 +10,6 @@
 	argh been bitten by this twice now
 
 	interactive redefine needs to be fine, of course
-
-- could put picker and description inside the enum?
-
-	Kernel = class Enum {
-	    NEAREST_NEIGHBOUR = 0;
-	    LINEAR = 1;
-	    CUBIC = 2;
-	    MITCHELL = 3;
-	    LANCZOS2 = 4;
-	    LANCZOS3 = 5;
-	    MKS2013 = 6;
-	    MKS2021 = 7;
-
-	    # use a nested list to avoid enum-in-enum confusion
-	    _description = [
-		[SLIDER, _ "Sliders"],
-		[TOGGLE, _ "Toggles"],
-		[TEXT_SCALE_OFFSET, _ "Text, scale and offset"]
-	    ];
-	}
-
-  picker in the base class
-
-    picker default =
-	Option_enum this.name this this._description default;
-
-  Option_enum allows _description to be incomplete
-
-
 
 - test matmul etc, esp mixed image and matrix
 
