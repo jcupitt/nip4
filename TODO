@@ -20,16 +20,19 @@
 	    MKS2013 = 6;
 	    MKS2021 = 7;
 
-	    picker default =
-		Option_enum this.name this this.description default;
 
-	    description item = lookup 0 1 [
-		NEAREST_NEGHBOUR => _ "Nearest neighbour",
+	    _description = Enum {
+		NEAREST_NEGHBOUR = _ "Nearest neighbour";
 		...
-	    ] item;
+	    };
 	}
 
-  picker could even be in the enum base class?
+  picker in the base class
+
+    picker default =
+	Option_enum this.name this this._description default;
+
+  Option_enum allows _description to be incomplete
 
 
 

@@ -391,6 +391,32 @@ Matrix_base value = class
     ] ++ super.oo_unary_table op;
 }
 
+/* A lookup table.
+ */
+Table value = class
+    _Object {
+    _check_args = [
+        [value, "value", check_rectangular]
+    ];
+
+    /* Extract a column.
+     */
+    column n = map (extract n) value;
+
+    /* present col x: is there an x in column col
+     */
+    present col x = member (column col) x;
+
+    /* Look on column from, return matching item in column to.
+     */
+    lookup from to x
+        = value?n?to, n >= 0
+        = error (_ "item" ++ " " ++ print x ++ " " ++ _ "not in table")
+    {
+        n = index (equal x) (column from);
+    }
+}
+
 /* Base class for enums -- use reflection to get a list of subclass members
  * and make functions to map items to and from values.
  *
