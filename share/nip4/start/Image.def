@@ -797,7 +797,7 @@ Image_header_item = class
 		Menupullright "_Get" "get header fields" {
 
 		// the header fields we can get
-		fields = class {
+		fields = class Enum {
 			interpretation = 0;
 			width = 1;
 			height = 2;
@@ -809,22 +809,7 @@ Image_header_item = class
 			yoffset = 8;
 			coding = 9;
 
-			field_names = Enum [
-				$width => width,
-				$height => height,
-				$bands => bands,
-				$format => format,
-				$interpretation => interpretation,
-				$xres => xres,
-				$yres => yres,
-				$xoffset => xoffset,
-				$yoffset => yoffset,
-				$coding => coding
-			];
-
-			field_option name = Option_enum (_ "Field") field_names name;
-
-			field_funcs = Table [
+			_field_funcs = Table [
 				[interpretation, get_interpretation],
 				[width, get_width],
 				[height, get_height],
@@ -842,61 +827,61 @@ Image_header_item = class
 			_result {
 			_vislevel = 3;
 
-			field = fields.field_option field_name;
+			field = fields.picker field_name;
 
 			_result
 				= map_unary (Real @
-					fields.field_funcs.lookup 0 1 field.value_thing) x;
+					fields._field_funcs.lookup 0 1 field.value_key) x;
 		}
 
 		Width_item = class
 			Menuaction "_Width" "get width" {
-			action x = get_field "width" x;
+			action x = get_field $width x;
 		}
 
 		Height_item = class
 			Menuaction "_Height" "get height" {
-			action x = get_field "height" x;
+			action x = get_field $height x;
 		}
 
 		Bands_item = class
 			Menuaction "_Bands" "get bands" {
-			action x = get_field "bands" x;
+			action x = get_field $bands x;
 		}
 
 		Format_item = class
 			Menuaction "_Format" "get format" {
-			action x = get_field "format" x;
+			action x = get_field $format x;
 		}
 
 		Interpretation_item = class
 			Menuaction "_Interpretation" "get interpretation" {
-			action x = get_field "interpretation" x;
+			action x = get_field $interpretation x;
 		}
 
 		Xres_item = class
 			Menuaction "_Xres" "get X resolution" {
-			action x = get_field "xres" x;
+			action x = get_field $xres x;
 		}
 
 		Yres_item = class
 			Menuaction "_Yres" "get Y resolution" {
-			action x = get_field "yres" x;
+			action x = get_field $yres x;
 		}
 
 		Xoffset_item = class
 			Menuaction "X_offset" "get X offset" {
-			action x = get_field "xoffset" x;
+			action x = get_field $xoffset x;
 		}
 
 		Yoffset_item = class
 			Menuaction "Yo_ffset" "get Y offset" {
-			action x = get_field "yoffset" x;
+			action x = get_field $yoffset x;
 		}
 
 		Coding_item = class
 			Menuaction "_Coding" "get coding" {
-			action x = get_field "coding" x;
+			action x = get_field $coding x;
 		}
 
     	sep1 = Menuseparator;

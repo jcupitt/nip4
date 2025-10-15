@@ -95,7 +95,7 @@ image_white im
         colour_spaces.present 1 type
     = white_lab,
         coding == Image_coding.LABPACK
-    = Vector (replicate bands (max_value.lookup 1 0 format))
+    = Vector (replicate bands (Format._maxval.lookup 1 0 format))
 {
     bands = im.bands;
     type = im.type;
@@ -105,33 +105,19 @@ image_white im
 
     // white as LAB
     white_lab = Colour "Lab" [100, 0, 0];
-
-    // maximum value for this numeric type
-    max_value = Table [
-        [255, Image_format.DPCOMPLEX],
-        [255, Image_format.DOUBLE],
-        [255, Image_format.COMPLEX],
-        [255, Image_format.FLOAT],
-        [2 ** 31 - 1, Image_format.INT],
-        [2 ** 32 - 1, Image_format.UINT],
-        [2 ** 15 - 1, Image_format.SHORT],
-        [2 ** 16 - 1, Image_format.USHORT],
-        [2 ** 7 - 1, Image_format.CHAR],
-        [2 ** 8 - 1, Image_format.UCHAR]
-    ];
 }
 
 /* Make a seperable gaussian mask.
  */
 matrix_gaussian_blur radius
-        = im_gauss_imask_sep (radius / 3) 0.2;
+    = im_gauss_imask_sep (radius / 3) 0.2;
 
 /* Make a seperable square mask.
  */
 matrix_blur radius
-        = Matrix_con (sum mask_sq_line) 0 [mask_sq_line]
+    = Matrix_con (sum mask_sq_line) 0 [mask_sq_line]
 {
-        mask_sq_line = replicate (2 * radius - 1) 1;
+    mask_sq_line = replicate (2 * radius - 1) 1;
 }
 
 /* Make a colour from a temperature.

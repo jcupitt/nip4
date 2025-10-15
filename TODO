@@ -1,7 +1,6 @@
 # menu redesign
 
-- Matrix_display slider / text / toggle / test_scale_offset are all
-  uppercase now
+- Blend_alpha_item should use composite instead
 
 - infobar in pages-as-bands just shows the first value
 
@@ -37,7 +36,7 @@
 
 - in order, rework:
 
-    _list.def      	done
+    _list.def      	    done
     _predicate.def      done
     _stdenv.def     	done
     _Object.def

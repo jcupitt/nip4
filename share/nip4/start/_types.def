@@ -391,6 +391,32 @@ Matrix_base value = class
     ] ++ super.oo_unary_table op;
 }
 
+/* A lookup table.
+ */
+Table value = class
+    _Object {
+    _check_args = [
+        [value, "value", check_rectangular]
+    ];
+
+    /* Extract a column.
+     */
+    column n = map (extract n) value;
+
+    /* present col x: is there an x in column col
+     */
+    present col x = member (column col) x;
+
+    /* Look on column from, return matching item in column to.
+     */
+    lookup from to x
+        = value?n?to, n >= 0
+        = error (_ "item" ++ " " ++ print x ++ " " ++ _ "not in table")
+    {
+        n = index (equal x) (column from);
+    }
+}
+
 /* Base class for enums -- use reflection to get a list of subclass members
  * and make functions to map keys to and from values.
  *
@@ -481,19 +507,19 @@ Matrix_vips value scale offset filename display = class
 /* A plain 'ol matrix which can be passed to VIPS.
  */
 Matrix value = class
-    Matrix_vips value 1 0 "" Matrix_display.text {}
+    Matrix_vips value 1 0 "" Matrix_display.TEXT {}
 
 /* Specialised constructors ... for convolutions, recombinations and
  * morphologies.
  */
 Matrix_con scale offset value = class
-    Matrix_vips value scale offset "" Matrix_display.text_scale_offset {};
+    Matrix_vips value scale offset "" Matrix_display.TEXT_SCALE_OFFSET {};
 
 Matrix_rec value = class
-    Matrix_vips value 1 0 "" Matrix_display.slider {};
+    Matrix_vips value 1 0 "" Matrix_display.SLIDER {};
 
 Matrix_mor value = class
-    Matrix_vips value 1 0 "" Matrix_display.toggle {};
+    Matrix_vips value 1 0 "" Matrix_display.TOGGLE {};
 
 Matrix_file filename
     = (vips_matrix_from_image @ vips_image @ expand @ search) filename;
@@ -621,6 +647,10 @@ Option_enum caption enum key = class
     Option caption
         (map enum.get_description enum.values)
         (enum.get_index_from_key key) {
+    // the value for the current key (Option.value is the index in the string
+    // list)
+    value_key = enum.get_value key;
+
     Option_edit caption labels index
         = this.Option_enum caption enum (enum.keys?index);
 }
@@ -793,7 +823,7 @@ Format = class Enum {
         [UCHAR, _ "8-bit unsigned integer"]
     ];
 
-    _maxval = [
+    _maxval = Table [
         [DPCOMPLEX, 255],
         [DOUBLE, 255],
         [COMPLEX, 255],
@@ -1094,7 +1124,7 @@ Kernel = class Enum {
         [LANCZOS3, _ "Lanczos, three lobes"],
         [MKS2013, _ "Magic, 2013"],
         [MKS2021, _ "Magic, 2021"]
-    }
+    ];
 }
 
 Interpolate = class Enum {
@@ -1112,12 +1142,12 @@ Interpolate = class Enum {
         [LBB, _ "Upsize: reduced halo bicubic (LBB)"],
         [NOHALO,
             _ "Upsharp: reduced halo bicubic with edge sharpening (Nohalo)"],
-        [VSQBS, _ "Upsmooth: quadratic B-splines with jaggy reduction (VSQBS)]
+        [VSQBS, _ "Upsmooth: quadratic B-splines with jaggy reduction (VSQBS)"]
     ];
 
     /* Map to vips type names.
      */
-    _description = [
+    _to_vips = [
         [NEAREST_NEIGHBOUR, $VipsInterpolateNearest],
         [BILINEAR, $VipsInterpolateBilinear],
         [BICUBIC, $VipsInterpolateBicubic],
@@ -1126,7 +1156,7 @@ Interpolate = class Enum {
         [VSQBS, $VipsInterpolateVsqbs]
     ];
 
-    new options type = vips_object_new Interpolate_type.types?type [] options;
+    new options type = vips_object_new Interpolate._to_vips?type?1 [] options;
 }
 
 Intent = class {
@@ -1276,7 +1306,7 @@ Blend = class Enum {
         [HARD_LIGHT, _ "Hard light"],
         [SOFT_LIGHT, _ "Soft light"],
         [DIFFERENCE, _ "Difference"],
-        [EXCLUSION, _ "Exclusion]
+        [EXCLUSION, _ "Exclusion"]
     ];
 }
 
