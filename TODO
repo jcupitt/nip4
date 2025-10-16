@@ -1,5 +1,7 @@
 # menu redesign
 
+- delete column containing error does not clear /!\ from tab
+
 - Blend_alpha_item should use composite instead
 
 - infobar in pages-as-bands just shows the first value
