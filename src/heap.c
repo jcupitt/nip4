@@ -2588,27 +2588,22 @@ graph_pointer(PElement *root)
 
 /* Fwd ref.
  */
-static gboolean shell_pelement(PElement *base);
+static gboolean shell_pelement(Reduce *rc, PElement *base);
 
-/* Print a graph shell-style. TRUE for node is a concrete, printable or
- * saveable thing.
+/* Print a graph shell-style. FALSE for compute error.
  */
 static gboolean
-shell_node(HeapNode *hn)
+shell_node(Reduce *rc, HeapNode *hn)
 {
 	PElement p1, p2;
 
 	/* Have we printed this node before?
 	 */
 	if (hn->flgs & FLAG_PRINT) {
-		printf("<*circular*>");
+		printf("<circular>");
 		return TRUE;
 	}
 	hn->flgs |= FLAG_PRINT;
-
-	gboolean concrete;
-
-	concrete = FALSE;
 
 	switch (hn->type) {
 	case TAG_CLASS:
@@ -2618,48 +2613,36 @@ shell_node(HeapNode *hn)
 	case TAG_GEN:
 		break;
 
-	case TAG_CONS: {
-		gboolean string_mode;
-
-		PEPOINTLEFT(hn, &p1);
-		string_mode = PEISCHAR(&p1);
-
+	case TAG_CONS:
 		for (;;) {
-			if (string_mode) {
-				printf("%c", PEGETCHAR(&p1));
-				concrete = TRUE;
-			}
-			else
-				concrete = shell_pelement(&p1);
+			PEPOINTLEFT(hn, &p1);
+			if (!reduce_pelement(rc, reduce_spine, &p1) ||
+				shell_pelement(rc, &p1))
+				return FALSE;
 
 			PEPOINTRIGHT(hn, &p2);
+			if (!reduce_pelement(rc, reduce_spine, &p2))
+				return FALSE;
 			if (PEISMANAGEDSTRING(&p2)) {
 				printf("%s\n", PEGETMANAGEDSTRING(&p2)->string);
-				concrete = TRUE;
 				break;
 			}
 			else if (PEISELIST(&p2))
 				break;
-
-			if (!string_mode)
-				printf("\n");
-			hn = PEGETVAL(&p2);
-			PEPOINTLEFT(hn, &p1);
-			if (string_mode && !PEISCHAR(&p1))
-				string_mode = FALSE;
+			else if (PEISNODE(&p2))
+				hn = PEGETVAL(&p2);
+			else
+				break;
 		}
-	}
 		break;
 
 	case TAG_DOUBLE:
 		printf("%g", hn->body.num);
-		concrete = TRUE;
 		break;
 
 	case TAG_COMPLEX:
 		printf("%g %g",
 			GETLEFT(hn)->body.num, GETRIGHT(hn)->body.num);
-		concrete = TRUE;
 		break;
 
 	case TAG_FREE:
@@ -2667,21 +2650,15 @@ shell_node(HeapNode *hn)
 		g_assert(FALSE);
 	}
 
-	return concrete;
+	return TRUE;
 }
 
-/* Print a pelement shell-style.
+/* Lazy print of a pelement, shell-style. Return FALSE for runtime error.
  */
 static gboolean
-shell_pelement(PElement *base)
+shell_pelement(Reduce *rc, PElement *base)
 {
-	gboolean concrete;
-
-	concrete = FALSE;
-
 	switch (PEGETTYPE(base)) {
-	/* Only allow concrete base types.
-	 */
 	case ELEMENT_SYMREF:
 	case ELEMENT_COMPILEREF:
 	case ELEMENT_CONSTRUCTOR:
@@ -2691,25 +2668,22 @@ shell_pelement(PElement *base)
 	case ELEMENT_TAG:
 	case ELEMENT_SYMBOL:
 	case ELEMENT_NOVAL:
+		printf("<function>");
 		break;
 
 	case ELEMENT_NODE:
-		concrete = shell_node(PEGETVAL(base));
+		shell_node(rc, PEGETVAL(base));
 		break;
 
 	case ELEMENT_CHAR:
 		printf("%c", (int) PEGETCHAR(base));
-		concrete = TRUE;
 		break;
 
 	case ELEMENT_BOOL:
 		printf("%s", bool_to_char(PEGETBOOL(base)));
-		concrete = TRUE;
 		break;
 
 	case ELEMENT_ELIST:
-		printf("[ ]");
-		concrete = TRUE;
 		break;
 
 	case ELEMENT_MANAGED:
@@ -2717,27 +2691,26 @@ shell_pelement(PElement *base)
 			printf("%s", PEGETIMAGE(base)->filename);
 		else if (PEISMANAGEDSTRING(base))
 			printf("%s", PEGETMANAGEDSTRING(base)->string);
-		concrete = TRUE;
 		break;
 
 	default:
 		g_assert(FALSE);
 	}
 
-	return concrete;
+	return TRUE;
 }
 
 /* Print a pelement shell-style.
  */
-void
+gboolean
 graph_value(PElement *root)
 {
 	Reduce *rc = reduce_context;
 
-	if (!reduce_pelement(rc, reduce_spine_strict, root))
-		error_alert(NULL);
+	heap_clear(rc->heap, FLAG_PRINT);
 
-	heap_clear(reduce_context->heap, FLAG_PRINT);
-	if (shell_pelement(root))
-		printf("\n");
+	if (!reduce_pelement(rc, reduce_spine, root))
+		return FALSE;
+
+	return shell_pelement(rc, root);
 }

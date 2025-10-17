@@ -205,14 +205,7 @@ main_save_item(PElement *item, char *filename)
 static void
 main_print_main(Symbol *sym)
 {
-    PElement *root;
-
-    /* Strict reduction of this object, then print.
-     */
-    root = &sym->expr->root;
-    if (!symbol_recalculate_check(sym) ||
-        !reduce_pelement(reduce_context, reduce_spine_strict, root))
-        main_error_exit(_( "error calculating \"%s\""), symbol_name_scope(sym));
+    PElement *root = &sym->expr->root;
 
     if (main_option_output) {
         char filename[VIPS_PATH_MAX];
@@ -221,8 +214,9 @@ main_print_main(Symbol *sym)
         if (!main_save_item(root, filename))
             main_error_exit(_( "error saving \"%s\""), symbol_name_scope(sym));
     }
-
-    graph_value(root);
+	else
+		if (!graph_value(root))
+            main_error_exit(NULL);
 }
 
 static void

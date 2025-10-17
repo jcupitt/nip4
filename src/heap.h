@@ -507,6 +507,6 @@ void graph_pelement(Heap *heap, VipsBuf *buf, PElement *root, gboolean fn);
 void graph_element(Heap *heap, VipsBuf *buf, Element *root, gboolean fn);
 void graph_pointer(PElement *root);
 
-/* Reduce and print, csh-style output.
+/* Reduce and print, shell-style output.
  */
-void graph_value(PElement *root);
+gboolean graph_value(PElement *root);
