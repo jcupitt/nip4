@@ -95,17 +95,20 @@ main_log_is_empty(void)
 static void
 main_error_exit(const char *fmt, ...)
 {
-    va_list args;
+	if (fmt) {
+		va_list args;
 
-    va_start(args, fmt);
-    (void) vfprintf(stderr, fmt, args);
-    va_end(args);
-    fprintf(stderr, "\n");
+		va_start(args, fmt);
+		(void) vfprintf(stderr, fmt, args);
+		va_end(args);
+		fprintf(stderr, "\n");
+	}
 
     if (!g_str_equal(error_get_top(), "")) {
-        fprintf(stderr, "%s\n", error_get_top());
+        fprintf(stderr, "%s", error_get_top());
         if (!g_str_equal(error_get_sub(), ""))
-            fprintf(stderr, "%s\n", error_get_sub());
+            fprintf(stderr, ", %s", error_get_sub());
+		fprintf(stderr, "\n");
     }
 
     if (main_option_verbose) {
@@ -444,7 +447,7 @@ main(int argc, char **argv)
 		argc > 1) {
 		// load argv[1] as a set of defs
 		if (!toolkit_new_from_file(main_toolkitgroup, argv[1]))
-			main_log_add("%s\n", error_get_sub());
+			main_error_exit(NULL);
 
 		// the rest of argc/argv become nip4 defs
 		main_build_argv(argc - 1, argv + 1);

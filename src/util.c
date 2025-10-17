@@ -186,6 +186,10 @@ error_get_top(void)
 const char *
 error_get_sub(void)
 {
+	// remove any annoying trailing \n
+	while (vips_buf_removec(&error_sub_buf, '\n'))
+			;
+
 	return vips_buf_all(&error_sub_buf);
 }
 

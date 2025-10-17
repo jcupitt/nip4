@@ -1,3 +1,15 @@
+- try:
+
+	main = "...." ++ error "hello";
+
+  does not print any "..."
+
+	print of main should be lazyier
+
+  main_print_main() does strict reduction of main
+
+  graph_value() is also strict
+
 - try < > in the image titlebar
 
     seems to get stuck on eg. mp3 files
