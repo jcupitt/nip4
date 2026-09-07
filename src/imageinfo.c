@@ -463,42 +463,6 @@ imageinfo_init(Imageinfo *imageinfo)
 }
 
 static void
-imageinfo_proxy_preeval(VipsImage *image, VipsProgress *progress,
-	Imageinfoproxy *proxy)
-{
-	progress_begin();
-}
-
-static void
-imageinfo_proxy_eval(VipsImage *image, VipsProgress *progress,
-	Imageinfoproxy *proxy)
-{
-	Imageinfo *imageinfo = proxy->imageinfo;
-
-	if (imageinfo &&
-		image->time) {
-		gboolean cancel;
-
-		if (imageinfo_is_from_file(imageinfo))
-			cancel = progress_update_loading(image->time->percent,
-				IOBJECT(imageinfo)->name);
-		else
-			cancel = progress_update_percent(image->time->percent,
-				image->time->eta);
-
-		if (cancel)
-			vips_image_set_kill(image, TRUE);
-	}
-}
-
-static void
-imageinfo_proxy_posteval(VipsImage *image, VipsProgress *progress,
-	Imageinfoproxy *proxy)
-{
-	progress_end();
-}
-
-static void
 imageinfo_proxy_invalidate(VipsImage *image, Imageinfoproxy *proxy)
 {
 	Imageinfo *imageinfo = proxy->imageinfo;
@@ -541,13 +505,6 @@ imageinfo_proxy_add(Imageinfo *imageinfo)
 		return;
 	imageinfo->proxy->image = imageinfo->image;
 	imageinfo->proxy->imageinfo = imageinfo;
-
-	g_signal_connect(imageinfo->image, "preeval",
-		G_CALLBACK(imageinfo_proxy_preeval), imageinfo->proxy);
-	g_signal_connect(imageinfo->image, "eval",
-		G_CALLBACK(imageinfo_proxy_eval), imageinfo->proxy);
-	g_signal_connect(imageinfo->image, "posteval",
-		G_CALLBACK(imageinfo_proxy_posteval), imageinfo->proxy);
 	g_signal_connect(imageinfo->image, "invalidate",
 		G_CALLBACK(imageinfo_proxy_invalidate), imageinfo->proxy);
 	g_signal_connect(imageinfo->image, "preclose",

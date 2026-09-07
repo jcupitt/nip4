@@ -402,30 +402,6 @@ imagedisplay_tilecache_area_changed(Tilecache *tilecache,
 }
 
 static void
-imagedisplay_preeval(Tilesource *tilesource,
-	VipsProgress *progress, Imagedisplay *imagedisplay)
-{
-	printf("imagedisplay_preeval:\n");
-	progress_begin();
-}
-
-static void
-imagedisplay_eval(Tilesource *tilesource,
-	VipsProgress *progress, Imagedisplay *imagedisplay)
-{
-	printf("imagedisplay_eval: %d%%\n", progress->percent);
-	progress_update_percent(progress->percent, progress->eta);
-}
-
-static void
-imagedisplay_posteval(Tilesource *tilesource,
-	VipsProgress *progress, Imagedisplay *imagedisplay)
-{
-	printf("imagedisplay_posteval:\n");
-	progress_end();
-}
-
-static void
 imagedisplay_set_tilesource(Imagedisplay *imagedisplay, Tilesource *tilesource)
 {
 	VIPS_UNREF(imagedisplay->tilesource);
@@ -433,13 +409,6 @@ imagedisplay_set_tilesource(Imagedisplay *imagedisplay, Tilesource *tilesource)
 	if (tilesource) {
 		imagedisplay->tilesource = tilesource;
 		g_object_ref(imagedisplay->tilesource);
-
-		g_signal_connect_object(tilesource, "preeval",
-			G_CALLBACK(imagedisplay_preeval), imagedisplay, 0);
-		g_signal_connect_object(tilesource, "eval",
-			G_CALLBACK(imagedisplay_eval), imagedisplay, 0);
-		g_signal_connect_object(tilesource, "posteval",
-			G_CALLBACK(imagedisplay_posteval), imagedisplay, 0);
 	}
 
 	if (imagedisplay->tilecache)

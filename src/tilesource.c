@@ -58,9 +58,6 @@ enum {
 
 	/* Signals.
 	 */
-	SIG_PREEVAL,
-	SIG_EVAL,
-	SIG_POSTEVAL,
 	SIG_CHANGED,
 	SIG_TILES_CHANGED,
 	SIG_INVALIDATE_AREA,
@@ -1365,33 +1362,6 @@ tilesource_class_init(TilesourceClass *class)
 			-1000, 1000, 0,
 			G_PARAM_READWRITE));
 
-	tilesource_signals[SIG_PREEVAL] = g_signal_new("preeval",
-		G_TYPE_FROM_CLASS(class),
-		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET(TilesourceClass, preeval),
-		NULL, NULL,
-		g_cclosure_marshal_VOID__POINTER,
-		G_TYPE_NONE, 1,
-		G_TYPE_POINTER);
-
-	tilesource_signals[SIG_EVAL] = g_signal_new("eval",
-		G_TYPE_FROM_CLASS(class),
-		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET(TilesourceClass, eval),
-		NULL, NULL,
-		g_cclosure_marshal_VOID__POINTER,
-		G_TYPE_NONE, 1,
-		G_TYPE_POINTER);
-
-	tilesource_signals[SIG_POSTEVAL] = g_signal_new("posteval",
-		G_TYPE_FROM_CLASS(class),
-		G_SIGNAL_RUN_LAST,
-		G_STRUCT_OFFSET(TilesourceClass, posteval),
-		NULL, NULL,
-		g_cclosure_marshal_VOID__POINTER,
-		G_TYPE_NONE, 1,
-		G_TYPE_POINTER);
-
 	tilesource_signals[SIG_CHANGED] = g_signal_new("changed",
 		G_TYPE_FROM_CLASS(class),
 		G_SIGNAL_RUN_LAST,
@@ -1539,31 +1509,30 @@ static void
 tilesource_preeval(VipsImage *image,
 	VipsProgress *progress, Tilesource *tilesource)
 {
-	printf("tilesource_preeval: %p\n", image);
-	g_signal_emit(tilesource, tilesource_signals[SIG_PREEVAL], 0, progress);
+	progress_begin();
 }
 
 static void
 tilesource_eval(VipsImage *image,
 	VipsProgress *progress, Tilesource *tilesource)
 {
-	g_signal_emit(tilesource, tilesource_signals[SIG_EVAL], 0, progress);
+	if (progress_update_percent(progress->percent, progress->eta))
+		vips_image_set_kill(image, TRUE);
 }
 
 static void
 tilesource_posteval(VipsImage *image,
 	VipsProgress *progress, Tilesource *tilesource)
 {
-	printf("tilesource_posteval: %p\n", image);
-	g_signal_emit(tilesource, tilesource_signals[SIG_POSTEVAL], 0, progress);
+	progress_end();
 }
 
 static void
 tilesource_attach_progress(Tilesource *tilesource)
 {
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("tilesource_attach_progress: %p\n", tilesource->base);
+#endif /*DEBUG*/
 
 	vips_image_set_progress(tilesource->base, TRUE);
 	g_signal_connect_object(tilesource->base, "preeval",

@@ -28,8 +28,8 @@
  */
 
 /*
-#define DEBUG
  */
+#define DEBUG
 
 #include "package.h"
 
@@ -163,6 +163,7 @@ progress_event_idle(void *user_data)
 			if (!progress->busy &&
 				elapsed > 0.5) {
 
+				printf("progress_begin:\n");
 				g_signal_emit(G_OBJECT(progress),
 					progress_signals[SIG_BEGIN], 0);
 				progress->busy = TRUE;
@@ -183,6 +184,7 @@ progress_event_idle(void *user_data)
 		progress->eta = event->eta;
 
 		gboolean cancel = FALSE;
+		printf("progress_update: %s\n", vips_buf_all(&progress->feedback));
 		g_signal_emit(progress, progress_signals[SIG_UPDATE], 0, &cancel);
 		if (cancel)
 			progress->cancel = TRUE;
@@ -193,8 +195,10 @@ progress_event_idle(void *user_data)
 		progress->count -= 1;
 
 		if (!progress->count) {
-			if (progress->busy)
+			if (progress->busy) {
+				printf("progress_end:\n");
 				g_signal_emit(G_OBJECT(progress), progress_signals[SIG_END], 0);
+			}
 			progress->cancel = FALSE;
 			progress->busy = FALSE;
 		}

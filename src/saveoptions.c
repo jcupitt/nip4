@@ -53,10 +53,8 @@ struct _SaveOptions {
 	// values from here when we make the saver
 	GHashTable *value_widgets;
 
-	/* Throttle progress bar updates to a few per second with this.
-	 */
-	GTimer *progress_timer;
-	double last_progress_time;
+	// cancel has been pressed on the progress bar
+	gboolean cancel;
 };
 
 struct _SaveOptionsClass {
@@ -72,7 +70,6 @@ save_options_dispose(GObject *object)
 
 	VIPS_UNREF(options->image);
 	VIPS_UNREF(options->save_operation);
-	VIPS_FREEF(g_timer_destroy, options->progress_timer);
 	VIPS_FREEF(g_hash_table_destroy, options->value_widgets);
 
 	G_OBJECT_CLASS(save_options_parent_class)->dispose(object);
@@ -99,61 +96,53 @@ save_options_error_clicked(GtkButton *button, SaveOptions *options)
 }
 
 static void
+save_options_begin(Progress *progress, SaveOptions *options)
+{
+	printf("save_options_begin:\n");
+	options->cancel = FALSE;
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(options->progress_bar), TRUE);
+}
+
+static void
+save_options_update(Progress *progress, gboolean *cancel, SaveOptions *options)
+{
+	printf("save_options_update:\n");
+	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(options->progress),
+		progress->percent / 100.0);
+	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(options->progress),
+		vips_buf_all(&progress->feedback));
+
+	if (options->cancel)
+		*cancel = TRUE;
+}
+
+static void
+save_options_end(Progress *progress, SaveOptions *options)
+{
+	printf("save_options_end:\n");
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(options->progress_bar), FALSE);
+}
+
+static void
 save_options_preeval(VipsImage *image,
 	VipsProgress *progress, SaveOptions *options)
 {
-	gtk_action_bar_set_revealed(GTK_ACTION_BAR(options->progress_bar), TRUE);
+	progress_begin();
 }
 
 static void
 save_options_eval(VipsImage *image,
 	VipsProgress *progress, SaveOptions *options)
 {
-	double time_now;
-	char str[256];
-	VipsBuf buf = VIPS_BUF_STATIC(str);
-
-#ifdef DEBUG
-	printf("save_options_eval: %d%%, last = %g, current = %g\n",
-		progress->percent,
-		options->last_progress_time,
-		g_timer_elapsed(options->progress_timer, NULL));
-#endif /*DEBUG*/
-
-	/* We can be ^Q'd during load. This is NULLed in _dispose.
-	 */
-	if (!options->progress_timer)
-		return;
-
-	time_now = g_timer_elapsed(options->progress_timer, NULL);
-
-	/* Throttle to 10Hz.
-	 */
-	if (time_now - options->last_progress_time < 0.1)
-		return;
-	options->last_progress_time = time_now;
-
-#ifdef DEBUG
-	printf("save_options_eval: updating UI ..\n");
-#endif /*DEBUG*/
-
-	vips_buf_appendf(&buf, "%d%% complete, %d seconds to go",
-		progress->percent, progress->eta);
-	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(options->progress),
-		vips_buf_all(&buf));
-
-	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(options->progress),
-		progress->percent / 100.0);
-
-	// run the main loop for a while
-	process_events();
+	if (progress_update_percent(progress->percent, progress->eta))
+		vips_image_set_kill(image, TRUE);
 }
 
 static void
 save_options_posteval(VipsImage *image,
 	VipsProgress *progress, SaveOptions *options)
 {
-	gtk_action_bar_set_revealed(GTK_ACTION_BAR(options->progress_bar), FALSE);
+	progress_end();
 }
 
 static void
@@ -352,8 +341,6 @@ save_options_init(SaveOptions *options)
 		options);
 
 	options->value_widgets = g_hash_table_new(g_str_hash, g_str_equal);
-
-	options->progress_timer = g_timer_new();
 }
 
 static void
@@ -361,7 +348,7 @@ save_options_cancel_clicked(GtkWidget *button, gpointer user_data)
 {
 	SaveOptions *options = SAVE_OPTIONS(user_data);
 
-	vips_image_set_kill(options->image, TRUE);
+	options->cancel = TRUE;
 }
 
 static void
@@ -604,14 +591,22 @@ save_options_new(GtkWindow *parent_window,
 	options->image = image;
 	g_object_ref(image);
 
-	if (options->image) {
-		vips_image_set_progress(options->image, TRUE);
+	Progress *progress = progress_get();
+	g_signal_connect_object(progress, "begin",
+		G_CALLBACK(save_options_begin), options, 0);
+	g_signal_connect_object(progress, "update",
+		G_CALLBACK(save_options_update), options, 0);
+	g_signal_connect_object(progress, "end",
+		G_CALLBACK(save_options_end), options, 0);
 
-		g_signal_connect_object(options->image, "preeval",
+	if (image) {
+		vips_image_set_progress(image, TRUE);
+
+		g_signal_connect_object(image, "preeval",
 			G_CALLBACK(save_options_preeval), options, 0);
-		g_signal_connect_object(options->image, "eval",
+		g_signal_connect_object(image, "eval",
 			G_CALLBACK(save_options_eval), options, 0);
-		g_signal_connect_object(options->image, "posteval",
+		g_signal_connect_object(image, "posteval",
 			G_CALLBACK(save_options_posteval), options, 0);
 	}
 

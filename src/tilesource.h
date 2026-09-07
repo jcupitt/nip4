@@ -237,12 +237,6 @@ typedef struct _Tilesource {
 typedef struct _TilesourceClass {
 	GObjectClass parent_class;
 
-	/* Signal image load.
-	 */
-	void (*preeval)(Tilesource *tilesource, VipsProgress *progress);
-	void (*eval)(Tilesource *tilesource, VipsProgress *progress);
-	void (*posteval)(Tilesource *tilesource, VipsProgress *progress);
-
 	/* Everything has changed, so image geometry and pixels. Perhaps a
 	 * new page in a multi-page TIFF where pages change in size.
 	 */
