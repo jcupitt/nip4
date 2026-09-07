@@ -1,6 +1,29 @@
-- fix progress bar on make_paintable
+- make_paintable progress is not popping down
 
-	nip4 st-francis.jpg doesn't display one either
+  see:
+
+	imageui_make_paintable:
+	tilesource_preeval: 0x55555a937a50
+	imagedisplay_preeval:
+	tilesource_preeval: 0x55555a937a50
+	imagedisplay_preeval:
+	imagedisplay_eval: 1%
+	...
+	imagedisplay_eval: 100%
+	imagedisplay_eval: 100%
+	tilesource_posteval: 0x55555a937a50
+	imagedisplay_posteval:
+	tilesource_posteval: 0x55555a937a50
+	imagedisplay_posteval:
+		new writeable image is 0x55555b45cbb0
+	tilesource_attach_progress: 0x55555b45cbb0
+	tilesource_attach_progress: 0x55555b45cbb0
+	tilesource_attach_progress: 0x55555b45cbb0
+
+  is imagedisplay attach happening too late to catch eval?
+
+  copy_draw is signalling on the input image, do we see that?
+
 
 
 
@@ -9,6 +32,8 @@
 
 
 - after fourier, have to turn on log mode by hand
+
+	long-standing issue I think
 
 - complex smudge seems to be broken?
 

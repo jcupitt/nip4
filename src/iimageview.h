@@ -42,9 +42,6 @@
 typedef struct _iImageview {
 	Graphicview parent_object;
 
-	// we build this for the imagedisplay from the model
-	Tilesource *tilesource;
-
 	GtkWidget *top;
 	Imagedisplay *imagedisplay;
 	GtkWidget *label;

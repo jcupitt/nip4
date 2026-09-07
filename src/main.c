@@ -23,8 +23,8 @@
 
 /*
 #define DEBUG_FATAL
- */
 #define DEBUG
+ */
 
 #include "package.h"
 

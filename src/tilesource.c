@@ -1535,6 +1535,45 @@ tilesource_default_mode(Tilesource *tilesource)
 		NULL);
 }
 
+static void
+tilesource_preeval(VipsImage *image,
+	VipsProgress *progress, Tilesource *tilesource)
+{
+	printf("tilesource_preeval: %p\n", image);
+	g_signal_emit(tilesource, tilesource_signals[SIG_PREEVAL], 0, progress);
+}
+
+static void
+tilesource_eval(VipsImage *image,
+	VipsProgress *progress, Tilesource *tilesource)
+{
+	g_signal_emit(tilesource, tilesource_signals[SIG_EVAL], 0, progress);
+}
+
+static void
+tilesource_posteval(VipsImage *image,
+	VipsProgress *progress, Tilesource *tilesource)
+{
+	printf("tilesource_posteval: %p\n", image);
+	g_signal_emit(tilesource, tilesource_signals[SIG_POSTEVAL], 0, progress);
+}
+
+static void
+tilesource_attach_progress(Tilesource *tilesource)
+{
+#ifdef DEBUG
+#endif /*DEBUG*/
+	printf("tilesource_attach_progress: %p\n", tilesource->base);
+
+	vips_image_set_progress(tilesource->base, TRUE);
+	g_signal_connect_object(tilesource->base, "preeval",
+		G_CALLBACK(tilesource_preeval), tilesource, 0);
+	g_signal_connect_object(tilesource->base, "eval",
+		G_CALLBACK(tilesource_eval), tilesource, 0);
+	g_signal_connect_object(tilesource->base, "posteval",
+		G_CALLBACK(tilesource_posteval), tilesource, 0);
+}
+
 /* From a VipsImage, so no reopen is possible.
  */
 Tilesource *
@@ -1571,6 +1610,8 @@ tilesource_new_from_image(VipsImage *image)
 
 	if (tilesource->mode == TILESOURCE_MODE_TOILET_ROLL)
 		tilesource->page = -1;
+
+	tilesource_attach_progress(tilesource);
 
 	return g_steal_pointer(&tilesource);
 }
@@ -1731,43 +1772,6 @@ tilesource_get_pyramid_page(Tilesource *tilesource)
 	tilesource->level_count = i;
 }
 
-static void
-tilesource_preeval(VipsImage *image,
-	VipsProgress *progress, Tilesource *tilesource)
-{
-	g_signal_emit(tilesource, tilesource_signals[SIG_PREEVAL], 0, progress);
-}
-
-static void
-tilesource_eval(VipsImage *image,
-	VipsProgress *progress, Tilesource *tilesource)
-{
-	g_signal_emit(tilesource, tilesource_signals[SIG_EVAL], 0, progress);
-}
-
-static void
-tilesource_posteval(VipsImage *image,
-	VipsProgress *progress, Tilesource *tilesource)
-{
-	g_signal_emit(tilesource, tilesource_signals[SIG_POSTEVAL], 0, progress);
-}
-
-static void
-tilesource_attach_progress(Tilesource *tilesource)
-{
-#ifdef DEBUG
-	printf("tilesource_attach_progress:\n");
-#endif /*DEBUG*/
-
-	vips_image_set_progress(tilesource->base, TRUE);
-	g_signal_connect_object(tilesource->base, "preeval",
-		G_CALLBACK(tilesource_preeval), tilesource, 0);
-	g_signal_connect_object(tilesource->base, "eval",
-		G_CALLBACK(tilesource_eval), tilesource, 0);
-	g_signal_connect_object(tilesource->base, "posteval",
-		G_CALLBACK(tilesource_posteval), tilesource, 0);
-}
-
 /* Fetch a string-encoded int image header field, eg. from openslide. These
  * are all represented as strings. Return the default value if there's any
  * problem.
@@ -1792,8 +1796,8 @@ tilesource_new_from_file(const char *filename)
 	const char *loader;
 
 #ifdef DEBUG
-	printf("tilesource_new_from_file: %s\n", filename);
 #endif /*DEBUG*/
+	printf("tilesource_new_from_file: %s\n", filename);
 
 	tilesource->filename = g_strdup(filename);
 
