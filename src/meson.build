@@ -42,6 +42,7 @@ sources = files(
   'dump.c',
   'draw_mask.c',
   'draw_smudge.c',
+  'draw_image.c',
   'editview.c',
   'expr.c',
   'expression.c',

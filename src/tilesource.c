@@ -2380,18 +2380,19 @@ tilesource_draw_copy(Tilesource *tilesource, VipsRect *area)
 		vips_rect_intersectrect(area, &range, area);
 
 		if (!vips_rect_isempty(area)) {
-			VipsImage *crop;
-			if (vips_crop(image, &crop,
-				area->left, area->top, area->width, area->height, NULL))
-				return NULL;
-
 			VipsImage *memory = vips_image_new_memory();
-			if (vips_image_write(crop, memory)) {
+
+			vips_image_init_fields(memory,
+				area->width, area->height, image->Bands,
+				image->BandFmt, image->Coding, image->Type,
+				image->Xres, image->Yres);
+
+			if (vips_image_write_prepare(memory)) {
 				VIPS_UNREF(memory);
-				VIPS_UNREF(crop);
 				return NULL;
 			}
-			VIPS_UNREF(crop);
+
+			draw_image(image, memory, area, 0, 0);
 
 			return memory;
 		}
@@ -2407,7 +2408,14 @@ tilesource_draw_paste(Tilesource *tilesource, VipsImage *paste, VipsRect *area)
 {
 	VipsImage *image;
 	if ((image = tilesource_get_base_image(tilesource))) {
-		vips_draw_image(image, paste, area->left, area->top, NULL);
+		VipsRect from = {
+			0,
+			0,
+			area->width,
+			area->height,
+		};
+
+		draw_image(paste, image, &from, area->left, area->top);
 		tilesource_paint_end(tilesource, image, area);
 	}
 }

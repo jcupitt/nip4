@@ -144,6 +144,7 @@
 
 int draw_mask(VipsImage *image, VipsPel *ink, VipsImage *mask, int x, int y);
 int draw_smudge(VipsImage *image, VipsRect *area);
+int draw_image(VipsImage *from, VipsImage *to, VipsRect *area, int x, int y);
 
 // various forward typdefs
 
