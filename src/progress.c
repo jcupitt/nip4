@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "package.h"
 
@@ -82,7 +82,6 @@ progress_init(Progress *progress)
 	printf("progress_init\n");
 #endif /*DEBUG*/
 
-	progress->count = 0;
 	progress->busy_timer = g_timer_new();
 	progress->update_timer = g_timer_new();
 	progress->cancel = FALSE;
@@ -163,7 +162,6 @@ progress_event_idle(void *user_data)
 			if (!progress->busy &&
 				elapsed > 0.5) {
 
-				printf("progress_begin:\n");
 				g_signal_emit(G_OBJECT(progress),
 					progress_signals[SIG_BEGIN], 0);
 				progress->busy = TRUE;
@@ -184,7 +182,6 @@ progress_event_idle(void *user_data)
 		progress->eta = event->eta;
 
 		gboolean cancel = FALSE;
-		printf("progress_update: %s\n", vips_buf_all(&progress->feedback));
 		g_signal_emit(progress, progress_signals[SIG_UPDATE], 0, &cancel);
 		if (cancel)
 			progress->cancel = TRUE;
@@ -192,16 +189,16 @@ progress_event_idle(void *user_data)
 		break;
 
 	case SIG_END:
-		progress->count -= 1;
-
-		if (!progress->count) {
-			if (progress->busy) {
-				printf("progress_end:\n");
+		if (progress->count == 1) {
+			if (progress->busy)
 				g_signal_emit(G_OBJECT(progress), progress_signals[SIG_END], 0);
-			}
+
+			progress->count = 0;
 			progress->cancel = FALSE;
 			progress->busy = FALSE;
 		}
+		else
+			progress->count = VIPS_MAX(0, progress->count - 1);;
 		break;
 
 	default:
@@ -246,6 +243,8 @@ progress_begin(void)
 gboolean
 progress_update_percent(int percent, int eta)
 {
+	process_events();
+
 	Progress *progress = progress_get();
 
 	char text[256];
@@ -274,6 +273,8 @@ progress_update_percent(int percent, int eta)
 gboolean
 progress_update_expr(Expr *expr)
 {
+	process_events();
+
 	Progress *progress = progress_get();
 
 	char text[256];
@@ -297,6 +298,8 @@ progress_update_expr(Expr *expr)
 gboolean
 progress_update_loading(int percent, const char *filename)
 {
+	process_events();
+
 	Progress *progress = progress_get();
 
 	char text[256];
@@ -315,6 +318,8 @@ progress_update_loading(int percent, const char *filename)
 gboolean
 progress_update_tick(void)
 {
+	process_events();
+
 	Progress *progress = progress_get();
 
 	ProgressEvent *event = progress_event_new(SIG_UPDATE, 0, 0, "");

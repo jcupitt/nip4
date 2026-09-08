@@ -1,5 +1,10 @@
-- make_paintable progress is not popping down, saveoptions progress is not
-  popping down
+- seeing occasional
+
+	reduce_pelement: sanity failure! nested call into reduce!
+
+  during paint
+
+  why is paint triggering progress_update?
 
 - vipsdisp will need progress.[hc]
 

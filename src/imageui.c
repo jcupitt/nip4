@@ -28,8 +28,8 @@
  */
 
 /*
- */
 #define DEBUG
+ */
 
 #include "package.h"
 
@@ -1571,13 +1571,9 @@ imageui_make_paintable(Imageui *imageui)
 				IMAGEWINDOW(gtk_widget_get_root(GTK_WIDGET(imageui)));
 			iImage *iimage = imagewindow_get_iimage(win);
 
-			progress_begin();
-
 			VipsImage *draw;
 			if (!(draw = vips_image_copy_draw(image)))
 				return FALSE;
-
-			progress_end();
 
 			Imageinfo *new_ii = imageinfo_new(main_imageinfogroup,
 				reduce_context->heap, draw, NULL);

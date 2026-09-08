@@ -754,10 +754,8 @@ mainwindow_init(Mainwindow *main)
 }
 
 static void
-mainwindow_progress_cancel_clicked(GtkButton *button, void *user_data)
+mainwindow_progress_cancel_clicked(GtkButton *button, Mainwindow *main)
 {
-	Mainwindow *main = MAINWINDOW(user_data);
-
 	// picked up by eval, see below
 	main->cancel = TRUE;
 }

@@ -63,6 +63,8 @@ struct _Imagewindow {
 	GtkWidget *gears;
 	GtkWidget *error_bar;
 	GtkWidget *error_label;
+	GtkWidget *progress_bar;
+	GtkWidget *progress;
 	GtkWidget *main_box;
 	GtkWidget *stack;
 	GtkWidget *properties;
@@ -90,6 +92,10 @@ struct _Imagewindow {
 	/* Next transition hint.
 	 */
 	GtkStackTransitionType transition;
+
+	/* Set for progress cancel.
+	 */
+	gboolean cancel;
 };
 
 G_DEFINE_TYPE(Imagewindow, imagewindow, GTK_TYPE_APPLICATION_WINDOW);
@@ -1291,6 +1297,33 @@ imagewindow_dnd_drop(GtkDropTarget *target,
 }
 
 static void
+imagewindow_progress_begin(Progress *progress, Imagewindow *win)
+{
+	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(win->progress), 0.0);
+	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(win->progress), "");
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(win->progress_bar), TRUE);
+}
+
+static void
+imagewindow_progress_update(Progress *progress,
+	gboolean *cancel, Imagewindow *win)
+{
+	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(win->progress),
+		progress->percent / 100.0);
+	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(win->progress),
+		vips_buf_all(&progress->feedback));
+
+	if (win->cancel)
+		*cancel = TRUE;
+}
+
+static void
+imagewindow_progress_end(Progress *progress, Imagewindow *win)
+{
+	gtk_action_bar_set_revealed(GTK_ACTION_BAR(win->progress_bar), FALSE);
+}
+
+static void
 imagewindow_init(Imagewindow *win)
 {
 	GtkEventController *controller;
@@ -1371,6 +1404,14 @@ imagewindow_init(Imagewindow *win)
 	// some kind of gtk bug? hexpand on properties can't be set from .ui or in
 	// properties.c, but must be set after adding to a parent
 	g_object_set(win->properties, "hexpand", FALSE, NULL);
+
+	Progress *progress = progress_get();
+	g_signal_connect_object(progress, "begin",
+		G_CALLBACK(imagewindow_progress_begin), win, 0);
+	g_signal_connect_object(progress, "update",
+		G_CALLBACK(imagewindow_progress_update), win, 0);
+	g_signal_connect_object(progress, "end",
+		G_CALLBACK(imagewindow_progress_end), win, 0);
 }
 
 static void
@@ -1405,6 +1446,13 @@ imagewindow_pressed(GtkGestureClick *gesture,
 }
 
 static void
+imagewindow_progress_cancel_clicked(GtkButton *button, Imagewindow *win)
+{
+	// picked up by eval, see below
+	win->cancel = TRUE;
+}
+
+static void
 imagewindow_class_init(ImagewindowClass *class)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
@@ -1420,6 +1468,8 @@ imagewindow_class_init(ImagewindowClass *class)
 	BIND_VARIABLE(Imagewindow, gears);
 	BIND_VARIABLE(Imagewindow, error_bar);
 	BIND_VARIABLE(Imagewindow, error_label);
+	BIND_VARIABLE(Imagewindow, progress_bar);
+	BIND_VARIABLE(Imagewindow, progress);
 	BIND_VARIABLE(Imagewindow, main_box);
 	BIND_VARIABLE(Imagewindow, stack);
 	BIND_VARIABLE(Imagewindow, properties);
@@ -1432,6 +1482,7 @@ imagewindow_class_init(ImagewindowClass *class)
 
 	BIND_CALLBACK(imagewindow_pressed);
 	BIND_CALLBACK(imagewindow_error_clicked);
+	BIND_CALLBACK(imagewindow_progress_cancel_clicked);
 
 	gobject_class->dispose = imagewindow_dispose;
 

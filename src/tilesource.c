@@ -1765,8 +1765,8 @@ tilesource_new_from_file(const char *filename)
 	const char *loader;
 
 #ifdef DEBUG
-#endif /*DEBUG*/
 	printf("tilesource_new_from_file: %s\n", filename);
+#endif /*DEBUG*/
 
 	tilesource->filename = g_strdup(filename);
 
@@ -2171,8 +2171,6 @@ tilesource_draw_line(Tilesource *tilesource,
 	VipsImage *image = tilesource_paint_begin(tilesource, &dirty, save, client);
 	if (!image)
 		return;
-
-	printf("tilesource_draw_line: draw line on %p\n", image);
 
 	vips_draw_line(image, ink, n, x0, y0, x1, y1,
 		"draw-point", tilesource_draw_line_point,
