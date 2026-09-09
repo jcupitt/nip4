@@ -33,7 +33,11 @@
 
 #include "package.h"
 
+#ifdef NIP4
 G_DEFINE_TYPE(Progress, progress, IOBJECT_TYPE)
+#else /*!NIP4*/
+G_DEFINE_TYPE(Progress, progress, G_OBJECT_TYPE)
+#endif /*NIP4*/
 
 /* Our signals.
  */
@@ -270,6 +274,7 @@ progress_update_percent(int percent, int eta)
 	return progress->cancel;
 }
 
+#ifdef NIP4
 gboolean
 progress_update_expr(Expr *expr)
 {
@@ -294,6 +299,7 @@ progress_update_expr(Expr *expr)
 
 	return progress->cancel;
 }
+#endif /*NIP4*/
 
 gboolean
 progress_update_loading(int percent, const char *filename)

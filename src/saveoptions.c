@@ -98,7 +98,6 @@ save_options_error_clicked(GtkButton *button, SaveOptions *options)
 static void
 save_options_begin(Progress *progress, SaveOptions *options)
 {
-	printf("save_options_begin:\n");
 	options->cancel = FALSE;
 	gtk_action_bar_set_revealed(GTK_ACTION_BAR(options->progress_bar), TRUE);
 }
@@ -106,7 +105,6 @@ save_options_begin(Progress *progress, SaveOptions *options)
 static void
 save_options_update(Progress *progress, gboolean *cancel, SaveOptions *options)
 {
-	printf("save_options_update:\n");
 	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(options->progress),
 		progress->percent / 100.0);
 	gtk_progress_bar_set_text(GTK_PROGRESS_BAR(options->progress),
@@ -119,7 +117,6 @@ save_options_update(Progress *progress, gboolean *cancel, SaveOptions *options)
 static void
 save_options_end(Progress *progress, SaveOptions *options)
 {
-	printf("save_options_end:\n");
 	gtk_action_bar_set_revealed(GTK_ACTION_BAR(options->progress_bar), FALSE);
 }
 
