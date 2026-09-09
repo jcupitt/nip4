@@ -379,6 +379,7 @@ tilesource_image(Tilesource *tilesource, VipsImage **mask_out, int current_z)
 	 * been shrunk by shrink-on-load above ^^
 	 */
 	if (tilesource->pages_same_size &&
+		tilesource->n_pages > 1 &&
 		(tilesource->mode == TILESOURCE_MODE_MULTIPAGE ||
 		 tilesource->mode == TILESOURCE_MODE_ANIMATED)) {
 		// loaders will adjust page_height for shrink-on-load, so we can just
@@ -406,6 +407,7 @@ tilesource_image(Tilesource *tilesource, VipsImage **mask_out, int current_z)
 	/* In pages-as-bands mode, crop out all pages and join band-wise.
 	 */
 	if (tilesource->pages_same_size &&
+		tilesource->n_pages > 1 &&
 		tilesource->mode == TILESOURCE_MODE_PAGES_AS_BANDS) {
 		// loaders will adjust page_height for shrink-on-load, so we can just
 		// use that
@@ -498,13 +500,17 @@ tilesource_image(Tilesource *tilesource, VipsImage **mask_out, int current_z)
 	}
 
 	if (image->Type == VIPS_INTERPRETATION_FOURIER) {
+		g_autoptr(VipsObject) context = VIPS_OBJECT(vips_image_new());
+		VipsImage **t = (VipsImage **) vips_object_local_array(context, 7);
+
 		/* Fill range, log scale. Filling the range is useful for eg. the
 		 * output of the fourier mask generators.
 		 *
 		 * This has to be before the vips_render() since scale will search for
 		 * the min and max values.
 		 */
-		if (vips_scale(image, &x, "log", TRUE, NULL))
+		if (vips_abs(image, &t[0], NULL) ||
+			vips_scale(t[0], &x, "log", TRUE, NULL))
 			/* Will fail for eg. a black image, and that's fine. Just ignore
 			 * fails.
 			 */
