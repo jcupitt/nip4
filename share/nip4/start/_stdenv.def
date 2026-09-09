@@ -864,10 +864,17 @@ fwfft x
 
 invfft x
     = oo_unary_function invfft_op x, is_class x
-    = vips_invfft [$real => true] x, is_image x
+    = invi, is_image x
     = error_bad_args "invfft" ["Image"] [x]
 {
     invfft_op = Operator "invfft" invfft Operator_type.COMPOUND_REWRAP false;
+
+    // vips_invfft always sets the interpretation to b-w ... set it to
+    // multiband, then guess the most sensible one
+    inv = vips_invfft [$real => true] x;
+    invm = copy [$interpretation => "multiband"] inv;
+    guess = get_interpretation invm;
+    invi = copy [$interpretation => guess] inv;
 }
 
 falsecolour x

@@ -1,9 +1,6 @@
 
-- after fourier, have to turn on log mode by hand
-
-	long-standing issue I think
-
-- complex smudge seems to be broken?
+- paint on an image that's part of a big pipeline can leave the progress bar
+  up
 
 - better flood icons
 
