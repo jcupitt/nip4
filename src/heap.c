@@ -1992,6 +1992,14 @@ heap_ip_to_gvalue(PElement *in, GValue *out)
 		}
 	}
 	else if (PEISMANAGED(in) &&
+		IS_MANAGEDGVALUE(PEGETVAL(in))) {
+		Managedgvalue *managed = MANAGEDGVALUE(PEGETMANAGED(in));
+
+		g_value_unset(out);
+		g_value_init(out, G_VALUE_TYPE(&managed->value));
+		g_value_copy(&managed->value, out);
+	}
+	else if (PEISMANAGED(in) &&
 		IS_MANAGEDGOBJECT(PEGETVAL(in))) {
 		g_value_init(out, G_TYPE_OBJECT);
 		g_value_set_object(out, MANAGEDGOBJECT(PEGETMANAGED(in))->object);
@@ -2063,7 +2071,12 @@ heap_gvalue_to_ip(Heap *heap, GValue *in, PElement *out)
 			return FALSE;
 	}
 	else if (G_VALUE_HOLDS_BOXED(in)) {
-		if (G_VALUE_TYPE(in) == VIPS_TYPE_ARRAY_INT) {
+		if (G_VALUE_TYPE(in) == VIPS_TYPE_BLOB) {
+			Managedgvalue *managed = managedgvalue_new(heap, in);;
+
+			PEPUTP(out, ELEMENT_MANAGED, managed);
+		}
+		else if (G_VALUE_TYPE(in) == VIPS_TYPE_ARRAY_INT) {
 			int n;
 			int *array = vips_value_get_array_int(in, &n);
 

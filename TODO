@@ -1,3 +1,16 @@
+- vips_jpegload_buffer [] <VipsBlob, data = 0x55555b7e6950, length = 271536>
+
+  fails with "cannot convert to refstr"
+
+  the thing that makes the vips_ wrappers needs to know about BLOB
+  parametsrs (I suppose it's substituting refstr right now)
+
+- add a menu item for save to buffer / load from buffer?
+
+	could just rely on vips_jpegsave_buffer [] A1.value?
+
+- use buffer load / save to expand test suite
+
 ## paintbox
 
 - paint on an image that's part of a big pipeline can leave the progress bar

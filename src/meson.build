@@ -101,6 +101,7 @@ sources = files(
   'managed.c',
   'managedfile.c',
   'managedgobject.c',
+  'managedgvalue.c',
   'managedstring.c',
   'matrix.c',
   'matrixview.c',

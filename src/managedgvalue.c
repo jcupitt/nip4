@@ -58,10 +58,10 @@ managedgvalue_info(iObject *iobject, VipsBuf *buf, int indent)
 
 	vips_buf_space(buf, indent);
 	value_str = g_strdup_value_contents(&managedgvalue->value);
-	vips_buf_appendf(buf, "managedgvalue->value = %s\n", value_str);
+	vips_buf_appends(buf, value_str);
 	g_free(value_str);
 
-	IOBJECT_CLASS(managedgvalue_parent_class)->info(iobject, buf, indent);
+	// don't chain up, this string is shown in value display
 }
 
 static void
@@ -90,7 +90,7 @@ managedgvalue_set_value(Managedgvalue *managedgvalue, GValue *value)
 {
 	g_value_unset(&managedgvalue->value);
 	g_value_init(&managedgvalue->value, G_VALUE_TYPE(value));
-	g_value_copy(&managedgvalue->value, value);
+	g_value_copy(value, &managedgvalue->value);
 }
 
 Managedgvalue *
